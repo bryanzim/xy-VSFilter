@@ -10,38 +10,38 @@
 class CSubPicProviderExWrapper : public CUnknown, public ISubPicProviderEx
 {
 private:
-    CSubPicProviderExWrapper(ISubPicProvider* const inner_provider);//disable inheriting
+    explicit CSubPicProviderExWrapper(ISubPicProvider* const inner_provider);//disable inheriting
     
     CComPtr<ISubPicProvider> _inner_provider;
 public:
     static CSubPicProviderExWrapper* GetSubPicProviderExWrapper(ISubPicProvider* const inner_provider);
-    virtual ~CSubPicProviderExWrapper();
+    constexpr virtual ~CSubPicProviderExWrapper() noexcept;
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
 
     STDMETHODIMP Lock();
     STDMETHODIMP Unlock();
 
-    STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-    STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
 
-    STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);    
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);    
 
-    STDMETHODIMP_(bool) IsAnimated (POSITION pos);
+    [[nodiscard]] STDMETHODIMP_(bool) IsAnimated (POSITION pos);
 
-    STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
-    STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
+    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+    [[nodiscard]] STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
 
     // ISubPicProviderEx
 
-    STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop);
+    [[nodiscard]] STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop);
 
-    STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
+    [[nodiscard]] STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
 
-    STDMETHODIMP_(bool) IsColorTypeSupported(int type);
-    STDMETHODIMP_(int) SetOutputColorType(int type);//Important! May failed!
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP_(int) SetOutputColorType(int type) noexcept;//Important! May failed!
 };

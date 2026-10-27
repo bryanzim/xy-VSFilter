@@ -10,13 +10,13 @@
 class SimpleSubPicWrapper: public CUnknown, public ISimpleSubPic
 {
 public:
-    SimpleSubPicWrapper(ISubPicEx * inner_obj);
-    SimpleSubPicWrapper(ISubPic* inner_obj);
+    explicit SimpleSubPicWrapper(ISubPicEx * inner_obj);
+    explicit SimpleSubPicWrapper(ISubPic* inner_obj);
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    STDMETHODIMP AlphaBlt(SubPicDesc* target);
+    [[nodiscard]] STDMETHODIMP AlphaBlt(SubPicDesc* target);
 private:
     CComPtr<ISubPicEx> m_inner_obj;
     CComPtr<ISubPic> m_inner_obj2;

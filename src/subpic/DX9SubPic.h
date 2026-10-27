@@ -39,7 +39,7 @@ class CScopeLock
 	void *m_pLock;
 	FLock *m_pUnlockFunc;
 public:
-	CScopeLock() {}; // let's make cppcheck happy
+	explicit CScopeLock() {}; // let's make cppcheck happy
 	template <typename t_Lock>
 	class TCLocker
 	{
@@ -49,7 +49,7 @@ public:
 		}
 	};
 	template <typename t_Lock>
-	CScopeLock(t_Lock &_Lock) {
+	explicit CScopeLock(t_Lock &_Lock) {
 		_Lock.Lock();
 		m_pLock = &_Lock;
 		m_pUnlockFunc = TCLocker<t_Lock>::fs_Locker;
@@ -73,12 +73,12 @@ public:
 	~CDX9SubPic();
 
 	// ISubPic
-	STDMETHODIMP GetDesc(SubPicDesc& spd) const;
-	STDMETHODIMP CopyTo(ISubPic* pSubPic);
-	STDMETHODIMP ClearDirtyRect(DWORD color);
-	STDMETHODIMP Lock(SubPicDesc& spd);
-	STDMETHODIMP Unlock(RECT* pDirtyRect);
-	STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+	[[nodiscard]] STDMETHODIMP GetDesc(SubPicDesc& spd) const;
+	[[nodiscard]] STDMETHODIMP CopyTo(ISubPic* pSubPic);
+	[[nodiscard]] STDMETHODIMP ClearDirtyRect(DWORD color);
+	[[nodiscard]] STDMETHODIMP Lock(SubPicDesc& spd);
+	[[nodiscard]] STDMETHODIMP Unlock(RECT* pDirtyRect);
+	[[nodiscard]] STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
 };
 
 // CDX9SubPicAllocator
@@ -89,7 +89,7 @@ class CDX9SubPicAllocator : public CSubPicAllocatorImpl, public CCritSec
 	CSize m_maxsize;
 	bool m_bExternalRenderer;
 
-	bool Alloc(bool fStatic, ISubPic** ppSubPic);
+	[[nodiscard]] bool Alloc(bool fStatic, ISubPic** ppSubPic);
 
 public:
 	static CCritSec ms_SurfaceQueueLock;
@@ -101,7 +101,7 @@ public:
 	void ClearCache();
 
 	// ISubPicAllocator
-	STDMETHODIMP ChangeDevice(IUnknown* pDev);
-	STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize);
+	[[nodiscard]] STDMETHODIMP ChangeDevice(IUnknown* pDev);
+	[[nodiscard]] STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize);
 };
 

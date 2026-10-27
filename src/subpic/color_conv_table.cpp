@@ -52,59 +52,60 @@ Range:
     {   1,  2*(1-Kb)      ,  0             , 0} \
 }
 
-const float MATRIX_BT_601     [3][4] = DEFINE_YUV_MATRIX    (0.299f , 0.587f , 0.114f );
-const float MATRIX_BT_601_INV [3][4] = DEFINE_YUV_MATRIX_INV(0.299f , 0.587f , 0.114f );
-const float MATRIX_BT_709     [3][4] = DEFINE_YUV_MATRIX    (0.2126f, 0.7152f, 0.0722f);
-const float MATRIX_BT_709_INV [3][4] = DEFINE_YUV_MATRIX_INV(0.2126f, 0.7152f, 0.0722f);
-const float MATRIX_BT_2020    [3][4] = DEFINE_YUV_MATRIX    (0.2627f, 0.678f , 0.0593f);
-const float MATRIX_BT_2020_INV[3][4] = DEFINE_YUV_MATRIX_INV(0.2627f, 0.678f , 0.0593f);
-const float YUV_PC            [3][4] = {
+const float MATRIX_BT_601     [3U][4U] = DEFINE_YUV_MATRIX    (0.299f , 0.587f , 0.114f );
+const float MATRIX_BT_601_INV [3U][4U] = DEFINE_YUV_MATRIX_INV(0.299f , 0.587f , 0.114f );
+const float MATRIX_BT_709     [3U][4U] = DEFINE_YUV_MATRIX    (0.2126f, 0.7152f, 0.0722f);
+const float MATRIX_BT_709_INV [3U][4U] = DEFINE_YUV_MATRIX_INV(0.2126f, 0.7152f, 0.0722f);
+const float MATRIX_BT_2020    [3U][4U] = DEFINE_YUV_MATRIX    (0.2627f, 0.678f , 0.0593f);
+const float MATRIX_BT_2020_INV[3U][4U] = DEFINE_YUV_MATRIX_INV(0.2627f, 0.678f , 0.0593f);
+const float YUV_PC            [3U][4U] = {
     {255,   0,   0,   0},
     {  0, 255,   0, 128},
     {  0,   0, 255, 128}
 };
-const float YUV_PC_INV       [3][4] = {
+const float YUV_PC_INV       [3U][4U] = {
     {1/255.0f,       0 ,       0 ,          0 },
     {      0 , 1/255.0f,       0 , -128/255.0f},
     {      0 ,       0 , 1/255.0f, -128/255.0f}
 };
-const float YUV_TV           [3][4] = {
+const float YUV_TV           [3U][4U] = {
     {219,   0,   0,  16},
     {  0, 224,   0, 128},
     {  0,   0, 224, 128}
 };
-const float YUV_TV_INV       [3][4] = {
+const float YUV_TV_INV       [3U][4U] = {
     {1/219.0f,       0 ,       0 , - 16/219.0f},
     {      0 , 1/224.0f,       0 , -128/224.0f},
     {      0 ,       0 , 1/224.0f, -128/224.0f}
 };
-const float RGB_PC           [3][4] = {
+const float RGB_PC           [3U][4U] = {
     {255,   0,   0,   0},
     {  0, 255,   0,   0},
     {  0,   0, 255,   0}
 };
-const float RGB_PC_INV       [3][4] = {
+const float RGB_PC_INV       [3U][4U] = {
     {1/255.0f,       0 ,       0 ,   0},
     {      0 , 1/255.0f,       0 ,   0},
     {      0 ,       0 , 1/255.0f,   0}
 };
-const float RGB_TV           [3][4] = {
+const float RGB_TV           [3U][4U] = {
     {219,   0,   0,  16},
     {  0, 219,   0,  16},
     {  0,   0, 219,  16}
 };
-const float RGB_TV_INV       [3][4] = {
+const float RGB_TV_INV       [3U][4U] = {
     {1/219.0f,       0 ,       0 , -16/219.0f},
     {      0 , 1/219.0f,       0 , -16/219.0f},
     {      0 ,       0 , 1/219.0f, -16/219.0f}
 };
-const float IDENTITY         [3][4] = {
+const float IDENTITY         [3U][4U] = {
     {  1,   0,   0,   0},
     {  0,   1,   0,   0},
     {  0,   0,   1,   0}
 };
 
-inline int clip(int value, int upper_bound)
+[[nodiscard]] constexpr inline int clip(int value, const int upper_bound)
+noexcept
 {
     value &= ~(value>>31);//value = value > 0 ? value : 0
     return value^((value^upper_bound)&((upper_bound-value)>>31));//value = value < upper_bound ? value : upper_bound
@@ -164,14 +165,14 @@ public:
         COLOR_COUNT
     };
 public:
-    ConvMatrix();
-    virtual ~ConvMatrix();
+    explicit ConvMatrix();
+    virtual ~ConvMatrix() noexcept;
 
-    bool Init();
-    DWORD Convert(int x1, int x2, int x3, int in_level, int in_type, int out_level, int out_type);
-    static DWORD DoConvert(int x1, int x2, int x3, const int *matrix);
+    [[nodiscard]] bool Init();
+    [[nodiscard]] DWORD Convert(int x1, int x2, int x3, int in_level, int in_type, int out_level, int out_type);
+    [[nodiscard]] static DWORD DoConvert(int x1, int x2, int x3, const int *matrix);
 
-    DWORD VSFilterCompactCorretion( int r8, int g8, int b8, int output_rgb_level );
+    [[nodiscard]] DWORD VSFilterCompactCorretion( int r8, int g8, int b8, int output_rgb_level );
     void InitMatrix(int in_level, int in_type, int out_level, int out_type);
     void InitVSFilterCompactCorretionMatrix();
 private:
@@ -183,18 +184,19 @@ private:
     //m_matrix[in_level][in_type][out_level][out_type]
     int * m_matrix[LEVEL_COUNT][COLOR_COUNT][LEVEL_COUNT][COLOR_COUNT];
 
-    int m_matrix_vsfilter_compact_corretion[LEVEL_COUNT][3][4];
+    int m_matrix_vsfilter_compact_corretion[LEVEL_COUNT][3U][4U];
 };
 
 ConvMatrix::ConvMatrix()
 {
-    memset(m_matrix, 0, LEVEL_COUNT*COLOR_COUNT*LEVEL_COUNT*COLOR_COUNT*sizeof(float*));
+    std::memset(m_matrix, 0, LEVEL_COUNT*COLOR_COUNT*LEVEL_COUNT*COLOR_COUNT*sizeof(float*));
 }
 
 ConvMatrix::~ConvMatrix()
+noexcept
 {
-    int * *p_matrix = (int **)m_matrix;
-    for(int i=0;i<LEVEL_COUNT*COLOR_COUNT*LEVEL_COUNT*COLOR_COUNT;i++)
+    int * *p_matrix{(int **)m_matrix};
+    for(int i{0};i<LEVEL_COUNT*COLOR_COUNT*LEVEL_COUNT*COLOR_COUNT;i++)
     {
         if (p_matrix[i])
         {
@@ -204,37 +206,37 @@ ConvMatrix::~ConvMatrix()
     }
 }
 
-bool ConvMatrix::Init()
+[[nodiscard]] bool ConvMatrix::Init()
 {
-    MATRIX_DE_QUAN[LEVEL_TV][COLOR_YUV_601 ] = &YUV_TV_INV[0][0];
-    MATRIX_DE_QUAN[LEVEL_TV][COLOR_YUV_709 ] = &YUV_TV_INV[0][0];
-    MATRIX_DE_QUAN[LEVEL_TV][COLOR_YUV_2020] = &YUV_TV_INV[0][0];
-    MATRIX_DE_QUAN[LEVEL_TV][COLOR_RGB     ] = &RGB_TV_INV[0][0];
+    MATRIX_DE_QUAN[LEVEL_TV][COLOR_YUV_601 ] = &YUV_TV_INV[0U][0U];
+    MATRIX_DE_QUAN[LEVEL_TV][COLOR_YUV_709 ] = &YUV_TV_INV[0U][0U];
+    MATRIX_DE_QUAN[LEVEL_TV][COLOR_YUV_2020] = &YUV_TV_INV[0U][0U];
+    MATRIX_DE_QUAN[LEVEL_TV][COLOR_RGB     ] = &RGB_TV_INV[0U][0U];
 
-    MATRIX_DE_QUAN[LEVEL_PC][COLOR_YUV_601 ] = &YUV_PC_INV[0][0];
-    MATRIX_DE_QUAN[LEVEL_PC][COLOR_YUV_709 ] = &YUV_PC_INV[0][0];
-    MATRIX_DE_QUAN[LEVEL_PC][COLOR_YUV_2020] = &YUV_PC_INV[0][0];
-    MATRIX_DE_QUAN[LEVEL_PC][COLOR_RGB     ] = &RGB_PC_INV[0][0];
+    MATRIX_DE_QUAN[LEVEL_PC][COLOR_YUV_601 ] = &YUV_PC_INV[0U][0U];
+    MATRIX_DE_QUAN[LEVEL_PC][COLOR_YUV_709 ] = &YUV_PC_INV[0U][0U];
+    MATRIX_DE_QUAN[LEVEL_PC][COLOR_YUV_2020] = &YUV_PC_INV[0U][0U];
+    MATRIX_DE_QUAN[LEVEL_PC][COLOR_RGB     ] = &RGB_PC_INV[0U][0U];
 
-    MATRIX_INV_TRANS[COLOR_YUV_601 ] = &MATRIX_BT_601_INV[0][0];
-    MATRIX_INV_TRANS[COLOR_YUV_709 ] = &MATRIX_BT_709_INV[0][0];
-    MATRIX_INV_TRANS[COLOR_YUV_2020] = &MATRIX_BT_2020_INV[0][0];
-    MATRIX_INV_TRANS[COLOR_RGB     ] = &IDENTITY[0][0];
+    MATRIX_INV_TRANS[COLOR_YUV_601 ] = &MATRIX_BT_601_INV[0U][0U];
+    MATRIX_INV_TRANS[COLOR_YUV_709 ] = &MATRIX_BT_709_INV[0U][0U];
+    MATRIX_INV_TRANS[COLOR_YUV_2020] = &MATRIX_BT_2020_INV[0U][0U];
+    MATRIX_INV_TRANS[COLOR_RGB     ] = &IDENTITY[0U][0U];
 
-    MATRIX_TRANS[COLOR_YUV_601 ] = &MATRIX_BT_601[0][0];
-    MATRIX_TRANS[COLOR_YUV_709 ] = &MATRIX_BT_709[0][0];
-    MATRIX_TRANS[COLOR_YUV_2020] = &MATRIX_BT_2020[0][0];
-    MATRIX_TRANS[COLOR_RGB     ] = &IDENTITY[0][0];
+    MATRIX_TRANS[COLOR_YUV_601 ] = &MATRIX_BT_601[0U][0U];
+    MATRIX_TRANS[COLOR_YUV_709 ] = &MATRIX_BT_709[0U][0U];
+    MATRIX_TRANS[COLOR_YUV_2020] = &MATRIX_BT_2020[0U][0U];
+    MATRIX_TRANS[COLOR_RGB     ] = &IDENTITY[0U][0U];
 
-    MATRIX_QUAN[LEVEL_TV][COLOR_YUV_601 ] = &YUV_TV[0][0];
-    MATRIX_QUAN[LEVEL_TV][COLOR_YUV_709 ] = &YUV_TV[0][0];
-    MATRIX_QUAN[LEVEL_TV][COLOR_YUV_2020] = &YUV_TV[0][0];
-    MATRIX_QUAN[LEVEL_TV][COLOR_RGB     ] = &RGB_TV[0][0];
+    MATRIX_QUAN[LEVEL_TV][COLOR_YUV_601 ] = &YUV_TV[0U][0U];
+    MATRIX_QUAN[LEVEL_TV][COLOR_YUV_709 ] = &YUV_TV[0U][0U];
+    MATRIX_QUAN[LEVEL_TV][COLOR_YUV_2020] = &YUV_TV[0U][0U];
+    MATRIX_QUAN[LEVEL_TV][COLOR_RGB     ] = &RGB_TV[0U][0U];
 
-    MATRIX_QUAN[LEVEL_PC][COLOR_YUV_601 ] = &YUV_PC[0][0];
-    MATRIX_QUAN[LEVEL_PC][COLOR_YUV_709 ] = &YUV_PC[0][0];
-    MATRIX_QUAN[LEVEL_PC][COLOR_YUV_2020] = &YUV_PC[0][0];
-    MATRIX_QUAN[LEVEL_PC][COLOR_RGB     ] = &RGB_PC[0][0];
+    MATRIX_QUAN[LEVEL_PC][COLOR_YUV_601 ] = &YUV_PC[0U][0U];
+    MATRIX_QUAN[LEVEL_PC][COLOR_YUV_709 ] = &YUV_PC[0U][0U];
+    MATRIX_QUAN[LEVEL_PC][COLOR_YUV_2020] = &YUV_PC[0U][0U];
+    MATRIX_QUAN[LEVEL_PC][COLOR_RGB     ] = &RGB_PC[0U][0U];
 
     InitVSFilterCompactCorretionMatrix();
     //InitMatrix(LEVEL_PC, COLOR_RGB, LEVEL_TV, COLOR_YUV_601);
@@ -253,23 +255,23 @@ bool ConvMatrix::Init()
     return true;
 };
 
-void ConvMatrix::InitMatrix( int in_level, int in_type, int out_level, int out_type )
+void ConvMatrix::InitMatrix( const int in_level, const int in_type, const int out_level, const int out_type )
 {
-    int * &out_matrix = m_matrix[in_level][in_type][out_level][out_type];
+    int * &out_matrix{m_matrix[in_level][in_type][out_level][out_type]};
     if (!out_matrix)
     {
         return;
     }
-    out_matrix = DEBUG_NEW int[3*4];
+    out_matrix = DEBUG_NEW int[3U*4];
     ASSERT(out_matrix);
 
-    float matrix[3][4];
-    float *p_matrix = &matrix[0][0];
-    memcpy(p_matrix, MATRIX_QUAN[out_level][out_type], 3*4*sizeof(float));
+    float matrix[3U][4U];
+    float *p_matrix{&matrix[0U][0U]};
+    std::memcpy(p_matrix, MATRIX_QUAN[out_level][out_type], 3*4*sizeof(float));
     MultiplyMatrix(p_matrix, MATRIX_TRANS[out_type]);
     MultiplyMatrix(p_matrix, MATRIX_INV_TRANS[in_type]);
     MultiplyMatrix(p_matrix, MATRIX_DE_QUAN[in_level][in_type]);
-    for (int i=0;i<3*4;i++)
+    for (int i{0};i<3*4;i++)
     {
         out_matrix[i] = p_matrix[i] * (1<<16) + 0.5f;
         ASSERT(out_matrix[i] < (1<<24));
@@ -278,33 +280,33 @@ void ConvMatrix::InitMatrix( int in_level, int in_type, int out_level, int out_t
 
 void ConvMatrix::InitVSFilterCompactCorretionMatrix()
 {
-    int * out_matrix = &m_matrix_vsfilter_compact_corretion[LEVEL_PC][0][0];
+    int * out_matrix{&m_matrix_vsfilter_compact_corretion[LEVEL_PC][0U][0U]};
 
-    float matrix[3][4];
-    float *p_matrix = &matrix[0][0];
-    memcpy(p_matrix, MATRIX_INV_TRANS[COLOR_YUV_709], 3*4*sizeof(float));
+    float matrix[3U][4U];
+    float *p_matrix{&matrix[0U][0U]};
+    std::memcpy(p_matrix, MATRIX_INV_TRANS[COLOR_YUV_709], 3*4*sizeof(float));
     MultiplyMatrix(p_matrix, MATRIX_TRANS[COLOR_YUV_601]);
-    for (int i=0;i<3*4;i++)
+    for (int i{0};i<3*4;i++)
     {
         out_matrix[i] = p_matrix[i] * (1<<16) + 0.5f;
         ASSERT(out_matrix[i] < (1<<24));
     }
 
-    out_matrix = &m_matrix_vsfilter_compact_corretion[LEVEL_TV][0][0];
-    memcpy(p_matrix, MATRIX_QUAN[LEVEL_TV][COLOR_RGB], 3*4*sizeof(float));
+    out_matrix = &m_matrix_vsfilter_compact_corretion[LEVEL_TV][0U][0U];
+    std::memcpy(p_matrix, MATRIX_QUAN[LEVEL_TV][COLOR_RGB], 3*4*sizeof(float));
     MultiplyMatrix(p_matrix, MATRIX_INV_TRANS[COLOR_YUV_709]);
     MultiplyMatrix(p_matrix, MATRIX_TRANS[COLOR_YUV_601]);
     MultiplyMatrix(p_matrix, MATRIX_DE_QUAN[LEVEL_PC][COLOR_RGB]);
-    for (int i=0;i<3*4;i++)
+    for (int i{0};i<3*4;i++)
     {
         out_matrix[i] = p_matrix[i] * (1<<16) + 0.5f;
         ASSERT(out_matrix[i] < (1<<24));
     }
 }
 
-DWORD ConvMatrix::Convert(int x1, int x2, int x3, int in_level, int in_type, int out_level, int out_type)
+[[nodiscard]] DWORD ConvMatrix::Convert(const int x1, const int x2, const int x3, const int in_level, const int in_type, const int out_level, const int out_type)
 {
-    int * &matrix_int = m_matrix[in_level][in_type][out_level][out_type];
+    int * &matrix_int{m_matrix[in_level][in_type][out_level][out_type]};
     if (!matrix_int)
     {
         InitMatrix(in_level, in_type, out_level, out_type);
@@ -313,28 +315,28 @@ DWORD ConvMatrix::Convert(int x1, int x2, int x3, int in_level, int in_type, int
     return DoConvert(x1,x2,x3,matrix_int);
 }
 
-DWORD ConvMatrix::DoConvert( int x1, int x2, int x3, const int *matrix )
+[[nodiscard]] DWORD ConvMatrix::DoConvert( const int x1, const int x2, const int x3, const int *matrix )
 {
     ASSERT(matrix);
-    int tmp1 = (E(matrix,0,0) * x1 + E(matrix,0,1) * x2 + E(matrix,0,2) * x3 + E(matrix,0,3) + (1<<15)) >> 16;
-    int tmp2 = (E(matrix,1,0) * x1 + E(matrix,1,1) * x2 + E(matrix,1,2) * x3 + E(matrix,1,3) + (1<<15)) >> 16;
-    int tmp3 = (E(matrix,2,0) * x1 + E(matrix,2,1) * x2 + E(matrix,2,2) * x3 + E(matrix,2,3) + (1<<15)) >> 16;
+    int tmp1{(E(matrix,0,0) * x1 + E(matrix,0,1) * x2 + E(matrix,0,2) * x3 + E(matrix,0,3) + (1<<15)) >> 16};
+    int tmp2{(E(matrix,1,0) * x1 + E(matrix,1,1) * x2 + E(matrix,1,2) * x3 + E(matrix,1,3) + (1<<15)) >> 16};
+    int tmp3{(E(matrix,2,0) * x1 + E(matrix,2,1) * x2 + E(matrix,2,2) * x3 + E(matrix,2,3) + (1<<15)) >> 16};
     tmp1 = clip(tmp1, 255);
     tmp2 = clip(tmp2, 255);
     tmp3 = clip(tmp3, 255);
     return (tmp1<<16) | (tmp2<<8) | tmp3;
 }
 
-DWORD ConvMatrix::VSFilterCompactCorretion( int r8, int g8, int b8, int output_rgb_level )
+[[nodiscard]] DWORD ConvMatrix::VSFilterCompactCorretion( const int r8, const int g8, const int b8, const int output_rgb_level )
 {
     ASSERT(output_rgb_level==LEVEL_PC || output_rgb_level==LEVEL_TV);
-    return DoConvert(r8, g8, b8, &m_matrix_vsfilter_compact_corretion[output_rgb_level][0][0]);
+    return DoConvert(r8, g8, b8, &m_matrix_vsfilter_compact_corretion[output_rgb_level][0U][0U]);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-const int FRACTION_BITS  = 16;
-const int FRACTION_SCALE = 1<<16;
+const int FRACTION_BITS{16};
+const int FRACTION_SCALE{1<<16};
 
 struct RGBLevelInfo
 {
@@ -455,75 +457,75 @@ DWORD func(int r8, int g8, int b8)                                              
     return y;                                                                                \
 }
 
-DWORD RGB_PC_TO_YUV_TV_601 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_YUV_PC_601 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_YUV_TV_709 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_YUV_PC_709 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_YUV_TV_2020(int r8, int g8, int b8);
-DWORD RGB_PC_TO_YUV_PC_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_YUV_TV_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_YUV_PC_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_YUV_TV_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_YUV_PC_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_YUV_TV_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_YUV_PC_2020(int r8, int g8, int b8);
 
-DWORD RGB_TV_TO_YUV_TV_601 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_YUV_PC_601 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_YUV_TV_709 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_YUV_PC_709 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_YUV_TV_2020(int r8, int g8, int b8);
-DWORD RGB_TV_TO_YUV_PC_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_YUV_TV_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_YUV_PC_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_YUV_TV_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_YUV_PC_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_YUV_TV_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_YUV_PC_2020(int r8, int g8, int b8);
 
-DWORD RGB_PC_TO_UYV_TV_601 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_UYV_PC_601 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_UYV_TV_709 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_UYV_PC_709 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_UYV_TV_2020(int r8, int g8, int b8);
-DWORD RGB_PC_TO_UYV_PC_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_UYV_TV_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_UYV_PC_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_UYV_TV_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_UYV_PC_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_UYV_TV_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_UYV_PC_2020(int r8, int g8, int b8);
 
-DWORD RGB_TV_TO_UYV_TV_601 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_UYV_PC_601 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_UYV_TV_709 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_UYV_PC_709 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_UYV_TV_2020(int r8, int g8, int b8);
-DWORD RGB_TV_TO_UYV_PC_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_UYV_TV_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_UYV_PC_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_UYV_TV_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_UYV_PC_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_UYV_TV_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_UYV_PC_2020(int r8, int g8, int b8);
 
-DWORD PREMUL_ARGB_PC_TO_AYUV_TV_601 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_PC_TO_AYUV_PC_601 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_PC_TO_AYUV_TV_709 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_PC_TO_AYUV_PC_709 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_PC_TO_AYUV_TV_2020(int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_PC_TO_AYUV_PC_2020(int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_PC_TO_AYUV_TV_601 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_PC_TO_AYUV_PC_601 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_PC_TO_AYUV_TV_709 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_PC_TO_AYUV_PC_709 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_PC_TO_AYUV_TV_2020(int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_PC_TO_AYUV_PC_2020(int a8, int r8, int g8, int b8);
 
-DWORD PREMUL_ARGB_TV_TO_AYUV_TV_601 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_TV_TO_AYUV_PC_601 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_TV_TO_AYUV_TV_709 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_TV_TO_AYUV_PC_709 (int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_TV_TO_AYUV_TV_2020(int a8, int r8, int g8, int b8);
-DWORD PREMUL_ARGB_TV_TO_AYUV_PC_2020(int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_TV_TO_AYUV_TV_601 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_TV_TO_AYUV_PC_601 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_TV_TO_AYUV_TV_709 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_TV_TO_AYUV_PC_709 (int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_TV_TO_AYUV_TV_2020(int a8, int r8, int g8, int b8);
+[[nodiscard]] DWORD PREMUL_ARGB_TV_TO_AYUV_PC_2020(int a8, int r8, int g8, int b8);
 
-DWORD RGB_PC_TO_Y_TV_601 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_Y_PC_601 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_Y_TV_709 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_Y_PC_709 (int r8, int g8, int b8);
-DWORD RGB_PC_TO_Y_TV_2020(int r8, int g8, int b8);
-DWORD RGB_PC_TO_Y_PC_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_Y_TV_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_Y_PC_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_Y_TV_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_Y_PC_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_Y_TV_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_PC_TO_Y_PC_2020(int r8, int g8, int b8);
 
-DWORD RGB_TV_TO_Y_TV_601 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_Y_PC_601 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_Y_TV_709 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_Y_PC_709 (int r8, int g8, int b8);
-DWORD RGB_TV_TO_Y_TV_2020(int r8, int g8, int b8);
-DWORD RGB_TV_TO_Y_PC_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_Y_TV_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_Y_PC_601 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_Y_TV_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_Y_PC_709 (int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_Y_TV_2020(int r8, int g8, int b8);
+[[nodiscard]] DWORD RGB_TV_TO_Y_PC_2020(int r8, int g8, int b8);
 
-DWORD YUV_TV_TO_RGB_PC_601 (int y, int u, int v);
-DWORD YUV_PC_TO_RGB_PC_601 (int y, int u, int v);
-DWORD YUV_TV_TO_RGB_PC_709 (int y, int u, int v);
-DWORD YUV_PC_TO_RGB_PC_709 (int y, int u, int v);
-DWORD YUV_TV_TO_RGB_PC_2020(int y, int u, int v);
-DWORD YUV_PC_TO_RGB_PC_2020(int y, int u, int v);
+[[nodiscard]] DWORD YUV_TV_TO_RGB_PC_601 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_PC_TO_RGB_PC_601 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_TV_TO_RGB_PC_709 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_PC_TO_RGB_PC_709 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_TV_TO_RGB_PC_2020(int y, int u, int v);
+[[nodiscard]] DWORD YUV_PC_TO_RGB_PC_2020(int y, int u, int v);
 
-DWORD YUV_TV_TO_RGB_TV_601 (int y, int u, int v);
-DWORD YUV_PC_TO_RGB_TV_601 (int y, int u, int v);
-DWORD YUV_TV_TO_RGB_TV_709 (int y, int u, int v);
-DWORD YUV_PC_TO_RGB_TV_709 (int y, int u, int v);
-DWORD YUV_TV_TO_RGB_TV_2020(int y, int u, int v);
-DWORD YUV_PC_TO_RGB_TV_2020(int y, int u, int v);
+[[nodiscard]] DWORD YUV_TV_TO_RGB_TV_601 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_PC_TO_RGB_TV_601 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_TV_TO_RGB_TV_709 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_PC_TO_RGB_TV_709 (int y, int u, int v);
+[[nodiscard]] DWORD YUV_TV_TO_RGB_TV_2020(int y, int u, int v);
+[[nodiscard]] DWORD YUV_PC_TO_RGB_TV_2020(int y, int u, int v);
 
 typedef ColorConvTable::YuvMatrixType YuvMatrixType;
 typedef ColorConvTable::YuvRangeType YuvRangeType;
@@ -532,7 +534,7 @@ class ConvFunc
 {
 public:
     ConvFunc(YuvMatrixType yuv_type, YuvRangeType range);
-    bool InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range);
+    [[nodiscard]] constexpr bool InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range) noexcept;
 
     typedef DWORD (*R8G8B8ToYuvFunc)(int r8, int g8, int b8);
     typedef DWORD (*PreMulArgbToAyuvFunc)(int a8, int r8, int g8, int b8);
@@ -551,11 +553,12 @@ public:
     ConvMatrix    _conv_matrix;//for YUV to YUV or other complicated conversions
 };
 
-ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
+[[nodiscard]] ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
 
-bool ConvFunc::InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
+[[nodiscard]] constexpr bool ConvFunc::InitConvFunc(const YuvMatrixType yuv_type, const YuvRangeType range)
+noexcept
 {
-    bool result = true;
+    bool result{true};
 
     if ( yuv_type==ColorConvTable::BT601 && range==ColorConvTable::RANGE_TV )
     {
@@ -726,17 +729,20 @@ ConvFunc::ConvFunc( YuvMatrixType yuv_type, YuvRangeType range )
 //
 // ColorConvTable
 //
-ColorConvTable::YuvMatrixType ColorConvTable::GetDefaultYUVType()
+[[nodiscard]] constexpr ColorConvTable::YuvMatrixType ColorConvTable::GetDefaultYUVType()
+noexcept
 {
     return s_default_conv_set._yuv_type;
 }
 
-ColorConvTable::YuvRangeType ColorConvTable::GetDefaultRangeType()
+[[nodiscard]] constexpr ColorConvTable::YuvRangeType ColorConvTable::GetDefaultRangeType()
+noexcept
 {
     return s_default_conv_set._range_type;
 }
 
-void ColorConvTable::SetDefaultConvType( YuvMatrixType yuv_type, YuvRangeType range )
+constexpr void ColorConvTable::SetDefaultConvType( const YuvMatrixType yuv_type, const YuvRangeType range )
+noexcept
 {
     if( s_default_conv_set._yuv_type != yuv_type || s_default_conv_set._range_type != range )
     {
@@ -744,76 +750,77 @@ void ColorConvTable::SetDefaultConvType( YuvMatrixType yuv_type, YuvRangeType ra
     }
 }
 
-DWORD ColorConvTable::Argb2Auyv( DWORD argb )
+[[nodiscard]] DWORD ColorConvTable::Argb2Auyv( const DWORD argb )
 {
-    int r = (argb & 0x00ff0000) >> 16;
-    int g = (argb & 0x0000ff00) >> 8;
-    int b = (argb & 0x000000ff);
+    int r{(argb & 0x00ff0000) >> 16};
+    int g{(argb & 0x0000ff00) >> 8};
+    int b{(argb & 0x000000ff)};
     return (argb & 0xff000000) | s_default_conv_set.r8g8b8_to_uyv_func(r, g, b);
 }
 
-DWORD ColorConvTable::Argb2Ayuv( DWORD argb )
+[[nodiscard]] DWORD ColorConvTable::Argb2Ayuv( const DWORD argb )
 {
-    int r = (argb & 0x00ff0000) >> 16;
-    int g = (argb & 0x0000ff00) >> 8;
-    int b = (argb & 0x000000ff);
+    int r{(argb & 0x00ff0000) >> 16};
+    int g{(argb & 0x0000ff00) >> 8};
+    int b{(argb & 0x000000ff)};
     return (argb & 0xff000000) | s_default_conv_set.r8g8b8_to_yuv_func(r, g, b);
 }
 
-DWORD ColorConvTable::Argb2Ayuv_TV_BT601( DWORD argb )
+[[nodiscard]] DWORD ColorConvTable::Argb2Ayuv_TV_BT601( const DWORD argb )
 {
-    int r = (argb & 0x00ff0000) >> 16;
-    int g = (argb & 0x0000ff00) >> 8;
-    int b = (argb & 0x000000ff);
+    int r{(argb & 0x00ff0000) >> 16};
+    int g{(argb & 0x0000ff00) >> 8};
+    int b{(argb & 0x000000ff)};
     return (argb & 0xff000000) | RGB_PC_TO_YUV_TV_601(r, g, b);
 }
 
-DWORD ColorConvTable::Ayuv2Auyv( DWORD ayuv )
+[[nodiscard]] constexpr DWORD ColorConvTable::Ayuv2Auyv( const DWORD ayuv )
+noexcept
 {
-    int y = (ayuv & 0x00ff0000) >> 8;
-    int u = (ayuv & 0x0000ff00) << 8;
+    int y{(ayuv & 0x00ff0000) >> 8};
+    int u{(ayuv & 0x0000ff00) << 8};
     return (ayuv & 0xff0000ff)| u | y;
 }
 
-DWORD ColorConvTable::PreMulArgb2Ayuv( int a8, int r8, int g8, int b8 )
+[[nodiscard]] DWORD ColorConvTable::PreMulArgb2Ayuv( const int a8, const int r8, const int g8, const int b8 )
 {
     return s_default_conv_set.pre_mul_argb_to_ayuv_func(a8, r8, g8, b8);
 }
 
-DWORD ColorConvTable::Rgb2Y( int r8, int g8, int b8 )
+[[nodiscard]] DWORD ColorConvTable::Rgb2Y( const int r8, const int g8, const int b8 )
 {
     return s_default_conv_set.r8g8b8_to_y_func(r8, g8, b8);
 }
 
-DWORD ColorConvTable::Ayuv2Argb_TV_BT601( DWORD ayuv )
+[[nodiscard]] DWORD ColorConvTable::Ayuv2Argb_TV_BT601( const DWORD ayuv )
 {
-    int y = (ayuv & 0x00ff0000) >> 16;
-    int u = (ayuv & 0x0000ff00) >> 8;
-    int v = (ayuv & 0x000000ff);
+    int y{(ayuv & 0x00ff0000) >> 16};
+    int u{(ayuv & 0x0000ff00) >> 8};
+    int v{(ayuv & 0x000000ff)};
     return (ayuv & 0xff000000) | YUV_TV_TO_RGB_PC_601(y, u, v);
 }
 
-DWORD ColorConvTable::Ayuv2Argb_TV_BT709( DWORD ayuv )
+[[nodiscard]] DWORD ColorConvTable::Ayuv2Argb_TV_BT709( const DWORD ayuv )
 {
-    int y = (ayuv & 0x00ff0000) >> 16;
-    int u = (ayuv & 0x0000ff00) >> 8;
-    int v = (ayuv & 0x000000ff);
+    int y{(ayuv & 0x00ff0000) >> 16};
+    int u{(ayuv & 0x0000ff00) >> 8};
+    int v{(ayuv & 0x000000ff)};
     return (ayuv & 0xff000000) | YUV_TV_TO_RGB_PC_709(y, u, v);
 }
 
-DWORD ColorConvTable::Ayuv2Argb_TV_BT2020( DWORD ayuv )
+[[nodiscard]] DWORD ColorConvTable::Ayuv2Argb_TV_BT2020( const DWORD ayuv )
 {
-    int y = (ayuv & 0x00ff0000) >> 16;
-    int u = (ayuv & 0x0000ff00) >> 8;
-    int v = (ayuv & 0x000000ff);
+    int y{(ayuv & 0x00ff0000) >> 16};
+    int u{(ayuv & 0x0000ff00) >> 8};
+    int v{(ayuv & 0x000000ff)};
     return (ayuv & 0xff000000) | YUV_TV_TO_RGB_PC_2020(y, u, v);
 }
 
-DWORD ColorConvTable::Ayuv2Argb( DWORD ayuv )
+[[nodiscard]] DWORD ColorConvTable::Ayuv2Argb( const DWORD ayuv )
 {
-    int y = (ayuv & 0x00ff0000) >> 16;
-    int u = (ayuv & 0x0000ff00) >> 8;
-    int v = (ayuv & 0x000000ff);
+    int y{(ayuv & 0x00ff0000) >> 16};
+    int u{(ayuv & 0x0000ff00) >> 8};
+    int v{(ayuv & 0x000000ff)};
     return (ayuv & 0xff000000) | s_default_conv_set.y8u8v8_to_rgb_func(y, u, v);
 }
 
@@ -849,10 +856,10 @@ DWORD ColorConvTable::A8Y8U8V8_To_ARGB_PC_BT2020( int a8, int y8, int u8, int v8
 
 DWORD ColorConvTable::A8Y8U8V8_PC_To_TV( int a8, int y8, int u8, int v8 )
 {
-    const int FRACTION_SCALE = 1<<16;
-    const int YUV_MIN = 16;
-    const int cy = int(219.0/255*FRACTION_SCALE+0.5);
-    const int cuv = int(224.0/255*FRACTION_SCALE+0.5);
+    const int FRACTION_SCALE{1<<16};
+    const int YUV_MIN{16};
+    const int cy{int(219.0/255*FRACTION_SCALE+0.5)};
+    const int cuv{int(224.0/255*FRACTION_SCALE+0.5)};
     y8 = ((y8*cy)>>16) + YUV_MIN;
     u8 = ((u8*cuv)>>16) + YUV_MIN;
     v8 = ((v8*cuv)>>16) + YUV_MIN;
@@ -861,23 +868,23 @@ DWORD ColorConvTable::A8Y8U8V8_PC_To_TV( int a8, int y8, int u8, int v8 )
 
 DWORD ColorConvTable::A8Y8U8V8_TV_To_PC( int a8, int y8, int u8, int v8 )
 {
-    const int FRACTION_SCALE = 1<<16;
-    const int YUV_MIN = 16;
-    const int cy = int(255/219.0*FRACTION_SCALE+0.5);
-    const int cuv = int(255/224.0*FRACTION_SCALE+0.5);
+    const int FRACTION_SCALE{1<<16};
+    const int YUV_MIN{16};
+    const int cy{int(255/219.0*FRACTION_SCALE+0.5)};
+    const int cuv{int(255/224.0*FRACTION_SCALE+0.5)};
     y8 = ((y8-YUV_MIN)*cy)>>16;
     u8 = ((u8-YUV_MIN)*cuv)>>16;
     v8 = ((v8-YUV_MIN)*cuv)>>16;
     return (a8<<24) | (y8<<16) | (u8<<8) | v8;
 }
 
-DWORD ColorConvTable::RGB_PC_TO_TV( DWORD argb )
+[[nodiscard]] DWORD ColorConvTable::RGB_PC_TO_TV( const DWORD argb )
 {
-    const int MIN = 16;
-    const int SCALE = int(219.0/255*FRACTION_SCALE+0.5);
-    DWORD r = (argb & 0x00ff0000)>>16;
-    DWORD g = (argb & 0x0000ff00)>>8;
-    DWORD b = (argb & 0x000000ff);
+    const int MIN{16};
+    const int SCALE{int(219.0/255*FRACTION_SCALE+0.5)};
+    DWORD r{(argb & 0x00ff0000)>>16};
+    DWORD g{(argb & 0x0000ff00)>>8};
+    DWORD b{(argb & 0x000000ff)};
     r = ((r*SCALE)>>16) + MIN;
     g = ((g*SCALE)>>16) + MIN;
     b = ((b*SCALE)>>16) + MIN;
@@ -887,12 +894,12 @@ DWORD ColorConvTable::RGB_PC_TO_TV( DWORD argb )
 DWORD ColorConvTable::A8Y8U8V8_TO_AYUV( int a8, int y8, int u8, int v8,
     YuvRangeType in_range, YuvMatrixType in_type, YuvRangeType out_range, YuvMatrixType out_type )
 {
-    const int level_map[3] = {
+    const int level_map[3U] = {
         ConvMatrix::LEVEL_TV,
         ConvMatrix::LEVEL_TV,
         ConvMatrix::LEVEL_PC
     };
-    const int type_map[4] = {
+    const int type_map[4U] = {
         ConvMatrix::COLOR_YUV_601,
         ConvMatrix::COLOR_YUV_601,
         ConvMatrix::COLOR_YUV_709,
@@ -934,7 +941,7 @@ DWORD ColorConvTable::A8Y8U8V8_TO_CUR_AYUV( int a8, int y8, int u8, int v8, YuvR
 DWORD ColorConvTable::A8Y8U8V8_TO_ARGB( int a8, int y8, int u8, int v8, YuvRangeType in_range, YuvMatrixType in_type
     , bool output_tv_level )
 {
-    const ConvFunc::Y8U8V8ToRGBFunc funcs[2][3][2] = {
+    const ConvFunc::Y8U8V8ToRGBFunc funcs[2U][3U][2U] = {
         {
             {YUV_TV_TO_RGB_TV_601,  YUV_TV_TO_RGB_PC_601},
             {YUV_TV_TO_RGB_TV_709,  YUV_TV_TO_RGB_PC_709},
@@ -949,11 +956,11 @@ DWORD ColorConvTable::A8Y8U8V8_TO_ARGB( int a8, int y8, int u8, int v8, YuvRange
     return (a8<<24) | funcs[in_range==RANGE_PC?1:0][in_type==BT709?1:(in_type==BT2020?2:0)][output_tv_level?0:1](y8,u8,v8);
 }
 
-DWORD ColorConvTable::VSFilterCompactCorretion( DWORD argb, bool output_tv_level )
+[[nodiscard]] DWORD ColorConvTable::VSFilterCompactCorretion( const DWORD argb, const bool output_tv_level )
 {
-    int r = (argb & 0x00ff0000) >> 16;
-    int g = (argb & 0x0000ff00) >> 8;
-    int b = (argb & 0x000000ff);
+    int r{(argb & 0x00ff0000) >> 16};
+    int g{(argb & 0x0000ff00) >> 8};
+    int b{(argb & 0x000000ff)};
     return (argb & 0xff000000) | 
         s_default_conv_set._conv_matrix.VSFilterCompactCorretion(r,g,b,
             output_tv_level?ConvMatrix::LEVEL_TV : ConvMatrix::LEVEL_PC);

@@ -28,7 +28,7 @@ class CHdmvSub : public CBaseSub
 {
 public:
 
-    static const REFERENCE_TIME INVALID_TIME = _I64_MIN;
+    static const REFERENCE_TIME INVALID_TIME{_I64_MIN};
 
     enum HDMV_SEGMENT_TYPE {
         NO_SEGMENT       = 0xFFFF,
@@ -65,9 +65,9 @@ public:
         BYTE            version_number;
         BYTE            size;
 
-        HDMV_PALETTE    palette[256];
+        HDMV_PALETTE    palette[256U];
 
-        HDMV_CLUT():id(0),version_number(0),size(0) { memset(palette, 0, sizeof(palette)); }
+        explicit HDMV_CLUT():id(0),version_number(0),size(0) { std::memset(palette, 0, sizeof(palette)); }
     };
 
     struct HDMV_PRESENTATION_SEGMENT {
@@ -93,32 +93,32 @@ public:
         }
     };
 
-    CHdmvSub();
+    explicit CHdmvSub();
     ~CHdmvSub();
 
-    HRESULT   ParseSample(IMediaSample* pSample);
-    HRESULT   ParseSample(BYTE* pData, int lSampleLen, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop);
+    [[nodiscard]] HRESULT   ParseSample(IMediaSample* pSample);
+    [[nodiscard]] HRESULT   ParseSample(BYTE* pData, int lSampleLen, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop);
 
-    POSITION  GetStartPosition(REFERENCE_TIME rt, double fps = 0);
-    POSITION  GetNext(POSITION pos) {
+    [[nodiscard]] POSITION  GetStartPosition(REFERENCE_TIME rt, double fps = 0);
+    [[nodiscard]] POSITION  GetNext(const POSITION pos) {
         m_pPresentationSegments.GetNext(pos);
         return pos;
     };
 
 
-    virtual REFERENCE_TIME GetStart(POSITION nPos) {
-        HDMV_PRESENTATION_SEGMENT* pPresentationSegment = m_pPresentationSegments.GetAt(nPos);
+    [[nodiscard]] virtual REFERENCE_TIME GetStart(const POSITION nPos) {
+        HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt(nPos)};
         return pPresentationSegment != NULL ? pPresentationSegment->rtStart : INVALID_TIME;
     };
-    virtual REFERENCE_TIME GetStop(POSITION nPos) {
-        HDMV_PRESENTATION_SEGMENT* pPresentationSegment = m_pPresentationSegments.GetAt(nPos);
+    [[nodiscard]] virtual REFERENCE_TIME GetStop(const POSITION nPos) {
+        HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt(nPos)};
         return pPresentationSegment != NULL ? pPresentationSegment->rtStop : INVALID_TIME;
     };
 
     void      Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox);
-    HRESULT   GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft);
+    [[nodiscard]] HRESULT   GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft);
     void      Reset();
-    virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType);
+    [[nodiscard]] virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType);
 private:
 
     HDMV_SEGMENT_TYPE            m_nCurSegment;
@@ -130,11 +130,11 @@ private:
     HDMV_PRESENTATION_SEGMENT*           m_pCurrentPresentationSegment;
     CAtlList<HDMV_PRESENTATION_SEGMENT*> m_pPresentationSegments;
 
-    HDMV_CLUT                    m_CLUTs[256];
-    CompositionObject            m_compositionObjects[64];
+    HDMV_CLUT                    m_CLUTs[256U];
+    CompositionObject            m_compositionObjects[64U];
 
 
-    int                 ParsePresentationSegment(REFERENCE_TIME rt, CGolombBuffer* pGBuffer);
+    [[nodiscard]] int                 ParsePresentationSegment(REFERENCE_TIME rt, CGolombBuffer* pGBuffer);
     void                EnqueuePresentationSegment(REFERENCE_TIME rt);
 
     void                ParsePalette(CGolombBuffer* pGBuffer, unsigned short nSize);
@@ -144,8 +144,8 @@ private:
     void                ParseCompositionDescriptor(CGolombBuffer* pGBuffer, COMPOSITION_DESCRIPTOR* pCompositionDescriptor);
     void                ParseCompositionObject(CGolombBuffer* pGBuffer, CompositionObject* pCompositionObject);
 
-    void                AllocSegment(int nSize);
+    constexpr void                AllocSegment(int nSize) noexcept;
 
-    HDMV_PRESENTATION_SEGMENT* FindPresentationSegment(REFERENCE_TIME rt);
-    CompositionObject*  FindObject(HDMV_PRESENTATION_SEGMENT* pPresentationSegment, short sObjectId);
+    [[nodiscard]] HDMV_PRESENTATION_SEGMENT* FindPresentationSegment(REFERENCE_TIME rt);
+    [[nodiscard]] CompositionObject*  FindObject(HDMV_PRESENTATION_SEGMENT* pPresentationSegment, short sObjectId);
 };

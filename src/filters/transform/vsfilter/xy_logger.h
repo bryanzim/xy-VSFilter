@@ -87,7 +87,7 @@ std::wostream& operator<<(std::wostream& os, const SIZE& obj);
 std::ostream& operator<<(std::ostream& os, const RECT& obj);
 std::wostream& operator<<(std::wostream& os, const RECT& obj);
 
-CString XyUuidToString(const UUID& in_uuid);
+[[nodiscard]] CString XyUuidToString(const UUID& in_uuid);
 
 namespace xy_logger
 {
@@ -96,7 +96,7 @@ namespace xy_logger
 #endif
 
 bool doConfigure(log4cplus::tistream& property_stream);
-bool doConfigure(const log4cplus::tstring& configFilename);
+[[nodiscard]] bool doConfigure(const log4cplus::tstring& configFilename);
 
 void write_file(const char * filename, const void * buff, int size);
 

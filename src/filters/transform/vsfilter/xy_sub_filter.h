@@ -32,79 +32,79 @@ public:
     virtual ~XySubFilter();
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     DECLARE_ISUBRENDEROPTIONS;
 
     //CBaseFilter
-    CBasePin* GetPin(int n);
-    int GetPinCount();
-    STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+    [[nodiscard]] CBasePin* GetPin(int n);
+    [[nodiscard]] int GetPinCount();
+    [[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
 
-    STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+    [[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
     STDMETHODIMP Pause();
 
     // XyOptionsImpl
-    virtual HRESULT OnOptionChanged(unsigned field);
-    virtual HRESULT DoGetField(unsigned field, void *value);
+    [[nodiscard]] virtual HRESULT OnOptionChanged(unsigned field);
+    [[nodiscard]] virtual HRESULT DoGetField(unsigned field, void *value);
 
     // IXyOptions
-    STDMETHODIMP XyGetString   (unsigned field, LPWSTR   *value, int *chars);
-    STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] STDMETHODIMP XyGetString   (unsigned field, LPWSTR   *value, int *chars);
+    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
 
     // DirectVobSubImpl
-    HRESULT GetCurStyles(SubStyle sub_style[], int count);
-    HRESULT SetCurStyles(const SubStyle sub_style[], int count);
+    [[nodiscard]] HRESULT GetCurStyles(SubStyle sub_style[], int count);
+    [[nodiscard]] HRESULT SetCurStyles(const SubStyle sub_style[], int count);
 
     // IDirectVobSub
-    STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
+    [[nodiscard]] STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
 
-    STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
-    STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
+    [[nodiscard]] STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
+    [[nodiscard]] STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
 
     // IDirectVobSub2
-    STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
-    STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
+    [[nodiscard]] STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
+    [[nodiscard]] STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
 
     // ISpecifyPropertyPages
-    STDMETHODIMP GetPages(CAUUID* pPages);
+    [[nodiscard]] STDMETHODIMP GetPages(CAUUID* pPages);
 
     // IAMStreamSelect
-    STDMETHODIMP Count(DWORD* pcStreams); 
-    STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
-    STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);
+    [[nodiscard]] STDMETHODIMP Count(DWORD* pcStreams); 
+    [[nodiscard]] STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
+    [[nodiscard]] STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);
 
     //ISubRenderProvider
-    STDMETHODIMP RequestFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context);
-    STDMETHODIMP Disconnect(void);
+    [[nodiscard]] STDMETHODIMP RequestFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context);
+    [[nodiscard]] STDMETHODIMP Disconnect(void);
 private:
     void SetYuvMatrix();
     void SetRgbOutputLevel();
-    bool Open();
+    [[nodiscard]] bool Open();
 
     void UpdateSubtitle(bool fApplyDefStyle = true);
     void SetSubtitle(ISubStream* pSubStream, bool fApplyDefStyle = true);
     void InvalidateSubtitle(REFERENCE_TIME rtInvalidate = -1, DWORD_PTR nSubtitleId = -1);
 
-    HRESULT UpdateParamFromConsumer(bool getNameAndVersion=false);
+    [[nodiscard]] HRESULT UpdateParamFromConsumer(bool getNameAndVersion=false);
 
-    int FindPreferedLanguage(bool fHideToo = true);
+    [[nodiscard]] int FindPreferedLanguage(bool fHideToo = true);
     void UpdatePreferedLanguages(CString l);
 
     // the text input pin is using these
     void AddSubStream(ISubStream* pSubStream);
     void RemoveSubStream(ISubStream* pSubStream);
-    HRESULT CheckInputType(const CMediaType* pmt);
+    [[nodiscard]] HRESULT CheckInputType(const CMediaType* pmt);
 
-    HRESULT GetIsEmbeddedSubStream(int iSelected, bool *fIsEmbedded);
+    [[nodiscard]] HRESULT GetIsEmbeddedSubStream(int iSelected, bool *fIsEmbedded);
 
-    bool LoadExternalSubtitle(IFilterGraph* pGraph);
+    [[nodiscard]] bool LoadExternalSubtitle(IFilterGraph* pGraph);
 
     HRESULT GetRidOfVSFilter();
     HRESULT StartStreaming();
 
-    HRESULT FindAndConnectConsumer(IFilterGraph* pGraph);
+    [[nodiscard]] HRESULT FindAndConnectConsumer(IFilterGraph* pGraph);
 
     void UpdateLanguageCount();
 

@@ -16,33 +16,33 @@ interface IDSMPropertyBag : public IPropertyBag2
 
 class IDSMPropertyBagImpl : public ATL::CSimpleMap<CStringW, CStringW>, public IDSMPropertyBag, public IPropertyBag
 {
-	BOOL Add(const CStringW& key, const CStringW& val) {return __super::Add(key, val);}
-	BOOL SetAt(const CStringW& key, const CStringW& val) {return __super::SetAt(key, val);}
+	[[nodiscard]] BOOL Add(const CStringW& key, const CStringW& val) {return __super::Add(key, val);}
+	[[nodiscard]] BOOL SetAt(const CStringW& key, const CStringW& val) {return __super::SetAt(key, val);}
 
 public:
-	IDSMPropertyBagImpl();
-	virtual ~IDSMPropertyBagImpl();
+	explicit IDSMPropertyBagImpl();
+	constexpr virtual ~IDSMPropertyBagImpl() noexcept;
 
 	// IPropertyBag
 
-    STDMETHODIMP Read(LPCOLESTR pszPropName, VARIANT* pVar, IErrorLog* pErrorLog);
-    STDMETHODIMP Write(LPCOLESTR pszPropName, VARIANT* pVar);
+    [[nodiscard]] STDMETHODIMP Read(LPCOLESTR pszPropName, VARIANT* pVar, IErrorLog* pErrorLog);
+    [[nodiscard]] STDMETHODIMP Write(LPCOLESTR pszPropName, VARIANT* pVar);
 
 	// IPropertyBag2
 
-	STDMETHODIMP Read(ULONG cProperties, PROPBAG2* pPropBag, IErrorLog* pErrLog, VARIANT* pvarValue, HRESULT* phrError);
-	STDMETHODIMP Write(ULONG cProperties, PROPBAG2* pPropBag, VARIANT* pvarValue);
-	STDMETHODIMP CountProperties(ULONG* pcProperties);
-	STDMETHODIMP GetPropertyInfo(ULONG iProperty, ULONG cProperties, PROPBAG2* pPropBag, ULONG* pcProperties);
-	STDMETHODIMP LoadObject(LPCOLESTR pstrName, DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog);
+	[[nodiscard]] STDMETHODIMP Read(ULONG cProperties, PROPBAG2* pPropBag, IErrorLog* pErrLog, VARIANT* pvarValue, HRESULT* phrError);
+	[[nodiscard]] STDMETHODIMP Write(ULONG cProperties, PROPBAG2* pPropBag, VARIANT* pvarValue);
+	[[nodiscard]] STDMETHODIMP CountProperties(ULONG* pcProperties);
+	[[nodiscard]] STDMETHODIMP GetPropertyInfo(ULONG iProperty, ULONG cProperties, PROPBAG2* pPropBag, ULONG* pcProperties);
+	[[nodiscard]] constexpr STDMETHODIMP LoadObject(LPCOLESTR pstrName, DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog) noexcept;
 
 	// IDSMPropertyBag
 
-	STDMETHODIMP SetProperty(LPCWSTR key, LPCWSTR value);
-	STDMETHODIMP SetProperty(LPCWSTR key, VARIANT* var);
-	STDMETHODIMP GetProperty(LPCWSTR key, BSTR* value);
+	[[nodiscard]] STDMETHODIMP SetProperty(LPCWSTR key, LPCWSTR value);
+	[[nodiscard]] STDMETHODIMP SetProperty(LPCWSTR key, VARIANT* var);
+	[[nodiscard]] STDMETHODIMP GetProperty(LPCWSTR key, BSTR* value);
 	STDMETHODIMP DelAllProperties();
-	STDMETHODIMP DelProperty(LPCWSTR key);
+	[[nodiscard]] STDMETHODIMP DelProperty(LPCWSTR key);
 };
 
 // IDSMResourceBag
@@ -64,7 +64,7 @@ public:
 	DWORD_PTR tag;
 	CStringW name, desc, mime;
 	CAtlArray<BYTE> data;
-	CDSMResource();
+	explicit CDSMResource();
 	CDSMResource(const CDSMResource& r);
 	CDSMResource(LPCWSTR name, LPCWSTR desc, LPCWSTR mime, BYTE* pData, int len, DWORD_PTR tag = 0);
 	virtual ~CDSMResource();
@@ -81,18 +81,18 @@ protected:
 	CAtlArray<CDSMResource> m_resources;
 
 public:
-	IDSMResourceBagImpl();
+	explicit IDSMResourceBagImpl();
 
 	void operator += (const CDSMResource& r) {m_resources.Add(r);}
 
 	// IDSMResourceBag
 
-	STDMETHODIMP_(DWORD) ResGetCount();
-	STDMETHODIMP ResGet(DWORD iIndex, BSTR* ppName, BSTR* ppDesc, BSTR* ppMime, BYTE** ppData, DWORD* pDataLen, DWORD_PTR* pTag = NULL);
-	STDMETHODIMP ResSet(DWORD iIndex, LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
-	STDMETHODIMP ResAppend(LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
-	STDMETHODIMP ResRemoveAt(DWORD iIndex);
-	STDMETHODIMP ResRemoveAll(DWORD_PTR tag = 0);
+	[[nodiscard]] STDMETHODIMP_(DWORD) ResGetCount();
+	[[nodiscard]] STDMETHODIMP ResGet(DWORD iIndex, BSTR* ppName, BSTR* ppDesc, BSTR* ppMime, BYTE** ppData, DWORD* pDataLen, DWORD_PTR* pTag = NULL);
+	[[nodiscard]] STDMETHODIMP ResSet(DWORD iIndex, LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
+	[[nodiscard]] STDMETHODIMP ResAppend(LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
+	[[nodiscard]] STDMETHODIMP ResRemoveAt(DWORD iIndex);
+	[[nodiscard]] STDMETHODIMP ResRemoveAll(DWORD_PTR tag = 0);
 };
 
 // IDSMChapterBag
@@ -118,10 +118,10 @@ class CDSMChapter
 public:
 	REFERENCE_TIME rt;
 	CStringW name;
-	CDSMChapter();
+	constexpr explicit CDSMChapter() noexcept;
 	CDSMChapter(REFERENCE_TIME rt, LPCWSTR name);
 	void operator = (const CDSMChapter& c);
-	static int Compare(const void* a, const void* b);
+	[[nodiscard]] constexpr static int Compare(const void* a, const void* b) noexcept;
 };
 
 class IDSMChapterBagImpl : public IDSMChapterBag
@@ -131,19 +131,19 @@ protected:
 	bool m_fSorted;
 
 public:
-	IDSMChapterBagImpl();
+	explicit IDSMChapterBagImpl();
 
 	void operator += (const CDSMChapter& c) {m_chapters.Add(c); m_fSorted = false;}
 
 	// IDSMChapterBag
 
-	STDMETHODIMP_(DWORD) ChapGetCount();
-	STDMETHODIMP ChapGet(DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName = NULL);
-	STDMETHODIMP ChapSet(DWORD iIndex, REFERENCE_TIME rt, LPCWSTR pName);
-	STDMETHODIMP ChapAppend(REFERENCE_TIME rt, LPCWSTR pName);
-	STDMETHODIMP ChapRemoveAt(DWORD iIndex);
+	[[nodiscard]] STDMETHODIMP_(DWORD) ChapGetCount();
+	[[nodiscard]] STDMETHODIMP ChapGet(DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName = NULL);
+	[[nodiscard]] STDMETHODIMP ChapSet(DWORD iIndex, REFERENCE_TIME rt, LPCWSTR pName);
+	[[nodiscard]] STDMETHODIMP ChapAppend(REFERENCE_TIME rt, LPCWSTR pName);
+	[[nodiscard]] STDMETHODIMP ChapRemoveAt(DWORD iIndex);
 	STDMETHODIMP ChapRemoveAll();
-	STDMETHODIMP_(long) ChapLookup(REFERENCE_TIME* prt, BSTR* ppName = NULL);
+	[[nodiscard]] STDMETHODIMP_(long) ChapLookup(REFERENCE_TIME* prt, BSTR* ppName = NULL);
 	STDMETHODIMP ChapSort();
 };
 
@@ -153,21 +153,30 @@ public:
 	CDSMChapterBag(LPUNKNOWN pUnk, HRESULT* phr);
 
 	DECLARE_IUNKNOWN;
-	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+	[[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 };
 
 template<class T>
-int range_bsearch(const CAtlArray<T>& array, REFERENCE_TIME rt)
+[[nodiscard]] int range_bsearch(const CAtlArray<T>& array, const REFERENCE_TIME rt)
 {
-	int i = 0, j = array.GetCount() - 1, ret = -1;
-	if(j >= 0 && rt >= array[j].rt) return j;
+	int i{0}, j = array.GetCount() - 1, ret = -1;
+	if(j >= 0 && rt >= array[j].rt)
+	{
+	    return j;
+	}
 	while(i < j)
 	{
-		int mid = (i + j) >> 1;
-		REFERENCE_TIME midrt = array[mid].rt;
+		int mid{(i + j) >> 1};
+		REFERENCE_TIME midrt{array[mid].rt};
 		if(rt == midrt) {ret = mid; break;}
-		else if(rt < midrt) {ret = -1; if(j == mid) mid--; j = mid;}
-		else if(rt > midrt) {ret = mid; if(i == mid) mid++; i = mid;}
+		else if(rt < midrt) {ret = -1; if(j == mid)
+		{
+		    mid--;
+		} j = mid;}
+		else if(rt > midrt) {ret = mid; if(i == mid)
+		{
+		    mid++;
+		} i = mid;}
 	}
 	return ret;
 }

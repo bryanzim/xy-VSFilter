@@ -20,29 +20,33 @@ public:
     {
     }
 
-    ~XYCircularArrayQueue()
+    constexpr ~XYCircularArrayQueue()
+    noexcept
     {
         delete[]  _elements;
     }
 
-    inline int init(size_t  capacity)
+    [[nodiscard]] inline int init(const std::size_t  capacity)
     {
         _CAPACITY = capacity;
         _elements = new value_type[_CAPACITY];
         return _elements ? 0 : -1;
     }
 
-    inline size_t capacity()
+    [[nodiscard]] constexpr inline std::size_t capacity()
+    noexcept
     {
         return _CAPACITY;
     }
 
-    inline bool full() const
+    [[nodiscard]] constexpr inline bool full() const
+    noexcept
     {
         return size() >= (_CAPACITY -1);
     }
 
-    inline bool empty() const
+    [[nodiscard]] constexpr inline bool empty() const
+    noexcept
     {
         return _head == _tail;
     }
@@ -50,7 +54,8 @@ public:
     /***
      * @return: the number of elements in the @queue.
      **/
-    inline size_t size() const
+    [[nodiscard]] constexpr inline std::size_t size() const
+    noexcept
     {
         return (_CAPACITY -_head+_tail) %_CAPACITY;
     }
@@ -58,7 +63,8 @@ public:
     /***
      * @return: the number of free elements in the @queue. 
      **/
-    inline size_t free() const
+    [[nodiscard]] constexpr inline std::size_t free() const
+    noexcept
     {
         return _CAPACITY - (_CAPACITY -_head+_tail) %_CAPACITY;
     }
@@ -66,7 +72,8 @@ public:
     /***
      *  @return: a read/write reference to the i-th element.
      **/
-    inline reference get_at(int i)
+    [[nodiscard]] constexpr inline reference get_at(int i)
+    noexcept
     {
         i += _head;
         i %= _CAPACITY;
@@ -76,7 +83,8 @@ public:
     /***
      *  @return: a read-only reference to the i-th element.
      **/
-    inline const_reference get_at(int i) const
+    [[nodiscard]] constexpr inline const_reference get_at(int i) const
+    noexcept
     {
         i += _head;
         i %= _CAPACITY;
@@ -86,7 +94,8 @@ public:
     /***
      *  @return: a read/write reference to the last element
      **/
-    inline reference back()
+    [[nodiscard]] constexpr inline reference back()
+    noexcept
     {
         return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
     }
@@ -94,7 +103,8 @@ public:
     /***
      *  @return: a read-only reference to the last element
      **/
-    inline const_reference back() const
+    [[nodiscard]] constexpr inline const_reference back() const
+    noexcept
     {
         return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
     }
@@ -102,7 +112,8 @@ public:
     /***
      *  @return: 0 if succeeded, -1 if failed
      **/
-    inline int push_back(const_reference value)
+    [[nodiscard]] constexpr inline int push_back(const const_reference value)
+    noexcept
     {
         if(size() == (_CAPACITY -1))
         {
@@ -116,7 +127,8 @@ public:
         }
     }
 
-    inline reference inc_1_at_tail()
+    [[nodiscard]] constexpr inline reference inc_1_at_tail()
+    noexcept
     {
         _tail++;
         _tail += _CAPACITY;
@@ -124,7 +136,8 @@ public:
         return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
     }
 
-    inline void pop_front()
+    constexpr inline void pop_front()
+    noexcept
     {
         if(empty())
         {
@@ -136,7 +149,8 @@ public:
         }
     }
 
-    inline void pop_back()
+    constexpr inline void pop_back()
+    noexcept
     {
         if(empty())
         {
@@ -148,7 +162,8 @@ public:
         }
     }
 
-    inline void pop_last_n(int n)
+    constexpr inline void pop_last_n(const int n)
+    noexcept
     {
         if (size()<n)
         {
@@ -163,9 +178,9 @@ public:
     }
 private:
     value_type* _elements;
-    int32_t  _head;
-    int32_t  _tail;
-    size_t   _CAPACITY;
+    std::int32_t  _head;
+    std::int32_t  _tail;
+    std::size_t   _CAPACITY;
 
 };
 

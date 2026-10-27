@@ -40,13 +40,17 @@
 void VDCPUTest() {
 	SYSTEM_INFO si;
 
-	long lEnableFlags = CPUCheckForExtensions();
+	long lEnableFlags{CPUCheckForExtensions()};
 
 	GetSystemInfo(&si);
 
 	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+	{
 		if (si.wProcessorLevel < 4)
-			lEnableFlags &= ~CPUF_SUPPORTS_FPU;		// Not strictly true, but very slow anyway
+		{
+			lEnableFlags &= ~CPUF_SUPPORTS_FPU;
+		}
+	}		// Not strictly true, but very slow anyway
 
 	// Enable FPU support...
 
@@ -61,9 +65,9 @@ CCpuID::CCpuID()
 {
 	VDCPUTest();
 
-	long lEnableFlags = CPUGetEnabledExtensions();
+	long lEnableFlags{CPUGetEnabledExtensions()};
 
-	int flags = 0;
+	int flags{0};
 	flags |= !!(lEnableFlags & CPUF_SUPPORTS_MMX)			? mmx		: 0;			// STD MMX
 	flags |= !!(lEnableFlags & CPUF_SUPPORTS_INTEGER_SSE)	? ssemmx	: 0;			// SSE MMX
 	flags |= !!(lEnableFlags & CPUF_SUPPORTS_SSE)			? ssefpu	: 0;			// STD SSE
@@ -74,7 +78,7 @@ CCpuID::CCpuID()
 	m_flags = (flag_t)flags;
 }
 
-bool BitBltFromI420ToI420(int w, int h, BYTE* dsty, BYTE* dstu, BYTE* dstv, int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
+[[nodiscard]] bool BitBltFromI420ToI420(int w, int h, BYTE* dsty, BYTE* dstu, BYTE* dstv, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, const int srcpitch)
 {
 	VDPixmap srcbm = {0};
 
@@ -103,7 +107,7 @@ bool BitBltFromI420ToI420(int w, int h, BYTE* dsty, BYTE* dstu, BYTE* dstv, int 
 	return VDPixmapBlt(dstpxm, srcbm);
 }
 
-bool BitBltFromYUY2ToYUY2(int w, int h, BYTE* dst, int dstpitch, BYTE* src, int srcpitch)
+[[nodiscard]] bool BitBltFromYUY2ToYUY2(int w, int h, BYTE* dst, const int dstpitch, BYTE* src, const int srcpitch)
 {
 	VDPixmap srcbm = {0};
 
@@ -126,7 +130,7 @@ bool BitBltFromYUY2ToYUY2(int w, int h, BYTE* dst, int dstpitch, BYTE* src, int 
 	return VDPixmapBlt(dstpxm, srcbm);
 }
 
-bool BitBltFromI420ToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
+[[nodiscard]] bool BitBltFromI420ToRGB(int w, int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* srcy, BYTE* srcu, BYTE* srcv, const int srcpitch)
 {
 	VDPixmap srcbm = {0};
 
@@ -165,9 +169,12 @@ bool BitBltFromI420ToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* 
 	return VDPixmapBlt(dstpxm, srcbm);
 }
 
-bool BitBltFromI420ToYUY2(int w, int h, BYTE* dst, int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
+[[nodiscard]] bool BitBltFromI420ToYUY2(int w, int h, BYTE* dst, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
 {
-	if(srcpitch == 0) srcpitch = w;
+	if(srcpitch == 0)
+	{
+	    srcpitch = w;
+	}
 
 #ifndef _WIN64
 	if((g_cpuid.m_flags & CCpuID::sse2)
@@ -175,7 +182,9 @@ bool BitBltFromI420ToYUY2(int w, int h, BYTE* dst, int dstpitch, BYTE* srcy, BYT
 		&& !((DWORD_PTR)dst&15) && !(dstpitch&15))
 	{
 		if(w<=0 || h<=0 || (w&1) || (h&1))
+		{
 			return false;
+		}
 
 		yv12_yuy2_sse2(srcy, srcu, srcv, srcpitch/2, w/2, h, dst, dstpitch);
 		return true;
@@ -207,7 +216,7 @@ bool BitBltFromI420ToYUY2(int w, int h, BYTE* dst, int dstpitch, BYTE* srcy, BYT
 	return VDPixmapBlt(dstpxm, srcbm);
 }
 
-bool BitBltFromRGBToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* src, int srcpitch, int sbpp)
+[[nodiscard]] bool BitBltFromRGBToRGB(const int w, const int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* src, const int srcpitch, const int sbpp)
 {
 	VDPixmap srcbm = {
 		(char *)src + srcpitch * (h - 1),
@@ -262,9 +271,12 @@ bool BitBltFromRGBToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* s
 	return VDPixmapBlt(dstpxm, srcbm);
 }
 
-bool BitBltFromYUY2ToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* src, int srcpitch)
+[[nodiscard]] bool BitBltFromYUY2ToRGB(int w, int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* src, int srcpitch)
 {
-	if(srcpitch == 0) srcpitch = w;
+	if(srcpitch == 0)
+	{
+	    srcpitch = w;
+	}
 
 	VDPixmap srcbm = {0};
 
@@ -299,9 +311,10 @@ bool BitBltFromYUY2ToRGB(int w, int h, BYTE* dst, int dstpitch, int dbpp, BYTE* 
 	return VDPixmapBlt(dstpxm, srcbm);
 }
 
-static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
+constexpr static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
+noexcept
 {
-	WORD* dstw = (WORD*)dst;
+	WORD* dstw{(WORD*)dst};
 	for(; width > 1; width -= 2)
 	{
 		*dstw++ = (*srcu++<<8)|*srcy++;
@@ -309,22 +322,28 @@ static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD 
 	}
 }
 
-static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, DWORD pitchuv)
+constexpr static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, const DWORD pitchuv)
+noexcept
 {
-	WORD* dstw = (WORD*)dst;
+	WORD* dstw{(WORD*)dst};
 	for(; width > 1; width -= 2, srcu++, srcv++)
 	{
-		*dstw++ = (((srcu[0]+srcu[pitchuv])>>1)<<8)|*srcy++;
-		*dstw++ = (((srcv[0]+srcv[pitchuv])>>1)<<8)|*srcy++;
+		*dstw++ = (((srcu[0U]+srcu[pitchuv])>>1)<<8)|*srcy++;
+		*dstw++ = (((srcv[0U]+srcv[pitchuv])>>1)<<8)|*srcy++;
 	}
 }
 
-bool BitBltFromI420ToYUY2Interlaced(int w, int h, BYTE* dst, int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
+[[nodiscard]] bool BitBltFromI420ToYUY2Interlaced(const int w, int h, BYTE* dst, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
 {
 	if(w<=0 || h<=0 || (w&1) || (h&1))
+	{
 		return false;
+	}
 
-	if(srcpitch == 0) srcpitch = w;
+	if(srcpitch == 0)
+	{
+	    srcpitch = w;
+	}
 
 	void (*yuvtoyuy2row)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width) = NULL;
 	void (*yuvtoyuy2row_avg)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, DWORD pitchuv) = NULL;
@@ -351,9 +370,11 @@ bool BitBltFromI420ToYUY2Interlaced(int w, int h, BYTE* dst, int dstpitch, BYTE*
 	}
 
 	if(!yuvtoyuy2row)
+	{
 		return false;
+	}
 
-	int halfsrcpitch = srcpitch/2;
+	int halfsrcpitch{srcpitch/2};
 	do
 	{
 		yuvtoyuy2row(dst, srcy, srcu, srcv, w);
@@ -377,7 +398,7 @@ bool BitBltFromI420ToYUY2Interlaced(int w, int h, BYTE* dst, int dstpitch, BYTE*
 	return true;
 }
 
-bool BitBltFromP010ToP010(int w, int h, BYTE* dst, int dstpitch, const BYTE* src, int srcpitch)
+[[nodiscard]] bool BitBltFromP010ToP010(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
     if (w <= 0 || h <= 0) {
         return true;
@@ -388,7 +409,7 @@ bool BitBltFromP010ToP010(int w, int h, BYTE* dst, int dstpitch, const BYTE* src
     return true;
 }
 
-bool BitBltFromP210ToP210(int w, int h, BYTE* dst, int dstpitch, const BYTE* src, int srcpitch)
+[[nodiscard]] bool BitBltFromP210ToP210(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
     if (w <= 0 || h <= 0) {
         return true;
@@ -399,7 +420,7 @@ bool BitBltFromP210ToP210(int w, int h, BYTE* dst, int dstpitch, const BYTE* src
     return true;
 }
 
-bool BitBltFromNV12ToNV12(int w, int h, BYTE* dst, int dstpitch, const BYTE* src, int srcpitch)
+[[nodiscard]] bool BitBltFromNV12ToNV12(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
     if (w <= 0 || h <= 0) {
         return true;

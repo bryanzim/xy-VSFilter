@@ -24,11 +24,11 @@
 #include <atlcoll.h>
 
 template<class T, typename SEP>
-T Explode(const T& str, CAtlList<T>& sl, SEP sep, size_t limit = 0)
+T Explode(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     sl.RemoveAll();
 
-    for (int i = 0, j = 0; ; i = j + 1) {
+    for (int i{0}, j = 0; ; i = j + 1) {
         j = str.Find(sep, i);
 
         if (j < 0 || sl.GetCount() == limit - 1) {
@@ -43,11 +43,11 @@ T Explode(const T& str, CAtlList<T>& sl, SEP sep, size_t limit = 0)
 }
 
 template<class T, typename SEP>
-T ExplodeNoTrim(const T& str, CAtlList<T>& sl, SEP sep, size_t limit = 0)
+T ExplodeNoTrim(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     sl.RemoveAll();
 
-    for (int i = 0, j = 0; ; i = j + 1) {
+    for (int i{0}, j = 0; ; i = j + 1) {
         j = str.Find(sep, i);
 
         if (j < 0 || sl.GetCount() == limit - 1) {
@@ -63,12 +63,12 @@ T ExplodeNoTrim(const T& str, CAtlList<T>& sl, SEP sep, size_t limit = 0)
 }
 
 template<class T, typename SEP>
-T ExplodeMin(const T& str, CAtlList<T>& sl, SEP sep, size_t limit = 0)
+T ExplodeMin(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     Explode(str, sl, sep, limit);
-    POSITION pos = sl.GetHeadPosition();
+    POSITION pos{sl.GetHeadPosition()};
     while (pos) {
-        POSITION tmp = pos;
+        POSITION tmp{pos};
         if (sl.GetNext(pos).IsEmpty()) {
             sl.RemoveAt(tmp);
         }
@@ -81,12 +81,12 @@ T ExplodeMin(const T& str, CAtlList<T>& sl, SEP sep, size_t limit = 0)
 }
 
 template<class T, typename SEP>
-T ExplodeEsc(T str, CAtlList<T>& sl, SEP sep, size_t limit = 0, SEP esc = _T('\\'))
+T ExplodeEsc(T str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U, SEP esc = _T('\\'))
 {
     sl.RemoveAll();
 
-    int split = 0;
-    for (int i = 0, j = 0; ; i = j + 1) {
+    int split{0};
+    for (int i{0}, j = 0; ; i = j + 1) {
         j = str.Find(sep, i);
         if (j < 0) {
             break;
@@ -115,7 +115,7 @@ template<class T, typename SEP>
 T Implode(const CAtlList<T>& sl, SEP sep)
 {
     T ret;
-    POSITION pos = sl.GetHeadPosition();
+    POSITION pos{sl.GetHeadPosition()};
     while (pos) {
         ret += sl.GetNext(pos);
         if (pos) {
@@ -129,10 +129,10 @@ template<class T, typename SEP>
 T ImplodeEsc(const CAtlList<T>& sl, SEP sep, SEP esc = _T('\\'))
 {
     T ret;
-    T escsep = T(esc) + T(sep);
-    POSITION pos = sl.GetHeadPosition();
+    T escsep{explicit T(esc) + explicit T(sep)};
+    POSITION pos{sl.GetHeadPosition()};
     while (pos) {
-        T str = sl.GetNext(pos);
+        T str{sl.GetNext(pos)};
         str.Replace(T(sep), escsep);
         ret += str;
         if (pos) {
@@ -142,24 +142,24 @@ T ImplodeEsc(const CAtlList<T>& sl, SEP sep, SEP esc = _T('\\'))
     return ret;
 }
 
-extern CString ExtractTag(CString tag, CMapStringToString& attribs, bool& fClosing);
-extern CStringA ConvertMBCS(CStringA str, DWORD SrcCharSet, DWORD DstCharSet);
-extern CStringA UrlEncode(CStringA str_in, bool fArg = false);
-extern CStringA UrlDecode(CStringA str_in);
-extern CStringA HtmlSpecialChars(CStringA str, bool bQuotes = false);
-extern DWORD CharSetToCodePage(DWORD dwCharSet);
-extern CAtlList<CString>& MakeLower(CAtlList<CString>& sl);
-extern CAtlList<CString>& MakeUpper(CAtlList<CString>& sl);
+[[nodiscard]] extern CString ExtractTag(CString tag, CMapStringToString& attribs, bool& fClosing);
+[[nodiscard]] extern CStringA ConvertMBCS(CStringA str, DWORD SrcCharSet, DWORD DstCharSet);
+[[nodiscard]] extern CStringA UrlEncode(CStringA str_in, bool fArg = false);
+[[nodiscard]] extern CStringA UrlDecode(CStringA str_in);
+[[nodiscard]] extern CStringA HtmlSpecialChars(CStringA str, bool bQuotes = false);
+[[nodiscard]] extern DWORD CharSetToCodePage(DWORD dwCharSet);
+[[nodiscard]] extern CAtlList<CString>& MakeLower(CAtlList<CString>& sl);
+[[nodiscard]] extern CAtlList<CString>& MakeUpper(CAtlList<CString>& sl);
 
-CString FormatNumber(CString szNumber, bool bNoFractionalDigits = true);
+[[nodiscard]] CString FormatNumber(CString szNumber, bool bNoFractionalDigits = true);
 
 template<class T>
-T& FastTrimRight(T& str)
+[[nodiscard]] T& FastTrimRight(T& str)
 {
     if (!str.IsEmpty()) {
-        T::PCXSTR szStart = str;
-        T::PCXSTR szEnd   = szStart + str.GetLength() - 1;
-        T::PCXSTR szCur   = szEnd;
+        T::PCXSTR szStart{str};
+        T::PCXSTR szEnd{szStart + str.GetLength() - 1};
+        T::PCXSTR szCur{szEnd};
         for (; szCur >= szStart; szCur--) {
             if (!T::StrTraits::IsSpace(*szCur)) {
                 break;
@@ -175,7 +175,7 @@ T& FastTrimRight(T& str)
 }
 
 template<class T>
-T& FastTrim(T& str)
+[[nodiscard]] T& FastTrim(T& str)
 {
     return FastTrimRight(str).TrimLeft();
 }

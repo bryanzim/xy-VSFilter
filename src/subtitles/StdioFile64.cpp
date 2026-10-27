@@ -30,14 +30,14 @@ ULONGLONG CStdioFile64::GetPosition() const
     ASSERT_VALID(this);
     ASSERT(m_pStream != nullptr);
 
-    long long pos = _ftelli64(m_pStream);
+    long long pos{_ftelli64(m_pStream)};
     if (pos == -1) {
         AfxThrowFileException(CFileException::invalidFile, _doserrno, m_strFileName);
     }
     return pos;
 }
 
-ULONGLONG CStdioFile64::GetLength() const
+[[nodiscard]] ULONGLONG CStdioFile64::GetLength() const
 {
     ASSERT_VALID(this);
 
@@ -67,7 +67,7 @@ ULONGLONG CStdioFile64::GetLength() const
     return nLength;
 }
 
-ULONGLONG CStdioFile64::Seek(LONGLONG lOff, UINT nFrom)
+[[nodiscard]] ULONGLONG CStdioFile64::Seek(const LONGLONG lOff, const UINT nFrom)
 {
     ASSERT_VALID(this);
     ASSERT(nFrom == begin || nFrom == end || nFrom == current);
@@ -77,6 +77,6 @@ ULONGLONG CStdioFile64::Seek(LONGLONG lOff, UINT nFrom)
         AfxThrowFileException(CFileException::badSeek, _doserrno, m_strFileName);
     }
 
-    long long pos = _ftelli64(m_pStream);
+    long long pos{_ftelli64(m_pStream)};
     return pos;
 }

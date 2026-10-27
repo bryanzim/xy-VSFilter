@@ -35,11 +35,12 @@ CSubPicProviderImpl::CSubPicProviderImpl(CCritSec* pLock)
 {
 }
 
-CSubPicProviderImpl::~CSubPicProviderImpl()
+constexpr CSubPicProviderImpl::~CSubPicProviderImpl()
+noexcept
 {
 }
 
-STDMETHODIMP CSubPicProviderImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CSubPicProviderImpl::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
 {
     return
         QI(ISubPicProvider)
@@ -49,34 +50,37 @@ STDMETHODIMP CSubPicProviderImpl::NonDelegatingQueryInterface(REFIID riid, void*
 
 // ISubPicProvider
 
-STDMETHODIMP CSubPicProviderImpl::Lock()
+[[nodiscard]] STDMETHODIMP CSubPicProviderImpl::Lock()
 {
     return m_pLock ? m_pLock->Lock(), S_OK : E_FAIL;
 }
 
-STDMETHODIMP CSubPicProviderImpl::Unlock()
+[[nodiscard]] STDMETHODIMP CSubPicProviderImpl::Unlock()
 {
     return m_pLock ? m_pLock->Unlock(), S_OK : E_FAIL;
 }
 
 // ISubPicProviderEx
 
-STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop( POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
+[[nodiscard]] STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop( const POSITION pos, const double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
 {
     start = GetStart(pos, fps);
     stop = GetStop(pos, fps);
 }
 
-STDMETHODIMP CSubPicProviderImpl::RenderEx( SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList )
+[[nodiscard]] STDMETHODIMP CSubPicProviderImpl::RenderEx( SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, CAtlList<CRect>& rectList )
 {
     CRect cRect;
-    HRESULT hr = Render(spd, rt, fps, cRect);
+    HRESULT hr{Render(spd, rt, fps, cRect)};
     if(SUCCEEDED(hr))
+    {
         rectList.AddTail(cRect);
+    }
     return hr;
 }
 
-STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported( int type )
+[[nodiscard]] constexpr STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported( const int type )
+noexcept
 {
     return type==MSP_RGBA;
 }

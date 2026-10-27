@@ -40,7 +40,7 @@ void CTextInputPin::RemoveSubStream(ISubStream* pSubStream)
 	m_pDVS->RemoveSubStream(pSubStream);
 }
 
-void CTextInputPin::InvalidateSubtitle(REFERENCE_TIME rtStart, ISubStream* pSubStream)
+void CTextInputPin::InvalidateSubtitle(const REFERENCE_TIME rtStart, ISubStream* pSubStream)
 {
 	m_pDVS->InvalidateSubtitle(rtStart, (DWORD_PTR)(ISubStream*)pSubStream);
 }

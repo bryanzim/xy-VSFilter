@@ -5,24 +5,24 @@
 class XyOptionsImpl : public IXyOptions
 {
 public:
-    static const int MAX_OPTION_ID = 127;
+    static const int MAX_OPTION_ID{127};
 
     typedef int OptionType;
-    static const int OPTION_TYPE_END_FLAG = 0;
-    static const int OPTION_TYPE_BOOL     = 0x1;
-    static const int OPTION_TYPE_INT      = 0x2;
-    static const int OPTION_TYPE_SIZE     = 0x4;
-    static const int OPTION_TYPE_RECT     = 0x8;
-    static const int OPTION_TYPE_ULONGLONG= 0x10;
-    static const int OPTION_TYPE_DOUBLE   = 0x20;
-    static const int OPTION_TYPE_STRING   = 0x40;
-    static const int OPTION_TYPE_BIN      = 0x80;
-    static const int OPTION_TYPE_BIN2     = 0x800;
+    static const int OPTION_TYPE_END_FLAG{0};
+    static const int OPTION_TYPE_BOOL{0x1};
+    static const int OPTION_TYPE_INT{0x2};
+    static const int OPTION_TYPE_SIZE{0x4};
+    static const int OPTION_TYPE_RECT{0x8};
+    static const int OPTION_TYPE_ULONGLONG{0x10};
+    static const int OPTION_TYPE_DOUBLE{0x20};
+    static const int OPTION_TYPE_STRING{0x40};
+    static const int OPTION_TYPE_BIN{0x80};
+    static const int OPTION_TYPE_BIN2{0x800};
 
     typedef int OptionMode;
-    static const int OPTION_MODE_READ   = 0x100;
-    static const int OPTION_MODE_WRITE  = 0x200;
-    static const int OPTION_MODE_RW     = 0x300;
+    static const int OPTION_MODE_READ{0x100};
+    static const int OPTION_MODE_WRITE{0x200};
+    static const int OPTION_MODE_RW{0x300};
 
     struct Option
     {
@@ -31,61 +31,63 @@ public:
         unsigned option_id;
     };
 public:
-    XyOptionsImpl(const Option *option_list);
+    explicit XyOptionsImpl(const Option *option_list);
     virtual ~XyOptionsImpl() {}
 
-    STDMETHODIMP XyGetBool     (unsigned field, bool      *value);
-    STDMETHODIMP XyGetInt      (unsigned field, int       *value);
-    STDMETHODIMP XyGetSize     (unsigned field, SIZE      *value);
-    STDMETHODIMP XyGetRect     (unsigned field, RECT      *value);
-    STDMETHODIMP XyGetUlonglong(unsigned field, ULONGLONG *value);
-    STDMETHODIMP XyGetDouble   (unsigned field, double    *value);
-    STDMETHODIMP XyGetString   (unsigned field, LPWSTR    *value, int *chars);
-    STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size );
-    STDMETHODIMP XyGetBin2     (unsigned field, void      *value, int  size );
+    [[nodiscard]] STDMETHODIMP XyGetBool     (unsigned field, bool      *value);
+    [[nodiscard]] STDMETHODIMP XyGetInt      (unsigned field, int       *value);
+    [[nodiscard]] STDMETHODIMP XyGetSize     (unsigned field, SIZE      *value);
+    [[nodiscard]] STDMETHODIMP XyGetRect     (unsigned field, RECT      *value);
+    [[nodiscard]] STDMETHODIMP XyGetUlonglong(unsigned field, ULONGLONG *value);
+    [[nodiscard]] STDMETHODIMP XyGetDouble   (unsigned field, double    *value);
+    [[nodiscard]] STDMETHODIMP XyGetString   (unsigned field, LPWSTR    *value, int *chars);
+    [[nodiscard]] STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size );
+    [[nodiscard]] STDMETHODIMP XyGetBin2     (unsigned field, void      *value, int  size );
 
-    STDMETHODIMP XySetBool     (unsigned field, bool      value);
-    STDMETHODIMP XySetInt      (unsigned field, int       value);
-    STDMETHODIMP XySetSize     (unsigned field, SIZE      value);
-    STDMETHODIMP XySetRect     (unsigned field, RECT      value);
-    STDMETHODIMP XySetUlonglong(unsigned field, ULONGLONG value);
-    STDMETHODIMP XySetDouble   (unsigned field, double    value);
-    STDMETHODIMP XySetString   (unsigned field, LPWSTR    value, int chars);
-    STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size );
+    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] STDMETHODIMP XySetInt      (unsigned field, int       value);
+    [[nodiscard]] STDMETHODIMP XySetSize     (unsigned field, SIZE      value);
+    [[nodiscard]] STDMETHODIMP XySetRect     (unsigned field, RECT      value);
+    [[nodiscard]] STDMETHODIMP XySetUlonglong(unsigned field, ULONGLONG value);
+    [[nodiscard]] STDMETHODIMP XySetDouble   (unsigned field, double    value);
+    [[nodiscard]] STDMETHODIMP XySetString   (unsigned field, LPWSTR    value, int chars);
+    [[nodiscard]] STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size );
 
     //methods for array
-    STDMETHODIMP XyGetBools     (unsigned field, int id, bool      *value);
-    STDMETHODIMP XyGetInts      (unsigned field, int id, int       *value);
-    STDMETHODIMP XyGetSizes     (unsigned field, int id, SIZE      *value);
-    STDMETHODIMP XyGetRects     (unsigned field, int id, RECT      *value);
-    STDMETHODIMP XyGetUlonglongs(unsigned field, int id, ULONGLONG *value);
-    STDMETHODIMP XyGetDoubles   (unsigned field, int id, double    *value);
-    STDMETHODIMP XyGetStrings   (unsigned field, int id, LPWSTR    *value, int *chars);
-    STDMETHODIMP XyGetBins      (unsigned field, int id, LPVOID    *value, int *size );
-    STDMETHODIMP XyGetBins2     (unsigned field, int id, void      *value, int  size );
+    [[nodiscard]] STDMETHODIMP XyGetBools     (unsigned field, int id, bool      *value);
+    [[nodiscard]] STDMETHODIMP XyGetInts      (unsigned field, int id, int       *value);
+    [[nodiscard]] STDMETHODIMP XyGetSizes     (unsigned field, int id, SIZE      *value);
+    [[nodiscard]] STDMETHODIMP XyGetRects     (unsigned field, int id, RECT      *value);
+    [[nodiscard]] STDMETHODIMP XyGetUlonglongs(unsigned field, int id, ULONGLONG *value);
+    [[nodiscard]] STDMETHODIMP XyGetDoubles   (unsigned field, int id, double    *value);
+    [[nodiscard]] STDMETHODIMP XyGetStrings   (unsigned field, int id, LPWSTR    *value, int *chars);
+    [[nodiscard]] STDMETHODIMP XyGetBins      (unsigned field, int id, LPVOID    *value, int *size );
+    [[nodiscard]] constexpr STDMETHODIMP XyGetBins2     (unsigned field, int id, void      *value, int  size ) noexcept;
 
-    STDMETHODIMP XySetBools     (unsigned field, int id, bool      value);
-    STDMETHODIMP XySetInts      (unsigned field, int id, int       value);
-    STDMETHODIMP XySetSizes     (unsigned field, int id, SIZE      value);
-    STDMETHODIMP XySetRects     (unsigned field, int id, RECT      value);
-    STDMETHODIMP XySetUlonglongs(unsigned field, int id, ULONGLONG value);
-    STDMETHODIMP XySetDoubles   (unsigned field, int id, double    value);
-    STDMETHODIMP XySetStrings   (unsigned field, int id, LPWSTR    value, int chars);
-    STDMETHODIMP XySetBins      (unsigned field, int id, LPVOID    value, int size );
+    [[nodiscard]] STDMETHODIMP XySetBools     (unsigned field, int id, bool      value);
+    [[nodiscard]] STDMETHODIMP XySetInts      (unsigned field, int id, int       value);
+    [[nodiscard]] STDMETHODIMP XySetSizes     (unsigned field, int id, SIZE      value);
+    [[nodiscard]] STDMETHODIMP XySetRects     (unsigned field, int id, RECT      value);
+    [[nodiscard]] STDMETHODIMP XySetUlonglongs(unsigned field, int id, ULONGLONG value);
+    [[nodiscard]] STDMETHODIMP XySetDoubles   (unsigned field, int id, double    value);
+    [[nodiscard]] STDMETHODIMP XySetStrings   (unsigned field, int id, LPWSTR    value, int chars);
+    [[nodiscard]] STDMETHODIMP XySetBins      (unsigned field, int id, LPVOID    value, int size );
 
-    inline bool TestOption(unsigned field)
+    [[nodiscard]] constexpr inline bool TestOption(const unsigned field)
+    noexcept
     {
         return (field < MAX_OPTION_ID && m_option_type[field] != OPTION_TYPE_END_FLAG);
     }
-    inline bool TestOption(unsigned field, OptionType type, OptionMode rw_mode=OPTION_MODE_RW)
+    [[nodiscard]] constexpr inline bool TestOption(const unsigned field, OptionType type, const OptionMode rw_mode=OPTION_MODE_RW)
+    noexcept
     {
         type |= rw_mode;
         return (field < MAX_OPTION_ID && (m_option_type[field] & type)== type);
     }
 protected:
     virtual HRESULT DoGetField(unsigned field, void *value);
-    virtual HRESULT DoSetField(unsigned field, void const *value);
-    virtual HRESULT OnOptionChanged(unsigned field);
+    [[nodiscard]] virtual HRESULT DoSetField(unsigned field, void const *value);
+    [[nodiscard]] virtual HRESULT OnOptionChanged(unsigned field);
 
 protected:
     int m_option_type[MAX_OPTION_ID+1];

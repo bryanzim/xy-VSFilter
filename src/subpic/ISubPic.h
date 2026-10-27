@@ -58,7 +58,7 @@ struct SubPicDesc {
 	BYTE* bitsV;
 	RECT vidrect; // video rectangle
 
-	SubPicDesc() {
+	constexpr explicit SubPicDesc() noexcept {
 		type = 0;
 		w = h = bpp = pitch = pitchUV = 0;
 		bits = NULL;

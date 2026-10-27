@@ -159,4 +159,4 @@ enum MPEG_TYPES {
     mpeg_pva
 };
 
-extern const wchar_t* StreamTypeToName(PES_STREAM_TYPE _Type);
+[[nodiscard]] extern const wchar_t* StreamTypeToName(PES_STREAM_TYPE _Type);

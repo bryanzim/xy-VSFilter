@@ -24,7 +24,7 @@ public:
     SharedPtrCClipperPaintMachine clipper;
     int   xsub;
     int   ysub;
-    DWORD switchpts[6];
+    DWORD switchpts[6U];
     bool  fBody;
     bool  fBorder;
 
@@ -33,12 +33,12 @@ public:
     SharedPtrDrawItemHashKey m_key;
 public:
     CRectCoor2 GetDirtyRect();
-    static CRectCoor2 Draw        ( XyBitmap *bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect );
-    static CRectCoor2 AlphaBltDraw( XyBitmap *bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect );
-    static CRectCoor2 AdditionDraw( XyBitmap *bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect );
-    const SharedPtrDrawItemHashKey& GetHashKey();
+    [[nodiscard]] static CRectCoor2 Draw        ( XyBitmap *bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect );
+    [[nodiscard]] static CRectCoor2 AlphaBltDraw( XyBitmap *bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect );
+    [[nodiscard]] static CRectCoor2 AdditionDraw( XyBitmap *bitmap, DrawItem& draw_item, const CRectCoor2& clip_rect );
+    [[nodiscard]] const SharedPtrDrawItemHashKey& GetHashKey();
 
-    static DrawItem* CreateDrawItem(const SharedPtrOverlayPaintMachine& overlay_paint_machine,
+    [[nodiscard]] static DrawItem* CreateDrawItem(const SharedPtrOverlayPaintMachine& overlay_paint_machine,
         const CRect& clipRect,
         const SharedPtrCClipperPaintMachine &clipper,
         int xsub, int ysub,

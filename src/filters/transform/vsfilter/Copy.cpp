@@ -33,7 +33,7 @@ using namespace DirectVobSubXyOptions;
 static void LogSubPicStartStop( const REFERENCE_TIME& rtStart, const REFERENCE_TIME& rtStop, const CString& msg)
 {
 #if ENABLE_XY_LOG
-    static REFERENCE_TIME s_rtStart = -1, s_rtStop = -1;
+    static REFERENCE_TIME s_rtStart{-1}, s_rtStop = -1;
     if(s_rtStart!=rtStart || s_rtStop!=rtStop)
     {
         XY_LOG_INFO(msg.GetString());
@@ -43,15 +43,16 @@ static void LogSubPicStartStop( const REFERENCE_TIME& rtStart, const REFERENCE_T
 #endif
 }
 
-void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
+void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
+noexcept
 {
     if(subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV 
         || subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21
         || subtype == MEDIASUBTYPE_YV16 || subtype == MEDIASUBTYPE_YV24)
     {
         //TODO: Fix ME!
-        BYTE* db = (BYTE*)d;
-        BYTE* dbtend = db + w;
+        BYTE* db{(BYTE*)d};
+        BYTE* dbtend{db + w};
 
         for(; db < dbtend; sub++, db++)
         {
@@ -62,8 +63,8 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
         || subtype == MEDIASUBTYPE_P210 || subtype == MEDIASUBTYPE_P216)
     {
         //TODO: Fix ME!
-        WORD* db = reinterpret_cast<WORD*>(d);
-        WORD* dbtend = db + w;
+        WORD* db{reinterpret_cast<WORD*>(d)};
+        WORD* dbtend{db + w};
 
         for(; db < dbtend; sub++, db++)
         {
@@ -72,33 +73,33 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
     }
     else if(subtype == MEDIASUBTYPE_YUY2)
     {
-        BYTE* ds = (BYTE*)d;
-        BYTE* dstend = ds + w*2;
+        BYTE* ds{(BYTE*)d};
+        BYTE* dstend{ds + w*2};
 
         for(; ds < dstend; sub++, ds+=2)
         {
-            ds[0] = (ds[0]+*sub)>>1;
+            ds[0U] = (ds[0U]+*sub)>>1;
         }
     }
     else if (subtype == MEDIASUBTYPE_AYUV)
     {
-        BYTE* db = (BYTE*)d;
-        BYTE* dbtend = db + w*4;
+        BYTE* db{(BYTE*)d};
+        BYTE* dbtend{db + w*4};
 
         for(; db < dbtend; sub++, db+=4)
         {
-            db[2] = (db[2]+*sub)>>1;
+            db[2U] = (db[2U]+*sub)>>1;
         }
     }
     else if(subtype == MEDIASUBTYPE_RGB555)
     {
-        WORD* ds = (WORD*)d;
-        WORD* dstend = ds + w;
+        WORD* ds{(WORD*)d};
+        WORD* dstend{ds + w};
 
         for(; ds < dstend; sub++, ds++)
         {
-            DWORD tmp = *ds;
-            WORD tmpsub = *sub;
+            DWORD tmp{*ds};
+            WORD tmpsub{*sub};
             *ds  = ((tmp>>10) + tmpsub)>>1<<10;
             *ds |= (((tmp>>5)&0x001f) + tmpsub)>>1<<5;
             *ds |= ((tmp&0x001f) + tmpsub)>>1;
@@ -106,12 +107,12 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
     }
     else if(subtype == MEDIASUBTYPE_RGB565)
     {
-        WORD* ds = (WORD*)d;
-        WORD* dstend = ds + w;
+        WORD* ds{(WORD*)d};
+        WORD* dstend{ds + w};
 
         for(; ds < dstend; sub++, ds++)
         {
-            WORD tmp = *ds;
+            WORD tmp{*ds};
             *ds  = ((tmp>>11) + (*sub>>3))>>1<<11;
             *ds |= (((tmp>>5)&0x003f) + (*sub>>2))>>1<<5;
             *ds |= ((tmp&0x001f) + (*sub>>3))>>1;
@@ -119,50 +120,53 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
     }
     else if(subtype == MEDIASUBTYPE_RGB24)
     {
-        BYTE* dt = (BYTE*)d;
-        BYTE* dstend = dt + w*3;
+        BYTE* dt{(BYTE*)d};
+        BYTE* dstend{dt + w*3};
 
         for(; dt < dstend; sub++, dt+=3)
         {
-            dt[0] = (dt[0]+*sub)>>1;
-            dt[1] = (dt[1]+*sub)>>1;
-            dt[2] = (dt[2]+*sub)>>1;
+            dt[0U] = (dt[0U]+*sub)>>1;
+            dt[1U] = (dt[1U]+*sub)>>1;
+            dt[2U] = (dt[2U]+*sub)>>1;
         }
     }
     else if(subtype == MEDIASUBTYPE_RGB32 || subtype == MEDIASUBTYPE_ARGB32)
     {
-        BYTE* dt = (BYTE*)d;
-        BYTE* dstend = dt + w*4;
+        BYTE* dt{(BYTE*)d};
+        BYTE* dstend{dt + w*4};
 
         for(; dt < dstend; sub++, dt+=4)
         {
-            dt[0] = (dt[0]+*sub)>>1;
-            dt[1] = (dt[1]+*sub)>>1;
-            dt[2] = (dt[2]+*sub)>>1;
+            dt[0U] = (dt[0U]+*sub)>>1;
+            dt[1U] = (dt[1U]+*sub)>>1;
+            dt[2U] = (dt[2U]+*sub)>>1;
         }
     }
 }
 
-HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black)
+[[nodiscard]] HRESULT Copy(BYTE* pSub, BYTE* pIn, const CSize sub, const CSize in, const int bpp, const GUID& subtype, const DWORD black)
 {
-    int wIn = in.cx, hIn = in.cy, pitchIn = wIn*bpp>>3;
-    int wSub = sub.cx, hSub = sub.cy, pitchSub = wSub*bpp>>3;
-    bool fScale2x = wIn*2 <= wSub;
+    int wIn{in.cx}, hIn = in.cy, pitchIn = wIn*bpp>>3;
+    int wSub{sub.cx}, hSub = sub.cy, pitchSub = wSub*bpp>>3;
+    bool fScale2x{wIn*2 <= wSub};
 
-    if(fScale2x) wIn <<= 1, hIn <<= 1;
+    if(fScale2x)
+    {
+        wIn <<= 1, hIn <<= 1;
+    }
 
-    int left = ((wSub - wIn)>>1)&~1;
-    int mid = wIn;
-    int right = left + ((wSub - wIn)&1);
+    int left{((wSub - wIn)>>1)&~1};
+    int mid{wIn};
+    int right{left + ((wSub - wIn)&1)};
 
-    int dpLeft = left*bpp>>3;
-    int dpMid = mid*bpp>>3;
-    int dpRight = right*bpp>>3;
+    int dpLeft{left*bpp>>3};
+    int dpMid{mid*bpp>>3};
+    int dpRight{right*bpp>>3};
 
     ASSERT(wSub >= wIn);
 
     {
-        int i = 0, j = 0;
+        int i{0}, j = 0;
 
         j += (hSub - hIn) >> 1;
 
@@ -174,7 +178,9 @@ HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& su
         j += hIn;
 
         if(hIn > hSub)
+        {
             pIn += pitchIn * ((hIn - hSub) >> (fScale2x?2:1));
+        }
 
         if(fScale2x)
         {
@@ -183,10 +189,10 @@ HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& su
         }
         else
         {
-            for(int k = min(j, hSub); i < k; i++, pIn += pitchIn, pSub += pitchSub)
+            for(int k{min(j, hSub)}; i < k; i++, pIn += pitchIn, pSub += pitchSub)
             {
                 memsetd(pSub, black, dpLeft);
-                memcpy(pSub + dpLeft, pIn, dpMid);
+                std::memcpy(pSub + dpLeft, pIn, dpMid);
                 memsetd(pSub + dpLeft+dpMid, black, dpRight);
             }
         }
@@ -202,7 +208,7 @@ HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& su
     return NOERROR;
 }
 
-HRESULT CDirectVobSubFilter::Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black)
+[[nodiscard]] HRESULT CDirectVobSubFilter::Copy(BYTE* pSub, BYTE* pIn, const CSize sub, const CSize in, const int bpp, const GUID& subtype, const DWORD black)
 {
     return ::Copy(pSub, pIn, sub, in, bpp, subtype, black);	
 }
@@ -210,9 +216,11 @@ HRESULT CDirectVobSubFilter::Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, in
 void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
 {
     if(!m_hdc || !m_hbm)
+    {
         return;
+    }
 
-    const GUID& subtype = m_pOutput->CurrentMediaType().subtype;
+    const GUID& subtype{m_pOutput->CurrentMediaType().subtype};
 
     BITMAPINFOHEADER bihOut;
     ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
@@ -235,17 +243,17 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
 			m_pInput->CurrentRate());
 		msg += tmp;
 
-		CAutoLock cAutoLock(&m_csSubLock);
+		[[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
 
 		if(m_simple_provider)
 		{
-			int nSubPics = -1;
-			REFERENCE_TIME rtNow = -1, rtStart = -1, rtStop = -1;
+			int nSubPics{-1};
+			REFERENCE_TIME rtNow{-1}, rtStart = -1, rtStop = -1;
 			m_simple_provider->GetStats(nSubPics, rtNow, rtStart, rtStop);
             tmp.Format(_T("queue stats: %I64d - %I64d [ms]\n"), RT2MS(rtStart), RT2MS(rtStop));
 			msg += tmp;
 
-			for(int i = 0; i < nSubPics; i++)
+			for(int i{0}; i < nSubPics; i++)
 			{
 				m_simple_provider->GetStats(i, rtStart, rtStop);
                 tmp.Format(_T("%d: %I64d - %I64d [ms]\n"), i, RT2MS(rtStart), RT2MS(rtStop));
@@ -311,10 +319,13 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
         msg += tmp;
     }
 
-    if(msg.IsEmpty()) return;
+    if(msg.IsEmpty())
+    {
+        return;
+    }
 
-    HANDLE hOldBitmap = SelectObject(m_hdc, m_hbm);
-    HANDLE hOldFont = SelectObject(m_hdc, m_hfont);
+    HANDLE hOldBitmap{SelectObject(m_hdc, m_hbm)};
+    HANDLE hOldFont{SelectObject(m_hdc, m_hfont)};
 
     SetTextColor(m_hdc, 0xffffff);
     SetBkMode(m_hdc, TRANSPARENT);
@@ -323,19 +334,19 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
     BITMAP bm;
     GetObject(m_hbm, sizeof(BITMAP), &bm);
 
-    const int MARGIN = 8;
-    CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
+    const int MARGIN{8};
+    [[nodiscard]] CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
     DrawText(m_hdc, msg, _tcslen(msg), &r, DT_CALCRECT|DT_EXTERNALLEADING|DT_NOPREFIX|DT_WORDBREAK);
 
     r &= CRect(0, 0, bm.bmWidth, bm.bmHeight);
 
     DrawText(m_hdc, msg, _tcslen(msg), &r, DT_LEFT|DT_TOP|DT_NOPREFIX|DT_WORDBREAK);
 
-    BYTE* pIn = (BYTE*)bm.bmBits;
+    BYTE* pIn{(BYTE*)bm.bmBits};
 
-    int pitchIn = bm.bmWidthBytes;
+    int pitchIn{bm.bmWidthBytes};
 
-    int pitchOut = bihOut.biWidth * bihOut.biBitCount >> 3;
+    int pitchOut{bihOut.biWidth * bihOut.biBitCount >> 3};
 
     if( subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV 
         || subtype== MEDIASUBTYPE_NV12 || subtype==MEDIASUBTYPE_NV21 ) {
@@ -347,14 +358,14 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
 
     if(bihOut.biHeight > 0 && bihOut.biCompression <= 3) // flip if the dst bitmap is flipped rgb (m_hbm is a top-down bitmap, not like the subpictures)
     {
-        pOut += pitchOut * (abs(bihOut.biHeight)-1);
+        pOut += pitchOut * (std::abs(bihOut.biHeight)-1);
         pitchOut = -pitchOut;
     }
 
-    for(int w = min(r.right + MARGIN, m_w), h = min(r.bottom,abs(m_h)); h--; pIn += pitchIn, pOut += pitchOut)
+    for(int w{min(r.right + MARGIN, m_w)}, h = min(r.bottom,std::abs(m_h)); h--; pIn += pitchIn, pOut += pitchOut)
     {
         BltLineRGB32((DWORD*)pOut, pIn, w, subtype);
-        memset(pIn+r.left, 0, r.Width());
+        std::memset(pIn+r.left, 0, r.Width());
     }
 
     SelectObject(m_hdc, hOldBitmap);

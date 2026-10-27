@@ -14,7 +14,7 @@ enum XyColorSpace
 
 struct XyPlannerFormatExtra
 {
-    LPCVOID plans[4];
+    LPCVOID plans[4U];
 };
 
 [uuid("4237bf3b-14fd-44a4-9704-86ec87f89897")]

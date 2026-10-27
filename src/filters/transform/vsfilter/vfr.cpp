@@ -54,23 +54,26 @@ public:
 	virtual double TimeStampFromFrameNumber(int n)
 	{
 		// Find correct section
-		for (size_t i = 0; i < sections.size(); i++) {
-			FrameRateSection &sect = sections[i];
+		for (std::size_t i{0U}; i < sections.size(); i++) {
+			FrameRateSection &sect{sections[i]};
 			if (n >= sect.start_frame && n <= sect.end_frame) {
 				return sect.start_time + (n - sect.start_frame) * sect.spf;
 			}
 		}
 		// Not in a section
-		if (n < 0) return 0.0;
+		if (n < 0)
+		{
+		    return 0.0;
+		}
 		return first_non_section_timestamp + (n - first_non_section_frame) * default_spf;
 	}
 
-	TimecodesV1(FILE *vfrfile)
+	explicit TimecodesV1(FILE *vfrfile)
 	{
-		char buf[100];
+		char buf[100U];
 
 		default_spf = -1;
-		double cur_time = 0.0;
+		double cur_time{0.0};
 
 		FrameRateSection temp_section;
 		temp_section.start_time = 0.0;
@@ -80,15 +83,22 @@ public:
 
 		while (fgets(buf, 100, vfrfile)) {
 			// Comment?
-			if (buf[0] == '#') continue;
+			if (buf[0U] == '#')
+			{
+			    continue;
+			}
 
 			if (_strnicmp(buf, "Assume ", 7) == 0 && default_spf < 0) {
-				char *num = buf+7;
+				char *num{buf+7};
 				default_spf = atof(num);
 				if (default_spf > 0)
+				{
 					default_spf = 1 / default_spf;
+				}
 				else
+				{
 					default_spf = -1;
+				}
 				temp_section.spf = default_spf;
 				continue;
 			}
@@ -139,19 +149,25 @@ public:
 		if (n < (int)timestamps.size() && n >= 0) {
 			return timestamps[n];
 		}
-		if (n < 0) return 0.0;
+		if (n < 0)
+		{
+		    return 0.0;
+		}
 		return last_known_timestamp + (n - last_known_frame) * assumed_spf;
 	}
 
-	TimecodesV2(FILE *vfrfile)
+	explicit TimecodesV2(FILE *vfrfile)
 	{
-		char buf[50];
+		char buf[50U];
 
 		timestamps.reserve(8192); // should be enough for most cases
 
 		while (fgets(buf, 50, vfrfile)) {
 			// Comment?
-			if (buf[0] == '#') continue;
+			if (buf[0U] == '#')
+			{
+			    continue;
+			}
 			// Otherwise assume it's a good timestamp
 			timestamps.push_back(atof(buf)/1000);
 		}
@@ -164,19 +180,19 @@ public:
 };
 
 
-VFRTranslator *GetVFRTranslator(const char *vfrfile)
+[[nodiscard]] VFRTranslator *GetVFRTranslator(const char *vfrfile)
 {
-	char buf[32];
-	buf[19] = 0; // In "# timecode format v1" the version number is character index 19
-	FILE *f = NULL;
-    int rv = fopen_s(&f, vfrfile, "r");
+	char buf[32U];
+	buf[19U] = 0; // In "# timecode format v1" the version number is character index 19
+	FILE *f{NULL};
+    int rv{fopen_s(&f, vfrfile, "r")};
     ASSERT(rv==0 && f);
-	VFRTranslator *res = 0;
-	if (fgets(buf, 32, f) && buf[0] == '#') {
+	VFRTranslator *res{0};
+	if (fgets(buf, 32, f) && buf[0U] == '#') {
 		// So do some really shoddy parsing here, assume the file is good
-		if (buf[19] == '1') {
+		if (buf[19U] == '1') {
 			res = new TimecodesV1(f);
-		} else if (buf[19] == '2') {
+		} else if (buf[19U] == '2') {
 			res = new TimecodesV2(f);
 		}
 	}

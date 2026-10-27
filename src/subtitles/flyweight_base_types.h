@@ -38,13 +38,13 @@ public:
         {
             return VTraits::Hash(*v);
         }
-        static inline bool CompareElements(
+        [[nodiscard]] static inline bool CompareElements(
             const SharedConstV& element1,
             const SharedConstV& element2)
         {
             return VTraits::CompareElements(*element1, *element2);
         }
-        static inline int CompareElementsOrdered(
+        [[nodiscard]] static inline int CompareElementsOrdered(
             const SharedConstV& element1,
             const SharedConstV& element2)
         {
@@ -54,15 +54,15 @@ public:
 
     typedef EnhancedXyMru<SharedConstV, IdType, SharedVElementTraits> Cacher;    
 public:
-    static const int INVALID_ID = 0;
+    static const int INVALID_ID{0};
 public:
     // v will be assigned to a shared pointer
-    XyFlyWeight(const V *v):_v(v)
+    explicit XyFlyWeight(const V *v):_v(v)
     {
-        Cacher * cacher = GetCacher();
+        Cacher * cacher{GetCacher()};
         ASSERT( cacher );
-        bool new_item_added = false;
-        POSITION pos = cacher->AddHeadIfNotExists(_v, INVALID_ID, &new_item_added);
+        bool new_item_added{false};
+        POSITION pos{cacher->AddHeadIfNotExists(_v, INVALID_ID, &new_item_added)};
         if ( !new_item_added )
         {
             cacher->UpdateCache(pos);
@@ -75,10 +75,10 @@ public:
             cacher->GetAt(pos) = _id;
         }
     }
-    inline const V& Get() const { return *_v; }
-    inline IdType GetId() const { return _id; }
+    [[nodiscard]] constexpr inline const V& Get() const noexcept { return *_v; }
+    [[nodiscard]] constexpr inline IdType GetId() const noexcept { return _id; }
 
-    static inline Cacher* GetCacher();
+    [[nodiscard]] static inline Cacher* GetCacher();
 private:
     SharedConstV _v;
     IdType _id;
@@ -90,7 +90,7 @@ template<typename V, int DEFAULT_CACHE_SIZE, class VTraits>
 inline
 typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::Cacher* XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::GetCacher()
 {
-    static Cacher cacher(DEFAULT_CACHE_SIZE);
+    [[nodiscard]] static Cacher cacher(DEFAULT_CACHE_SIZE);
     return &cacher;
 }
 
@@ -98,7 +98,7 @@ template<typename V, int DEFAULT_CACHE_SIZE, class VTraits>
 inline
 typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::IdType XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::AllocId()
 {
-    static IdType cur_id=INVALID_ID;
+    static IdType cur_id{INVALID_ID};
     ++cur_id;
     if (cur_id==INVALID_ID)
     {
@@ -109,10 +109,10 @@ typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::IdType XyFlyWeight<V, DEFA
 
 typedef XyFlyWeight<CStringW, 16*1024, CStringElementTraits<CStringW>> XyFwStringW;
 
-static inline std::size_t hash_value(const double& d)
+[[nodiscard]] static inline std::size_t hash_value(const double& d)
 {
-    std::size_t hash = 515;
-    const int32_t* tmp = reinterpret_cast<const int32_t*>(&d);
+    std::size_t hash{515U};
+    const std::int32_t* tmp{reinterpret_cast<const std::int32_t*>(&d)};
     hash += (hash<<5);
     hash += *(tmp++);
     hash += (hash<<5);
@@ -120,14 +120,14 @@ static inline std::size_t hash_value(const double& d)
     return hash;
 }
 
-static inline std::size_t hash_value(const CStringW& s)
+[[nodiscard]] static inline std::size_t hash_value(const CStringW& s)
 {
     return CStringElementTraits<CStringW>::Hash(s);
 }
 
-static inline std::size_t hash_value(const CRect& s)
+[[nodiscard]] static inline std::size_t hash_value(const CRect& s)
 {
-    std::size_t hash = 515;
+    std::size_t hash{515U};
     hash += (hash<<5);
     hash += s.left;
     hash += (hash<<5);

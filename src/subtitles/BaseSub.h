@@ -34,21 +34,21 @@ public:
     typedef CompositionObject::ColorType ColorType;
     typedef CompositionObject::YuvRangeType YuvRangeType;
 
-    static const REFERENCE_TIME INVALID_TIME = _I64_MIN;
+    static const REFERENCE_TIME INVALID_TIME{_I64_MIN};
 
-    CBaseSub(SUBTITLE_TYPE nType);
-    virtual ~CBaseSub();
+    constexpr explicit CBaseSub(SUBTITLE_TYPE nType) noexcept;
+    constexpr virtual ~CBaseSub() noexcept;
 
-    virtual HRESULT         ParseSample(IMediaSample* pSample) = NULL;
+    [[nodiscard]] virtual HRESULT         ParseSample(IMediaSample* pSample) = NULL;
     virtual void            EndOfStream() { /* Nothing to do */ };
     virtual void            Reset() = NULL;
-    virtual POSITION        GetStartPosition(REFERENCE_TIME rt, double fps = 0) = NULL;
-    virtual POSITION        GetNext(POSITION pos) = NULL;
-    virtual REFERENCE_TIME  GetStart(POSITION nPos) = NULL;
-    virtual REFERENCE_TIME  GetStop(POSITION nPos) = NULL;
+    [[nodiscard]] virtual POSITION        GetStartPosition(REFERENCE_TIME rt, double fps = 0) = NULL;
+    [[nodiscard]] virtual POSITION        GetNext(POSITION pos) = NULL;
+    [[nodiscard]] virtual REFERENCE_TIME  GetStart(POSITION nPos) = NULL;
+    [[nodiscard]] virtual REFERENCE_TIME  GetStop(POSITION nPos) = NULL;
     virtual void            Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox) = NULL;
-    virtual HRESULT         GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft) = NULL;
-    virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType) = NULL;
+    [[nodiscard]] virtual HRESULT         GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft) = NULL;
+    [[nodiscard]] virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType) = NULL;
 protected:
     SUBTITLE_TYPE           m_nType;
     ColorType               m_colorTypeSetting;

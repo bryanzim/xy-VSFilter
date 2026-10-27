@@ -47,11 +47,12 @@ CSubPicAllocatorPresenterImpl::CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT&
 	hr = S_OK;
 }
 
-CSubPicAllocatorPresenterImpl::~CSubPicAllocatorPresenterImpl()
+constexpr CSubPicAllocatorPresenterImpl::~CSubPicAllocatorPresenterImpl()
+noexcept
 {
 }
 
-STDMETHODIMP CSubPicAllocatorPresenterImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CSubPicAllocatorPresenterImpl::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
 {
 	return
 		QI(ISubPicAllocatorPresenter)
@@ -59,7 +60,7 @@ STDMETHODIMP CSubPicAllocatorPresenterImpl::NonDelegatingQueryInterface(REFIID r
 		__super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-void CSubPicAllocatorPresenterImpl::AlphaBltSubPic(CSize size, SubPicDesc* pTarget)
+void CSubPicAllocatorPresenterImpl::AlphaBltSubPic(const CSize size, SubPicDesc* pTarget)
 {
 	CComPtr<ISubPic> pSubPic;
 	if(m_pSubPicQueue->LookupSubPic(m_rtNow, &pSubPic)) {
@@ -92,9 +93,9 @@ void CSubPicAllocatorPresenterImpl::AlphaBltSubPic(CSize size, SubPicDesc* pTarg
 
 // ISubPicAllocatorPresenter
 
-STDMETHODIMP_(SIZE) CSubPicAllocatorPresenterImpl::GetVideoSize(bool fCorrectAR)
+[[nodiscard]] STDMETHODIMP_(SIZE) CSubPicAllocatorPresenterImpl::GetVideoSize(const bool fCorrectAR)
 {
-	CSize VideoSize(GetVisibleVideoSize());
+	[[nodiscard]] CSize VideoSize(GetVisibleVideoSize());
 
 	if(fCorrectAR && m_AspectRatio.cx > 0 && m_AspectRatio.cy > 0) {
 		VideoSize.cx = (LONGLONG(VideoSize.cy)*LONGLONG(m_AspectRatio.cx))/LONGLONG(m_AspectRatio.cy);
@@ -103,14 +104,14 @@ STDMETHODIMP_(SIZE) CSubPicAllocatorPresenterImpl::GetVideoSize(bool fCorrectAR)
 	return(VideoSize);
 }
 
-STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetPosition(RECT w, RECT v)
+STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetPosition(const RECT w, const RECT v)
 {
-	bool fWindowPosChanged = !!(m_WindowRect != w);
-	bool fWindowSizeChanged = !!(m_WindowRect.Size() != CRect(w).Size());
+	bool fWindowPosChanged{!!(m_WindowRect != w)};
+	bool fWindowSizeChanged{!!(m_WindowRect.Size() != CRect(w).Size())};
 
 	m_WindowRect = w;
 
-	bool fVideoRectChanged = !!(m_VideoRect != v);
+	bool fVideoRectChanged{!!(m_VideoRect != v)};
 
 	m_VideoRect = v;
 
@@ -130,7 +131,7 @@ STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetPosition(RECT w, RECT v)
 	}
 }
 
-STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetTime(REFERENCE_TIME rtNow)
+STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetTime(const REFERENCE_TIME rtNow)
 {
 	/*
 		if(m_rtNow <= rtNow && rtNow <= m_rtNow + 1000000)
@@ -143,17 +144,20 @@ STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetTime(REFERENCE_TIME rtNow)
 	}
 }
 
-STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetSubtitleDelay(int delay_ms)
+constexpr STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetSubtitleDelay(const int delay_ms)
+noexcept
 {
 	m_rtSubtitleDelay = delay_ms*10000i64;
 }
 
-STDMETHODIMP_(int) CSubPicAllocatorPresenterImpl::GetSubtitleDelay()
+[[nodiscard]] constexpr STDMETHODIMP_(int) CSubPicAllocatorPresenterImpl::GetSubtitleDelay()
+noexcept
 {
 	return (m_rtSubtitleDelay/10000);
 }
 
-STDMETHODIMP_(double) CSubPicAllocatorPresenterImpl::GetFPS()
+[[nodiscard]] constexpr STDMETHODIMP_(double) CSubPicAllocatorPresenterImpl::GetFPS()
+noexcept
 {
 	return(m_fps);
 }
@@ -167,7 +171,7 @@ STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetSubPicProvider(ISubPicProv
 	}
 }
 
-STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::Invalidate(REFERENCE_TIME rtInvalidate)
+STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::Invalidate(const REFERENCE_TIME rtInvalidate)
 {
 	if(m_pSubPicQueue) {
 		m_pSubPicQueue->Invalidate(rtInvalidate);
@@ -176,17 +180,17 @@ STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::Invalidate(REFERENCE_TIME rtI
 
 #include <math.h>
 
-void CSubPicAllocatorPresenterImpl::Transform(CRect r, Vector v[4])
+void CSubPicAllocatorPresenterImpl::Transform(CRect r, Vector v[4U])
 {
-	v[0] = Vector(r.left, r.top, 0);
-	v[1] = Vector(r.right, r.top, 0);
-	v[2] = Vector(r.left, r.bottom, 0);
-	v[3] = Vector(r.right, r.bottom, 0);
+	v[0U] = Vector(r.left, r.top, 0);
+	v[1U] = Vector(r.right, r.top, 0);
+	v[2U] = Vector(r.left, r.bottom, 0);
+	v[3U] = Vector(r.right, r.bottom, 0);
 
 	Vector center(r.CenterPoint().x, r.CenterPoint().y, 0);
-	int l = (int)(Vector(r.Size().cx, r.Size().cy, 0).Length()*1.5f)+1;
+	int l{(int)(Vector(r.Size().cx, r.Size().cy, 0).Length()*1.5f)+1};
 
-	for(int i = 0; i < 4; i++)
+	for(int i{0}; i < 4; i++)
 	{
 		v[i] = m_xform << (v[i] - center);
 		v[i].z = v[i].z / l + 0.5f;
@@ -196,7 +200,7 @@ void CSubPicAllocatorPresenterImpl::Transform(CRect r, Vector v[4])
 	}
 }
 
-STDMETHODIMP CSubPicAllocatorPresenterImpl::SetVideoAngle(Vector v, bool fRepaint)
+[[nodiscard]] STDMETHODIMP CSubPicAllocatorPresenterImpl::SetVideoAngle(const Vector v, const bool fRepaint)
 {
 	m_xform = XForm(Ray(Vector(0, 0, 0), v), Vector(1, 1, 1), false);
 	if(fRepaint) {

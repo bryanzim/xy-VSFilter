@@ -28,11 +28,13 @@ CGolombBuffer::CGolombBuffer(BYTE* pBuffer, int nSize)
     Reset();
 }
 
-CGolombBuffer::~CGolombBuffer()
+constexpr CGolombBuffer::~CGolombBuffer()
+noexcept
 {
 }
 
-UINT64 CGolombBuffer::BitRead(int nBits, bool fPeek)
+[[nodiscard]] constexpr UINT64 CGolombBuffer::BitRead(const int nBits, const bool fPeek)
+noexcept
 {
     //ASSERT(nBits >= 0 && nBits <= 64);
 
@@ -47,7 +49,7 @@ UINT64 CGolombBuffer::BitRead(int nBits, bool fPeek)
         m_bitlen += 8;
     }
 
-    int bitlen = m_bitlen - nBits;
+    int bitlen{m_bitlen - nBits};
 
     UINT64 ret;
     // The shift to 64 bits can give incorrect results.
@@ -66,27 +68,31 @@ UINT64 CGolombBuffer::BitRead(int nBits, bool fPeek)
     return ret;
 }
 
-UINT64 CGolombBuffer::UExpGolombRead()
+[[nodiscard]] constexpr UINT64 CGolombBuffer::UExpGolombRead()
+noexcept
 {
-    int n = -1;
-    for (BYTE b = 0; !b; n++) {
+    int n{-1};
+    for (BYTE b{0}; !b; n++) {
         b = (BYTE)BitRead(1);
     }
     return (1ui64 << n) - 1 + BitRead(n);
 }
 
-INT64 CGolombBuffer::SExpGolombRead()
+[[nodiscard]] constexpr INT64 CGolombBuffer::SExpGolombRead()
+noexcept
 {
-    UINT64 k = UExpGolombRead();
+    UINT64 k{UExpGolombRead()};
     return ((k & 1) ? 1 : -1) * ((k + 1) >> 1);
 }
 
-void CGolombBuffer::BitByteAlign()
+constexpr void CGolombBuffer::BitByteAlign()
+noexcept
 {
     m_bitlen &= ~7;
 }
 
-int CGolombBuffer::GetPos()
+[[nodiscard]] constexpr int CGolombBuffer::GetPos()
+noexcept
 {
     return m_nBitPos - (m_bitlen >> 3);
 }
@@ -97,7 +103,7 @@ void CGolombBuffer::ReadBuffer(BYTE* pDest, int nSize)
     ASSERT(m_bitlen == 0);
     nSize = min(nSize, m_nSize - m_nBitPos);
 
-    memcpy(pDest, m_pBuffer + m_nBitPos, nSize);
+    std::memcpy(pDest, m_pBuffer + m_nBitPos, nSize);
     m_nBitPos += nSize;
 }
 
@@ -108,7 +114,7 @@ void CGolombBuffer::Reset()
     m_bitbuff = 0;
 }
 
-void CGolombBuffer::Reset(BYTE* pNewBuffer, int nNewSize)
+void CGolombBuffer::Reset(BYTE* pNewBuffer, const int nNewSize)
 {
     m_pBuffer = pNewBuffer;
     m_nSize   = nNewSize;
@@ -116,7 +122,8 @@ void CGolombBuffer::Reset(BYTE* pNewBuffer, int nNewSize)
     Reset();
 }
 
-void CGolombBuffer::SkipBytes(int nCount)
+constexpr void CGolombBuffer::SkipBytes(const int nCount)
+noexcept
 {
     m_nBitPos += nCount;
     m_bitlen   = 0;

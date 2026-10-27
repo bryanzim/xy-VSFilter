@@ -19,9 +19,9 @@
 //    and
 //      a(line)<=b(line) on line>=@cross_line
 
-static const int MIN_CROSS_LINE = (-2147483647 - 1);
-static const int MAX_CROSS_LINE = 0x7fffffff;
-static const int MAX_X = 0x7fffffff;
+static const int MIN_CROSS_LINE{(-2147483647 - 1)};
+static const int MAX_CROSS_LINE{0x7fffffff};
+static const int MAX_X{0x7fffffff};
 
 typedef unsigned __int64 XY_POINT;
 #define  XY_POINT_X(point)               ((point)&0xffffffff)
@@ -29,12 +29,12 @@ typedef unsigned __int64 XY_POINT;
 #define  XY_POINT_SET(point,x,y)         ((point)=(((long long)(y)<<32)|(x)))
 
 //ToDo: set a reg option for these
-static const int LOOKUP_TABLE_SIZE_RX = 64;
-static const int LOOKUP_TABLE_SIZE_RY = 64;
+static const int LOOKUP_TABLE_SIZE_RX{64};
+static const int LOOKUP_TABLE_SIZE_RY{64};
 
 struct LinkArcItem
 {
-    LinkArcItem():dead_line(0),arc_center(0){}
+    explicit LinkArcItem():dead_line(0),arc_center(0){}
 
     XY_POINT arc_center;
     int dead_line;
@@ -60,24 +60,24 @@ typedef tSpanBuffer SpanBuffer;
 struct XyEllipse
 {
 public:
-    XyEllipse();
-    ~XyEllipse();
+    explicit XyEllipse();
+    constexpr ~XyEllipse() noexcept;
 
     /*** 
      * ry must >0 and rx must >=0
      **/
-    int init(int rx, int ry);
+    [[nodiscard]] int init(int rx, int ry);
 
-    inline int get_left_arc_x(int y) const;
-    inline int get_left_arc_x(XY_POINT center, int y) const;
+    [[nodiscard]] inline int get_left_arc_x(int y) const;
+    [[nodiscard]] inline int get_left_arc_x(XY_POINT center, int y) const;
 
-    inline int get_right_arc_x(int y) const;
-    inline int get_right_arc_x(XY_POINT center, int y) const;
+    [[nodiscard]] inline int get_right_arc_x(int y) const;
+    [[nodiscard]] inline int get_right_arc_x(XY_POINT center, int y) const;
 
-    int cross_left(XY_POINT c1, XY_POINT base) const;
-    int cross_right(XY_POINT c1, XY_POINT base) const;
+    [[nodiscard]] int cross_left(XY_POINT c1, XY_POINT base) const;
+    [[nodiscard]] int cross_right(XY_POINT c1, XY_POINT base) const;
 
-    int init_cross_point();
+    [[nodiscard]] int init_cross_point();
 
     int m_rx, m_ry;
     float m_f_rx, m_f_ry;
@@ -98,8 +98,8 @@ private:
 class WidenRegionCreaterImpl
 {
 public:
-    WidenRegionCreaterImpl();
-    ~WidenRegionCreaterImpl();
+    explicit WidenRegionCreaterImpl();
+    constexpr ~WidenRegionCreaterImpl() noexcept;
 
     void xy_overlap_region(SpanBuffer* dst, const SpanBuffer& src, int rx, int ry);
 private:
@@ -119,7 +119,8 @@ private:
 // WidenRegionCreater
 // 
 
-WidenRegionCreater* WidenRegionCreater::GetDefaultWidenRegionCreater()
+[[nodiscard]] constexpr WidenRegionCreater* WidenRegionCreater::GetDefaultWidenRegionCreater()
+noexcept
 {
     static WidenRegionCreater result;
     static WidenRegionCreaterImpl impl;
@@ -132,12 +133,13 @@ WidenRegionCreater::WidenRegionCreater():m_impl(NULL)
     
 }
 
-WidenRegionCreater::~WidenRegionCreater()
+constexpr WidenRegionCreater::~WidenRegionCreater()
+noexcept
 {
 
 }
 
-void WidenRegionCreater::xy_overlap_region( SpanBuffer* dst, const SpanBuffer& src, int rx, int ry )
+void WidenRegionCreater::xy_overlap_region( SpanBuffer* dst, const SpanBuffer& src, const int rx, const int ry )
 {
     m_impl->xy_overlap_region(dst, src, rx, ry);
 }
@@ -150,12 +152,13 @@ WidenRegionCreaterImpl::WidenRegionCreaterImpl(): m_ellipse(NULL)
 {
 }
 
-WidenRegionCreaterImpl::~WidenRegionCreaterImpl()
+constexpr WidenRegionCreaterImpl::~WidenRegionCreaterImpl()
+noexcept
 {
     delete m_ellipse;
 }
 
-void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer& src, int rx, int ry)
+void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer& src, const int rx, const int ry)
 {
     if (m_ellipse!=NULL && (m_ellipse->m_rx!=rx || m_ellipse->m_ry!=ry))
     {
@@ -164,13 +167,13 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
     }
     if (m_ellipse==NULL)
     {
-        m_ellipse = DEBUG_NEW XyEllipse();
+        m_ellipse = DEBUG_NEW XyEllipse{};
         if (m_ellipse==NULL)
         {
             ASSERT(0);
             return;
         }
-        int rv = m_ellipse->init(rx, ry);
+        int rv{m_ellipse->init(rx, ry)};
         if (rv<0)
         {
             ASSERT(0);
@@ -179,24 +182,24 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
     }
 
     LinkSpanList link_span_list;
-    POSITION pos=NULL;
-    int dst_line = 0;
+    POSITION pos{NULL};
+    int dst_line{0};
 
-    SpanBuffer::const_iterator it_src = src.begin();
-    SpanBuffer::const_iterator it_src_end = src.end();
+    SpanBuffer::const_iterator it_src{src.begin()};
+    SpanBuffer::const_iterator it_src_end{src.end()};
     
-    LinkSpan &sentinel = link_span_list.GetAt(link_span_list.AddTail());
+    LinkSpan &sentinel{link_span_list.GetAt(link_span_list.AddTail())};
     sentinel.left.init(2*ry+2);
     sentinel.right.init(2*ry+2);
-    LinkArcItem& item = sentinel.left.inc_1_at_tail();
+    LinkArcItem& item{sentinel.left.inc_1_at_tail()};
     XY_POINT_SET(item.arc_center, MAX_X, 0);
     item.dead_line = MAX_CROSS_LINE;
 
     for ( ;it_src!=it_src_end; it_src++)
     {
-        const XY_POINT &left = SPAN_PTR_LEFT(it_src);
-        const XY_POINT &right = SPAN_PTR_RIGHT(it_src);
-        int line = XY_POINT_Y(left); //fix me
+        const XY_POINT &left{SPAN_PTR_LEFT(it_src)};
+        const XY_POINT &right{SPAN_PTR_RIGHT(it_src)};
+        int line{XY_POINT_Y(left)}; //fix me
         if (line-ry>dst_line)
         {
             add_line(dst, link_span_list, dst_line, line - ry);
@@ -208,9 +211,9 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
         }
         while(true)
         {
-            LinkSpan &spans = link_span_list.GetAt(pos);
-            LinkArc &arc = spans.left;
-            int y = cross_left(arc, left);
+            LinkSpan &spans{link_span_list.GetAt(pos)};
+            LinkArc &arc{spans.left};
+            int y{cross_left(arc, left)};
             if (y>ry)
             {
                 link_span_list.GetNext(pos);
@@ -224,15 +227,15 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
             }
             else
             {
-                LinkSpan &new_span = link_span_list.GetAt(link_span_list.InsertBefore(pos, LinkSpan()));
+                LinkSpan &new_span{link_span_list.GetAt(link_span_list.InsertBefore(pos, LinkSpan()))};
                 new_span.left.init(2*ry+2);
-                LinkArcItem& item = new_span.left.inc_1_at_tail();
+                LinkArcItem& item{new_span.left.inc_1_at_tail()};
 
                 item.arc_center = SPAN_PTR_LEFT(it_src);
                 item.dead_line = line+ry+1;
 
                 new_span.right.init(2*ry+2);
-                LinkArcItem& item2 = new_span.right.inc_1_at_tail();
+                LinkArcItem& item2{new_span.right.inc_1_at_tail()};
                 item2.arc_center = SPAN_PTR_RIGHT(it_src);
                 item2.dead_line = line+ry+1;
                 break;
@@ -242,10 +245,10 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
     add_line(dst, link_span_list, dst_line, MAX_CROSS_LINE);
 }
 
-int WidenRegionCreaterImpl::cross_left(const LinkArc& arc, XY_POINT center)
+[[nodiscard]] int WidenRegionCreaterImpl::cross_left(const LinkArc& arc, const XY_POINT center)
 {
     ASSERT(!arc.empty());
-    int y = m_ellipse->cross_left(arc.back().arc_center, center);
+    int y{m_ellipse->cross_left(arc.back().arc_center, center)};
     if (y>=MAX_CROSS_LINE)
     {
         return MAX_CROSS_LINE;
@@ -268,15 +271,15 @@ void WidenRegionCreaterImpl::add_span(LinkSpan* spans, const Span& span )
     add_right(&spans->right, SPAN_RIGHT(span));
 }
 
-void WidenRegionCreaterImpl::add_left( LinkArc* arc, XY_POINT center )
+void WidenRegionCreaterImpl::add_left( LinkArc* arc, const XY_POINT center )
 {
-    int rx = m_ellipse->m_rx;
-    int ry = m_ellipse->m_ry;
+    int rx{m_ellipse->m_rx};
+    int ry{m_ellipse->m_ry};
     ASSERT(arc);
     ASSERT(!arc->empty()&& m_ellipse->cross_left(arc->get_at(0).arc_center, center)>=-ry );
-    int y = 0;
-    int i = 0;
-    int line = XY_POINT_Y(center);
+    int y{0};
+    int i{0};
+    int line{XY_POINT_Y(center)};
     for (i=arc->size()-1;i>=1;i--)
     {
         y = m_ellipse->cross_left( arc->get_at(i).arc_center, center );
@@ -307,20 +310,20 @@ void WidenRegionCreaterImpl::add_left( LinkArc* arc, XY_POINT center )
             arc->get_at(0).dead_line = y + line;
         }
     }
-    LinkArcItem& item = arc->inc_1_at_tail();
+    LinkArcItem& item{arc->inc_1_at_tail()};
     item.arc_center = center;
     item.dead_line = line + ry + 1;
 }
 
-void WidenRegionCreaterImpl::add_right( LinkArc* arc, XY_POINT center )
+void WidenRegionCreaterImpl::add_right( LinkArc* arc, const XY_POINT center )
 {
-    int rx = m_ellipse->m_rx;
-    int ry = m_ellipse->m_ry;
+    int rx{m_ellipse->m_rx};
+    int ry{m_ellipse->m_ry};
     ASSERT(arc);
     ASSERT(!arc->empty());
-    int y = 0;
-    int i = 0;
-    int line = XY_POINT_Y(center);
+    int y{0};
+    int i{0};
+    int line{XY_POINT_Y(center)};
     for (i=arc->size()-1;i>=1;i--)
     {
         y = m_ellipse->cross_right( arc->get_at(i).arc_center, center );
@@ -348,27 +351,27 @@ void WidenRegionCreaterImpl::add_right( LinkArc* arc, XY_POINT center )
         else if (y<MAX_CROSS_LINE)
         {
             ASSERT(y+line<=arc->get_at(0).dead_line);
-            XY_POINT& arc_center = arc->get_at(0).arc_center;
+            XY_POINT& arc_center{arc->get_at(0).arc_center};
             arc->get_at(0).dead_line = y + line;
         }
     }
-    LinkArcItem& item = arc->inc_1_at_tail();
+    LinkArcItem& item{arc->inc_1_at_tail()};
     item.arc_center = center;
     item.dead_line = line + ry + 1;
 }
 
-void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int cur_dst_line, int dead_line )
+void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int cur_dst_line, const int dead_line )
 {
     ASSERT(dst);
 
-    Span dst_span(0,0);
+    Span dst_span{0,0};
 
     for( ;cur_dst_line<dead_line;cur_dst_line++)
     {
-        POSITION pos_cur = spans.GetHeadPosition();
-        POSITION pos_next = pos_cur;
+        POSITION pos_cur{spans.GetHeadPosition()};
+        POSITION pos_next{pos_cur};
         ASSERT(pos_next!=NULL);
-        LinkSpan *span = &spans.GetNext(pos_next);
+        LinkSpan *span{&spans.GetNext(pos_next)};
         if (pos_next==NULL)
         {
             break;
@@ -377,16 +380,16 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
         while(pos_next!=NULL)
         {
             ASSERT(!span->left.empty());
-            const LinkArcItem &left_top = span->left.get_at(0);
+            const LinkArcItem &left_top{span->left.get_at(0)};
 
             ASSERT(!span->right.empty());
-            const LinkArcItem &right_top = span->right.get_at(0);
+            const LinkArcItem &right_top{span->right.get_at(0)};
 
             ASSERT(cur_dst_line < left_top.dead_line);
             ASSERT(cur_dst_line < right_top.dead_line);
 
             XY_POINT left, right;
-            int x = m_ellipse->get_left_arc_x(left_top.arc_center, cur_dst_line);
+            int x{m_ellipse->get_left_arc_x(left_top.arc_center, cur_dst_line)};
             XY_POINT_SET(left, x, cur_dst_line);
             x = m_ellipse->get_right_arc_x(right_top.arc_center, cur_dst_line);
             XY_POINT_SET(right, x, cur_dst_line);
@@ -400,7 +403,9 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
             if ( SPAN_RIGHT(dst_span) >= left )
             {
                 if (SPAN_RIGHT(dst_span) < right )
+                {
                     SPAN_RIGHT(dst_span) = right;
+                }
                 //if (SPAN_LEFT (dst_span) < left)
                 //    SPAN_LEFT (dst_span) = left;
                 // It may happen but I don't know if it is necessary to do this. Would it look any better?
@@ -449,15 +454,17 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
 // ref: A Fast Bresenham Type Algorithm For Drawing Ellipses by John Kennedy
 // http://homepage.smc.edu/kennedy_john/belipse.pdf
 // 
-int gen_left_arc(int left_arc[], int rx, int ry)
+[[nodiscard]] int gen_left_arc(const int left_arc[], int rx, int ry)
 {
     if (left_arc==NULL)
+    {
         return 0;
+    }
     
-    int *left_arc2 = left_arc + ry;
+    int *left_arc2{left_arc + ry};
     if (rx==0)
     {
-        for (int y=-ry;y<=ry;y++)
+        for (int y{-ry};y<=ry;y++)
         {
             left_arc2[y] = 0;
         }
@@ -465,23 +472,23 @@ int gen_left_arc(int left_arc[], int rx, int ry)
     }
     else if (ry==0)
     {
-        left_arc2[0] = rx;
+        left_arc2[0U] = rx;
         return 0;
     }
 
-    rx = abs(rx);
-    ry = abs(ry);
-    __int64 a = rx;
-    __int64 b = ry;
-    __int64 a2 = 2* a * a;
-    __int64 b2 = 2* b * b;
-    __int64 x = a;
-    __int64 y = 0;
-    __int64 dx = b*b*(1-2*a);
-    __int64 dy = a*a;
-    __int64 err = 0;
-    __int64 stopx = b2 * a;
-    __int64 stopy = 0;
+    rx = std::abs(rx);
+    ry = std::abs(ry);
+    __int64 a{rx};
+    __int64 b{ry};
+    __int64 a2{2* a * a};
+    __int64 b2{2* b * b};
+    __int64 x{a};
+    __int64 y{0};
+    __int64 dx{b*b*(1-2*a)};
+    __int64 dy{a*a};
+    __int64 err{0};
+    __int64 stopx{b2 * a};
+    __int64 stopy{0};
     while (stopx >= stopy)
     {
         left_arc2[y] = -x;
@@ -499,7 +506,7 @@ int gen_left_arc(int left_arc[], int rx, int ry)
             dx += b2;
         }
     }
-    __int64 last_y_stop = y;
+    __int64 last_y_stop{y};
     ASSERT(y>=-ry && y<=ry);
     x = 0;
     y = b;
@@ -560,7 +567,8 @@ XyEllipse::XyEllipse()
 
 }
 
-XyEllipse::~XyEllipse()
+constexpr XyEllipse::~XyEllipse()
+noexcept
 {
     delete[]m_left_arc_base;
     delete[]m_cross_matrix_base;
@@ -569,13 +577,13 @@ XyEllipse::~XyEllipse()
 /***
  * ry must >0 and rx must >=0
  ***/
-int XyEllipse::init( int rx, int ry )
+[[nodiscard]] int XyEllipse::init( const int rx, const int ry )
 {
     if (rx<0 || ry<=0)
     {
         return -1;
     }
-    m_left_arc_base = DEBUG_NEW int[2*ry+2];
+    m_left_arc_base = DEBUG_NEW int[2U*ry+2];
     if (!m_left_arc_base)
     {
         return -1;
@@ -592,27 +600,27 @@ int XyEllipse::init( int rx, int ry )
     return 0;
 }
 
-int XyEllipse::get_left_arc_x( int y ) const
+[[nodiscard]] int XyEllipse::get_left_arc_x( const int y ) const
 {
     return m_left_arc[y];
 }
 
-int XyEllipse::get_left_arc_x( XY_POINT center, int y ) const
+[[nodiscard]] int XyEllipse::get_left_arc_x( const XY_POINT center, const int y ) const
 {
     return XY_POINT_X(center) + m_left_arc[y-XY_POINT_Y(center)];
 }
 
-int XyEllipse::get_right_arc_x( int y ) const
+[[nodiscard]] int XyEllipse::get_right_arc_x( const int y ) const
 {
     return -m_left_arc[y];
 }
 
-int XyEllipse::get_right_arc_x( XY_POINT center, int y ) const
+[[nodiscard]] int XyEllipse::get_right_arc_x( const XY_POINT center, const int y ) const
 {
     return XY_POINT_X(center) - m_left_arc[y-XY_POINT_Y(center)];
 }
 
-int XyEllipse::init_cross_point()
+[[nodiscard]] int XyEllipse::init_cross_point()
 {
     if (m_rx<0 || m_ry<=0 )
     {
@@ -632,50 +640,56 @@ int XyEllipse::init_cross_point()
 
 
     ASSERT(m_f_ry>0);
-    float rx_divide_ry = m_f_rx/m_f_ry;
-    float ry_2 = m_ry * m_ry;
+    float rx_divide_ry{m_f_rx/m_f_ry};
+    float ry_2{m_ry * m_ry};
 
     std::vector<int> cross_x_base(2*m_ry+1+1);
-    int *cross_x = &cross_x_base[0] + m_ry + 1;
+    int *cross_x{&cross_x_base[0U] + m_ry + 1};
     cross_x[-m_ry-1] = m_rx;
-    for (int dy=-2*m_ry;dy<=-1;dy++)
+    for (int dy{-2*m_ry};dy<=-1;dy++)
     {
-        static bool first = true;
-        int y=-m_ry;
+        static bool first{true};
+        int y{-m_ry};
         for ( ;y-dy<=m_ry;y++)
         {
             //f_cross_x = rx_divide_ry * ( sqrt(ry_2-(y-dy)*(y-dy))-sqrt(ry_2-y*y) )
             // But we have to do it this way because ry_2 may < y*y due to float rounding error
-            float fxo_2 = ry_2 - float(y-dy)*float(y-dy);
-            if (fxo_2<0) fxo_2 = 0;
-            float fx_2 = ry_2 - float(y)*float(y);
-            if (fx_2<0) fx_2 = 0;
-            float f_cross_x = rx_divide_ry * ( sqrt(fxo_2)-sqrt(fx_2) );
-            cross_x[y] = ceil(f_cross_x);
+            float fxo_2{ry_2 - float(y-dy)*float(y-dy)};
+            if (fxo_2<0)
+            {
+                fxo_2 = 0;
+            }
+            float fx_2{ry_2 - float(y)*float(y)};
+            if (fx_2<0)
+            {
+                fx_2 = 0;
+            }
+            float f_cross_x{rx_divide_ry * ( std::sqrt(fxo_2)-std::sqrt(fx_2) )};
+            cross_x[y] = std::ceil(f_cross_x);
             //This assertion may fail, e.g. when (m_rx,m_ry)=(15,19) and dy=y=-19, because of rounding of float
             // ASSERT(cross_x[y]<=cross_x[y-1] && abs(cross_x[y])<=m_rx);
             cross_x[y] = min(cross_x[y-1], max(min(cross_x[y],m_rx),-m_rx));
         }
 
-        int *cross_matrix = m_cross_matrix + dy*(2*m_rx+1);
+        int *cross_matrix{m_cross_matrix + dy*(2*m_rx+1)};
 
         y--;
         //[ -m_rx, cross_x[y] )
-        for (int j=-m_rx;j<cross_x[y];j++)
+        for (int j{-m_rx};j<cross_x[y];j++)
         {
             cross_matrix[j] = MAX_CROSS_LINE;
         }
         for ( ;y>-m_ry;y-- )
         {
             //[ cross_x[y], cross_x[y-1] )
-            for (int j=cross_x[y];j<cross_x[y-1];j++)
+            for (int j{cross_x[y]};j<cross_x[y-1];j++)
             {
                 cross_matrix[j] = y;
             }
         }
         cross_matrix[cross_x[y]] = y;
         //[ cross_x[y], m_rx ]
-        for (int j=cross_x[y];j<=m_rx;j++)
+        for (int j{cross_x[y]};j<=m_rx;j++)
         {
             cross_matrix[j] = MIN_CROSS_LINE;
         }
@@ -683,21 +697,21 @@ int XyEllipse::init_cross_point()
     return 0;
 }
 
-int XyEllipse::cross_left( XY_POINT c1, XY_POINT base ) const
+[[nodiscard]] int XyEllipse::cross_left( const XY_POINT c1, const XY_POINT base ) const
 {
-    int dx = XY_POINT_X(c1) - XY_POINT_X(base);
-    int dy = XY_POINT_Y(c1) - XY_POINT_Y(base);
+    int dx{XY_POINT_X(c1) - XY_POINT_X(base)};
+    int dy{XY_POINT_Y(c1) - XY_POINT_Y(base)};
     return cross_left(dx, dy);
 }
 
-int XyEllipse::cross_right( XY_POINT c1, XY_POINT base ) const
+[[nodiscard]] int XyEllipse::cross_right( const XY_POINT c1, const XY_POINT base ) const
 {
-    int dx = XY_POINT_X(base) - XY_POINT_X(c1);
-    int dy = XY_POINT_Y(c1) - XY_POINT_Y(base);
+    int dx{XY_POINT_X(base) - XY_POINT_X(c1)};
+    int dy{XY_POINT_Y(c1) - XY_POINT_Y(base)};
     return cross_left(dx, dy);
 }
 
-int XyEllipse::cross_left( int dx, int dy ) const
+[[nodiscard]] int XyEllipse::cross_left( const int dx, const int dy ) const
 {
     ASSERT(dy<0 && dy>=-2*m_ry);
     if (dx < -m_rx)
@@ -710,7 +724,7 @@ int XyEllipse::cross_left( int dx, int dy ) const
     }
     else if (m_cross_matrix)// [-m_rx, m_rx], use lookup table
     {
-        ASSERT( abs( *(m_cross_matrix + dy*(2*m_rx+1) + dx) )<=m_ry || 
+        ASSERT( std::abs( *(m_cross_matrix + dy*(2*m_rx+1) + dx) )<=m_ry || 
             *(m_cross_matrix + dy*(2*m_rx+1) + dx) == MIN_CROSS_LINE || 
             *(m_cross_matrix + dy*(2*m_rx+1) + dx) == MAX_CROSS_LINE );
         return *(m_cross_matrix + dy*(2*m_rx+1) + dx);
@@ -720,17 +734,17 @@ int XyEllipse::cross_left( int dx, int dy ) const
         // unit circle with center at (0,0) and unit circle with center at (dx,dy) cross at points:
         //   x = 0.5*dx +/- 0.5*dy*sqrt(4/(dx*dx+dy*dy)-1)
         //   y = 0.5*dy -/+ 0.5*dx*sqrt(4/(dx*dx+dy*dy)-1)
-        float f_half_dy = dy*m_f_half_inv_ry;
-        float f_half_dx = dx*m_f_half_inv_rx;
-        float f_tmp = 1.0f/(f_half_dx*f_half_dx+f_half_dy*f_half_dy)-1.0f;
+        float f_half_dy{dy*m_f_half_inv_ry};
+        float f_half_dx{dx*m_f_half_inv_rx};
+        float f_tmp{1.0f/(f_half_dx*f_half_dx+f_half_dy*f_half_dy)-1.0f};
         if (f_tmp >= 0)
         {
-            f_tmp = sqrt(f_tmp);
-            if (fabs(f_half_dx)+f_half_dy*f_tmp<=0)
+            f_tmp = std::sqrt(f_tmp);
+            if (std::fabs(f_half_dx)+f_half_dy*f_tmp<=0)
             {
-                float ret = f_half_dy - f_half_dx*f_tmp;
+                float ret{f_half_dy - f_half_dx*f_tmp};
                 ret *= m_f_ry;
-                return ceil(ret);
+                return std::ceil(ret);
             }
             else
             {

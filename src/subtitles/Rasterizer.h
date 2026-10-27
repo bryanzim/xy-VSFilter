@@ -43,18 +43,18 @@ typedef struct {
 struct PathData
 {
 public:
-    PathData();
-    ~PathData();
+    explicit PathData();
+    constexpr ~PathData() noexcept;
 
     PathData(const PathData&);//important! disable default copy constructor
     const PathData& operator=(const PathData&);
-    bool operator==(const PathData& rhs)const;
+    [[nodiscard]] bool operator==(const PathData& rhs)const;
 
-    void _TrashPath();
-    bool BeginPath(HDC hdc);
-    bool EndPath(HDC hdc);
-    bool PartialBeginPath(HDC hdc, bool bClearPath);
-    bool PartialEndPath(HDC hdc, long dx, long dy);
+    constexpr void _TrashPath() noexcept;
+    [[nodiscard]] bool BeginPath(HDC hdc);
+    [[nodiscard]] bool EndPath(HDC hdc);
+    [[nodiscard]] bool PartialBeginPath(HDC hdc, bool bClearPath);
+    [[nodiscard]] bool PartialEndPath(HDC hdc, long dx, long dy);
     
     void AlignLeftTop(CPoint *left_top, CSize *size);
 
@@ -105,10 +105,10 @@ private:
     template<int flag> __forceinline void _EvaluateLine(int x0, int y0, int x1, int y1);
 
 public:
-    ScanLineData();
-    virtual ~ScanLineData();
+    explicit ScanLineData();
+    constexpr virtual ~ScanLineData() noexcept;
 
-    bool ScanConvert(const PathData& path_data, const CSize& size);
+    [[nodiscard]] bool ScanConvert(const PathData& path_data, const CSize& size);
     void DeleteOutlines();
 
     friend class Rasterizer;
@@ -121,19 +121,20 @@ typedef ::boost::shared_ptr<ScanLineData> SharedPtrScanLineData;
 class ScanLineData2
 {
 public:
-    ScanLineData2():mPathOffsetX(0),mPathOffsetY(0),mWideBorder(0){}
+    explicit ScanLineData2():mPathOffsetX(0),mPathOffsetY(0),mWideBorder(0){}
     ScanLineData2(const CPoint& left_top, const SharedPtrConstScanLineData& scan_line_data)
         :m_scan_line_data(scan_line_data)
         ,mPathOffsetX(left_top.x)
         ,mPathOffsetY(left_top.y)
     {
     }
-    void SetOffset(const CPoint& offset)
+    constexpr void SetOffset(const CPoint& offset)
+    noexcept
     {
         mPathOffsetX = offset.x;
         mPathOffsetY = offset.y;
     }
-    bool CreateWidenedRegion(int borderX, int borderY);
+    [[nodiscard]] bool CreateWidenedRegion(int borderX, int borderY);
 private:
     SharedPtrConstScanLineData m_scan_line_data;
     int mPathOffsetX, mPathOffsetY;	
@@ -151,7 +152,7 @@ typedef ::boost::shared_ptr<BYTE> SharedPtrByte;
 struct Overlay
 {
 public:
-    Overlay()
+    explicit Overlay()
     {
         mOffsetX=mOffsetY=mWidth=mHeight=0;
         mOverlayWidth=mOverlayHeight=mOverlayPitch=0;
@@ -175,7 +176,7 @@ public:
         int x, int y, int w, int h, 
         const byte* pAlphaMask, int pitch, DWORD color_alpha);
 
-    Overlay* GetSubpixelVariance(unsigned int xshift, unsigned int yshift);
+    [[nodiscard]] Overlay* GetSubpixelVariance(unsigned int xshift, unsigned int yshift);
 public:
     SharedPtrByte mBody;
     SharedPtrByte mBorder;
@@ -223,21 +224,21 @@ public:
 
     static bool Rasterize(const ScanLineData2& scan_line_data2, int xsub, int ysub, SharedPtrOverlay overlay);
 
-    static bool IsItReallyBlur(float be_strength, double gaussian_blur_strength);
-    static bool OldFixedPointBlur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength, 
+    [[nodiscard]] constexpr static bool IsItReallyBlur(float be_strength, double gaussian_blur_strength) noexcept;
+    [[nodiscard]] static bool OldFixedPointBlur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength, 
         double target_scale_x, double target_scale_y, SharedPtrOverlay output_overlay);
 
-    static bool Blur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength, 
+    [[nodiscard]] static bool Blur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength, 
         double target_scale_x, double target_scale_y, SharedPtrOverlay output_overlay);
 
-    static bool BeBlur(const Overlay& input_overlay, float be_strength, float target_scale_x, float target_scale_y, 
+    [[nodiscard]] static bool BeBlur(const Overlay& input_overlay, float be_strength, float target_scale_x, float target_scale_y, 
         SharedPtrOverlay output_overlay);
 
-    static bool GaussianBlur( const Overlay& input_overlay, double gaussian_blur_strength, 
+    [[nodiscard]] static bool GaussianBlur( const Overlay& input_overlay, double gaussian_blur_strength, 
         double target_scale_x, double target_scale_y, 
         SharedPtrOverlay output_overlay );
 
-    static SharedPtrByte CompositeAlphaMask(const SharedPtrOverlay& overlay, const CRect& clipRect, 
+    [[nodiscard]] static SharedPtrByte CompositeAlphaMask(const SharedPtrOverlay& overlay, const CRect& clipRect, 
         const GrayImage2* alpha_mask, 
         int xsub, int ysub, const DWORD* switchpts, bool fBody, bool fBorder, 
         CRect *outputDirtyRect);

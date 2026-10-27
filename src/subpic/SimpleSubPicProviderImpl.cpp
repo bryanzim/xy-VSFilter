@@ -32,34 +32,35 @@ SimpleSubPicProvider::SimpleSubPicProvider( int alpha_blt_dst_type, SIZE spd_siz
     m_prefered_colortype.AddTail(MSP_RGBA);
 }
 
-SimpleSubPicProvider::~SimpleSubPicProvider()
+constexpr SimpleSubPicProvider::~SimpleSubPicProvider()
+noexcept
 {
 
 }
 
-STDMETHODIMP SimpleSubPicProvider::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPicProvider)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-STDMETHODIMP SimpleSubPicProvider::SetSubPicProvider( IUnknown* subpic_provider )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::SetSubPicProvider( IUnknown* subpic_provider )
 {
     if (subpic_provider!=NULL)
     {
         CComQIPtr<ISubPicProviderEx2> tmp = subpic_provider;
         if (tmp)
         {
-            CAutoLock cAutoLock(&m_csSubPicProvider);
+            [[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
             m_pSubPicProviderEx = tmp;
 
             if(m_pSubPicProviderEx!=NULL)
             {
-                POSITION pos = m_prefered_colortype.GetHeadPosition();
+                POSITION pos{m_prefered_colortype.GetHeadPosition()};
                 while(pos!=NULL)
                 {
-                    int color_type = m_prefered_colortype.GetNext(pos);
+                    int color_type{m_prefered_colortype.GetNext(pos)};
                     if( m_pSubPicProviderEx->IsColorTypeSupported( color_type ) &&
                         IsSpdColorTypeSupported( color_type ) )
                     {
@@ -79,13 +80,13 @@ STDMETHODIMP SimpleSubPicProvider::SetSubPicProvider( IUnknown* subpic_provider 
     return S_OK;
 }
 
-STDMETHODIMP SimpleSubPicProvider::GetSubPicProvider( IUnknown** subpic_provider )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::GetSubPicProvider( IUnknown** subpic_provider )
 {
     if(!subpic_provider) {
         return E_POINTER;
     }
 
-    CAutoLock cAutoLock(&m_csSubPicProvider);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
 
     if(m_pSubPicProviderEx) {
         *subpic_provider = m_pSubPicProviderEx;
@@ -95,23 +96,23 @@ STDMETHODIMP SimpleSubPicProvider::GetSubPicProvider( IUnknown** subpic_provider
     return !!*subpic_provider ? S_OK : E_FAIL;
 }
 
-STDMETHODIMP SimpleSubPicProvider::SetFPS( double fps )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::SetFPS( const double fps )
 {
     m_fps = fps;
 
     return S_OK;
 }
 
-STDMETHODIMP SimpleSubPicProvider::SetTime( REFERENCE_TIME rtNow )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::SetTime( const REFERENCE_TIME rtNow )
 {
     m_rtNow = rtNow;
 
     return S_OK;
 }
 
-STDMETHODIMP SimpleSubPicProvider::Invalidate( REFERENCE_TIME rtInvalidate /*= -1*/ )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
 {
-    CAutoLock cQueueLock(&m_csLock);
+    [[nodiscard]] CAutoLock cQueueLock(&m_csLock);
 
     if( m_pSubPic && m_subpic_stop >= rtInvalidate)
     {
@@ -120,13 +121,13 @@ STDMETHODIMP SimpleSubPicProvider::Invalidate( REFERENCE_TIME rtInvalidate /*= -
     return S_OK;
 }
 
-STDMETHODIMP_(bool) SimpleSubPicProvider::LookupSubPic( REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/ )
+[[nodiscard]] STDMETHODIMP_(bool) SimpleSubPicProvider::LookupSubPic( const REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/ )
 {    
     if(output_subpic!=NULL)
     {
         *output_subpic = NULL;
         CComPtr<IXySubRenderFrame> temp = NULL;
-        bool result = LookupSubPicEx(now, &temp);
+        bool result{LookupSubPicEx(now, &temp)};
         if (result && temp)
         {
             (*output_subpic = DEBUG_NEW SimpleSubpic(temp, m_alpha_blt_dst_type))->AddRef();
@@ -136,9 +137,9 @@ STDMETHODIMP_(bool) SimpleSubPicProvider::LookupSubPic( REFERENCE_TIME now /*[in
     return false;
 }
 
-STDMETHODIMP SimpleSubPicProvider::GetStats( int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::GetStats( int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
 {
-    CAutoLock cAutoLock(&m_csLock);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csLock);
 
     nSubPics = 0;
     rtNow = m_rtNow;
@@ -154,12 +155,14 @@ STDMETHODIMP SimpleSubPicProvider::GetStats( int& nSubPics, REFERENCE_TIME& rtNo
     return S_OK;
 }
 
-STDMETHODIMP SimpleSubPicProvider::GetStats( int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::GetStats( const int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
 {
-    CAutoLock cAutoLock(&m_csLock);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csLock);
 
     if(!m_pSubPic || nSubPic != 0)
+    {
         return E_INVALIDARG;
+    }
 
     rtStart = m_subpic_start;
     rtStop = m_subpic_stop;
@@ -167,10 +170,12 @@ STDMETHODIMP SimpleSubPicProvider::GetStats( int nSubPic, REFERENCE_TIME& rtStar
     return S_OK;
 }
 
-bool SimpleSubPicProvider::LookupSubPicEx(REFERENCE_TIME rtNow, IXySubRenderFrame** sub_render_frame)
+[[nodiscard]] bool SimpleSubPicProvider::LookupSubPicEx(const REFERENCE_TIME rtNow, IXySubRenderFrame** sub_render_frame)
 {
     if(!sub_render_frame)
+    {
         return(false);
+    }
 
     *sub_render_frame = NULL;
 
@@ -184,12 +189,12 @@ bool SimpleSubPicProvider::LookupSubPicEx(REFERENCE_TIME rtNow, IXySubRenderFram
         if(SUCCEEDED(GetSubPicProviderEx(&pSubPicProvider)) && pSubPicProvider
             && SUCCEEDED(pSubPicProvider->Lock()))
         {
-            double fps = m_fps;
+            double fps{m_fps};
 
             if(POSITION pos = pSubPicProvider->GetStartPosition(rtNow, fps))
             {
-                REFERENCE_TIME rtStart = pSubPicProvider->GetStart(pos, fps);
-                REFERENCE_TIME rtStop = pSubPicProvider->GetStop(pos, fps);
+                REFERENCE_TIME rtStart{pSubPicProvider->GetStart(pos, fps)};
+                REFERENCE_TIME rtStop{pSubPicProvider->GetStop(pos, fps)};
 
                 if(rtStart <= rtNow && rtNow < rtStop)
                 {
@@ -201,7 +206,7 @@ bool SimpleSubPicProvider::LookupSubPicEx(REFERENCE_TIME rtNow, IXySubRenderFram
 
             if(*sub_render_frame)
             {
-                CAutoLock cAutoLock(&m_csLock);
+                [[nodiscard]] CAutoLock cAutoLock(&m_csLock);
 
                 m_pSubPic = *sub_render_frame;
             }
@@ -210,13 +215,13 @@ bool SimpleSubPicProvider::LookupSubPicEx(REFERENCE_TIME rtNow, IXySubRenderFram
     return(!!*sub_render_frame);
 }
 
-HRESULT SimpleSubPicProvider::GetSubPicProviderEx( ISubPicProviderEx2** pSubPicProviderEx )
+[[nodiscard]] HRESULT SimpleSubPicProvider::GetSubPicProviderEx( ISubPicProviderEx2** pSubPicProviderEx )
 {
     if(!pSubPicProviderEx) {
         return E_POINTER;
     }
 
-    CAutoLock cAutoLock(&m_csSubPicProvider);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
 
     if(m_pSubPicProviderEx) {
         *pSubPicProviderEx = m_pSubPicProviderEx;
@@ -226,9 +231,9 @@ HRESULT SimpleSubPicProvider::GetSubPicProviderEx( ISubPicProviderEx2** pSubPicP
     return !!*pSubPicProviderEx ? S_OK : E_FAIL;
 }
 
-HRESULT SimpleSubPicProvider::RenderTo( IXySubRenderFrame** pSubPic, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, double fps, BOOL bIsAnimated )
+[[nodiscard]] HRESULT SimpleSubPicProvider::RenderTo( IXySubRenderFrame** pSubPic, const REFERENCE_TIME rtStart, const REFERENCE_TIME rtStop, const double fps, const BOOL bIsAnimated )
 {
-    HRESULT hr = E_FAIL;
+    HRESULT hr{E_FAIL};
 
     if(!pSubPic) {
         return hr;
@@ -259,7 +264,7 @@ HRESULT SimpleSubPicProvider::RenderTo( IXySubRenderFrame** pSubPic, REFERENCE_T
         size_render_with, 
         bIsAnimated ? rtStart : ((rtStart+rtStop)/2), fps);
 
-    POSITION pos = pSubPicProviderEx->GetStartPosition(rtStart, fps);
+    POSITION pos{pSubPicProviderEx->GetStartPosition(rtStart, fps)};
 
     if (!pSubPicProviderEx->IsAnimated(pos))
     {
@@ -276,7 +281,8 @@ HRESULT SimpleSubPicProvider::RenderTo( IXySubRenderFrame** pSubPic, REFERENCE_T
     return hr;
 }
 
-bool SimpleSubPicProvider::IsSpdColorTypeSupported( int type )
+[[nodiscard]] constexpr bool SimpleSubPicProvider::IsSpdColorTypeSupported( const int type )
+noexcept
 {
     if( (type==MSP_RGBA) 
         ||
@@ -325,22 +331,23 @@ SimpleSubPicProvider2::SimpleSubPicProvider2( int alpha_blt_dst_type, SIZE max_s
     m_cur_provider = NULL;
 }
 
-SimpleSubPicProvider2::~SimpleSubPicProvider2()
+constexpr SimpleSubPicProvider2::~SimpleSubPicProvider2()
+noexcept
 {
     delete m_ex_provider;
     delete m_old_provider;
 }
 
-STDMETHODIMP SimpleSubPicProvider2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPicProvider)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-STDMETHODIMP SimpleSubPicProvider2::SetSubPicProvider( IUnknown* subpic_provider )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::SetSubPicProvider( IUnknown* subpic_provider )
 {
-    const int MAX_SUBPIC_QUEUE_LENGTH = 1;
+    const int MAX_SUBPIC_QUEUE_LENGTH{1};
 
     if (subpic_provider!=NULL)
     {
@@ -400,7 +407,7 @@ STDMETHODIMP SimpleSubPicProvider2::SetSubPicProvider( IUnknown* subpic_provider
     return S_OK;
 }
 
-STDMETHODIMP SimpleSubPicProvider2::GetSubPicProvider( IUnknown** subpic_provider )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::GetSubPicProvider( IUnknown** subpic_provider )
 {
     if (!m_cur_provider)
     {
@@ -409,7 +416,7 @@ STDMETHODIMP SimpleSubPicProvider2::GetSubPicProvider( IUnknown** subpic_provide
     return m_cur_provider->GetSubPicProvider(subpic_provider);
 }
 
-STDMETHODIMP SimpleSubPicProvider2::SetFPS( double fps )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::SetFPS( const double fps )
 {
     m_fps = fps;
     if (!m_cur_provider)
@@ -419,7 +426,7 @@ STDMETHODIMP SimpleSubPicProvider2::SetFPS( double fps )
     return m_cur_provider->SetFPS(fps);
 }
 
-STDMETHODIMP SimpleSubPicProvider2::SetTime( REFERENCE_TIME rtNow )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::SetTime( const REFERENCE_TIME rtNow )
 {
     m_now = rtNow;
     if (!m_cur_provider)
@@ -429,7 +436,7 @@ STDMETHODIMP SimpleSubPicProvider2::SetTime( REFERENCE_TIME rtNow )
     return m_cur_provider->SetTime(rtNow);
 }
 
-STDMETHODIMP SimpleSubPicProvider2::Invalidate( REFERENCE_TIME rtInvalidate /*= -1*/ )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
 {
     //ASSERT(m_cur_provider);
     if (!m_cur_provider)
@@ -439,7 +446,7 @@ STDMETHODIMP SimpleSubPicProvider2::Invalidate( REFERENCE_TIME rtInvalidate /*= 
     return m_cur_provider->Invalidate(rtInvalidate);
 }
 
-STDMETHODIMP_(bool) SimpleSubPicProvider2::LookupSubPic( REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/ )
+[[nodiscard]] STDMETHODIMP_(bool) SimpleSubPicProvider2::LookupSubPic( const REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/ )
 {
     if (!m_cur_provider)
     {
@@ -448,7 +455,7 @@ STDMETHODIMP_(bool) SimpleSubPicProvider2::LookupSubPic( REFERENCE_TIME now /*[i
     return m_cur_provider->LookupSubPic(now, output_subpic);
 }
 
-STDMETHODIMP SimpleSubPicProvider2::GetStats( int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::GetStats( int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
 {
     nSubPics = 0;
     if (!m_cur_provider)
@@ -458,7 +465,7 @@ STDMETHODIMP SimpleSubPicProvider2::GetStats( int& nSubPics, REFERENCE_TIME& rtN
     return m_cur_provider->GetStats(nSubPics, rtNow, rtStart, rtStop);
 }
 
-STDMETHODIMP SimpleSubPicProvider2::GetStats( int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::GetStats( const int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop )
 {
     if (!m_cur_provider)
     {

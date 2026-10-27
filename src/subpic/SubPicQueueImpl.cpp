@@ -52,7 +52,7 @@ CSubPicQueueImpl::CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr,
 		}
 		return;
 	}
-    for (int i=0;i<prefered_colortype_num;i++)
+    for (int i{0};i<prefered_colortype_num;i++)
     {
         m_prefered_colortype.AddTail(prefered_colortype[i]);
     }
@@ -65,11 +65,12 @@ CSubPicQueueImpl::CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr,
     }
 }
 
-CSubPicQueueImpl::~CSubPicQueueImpl()
+constexpr CSubPicQueueImpl::~CSubPicQueueImpl()
+noexcept
 {
 }
 
-STDMETHODIMP CSubPicQueueImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
 {
 	return
 		QI(ISubPicQueue)
@@ -79,7 +80,7 @@ STDMETHODIMP CSubPicQueueImpl::NonDelegatingQueryInterface(REFIID riid, void** p
 
 // ISubPicQueue
 
-STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider(ISubPicProvider* pSubPicProvider)
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider(ISubPicProvider* pSubPicProvider)
 {
     if (pSubPicProvider!=NULL)
     {
@@ -91,13 +92,13 @@ STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider(ISubPicProvider* pSubPicProvide
     }
 }
 
-STDMETHODIMP CSubPicQueueImpl::GetSubPicProvider(ISubPicProvider** pSubPicProvider)
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::GetSubPicProvider(ISubPicProvider** pSubPicProvider)
 {
 	if(!pSubPicProvider) {
 		return E_POINTER;
 	}
 
-	CAutoLock cAutoLock(&m_csSubPicProvider);
+	[[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
 
 	if(m_pSubPicProviderEx) {
 		*pSubPicProvider = m_pSubPicProviderEx;
@@ -107,14 +108,14 @@ STDMETHODIMP CSubPicQueueImpl::GetSubPicProvider(ISubPicProvider** pSubPicProvid
 	return !!*pSubPicProvider ? S_OK : E_FAIL;
 }
 
-STDMETHODIMP CSubPicQueueImpl::SetFPS(double fps)
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::SetFPS(const double fps)
 {
 	m_fps = fps;
 
 	return S_OK;
 }
 
-STDMETHODIMP CSubPicQueueImpl::SetTime(REFERENCE_TIME rtNow)
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::SetTime(const REFERENCE_TIME rtNow)
 {
 	m_rtNow = rtNow;
 
@@ -123,7 +124,7 @@ STDMETHODIMP CSubPicQueueImpl::SetTime(REFERENCE_TIME rtNow)
 
 // ISubPicQueueEx
 
-STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider( IUnknown* subpic_provider )
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider( IUnknown* subpic_provider )
 {
     if (subpic_provider!=NULL)
     {
@@ -148,13 +149,13 @@ STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider( IUnknown* subpic_provider )
     }
 }
 
-STDMETHODIMP CSubPicQueueImpl::GetSubPicProvider( IUnknown** subpic_provider )
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::GetSubPicProvider( IUnknown** subpic_provider )
 {
     if(!subpic_provider) {
         return E_POINTER;
     }
 
-    CAutoLock cAutoLock(&m_csSubPicProvider);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
 
     if(m_pSubPicProviderEx) {
         *subpic_provider = m_pSubPicProviderEx;
@@ -166,19 +167,19 @@ STDMETHODIMP CSubPicQueueImpl::GetSubPicProvider( IUnknown** subpic_provider )
 
 // private
 
-HRESULT CSubPicQueueImpl::SetSubPicProviderEx( ISubPicProviderEx* pSubPicProviderEx )
+[[nodiscard]] HRESULT CSubPicQueueImpl::SetSubPicProviderEx( ISubPicProviderEx* pSubPicProviderEx )
 {
     //	if(m_pSubPicProvider != pSubPicProvider)
     {
-        CAutoLock cAutoLock(&m_csSubPicProvider);
+        [[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
         m_pSubPicProviderEx = pSubPicProviderEx;
 
         if(m_pSubPicProviderEx!=NULL && m_pAllocator!=NULL)
         {
-            POSITION pos = m_prefered_colortype.GetHeadPosition();
+            POSITION pos{m_prefered_colortype.GetHeadPosition()};
             while(pos!=NULL)
             {
-                int color_type = m_prefered_colortype.GetNext(pos);
+                int color_type{m_prefered_colortype.GetNext(pos)};
                 if( m_pSubPicProviderEx->IsColorTypeSupported( color_type ) &&
                     m_pAllocator->IsSpdColorTypeSupported( color_type ) )
                 {
@@ -193,13 +194,13 @@ HRESULT CSubPicQueueImpl::SetSubPicProviderEx( ISubPicProviderEx* pSubPicProvide
     return S_OK;
 }
 
-HRESULT CSubPicQueueImpl::GetSubPicProviderEx( ISubPicProviderEx** pSubPicProviderEx )
+[[nodiscard]] HRESULT CSubPicQueueImpl::GetSubPicProviderEx( ISubPicProviderEx** pSubPicProviderEx )
 {
     if(!pSubPicProviderEx) {
         return E_POINTER;
     }
 
-    CAutoLock cAutoLock(&m_csSubPicProvider);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
 
     if(m_pSubPicProviderEx) {
         *pSubPicProviderEx = m_pSubPicProviderEx;
@@ -209,9 +210,9 @@ HRESULT CSubPicQueueImpl::GetSubPicProviderEx( ISubPicProviderEx** pSubPicProvid
     return !!*pSubPicProviderEx ? S_OK : E_FAIL;
 }
 
-HRESULT CSubPicQueueImpl::RenderTo(ISubPicEx* pSubPic, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, double fps, BOOL bIsAnimated)
+[[nodiscard]] HRESULT CSubPicQueueImpl::RenderTo(ISubPicEx* pSubPic, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, const double fps, const BOOL bIsAnimated)
 {
-	HRESULT hr = E_FAIL;
+	HRESULT hr{E_FAIL};
 
 	if(!pSubPic) {
 		return hr;
@@ -229,7 +230,7 @@ HRESULT CSubPicQueueImpl::RenderTo(ISubPicEx* pSubPic, REFERENCE_TIME rtStart, R
 	SubPicDesc spd;
 	if(SUCCEEDED(pSubPic->Lock(spd)))
 	{
-		DWORD color = 0xFF000000;
+		DWORD color{0xFF000000};
 //		if(spd.type == MSP_YUY2 || spd.type == MSP_YV12 || spd.type == MSP_IYUV)
 //		{
 //			color = 0xFF801080;
@@ -250,7 +251,7 @@ HRESULT CSubPicQueueImpl::RenderTo(ISubPicEx* pSubPic, REFERENCE_TIME rtStart, R
 			hr = pSubPicProviderEx->RenderEx(spd, bIsAnimated ? rtStart : ((rtStart+rtStop)/2), fps, rectList);
 
 			DbgLog((LOG_TRACE, 3, "CSubPicQueueImpl::RenderTo => GetStartPosition"));
-			POSITION pos = pSubPicProviderEx->GetStartPosition(rtStart, fps);
+			POSITION pos{pSubPicProviderEx->GetStartPosition(rtStart, fps)};
 
 			DbgLog((LOG_TRACE, 3, "CSubPicQueueImpl::RenderTo => GetStartStop rtStart:%lu", (ULONG)rtStart/10000));
 			pSubPicProviderEx->GetStartStop(pos, fps, rtStart, rtStop);
@@ -285,16 +286,25 @@ CSubPicQueue::CSubPicQueue(int nMaxSubPic, BOOL bDisableAnim, ISubPicExAllocator
 	//Trace(_T("SubPicQueue constructing\n"));
 
 	if(phr && FAILED(*phr))
+	{
 		return;
+	}
 
 	if(m_nMaxSubPic < 1)
-		{if(phr) *phr = E_INVALIDARG; return;}
+		{if(phr)
+		{
+		    *phr = E_INVALIDARG;
+		} return;}
 
 	m_fBreakBuffering = false;
-	for(int i = 0; i < EVENT_COUNT; i++)
+	for(int i{0}; i < EVENT_COUNT; i++)
+	{
 		m_ThreadEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
-	for(int i=0;i<QueueEvents_COUNT; i++)
+	}
+	for(int i{0};i<QueueEvents_COUNT; i++)
+	{
 		m_QueueEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+	}
 	if(m_nMaxSubPic > 0)
 	{
 		SetEvent(m_QueueEvents[QueueEvents_NOTFULL]);
@@ -312,20 +322,27 @@ CSubPicQueue::~CSubPicQueue()
 	//SetEvent(m_ThreadEvents[EVENT_EXIT]);
 	CAMThread::CallWorker(EVENT_EXIT);
 	CAMThread::Close();
-	for(int i=0;i<QueueEvents_COUNT; i++)
+	for(int i{0};i<QueueEvents_COUNT; i++)
+	{
 		CloseHandle(m_QueueEvents[i]);
-	for(int i = 0; i < EVENT_COUNT; i++)
+	}
+	for(int i{0}; i < EVENT_COUNT; i++)
+	{
 		CloseHandle(m_ThreadEvents[i]);
+	}
 	DbgLog((LOG_TRACE, 3, "CSubPicQueue::~CSubPicQueue"));
 	//ReleaseTracer;
 }
 
 // ISubPicQueue
 
-STDMETHODIMP CSubPicQueue::SetFPS(double fps)
+[[nodiscard]] STDMETHODIMP CSubPicQueue::SetFPS(const double fps)
 {
-	HRESULT hr = __super::SetFPS(fps);
-	if(FAILED(hr)) return hr;
+	HRESULT hr{__super::SetFPS(fps)};
+	if(FAILED(hr))
+	{
+	    return hr;
+	}
 
 	//SetEvent(m_ThreadEvents[EVENT_TIME]);
 	//CallWorker(EVENT_TIME);
@@ -334,10 +351,13 @@ STDMETHODIMP CSubPicQueue::SetFPS(double fps)
 	return S_OK;
 }
 
-STDMETHODIMP CSubPicQueue::SetTime(REFERENCE_TIME rtNow)
+[[nodiscard]] STDMETHODIMP CSubPicQueue::SetTime(const REFERENCE_TIME rtNow)
 {
-	HRESULT hr = __super::SetTime(rtNow);
-	if(FAILED(hr)) return hr;
+	HRESULT hr{__super::SetTime(rtNow)};
+	if(FAILED(hr))
+	{
+	    return hr;
+	}
 
 	//SetEvent(m_ThreadEvents[EVENT_TIME]);
 	//DbgLog((LOG_LOCKING, 3, "SetTime::CallWorker(EVENT_TIME)"));
@@ -347,7 +367,7 @@ STDMETHODIMP CSubPicQueue::SetTime(REFERENCE_TIME rtNow)
 	return S_OK;
 }
 
-STDMETHODIMP CSubPicQueue::Invalidate(REFERENCE_TIME rtInvalidate)
+[[nodiscard]] STDMETHODIMP CSubPicQueue::Invalidate(const REFERENCE_TIME rtInvalidate)
 {
 	{
 //		CAutoLock cQueueLock(&m_csQueueLock);
@@ -361,42 +381,52 @@ STDMETHODIMP CSubPicQueue::Invalidate(REFERENCE_TIME rtInvalidate)
 	return S_OK;
 }
 
-STDMETHODIMP_(bool) CSubPicQueue::LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic)
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicQueue::LookupSubPic(const REFERENCE_TIME rtNow, ISubPic** ppSubPic)
 {
     CComPtr<ISubPicProvider> pSubPicProvider;	
-    double fps = m_fps;
+    double fps{m_fps};
     *ppSubPic = NULL;
     //if(SUCCEEDED(GetSubPicProvider(&pSubPicProvider)) && pSubPicProvider)
     {
         //	if(pSubPicProvider->GetStartPosition(rtNow, fps))
         {
-            CAutoLock cQueueLock(&m_csQueueLock);
-            int count = m_Queue.GetCount();
+            [[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
+            int count{m_Queue.GetCount()};
             if(count>0)
                 if(WaitForSingleObject(m_QueueEvents[QueueEvents_NOTEMPTY], CSUBPICQUEUE_LOOKUP_WAIT_TIMEOUT)==WAIT_OBJECT_0)
                 {
-                    POSITION pos = m_Queue.GetHeadPosition();
+                    POSITION pos{m_Queue.GetHeadPosition()};
                     while(pos)
                     {
                         CComPtr<ISubPic> pSubPic = m_Queue.GetNext(pos);
                         //DbgLog((LOG_TRACE, 3, "picStart:%lu picStop:%lu rtNow:%lu", (ULONG)pSubPic->GetStart()/10000, (ULONG)pSubPic->GetStop()/10000, (ULONG)rtNow/10000));
                         if(pSubPic->GetStart() > rtNow)
+                        {
                             break;
+                        }
                         else if(rtNow < pSubPic->GetStop())
                         {
                             *ppSubPic = pSubPic.Detach();
                             break;
                         }
                     }
-                    int count = m_Queue.GetCount();
+                    int count{m_Queue.GetCount()};
                     if(count>0)
+                    {
                         SetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
-                    else//important
+                    }
+                    else
+                    {//important
                         ResetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
+                    }
                     if(count<m_nMaxSubPic)
+                    {
                         SetEvent(m_QueueEvents[QueueEvents_NOTFULL]);
-                    else//important
+                    }
+                    else
+                    {//important
                         ResetEvent(m_QueueEvents[QueueEvents_NOTFULL]);
+                    }
 
                     //DbgLog((LOG_TRACE, 3, "CSubPicQueue LookupSubPic return"));
                 }
@@ -406,15 +436,15 @@ STDMETHODIMP_(bool) CSubPicQueue::LookupSubPic(REFERENCE_TIME rtNow, ISubPic** p
     return(!!*ppSubPic);
 }
 
-STDMETHODIMP_(bool) CSubPicQueue::LookupSubPic( REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/ )
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicQueue::LookupSubPic( const REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/ )
 {
     //ToDo: fix me
     return false;
 }
 
-STDMETHODIMP CSubPicQueue::GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
+[[nodiscard]] STDMETHODIMP CSubPicQueue::GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
 {
-	CAutoLock cQueueLock(&m_csQueueLock);
+	[[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
 
 	nSubPics = m_Queue.GetCount();
 	rtNow = m_rtNow;
@@ -424,9 +454,9 @@ STDMETHODIMP CSubPicQueue::GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERE
 	return S_OK;
 }
 
-STDMETHODIMP CSubPicQueue::GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
+[[nodiscard]] STDMETHODIMP CSubPicQueue::GetStats(const int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
 {
-	CAutoLock cQueueLock(&m_csQueueLock);
+	[[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
 
 	rtStart = rtStop = -1;
 
@@ -448,17 +478,17 @@ STDMETHODIMP CSubPicQueue::GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERE
 
 // private
 
-REFERENCE_TIME CSubPicQueue::UpdateQueue()
+[[nodiscard]] REFERENCE_TIME CSubPicQueue::UpdateQueue()
 {
 	//DbgLog((LOG_TRACE, 3, "CSubPicQueue UpdateQueue"));
-	REFERENCE_TIME rtNow=0;
+	REFERENCE_TIME rtNow{0};
 
 
 	//if(WaitForMultipleObjects(QueueEvents_COUNT, m_QueueEvents, true, CSUBPICQUEUE_UPDATEQUEUE_WAIT_TIMEOUT))
 	{
-		CAutoLock cQueueLock(&m_csQueueLock);
+		[[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
 		rtNow = m_rtNow;
-		int count = m_Queue.GetCount();
+		int count{m_Queue.GetCount()};
 		if(rtNow < m_rtQueueStart)
 		{
 			m_Queue.RemoveAll();
@@ -473,38 +503,48 @@ REFERENCE_TIME CSubPicQueue::UpdateQueue()
 			}
 		}
 		if(count>0)
+		{
 			rtNow = m_Queue.GetTail()->GetStop();
+		}
 		m_rtQueueStart = m_rtNow;
 		if(count>0)
+		{
 			SetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
-		else//important
+		}
+		else
+		{//important
 			ResetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
+		}
 		if(count<m_nMaxSubPic)
+		{
 			SetEvent(m_QueueEvents[QueueEvents_NOTFULL]);
-		else//important
+		}
+		else
+		{//important
 			ResetEvent(m_QueueEvents[QueueEvents_NOTFULL]);
+		}
 	}
 	return(rtNow);
 }
 
-int CSubPicQueue::GetQueueCount()
+[[nodiscard]] int CSubPicQueue::GetQueueCount()
 {
-	CAutoLock cQueueLock(&m_csQueueLock);
+	[[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
 
 	return m_Queue.GetCount();
 }
 void CSubPicQueue::AppendQueue(ISubPic* pSubPic)
 {
-	CAutoLock cQueueLock(&m_csQueueLock);
+	[[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
 
 	m_Queue.AddTail(pSubPic);
 }
 
 // overrides
 
-DWORD CSubPicQueue::ThreadProc()
+[[nodiscard]] DWORD CSubPicQueue::ThreadProc()
 {
-	BOOL bDisableAnim = m_bDisableAnim;
+	BOOL bDisableAnim{m_bDisableAnim};
 	SetThreadPriority(m_hThread, bDisableAnim ? THREAD_PRIORITY_LOWEST : THREAD_PRIORITY_ABOVE_NORMAL/*THREAD_PRIORITY_BELOW_NORMAL*/);
 
 	//Trace(_T("CSubPicQueue Thread Start\n"));
@@ -516,27 +556,35 @@ DWORD CSubPicQueue::ThreadProc()
 		if(CheckRequest(&request))
 		{
 			if(request==EVENT_EXIT)
+			{
 				break;
+			}
 
 		}
 		if(WaitForSingleObject(m_QueueEvents[QueueEvents_NOTFULL], CSUBPICQUEUE_THREAD_PROC_WAIT_TIMEOUT)!=WAIT_OBJECT_0)
+		{
 			continue;
+		}
 
-		bool failed = true;
-		bool reachEnd = false;
+		bool failed{true};
+		bool reachEnd{false};
 		CComPtr<ISubPicEx> pSubPic;
 		CComPtr<ISubPicEx> pStatic;
 		CComPtr<ISubPicProviderEx> pSubPicProviderEx;
 
-		double fps = m_fps;
-		int nMaxSubPic = m_nMaxSubPic;
+		double fps{m_fps};
+		int nMaxSubPic{m_nMaxSubPic};
 
 		m_csQueueLock.Lock();
-		REFERENCE_TIME rtNow = 0;
+		REFERENCE_TIME rtNow{0};
 		if(m_Queue.GetCount()>0)
+		{
 			rtNow = m_Queue.GetTail()->GetStop();
+		}
 		if(rtNow < m_rtNow)
+		{
 			rtNow = m_rtNow;
+		}
 		CComPtr<ISubPicExAllocator> pAllocator = m_pAllocator;
 		m_csQueueLock.Unlock();
 
@@ -544,7 +592,9 @@ DWORD CSubPicQueue::ThreadProc()
 		{
 			if(FAILED(pAllocator->AllocDynamicEx(&pSubPic))
 				|| (pAllocator->IsDynamicWriteOnly() && FAILED(pAllocator->GetStaticEx(&pStatic))))
+			{
 				break;
+			}
 
 			if(SUCCEEDED(GetSubPicProviderEx(&pSubPicProviderEx)) && pSubPicProviderEx
 				&& SUCCEEDED(pSubPicProviderEx->Lock()))
@@ -552,14 +602,14 @@ DWORD CSubPicQueue::ThreadProc()
 				REFERENCE_TIME rtStart, rtStop;
 
 				//DbgLog((LOG_TRACE, 3, "CSubPicQueue::ThreadProc => GetStartPosition"));
-				POSITION pos = pSubPicProviderEx->GetStartPosition(rtNow, fps);
+				POSITION pos{pSubPicProviderEx->GetStartPosition(rtNow, fps)};
 
 				//DbgLog((LOG_TRACE, 3, "pos:%x, m_fBreakBuffering:%d GetCount():%d nMaxSubPic:%d", pos, m_fBreakBuffering, GetCount(), nMaxSubPic));
 
 				if(pos!=NULL)//!m_fBreakBuffering
 				{
 					reachEnd = false;
-					ASSERT(m_Queue.GetCount() < (size_t)nMaxSubPic);
+					ASSERT(m_Queue.GetCount() < (std::size_t)nMaxSubPic);
 
 					//DbgLog((LOG_TRACE, 3, "CSubPicQueue::ThreadProc => GetStartStop"));
 					pSubPicProviderEx->GetStartStop(pos, fps, rtStart, rtStop);
@@ -568,30 +618,36 @@ DWORD CSubPicQueue::ThreadProc()
 					//	fps, (ULONG)rtNow/10000, (ULONG)m_rtNow/10000));
 
 					if(m_rtNow >= rtStop)
+					{
 						break;
+					}
 					//if(rtStart >= m_rtNow + 60*10000000i64) // we are already one minute ahead, this should be enough
 					//	break;
 
 					if(rtNow < rtStop)
 					{
-                        bool bIsAnimated = pSubPicProviderEx->IsAnimated(pos) && !bDisableAnim;
+                        bool bIsAnimated{pSubPicProviderEx->IsAnimated(pos) && !bDisableAnim};
 						if(pAllocator->IsDynamicWriteOnly())
 							//if(true)
 						{
-							HRESULT hr = RenderTo(pStatic, rtStart, rtStop, fps, bIsAnimated);
+							HRESULT hr{RenderTo(pStatic, rtStart, rtStop, fps, bIsAnimated)};
 							if(FAILED(hr)
 								|| S_OK != hr// subpic was probably empty
 								|| FAILED(pStatic->CopyTo(pSubPic))
 								)
+							{
 								break;
+							}
 						}
 						else
 						{
-							HRESULT hr = RenderTo(pSubPic, rtStart, rtStop, fps, bIsAnimated);
+							HRESULT hr{RenderTo(pSubPic, rtStart, rtStop, fps, bIsAnimated)};
 							if(FAILED(hr)
 								|| S_OK != hr// subpic was probably empty
 								)
+							{
 								break;
+							}
 						}
 						/*DbgLog((LOG_TRACE, 3, "picStart:%lu picStop:%lu seg:%d idx:%d pos:%x",
 							(ULONG)pSubPic->GetStart()/10000,
@@ -601,7 +657,9 @@ DWORD CSubPicQueue::ThreadProc()
 					}
 				}
 				else
+				{
 					reachEnd = true;
+				}
 				pSubPicProviderEx->Unlock();
 				pSubPicProviderEx = NULL;
 			}
@@ -609,20 +667,32 @@ DWORD CSubPicQueue::ThreadProc()
 
 		m_csQueueLock.Lock();
 		if(!failed)
+		{
 			m_Queue.AddTail(pSubPic);
-		int count = m_Queue.GetCount();
+		}
+		int count{m_Queue.GetCount()};
 		if(count>0)
+		{
 			SetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
-		else//important
+		}
+		else
+		{//important
 			ResetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
+		}
 		if(count<m_nMaxSubPic)
+		{
 			SetEvent(m_QueueEvents[QueueEvents_NOTFULL]);
-		else//important
+		}
+		else
+		{//important
 			ResetEvent(m_QueueEvents[QueueEvents_NOTFULL]);
+		}
 		m_csQueueLock.Unlock();
 
 		if(reachEnd)
+		{
 		    Sleep(CSUBPICQUEUE_THREAD_PROC_WAIT_TIMEOUT);
+		}
 
 		//if(failed)
 		//{
@@ -652,15 +722,16 @@ CSubPicQueueNoThread::CSubPicQueueNoThread(ISubPicExAllocator* pAllocator, HRESU
 {
 }
 
-CSubPicQueueNoThread::~CSubPicQueueNoThread()
+constexpr CSubPicQueueNoThread::~CSubPicQueueNoThread()
+noexcept
 {
 }
 
 // ISubPicQueue
 
-STDMETHODIMP CSubPicQueueNoThread::Invalidate(REFERENCE_TIME rtInvalidate)
+[[nodiscard]] STDMETHODIMP CSubPicQueueNoThread::Invalidate(const REFERENCE_TIME rtInvalidate)
 {
-	CAutoLock cQueueLock(&m_csLock);
+	[[nodiscard]] CAutoLock cQueueLock(&m_csLock);
     
     if( m_pSubPic && m_pSubPic->GetStop() >= rtInvalidate)
     {
@@ -669,12 +740,12 @@ STDMETHODIMP CSubPicQueueNoThread::Invalidate(REFERENCE_TIME rtInvalidate)
 	return S_OK;
 }
 
-STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic)
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic(const REFERENCE_TIME rtNow, ISubPic** ppSubPic)
 {
     if(ppSubPic!=NULL)
     {
         ISubPicEx* temp;
-        bool result = LookupSubPicEx(rtNow, &temp);
+        bool result{LookupSubPicEx(rtNow, &temp)};
         *ppSubPic = temp;
         return result;
     }
@@ -684,12 +755,12 @@ STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic(REFERENCE_TIME rtNow, ISu
     }
 }
 
-STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic( REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/ )
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic( const REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/ )
 {    
     if(output_subpic!=NULL)
     {
         CComPtr<ISubPicEx> temp;
-        bool result = LookupSubPicEx(now, &temp);
+        bool result{LookupSubPicEx(now, &temp)};
         (*output_subpic = DEBUG_NEW SimpleSubPicWrapper(temp))->AddRef();
         return result;
     }
@@ -700,17 +771,19 @@ STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic( REFERENCE_TIME now /*[in
 }
 
 
-bool CSubPicQueueNoThread::LookupSubPicEx(REFERENCE_TIME rtNow, ISubPicEx** ppSubPic)
+[[nodiscard]] bool CSubPicQueueNoThread::LookupSubPicEx(const REFERENCE_TIME rtNow, ISubPicEx** ppSubPic)
 {
     if(!ppSubPic)
+    {
         return(false);
+    }
     
     *ppSubPic = NULL;
 
     CComPtr<ISubPicEx> pSubPic;
 
     {
-        CAutoLock cAutoLock(&m_csLock);
+        [[nodiscard]] CAutoLock cAutoLock(&m_csLock);
 
         if(!m_pSubPic)
         {
@@ -732,12 +805,12 @@ bool CSubPicQueueNoThread::LookupSubPicEx(REFERENCE_TIME rtNow, ISubPicEx** ppSu
         if(SUCCEEDED(GetSubPicProvider(&pSubPicProvider)) && pSubPicProvider
             && SUCCEEDED(pSubPicProvider->Lock()))
         {
-            double fps = m_fps;
+            double fps{m_fps};
 
             if(POSITION pos = pSubPicProvider->GetStartPosition(rtNow, fps))
             {
-                REFERENCE_TIME rtStart = pSubPicProvider->GetStart(pos, fps);
-                REFERENCE_TIME rtStop = pSubPicProvider->GetStop(pos, fps);
+                REFERENCE_TIME rtStart{pSubPicProvider->GetStart(pos, fps)};
+                REFERENCE_TIME rtStop{pSubPicProvider->GetStop(pos, fps)};
 
                 if(rtStart <= rtNow && rtNow < rtStop)
                 {
@@ -753,12 +826,16 @@ bool CSubPicQueueNoThread::LookupSubPicEx(REFERENCE_TIME rtNow, ISubPicEx** ppSu
                         if(SUCCEEDED(m_pAllocator->GetStaticEx(&pStatic))
                             && SUCCEEDED(RenderTo(pStatic, rtNow, rtNow+1, fps, true))
                             && SUCCEEDED(pStatic->CopyTo(pSubPic)))
+                        {
                             (*ppSubPic = pSubPic)->AddRef();
+                        }
                     }
                     else
                     {
                         if(SUCCEEDED(RenderTo(m_pSubPic, rtNow, rtNow+1, fps, true)))
+                        {
                             (*ppSubPic = pSubPic)->AddRef();
+                        }
                     }
                 }
             }
@@ -767,7 +844,7 @@ bool CSubPicQueueNoThread::LookupSubPicEx(REFERENCE_TIME rtNow, ISubPicEx** ppSu
 
             if(*ppSubPic)
             {
-                CAutoLock cAutoLock(&m_csLock);
+                [[nodiscard]] CAutoLock cAutoLock(&m_csLock);
 
                 m_pSubPic = *ppSubPic;
             }
@@ -776,9 +853,9 @@ bool CSubPicQueueNoThread::LookupSubPicEx(REFERENCE_TIME rtNow, ISubPicEx** ppSu
     return(!!*ppSubPic);
 }
 
-STDMETHODIMP CSubPicQueueNoThread::GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
+[[nodiscard]] STDMETHODIMP CSubPicQueueNoThread::GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
 {
-	CAutoLock cAutoLock(&m_csLock);
+	[[nodiscard]] CAutoLock cAutoLock(&m_csLock);
 
 	nSubPics = 0;
 	rtNow = m_rtNow;
@@ -794,12 +871,14 @@ STDMETHODIMP CSubPicQueueNoThread::GetStats(int& nSubPics, REFERENCE_TIME& rtNow
 	return S_OK;
 }
 
-STDMETHODIMP CSubPicQueueNoThread::GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
+[[nodiscard]] STDMETHODIMP CSubPicQueueNoThread::GetStats(const int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop)
 {
-	CAutoLock cAutoLock(&m_csLock);
+	[[nodiscard]] CAutoLock cAutoLock(&m_csLock);
 
 	if(!m_pSubPic || nSubPic != 0)
+	{
 		return E_INVALIDARG;
+	}
 
 	rtStart = m_pSubPic->GetStart();
 	rtStop = m_pSubPic->GetStop();

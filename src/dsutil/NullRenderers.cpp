@@ -41,7 +41,7 @@ CNullVideoRenderer::CNullVideoRenderer(LPUNKNOWN pUnk, HRESULT* phr)
 {
 }
 
-HRESULT CNullVideoRenderer::CheckMediaType(const CMediaType* pmt)
+[[nodiscard]] HRESULT CNullVideoRenderer::CheckMediaType(const CMediaType* pmt)
 {
 	return pmt->majortype == MEDIATYPE_Video
 		|| pmt->subtype == MEDIASUBTYPE_MPEG2_VIDEO
@@ -58,7 +58,7 @@ CNullUVideoRenderer::CNullUVideoRenderer(LPUNKNOWN pUnk, HRESULT* phr)
 {
 }
 
-HRESULT CNullUVideoRenderer::CheckMediaType(const CMediaType* pmt)
+[[nodiscard]] HRESULT CNullUVideoRenderer::CheckMediaType(const CMediaType* pmt)
 {
 	return pmt->majortype == MEDIATYPE_Video
 		&& (pmt->subtype == MEDIASUBTYPE_YV12
@@ -97,7 +97,7 @@ CNullAudioRenderer::CNullAudioRenderer(LPUNKNOWN pUnk, HRESULT* phr)
 {
 }
 
-HRESULT CNullAudioRenderer::CheckMediaType(const CMediaType* pmt)
+[[nodiscard]] HRESULT CNullAudioRenderer::CheckMediaType(const CMediaType* pmt)
 {
 	return pmt->majortype == MEDIATYPE_Audio
 		|| pmt->majortype == MEDIATYPE_Midi
@@ -122,7 +122,7 @@ CNullUAudioRenderer::CNullUAudioRenderer(LPUNKNOWN pUnk, HRESULT* phr)
 {
 }
 
-HRESULT CNullUAudioRenderer::CheckMediaType(const CMediaType* pmt)
+[[nodiscard]] HRESULT CNullUAudioRenderer::CheckMediaType(const CMediaType* pmt)
 {
 	return pmt->majortype == MEDIATYPE_Audio
 		&& (pmt->subtype == MEDIASUBTYPE_PCM
@@ -139,7 +139,7 @@ HRESULT CNullUAudioRenderer::CheckMediaType(const CMediaType* pmt)
 // CNullTextRenderer
 //
 
-HRESULT CNullTextRenderer::CTextInputPin::CheckMediaType(const CMediaType* pmt)
+[[nodiscard]] HRESULT CNullTextRenderer::CTextInputPin::CheckMediaType(const CMediaType* pmt)
 {
 	return pmt->majortype == MEDIATYPE_Text
 		|| pmt->majortype == MEDIATYPE_ScriptCommand

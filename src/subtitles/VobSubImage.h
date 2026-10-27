@@ -30,7 +30,7 @@ struct COutline {
         pa.RemoveAll();
         da.RemoveAll();
     }
-    void Add(CPoint p, int d) {
+    void Add(const CPoint p, const int d) {
         pa.Add(p);
         da.Add(d);
     }
@@ -45,21 +45,21 @@ private:
     RGBQUAD* lpTemp1;
     RGBQUAD* lpTemp2;
 
-    size_t nOffset[2], nPlane;
+    std::size_t nOffset[2U], nPlane;
     bool fCustomPal;
     bool fAligned;
     int tridx;
     RGBQUAD* orgpal /*[16]*/, * cuspal /*[4]*/;
 
-    bool Alloc(int w, int h);
-    void Free();
+    [[nodiscard]] bool Alloc(int w, int h);
+    constexpr void Free() noexcept;
 
-    BYTE GetNibble(const BYTE* lpData);
-    void DrawPixels(CPoint p, int length, size_t colorId);
+    [[nodiscard]] constexpr BYTE GetNibble(const BYTE* lpData) noexcept;
+    void DrawPixels(CPoint p, int length, std::size_t colorId);
     void TrimSubImage();
 
 public:
-    size_t iLang, iIdx;
+    std::size_t iLang, iIdx;
     bool fForced, fAnimated;
     int tCurrent;
     __int64 start, delay;
@@ -67,16 +67,16 @@ public:
     struct SubPal {
         BYTE pal: 4, tr: 4;
     };
-    SubPal pal[4];
+    SubPal pal[4U];
     RGBQUAD* lpPixels;
 
-    CVobSubImage();
-    virtual ~CVobSubImage();
+    constexpr explicit CVobSubImage() noexcept;
+    constexpr virtual ~CVobSubImage() noexcept;
 
     void Invalidate() { iLang = iIdx = -1; }
 
-    void GetPacketInfo(const BYTE* lpData, size_t packetSize, size_t dataSize, int t = INT_MAX);
-    bool Decode(BYTE* lpData, size_t packetSize, size_t dataSize, int t,
+    void GetPacketInfo(const BYTE* lpData, std::size_t packetSize, std::size_t dataSize, int t = INT_MAX);
+    [[nodiscard]] bool Decode(BYTE* lpData, std::size_t packetSize, std::size_t dataSize, int t,
                 bool fCustomPal,
                 int tridx,
                 RGBQUAD* orgpal /*[16]*/, RGBQUAD* cuspal /*[4]*/,
@@ -84,13 +84,13 @@ public:
 
 private:
     CAutoPtrList<COutline>* GetOutlineList(CPoint& topleft);
-    int  GrabSegment(int start, const COutline& o, COutline& ret);
+    [[nodiscard]] int  GrabSegment(int start, const COutline& o, COutline& ret);
     void SplitOutline(const COutline& o, COutline& o1, COutline& o2);
     void AddSegment(COutline& o, CAtlArray<BYTE>& pathTypes, CAtlArray<CPoint>& pathPoints);
 
 public:
     bool Polygonize(CAtlArray<BYTE>& pathTypes, CAtlArray<CPoint>& pathPoints, bool fSmooth, int scale);
-    bool Polygonize(CStringW& assstr, bool fSmooth = true, int scale = 3);
+    [[nodiscard]] bool Polygonize(CStringW& assstr, bool fSmooth = true, int scale = 3);
 
     void Scale2x();
 };

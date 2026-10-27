@@ -72,12 +72,12 @@ class CHdmvClipInfo
 public:
 
     struct Stream {
-        Stream() {
-            memset(this, 0, sizeof(*this));
+        explicit Stream() noexcept {
+            std::memset(this, 0, sizeof(*this));
         }
         short m_PID;
         PES_STREAM_TYPE m_Type;
-        char m_LanguageCode[4];
+        char m_LanguageCode[4U];
         LCID m_LCID;
 
         // Valid for video types
@@ -96,9 +96,9 @@ public:
         REFERENCE_TIME m_rtIn;
         REFERENCE_TIME m_rtOut;
 
-        REFERENCE_TIME Duration() const { return m_rtOut - m_rtIn; }
+        [[nodiscard]] constexpr REFERENCE_TIME Duration() const noexcept { return m_rtOut - m_rtIn; }
 
-        bool operator == (const PlaylistItem& pi) const {
+        [[nodiscard]] bool operator == (const PlaylistItem& pi) const {
             return pi.m_strFileName == m_strFileName;
         }
     };
@@ -117,18 +117,18 @@ public:
         REFERENCE_TIME   m_rtDuration;
     };
 
-    CHdmvClipInfo(void);
+    explicit CHdmvClipInfo(void);
     ~CHdmvClipInfo();
 
-    HRESULT ReadInfo(LPCTSTR strFile);
-    Stream* FindStream(short wPID);
-    bool IsHdmv() const { return m_bIsHdmv; };
-    size_t GetStreamNumber() { return m_Streams.GetCount(); };
-    Stream* GetStreamByIndex(size_t nIndex) { return (nIndex < m_Streams.GetCount()) ? &m_Streams[nIndex] : NULL; };
+    [[nodiscard]] HRESULT ReadInfo(LPCTSTR strFile);
+    [[nodiscard]] Stream* FindStream(short wPID);
+    [[nodiscard]] constexpr bool IsHdmv() const noexcept { return m_bIsHdmv; };
+    [[nodiscard]] std::size_t GetStreamNumber() { return m_Streams.GetCount(); };
+    [[nodiscard]] Stream* GetStreamByIndex(const std::size_t nIndex) { return (nIndex < m_Streams.GetCount()) ? &m_Streams[nIndex] : NULL; };
 
-    HRESULT FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile, CAtlList<PlaylistItem>& MainPlaylist, CAtlList<PlaylistItem>& MPLSPlaylists);
-    HRESULT ReadPlaylist(CString strPlaylistFile, REFERENCE_TIME& rtDuration, CAtlList<PlaylistItem>& Playlist);
-    HRESULT ReadChapters(CString strPlaylistFile, CAtlList<CHdmvClipInfo::PlaylistItem>& PlaylistItems, CAtlList<PlaylistChapter>& Chapters);
+    [[nodiscard]] HRESULT FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile, CAtlList<PlaylistItem>& MainPlaylist, CAtlList<PlaylistItem>& MPLSPlaylists);
+    [[nodiscard]] HRESULT ReadPlaylist(CString strPlaylistFile, REFERENCE_TIME& rtDuration, CAtlList<PlaylistItem>& Playlist);
+    [[nodiscard]] HRESULT ReadChapters(CString strPlaylistFile, CAtlList<CHdmvClipInfo::PlaylistItem>& PlaylistItems, CAtlList<PlaylistChapter>& Chapters);
 
 private:
     DWORD SequenceInfo_start_address;
@@ -140,10 +140,10 @@ private:
     bool m_bIsHdmv;
 
     DWORD ReadDword();
-    short ReadShort();
+    [[nodiscard]] short ReadShort();
     BYTE ReadByte();
     void ReadBuffer(BYTE* pBuff, DWORD nLen);
 
     HRESULT ReadProgramInfo();
-    HRESULT CloseFile(HRESULT hr);
+    [[nodiscard]] HRESULT CloseFile(HRESULT hr);
 };

@@ -25,14 +25,14 @@
 struct VIH
 {
 	VIDEOINFOHEADER vih;
-	UINT mask[3];
+	UINT mask[3U];
 	int size;
 	const GUID* subtype;
 };
 struct VIH2
 {
 	VIDEOINFOHEADER2 vih;
-	UINT mask[3];
+	UINT mask[3U];
 	int size;
 	const GUID* subtype;
 };

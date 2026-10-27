@@ -12,8 +12,8 @@ public:
 
     void xy_overlap_region(SpanBuffer* dst, const SpanBuffer& src, int rx, int ry);
 private:
-    WidenRegionCreater();
-    ~WidenRegionCreater();
+    explicit WidenRegionCreater();
+    constexpr ~WidenRegionCreater() noexcept;
 
     WidenRegionCreaterImpl* m_impl;
 };

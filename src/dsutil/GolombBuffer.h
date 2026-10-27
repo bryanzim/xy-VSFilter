@@ -24,29 +24,29 @@ class CGolombBuffer
 {
 public:
     CGolombBuffer(BYTE* pBuffer, int nSize);
-    ~CGolombBuffer();
+    constexpr ~CGolombBuffer() noexcept;
 
-    UINT64 BitRead(int nBits, bool fPeek = false);
+    [[nodiscard]] constexpr UINT64 BitRead(int nBits, bool fPeek = false) noexcept;
     UINT64 UExpGolombRead();
     INT64 SExpGolombRead();
-    void BitByteAlign();
+    constexpr void BitByteAlign() noexcept;
 
-    inline BYTE ReadByte() { return (BYTE)BitRead(8); };
-    inline short ReadShort() { return (short)BitRead(16); };
-    inline DWORD ReadDword() { return (DWORD)BitRead(32); };
+    [[nodiscard]] inline BYTE ReadByte() { return (BYTE)BitRead(8); };
+    [[nodiscard]] inline short ReadShort() { return (short)BitRead(16); };
+    [[nodiscard]] inline DWORD ReadDword() { return (DWORD)BitRead(32); };
     void ReadBuffer(BYTE* pDest, int nSize);
 
     void Reset();
     void Reset(BYTE* pNewBuffer, int nNewSize);
 
-    void SetSize(int nValue) { m_nSize = nValue; };
-    int GetSize() const { return m_nSize; };
-    int RemainingSize() const { return m_nSize - m_nBitPos; };
-    bool IsEOF() const { return m_nBitPos >= m_nSize; };
-    int GetPos();
-    BYTE* GetBufferPos() { return m_pBuffer + m_nBitPos; };
+    void SetSize(const int nValue) { m_nSize = nValue; };
+    [[nodiscard]] int GetSize() const { return m_nSize; };
+    [[nodiscard]] constexpr int RemainingSize() const noexcept { return m_nSize - m_nBitPos; };
+    [[nodiscard]] constexpr bool IsEOF() const noexcept { return m_nBitPos >= m_nSize; };
+    [[nodiscard]] constexpr int GetPos() noexcept;
+    [[nodiscard]] constexpr BYTE* GetBufferPos() noexcept { return m_pBuffer + m_nBitPos; };
 
-    void SkipBytes(int nCount);
+    constexpr void SkipBytes(int nCount) noexcept;
 
 private:
     BYTE* m_pBuffer;

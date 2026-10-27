@@ -47,13 +47,13 @@ std::wostream& operator<<( std::wostream& os, const RECT& obj )
     return os<<L"("<<obj.left<<L","<<obj.top<<L","<<obj.right<<L","<<obj.bottom<<L")";
 }
 
-CString XyUuidToString(const UUID& in_uuid)
+[[nodiscard]] CString XyUuidToString(const UUID& in_uuid)
 {
     CString ret;
     ret.Format(_T("{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}"),
-        in_uuid.Data1, in_uuid.Data2, in_uuid.Data3, in_uuid.Data4[0], in_uuid.Data4[1], 
-        in_uuid.Data4[2], in_uuid.Data4[3], in_uuid.Data4[4], 
-        in_uuid.Data4[5], in_uuid.Data4[6], in_uuid.Data4[7]);
+        in_uuid.Data1, in_uuid.Data2, in_uuid.Data3, in_uuid.Data4[0U], in_uuid.Data4[1U], 
+        in_uuid.Data4[2U], in_uuid.Data4[3U], in_uuid.Data4[4U], 
+        in_uuid.Data4[5U], in_uuid.Data4[6U], in_uuid.Data4[7U]);
     return ret;
 }
 
@@ -61,34 +61,34 @@ namespace xy_logger
 {
 
 #if ENABLE_XY_LOG
-    int g_log_once_id=0;
+    int g_log_once_id{0};
     
-    log4cplus::Logger g_logger = log4cplus::Logger::getInstance( XY_TEXT("global_logger_xy") );
+    log4cplus::Logger g_logger{log4cplus::Logger::getInstance( XY_TEXT("global_logger_xy") )};
 #endif
 
 bool doConfigure(const log4cplus::tstring& configFilename)
 {
 #if ENABLE_XY_LOG
-    log4cplus::Hierarchy& h = log4cplus::Logger::getDefaultHierarchy();
-    unsigned flags = 0;
+    log4cplus::Hierarchy& h{log4cplus::Logger::getDefaultHierarchy()};
+    unsigned flags{0U};
     log4cplus::PropertyConfigurator::doConfigure(configFilename, h, flags);
 #endif
     return true;
 }
 
-bool doConfigure( log4cplus::tistream& property_stream )
+[[nodiscard]] bool doConfigure( log4cplus::tistream& property_stream )
 {
 #if ENABLE_XY_LOG
-    log4cplus::PropertyConfigurator p(property_stream);
+    log4cplus::PropertyConfigurator p{property_stream};
     p.configure();
 #endif
     return true;
 }
 
-void write_file(const char * filename, const void * buff, int size)
+void write_file(const char * filename, const void * buff, const int size)
 {
-    FILE* out_file = NULL;
-    int rv = fopen_s(&out_file, filename,"ab");
+    FILE* out_file{NULL};
+    int rv{fopen_s(&out_file, filename,"ab")};
     if (rv!=0 || !out_file)
     {
         XY_LOG_ERROR("Failed to open file: "<<filename);
@@ -98,35 +98,35 @@ void write_file(const char * filename, const void * buff, int size)
     fclose(out_file);
 }
 
-void DumpPackBitmap2File(POINT pos, SIZE size, LPCVOID pixels, int pitch, const char *filename)
+void DumpPackBitmap2File(const POINT pos, const SIZE size, const LPCVOID pixels, const int pitch, const char *filename)
 {
     using namespace std;
 
-    ofstream axxx(filename, ios_base::app);
-    int h = size.cy;
-    int w = size.cx;
-    const BYTE* src = reinterpret_cast<const BYTE*>(pixels);
+    [[nodiscard]] ofstream axxx(filename, ios_base::app);
+    int h{size.cy};
+    int w{size.cx};
+    const BYTE* src{reinterpret_cast<const BYTE*>(pixels)};
 
     axxx<<"pos:("<<pos.x<<","<<pos.y<<") size:("<<size.cx<<","<<size.cy<<")"<<std::endl;
-    for(int i=0;i<h;i++, src += pitch)
+    for(int i{0};i<h;i++, src += pitch)
     {
-        const BYTE* s2 = src;
-        const BYTE* s2end = s2 + w*4;
+        const BYTE* s2{src};
+        const BYTE* s2end{s2 + w*4};
         for(; s2 < s2end; s2 += 4)
         {
-            axxx<<(int)s2[0]<<","<<(int)s2[1]<<","<<(int)s2[2]<<","<<(int)s2[3]<<",";
+            axxx<<(int)s2[0U]<<","<<(int)s2[1U]<<","<<(int)s2[2U]<<","<<(int)s2[3U]<<",";
         }
         axxx<<std::endl;
     }
     axxx.close();
 }
 
-void XyDisplayType(LPTSTR label, const AM_MEDIA_TYPE *pmtIn)
+void XyDisplayType(const LPTSTR label, const AM_MEDIA_TYPE *pmtIn)
 {
 #if ENABLE_XY_LOG
     /* Dump the GUID types and a short description */
 
-    XY_LOG_TRACE(_T(""));
+    XY_LOG_TRACE{_T("")};
     XY_LOG_TRACE(label<<_T("  M type ")<<GuidNames[pmtIn->majortype]<<_T("  S type "<<GuidNames[pmtIn->subtype]));
     XY_LOG_TRACE(_T("Subtype description ")<<GetSubtypeName(&pmtIn->subtype));
 
@@ -146,8 +146,8 @@ void XyDisplayType(LPTSTR label, const AM_MEDIA_TYPE *pmtIn)
 
     if (pmtIn->formattype == FORMAT_VideoInfo) {
         /* Dump the contents of the BITMAPINFOHEADER structure */
-        BITMAPINFOHEADER *pbmi = HEADER(pmtIn->pbFormat);
-        VIDEOINFOHEADER *pVideoInfo = (VIDEOINFOHEADER *)pmtIn->pbFormat;
+        BITMAPINFOHEADER *pbmi{HEADER(pmtIn->pbFormat)};
+        VIDEOINFOHEADER *pVideoInfo{(VIDEOINFOHEADER *)pmtIn->pbFormat};
 
         XY_LOG_TRACE(_T("Source rectangle :")<<pVideoInfo->rcSource);
 
@@ -178,7 +178,7 @@ void XyDisplayType(LPTSTR label, const AM_MEDIA_TYPE *pmtIn)
         {
             /* Dump the contents of the WAVEFORMATEX type-specific format structure */
 
-            WAVEFORMATEX *pwfx = (WAVEFORMATEX *) pmtIn->pbFormat;
+            WAVEFORMATEX *pwfx{(WAVEFORMATEX *) pmtIn->pbFormat};
             XY_LOG_TRACE(_T("wFormatTag     :")<<pwfx->wFormatTag     );
             XY_LOG_TRACE(_T("nChannels      :")<<pwfx->nChannels      );
             XY_LOG_TRACE(_T("nSamplesPerSec :")<<pwfx->nSamplesPerSec );
@@ -188,7 +188,9 @@ void XyDisplayType(LPTSTR label, const AM_MEDIA_TYPE *pmtIn)
 
             /* PCM uses a WAVEFORMAT and does not have the extra size field */
             if (pmtIn->cbFormat >= sizeof(WAVEFORMATEX))
+            {
             XY_LOG_TRACE(_T("cbSize         :")<<pwfx->cbSize);
+            }
         } else {
         }
     } else {
@@ -198,7 +200,7 @@ void XyDisplayType(LPTSTR label, const AM_MEDIA_TYPE *pmtIn)
 #endif
 }
 
-void XyDumpGraph(IFilterGraph *pGraph, DWORD dwLevel)
+void XyDumpGraph(IFilterGraph *pGraph, const DWORD dwLevel)
 {
 #if ENABLE_XY_LOG
     if( !pGraph )
@@ -244,9 +246,9 @@ void XyDumpGraph(IFilterGraph *pGraph, DWORD dwLevel)
                     } else {
                         QueryPinInfoReleaseFilter(info);
 
-                        IPin *pPinConnected = NULL;
+                        IPin *pPinConnected{NULL};
 
-                        HRESULT hr = pPin->ConnectedTo(&pPinConnected);
+                        HRESULT hr{pPin->ConnectedTo(&pPinConnected)};
 
                         if (pPinConnected) {
                             XY_LOG_TRACE(_T("          Pin [")<<pPin<<_T("] ")<<info.achName<<_T(" ")

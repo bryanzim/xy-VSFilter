@@ -27,19 +27,19 @@
 // hWnd == INVALID_HANDLE_VALUE - get name, hWnd != INVALID_HANDLE_VALUE - show ppage
 static TCHAR* CallPPage(IFilterGraph* pGraph, int idx, HWND hWnd);
 
-static HHOOK g_hHook = (HHOOK)INVALID_HANDLE_VALUE;
+static HHOOK g_hHook{(HHOOK)INVALID_HANDLE_VALUE};
 
-static UINT WM_DVSPREVSUB = RegisterWindowMessage(TEXT("WM_DVSPREVSUB"));
-static UINT WM_DVSNEXTSUB = RegisterWindowMessage(TEXT("WM_DVSNEXTSUB"));
-static UINT WM_DVSHIDESUB = RegisterWindowMessage(TEXT("WM_DVSHIDESUB"));
-static UINT WM_DVSSHOWSUB = RegisterWindowMessage(TEXT("WM_DVSSHOWSUB"));
-static UINT WM_DVSSHOWHIDESUB = RegisterWindowMessage(TEXT("WM_DVSSHOWHIDESUB"));
-static UINT s_uTaskbarRestart = RegisterWindowMessage(TEXT("TaskbarCreated"));
-static UINT WM_NOTIFYICON = RegisterWindowMessage(TEXT("MYWM_NOTIFYICON"));
+static UINT WM_DVSPREVSUB{RegisterWindowMessage(TEXT("WM_DVSPREVSUB"))};
+static UINT WM_DVSNEXTSUB{RegisterWindowMessage(TEXT("WM_DVSNEXTSUB"))};
+static UINT WM_DVSHIDESUB{RegisterWindowMessage(TEXT("WM_DVSHIDESUB"))};
+static UINT WM_DVSSHOWSUB{RegisterWindowMessage(TEXT("WM_DVSSHOWSUB"))};
+static UINT WM_DVSSHOWHIDESUB{RegisterWindowMessage(TEXT("WM_DVSSHOWHIDESUB"))};
+static UINT s_uTaskbarRestart{RegisterWindowMessage(TEXT("TaskbarCreated"))};
+static UINT WM_NOTIFYICON{RegisterWindowMessage(TEXT("MYWM_NOTIFYICON"))};
 
-LRESULT CALLBACK HookProc(UINT code, WPARAM wParam, LPARAM lParam)
+[[nodiscard]] LRESULT CALLBACK HookProc(const UINT code, const WPARAM wParam, const LPARAM lParam)
 {
-	MSG* msg = (MSG*)lParam;
+	MSG* msg{(MSG*)lParam};
 
 	if(msg->message == WM_KEYDOWN)
 	{
@@ -58,9 +58,9 @@ LRESULT CALLBACK HookProc(UINT code, WPARAM wParam, LPARAM lParam)
 	return CallNextHookEx(g_hHook, code,  wParam, lParam);
 } 
 
-static BOOL CALLBACK enumWindowCallback(HWND hwnd, LPARAM lparam)
+[[nodiscard]] static BOOL CALLBACK enumWindowCallback(const HWND hwnd, const LPARAM lparam)
 {
-    HWND owner = (HWND)lparam;
+    HWND owner{(HWND)lparam};
     if (owner == GetWindow(hwnd, GW_OWNER)) {
         SetForegroundWindow(hwnd);
         return FALSE;
@@ -73,15 +73,24 @@ class CSystrayWindow : public CWnd
 	SystrayIconData* m_tbid;
     bool             m_properties_page_showing;
 
-	void StepSub(int dir)
+	void StepSub(const int dir)
 	{
 		int iSelected, nLangs;
-		if(FAILED(m_tbid->dvs->get_LanguageCount(&nLangs))) return;
-		if(FAILED(m_tbid->dvs->get_SelectedLanguage(&iSelected))) return;
-        if(nLangs > 0) m_tbid->dvs->put_SelectedLanguage((iSelected+dir+nLangs)%nLangs);
+		if(FAILED(m_tbid->dvs->get_LanguageCount(&nLangs)))
+		{
+		    return;
+		}
+		if(FAILED(m_tbid->dvs->get_SelectedLanguage(&iSelected)))
+		{
+		    return;
+		}
+        if(nLangs > 0)
+        {
+            m_tbid->dvs->put_SelectedLanguage((iSelected+dir+nLangs)%nLangs);
+        }
 	}
 
-	void ShowSub(bool fShow)
+	void ShowSub(const bool fShow)
 	{
 		m_tbid->dvs->put_HideSubtitles(!fShow);
 	}
@@ -89,12 +98,15 @@ class CSystrayWindow : public CWnd
 	void ToggleSub()
 	{
 		bool fShow;
-		if(FAILED(m_tbid->dvs->get_HideSubtitles(&fShow))) return;
+		if(FAILED(m_tbid->dvs->get_HideSubtitles(&fShow)))
+		{
+		    return;
+		}
 		m_tbid->dvs->put_HideSubtitles(!fShow);
 	}
 
 public:
-	CSystrayWindow(SystrayIconData* tbid) : m_tbid(tbid),m_properties_page_showing(false) {}
+	explicit CSystrayWindow(SystrayIconData* tbid) : m_tbid(tbid),m_properties_page_showing(false) {}
 
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -103,13 +115,13 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnClose();
 	afx_msg void OnDestroy();
-	afx_msg LRESULT OnDVSPrevSub(WPARAM, LPARAM);
-	afx_msg LRESULT OnDVSNextSub(WPARAM, LPARAM);
-	afx_msg LRESULT OnDVSHideSub(WPARAM, LPARAM);
-	afx_msg LRESULT OnDVSShowSub(WPARAM, LPARAM);
-	afx_msg LRESULT OnDVSShowHideSub(WPARAM, LPARAM);
-	afx_msg LRESULT OnTaskBarRestart(WPARAM, LPARAM);
-	afx_msg LRESULT OnNotifyIcon(WPARAM, LPARAM);
+	[[nodiscard]] afx_msg LRESULT OnDVSPrevSub(WPARAM, LPARAM);
+	[[nodiscard]] afx_msg LRESULT OnDVSNextSub(WPARAM, LPARAM);
+	[[nodiscard]] afx_msg LRESULT OnDVSHideSub(WPARAM, LPARAM);
+	[[nodiscard]] afx_msg LRESULT OnDVSShowSub(WPARAM, LPARAM);
+	[[nodiscard]] afx_msg LRESULT OnDVSShowHideSub(WPARAM, LPARAM);
+	[[nodiscard]] afx_msg LRESULT OnTaskBarRestart(WPARAM, LPARAM);
+	[[nodiscard]] afx_msg LRESULT OnNotifyIcon(WPARAM, LPARAM);
 };
 
 BEGIN_MESSAGE_MAP(CSystrayWindow, CWnd)
@@ -129,7 +141,9 @@ END_MESSAGE_MAP()
 int CSystrayWindow::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if(CWnd::OnCreate(lpCreateStruct) == -1)
+	{
 		return -1;
+	}
 
 	if(g_hHook == INVALID_HANDLE_VALUE)
 	{
@@ -168,18 +182,18 @@ void CSystrayWindow::OnDestroy()
 	PostQuitMessage(0); 
 }
 
-LRESULT CSystrayWindow::OnDVSPrevSub(WPARAM, LPARAM)
+[[nodiscard]] LRESULT CSystrayWindow::OnDVSPrevSub(const WPARAM, const LPARAM)
 	{StepSub(-1); return 0;}
-LRESULT CSystrayWindow::OnDVSNextSub(WPARAM, LPARAM)
+[[nodiscard]] LRESULT CSystrayWindow::OnDVSNextSub(const WPARAM, const LPARAM)
 	{StepSub(+1); return 0;}
-LRESULT CSystrayWindow::OnDVSHideSub(WPARAM, LPARAM)
+[[nodiscard]] LRESULT CSystrayWindow::OnDVSHideSub(const WPARAM, const LPARAM)
 	{ShowSub(false); return 0;}
-LRESULT CSystrayWindow::OnDVSShowSub(WPARAM, LPARAM)
+[[nodiscard]] LRESULT CSystrayWindow::OnDVSShowSub(const WPARAM, const LPARAM)
 	{ShowSub(true); return 0;}
-LRESULT CSystrayWindow::OnDVSShowHideSub(WPARAM, LPARAM)
+[[nodiscard]] LRESULT CSystrayWindow::OnDVSShowHideSub(const WPARAM, const LPARAM)
 	{ToggleSub(); return 0;}
 
-LRESULT CSystrayWindow::OnTaskBarRestart(WPARAM, LPARAM)
+[[nodiscard]] LRESULT CSystrayWindow::OnTaskBarRestart(const WPARAM, const LPARAM)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -195,16 +209,19 @@ LRESULT CSystrayWindow::OnTaskBarRestart(WPARAM, LPARAM)
 		tnid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP; 
 		tnid.uCallbackMessage = WM_NOTIFYICON;
         CComQIPtr<IXyOptions> dvs_xy = m_tbid->dvs;
-        LPWSTR name = NULL;
-        int chars = 0;
+        LPWSTR name{NULL};
+        int chars{0};
         dvs_xy->XyGetString(DirectVobSubXyOptions::STRING_NAME, &name, &chars);
-        CStringW str_name(name, chars);
+        CStringW str_name{name, chars};
         LocalFree(name);
         lstrcpyn(tnid.szTip, str_name.GetString(), sizeof(tnid.szTip));
 
-		BOOL res = Shell_NotifyIcon(NIM_ADD, &tnid); 
+		BOOL res{Shell_NotifyIcon(NIM_ADD, &tnid)}; 
 
-		if(tnid.hIcon) DestroyIcon(tnid.hIcon); 
+		if(tnid.hIcon)
+		{
+		    DestroyIcon(tnid.hIcon);
+		} 
 
 		return res?0:-1;
 	}
@@ -212,12 +229,14 @@ LRESULT CSystrayWindow::OnTaskBarRestart(WPARAM, LPARAM)
 	return 0;
 }
 
-LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
+[[nodiscard]] LRESULT CSystrayWindow::OnNotifyIcon(const WPARAM wParam, const LPARAM lParam)
 {
     if((UINT)wParam != IDI_ICON1)
+    {
 		return -1;
+    }
 
-	HWND hWnd = m_hWnd;
+	HWND hWnd{m_hWnd};
 	
 	switch((UINT)lParam)
 	{
@@ -226,7 +245,7 @@ LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
             if (!m_properties_page_showing)
             {
                 m_properties_page_showing = true;
-                RECT desktopRect;
+                [[nodiscard]] RECT desktopRect;
                 ::GetWindowRect(::GetDesktopWindow(), &desktopRect);
                 ::SetWindowPos(m_hWnd, 0, (desktopRect.right / 2) - 200, (desktopRect.bottom / 2) - 300, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
                 ShowPPage(CComQIPtr<IBaseFilter>(m_tbid->dvs), hWnd);
@@ -249,8 +268,11 @@ LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
 
 			BeginEnumFilters(m_tbid->graph, pEF, pBF)
 			{
-				CString name = GetFilterName(pBF);
-				if(name.IsEmpty()) continue;
+				CString name{GetFilterName(pBF)};
+				if(name.IsEmpty())
+				{
+				    continue;
+				}
 
 				if(CComQIPtr<IAMStreamSelect> pSS = pBF)
 				{
@@ -263,18 +285,18 @@ LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
 			CMenu popup;
 			popup.CreatePopupMenu();
 
-			for(size_t j = 0; j < pStreams.GetCount(); j++)
+			for(std::size_t j{0U}; j < pStreams.GetCount(); j++)
 			{
-				bool fMMSwitcher = !names[j].Compare(_T("Morgan Stream Switcher"));
+				bool fMMSwitcher{!names[j].Compare(_T("Morgan Stream Switcher"))};
 
-				DWORD cStreams = 0;
+				DWORD cStreams{0};
 				pStreams[j]->Count(&cStreams);
 
 				DWORD flags, group, prevgroup = -1;
 				
-				for(UINT i = 0; i < cStreams; i++)
+				for(UINT i{0}; i < cStreams; i++)
 				{
-					WCHAR* pName = NULL;
+					WCHAR* pName{NULL};
 
 					if(S_OK == pStreams[j]->Info(i, 0, &flags, 0, &group, &pName, 0, 0))
 					{
@@ -293,7 +315,10 @@ LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
 					}
 				}
 
-				if(cStreams > 0) popup.AppendMenu(MF_SEPARATOR);
+				if(cStreams > 0)
+				{
+				    popup.AppendMenu(MF_SEPARATOR);
+				}
 			}
 
 			int i;
@@ -301,14 +326,16 @@ LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
 			TCHAR* str;
 			for(i = 0; str = CallPPage(m_tbid->graph, i, (HWND)INVALID_HANDLE_VALUE); i++)
 			{
-				if(_tcsncmp(str, _T("DivX MPEG"), 9) || m_tbid->fRunOnce) // divx3's ppage will crash if the graph hasn't been run at least once yet
+				if(_tcsncmp(str, _T("DivX MPEG"), 9) || m_tbid->fRunOnce)
+				{ // divx3's ppage will crash if the graph hasn't been run at least once yet
 					popup.AppendMenu(MF_ENABLED|MF_STRING|MF_UNCHECKED, (1<<14)|(i), str);
+				}
 
 				delete [] str;
 			}
 
 			SetForegroundWindow();
-			UINT id = popup.TrackPopupMenu(TPM_LEFTBUTTON|TPM_RETURNCMD, p.x, p.y, CWnd::FromHandle(hWnd), 0);
+			UINT id{popup.TrackPopupMenu(TPM_LEFTBUTTON|TPM_RETURNCMD, p.x, p.y, CWnd::FromHandle(hWnd), 0)};
 			PostMessage(WM_NULL);
 
 			if(id & (1<<15)) 
@@ -322,7 +349,9 @@ LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
 					HWND hwnd;
 					if(SUCCEEDED(pVW->get_Owner((OAHWND*)&hwnd))
 					|| SUCCEEDED(pVW->get_MessageDrain((OAHWND*)&hwnd)))
+					{
 						hWnd = hwnd;
+					}
 				}
 
 				CallPPage(m_tbid->graph, id&0xff, hWnd);
@@ -339,14 +368,14 @@ LRESULT CSystrayWindow::OnNotifyIcon(WPARAM wParam, LPARAM lParam)
 
 //
 
-DWORD CALLBACK SystrayThreadProc(void* pParam)
+[[nodiscard]] DWORD CALLBACK SystrayThreadProc(void* pParam)
 {
     XY_LOG_DEBUG(pParam);
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-    SystrayIconData *tbid = (SystrayIconData*)pParam;
+    SystrayIconData *tbid{(SystrayIconData*)pParam};
     ASSERT(tbid);
-    CSystrayWindow wnd(tbid);
+    CSystrayWindow wnd{tbid};
     if(!wnd.CreateEx(0, AfxRegisterWndClass(0), _T("DVSWND"), WS_OVERLAPPED, CRect(0, 0, 0, 0), NULL, 0, NULL))
     {
         tbid->WndCreatedEvent.Set();
@@ -367,10 +396,10 @@ DWORD CALLBACK SystrayThreadProc(void* pParam)
 	return 0;
 }
 
-HANDLE CreateSystray( SystrayIconData *data )
+[[nodiscard]] HANDLE CreateSystray( SystrayIconData *data )
 {
     DWORD tid;
-    HANDLE ret = CreateThread(0, 0, SystrayThreadProc, data, 0, &tid);
+    HANDLE ret{CreateThread(0, 0, SystrayThreadProc, data, 0, &tid)};
     WaitForSingleObject(data->WndCreatedEvent, INFINITE);
     return ret;
 }
@@ -404,12 +433,12 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 // TODO: replace this function
 
 // hWnd == INVALID_HANDLE_VALUE - get name, hWnd != INVALID_HANDLE_VALUE - show ppage
-static TCHAR* CallPPage(IFilterGraph* pGraph, int idx, HWND hWnd)
+[[nodiscard]] static TCHAR* CallPPage(IFilterGraph* pGraph, const int idx, const HWND hWnd)
 {
-	int i = 0;
+	int i{0};
 	//bool fFound = false;
 
-	WCHAR* wstr = NULL;
+	WCHAR* wstr{NULL};
 	CComPtr<IBaseFilter> pFilter;
 	CAUUID caGUID;
 	caGUID.pElems = NULL;
@@ -417,7 +446,10 @@ static TCHAR* CallPPage(IFilterGraph* pGraph, int idx, HWND hWnd)
 	BeginEnumFilters(pGraph, pEF, pBF)
 	{
 		CComQIPtr<ISpecifyPropertyPages> pSPS = pBF;
-		if(!pSPS) continue;
+		if(!pSPS)
+		{
+		    continue;
+		}
 
 		if(i == idx)
 		{ 
@@ -431,7 +463,7 @@ static TCHAR* CallPPage(IFilterGraph* pGraph, int idx, HWND hWnd)
 	}
 	EndEnumFilters
 
-	TCHAR* ret = NULL;
+	TCHAR* ret{NULL};
 
 	if(pFilter)
 	{
@@ -442,12 +474,20 @@ static TCHAR* CallPPage(IFilterGraph* pGraph, int idx, HWND hWnd)
 		else
 		{
 			if(ret = DEBUG_NEW TCHAR[wcslen(wstr)+1])
+			{
 				_tcscpy_s(ret, wcslen(wstr)+1, CString(wstr));
+			}
 		}
 	}
 
-	if(caGUID.pElems) CoTaskMemFree(caGUID.pElems);
-	if(wstr) free(wstr);
+	if(caGUID.pElems)
+	{
+	    CoTaskMemFree(caGUID.pElems);
+	}
+	if(wstr)
+	{
+	    free(wstr);
+	}
 
 	return(ret);
 }

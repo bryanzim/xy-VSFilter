@@ -31,34 +31,34 @@ protected:
     CCritSec* m_pLock;
 
 public:
-    CSubPicProviderImpl(CCritSec* pLock);
-    virtual ~CSubPicProviderImpl();
+    explicit CSubPicProviderImpl(CCritSec* pLock);
+    constexpr virtual ~CSubPicProviderImpl() noexcept;
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
 
     STDMETHODIMP Lock();
     STDMETHODIMP Unlock();
 
-    STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps) = 0;
-    STDMETHODIMP_(POSITION) GetNext(POSITION pos) = 0;
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps) = 0;
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos) = 0;
 
-    STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps) = 0;
-    STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps) = 0;
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps) = 0;
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps) = 0;
 
-    STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox) = 0;
-	STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft) {
+    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox) = 0;
+	[[nodiscard]] STDMETHODIMP GetTextureSize (const POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft) {
 		return E_NOTIMPL;
 	};
 
     // ISubPicProviderEx
 
-    STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop);
+    [[nodiscard]] STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop);
 
-    STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
+    [[nodiscard]] STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
 
-    STDMETHODIMP_(bool) IsColorTypeSupported(int type);
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
 };
 

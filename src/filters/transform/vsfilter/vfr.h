@@ -32,6 +32,6 @@ public:
 	virtual double TimeStampFromFrameNumber(int n) = 0;
 };
 
-VFRTranslator *GetVFRTranslator(const char *vfrfile);
+[[nodiscard]] VFRTranslator *GetVFRTranslator(const char *vfrfile);
 
 #endif

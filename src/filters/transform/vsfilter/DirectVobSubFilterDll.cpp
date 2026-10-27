@@ -86,8 +86,8 @@ const AMOVIESETUP_PIN sudpPins[] =
 
 CFactoryTemplate g_Templates[] =
 {
-    {sudFilter[0].strName, sudFilter[0].clsID, CreateInstance<CDirectVobSubFilter>, NULL, &sudFilter[0]},
-    {sudFilter[1].strName, sudFilter[1].clsID, CreateInstance<CDirectVobSubFilter2>, NULL, &sudFilter[1]},
+    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<CDirectVobSubFilter>, NULL, &sudFilter[0U]},
+    {sudFilter[1U].strName, sudFilter[1U].clsID, CreateInstance<CDirectVobSubFilter2>, NULL, &sudFilter[1U]},
     {L"DVSMainPPage", &__uuidof(CDVSMainPPage), CreateInstance<CDVSMainPPage>},
     {L"DVSGeneralPPage", &__uuidof(CDVSGeneralPPage), CreateInstance<CDVSGeneralPPage>},
     {L"DVSMiscPPage", &__uuidof(CDVSMiscPPage), CreateInstance<CDVSMiscPPage>},
@@ -99,18 +99,20 @@ CFactoryTemplate g_Templates[] =
     {L"DVSAboutPPage", &__uuidof(CDVSAboutPPage), CreateInstance<CDVSAboutPPage>},
 };
 
-int g_cTemplates = countof(g_Templates);
+int g_cTemplates{countof(g_Templates)};
 
 //////////////////////////////
 /*removeme*/
 extern void JajDeGonoszVagyok();
 
-STDAPI DllRegisterServer()
+[[nodiscard]] STDAPI DllRegisterServer()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
     if(theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_SEENDIVXWARNING), 0) != 1)
+    {
         theApp.WriteProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_SEENDIVXWARNING), 0);
+    }
 
     /*removeme*/
     JajDeGonoszVagyok();
@@ -118,7 +120,7 @@ STDAPI DllRegisterServer()
     return AMovieDllRegisterServer2(TRUE);
 }
 
-STDAPI DllUnregisterServer()
+[[nodiscard]] STDAPI DllUnregisterServer()
 {
 //  DVS_WriteProfileInt2(IDS_R_GENERAL, IDS_RG_SEENDIVXWARNING, 0);
 
@@ -127,9 +129,12 @@ STDAPI DllUnregisterServer()
     return AMovieDllRegisterServer2(FALSE);
 }
 
-void CALLBACK DirectVobSub(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
+void CALLBACK DirectVobSub(const HWND hwnd, const HINSTANCE hinst, const LPSTR lpszCmdLine, const int nCmdShow)
 {
-    if(FAILED(::CoInitialize(0))) return;
+    if(FAILED(::CoInitialize(0)))
+    {
+        return;
+    }
 
     CComPtr<IBaseFilter> pFilter;
     CComQIPtr<ISpecifyPropertyPages> pSpecify;

@@ -7,7 +7,8 @@
 
 SubpixelPositionControler SubpixelPositionControler::s_subpixel_position_controler;
 
-SubpixelPositionControler::SUBPIXEL_LEVEL SubpixelPositionControler::SetSubpixelLevel( SUBPIXEL_LEVEL subpixel_level )
+[[nodiscard]] constexpr SubpixelPositionControler::SUBPIXEL_LEVEL SubpixelPositionControler::SetSubpixelLevel( const SUBPIXEL_LEVEL subpixel_level )
+noexcept
 {
     if(subpixel_level!=_subpixel_level)
     {

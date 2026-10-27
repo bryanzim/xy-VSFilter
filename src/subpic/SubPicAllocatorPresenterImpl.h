@@ -54,49 +54,49 @@ protected:
     void AlphaBltSubPic(CSize size, SubPicDesc* pTarget = NULL);
 
     XForm m_xform;
-    void Transform(CRect r, Vector v[4]);
+    void Transform(CRect r, Vector v[4U]);
 
 public:
 	CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT& hr, CString *_pError);
-    virtual ~CSubPicAllocatorPresenterImpl();
+    constexpr virtual ~CSubPicAllocatorPresenterImpl() noexcept;
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicAllocatorPresenter
 
-    STDMETHODIMP CreateRenderer(IUnknown** ppRenderer) = 0;
+    [[nodiscard]] STDMETHODIMP CreateRenderer(IUnknown** ppRenderer) = 0;
 
-    STDMETHODIMP_(SIZE) GetVideoSize(bool fCorrectAR = true);
-	STDMETHODIMP_(SIZE) GetVisibleVideoSize() {
+    [[nodiscard]] STDMETHODIMP_(SIZE) GetVideoSize(bool fCorrectAR = true);
+	[[nodiscard]] constexpr STDMETHODIMP_(SIZE) GetVisibleVideoSize() noexcept {
 		return m_NativeVideoSize;
 	};
     STDMETHODIMP_(void) SetPosition(RECT w, RECT v);
-    STDMETHODIMP_(bool) Paint(bool fAll) = 0;
+    [[nodiscard]] STDMETHODIMP_(bool) Paint(bool fAll) = 0;
 
     STDMETHODIMP_(void) SetTime(REFERENCE_TIME rtNow);
-    STDMETHODIMP_(void) SetSubtitleDelay(int delay_ms);
-    STDMETHODIMP_(int) GetSubtitleDelay();
-    STDMETHODIMP_(double) GetFPS();
+    constexpr STDMETHODIMP_(void) SetSubtitleDelay(int delay_ms) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP_(int) GetSubtitleDelay() noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP_(double) GetFPS() noexcept;
 
     STDMETHODIMP_(void) SetSubPicProvider(ISubPicProvider* pSubPicProvider);
     STDMETHODIMP_(void) Invalidate(REFERENCE_TIME rtInvalidate = -1);
 
-	STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size) {
+	[[nodiscard]] constexpr STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size) noexcept {
 		return E_NOTIMPL;
 	}
 
-	STDMETHODIMP_(bool) ResetDevice() {
+	[[nodiscard]] constexpr STDMETHODIMP_(bool) ResetDevice() noexcept {
 		return false;
 	}
-	STDMETHODIMP_(bool) DisplayChange() {
+	[[nodiscard]] constexpr STDMETHODIMP_(bool) DisplayChange() noexcept {
 		return false;
 	}
-    STDMETHODIMP SetVideoAngle(Vector v, bool fRepaint = true);
-	STDMETHODIMP SetPixelShader(LPCSTR pSrcData, LPCSTR pTarget) {
+    [[nodiscard]] STDMETHODIMP SetVideoAngle(Vector v, bool fRepaint = true);
+	[[nodiscard]] constexpr STDMETHODIMP SetPixelShader(const LPCSTR pSrcData, const LPCSTR pTarget) noexcept {
 		return E_NOTIMPL;
 	}
-	STDMETHODIMP SetPixelShader2(LPCSTR pSrcData, LPCSTR pTarget, bool bScreenSpace) {
+	[[nodiscard]] constexpr STDMETHODIMP SetPixelShader2(const LPCSTR pSrcData, const LPCSTR pTarget, const bool bScreenSpace) noexcept {
 		if (!bScreenSpace) {
 			return SetPixelShader(pSrcData, pTarget);
 		}

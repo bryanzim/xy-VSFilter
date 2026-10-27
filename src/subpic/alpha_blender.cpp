@@ -26,7 +26,7 @@
 
 BaseAlphaBlender* BaseAlphaBlender::s_default_alpha_blender = NULL;
 
-BaseAlphaBlender* BaseAlphaBlender::SetupDefaultAlphaBlender( int src_type, int dst_type, int cpu_flags )
+[[nodiscard]] BaseAlphaBlender* BaseAlphaBlender::SetupDefaultAlphaBlender( const int src_type, const int dst_type, const int cpu_flags )
 {
     static ::boost::scoped_ptr<BaseAlphaBlender> s_auto_cleaner;
     s_default_alpha_blender = CreateAlphaBlender(src_type, dst_type, cpu_flags);
@@ -34,20 +34,21 @@ BaseAlphaBlender* BaseAlphaBlender::SetupDefaultAlphaBlender( int src_type, int 
     return s_default_alpha_blender;
 }
 
-BaseAlphaBlender* BaseAlphaBlender::CreateAlphaBlender( int src_type, int dst_type, int cpu_flags )
+[[nodiscard]] constexpr BaseAlphaBlender* BaseAlphaBlender::CreateAlphaBlender( const int src_type, const int dst_type, const int cpu_flags )
+noexcept
 {
     if (src_type==MSP_RGBA && dst_type==MSP_RGB32)
     {
-        return DEBUG_NEW AlphaBlenderArgbC();
+        return DEBUG_NEW AlphaBlenderArgbC{};
     }
     return NULL;
 }
 
 
-void BaseAlphaBlender::AlphaBlend( const XySubPicPlan src_plans[], CRect src_rect, const XySubPicPlan dst_plans[], CPoint dst_pos )
+void BaseAlphaBlender::AlphaBlend( const XySubPicPlan src_plans[], const CRect src_rect, const XySubPicPlan dst_plans[], const CPoint dst_pos )
 {
     ASSERT(src_plans&&dst_plans);
-    ClipRect(src_plans[0].w, src_plans[0].h, dst_plans[0].w, abs(dst_plans[0].h), &src_rect, &dst_pos);
+    ClipRect(src_plans[0U].w, src_plans[0U].h, dst_plans[0U].w, std::abs(dst_plans[0U].h), &src_rect, &dst_pos);
     if (src_rect.Width()<=0 || src_rect.Height()<=0)
     {
         return;
@@ -55,10 +56,10 @@ void BaseAlphaBlender::AlphaBlend( const XySubPicPlan src_plans[], CRect src_rec
     AlphaBlendNoClip(src_plans, src_rect, dst_plans, dst_pos);
 }
 
-void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], POINT dst_pos)
+void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], const POINT dst_pos)
 {
     ASSERT(src_plans&&dst_plans);
-    CRect src_rect(0,0,src_plans[0].w, src_plans[0].h);
+    CRect src_rect{0,0,src_plans[0U].w, src_plans[0U].h};
     if (dst_pos.x < 0)
     {
         dst_pos.x = 0;
@@ -67,7 +68,7 @@ void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPic
     {
         dst_pos.y = 0;
     }
-    LimitPoint(dst_plans[0].w-dst_pos.x, abs(dst_plans[0].h)-dst_pos.y, src_rect.BottomRight());
+    LimitPoint(dst_plans[0U].w-dst_pos.x, std::abs(dst_plans[0U].h)-dst_pos.y, src_rect.BottomRight());
     if (src_rect.Width()<=0 || src_rect.Height()<=0)
     {
         return;
@@ -75,28 +76,28 @@ void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPic
     AlphaBlendNoClip(src_plans, src_rect, dst_plans, dst_pos);
 }
 
-void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], POINT dst_pos, SIZE size)
+void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], const POINT dst_pos, const SIZE size)
 {
     ASSERT(src_plans&&dst_plans);
-    int dst_limit_w = dst_plans[0].w-dst_pos.x;
+    int dst_limit_w{dst_plans[0U].w-dst_pos.x};
     if (size.cx > dst_limit_w)
     {
         size.cx = dst_limit_w;
     }
-    if (size.cx > src_plans[0].w)
+    if (size.cx > src_plans[0U].w)
     {
-        size.cx = src_plans[0].w;
+        size.cx = src_plans[0U].w;
     }
-    int dst_limit_h = abs(dst_plans[0].h)-dst_pos.y;
+    int dst_limit_h{std::abs(dst_plans[0U].h)-dst_pos.y};
     if (size.cy > dst_limit_h)
     {
         size.cy = dst_limit_h;
     }
-    if (size.cy > src_plans[0].h)
+    if (size.cy > src_plans[0U].h)
     {
-        size.cy = src_plans[0].h;
+        size.cy = src_plans[0U].h;
     }
-    CRect src_rect(0,0,size.cx,size.cy);
+    CRect src_rect{0,0,size.cx,size.cy};
     if (dst_pos.x < 0)
     {
         src_rect.left -= dst_pos.x;
@@ -114,7 +115,8 @@ void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPic
     AlphaBlendNoClip(src_plans, src_rect, dst_plans, dst_pos);
 }
 
-void BaseAlphaBlender::ClipTopLeftToZero( CPoint *src_point, CPoint *dst_point )
+constexpr void BaseAlphaBlender::ClipTopLeftToZero( CPoint *src_point, CPoint *dst_point )
+noexcept
 {
     if (src_point->x < 0)
     {
@@ -138,7 +140,8 @@ void BaseAlphaBlender::ClipTopLeftToZero( CPoint *src_point, CPoint *dst_point )
     }
 }
 
-void BaseAlphaBlender::LimitPoint( int limit_x, int limit_y, CPoint &p )
+constexpr void BaseAlphaBlender::LimitPoint( const int limit_x, const int limit_y, CPoint &p )
+noexcept
 {
     if (p.x > limit_x)
     {
@@ -150,7 +153,7 @@ void BaseAlphaBlender::LimitPoint( int limit_x, int limit_y, CPoint &p )
     }
 }
 
-void BaseAlphaBlender::ClipRect( int src_w, int src_h, int dst_w, int dst_h, CRect *src_rect, CPoint *dst_point )
+void BaseAlphaBlender::ClipRect( const int src_w, const int src_h, const int dst_w, const int dst_h, CRect *src_rect, CPoint *dst_point )
 {
     ASSERT(src_rect&&dst_point);
     ClipTopLeftToZero(&(src_rect->TopLeft()), dst_point);
@@ -171,41 +174,41 @@ void BaseAlphaBlender::ClipRect( int src_w, int src_h, int dst_w, int dst_h, CRe
 // AlphaBlenderArgbC
 //
 void AlphaBlenderArgbC::AlphaBlendNoClip( const XySubPicPlan src_plans[], const CRect& src_rect
-    , const XySubPicPlan dst_plans[], CPoint dst_pos )
+    , const XySubPicPlan dst_plans[], const CPoint dst_pos )
 {
-    const XySubPicPlan& src = src_plans[0];
-    const XySubPicPlan& dst = dst_plans[0]; // copy, because we might modify it
+    const XySubPicPlan& src{src_plans[0U]};
+    const XySubPicPlan& dst{dst_plans[0U]}; // copy, because we might modify it
 
-    int w = src_rect.Width(), h = src_rect.Height();
-    const BYTE *s = (BYTE*)src.bits + src.pitch * src_rect.top + src_rect.left*4;
-    BYTE       *d = (BYTE*)dst.bits + dst_pos.x*4;
-    int dst_pitch = dst.pitch;
+    int w{src_rect.Width()}, h = src_rect.Height();
+    const BYTE *s{(BYTE*)src.bits + src.pitch * src_rect.top + src_rect.left*4};
+    BYTE       *d{(BYTE*)dst.bits + dst_pos.x*4};
+    int dst_pitch{dst.pitch};
     if (dst.h > 0)
     {
         d += dst_pitch * dst_pos.y;
     }
     else
     {
-        int dh = -dst.h;
+        int dh{-dst.h};
         d += dst_pitch*(dh - dst_pos.y - 1);
         dst_pitch = -dst_pitch;
     }
     AlphaBlend(s, w, h, src.pitch, d, dst_pitch);
 }
 
-void AlphaBlenderArgbC::AlphaBlend( const BYTE *src, int w, int h, int pitch, BYTE *dst, int dst_pitch )
+void AlphaBlenderArgbC::AlphaBlend( const BYTE *src, const int w, const int h, const int pitch, BYTE *dst, const int dst_pitch )
 {
-    for(int i = 0; i < h; i++, src += pitch, dst += dst_pitch)
+    for(int i{0}; i < h; i++, src += pitch, dst += dst_pitch)
     {
-        const BYTE* s2 = src;
-        const BYTE* s2end = s2 + w*4;
-        DWORD* d2 = (DWORD*)dst;
+        const BYTE* s2{src};
+        const BYTE* s2end{s2 + w*4};
+        DWORD* d2{(DWORD*)dst};
         for(; s2 < s2end; s2 += 4, d2++)
         {
-            if(s2[3] < 0xff)
+            if(s2[3U] < 0xff)
             {
-                *d2 = (((((*d2&0x00ff00ff)*s2[3])>>8) + (*((DWORD*)s2)&0x00ff00ff))&0x00ff00ff)
-                    | (((((*d2&0x0000ff00)*s2[3])>>8) + (*((DWORD*)s2)&0x0000ff00))&0x0000ff00);
+                *d2 = (((((*d2&0x00ff00ff)*s2[3U])>>8) + (*((DWORD*)s2)&0x00ff00ff))&0x00ff00ff)
+                    | (((((*d2&0x0000ff00)*s2[3U])>>8) + (*((DWORD*)s2)&0x0000ff00))&0x0000ff00);
             }
         }
     }

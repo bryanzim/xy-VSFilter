@@ -7,11 +7,11 @@ class CPooledSubPic;
 class CPooledSubPicAllocator : public CSubPicExAllocatorImpl
 {
 public:
-    static const int MAX_FREE_ITEM = 2;
+    static const int MAX_FREE_ITEM{2};
 public:
     void OnItemDestruct(void* Item);
 
-    bool STDMETHODCALLTYPE InitPool(int capacity);
+    [[nodiscard]] bool STDMETHODCALLTYPE InitPool(int capacity);
 
     CPooledSubPicAllocator(int alpha_blt_dst_type, SIZE maxsize, int capacity, int type=-1 );
     virtual ~CPooledSubPicAllocator();
@@ -25,12 +25,12 @@ private:
     CAtlList<CPooledSubPic*> _free;
     CAtlList<CPooledSubPic*> _using;
 
-    CPooledSubPic* DoAlloc();
-    virtual bool AllocEx(bool fStatic, ISubPicEx** ppSubPic);
+    [[nodiscard]] CPooledSubPic* DoAlloc();
+    [[nodiscard]] virtual bool AllocEx(bool fStatic, ISubPicEx** ppSubPic);
 
     void CollectUnUsedItem();
-    STDMETHODIMP_(int) SetSpdColorType(int color_type);
-    STDMETHODIMP_(bool) IsSpdColorTypeSupported(int type);
+    [[nodiscard]] constexpr STDMETHODIMP_(int) SetSpdColorType(int color_type) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsSpdColorTypeSupported(int type) noexcept;
 };
 
 class CPooledSubPic : public CMemSubPic

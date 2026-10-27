@@ -39,11 +39,15 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 	CString s, ss;
 	CStdioFile f;
 	if(!f.Open(fn, CFile::modeCreate|CFile::modeWrite|CFile::typeText))
+	{
 		return;
+	}
 
-	int cnt = 0, size = 0;
+	int cnt{0}, size = 0;
 	if(FAILED(pAMVSCCap->GetNumberOfCapabilities(&cnt, &size)))
+	{
 		return;
+	}
 
 	s.Empty();
 	s.Format(_T("cnt %d, size %d\n"), cnt, size);
@@ -51,19 +55,21 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 
 	if(size == sizeof(VIDEO_STREAM_CONFIG_CAPS))
 	{
-		for(int i = 0; i < cnt; i++)
+		for(int i{0}; i < cnt; i++)
 		{
-			AM_MEDIA_TYPE* pmt = NULL;
+			AM_MEDIA_TYPE* pmt{NULL};
 
 			VIDEO_STREAM_CONFIG_CAPS caps;
-			memset(&caps, 0, sizeof(caps));
+			std::memset(&caps, 0, sizeof(caps));
 
 			s.Empty();
 			ss.Format(_T("%d\n"), i); s += ss;
 			f.WriteString(s);
 
 			if(FAILED(pAMVSCCap->GetStreamCaps(i, &pmt, (BYTE*)&caps)))
+			{
 				continue;
+			}
 
 			{
 				s.Empty();
@@ -87,7 +93,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 			BITMAPINFOHEADER* pbh;
 			if(pmt->formattype == FORMAT_VideoInfo) 
 			{
-				VIDEOINFOHEADER* vih = (VIDEOINFOHEADER*)pmt->pbFormat;
+				VIDEOINFOHEADER* vih{(VIDEOINFOHEADER*)pmt->pbFormat};
 				pbh = &vih->bmiHeader;
 
 				s.Empty();
@@ -99,7 +105,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 			}
 			else if(pmt->formattype == FORMAT_VideoInfo2) 
 			{
-				VIDEOINFOHEADER2* vih = (VIDEOINFOHEADER2*)pmt->pbFormat;
+				VIDEOINFOHEADER2* vih{(VIDEOINFOHEADER2*)pmt->pbFormat};
 				pbh = &vih->bmiHeader;
 
 				s.Empty();
@@ -136,7 +142,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 	}
 }
 
-int CountPins(IBaseFilter* pBF, int& nIn, int& nOut, int& nInC, int& nOutC)
+[[nodiscard]] int CountPins(IBaseFilter* pBF, int& nIn, int& nOut, int& nInC, int& nOutC)
 {
 	nIn = nOut = 0;
 	nInC = nOutC = 0;
@@ -149,34 +155,42 @@ int CountPins(IBaseFilter* pBF, int& nIn, int& nOut, int& nInC, int& nOutC)
 			CComPtr<IPin> pPinConnectedTo;
 			pPin->ConnectedTo(&pPinConnectedTo);
 
-			if(dir == PINDIR_INPUT) {nIn++; if(pPinConnectedTo) nInC++;}
-			else if(dir == PINDIR_OUTPUT) {nOut++; if(pPinConnectedTo) nOutC++;}
+			if(dir == PINDIR_INPUT) {nIn++; if(pPinConnectedTo)
+			{
+			    nInC++;
+			}}
+			else if(dir == PINDIR_OUTPUT) {nOut++; if(pPinConnectedTo)
+			{
+			    nOutC++;
+			}}
 		}
 	}
 	EndEnumPins
 
-	return(nIn+nOut);
+	return{nIn+nOut};
 }
 
-bool IsSplitter(IBaseFilter* pBF, bool fCountConnectedOnly)
+[[nodiscard]] bool IsSplitter(IBaseFilter* pBF, const bool fCountConnectedOnly)
 {
 	int nIn, nOut, nInC, nOutC;
 	CountPins(pBF, nIn, nOut, nInC, nOutC);
 	return(fCountConnectedOnly ? nOutC > 1 : nOut > 1);
 }
 
-bool IsMultiplexer(IBaseFilter* pBF, bool fCountConnectedOnly)
+[[nodiscard]] bool IsMultiplexer(IBaseFilter* pBF, const bool fCountConnectedOnly)
 {
 	int nIn, nOut, nInC, nOutC;
 	CountPins(pBF, nIn, nOut, nInC, nOutC);
 	return(fCountConnectedOnly ? nInC > 1 : nIn > 1);
 }
 
-bool IsStreamStart(IBaseFilter* pBF)
+[[nodiscard]] bool IsStreamStart(IBaseFilter* pBF)
 {
-	CComQIPtr<IAMFilterMiscFlags> pAMMF(pBF);
+	[[nodiscard]] CComQIPtr<IAMFilterMiscFlags> pAMMF(pBF);
 	if(pAMMF && pAMMF->GetMiscFlags()&AM_FILTER_MISC_FLAGS_IS_SOURCE)
+	{
 		return(true);
+	}
 
 	int nIn, nOut, nInC, nOutC;
 	CountPins(pBF, nIn, nOut, nInC, nOutC);
@@ -186,14 +200,14 @@ bool IsStreamStart(IBaseFilter* pBF)
 		|| (nOut > 0 && nIn == 1 && pIn && SUCCEEDED(pIn->ConnectionMediaType(&mt)) && mt.majortype == MEDIATYPE_Stream));
 }
 
-bool IsStreamEnd(IBaseFilter* pBF)
+[[nodiscard]] bool IsStreamEnd(IBaseFilter* pBF)
 {
 	int nIn, nOut, nInC, nOutC;
 	CountPins(pBF, nIn, nOut, nInC, nOutC);
 	return(nOut == 0);
 }
 
-bool IsVideoRenderer(IBaseFilter* pBF)
+[[nodiscard]] bool IsVideoRenderer(IBaseFilter* pBF)
 {
 	int nIn, nOut, nInC, nOutC;
 	CountPins(pBF, nIn, nOut, nInC, nOutC);
@@ -204,7 +218,9 @@ bool IsVideoRenderer(IBaseFilter* pBF)
 		{
 			AM_MEDIA_TYPE mt;
 			if(S_OK != pPin->ConnectionMediaType(&mt))
+			{
 				continue;
+			}
 
 			FreeMediaType(mt);
 
@@ -215,7 +231,7 @@ bool IsVideoRenderer(IBaseFilter* pBF)
 	}
 
 	CLSID clsid;
-	memcpy(&clsid, &GUID_NULL, sizeof(clsid));
+	std::memcpy(&clsid, &GUID_NULL, sizeof(clsid));
 	pBF->GetClassID(&clsid);
 
 	return(clsid == CLSID_VideoRenderer || clsid == CLSID_VideoRendererDefault);
@@ -234,7 +250,9 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 		{
 			AM_MEDIA_TYPE mt;
 			if(S_OK != pPin->ConnectionMediaType(&mt))
+			{
 				continue;
+			}
 
 			FreeMediaType(mt);
 
@@ -245,30 +263,33 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 	}
 
 	CLSID clsid;
-	memcpy(&clsid, &GUID_NULL, sizeof(clsid));
+	std::memcpy(&clsid, &GUID_NULL, sizeof(clsid));
 	pBF->GetClassID(&clsid);
 
 	return(clsid == CLSID_DSoundRender || clsid == CLSID_AudioRender || clsid == CLSID_ReClock
 		|| clsid == __uuidof(CNullAudioRenderer) || clsid == __uuidof(CNullUAudioRenderer));
 }
 
-IBaseFilter* GetUpStreamFilter(IBaseFilter* pBF, IPin* pInputPin)
+[[nodiscard]] IBaseFilter* GetUpStreamFilter(IBaseFilter* pBF, IPin* pInputPin)
 {
 	return GetFilterFromPin(GetUpStreamPin(pBF, pInputPin));
 }
 
-IPin* GetUpStreamPin(IBaseFilter* pBF, IPin* pInputPin)
+[[nodiscard]] IPin* GetUpStreamPin(IBaseFilter* pBF, IPin* pInputPin)
 {
 	BeginEnumPins(pBF, pEP, pPin)
 	{
-		if(pInputPin && pInputPin != pPin) continue;
+		if(pInputPin && pInputPin != pPin)
+		{
+		    continue;
+		}
 
 		PIN_DIRECTION dir;
 		CComPtr<IPin> pPinConnectedTo;
 		if(SUCCEEDED(pPin->QueryDirection(&dir)) && dir == PINDIR_INPUT
 		&& SUCCEEDED(pPin->ConnectedTo(&pPinConnectedTo)))
 		{
-			IPin* pRet = pPinConnectedTo.Detach();
+			IPin* pRet{pPinConnectedTo.Detach()};
 			pRet->Release();
 			return(pRet);
 		}
@@ -278,9 +299,12 @@ IPin* GetUpStreamPin(IBaseFilter* pBF, IPin* pInputPin)
 	return(NULL);
 }
 
-IPin* GetFirstPin(IBaseFilter* pBF, PIN_DIRECTION dir)
+[[nodiscard]] IPin* GetFirstPin(IBaseFilter* pBF, const PIN_DIRECTION dir)
 {
-	if(!pBF) return(NULL);
+	if(!pBF)
+	{
+	    return(NULL);
+	}
 
 	BeginEnumPins(pBF, pEP, pPin)
 	{
@@ -288,7 +312,7 @@ IPin* GetFirstPin(IBaseFilter* pBF, PIN_DIRECTION dir)
 		pPin->QueryDirection(&dir2);
 		if(dir == dir2)
 		{
-			IPin* pRet = pPin.Detach();
+			IPin* pRet{pPin.Detach()};
 			pRet->Release();
 			return(pRet);
 		}
@@ -298,9 +322,12 @@ IPin* GetFirstPin(IBaseFilter* pBF, PIN_DIRECTION dir)
 	return(NULL);
 }
 
-IPin* GetFirstDisconnectedPin(IBaseFilter* pBF, PIN_DIRECTION dir)
+[[nodiscard]] IPin* GetFirstDisconnectedPin(IBaseFilter* pBF, const PIN_DIRECTION dir)
 {
-	if(!pBF) return(NULL);
+	if(!pBF)
+	{
+	    return(NULL);
+	}
 
 	BeginEnumPins(pBF, pEP, pPin)
 	{
@@ -309,7 +336,7 @@ IPin* GetFirstDisconnectedPin(IBaseFilter* pBF, PIN_DIRECTION dir)
 		CComPtr<IPin> pPinTo;
 		if(dir == dir2 && (S_OK != pPin->ConnectedTo(&pPinTo)))
 		{
-			IPin* pRet = pPin.Detach();
+			IPin* pRet{pPin.Detach()};
 			pRet->Release();
 			return(pRet);
 		}
@@ -319,79 +346,99 @@ IPin* GetFirstDisconnectedPin(IBaseFilter* pBF, PIN_DIRECTION dir)
 	return(NULL);
 }
 
-IBaseFilter* FindFilter(LPCWSTR clsid, IFilterGraph* pFG)
+[[nodiscard]] IBaseFilter* FindFilter(const LPCWSTR clsid, IFilterGraph* pFG)
 {
 	CLSID clsid2;
 	CLSIDFromString(CComBSTR(clsid), &clsid2);
 	return(FindFilter(clsid2, pFG));
 }
 
-IBaseFilter* FindFilter(const CLSID& clsid, IFilterGraph* pFG)
+[[nodiscard]] IBaseFilter* FindFilter(const CLSID& clsid, IFilterGraph* pFG)
 {
 	BeginEnumFilters(pFG, pEF, pBF)
 	{
 		CLSID clsid2;
 		if(SUCCEEDED(pBF->GetClassID(&clsid2)) && clsid == clsid2)
+		{
 			return(pBF);
+		}
 	}
 	EndEnumFilters
 
 	return NULL;
 }
 
-CStringW GetFilterName(IBaseFilter* pBF)
+[[nodiscard]] CStringW GetFilterName(IBaseFilter* pBF)
 {
 	CStringW name;
 	CFilterInfo fi;
 	if(pBF && SUCCEEDED(pBF->QueryFilterInfo(&fi)))
+	{
 		name = fi.achName;
+	}
 	return(name);
 }
 
-CStringW GetPinName(IPin* pPin)
+[[nodiscard]] CStringW GetPinName(IPin* pPin)
 {
 	CStringW name;
 	CPinInfo pi;
-	if(pPin && SUCCEEDED(pPin->QueryPinInfo(&pi))) 
+	if(pPin && SUCCEEDED(pPin->QueryPinInfo(&pi)))
+	{ 
 		name = pi.achName;
+	}
 	return(name);
 }
 
-IFilterGraph* GetGraphFromFilter(IBaseFilter* pBF)
+[[nodiscard]] IFilterGraph* GetGraphFromFilter(IBaseFilter* pBF)
 {
-	if(!pBF) return NULL;
-	IFilterGraph* pGraph = NULL;
+	if(!pBF)
+	{
+	    return NULL;
+	}
+	IFilterGraph* pGraph{NULL};
 	CFilterInfo fi;
 	if(pBF && SUCCEEDED(pBF->QueryFilterInfo(&fi)))
+	{
 		pGraph = fi.pGraph;
+	}
 	return(pGraph);
 }
 
-IBaseFilter* GetFilterFromPin(IPin* pPin)
+[[nodiscard]] IBaseFilter* GetFilterFromPin(IPin* pPin)
 {
-	if(!pPin) return NULL;
-	IBaseFilter* pBF = NULL;
+	if(!pPin)
+	{
+	    return NULL;
+	}
+	IBaseFilter* pBF{NULL};
 	CPinInfo pi;
 	if(pPin && SUCCEEDED(pPin->QueryPinInfo(&pi)))
+	{
 		pBF = pi.pFilter;
+	}
 	return(pBF);
 }
 
-IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
+[[nodiscard]] IPin* AppendFilter(IPin* pPin, const CString DisplayName, IGraphBuilder* pGB)
 {
-	IPin* pRet = pPin;
+	IPin* pRet{pPin};
 
 	CInterfaceList<IBaseFilter> pFilters;
 
 	do
 	{
 		if(!pPin || DisplayName.IsEmpty() || !pGB)
+		{
 			break;
+		}
 
 		CComPtr<IPin> pPinTo;
 		PIN_DIRECTION dir;
 		if(FAILED(pPin->QueryDirection(&dir)) || dir != PINDIR_OUTPUT || SUCCEEDED(pPin->ConnectedTo(&pPinTo)))
+		{
 			break;
+		}
 
 		CComPtr<IBindCtx> pBindCtx;
 		CreateBindCtx(0, &pBindCtx);
@@ -399,19 +446,27 @@ IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 		CComPtr<IMoniker> pMoniker;
 		ULONG chEaten;
 		if(S_OK != MkParseDisplayName(pBindCtx, CComBSTR(DisplayName), &chEaten, &pMoniker))
+		{
 			break;
+		}
 
 		CComPtr<IBaseFilter> pBF;
 		if(FAILED(pMoniker->BindToObject(pBindCtx, 0, IID_IBaseFilter, (void**)&pBF)) || !pBF)
+		{
 			break;
+		}
 
 		CComPtr<IPropertyBag> pPB;
 		if(FAILED(pMoniker->BindToStorage(pBindCtx, 0, IID_IPropertyBag, (void**)&pPB)))
+		{
 			break;
+		}
 
 		CComVariant var;
 		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+		{
 			break;
+		}
 
 		pFilters.AddTail(pBF);
 		BeginEnumFilters(pGB, pEnum, pBF2) 
@@ -419,14 +474,18 @@ IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 		EndEnumFilters
 
 		if(FAILED(pGB->AddFilter(pBF, CStringW(var.bstrVal))))
+		{
 			break;
+		}
 
 		BeginEnumFilters(pGB, pEnum, pBF2) 
-			if(!pFilters.Find(pBF2) && SUCCEEDED(pGB->RemoveFilter(pBF2))) 
+			if(!pFilters.Find(pBF2) && SUCCEEDED(pGB->RemoveFilter(pBF2)))
+			{ 
 				pEnum->Reset();
+			}
 		EndEnumFilters
 
-		pPinTo = GetFirstPin(pBF, PINDIR_INPUT);
+		pPinTo{GetFirstPin(pBF, PINDIR_INPUT)};
 		if(!pPinTo)
 		{
 			pGB->RemoveFilter(pBF);
@@ -442,11 +501,13 @@ IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 		}
 
 		BeginEnumFilters(pGB, pEnum, pBF2) 
-			if(!pFilters.Find(pBF2) && SUCCEEDED(pGB->RemoveFilter(pBF2))) 
+			if(!pFilters.Find(pBF2) && SUCCEEDED(pGB->RemoveFilter(pBF2)))
+			{ 
 				pEnum->Reset();
+			}
 		EndEnumFilters
 
-		pRet = GetFirstPin(pBF, PINDIR_OUTPUT);
+		pRet{GetFirstPin(pBF, PINDIR_OUTPUT)};
 		if(!pRet)
 		{
 			pRet = pPin;
@@ -459,16 +520,20 @@ IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 	return(pRet);
 }
 
-IPin* InsertFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
+[[nodiscard]] IPin* InsertFilter(IPin* pPin, const CString DisplayName, IGraphBuilder* pGB)
 {
 	do
 	{
 		if(!pPin || DisplayName.IsEmpty() || !pGB)
+		{
 			break;
+		}
 
 		PIN_DIRECTION dir;
 		if(FAILED(pPin->QueryDirection(&dir)))
+		{
 			break;
+		}
 
 		CComPtr<IPin> pFrom, pTo;
 
@@ -484,7 +549,9 @@ IPin* InsertFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 		}
 		
 		if(!pFrom || !pTo)
+		{
 			break;
+		}
 
 		CComPtr<IBindCtx> pBindCtx;
 		CreateBindCtx(0, &pBindCtx);
@@ -492,22 +559,32 @@ IPin* InsertFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 		CComPtr<IMoniker> pMoniker;
 		ULONG chEaten;
 		if(S_OK != MkParseDisplayName(pBindCtx, CComBSTR(DisplayName), &chEaten, &pMoniker))
+		{
 			break;
+		}
 
 		CComPtr<IBaseFilter> pBF;
 		if(FAILED(pMoniker->BindToObject(pBindCtx, 0, IID_IBaseFilter, (void**)&pBF)) || !pBF)
+		{
 			break;
+		}
 
 		CComPtr<IPropertyBag> pPB;
 		if(FAILED(pMoniker->BindToStorage(pBindCtx, 0, IID_IPropertyBag, (void**)&pPB)))
+		{
 			break;
+		}
 
 		CComVariant var;
 		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+		{
 			break;
+		}
 
 		if(FAILED(pGB->AddFilter(pBF, CStringW(var.bstrVal))))
+		{
 			break;
+		}
 
 		CComPtr<IPin> pFromTo = GetFirstPin(pBF, PINDIR_INPUT);
 		if(!pFromTo)
@@ -559,12 +636,14 @@ void ExtractMediaTypes(IPin* pPin, CAtlArray<GUID>& types)
 
     BeginEnumMediaTypes(pPin, pEM, pmt)
 	{
-		bool fFound = false;
+		bool fFound{false};
 
-		for(int i = 0; !fFound && i < types.GetCount(); i += 2)
+		for(int i{0}; !fFound && i < types.GetCount(); i += 2)
 		{
 			if(types[i] == pmt->majortype && types[i+1] == pmt->subtype)
+			{
 				fFound = true;
+			}
 		}
 
 		if(!fFound)
@@ -582,14 +661,16 @@ void ExtractMediaTypes(IPin* pPin, CAtlList<CMediaType>& mts)
 
     BeginEnumMediaTypes(pPin, pEM, pmt)
 	{
-		bool fFound = false;
+		bool fFound{false};
 
-		POSITION pos = mts.GetHeadPosition();
+		POSITION pos{mts.GetHeadPosition()};
 		while(!fFound && pos)
 		{
-			CMediaType& mt = mts.GetNext(pos);
+			CMediaType& mt{mts.GetNext(pos)};
 			if(mt.majortype == pmt->majortype && mt.subtype == pmt->subtype)
+			{
 				fFound = true;
+			}
 		}
 
 		if(!fFound)
@@ -600,7 +681,7 @@ void ExtractMediaTypes(IPin* pPin, CAtlList<CMediaType>& mts)
 	EndEnumMediaTypes(pmt)
 }
 
-int Eval_Exception(int n_except)
+[[nodiscard]] int Eval_Exception(const int n_except)
 {
     if(n_except == STATUS_ACCESS_VIOLATION)
 	{
@@ -610,7 +691,7 @@ int Eval_Exception(int n_except)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void MyOleCreatePropertyFrame(HWND hwndOwner, UINT x, UINT y, LPCOLESTR lpszCaption, ULONG cObjects, LPUNKNOWN FAR* lplpUnk, ULONG cPages, LPCLSID lpPageClsID, LCID lcid, DWORD dwReserved, LPVOID lpvReserved)
+void MyOleCreatePropertyFrame(const HWND hwndOwner, const UINT x, const UINT y, const LPCOLESTR lpszCaption, const ULONG cObjects, LPUNKNOWN FAR* lplpUnk, const ULONG cPages, const LPCLSID lpPageClsID, const LCID lcid, const DWORD dwReserved, const LPVOID lpvReserved)
 {
 	__try
 	{
@@ -622,7 +703,7 @@ void MyOleCreatePropertyFrame(HWND hwndOwner, UINT x, UINT y, LPCOLESTR lpszCapt
 	}
 }
 
-void ShowPPage(CString DisplayName, HWND hParentWnd)
+void ShowPPage(const CString DisplayName, const HWND hParentWnd)
 {
 	CComPtr<IBindCtx> pBindCtx;
 	CreateBindCtx(0, &pBindCtx);
@@ -630,19 +711,26 @@ void ShowPPage(CString DisplayName, HWND hParentWnd)
 	CComPtr<IMoniker> pMoniker;
 	ULONG chEaten;
 	if(S_OK != MkParseDisplayName(pBindCtx, CStringW(DisplayName), &chEaten, &pMoniker))
+	{
 		return;
+	}
 
 	CComPtr<IBaseFilter> pBF;
 	if(FAILED(pMoniker->BindToObject(pBindCtx, 0, IID_IBaseFilter, (void**)&pBF)) || !pBF)
+	{
 		return;
+	}
 
 	ShowPPage(pBF, hParentWnd);	
 }
 
-void ShowPPage(IUnknown* pUnk, HWND hParentWnd)
+void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
 {
 	CComQIPtr<ISpecifyPropertyPages> pSPP = pUnk;
-	if(!pSPP) return;
+	if(!pSPP)
+	{
+	    return;
+	}
 
 	CString str;
 
@@ -651,15 +739,19 @@ void ShowPPage(IUnknown* pUnk, HWND hParentWnd)
 	CComQIPtr<IPin> pPin = pSPP;
 	CPinInfo pi;
 	if(pBF && SUCCEEDED(pBF->QueryFilterInfo(&fi)))
+	{
 		str = fi.achName;
+	}
 	else if(pPin && SUCCEEDED(pPin->QueryPinInfo(&pi)))
+	{
 		str = pi.achName;
+	}
 
 	CAUUID caGUID;
 	caGUID.pElems = NULL;
 	if(SUCCEEDED(pSPP->GetPages(&caGUID)))
 	{
-		IUnknown* lpUnk = NULL;
+		IUnknown* lpUnk{NULL};
 		pSPP.QueryInterface(&lpUnk);
 		MyOleCreatePropertyFrame(
 			hParentWnd, 0, 0, CStringW(str), 
@@ -668,36 +760,42 @@ void ShowPPage(IUnknown* pUnk, HWND hParentWnd)
 			0, 0, NULL);
 		lpUnk->Release();
 
-		if(caGUID.pElems) CoTaskMemFree(caGUID.pElems);
+		if(caGUID.pElems)
+		{
+		    CoTaskMemFree(caGUID.pElems);
+		}
 	}
 }
 
-CLSID GetCLSID(IBaseFilter* pBF)
+[[nodiscard]] CLSID GetCLSID(IBaseFilter* pBF)
 {
-	CLSID clsid = GUID_NULL;
-	if(pBF) pBF->GetClassID(&clsid);
+	CLSID clsid{GUID_NULL};
+	if(pBF)
+	{
+	    pBF->GetClassID(&clsid);
+	}
 	return(clsid);
 }
 
-CLSID GetCLSID(IPin* pPin)
+[[nodiscard]] CLSID GetCLSID(IPin* pPin)
 {
 	return(GetCLSID(GetFilterFromPin(pPin)));
 }
 
-bool IsCLSIDRegistered(LPCTSTR clsid)
+[[nodiscard]] bool IsCLSIDRegistered(const LPCTSTR clsid)
 {
-	CString rootkey1(_T("CLSID\\"));
-	CString rootkey2(_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\"));
+	CString rootkey1{_T("CLSID\\")};
+	CString rootkey2{_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\")};
 
 	return ERROR_SUCCESS == CRegKey().Open(HKEY_CLASSES_ROOT, rootkey1 + clsid, KEY_READ)
 		|| ERROR_SUCCESS == CRegKey().Open(HKEY_CLASSES_ROOT, rootkey2 + clsid, KEY_READ);
 }
 
-bool IsCLSIDRegistered(const CLSID& clsid)
+[[nodiscard]] bool IsCLSIDRegistered(const CLSID& clsid)
 {
-	bool fRet = false;
+	bool fRet{false};
 
-	LPOLESTR pStr = NULL;
+	LPOLESTR pStr{NULL};
 	if(S_OK == StringFromCLSID(clsid, &pStr) && pStr)
 	{
 		fRet = IsCLSIDRegistered(CString(pStr));
@@ -707,29 +805,44 @@ bool IsCLSIDRegistered(const CLSID& clsid)
 	return(fRet);
 }
 
-void CStringToBin(CString str, CAtlArray<BYTE>& data)
+void CStringToBin(const CString str, CAtlArray<BYTE>& data)
 {
 	str.Trim();
 	ASSERT((str.GetLength()&1) == 0);
 	data.SetCount(str.GetLength()/2);
 
-	BYTE b = 0;
+	BYTE b{0};
 
 	str.MakeUpper();
-	for(int i = 0, j = str.GetLength(); i < j; i++)
+	for(int i{0}, j = str.GetLength(); i < j; i++)
 	{
-		TCHAR c = str[i];
+		TCHAR c{str[i]};
 		if(c >= '0' && c <= '9') 
 		{
-			if(!(i&1)) b = ((char(c-'0')<<4)&0xf0)|(b&0x0f);
-			else b = (char(c-'0')&0x0f)|(b&0xf0);
+			if(!(i&1))
+			{
+			    b = ((char(c-'0')<<4)&0xf0)|(b&0x0f);
+			}
+			else
+			{
+			    b = (char(c-'0')&0x0f)|(b&0xf0);
+			}
 		}
 		else if(c >= 'A' && c <= 'F')
 		{
-			if(!(i&1)) b = ((char(c-'A'+10)<<4)&0xf0)|(b&0x0f);
-			else b = (char(c-'A'+10)&0x0f)|(b&0xf0);
+			if(!(i&1))
+			{
+			    b = ((char(c-'A'+10)<<4)&0xf0)|(b&0x0f);
+			}
+			else
+			{
+			    b = (char(c-'A'+10)&0x0f)|(b&0xf0);
+			}
 		}
-		else break;
+		else
+		{
+		    break;
+		}
 
 		if(i&1)
 		{
@@ -739,7 +852,7 @@ void CStringToBin(CString str, CAtlArray<BYTE>& data)
 	}
 }
 
-CString BinToCString(BYTE* ptr, int len)
+[[nodiscard]] CString BinToCString(BYTE* ptr, int len)
 {
 	CString ret;
 
@@ -759,14 +872,14 @@ CString BinToCString(BYTE* ptr, int len)
 	return(ret);
 }
 
-static void FindFiles(CString fn, CAtlList<CString>& files)
+static void FindFiles(const CString fn, CAtlList<CString>& files)
 {
-	CString path = fn;
+	CString path{fn};
 	path.Replace('/', '\\');
 	path = path.Left(path.ReverseFind('\\')+1);
 
 	WIN32_FIND_DATA findData;
-	HANDLE h = FindFirstFile(fn, &findData);
+	HANDLE h{FindFirstFile(fn, &findData)};
 	if(h != INVALID_HANDLE_VALUE)
 	{
 		do {files.AddTail(path + findData.cFileName);}
@@ -776,7 +889,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 	}
 }
 
-cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files)
+[[nodiscard]] cdrom_t GetCDROMType(const TCHAR drive, CAtlList<CString>& files)
 {
 	files.RemoveAll();
 
@@ -794,24 +907,30 @@ cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files)
 		FindFiles(path + _T("\\mpegav\\music??.mpg"), files);
 		FindFiles(path + _T("\\mpeg2\\music??.dat"), files);
 		FindFiles(path + _T("\\mpeg2\\music??.mpg"), files);
-		if(files.GetCount() > 0) return CDROM_VideoCD;
+		if(files.GetCount() > 0)
+		{
+		    return CDROM_VideoCD;
+		}
 
 		// CDROM_DVDVideo
 		FindFiles(path + _T("\\VIDEO_TS\\video_ts.ifo"), files);
-		if(files.GetCount() > 0) return CDROM_DVDVideo;
+		if(files.GetCount() > 0)
+		{
+		    return CDROM_DVDVideo;
+		}
 
 		// CDROM_Audio
 		if(!(GetVersion()&0x80000000))
 		{
-			HANDLE hDrive = CreateFile(CString(_T("\\\\.\\")) + path, GENERIC_READ, FILE_SHARE_READ, NULL, 
-				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL);
+			HANDLE hDrive{CreateFile(CString(_T("\\\\.\\")) + path, GENERIC_READ, FILE_SHARE_READ, NULL, 
+				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL)};
 			if(hDrive != INVALID_HANDLE_VALUE)
 			{
 				DWORD BytesReturned;
 				CDROM_TOC TOC;
 				if(DeviceIoControl(hDrive, IOCTL_CDROM_READ_TOC, NULL, 0, &TOC, sizeof(TOC), &BytesReturned, 0))
 				{
-					for(int i = TOC.FirstTrack; i <= TOC.LastTrack; i++)
+					for(int i{TOC.FirstTrack}; i <= TOC.LastTrack; i++)
 					{
 						// MMC-3 Draft Revision 10g: Table 222 ?Q Sub-channel control field
 						TOC.TrackData[i-1].Control &= 5;
@@ -827,7 +946,10 @@ cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files)
 				CloseHandle(hDrive);
 			}
 		}
-		if(files.GetCount() > 0) return CDROM_Audio;
+		if(files.GetCount() > 0)
+		{
+		    return CDROM_Audio;
+		}
 
 		// it is a cdrom but nothing special
 		return CDROM_Unknown;
@@ -836,7 +958,7 @@ cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files)
 	return CDROM_NotFound;
 }
 
-CString GetDriveLabel(TCHAR drive)
+[[nodiscard]] CString GetDriveLabel(const TCHAR drive)
 {
 	CString label;
 
@@ -854,11 +976,11 @@ CString GetDriveLabel(TCHAR drive)
 	return(label);
 }
 
-bool GetKeyFrames(CString fn, CUIntArray& kfs)
+[[nodiscard]] bool GetKeyFrames(const CString fn, CUIntArray& kfs)
 {
 	kfs.RemoveAll();
 
-	CString fn2 = CString(fn).MakeLower();
+	CString fn2{CString(fn).MakeLower()};
 	if(fn2.Mid(fn2.ReverseFind('.')+1) == _T("avi"))
 	{
 		AVIFileInit();
@@ -867,7 +989,7 @@ bool GetKeyFrames(CString fn, CUIntArray& kfs)
 		if(AVIFileOpen(&pfile, fn, OF_SHARE_DENY_WRITE, 0L) == 0)
 		{
 			AVIFILEINFO afi;
-			memset(&afi, 0, sizeof(afi));
+			std::memset(&afi, 0, sizeof(afi));
 			AVIFileInfo(pfile, &afi, sizeof(AVIFILEINFO));
 
 			CComPtr<IAVIStream> pavi;
@@ -879,14 +1001,20 @@ bool GetKeyFrames(CString fn, CUIntArray& kfs)
 				if(afi.dwCaps&AVIFILECAPS_ALLKEYFRAMES)
 				{
 					kfs.SetSize(si.dwLength);
-					for(int kf = 0; kf < si.dwLength; kf++) kfs[kf] = kf;
+					for(int kf{0}; kf < si.dwLength; kf++)
+					{
+					    kfs[kf] = kf;
+					}
 				}
 				else
 				{
-					for(int kf = 0; ; kf++)
+					for(int kf{0}; ; kf++)
 					{
 						kf = pavi->FindSample(kf, FIND_KEY|FIND_NEXT);
-						if(kf < 0 || kfs.GetCount() > 0 && kfs[kfs.GetCount()-1] >= kf) break;
+						if(kf < 0 || kfs.GetCount() > 0 && kfs[kfs.GetCount()-1] >= kf)
+						{
+						    break;
+						}
 						kfs.Add(kf);
 					}
 
@@ -906,7 +1034,8 @@ bool GetKeyFrames(CString fn, CUIntArray& kfs)
 	return(kfs.GetCount() > 0);
 }
 
-DVD_HMSF_TIMECODE RT2HMSF(REFERENCE_TIME rt, double fps)
+[[nodiscard]] constexpr DVD_HMSF_TIMECODE RT2HMSF(const REFERENCE_TIME rt, const double fps)
+noexcept
 {
 	DVD_HMSF_TIMECODE hmsf = 
 	{
@@ -919,13 +1048,14 @@ DVD_HMSF_TIMECODE RT2HMSF(REFERENCE_TIME rt, double fps)
 	return hmsf;
 }
 
-REFERENCE_TIME HMSF2RT(DVD_HMSF_TIMECODE hmsf, double fps)
+[[nodiscard]] constexpr REFERENCE_TIME HMSF2RT(const DVD_HMSF_TIMECODE hmsf, double fps)
+noexcept
 {
 	if(fps == 0) {hmsf.bFrames = 0; fps = 1;}
 	return (REFERENCE_TIME)((((REFERENCE_TIME)hmsf.bHours*60+hmsf.bMinutes)*60+hmsf.bSeconds)*1000+1.0*hmsf.bFrames*1000/fps)*10000;
 }
 
-void memsetd(void* dst, unsigned int c, size_t nbytes)
+void memsetd(void* dst, const unsigned int c, const std::size_t nbytes)
 {
 #ifndef _WIN64
 	if (!(g_cpuid.m_flags & g_cpuid.sse2)) {
@@ -940,16 +1070,16 @@ void memsetd(void* dst, unsigned int c, size_t nbytes)
 		return;
 	}
 #endif
-	size_t n = nbytes / 4;
-	size_t o = n - (n % 4);
+	std::size_t n{nbytes / 4};
+	std::size_t o{n - (n % 4)};
 
-	__m128i val = _mm_set1_epi32 ( (int)c );
+	__m128i val{_mm_set1_epi32 ( (int)c )};
 	if (((uintptr_t)dst & 0x0F) == 0) { // 16-byte aligned
-		for (size_t i = 0; i < o; i+=4) {
+		for (std::size_t i{0U}; i < o; i+=4) {
 			_mm_store_si128( (__m128i*)&(((DWORD*)dst)[i]), val );
 		}
 	} else {
-		for (size_t i = 0; i < o; i+=4) {
+		for (std::size_t i{0U}; i < o; i+=4) {
 			_mm_storeu_si128( (__m128i*)&(((DWORD*)dst)[i]), val );
 		}
 	}
@@ -964,51 +1094,51 @@ void memsetd(void* dst, unsigned int c, size_t nbytes)
 	}
 }
 
-void memsetw(void* dst, unsigned short c, size_t nbytes)
+void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 {
 	memsetd(dst, c << 16 | c, nbytes);
 
-	size_t n = nbytes / 2;
-	size_t o = (n / 2) * 2;
+	std::size_t n{nbytes / 2};
+	std::size_t o{(n / 2) * 2};
 	if ((n - o) == 1) {
 		((WORD*)dst)[o] = c;
 	}
 }
 
-bool ExtractBIH(const AM_MEDIA_TYPE* pmt, BITMAPINFOHEADER* bih)
+[[nodiscard]] bool ExtractBIH(const AM_MEDIA_TYPE* pmt, BITMAPINFOHEADER* bih)
 {
 	if(pmt && bih)
 	{
-		memset(bih, 0, sizeof(*bih));
+		std::memset(bih, 0, sizeof(*bih));
 
 		if(pmt->formattype == FORMAT_VideoInfo)
 		{
-			VIDEOINFOHEADER* vih = (VIDEOINFOHEADER*)pmt->pbFormat;
-			memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
+			VIDEOINFOHEADER* vih{(VIDEOINFOHEADER*)pmt->pbFormat};
+			std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
 			return true;
 		}
 		else if(pmt->formattype == FORMAT_VideoInfo2)
 		{
-			VIDEOINFOHEADER2* vih = (VIDEOINFOHEADER2*)pmt->pbFormat;
-			memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
+			VIDEOINFOHEADER2* vih{(VIDEOINFOHEADER2*)pmt->pbFormat};
+			std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
 			return true;
 		}
 		else if(pmt->formattype == FORMAT_MPEGVideo)
 		{
-			VIDEOINFOHEADER* vih = &((MPEG1VIDEOINFO*)pmt->pbFormat)->hdr;
-			memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
+			VIDEOINFOHEADER* vih{&((MPEG1VIDEOINFO*)pmt->pbFormat)->hdr};
+			std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
 			return true;
 		}
 		else if(pmt->formattype == FORMAT_MPEG2_VIDEO)
 		{
-			VIDEOINFOHEADER2* vih = &((MPEG2VIDEOINFO*)pmt->pbFormat)->hdr;
-			memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
+			VIDEOINFOHEADER2* vih{&((MPEG2VIDEOINFO*)pmt->pbFormat)->hdr};
+			std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
 			return true;
 		}
 		else if(pmt->formattype == FORMAT_DiracVideoInfo)
 		{
-			VIDEOINFOHEADER2* vih = &((DIRACINFOHEADER*)pmt->pbFormat)->hdr;
-			memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
+			VIDEOINFOHEADER2* vih{&((DIRACINFOHEADER*)pmt->pbFormat)->hdr};
+			std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
 			return true;
 		}
 	}
@@ -1016,13 +1146,13 @@ bool ExtractBIH(const AM_MEDIA_TYPE* pmt, BITMAPINFOHEADER* bih)
 	return false;
 }
 
-bool ExtractBIH(IMediaSample* pMS, BITMAPINFOHEADER* bih)
+[[nodiscard]] bool ExtractBIH(IMediaSample* pMS, BITMAPINFOHEADER* bih)
 {
-	AM_MEDIA_TYPE* pmt = NULL;
+	AM_MEDIA_TYPE* pmt{NULL};
 	pMS->GetMediaType(&pmt);
 	if(pmt)
 	{
-		bool fRet = ExtractBIH(pmt, bih);
+		bool fRet{ExtractBIH(pmt, bih)};
 		DeleteMediaType(pmt);
 		return(fRet);
 	}
@@ -1030,23 +1160,24 @@ bool ExtractBIH(IMediaSample* pMS, BITMAPINFOHEADER* bih)
 	return(false);
 }
 
-bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
+[[nodiscard]] bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
+noexcept
 {
 	w = h = arx = ary = 0;
 
 	if(pmt->formattype == FORMAT_VideoInfo || pmt->formattype == FORMAT_MPEGVideo)
 	{
-		VIDEOINFOHEADER* vih = (VIDEOINFOHEADER*)pmt->pbFormat;
+		VIDEOINFOHEADER* vih{(VIDEOINFOHEADER*)pmt->pbFormat};
 		w = vih->bmiHeader.biWidth;
-		h = abs(vih->bmiHeader.biHeight);
+		h = std::abs(vih->bmiHeader.biHeight);
 		arx = w * vih->bmiHeader.biYPelsPerMeter;
 		ary = h * vih->bmiHeader.biXPelsPerMeter;
 	}
 	else if(pmt->formattype == FORMAT_VideoInfo2 || pmt->formattype == FORMAT_MPEG2_VIDEO || pmt->formattype == FORMAT_DiracVideoInfo)
 	{
-		VIDEOINFOHEADER2* vih = (VIDEOINFOHEADER2*)pmt->pbFormat;
+		VIDEOINFOHEADER2* vih{(VIDEOINFOHEADER2*)pmt->pbFormat};
 		w = vih->bmiHeader.biWidth;
-		h = abs(vih->bmiHeader.biHeight);
+		h = std::abs(vih->bmiHeader.biHeight);
 		arx = vih->dwPictAspectRatioX;
 		ary = vih->dwPictAspectRatioY;
 	}
@@ -1061,8 +1192,8 @@ bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
 		ary = h;
 	}
 
-	BYTE* ptr = NULL;
-	DWORD len = 0;
+	BYTE* ptr{NULL};
+	DWORD len{0};
 
 	if(pmt->formattype == FORMAT_MPEGVideo)
 	{
@@ -1071,8 +1202,8 @@ bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
 
 		if(ptr && len >= 8 && *(DWORD*)ptr == 0xb3010000)
 		{
-			w = (ptr[4]<<4)|(ptr[5]>>4);
-			h = ((ptr[5]&0xf)<<8)|ptr[6];
+			w = (ptr[4U]<<4)|(ptr[5U]>>4);
+			h = ((ptr[5U]&0xf)<<8)|ptr[6U];
 			float ar[] = 
 			{
 				1.0000f,1.0000f,0.6735f,0.7031f,
@@ -1080,7 +1211,7 @@ bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
 				0.9157f,0.9815f,1.0255f,1.0695f,
 				1.0950f,1.1575f,1.2015f,1.0000f,
 			};
-			arx = (int)((float)w / ar[ptr[7]>>4] + 0.5);
+			arx = (int)((float)w / ar[ptr[7U]>>4] + 0.5);
 			ary = h;
 		}
 	}
@@ -1091,10 +1222,10 @@ bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
 
 		if(ptr && len >= 8 && *(DWORD*)ptr == 0xb3010000)
 		{
-			w = (ptr[4]<<4)|(ptr[5]>>4);
-			h = ((ptr[5]&0xf)<<8)|ptr[6];
+			w = (ptr[4U]<<4)|(ptr[5U]>>4);
+			h = ((ptr[5U]&0xf)<<8)|ptr[6U];
 			struct {int x, y;} ar[] = {{w,h},{4,3},{16,9},{221,100},{w,h}};
-			int i = min(max(ptr[7]>>4, 1), 5)-1;
+			int i{min(max(ptr[7U]>>4, 1), 5)-1};
 			arx = ar[i].x;
 			ary = ar[i].y;
 		}
@@ -1105,29 +1236,56 @@ bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
 
 	}
 
-	DWORD a = arx, b = ary;
-    while(a) {int tmp = a; a = b % tmp; b = tmp;}
-	if(b) arx /= b, ary /= b;
+	DWORD a{arx}, b = ary;
+    while(a) {int tmp{a}; a = b % tmp; b = tmp;}
+	if(b)
+	{
+	    arx /= b, ary /= b;
+	}
 
 	return(true);
 }
 
-bool MakeMPEG2MediaType(CMediaType& mt, BYTE* seqhdr, DWORD len, int w, int h)
+[[nodiscard]] bool MakeMPEG2MediaType(CMediaType& mt, BYTE* seqhdr, DWORD len, const int w, const int h)
 {
-	if(len < 4 || *(DWORD*)seqhdr != 0xb3010000) return false;
+	if(len < 4 || *(DWORD*)seqhdr != 0xb3010000)
+	{
+	    return false;
+	}
 
-	BYTE* seqhdr_ext = NULL;
+	BYTE* seqhdr_ext{NULL};
 
-	BYTE* seqhdr_end = seqhdr + 11;
-	if(seqhdr_end - seqhdr > len) return false;
-	if(*seqhdr_end & 0x02) seqhdr_end += 64;
-	if(seqhdr_end - seqhdr > len) return false;
-	if(*seqhdr_end & 0x01) seqhdr_end += 64;
-	if(seqhdr_end - seqhdr > len) return false;
+	BYTE* seqhdr_end{seqhdr + 11};
+	if(seqhdr_end - seqhdr > len)
+	{
+	    return false;
+	}
+	if(*seqhdr_end & 0x02)
+	{
+	    seqhdr_end += 64;
+	}
+	if(seqhdr_end - seqhdr > len)
+	{
+	    return false;
+	}
+	if(*seqhdr_end & 0x01)
+	{
+	    seqhdr_end += 64;
+	}
+	if(seqhdr_end - seqhdr > len)
+	{
+	    return false;
+	}
 	seqhdr_end++;
-	if(seqhdr_end - seqhdr > len) return false;
+	if(seqhdr_end - seqhdr > len)
+	{
+	    return false;
+	}
 	if(len - (seqhdr_end - seqhdr) > 4 && *(DWORD*)seqhdr_end == 0xb5010000) {seqhdr_ext = seqhdr_end; seqhdr_end += 10;}
-	if(seqhdr_end - seqhdr > len) return false;
+	if(seqhdr_end - seqhdr > len)
+	{
+	    return false;
+	}
 
 	len = seqhdr_end - seqhdr;
 	
@@ -1137,23 +1295,23 @@ bool MakeMPEG2MediaType(CMediaType& mt, BYTE* seqhdr, DWORD len, int w, int h)
 	mt.subtype = MEDIASUBTYPE_MPEG2_VIDEO;
 	mt.formattype = FORMAT_MPEG2Video;
 
-	MPEG2VIDEOINFO* vih = (MPEG2VIDEOINFO*)mt.AllocFormatBuffer(FIELD_OFFSET(MPEG2VIDEOINFO, dwSequenceHeader) + len);
-	memset(mt.Format(), 0, mt.FormatLength());
+	MPEG2VIDEOINFO* vih{(MPEG2VIDEOINFO*)mt.AllocFormatBuffer(FIELD_OFFSET(MPEG2VIDEOINFO, dwSequenceHeader) + len)};
+	std::memset(mt.Format(), 0, mt.FormatLength());
 	vih->hdr.bmiHeader.biSize = sizeof(vih->hdr.bmiHeader);
 	vih->hdr.bmiHeader.biWidth = w;
 	vih->hdr.bmiHeader.biHeight = h;
 
-	BYTE* pSequenceHeader = (BYTE*)vih->dwSequenceHeader;
-	memcpy(pSequenceHeader, seqhdr, len);
+	BYTE* pSequenceHeader{(BYTE*)vih->dwSequenceHeader};
+	std::memcpy(pSequenceHeader, seqhdr, len);
 	vih->cbSequenceHeader = len;
 	
-	static char profile[8] = 
+	static char profile[8U] = 
 	{
 		0, AM_MPEG2Profile_High, AM_MPEG2Profile_SpatiallyScalable, AM_MPEG2Profile_SNRScalable, 
 		AM_MPEG2Profile_Main, AM_MPEG2Profile_Simple, 0, 0
 	};
 
-	static char level[16] =
+	static char level[16U] =
 	{
 		0, 0, 0, 0, 
 		AM_MPEG2Level_High, 0, AM_MPEG2Level_High1440, 0, 
@@ -1161,27 +1319,27 @@ bool MakeMPEG2MediaType(CMediaType& mt, BYTE* seqhdr, DWORD len, int w, int h)
 		0, 0, 0, 0
 	};
 
-	if(seqhdr_ext && (seqhdr_ext[4] & 0xf0) == 0x10)
+	if(seqhdr_ext && (seqhdr_ext[4U] & 0xf0) == 0x10)
 	{
-		vih->dwProfile = profile[seqhdr_ext[4] & 0x07];
-		vih->dwLevel = level[seqhdr_ext[5] >> 4];
+		vih->dwProfile = profile[seqhdr_ext[4U] & 0x07];
+		vih->dwLevel = level[seqhdr_ext[5U] >> 4];
 	}
 
 	return true;
 }
 
-unsigned __int64 GetFileVersion(LPCTSTR fn)
+[[nodiscard]] unsigned __int64 GetFileVersion(const LPCTSTR fn)
 {
-	unsigned __int64 ret = 0;
+	unsigned __int64 ret{0};
 
-	DWORD buff[4];
-	VS_FIXEDFILEINFO* pvsf = (VS_FIXEDFILEINFO*)buff;
+	DWORD buff[4U];
+	VS_FIXEDFILEINFO* pvsf{(VS_FIXEDFILEINFO*)buff};
 	DWORD d; // a variable that GetFileVersionInfoSize sets to zero (but why is it needed ?????????????????????????????? :)
-	DWORD len = GetFileVersionInfoSize((TCHAR*)fn, &d);
+	DWORD len{GetFileVersionInfoSize((TCHAR*)fn, &d)};
 	
 	if(len)
 	{
-		TCHAR* b1 = new TCHAR[len];
+		TCHAR* b1{new TCHAR[len]};
 		if(b1)
 		{
             UINT uLen;
@@ -1197,9 +1355,12 @@ unsigned __int64 GetFileVersion(LPCTSTR fn)
 	return ret;
 }
 
-bool CreateFilter(CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyName)
+[[nodiscard]] bool CreateFilter(const CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyName)
 {
-	if(!ppBF) return(false);
+	if(!ppBF)
+	{
+	    return(false);
+	}
 
 	*ppBF = NULL;
 	FriendlyName.Empty();
@@ -1210,58 +1371,80 @@ bool CreateFilter(CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyNa
 	CComPtr<IMoniker> pMoniker;
 	ULONG chEaten;
 	if(S_OK != MkParseDisplayName(pBindCtx, CComBSTR(DisplayName), &chEaten, &pMoniker))
+	{
 		return(false);
+	}
 
 	if(FAILED(pMoniker->BindToObject(pBindCtx, 0, IID_IBaseFilter, (void**)ppBF)) || !*ppBF)
+	{
 		return(false);
+	}
 
 	CComPtr<IPropertyBag> pPB;
 	CComVariant var;
 	if(SUCCEEDED(pMoniker->BindToStorage(pBindCtx, 0, IID_IPropertyBag, (void**)&pPB))
 	&& SUCCEEDED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+	{
 		FriendlyName = var.bstrVal;
+	}
 
 	return(true);
 }
 
-IBaseFilter* AppendFilter(IPin* pPin, IMoniker* pMoniker, IGraphBuilder* pGB)
+[[nodiscard]] IBaseFilter* AppendFilter(IPin* pPin, IMoniker* pMoniker, IGraphBuilder* pGB)
 {
 	do
 	{
 		if(!pPin || !pMoniker || !pGB)
+		{
 			break;
+		}
 
 		CComPtr<IPin> pPinTo;
 		PIN_DIRECTION dir;
 		if(FAILED(pPin->QueryDirection(&dir)) || dir != PINDIR_OUTPUT || SUCCEEDED(pPin->ConnectedTo(&pPinTo)))
+		{
 			break;
+		}
 
 		CComPtr<IBindCtx> pBindCtx;
 		CreateBindCtx(0, &pBindCtx);
 
 		CComPtr<IPropertyBag> pPB;
 		if(FAILED(pMoniker->BindToStorage(pBindCtx, 0, IID_IPropertyBag, (void**)&pPB)))
+		{
 			break;
+		}
 
 		CComVariant var;
 		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+		{
 			break;
+		}
 
 		CComPtr<IBaseFilter> pBF;
 		if(FAILED(pMoniker->BindToObject(pBindCtx, 0, IID_IBaseFilter, (void**)&pBF)) || !pBF)
+		{
 			break;
+		}
 
 		if(FAILED(pGB->AddFilter(pBF, CStringW(var.bstrVal))))
+		{
 			break;
+		}
 
 		BeginEnumPins(pBF, pEP, pPinTo)
 		{
 			PIN_DIRECTION dir;
 			if(FAILED(pPinTo->QueryDirection(&dir)) || dir != PINDIR_INPUT)
+			{
 				continue;
+			}
 
 			if(SUCCEEDED(pGB->ConnectDirect(pPin, pPinTo, NULL)))
+			{
 				return(pBF);
+			}
 		}
 		EndEnumFilters
 
@@ -1272,7 +1455,7 @@ IBaseFilter* AppendFilter(IPin* pPin, IMoniker* pMoniker, IGraphBuilder* pGB)
 	return(NULL);
 }
 
-CStringW GetFriendlyName(CStringW DisplayName)
+[[nodiscard]] CStringW GetFriendlyName(const CStringW DisplayName)
 {
 	CStringW FriendlyName;
 
@@ -1282,13 +1465,17 @@ CStringW GetFriendlyName(CStringW DisplayName)
 	CComPtr<IMoniker> pMoniker;
 	ULONG chEaten;
 	if(S_OK != MkParseDisplayName(pBindCtx, CComBSTR(DisplayName), &chEaten, &pMoniker))
+	{
 		return(false);
+	}
 
 	CComPtr<IPropertyBag> pPB;
 	CComVariant var;
 	if(SUCCEEDED(pMoniker->BindToStorage(pBindCtx, 0, IID_IPropertyBag, (void**)&pPB))
 	&& SUCCEEDED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+	{
 		FriendlyName = var.bstrVal;
+	}
 
 	return FriendlyName;
 }
@@ -1302,19 +1489,19 @@ typedef struct
 
 static CAtlList<ExternalObject> s_extobjs;
 
-HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, REFIID iid, void** ppv)
+[[nodiscard]] HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, const REFIID iid, void** ppv)
 {
 	CheckPointer(ppv, E_POINTER);
 
-	CString fullpath = MakeFullPath(path);
+	CString fullpath{MakeFullPath(path)};
 
-	HINSTANCE hInst = NULL;
-	bool fFound = false;
+	HINSTANCE hInst{NULL};
+	bool fFound{false};
 
-	POSITION pos = s_extobjs.GetHeadPosition();
+	POSITION pos{s_extobjs.GetHeadPosition()};
 	while(pos)
 	{
-		ExternalObject& eo = s_extobjs.GetNext(pos);
+		ExternalObject& eo{s_extobjs.GetNext(pos)};
 		if(!eo.path.CompareNoCase(fullpath))
 		{
 			hInst = eo.hInst;
@@ -1323,12 +1510,12 @@ HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, REFIID iid, void** ppv)
 		}
 	}
 
-	HRESULT hr = E_FAIL;
+	HRESULT hr{E_FAIL};
 
 	if(hInst || (hInst = CoLoadLibrary(CComBSTR(fullpath), TRUE)))
 	{
 		typedef HRESULT (__stdcall * PDllGetClassObject)(REFCLSID rclsid, REFIID riid, LPVOID* ppv);
-		PDllGetClassObject p = (PDllGetClassObject)GetProcAddress(hInst, "DllGetClassObject");
+		PDllGetClassObject p{(PDllGetClassObject)GetProcAddress(hInst, "DllGetClassObject")};
 
 		if(p && FAILED(hr = p(clsid, iid, ppv)))
 		{
@@ -1358,20 +1545,23 @@ HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, REFIID iid, void** ppv)
 	return hr;
 }
 
-HRESULT LoadExternalFilter(LPCTSTR path, REFCLSID clsid, IBaseFilter** ppBF)
+[[nodiscard]] HRESULT LoadExternalFilter(const LPCTSTR path, const REFCLSID clsid, IBaseFilter** ppBF)
 {
 	return LoadExternalObject(path, clsid, __uuidof(IBaseFilter), (void**)ppBF);
 }
 
-HRESULT LoadExternalPropertyPage(IPersist* pP, REFCLSID clsid, IPropertyPage** ppPP)
+[[nodiscard]] HRESULT LoadExternalPropertyPage(IPersist* pP, const REFCLSID clsid, IPropertyPage** ppPP)
 {
-	CLSID clsid2 = GUID_NULL;
-	if(FAILED(pP->GetClassID(&clsid2))) return E_FAIL;
+	CLSID clsid2{GUID_NULL};
+	if(FAILED(pP->GetClassID(&clsid2)))
+	{
+	    return E_FAIL;
+	}
 
-	POSITION pos = s_extobjs.GetHeadPosition();
+	POSITION pos{s_extobjs.GetHeadPosition()};
 	while(pos)
 	{
-		ExternalObject& eo = s_extobjs.GetNext(pos);
+		ExternalObject& eo{s_extobjs.GetNext(pos)};
 		if(eo.clsid == clsid2)
 		{
 			return LoadExternalObject(eo.path, clsid, __uuidof(IPropertyPage), (void**)ppPP);
@@ -1383,25 +1573,25 @@ HRESULT LoadExternalPropertyPage(IPersist* pP, REFCLSID clsid, IPropertyPage** p
 
 void UnloadExternalObjects()
 {
-	POSITION pos = s_extobjs.GetHeadPosition();
+	POSITION pos{s_extobjs.GetHeadPosition()};
 	while(pos)
 	{
-		ExternalObject& eo = s_extobjs.GetNext(pos);
+		ExternalObject& eo{s_extobjs.GetNext(pos)};
 		CoFreeLibrary(eo.hInst);
 	}
 	s_extobjs.RemoveAll();
 }
 
-CString MakeFullPath(LPCTSTR path)
+[[nodiscard]] CString MakeFullPath(const LPCTSTR path)
 {
-	CString full(path);
+	CString full{path};
 	full.Replace('/', '\\');
 
 	CString fn;
 	fn.ReleaseBuffer(GetModuleFileName(AfxGetInstanceHandle(), fn.GetBuffer(MAX_PATH), MAX_PATH));
-	CPath p(fn);
+	CPath p{fn};
 
-	if(full.GetLength() >= 2 && full[0] == '\\' && full[1] != '\\')
+	if(full.GetLength() >= 2 && full[0U] == '\\' && full[1U] != '\\')
 	{
 		p.StripToRoot();
 		full = CString(p) + full.Mid(1); 
@@ -1413,31 +1603,35 @@ CString MakeFullPath(LPCTSTR path)
 		full = CString(p) + full;
 	}
 
-	CPath c(full);
+	CPath c{full};
 	c.Canonicalize();
 	return CString(c);
 }
 
 //
 
-CString GetMediaTypeName(const GUID& guid)
+[[nodiscard]] CString GetMediaTypeName(const GUID& guid)
 {
-	CString ret = guid == GUID_NULL 
+	CString ret{guid == GUID_NULL 
 		? _T("Any type") 
-		: CString(GuidNames[guid]);
+		: CString(GuidNames[guid])};
 
 	if(ret == _T("FOURCC GUID"))
 	{
 		CString str;
 		if(guid.Data1 >= 0x10000)
+		{
 			str.Format(_T("Video: %c%c%c%c"), (guid.Data1>>0)&0xff, (guid.Data1>>8)&0xff, (guid.Data1>>16)&0xff, (guid.Data1>>24)&0xff);
+		}
 		else
+		{
 			str.Format(_T("Audio: 0x%08x"), guid.Data1);
+		}
 		ret = str;
 	}
 	else if(ret == _T("Unknown GUID Name"))
 	{
-		WCHAR null[128] = {0}, buff[128];
+		WCHAR null[128U] = {0}, buff[128U];
 		StringFromGUID2(GUID_NULL, null, 127);
 		ret = CString(CStringW(StringFromGUID2(guid, buff, 127) ? buff : null));
 	}
@@ -1445,41 +1639,47 @@ CString GetMediaTypeName(const GUID& guid)
 	return ret;
 }
 
-GUID GUIDFromCString(CString str)
+[[nodiscard]] GUID GUIDFromCString(const CString str)
 {
-	GUID guid = GUID_NULL;
-	HRESULT hr = CLSIDFromString(CComBSTR(str), &guid);
+	GUID guid{GUID_NULL};
+	HRESULT hr{CLSIDFromString(CComBSTR(str), &guid)};
 	ASSERT(SUCCEEDED(hr));
 	return guid;
 }
 
-HRESULT GUIDFromCString(CString str, GUID& guid)
+[[nodiscard]] HRESULT GUIDFromCString(const CString str, GUID& guid)
 {
 	guid = GUID_NULL;
 	return CLSIDFromString(CComBSTR(str), &guid);
 }
 
-CString CStringFromGUID(const GUID& guid)
+[[nodiscard]] CString CStringFromGUID(const GUID& guid)
 {
-	WCHAR null[128] = {0}, buff[128];
+	WCHAR null[128U] = {0}, buff[128U];
 	StringFromGUID2(GUID_NULL, null, 127);
 	return CString(StringFromGUID2(guid, buff, 127) > 0 ? buff : null);
 }
 
-CStringW UTF8To16(LPCSTR utf8)
+[[nodiscard]] CStringW UTF8To16(const LPCSTR utf8)
 {
 	CStringW str;
-	int n = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0)-1;
-	if(n < 0) return str;
+	int n{MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0)-1};
+	if(n < 0)
+	{
+	    return str;
+	}
 	str.ReleaseBuffer(MultiByteToWideChar(CP_UTF8, 0, utf8, -1, str.GetBuffer(n), n+1)-1);
 	return str;
 }
 
-CStringA UTF16To8(LPCWSTR utf16)
+[[nodiscard]] CStringA UTF16To8(const LPCWSTR utf16)
 {
 	CStringA str;
-	int n = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, NULL, NULL)-1;
-	if(n < 0) return str;
+	int n{WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, NULL, NULL)-1};
+	if(n < 0)
+	{
+	    return str;
+	}
 	str.ReleaseBuffer(WideCharToMultiByte(CP_UTF8, 0, utf16, -1, str.GetBuffer(n), n+1, NULL, NULL)-1);
 	return str;
 }
@@ -2019,154 +2219,243 @@ static struct {
 	{"No subtitles", "---", "", (LCID)LCID_NOSUBTITLES},
 };
 
-CString ISO6391ToLanguage(LPCSTR code)
+[[nodiscard]] CString ISO6391ToLanguage(const LPCSTR code)
 {
-	CHAR tmp[2+1];
-	strncpy(tmp, code, 2);
-	tmp[2] = 0;
+	CHAR tmp[2U+1];
+	std::strncpy(tmp, code, 2);
+	tmp[2U] = 0;
 	_strlwr(tmp);
-	for(int i = 0, j = countof(s_isolangs); i < j; i++)
-		if(!strcmp(s_isolangs[i].iso6391, tmp))
+	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+		if(!std::strcmp(s_isolangs[i].iso6391, tmp))
 		{
-			CString ret = CString(CStringA(s_isolangs[i].name));
-			int i = ret.Find(';');
-			if(i > 0) ret = ret.Left(i);
+			CString ret{CString(CStringA(s_isolangs[i].name))};
+			int i{ret.Find(';')};
+			if(i > 0)
+			{
+			    ret = ret.Left(i);
+			}
 			return ret;
 		}
 	return(_T(""));
 }
 
-CString ISO6392ToLanguage(LPCSTR code)
+[[nodiscard]] CString ISO6392ToLanguage(const LPCSTR code)
 {
-	CHAR tmp[3+1];
-	strncpy(tmp, code, 3);
-	tmp[3] = 0;
+	CHAR tmp[3U+1];
+	std::strncpy(tmp, code, 3);
+	tmp[3U] = 0;
 	_strlwr(tmp);
-	for(int i = 0, j = countof(s_isolangs); i < j; i++)
+	for(int i{0}, j = countof(s_isolangs); i < j; i++)
 	{
-		if(!strcmp(s_isolangs[i].iso6392, tmp))
+		if(!std::strcmp(s_isolangs[i].iso6392, tmp))
 		{
-			CString ret = CString(CStringA(s_isolangs[i].name));
-			int i = ret.Find(';');
-			if(i > 0) ret = ret.Left(i);
+			CString ret{CString(CStringA(s_isolangs[i].name))};
+			int i{ret.Find(';')};
+			if(i > 0)
+			{
+			    ret = ret.Left(i);
+			}
 			return ret;
 		}
 	}
 	return CString(code);
 }
 
-LCID ISO6391ToLcid(LPCSTR code)
+[[nodiscard]] LCID ISO6391ToLcid(const LPCSTR code)
 {
-	CHAR tmp[3+1];
+	CHAR tmp[3U+1];
 	strncpy_s(tmp, code, 3);
-	tmp[3] = 0;
+	tmp[3U] = 0;
 	_strlwr_s(tmp);
-	for(ptrdiff_t i = 0, j = countof(s_isolangs); i < j; i++) {
-		if(!strcmp(s_isolangs[i].iso6391, code)) {
+	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; i++) {
+		if(!std::strcmp(s_isolangs[i].iso6391, code)) {
 			return s_isolangs[i].lcid;
 		}
 	}
 	return 0;
 }
 
-LCID ISO6392ToLcid(LPCSTR code)
+[[nodiscard]] LCID ISO6392ToLcid(const LPCSTR code)
 {
-	CHAR tmp[3+1];
+	CHAR tmp[3U+1];
 	strncpy_s(tmp, code, 3);
-	tmp[3] = 0;
+	tmp[3U] = 0;
 	_strlwr_s(tmp);
-	for(ptrdiff_t i = 0, j = countof(s_isolangs); i < j; i++) {
-		if(!strcmp(s_isolangs[i].iso6392, tmp)) {
+	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; i++) {
+		if(!std::strcmp(s_isolangs[i].iso6392, tmp)) {
 			return s_isolangs[i].lcid;
 		}
 	}
 	return 0;
 }
 
-CString ISO6391To6392(LPCSTR code)
+[[nodiscard]] CString ISO6391To6392(const LPCSTR code)
 {
-	CHAR tmp[2+1];
-	strncpy(tmp, code, 2);
-	tmp[2] = 0;
+	CHAR tmp[2U+1];
+	std::strncpy(tmp, code, 2);
+	tmp[2U] = 0;
 	_strlwr(tmp);
-	for(int i = 0, j = countof(s_isolangs); i < j; i++)
-		if(!strcmp(s_isolangs[i].iso6391, tmp))
+	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+	{
+		if(!std::strcmp(s_isolangs[i].iso6391, tmp))
+		{
 			return CString(CStringA(s_isolangs[i].iso6392));
+		}
+	}
 	return _T("");
 }
 
-CString ISO6392To6391(LPCSTR code)
+[[nodiscard]] CString ISO6392To6391(const LPCSTR code)
 {
-	CHAR tmp[3+1];
-	strncpy(tmp, code, 3);
-	tmp[3] = 0;
+	CHAR tmp[3U+1];
+	std::strncpy(tmp, code, 3);
+	tmp[3U] = 0;
 	_strlwr(tmp);
-	for(int i = 0, j = countof(s_isolangs); i < j; i++)
-		if(!strcmp(s_isolangs[i].iso6392, tmp))
+	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+	{
+		if(!std::strcmp(s_isolangs[i].iso6392, tmp))
+		{
 			return CString(CStringA(s_isolangs[i].iso6391));
+		}
+	}
 	return _T("");
 }
 
-CString LanguageToISO6392(LPCTSTR lang)
+[[nodiscard]] CString LanguageToISO6392(const LPCTSTR lang)
 {
-	CString str = lang;
+	CString str{lang};
 	str.MakeLower();
-	for(int i = 0, j = countof(s_isolangs); i < j; i++)
+	for(int i{0}, j = countof(s_isolangs); i < j; i++)
 	{
 		CAtlList<CString> sl;
 		Explode(CString(s_isolangs[i].name), sl, ';');
-		POSITION pos = sl.GetHeadPosition();
+		POSITION pos{sl.GetHeadPosition()};
 		while(pos)
 		{
 			if(!str.CompareNoCase(sl.GetNext(pos)))
+			{
 				return CString(s_isolangs[i].iso6392);
+			}
 		}
 	}
 	return _T("");
 }
 
-int MakeAACInitData(BYTE* pData, int profile, int freq, int channels)
+[[nodiscard]] int MakeAACInitData(BYTE* pData, const int profile, int freq, const int channels)
+noexcept
 {
 	int srate_idx;
 
-	if(92017 <= freq) srate_idx = 0;
-	else if(75132 <= freq) srate_idx = 1;
-	else if(55426 <= freq) srate_idx = 2;
-	else if(46009 <= freq) srate_idx = 3;
-	else if(37566 <= freq) srate_idx = 4;
-	else if(27713 <= freq) srate_idx = 5;
-	else if(23004 <= freq) srate_idx = 6;
-	else if(18783 <= freq) srate_idx = 7;
-	else if(13856 <= freq) srate_idx = 8;
-	else if(11502 <= freq) srate_idx = 9;
-	else if(9391 <= freq) srate_idx = 10;
-	else srate_idx = 11;
+	if(92017 <= freq)
+	{
+	    srate_idx = 0;
+	}
+	else if(75132 <= freq)
+	{
+	    srate_idx = 1;
+	}
+	else if(55426 <= freq)
+	{
+	    srate_idx = 2;
+	}
+	else if(46009 <= freq)
+	{
+	    srate_idx = 3;
+	}
+	else if(37566 <= freq)
+	{
+	    srate_idx = 4;
+	}
+	else if(27713 <= freq)
+	{
+	    srate_idx = 5;
+	}
+	else if(23004 <= freq)
+	{
+	    srate_idx = 6;
+	}
+	else if(18783 <= freq)
+	{
+	    srate_idx = 7;
+	}
+	else if(13856 <= freq)
+	{
+	    srate_idx = 8;
+	}
+	else if(11502 <= freq)
+	{
+	    srate_idx = 9;
+	}
+	else if(9391 <= freq)
+	{
+	    srate_idx = 10;
+	}
+	else
+	{
+	    srate_idx = 11;
+	}
 
-	pData[0] = ((abs(profile) + 1) << 3) | ((srate_idx & 0xe) >> 1);
-	pData[1] = ((srate_idx & 0x1) << 7) | (channels << 3);
+	pData[0U] = ((std::abs(profile) + 1) << 3) | ((srate_idx & 0xe) >> 1);
+	pData[1U] = ((srate_idx & 0x1) << 7) | (channels << 3);
 
-	int ret = 2;
+	int ret{2};
 
 	if(profile < 0)
 	{
 		freq *= 2;
 
-		if(92017 <= freq) srate_idx = 0;
-		else if(75132 <= freq) srate_idx = 1;
-		else if(55426 <= freq) srate_idx = 2;
-		else if(46009 <= freq) srate_idx = 3;
-		else if(37566 <= freq) srate_idx = 4;
-		else if(27713 <= freq) srate_idx = 5;
-		else if(23004 <= freq) srate_idx = 6;
-		else if(18783 <= freq) srate_idx = 7;
-		else if(13856 <= freq) srate_idx = 8;
-		else if(11502 <= freq) srate_idx = 9;
-		else if(9391 <= freq) srate_idx = 10;
-		else srate_idx = 11;
+		if(92017 <= freq)
+		{
+		    srate_idx = 0;
+		}
+		else if(75132 <= freq)
+		{
+		    srate_idx = 1;
+		}
+		else if(55426 <= freq)
+		{
+		    srate_idx = 2;
+		}
+		else if(46009 <= freq)
+		{
+		    srate_idx = 3;
+		}
+		else if(37566 <= freq)
+		{
+		    srate_idx = 4;
+		}
+		else if(27713 <= freq)
+		{
+		    srate_idx = 5;
+		}
+		else if(23004 <= freq)
+		{
+		    srate_idx = 6;
+		}
+		else if(18783 <= freq)
+		{
+		    srate_idx = 7;
+		}
+		else if(13856 <= freq)
+		{
+		    srate_idx = 8;
+		}
+		else if(11502 <= freq)
+		{
+		    srate_idx = 9;
+		}
+		else if(9391 <= freq)
+		{
+		    srate_idx = 10;
+		}
+		else
+		{
+		    srate_idx = 11;
+		}
 
-		pData[2] = 0x2B7>>3;
-		pData[3] = (BYTE)((0x2B7<<5) | 5);
-		pData[4] = (1<<7) | (srate_idx<<3);
+		pData[2U] = 0x2B7>>3;
+		pData[3U] = (BYTE)((0x2B7<<5) | 5);
+		pData[4U] = (1<<7) | (srate_idx<<3);
 
 		ret = 5;
 	}
@@ -2174,7 +2463,7 @@ int MakeAACInitData(BYTE* pData, int profile, int freq, int channels)
 	return(ret);
 }
 
-BOOL CFileGetStatus(LPCTSTR lpszFileName, CFileStatus& status)
+[[nodiscard]] BOOL CFileGetStatus(const LPCTSTR lpszFileName, CFileStatus& status)
 {
 	try
 	{
@@ -2192,16 +2481,18 @@ BOOL CFileGetStatus(LPCTSTR lpszFileName, CFileStatus& status)
 
 // filter registration helpers
 
-bool DeleteRegKey(LPCTSTR pszKey, LPCTSTR pszSubkey)
+[[nodiscard]] bool DeleteRegKey(const LPCTSTR pszKey, const LPCTSTR pszSubkey)
 {
-	bool bOK = false;
+	bool bOK{false};
 
 	HKEY hKey;
-	LONG ec = ::RegOpenKeyEx(HKEY_CLASSES_ROOT, pszKey, 0, KEY_ALL_ACCESS, &hKey);
+	LONG ec{::RegOpenKeyEx(HKEY_CLASSES_ROOT, pszKey, 0, KEY_ALL_ACCESS, &hKey)};
 	if(ec == ERROR_SUCCESS)
 	{
 		if(pszSubkey != 0)
-			ec = ::RegDeleteKey(hKey, pszSubkey);
+		{
+			[[nodiscard]] ec = ::RegDeleteKey(hKey, pszSubkey);
+		}
 
 		bOK = (ec == ERROR_SUCCESS);
 
@@ -2211,16 +2502,18 @@ bool DeleteRegKey(LPCTSTR pszKey, LPCTSTR pszSubkey)
 	return bOK;
 }
 
-bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValueName, LPCTSTR pszValue)
+[[nodiscard]] bool SetRegKeyValue(const LPCTSTR pszKey, const LPCTSTR pszSubkey, const LPCTSTR pszValueName, const LPCTSTR pszValue)
 {
-	bool bOK = false;
+	bool bOK{false};
 
-	CString szKey(pszKey);
+	CString szKey{pszKey};
 	if(pszSubkey != 0)
+	{
 		szKey += CString(_T("\\")) + pszSubkey;
+	}
 
 	HKEY hKey;
-	LONG ec = ::RegCreateKeyEx(HKEY_CLASSES_ROOT, szKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, 0);
+	LONG ec{::RegCreateKeyEx(HKEY_CLASSES_ROOT, szKey, 0, 0, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, 0)};
 	if(ec == ERROR_SUCCESS)
 	{
 		if(pszValue != 0)
@@ -2238,16 +2531,16 @@ bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValueName, LPC
 	return bOK;
 }
 
-bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValue)
+[[nodiscard]] bool SetRegKeyValue(const LPCTSTR pszKey, const LPCTSTR pszSubkey, const LPCTSTR pszValue)
 {
 	return SetRegKeyValue(pszKey, pszSubkey, 0, pszValue);
 }
 
-void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, LPCTSTR chkbytes, LPCTSTR ext, ...)
+void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, const LPCTSTR chkbytes, LPCTSTR ext, ...)
 {
-	CString null = CStringFromGUID(GUID_NULL);
-	CString majortype = CStringFromGUID(MEDIATYPE_Stream);
-	CString subtype = CStringFromGUID(subtype2);
+	CString null{CStringFromGUID(GUID_NULL)};
+	CString majortype{CStringFromGUID(MEDIATYPE_Stream)};
+	CString subtype{CStringFromGUID(subtype2)};
 
 	SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("0"), chkbytes);
 	SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("Source Filter"), CStringFromGUID(clsid));
@@ -2257,18 +2550,20 @@ void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, LPCTSTR chkb
 	va_list marker;
 	va_start(marker, ext);
 	for(; ext; ext = va_arg(marker, LPCTSTR))
+	{
 		DeleteRegKey(_T("Media Type\\Extensions"), ext);
+	}
 	va_end(marker);
 }
 
 void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, const CAtlList<CString>& chkbytes, LPCTSTR ext, ...)
 {
-	CString null = CStringFromGUID(GUID_NULL);
-	CString majortype = CStringFromGUID(MEDIATYPE_Stream);
-	CString subtype = CStringFromGUID(subtype2);
+	CString null{CStringFromGUID(GUID_NULL)};
+	CString majortype{CStringFromGUID(MEDIATYPE_Stream)};
+	CString subtype{CStringFromGUID(subtype2)};
 
-	POSITION pos = chkbytes.GetHeadPosition();
-	for(int i = 0; pos; i++)
+	POSITION pos{chkbytes.GetHeadPosition()};
+	for(int i{0}; pos; i++)
 	{
 		CString idx;
 		idx.Format(_T("%d"), i);
@@ -2282,7 +2577,9 @@ void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, const CAtlLi
 	va_list marker;
 	va_start(marker, ext);
 	for(; ext; ext = va_arg(marker, LPCTSTR))
+	{
 		DeleteRegKey(_T("Media Type\\Extensions"), ext);
+	}
 	va_end(marker);
 }
 
@@ -2292,32 +2589,32 @@ void UnRegisterSourceFilter(const GUID& subtype)
 }
 
 // hour, minute, second, millisec
-CString ReftimeToString(const REFERENCE_TIME& rtVal)
+[[nodiscard]] CString ReftimeToString(const REFERENCE_TIME& rtVal)
 {
 	CString		strTemp;
-	LONGLONG	llTotalMs =  ConvertToMilliseconds (rtVal);
-	int			lHour	  = (int)(llTotalMs  / (1000*60*60));
-	int			lMinute	  = (llTotalMs / (1000*60)) % 60;
-	int			lSecond	  = (llTotalMs /  1000) % 60;
-	int			lMillisec = llTotalMs  %  1000;
+	LONGLONG	llTotalMs{ConvertToMilliseconds (rtVal)};
+	int			lHour{(int)(llTotalMs  / (1000*60*60))};
+	int			lMinute{(llTotalMs / (1000*60)) % 60};
+	int			lSecond{(llTotalMs /  1000) % 60};
+	int			lMillisec{llTotalMs  %  1000};
 	strTemp.Format (_T("%02d:%02d:%02d,%03d"), lHour, lMinute, lSecond, lMillisec);
 	return strTemp;
 }
 
 // hour, minute, second (round)
-CString ReftimeToString2(const REFERENCE_TIME& rtVal)
+[[nodiscard]] CString ReftimeToString2(const REFERENCE_TIME& rtVal)
 {
 	CString		strTemp;
-	LONGLONG	seconds =  (rtVal + 5000000) / 10000000;
-	int			lHour	  = (int)(seconds / 3600);
-	int			lMinute	  = (int)(seconds / 60 % 60);
-	int			lSecond	  = (int)(seconds % 60);
+	LONGLONG	seconds{(rtVal + 5000000) / 10000000};
+	int			lHour{(int)(seconds / 3600)};
+	int			lMinute{(int)(seconds / 60 % 60)};
+	int			lSecond{(int)(seconds % 60)};
 
 	strTemp.Format (_T("%02d:%02d:%02d"), lHour, lMinute, lSecond);
 	return strTemp;
 }
 
-CString DVDtimeToString(const DVD_HMSF_TIMECODE& rtVal, bool bAlwaysShowHours)
+[[nodiscard]] CString DVDtimeToString(const DVD_HMSF_TIMECODE& rtVal, const bool bAlwaysShowHours)
 {
 	CString	strTemp;
 	if (rtVal.bHours > 0 || bAlwaysShowHours) {
@@ -2328,13 +2625,13 @@ CString DVDtimeToString(const DVD_HMSF_TIMECODE& rtVal, bool bAlwaysShowHours)
 	return strTemp;
 }
 
-REFERENCE_TIME StringToReftime(LPCTSTR strVal)
+[[nodiscard]] REFERENCE_TIME StringToReftime(const LPCTSTR strVal)
 {
-	REFERENCE_TIME	rt			= 0;
-	int				lHour		= 0;
-	int				lMinute		= 0;
-	int				lSecond		= 0;
-	int				lMillisec	= 0;
+	REFERENCE_TIME	rt{0};
+	int				lHour{0};
+	int				lMinute{0};
+	int				lSecond{0};
+	int				lMillisec{0};
 
 	if (_stscanf_s (strVal, _T("%02d:%02d:%02d,%03d"), &lHour, &lMinute, &lSecond, &lMillisec) == 4) {
 		rt = ( (((lHour*24)+lMinute)*60 + lSecond) * MILLISECONDS + lMillisec ) * (UNITS/MILLISECONDS);
@@ -2343,50 +2640,50 @@ REFERENCE_TIME StringToReftime(LPCTSTR strVal)
 	return rt;
 }
 
-const double Rec601_Kr = 0.299;
-const double Rec601_Kb = 0.114;
-const double Rec601_Kg = 0.587;
-COLORREF YCrCbToRGB_Rec601(BYTE Y, BYTE Cr, BYTE Cb)
+const double Rec601_Kr{0.299};
+const double Rec601_Kb{0.114};
+const double Rec601_Kg{0.587};
+[[nodiscard]] COLORREF YCrCbToRGB_Rec601(const BYTE Y, const BYTE Cr, const BYTE Cb)
 {
 
-	double rp = Y + 2*(Cr-128)*(1.0-Rec601_Kr);
-	double gp = Y - 2*(Cb-128)*(1.0-Rec601_Kb)*Rec601_Kb/Rec601_Kg - 2*(Cr-128)*(1.0-Rec601_Kr)*Rec601_Kr/Rec601_Kg;
-	double bp = Y + 2*(Cb-128)*(1.0-Rec601_Kb);
+	double rp{Y + 2*(Cr-128)*(1.0-Rec601_Kr)};
+	double gp{Y - 2*(Cb-128)*(1.0-Rec601_Kb)*Rec601_Kb/Rec601_Kg - 2*(Cr-128)*(1.0-Rec601_Kr)*Rec601_Kr/Rec601_Kg};
+	double bp{Y + 2*(Cb-128)*(1.0-Rec601_Kb)};
 
-	return RGB (fabs(rp), fabs(gp), fabs(bp));
+	return RGB (std::fabs(rp), std::fabs(gp), std::fabs(bp));
 }
 
-DWORD YCrCbToRGB_Rec601(BYTE A, BYTE Y, BYTE Cr, BYTE Cb)
+[[nodiscard]] DWORD YCrCbToRGB_Rec601(const BYTE A, const BYTE Y, const BYTE Cr, const BYTE Cb)
 {
 
-	double rp = Y + 2*(Cr-128)*(1.0-Rec601_Kr);
-	double gp = Y - 2*(Cb-128)*(1.0-Rec601_Kb)*Rec601_Kb/Rec601_Kg - 2*(Cr-128)*(1.0-Rec601_Kr)*Rec601_Kr/Rec601_Kg;
-	double bp = Y + 2*(Cb-128)*(1.0-Rec601_Kb);
+	double rp{Y + 2*(Cr-128)*(1.0-Rec601_Kr)};
+	double gp{Y - 2*(Cb-128)*(1.0-Rec601_Kb)*Rec601_Kb/Rec601_Kg - 2*(Cr-128)*(1.0-Rec601_Kr)*Rec601_Kr/Rec601_Kg};
+	double bp{Y + 2*(Cb-128)*(1.0-Rec601_Kb)};
 
-	return D3DCOLOR_ARGB(A, (BYTE)fabs(rp), (BYTE)fabs(gp), (BYTE)fabs(bp));
+	return D3DCOLOR_ARGB(A, (BYTE)std::fabs(rp), (BYTE)std::fabs(gp), (BYTE)std::fabs(bp));
 }
 
 
-const double Rec709_Kr = 0.2125;
-const double Rec709_Kb = 0.0721;
-const double Rec709_Kg = 0.7154;
+const double Rec709_Kr{0.2125};
+const double Rec709_Kb{0.0721};
+const double Rec709_Kg{0.7154};
 
-COLORREF YCrCbToRGB_Rec709(BYTE Y, BYTE Cr, BYTE Cb)
+[[nodiscard]] COLORREF YCrCbToRGB_Rec709(const BYTE Y, const BYTE Cr, const BYTE Cb)
 {
 
-	double rp = Y + 2*(Cr-128)*(1.0-Rec709_Kr);
-	double gp = Y - 2*(Cb-128)*(1.0-Rec709_Kb)*Rec709_Kb/Rec709_Kg - 2*(Cr-128)*(1.0-Rec709_Kr)*Rec709_Kr/Rec709_Kg;
-	double bp = Y + 2*(Cb-128)*(1.0-Rec709_Kb);
+	double rp{Y + 2*(Cr-128)*(1.0-Rec709_Kr)};
+	double gp{Y - 2*(Cb-128)*(1.0-Rec709_Kb)*Rec709_Kb/Rec709_Kg - 2*(Cr-128)*(1.0-Rec709_Kr)*Rec709_Kr/Rec709_Kg};
+	double bp{Y + 2*(Cb-128)*(1.0-Rec709_Kb)};
 
-	return RGB (fabs(rp), fabs(gp), fabs(bp));
+	return RGB (std::fabs(rp), std::fabs(gp), std::fabs(bp));
 }
 
-DWORD YCrCbToRGB_Rec709(BYTE A, BYTE Y, BYTE Cr, BYTE Cb)
+[[nodiscard]] DWORD YCrCbToRGB_Rec709(const BYTE A, const BYTE Y, const BYTE Cr, const BYTE Cb)
 {
 
-	double rp = Y + 2*(Cr-128)*(1.0-Rec709_Kr);
-	double gp = Y - 2*(Cb-128)*(1.0-Rec709_Kb)*Rec709_Kb/Rec709_Kg - 2*(Cr-128)*(1.0-Rec709_Kr)*Rec709_Kr/Rec709_Kg;
-	double bp = Y + 2*(Cb-128)*(1.0-Rec709_Kb);
+	double rp{Y + 2*(Cr-128)*(1.0-Rec709_Kr)};
+	double gp{Y - 2*(Cb-128)*(1.0-Rec709_Kb)*Rec709_Kb/Rec709_Kg - 2*(Cr-128)*(1.0-Rec709_Kr)*Rec709_Kr/Rec709_Kg};
+	double bp{Y + 2*(Cb-128)*(1.0-Rec709_Kb)};
 
-	return D3DCOLOR_ARGB (A, (BYTE)fabs(rp), (BYTE)fabs(gp), (BYTE)fabs(bp));
+	return D3DCOLOR_ARGB (A, (BYTE)std::fabs(rp), (BYTE)std::fabs(gp), (BYTE)std::fabs(bp));
 }

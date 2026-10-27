@@ -32,6 +32,6 @@ typedef struct
     ATL::CEvent WndCreatedEvent;
 } SystrayIconData;
 
-extern DWORD CALLBACK SystrayThreadProc(void* pParam);
-extern HANDLE CreateSystray(SystrayIconData *data);
+[[nodiscard]] extern DWORD CALLBACK SystrayThreadProc(void* pParam);
+[[nodiscard]] extern HANDLE CreateSystray(SystrayIconData *data);
 extern void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data);

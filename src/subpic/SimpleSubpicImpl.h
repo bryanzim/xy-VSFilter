@@ -11,9 +11,9 @@ public:
     ~SimpleSubpic();
 public:
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    STDMETHODIMP AlphaBlt(SubPicDesc* target);
+    [[nodiscard]] STDMETHODIMP AlphaBlt(SubPicDesc* target);
 private:
     struct Bitmap
     {
@@ -28,9 +28,9 @@ private:
     SimpleSubpic(const SimpleSubpic&);
     void operator=(const SimpleSubpic&)const;
 
-    HRESULT AlphaBltAnv12_P010_P210( SubPicDesc* target, const Bitmap& src, bool is422);
-    HRESULT AlphaBltAnv12_Nv12(SubPicDesc* target, const Bitmap& src);
-    HRESULT AlphaBlt(SubPicDesc* target, const Bitmap& src);
+    [[nodiscard]] HRESULT AlphaBltAnv12_P010_P210( SubPicDesc* target, const Bitmap& src, bool is422);
+    [[nodiscard]] HRESULT AlphaBltAnv12_Nv12(SubPicDesc* target, const Bitmap& src);
+    [[nodiscard]] HRESULT AlphaBlt(SubPicDesc* target, const Bitmap& src);
     HRESULT ConvertColorSpace();
     void SubsampleAndInterlace(int index, Bitmap*bitmap, bool u_first );
     void SubsampleAndInterlace422(int index, Bitmap* bitmap, bool u_first);

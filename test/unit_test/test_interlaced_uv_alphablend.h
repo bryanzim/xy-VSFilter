@@ -22,7 +22,7 @@ void AlphaBlt(byte* pY,
 
 struct A_Y_UV_TestData
 {
-    static const int BUF_SIZE = 2048;
+    static const int BUF_SIZE{2048};
     BYTE *dst_a;
     BYTE *dst_y;
     WORD *dst_uv;
@@ -31,9 +31,9 @@ struct A_Y_UV_TestData
     BYTE *alpha;
     int w;
 
-    A_Y_UV_TestData()
+    explicit A_Y_UV_TestData()
     {
-        memset(this, 0, sizeof(*this));
+        std::memset(this, 0, sizeof(*this));
         dst_a = new BYTE[BUF_SIZE*5];        
         dst_y = dst_a + BUF_SIZE;
         dst_uv = reinterpret_cast<WORD*>(dst_y + BUF_SIZE);
@@ -44,44 +44,44 @@ struct A_Y_UV_TestData
         delete[] dst_a;
     }
 
-    bool operator==(const A_Y_UV_TestData& rhs)
+    [[nodiscard]] bool operator==(const A_Y_UV_TestData& rhs)
     {
         return ( w == rhs.w ) &&
-            !memcmp(dst_a, rhs.dst_a, w*sizeof(*dst_a)) &&
-            !memcmp(dst_y, rhs.dst_y, w*sizeof(*dst_y)) &&
-            !memcmp(dst_uv, rhs.dst_uv, w*sizeof(*dst_uv)) &&
-            !memcmp(alpha, rhs.alpha, w*sizeof(*alpha)) &&
+            !std::memcmp(dst_a, rhs.dst_a, w*sizeof(*dst_a)) &&
+            !std::memcmp(dst_y, rhs.dst_y, w*sizeof(*dst_y)) &&
+            !std::memcmp(dst_uv, rhs.dst_uv, w*sizeof(*dst_uv)) &&
+            !std::memcmp(alpha, rhs.alpha, w*sizeof(*alpha)) &&
             src_y == rhs.src_y &&
             src_uv == rhs.src_uv;
     }
     const A_Y_UV_TestData& operator=(const A_Y_UV_TestData& rhs)
     {
         w = rhs.w;
-        memcpy(dst_a, rhs.dst_a, w*sizeof(*dst_a));
-        memcpy(dst_y, rhs.dst_y, w*sizeof(*dst_y));
-        memcpy(dst_uv, rhs.dst_uv, w*sizeof(*dst_uv));
-        memcpy(alpha, rhs.alpha, w*sizeof(*alpha));
+        std::memcpy(dst_a, rhs.dst_a, w*sizeof(*dst_a));
+        std::memcpy(dst_y, rhs.dst_y, w*sizeof(*dst_y));
+        std::memcpy(dst_uv, rhs.dst_uv, w*sizeof(*dst_uv));
+        std::memcpy(alpha, rhs.alpha, w*sizeof(*alpha));
         src_y = rhs.src_y;
         src_uv = rhs.src_uv;
         return *this;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const A_Y_UV_TestData& test_data);   
-    std::string GetAlphaString()
+    [[nodiscard]] std::string GetAlphaString()
     {
         std::stringstream os;
         os<<std::endl<<"alpha:"<<std::endl;
         GetBufString(os, alpha);
         return os.str();
     }
-    std::string GetDstYString()
+    [[nodiscard]] std::string GetDstYString()
     {
         std::stringstream os;
         os<<std::endl<<"Dst Y:"<<std::endl;
         GetBufString(os, dst_y);
         return os.str();
     }
-    std::string GetDstUVString()
+    [[nodiscard]] std::string GetDstUVString()
     {
         std::stringstream os;
         os<<std::endl<<"Dst UV:"<<std::endl;
@@ -90,10 +90,10 @@ struct A_Y_UV_TestData
     }
 
     template<typename T>
-    std::stringstream& GetBufString(std::stringstream& os, T* buf)
+    [[nodiscard]] std::stringstream& GetBufString(std::stringstream& os, T* buf)
     {        
         os<<std::hex;
-        for (int i=0;i<w;i++)
+        for (int i{0};i<w;i++)
         {
             os<<std::setw(4)<<static_cast<int>(buf[i])<<" ";
         }
@@ -110,25 +110,25 @@ std::ostream& operator<<(std::ostream& os, const A_Y_UV_TestData& test_data)
         <<std::endl;
     os<<std::hex<<std::setw(4);
     os<<"alpha:"<<std::endl;
-    for (int i=0;i<test_data.w;i++)
+    for (int i{0};i<test_data.w;i++)
     {
         os<<static_cast<int>(test_data.alpha[i])<<" ";
     }
     os<<std::endl;
     os<<"dst_a:"<<std::endl;
-    for (int i=0;i<test_data.w;i++)
+    for (int i{0};i<test_data.w;i++)
     {
         os<<static_cast<int>(test_data.dst_a[i])<<" ";
     }
     os<<std::endl;
     os<<"dst_y:"<<std::endl;
-    for (int i=0;i<test_data.w;i++)
+    for (int i{0};i<test_data.w;i++)
     {
         os<<static_cast<int>(test_data.dst_y[i])<<" ";
     }
     os<<std::endl;
     os<<"dst_uv:"<<std::endl;
-    for (int i=0;i<test_data.w;i++)
+    for (int i{0};i<test_data.w;i++)
     {
         os<<static_cast<int>(test_data.dst_uv[i])<<" ";
     }
@@ -144,12 +144,13 @@ protected:
     {  
     }
 
-    const A_Y_UV_TestData& GetZeroData()
+    [[nodiscard]] const A_Y_UV_TestData& GetZeroData()
+    noexcept
     {
-        memset(data1.dst_a, 0, A_Y_UV_TestData::BUF_SIZE*5);
+        std::memset(data1.dst_a, 0, A_Y_UV_TestData::BUF_SIZE*5);
         return data1;
     }
-    const A_Y_UV_TestData& GetRandomData(int w)
+    [[nodiscard]] const A_Y_UV_TestData& GetRandomData(int w)
     {
         data1.w = w;
         FillRandByte( data1.dst_a, w );
@@ -160,9 +161,9 @@ protected:
         data1.src_uv = rand() & 0xffff;
         return data1;        
     }
-    void FillRandByte(BYTE* buf, int size)
+    void FillRandByte(BYTE* buf, const int size)
     {
-        for (int i=0;i<size;i++)
+        for (int i{0};i<size;i++)
         {
             buf[i] = rand() & 0xff;
         }
@@ -192,9 +193,9 @@ TEST_F(InterlacedUvAlphaBlendTest, WhatEver)
     ASSERT_EQ(true, data1==data0);
     ASSERT_EQ(true, data2==data0);
 
-    for (int i=0;i<10000;i++)
+    for (int i{0};i<10000;i++)
     {
-        for (int w=1;w<33;w++)
+        for (int w{1};w<33;w++)
         {            
             data0 = GetRandomData(w);
             data1 = data0;
@@ -206,11 +207,11 @@ TEST_F(InterlacedUvAlphaBlendTest, WhatEver)
             AlphaBlt( data2.dst_y, data2.alpha, data2.src_y, 1, data2.w, data2.w, data2.w );
             AlphaBltUV( data2.dst_uv, data2.alpha, data2.src_uv, 1, data2.w, data2.w, data2.w );
             //ASSERT_EQ(true, data1==data2);
-            ASSERT_EQ(0, memcmp(data2.dst_a, data1.dst_a, data1.w) )
+            ASSERT_EQ(0, std::memcmp(data2.dst_a, data1.dst_a, data1.w) )
                 <<"data0"<<data0
                 <<"data1"<<data1
                 <<"data2"<<data2;
-            ASSERT_EQ(0, memcmp(data2.dst_y, data1.dst_y, data1.w) )
+            ASSERT_EQ(0, std::memcmp(data2.dst_y, data1.dst_y, data1.w) )
                 <<"data0 src_y:"<<data0.src_y<<" w:"<<data0.w
                 <<data0.GetAlphaString().c_str()
                 <<data0.GetDstYString().c_str()
@@ -218,7 +219,7 @@ TEST_F(InterlacedUvAlphaBlendTest, WhatEver)
                 <<data1.GetDstYString().c_str()
                 <<std::endl<<"data2 src_y:"<<data2.src_y<<" w:"<<data2.w
                 <<data2.GetDstYString().c_str();
-            ASSERT_EQ(0, memcmp(data2.dst_uv, data1.dst_uv, data1.w*sizeof(*data1.dst_uv)) )
+            ASSERT_EQ(0, std::memcmp(data2.dst_uv, data1.dst_uv, data1.w*sizeof(*data1.dst_uv)) )
                 <<"data0 src_uv:"<<data0.src_uv
                 <<data0.GetAlphaString().c_str()
                 <<data0.GetDstUVString().c_str()
@@ -237,15 +238,15 @@ TEST_F(InterlacedUvAlphaBlendTest, WhatEver)
         AlphaBlt( data2.dst_y, data2.alpha, data2.src_y, 1, data2.w, data2.w, data2.w );
         AlphaBltUV( data2.dst_uv, data2.alpha, data2.src_uv, 1, data2.w, data2.w, data2.w );
         //ASSERT_EQ(true, data1==data2);
-        ASSERT_EQ(0, memcmp(data2.dst_a, data1.dst_a, data1.w) )
+        ASSERT_EQ(0, std::memcmp(data2.dst_a, data1.dst_a, data1.w) )
             <<"data0"<<data0
             <<"data1"<<data1
             <<"data2"<<data2;
-        ASSERT_EQ(0, memcmp(data2.dst_y, data1.dst_y, data1.w) )
+        ASSERT_EQ(0, std::memcmp(data2.dst_y, data1.dst_y, data1.w) )
             <<"data0"<<data0
             <<"data1"<<data1
             <<"data2"<<data2;
-        ASSERT_EQ(0, memcmp(data2.dst_uv, data1.dst_uv, data1.w*sizeof(*data1.dst_uv)) )
+        ASSERT_EQ(0, std::memcmp(data2.dst_uv, data1.dst_uv, data1.w*sizeof(*data1.dst_uv)) )
             <<"data0 src_uv:"<<data0.src_uv
             <<data0.GetAlphaString().c_str()
             <<data0.GetDstUVString().c_str()

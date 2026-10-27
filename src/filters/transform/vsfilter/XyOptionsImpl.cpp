@@ -4,7 +4,7 @@
 
 XyOptionsImpl::XyOptionsImpl( const Option *option_list )
 {
-    for (int i=0;i<=MAX_OPTION_ID;i++)
+    for (int i{0};i<=MAX_OPTION_ID;i++)
     {
         m_option_type[i] = OPTION_TYPE_END_FLAG;
 
@@ -12,7 +12,7 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
         m_xy_bool_opt[i] = false;
         m_xy_double_opt[i] = 0;
     }
-    for (const Option * op =option_list; op && op->type!=OPTION_TYPE_END_FLAG; op++)
+    for (const Option * op{option_list}; op && op->type!=OPTION_TYPE_END_FLAG; op++)
     {
         ASSERT(op->option_id<MAX_OPTION_ID);
         m_option_type[op->option_id] = op->type | op->rw_mode;
@@ -24,49 +24,55 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     if (!value) return S_FALSE;                                                    \
     return DoGetField(field, value);
 
-STDMETHODIMP XyOptionsImpl::XyGetBool(unsigned field, bool *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBool(const unsigned field, bool *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_BOOL, m_xy_bool_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetInt(unsigned field, int *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetInt(const unsigned field, int *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_INT, m_xy_int_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetSize(unsigned field, SIZE *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetSize(const unsigned field, SIZE *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_SIZE, m_xy_size_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetRect(unsigned field, RECT *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetRect(const unsigned field, RECT *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_RECT, m_xy_rect_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetUlonglong(unsigned field, ULONGLONG *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetUlonglong(const unsigned field, ULONGLONG *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_ULONGLONG, m_xy_ulonglong_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetDouble(unsigned field, double *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetDouble(const unsigned field, double *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_DOUBLE, m_xy_double_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetString(unsigned field, LPWSTR *value, int *chars)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetString(const unsigned field, LPWSTR *value, int *chars)
 {
-    if (!TestOption(field, OPTION_TYPE_STRING, OPTION_MODE_READ)) return E_INVALIDARG;
-    if (!value && !chars) return S_FALSE;
+    if (!TestOption(field, OPTION_TYPE_STRING, OPTION_MODE_READ))
+    {
+        return E_INVALIDARG;
+    }
+    if (!value && !chars)
+    {
+        return S_FALSE;
+    }
     CStringW tmp;
-    HRESULT hr = DoGetField(field, &tmp);
+    HRESULT hr{DoGetField(field, &tmp)};
     if (SUCCEEDED(hr))
     {
         if (value)
         {
             *value = static_cast<LPWSTR>(LocalAlloc(LPTR, sizeof(WCHAR)*(tmp.GetLength()+1)));
             ASSERT(*value);
-            memcpy(*value, tmp.GetString(), (tmp.GetLength()+1)*sizeof(WCHAR));
+            std::memcpy(*value, tmp.GetString(), (tmp.GetLength()+1)*sizeof(WCHAR));
         }
         if (chars)
         {
@@ -76,17 +82,29 @@ STDMETHODIMP XyOptionsImpl::XyGetString(unsigned field, LPWSTR *value, int *char
     return hr;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetBin(unsigned field, LPVOID *value, int *size)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBin(const unsigned field, LPVOID *value, int *size)
 {
-    if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_READ)) return E_INVALIDARG;
-    if (!value && !size) return S_FALSE;
+    if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_READ))
+    {
+        return E_INVALIDARG;
+    }
+    if (!value && !size)
+    {
+        return S_FALSE;
+    }
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetBin2( unsigned field, void *value, int size )
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBin2( const unsigned field, void *value, const int size )
 {
-    if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_READ)) return E_INVALIDARG;
-    if (!value) return S_FALSE;
+    if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_READ))
+    {
+        return E_INVALIDARG;
+    }
+    if (!value)
+    {
+        return S_FALSE;
+    }
     return E_NOTIMPL;
 }
 
@@ -94,137 +112,144 @@ STDMETHODIMP XyOptionsImpl::XyGetBin2( unsigned field, void *value, int size )
     if (!TestOption(field, OPTION_TYPE_x, OPTION_MODE_WRITE)) return E_INVALIDARG;  \
     return DoSetField(field, &value);
 
-STDMETHODIMP XyOptionsImpl::XySetBool(unsigned field, bool value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBool(const unsigned field, const bool value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_BOOL, m_xy_bool_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XySetInt(unsigned field, int value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetInt(const unsigned field, const int value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_INT, m_xy_int_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XySetSize(unsigned field, SIZE value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSize(const unsigned field, const SIZE value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_SIZE, m_xy_size_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XySetRect(unsigned field, RECT value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRect(const unsigned field, const RECT value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_RECT, m_xy_rect_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XySetUlonglong(unsigned field, ULONGLONG value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetUlonglong(const unsigned field, const ULONGLONG value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_ULONGLONG, m_xy_ulonglong_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XySetDouble(unsigned field, double value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetDouble(const unsigned field, const double value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_DOUBLE, m_xy_double_opt);
 }
 
-STDMETHODIMP XyOptionsImpl::XySetString(unsigned field, LPWSTR value, int chars)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetString(const unsigned field, const LPWSTR value, const int chars)
 {
-    if (!TestOption(field, OPTION_TYPE_STRING, OPTION_MODE_WRITE)) return E_INVALIDARG;
-    CStringW tmp(value, chars);
+    if (!TestOption(field, OPTION_TYPE_STRING, OPTION_MODE_WRITE))
+    {
+        return E_INVALIDARG;
+    }
+    CStringW tmp{value, chars};
     return DoSetField(field, &tmp);
 }
 
-STDMETHODIMP XyOptionsImpl::XySetBin(unsigned field, LPVOID value, int size)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBin(const unsigned field, const LPVOID value, const int size)
 {
-    if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_WRITE)) return E_INVALIDARG;
+    if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_WRITE))
+    {
+        return E_INVALIDARG;
+    }
     return E_NOTIMPL;
 }
 
 // methods for array not implement
 
-STDMETHODIMP XyOptionsImpl::XyGetBools(unsigned field, int id, bool *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBools(const unsigned field, const int id, bool *value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetInts(unsigned field, int id, int *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetInts(const unsigned field, const int id, int *value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetSizes(unsigned field, int id, SIZE *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetSizes(const unsigned field, const int id, SIZE *value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetRects(unsigned field, int id, RECT *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetRects(const unsigned field, const int id, RECT *value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetUlonglongs(unsigned field, int id, ULONGLONG *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetUlonglongs(const unsigned field, const int id, ULONGLONG *value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetDoubles(unsigned field, int id, double *value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetDoubles(const unsigned field, const int id, double *value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetStrings(unsigned field, int id, LPWSTR *value, int *chars)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetStrings(const unsigned field, const int id, LPWSTR *value, int *chars)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetBins(unsigned field, int id, LPVOID *value, int *size)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBins(const unsigned field, const int id, LPVOID *value, int *size)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XyGetBins2( unsigned field, int id, void *value, int size )
+[[nodiscard]] constexpr STDMETHODIMP XyOptionsImpl::XyGetBins2( const unsigned field, const int id, void *value, const int size )
+noexcept
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetBools(unsigned field, int id, bool value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBools(const unsigned field, const int id, const bool value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetInts(unsigned field, int id, int value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetInts(const unsigned field, const int id, const int value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetSizes(unsigned field, int id, SIZE value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSizes(const unsigned field, const int id, const SIZE value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetRects(unsigned field, int id, RECT value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRects(const unsigned field, const int id, const RECT value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetUlonglongs(unsigned field, int id, ULONGLONG value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetUlonglongs(const unsigned field, const int id, const ULONGLONG value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetDoubles(unsigned field, int id, double value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetDoubles(const unsigned field, const int id, const double value)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetStrings(unsigned field, int id, LPWSTR value, int chars)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetStrings(const unsigned field, const int id, const LPWSTR value, const int chars)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP XyOptionsImpl::XySetBins(unsigned field, int id, LPVOID value, int size)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBins(const unsigned field, const int id, const LPVOID value, const int size)
 {
     return E_NOTIMPL;
 }
 
-HRESULT XyOptionsImpl::DoGetField( unsigned field, void *value )
+[[nodiscard]] HRESULT XyOptionsImpl::DoGetField( const unsigned field, void *value )
 {
     switch(m_option_type[field] & ~OPTION_MODE_RW)
     {
@@ -256,9 +281,9 @@ HRESULT XyOptionsImpl::DoGetField( unsigned field, void *value )
     return S_OK;
 }
 
-HRESULT XyOptionsImpl::DoSetField( unsigned field, void const *value )
+[[nodiscard]] HRESULT XyOptionsImpl::DoSetField( const unsigned field, void const *value )
 {
-    HRESULT hr = S_FALSE;
+    HRESULT hr{S_FALSE};
     switch(m_option_type[field] & ~OPTION_MODE_RW)
     {
     case OPTION_TYPE_BOOL:
@@ -318,7 +343,7 @@ HRESULT XyOptionsImpl::DoSetField( unsigned field, void const *value )
     return hr;
 }
 
-HRESULT XyOptionsImpl::OnOptionChanged( unsigned field )
+[[nodiscard]] HRESULT XyOptionsImpl::OnOptionChanged( const unsigned field )
 {
     return S_OK;
 }

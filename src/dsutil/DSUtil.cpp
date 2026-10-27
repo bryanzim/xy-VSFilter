@@ -420,7 +420,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 	return(pBF);
 }
 
-[[nodiscard]] IPin* AppendFilter(IPin* pPin, const CString DisplayName, IGraphBuilder* pGB)
+[[nodiscard]] IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 {
 	IPin* pRet{pPin};
 
@@ -485,7 +485,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 			}
 		EndEnumFilters
 
-		pPinTo{GetFirstPin(pBF, PINDIR_INPUT)};
+		pPinTo = GetFirstPin(pBF, PINDIR_INPUT);
 		if(!pPinTo)
 		{
 			pGB->RemoveFilter(pBF);
@@ -507,7 +507,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 			}
 		EndEnumFilters
 
-		pRet{GetFirstPin(pBF, PINDIR_OUTPUT)};
+		pRet = GetFirstPin(pBF, PINDIR_OUTPUT);
 		if(!pRet)
 		{
 			pRet = pPin;
@@ -520,7 +520,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 	return(pRet);
 }
 
-[[nodiscard]] IPin* InsertFilter(IPin* pPin, const CString DisplayName, IGraphBuilder* pGB)
+[[nodiscard]] IPin* InsertFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
 {
 	do
 	{
@@ -703,7 +703,7 @@ void MyOleCreatePropertyFrame(const HWND hwndOwner, const UINT x, const UINT y, 
 	}
 }
 
-void ShowPPage(const CString DisplayName, const HWND hParentWnd)
+void ShowPPage(CString DisplayName, const HWND hParentWnd)
 {
 	CComPtr<IBindCtx> pBindCtx;
 	CreateBindCtx(0, &pBindCtx);
@@ -805,7 +805,7 @@ void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
 	return(fRet);
 }
 
-void CStringToBin(const CString str, CAtlArray<BYTE>& data)
+void CStringToBin(CString str, CAtlArray<BYTE>& data)
 {
 	str.Trim();
 	ASSERT((str.GetLength()&1) == 0);
@@ -872,7 +872,7 @@ void CStringToBin(const CString str, CAtlArray<BYTE>& data)
 	return(ret);
 }
 
-static void FindFiles(const CString fn, CAtlList<CString>& files)
+static void FindFiles(CString fn, CAtlList<CString>& files)
 {
 	CString path{fn};
 	path.Replace('/', '\\');
@@ -976,7 +976,7 @@ static void FindFiles(const CString fn, CAtlList<CString>& files)
 	return(label);
 }
 
-[[nodiscard]] bool GetKeyFrames(const CString fn, CUIntArray& kfs)
+[[nodiscard]] bool GetKeyFrames(CString fn, CUIntArray& kfs)
 {
 	kfs.RemoveAll();
 
@@ -1034,8 +1034,8 @@ static void FindFiles(const CString fn, CAtlList<CString>& files)
 	return(kfs.GetCount() > 0);
 }
 
-[[nodiscard]] constexpr DVD_HMSF_TIMECODE RT2HMSF(const REFERENCE_TIME rt, const double fps)
-noexcept
+[[nodiscard]] DVD_HMSF_TIMECODE RT2HMSF(const REFERENCE_TIME rt, const double fps)
+
 {
 	DVD_HMSF_TIMECODE hmsf = 
 	{
@@ -1048,8 +1048,8 @@ noexcept
 	return hmsf;
 }
 
-[[nodiscard]] constexpr REFERENCE_TIME HMSF2RT(const DVD_HMSF_TIMECODE hmsf, double fps)
-noexcept
+[[nodiscard]] REFERENCE_TIME HMSF2RT(DVD_HMSF_TIMECODE hmsf, double fps)
+
 {
 	if(fps == 0) {hmsf.bFrames = 0; fps = 1;}
 	return (REFERENCE_TIME)((((REFERENCE_TIME)hmsf.bHours*60+hmsf.bMinutes)*60+hmsf.bSeconds)*1000+1.0*hmsf.bFrames*1000/fps)*10000;
@@ -1161,7 +1161,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 }
 
 [[nodiscard]] bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary)
-noexcept
+
 {
 	w = h = arx = ary = 0;
 
@@ -1236,8 +1236,8 @@ noexcept
 
 	}
 
-	DWORD a{arx}, b = ary;
-    while(a) {int tmp{a}; a = b % tmp; b = tmp;}
+	DWORD a = arx, b = ary;
+    while(a) {int tmp = a; a = b % tmp; b = tmp;}
 	if(b)
 	{
 	    arx /= b, ary /= b;
@@ -1355,7 +1355,7 @@ noexcept
 	return ret;
 }
 
-[[nodiscard]] bool CreateFilter(const CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyName)
+[[nodiscard]] bool CreateFilter(CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyName)
 {
 	if(!ppBF)
 	{
@@ -1455,7 +1455,7 @@ noexcept
 	return(NULL);
 }
 
-[[nodiscard]] CStringW GetFriendlyName(const CStringW DisplayName)
+[[nodiscard]] CStringW GetFriendlyName(CStringW DisplayName)
 {
 	CStringW FriendlyName;
 
@@ -1639,7 +1639,7 @@ void UnloadExternalObjects()
 	return ret;
 }
 
-[[nodiscard]] GUID GUIDFromCString(const CString str)
+[[nodiscard]] GUID GUIDFromCString(CString str)
 {
 	GUID guid{GUID_NULL};
 	HRESULT hr{CLSIDFromString(CComBSTR(str), &guid)};
@@ -1647,7 +1647,7 @@ void UnloadExternalObjects()
 	return guid;
 }
 
-[[nodiscard]] HRESULT GUIDFromCString(const CString str, GUID& guid)
+[[nodiscard]] HRESULT GUIDFromCString(CString str, GUID& guid)
 {
 	guid = GUID_NULL;
 	return CLSIDFromString(CComBSTR(str), &guid);
@@ -2342,7 +2342,7 @@ static struct {
 }
 
 [[nodiscard]] int MakeAACInitData(BYTE* pData, const int profile, int freq, const int channels)
-noexcept
+
 {
 	int srate_idx;
 
@@ -2491,7 +2491,7 @@ noexcept
 	{
 		if(pszSubkey != 0)
 		{
-			[[nodiscard]] ec = ::RegDeleteKey(hKey, pszSubkey);
+			ec = ::RegDeleteKey(hKey, pszSubkey);
 		}
 
 		bOK = (ec == ERROR_SUCCESS);

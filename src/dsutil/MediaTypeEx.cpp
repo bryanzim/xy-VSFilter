@@ -209,11 +209,11 @@ CMediaTypeEx::CMediaTypeEx()
 		if(SUCCEEDED(pMS->GetDuration(&rtDur)) && rtDur)
 		{
 			rtDur /= 10000000;
-			int s{rtDur%60};
+			int s = rtDur % 60;
 			rtDur /= 60;
-			int m{rtDur%60};
+			int m = rtDur % 60;
 			rtDur /= 60;
-			int h{rtDur};
+			int h = rtDur;
 			if(h)
 			{
 			    dur.Format(_T("%d:%02d:%02d"), h, m, s);
@@ -757,7 +757,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 				str += byte;
 			}
 
-			for(int k{min(i + 16, cbFormat)}, l = i + 16; k < l; k++)
+			for(int k = min(i + 16, cbFormat), l = i + 16; k < l; k++)
 			{
 				str += _T("   ");
 			}

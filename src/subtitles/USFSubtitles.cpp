@@ -72,7 +72,7 @@
 	return(str);
 }
 
-[[nodiscard]] static CStringW GetAttrib(const CStringW attrib, const CComPtr<IXMLDOMNode> pNode)
+[[nodiscard]] static CStringW GetAttrib(CStringW attrib, const CComPtr<IXMLDOMNode> pNode)
 {
 	CStringW ret;
 
@@ -91,7 +91,7 @@
 	return{ret};
 }
 
-[[nodiscard]] static int TimeToInt(const CStringW str)
+[[nodiscard]] static int TimeToInt(CStringW str)
 {
 	CAtlList<CStringW> sl;
 	int i{0};
@@ -124,7 +124,7 @@
 	return(time);
 }
 
-[[nodiscard]] static DWORD StringToDWORD(const CStringW str)
+[[nodiscard]] static DWORD StringToDWORD(CStringW str)
 {
 	if(str.IsEmpty())
 	{
@@ -140,7 +140,7 @@
 	}	
 }
 
-[[nodiscard]] static DWORD ColorToDWORD(const CStringW str)
+[[nodiscard]] static DWORD ColorToDWORD(CStringW str)
 {
 	if(str.IsEmpty())
 	{
@@ -163,7 +163,7 @@
 	return(ret);
 }
 
-[[nodiscard]] static int TranslateAlignment(const CStringW alignment)
+[[nodiscard]] static int TranslateAlignment(CStringW alignment)
 {
 	return
 		!alignment.CompareNoCase(L"BottomLeft") ? 1 :
@@ -178,7 +178,7 @@
 		2;
 }
 
-[[nodiscard]] static int TranslateMargin(const CStringW margin, const int wndsize)
+[[nodiscard]] static int TranslateMargin(CStringW margin, const int wndsize)
 {
 	int ret{0};
 
@@ -200,8 +200,8 @@ CUSFSubtitles::CUSFSubtitles()
 {
 }
 
-constexpr CUSFSubtitles::~CUSFSubtitles()
-noexcept
+CUSFSubtitles::~CUSFSubtitles()
+
 {
 }
 
@@ -546,11 +546,11 @@ noexcept
 				ParseMetadata(pChild, metadata);
 			}
 		}
-		[[nodiscard]] EndEnumChildren
+		EndEnumChildren
 
 		// styles
 
-		BeginEnumChildren(const pNode, const pChild)
+		BeginEnumChildren(pNode, pChild)
 		{
 			DeclareNameAndValue(pChild, name, val);
 
@@ -562,7 +562,7 @@ noexcept
 
 					if(name == L"style")
 					{
-						[[nodiscard]] constexpr CAutoPtr<style_t> s(new style_t) noexcept;
+						[[nodiscard]] CAutoPtr<style_t> s(new style_t);
 						if(s)
 						{
 							ParseStyle(pGrandChild, s);
@@ -573,11 +573,11 @@ noexcept
 				EndEnumChildren
 			}
 		}
-		[[nodiscard]] EndEnumChildren
+		EndEnumChildren
 
 		// effects
 
-		BeginEnumChildren(const pNode, const pChild)
+		BeginEnumChildren(pNode, pChild)
 		{
 			DeclareNameAndValue(pChild, name, val);
 
@@ -600,11 +600,11 @@ noexcept
 				EndEnumChildren
 			}
 		}
-		[[nodiscard]] EndEnumChildren
+		EndEnumChildren
 
 		// subtitles
 
-		BeginEnumChildren(const pNode, const pChild)
+		BeginEnumChildren(pNode, pChild)
 		{
 			DeclareNameAndValue(pChild, name, val);
 
@@ -916,11 +916,11 @@ void CUSFSubtitles::ParseText(const CComPtr<IXMLDOMNode> pNode, CStringW& str)
 	}
 	EndEnumChildren
 
-	str{prefix + str + postfix};
+	str = prefix + str + postfix;
 }
 
-constexpr void CUSFSubtitles::ParseShape(const CComPtr<IXMLDOMNode> pNode)
-noexcept
+void CUSFSubtitles::ParseShape(const CComPtr<IXMLDOMNode> pNode)
+
 {
 	// no specs on this yet
 }

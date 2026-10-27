@@ -4,7 +4,7 @@ class CMediaTypeEx : public CMediaType
 {
 public:
 	explicit CMediaTypeEx();
-	constexpr explicit CMediaTypeEx(const CMediaType& mt) noexcept {CMediaType::operator = (mt);}
+	explicit CMediaTypeEx(const CMediaType& mt) {CMediaType::operator = (mt);}
 
 	[[nodiscard]] CString ToString(IPin* pPin = NULL);
 

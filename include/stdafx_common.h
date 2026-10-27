@@ -9,5 +9,9 @@
 #endif
 
 #include <SDKDDKVer.h>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit

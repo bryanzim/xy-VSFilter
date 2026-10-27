@@ -75,8 +75,8 @@ public:
             cacher->GetAt(pos) = _id;
         }
     }
-    [[nodiscard]] constexpr inline const V& Get() const noexcept { return *_v; }
-    [[nodiscard]] constexpr inline IdType GetId() const noexcept { return _id; }
+    [[nodiscard]] inline const V& Get() const { return *_v; }
+    [[nodiscard]] inline IdType GetId() const { return _id; }
 
     [[nodiscard]] static inline Cacher* GetCacher();
 private:

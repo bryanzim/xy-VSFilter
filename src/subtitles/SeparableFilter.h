@@ -74,8 +74,8 @@ void SeparableFilterX(unsigned char *src, unsigned char *dst, int width, int hei
 // filtering once vertically will automatically catch all channels.
 // (Width must be multiplied by pixel width for that to happen though.)
 template<ptrdiff_t PixelDist>
-constexpr void SeparableFilterY(unsigned char *src, unsigned char *dst, int width, const int height, const ptrdiff_t stride, int *kernel, const int kernel_size, const int divisor)
-noexcept
+void SeparableFilterY(unsigned char *src, unsigned char *dst, int width, const int height, const ptrdiff_t stride, int *kernel, const int kernel_size, const int divisor)
+
 {
 #pragma omp parallel for
 	width *= PixelDist;
@@ -114,7 +114,7 @@ noexcept
 
 
 [[nodiscard]] static inline double NormalDist(const double sigma, const double x)
-noexcept
+
 {
 	if (sigma <= 0 && x == 0)
 	{

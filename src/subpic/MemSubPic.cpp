@@ -124,7 +124,7 @@ static void AlphaBlt_YUY2_MMX(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, in
         PCUINT8 s2end{s2 + w*4};
         DWORD* d2{(DWORD*)d};
         ASSERT(w>0);
-        int last_a{w}>0?s2[3U]:0;
+        int last_a = w>0?s2[3U]:0;
         for(; s2 < s2end; s2 += 8, d2++)
         {
             ia = (last_a + 2*s2[3U] + s2[7U])>>2;
@@ -172,7 +172,7 @@ void AlphaBlt_YUY2_C(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitc
         PCUINT8 s2end{s2 + w*4};
         DWORD* d2{(DWORD*)d};
         ASSERT(w>0);
-        int last_a{w}>0?s2[3U]:0;
+        int last_a = w>0?s2[3U]:0;
         for(; s2 < s2end; s2 += 8, d2++)
         {
             ia = (last_a + 2*s2[3U] + s2[7U])>>2;
@@ -203,8 +203,8 @@ CMemSubPic::CMemSubPic(SubPicDesc& spd, int alpha_blt_dst_type)
     m_rectListDirty.AddTail(allSpd);
 }
 
-constexpr CMemSubPic::~CMemSubPic()
-noexcept
+CMemSubPic::~CMemSubPic()
+
 {
     delete [] m_spd.bits, m_spd.bits = NULL;
 }
@@ -1007,7 +1007,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         BYTE* s2{s};
         WORD* d2{reinterpret_cast<WORD*>(d)};
         WORD* d2_end{reinterpret_cast<WORD*>(d+2*w)};
-        DWORD last_alpha{s2[3U]+s2[3U+src.pitch]};
+        DWORD last_alpha = s2[3U]+s2[3U+src.pitch];
         for( ; d2<d2_end; s2+=8, d2+=2)
         {
             unsigned int ia{( 
@@ -1203,7 +1203,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             BYTE* d2{d};
             BYTE* a2{a};
             
-            DWORD last_alpha{a2[0U]+a2[0U+src.pitch]};
+            DWORD last_alpha = a2[0U]+a2[0U+src.pitch];
             for(; s2 < s2end; s2 += 8, d2++, a2 += 8) {
                 unsigned int ia{(last_alpha + 2*(a2[0U]+a2[0U+src.pitch]) + a2[4U] + a2[4U+src.pitch] + 4 )>>3};
                 last_alpha = a2[4U] + a2[4U+src.pitch];
@@ -1477,7 +1477,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             BYTE* s2end{s2 + w*4};
             BYTE* d2{d};
             BYTE* a2{a};
-            DWORD last_alpha{a2[0U]+a2[0U+src.pitch]};
+            DWORD last_alpha = a2[0U]+a2[0U+src.pitch];
             for(; s2 < s2end; s2 += 8, d2+=2, a2 += 8) {
                 unsigned int ia{(last_alpha+2*(a2[0U]+a2[0U+src.pitch])+a2[4U]+a2[4U+src.pitch]+4)>>3};
                 last_alpha = a2[4U]+a2[4U+src.pitch];
@@ -1509,7 +1509,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         return E_INVALIDARG;
     }
     int w{rs.Width()}, h = rs.Height();
-    bool bottom_down{rd.top} > rd.bottom;
+    bool bottom_down = rd.top > rd.bottom;
 
     // P010/P016/P210/P216 format:
     // Single buffer
@@ -1577,7 +1577,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         return E_INVALIDARG;
     }
     int w{rs.Width()}, h = rs.Height();
-    bool bottom_down{rd.top} > rd.bottom;
+    bool bottom_down = rd.top > rd.bottom;
 
     BYTE* d{NULL};
     BYTE* dUV{NULL};
@@ -1709,8 +1709,8 @@ void CMemSubPic::AlphaBltYv12Luma(byte* dst, const int dst_pitch,
     }
 }
 
-constexpr void CMemSubPic::AlphaBltYv12LumaC( byte* dst, const int dst_pitch, const int w, const int h, const byte* sub, const byte* alpha, const int sub_pitch )
-noexcept
+void CMemSubPic::AlphaBltYv12LumaC( byte* dst, const int dst_pitch, const int w, const int h, const byte* sub, const byte* alpha, const int sub_pitch )
+
 {
     for(int i{0}; i<h; i++, dst += dst_pitch, alpha += sub_pitch, sub += sub_pitch)
     {
@@ -1758,8 +1758,8 @@ void CMemSubPic::AlphaBltYv12Chroma(byte* dst_uv, const int dst_pitch,
     }
 }
 
-constexpr void CMemSubPic::AlphaBltYv12ChromaC( byte* dst, const int dst_pitch, const int w, const int chroma_h, const byte* sub_chroma, const byte* alpha, const int sub_pitch )
-noexcept
+void CMemSubPic::AlphaBltYv12ChromaC( byte* dst, const int dst_pitch, const int w, const int chroma_h, const byte* sub_chroma, const byte* alpha, const int sub_pitch )
+
 {
     for(int j{0}; j < chroma_h; j++, sub_chroma += sub_pitch*2, alpha += sub_pitch*2, dst += dst_pitch)
     {
@@ -1796,8 +1796,8 @@ void CMemSubPic::AlphaBltYv16Chroma(byte* dst_uv, const int dst_pitch,
     }
 }
 
-constexpr void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w, const int chroma_h, const byte* sub_chroma, const byte* alpha, const int sub_pitch)
-noexcept
+void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w, const int chroma_h, const byte* sub_chroma, const byte* alpha, const int sub_pitch)
+
 {
     for (int j{0}; j < chroma_h; j++, sub_chroma += sub_pitch, alpha += sub_pitch, dst += dst_pitch)
     {
@@ -2103,7 +2103,7 @@ noexcept
 }
 
 [[nodiscard]] HRESULT CMemSubPic::AlphaBltAnv12_P010_C( const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, const int src_pitch, BYTE* dst_y, BYTE* dst_uv, const int dst_pitch, const int w, const int h )
-noexcept
+
 {
     const BYTE* sa{src_a};
     for(int i{0}; i<h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
@@ -2131,7 +2131,7 @@ noexcept
 }
 
 [[nodiscard]] HRESULT CMemSubPic::AlphaBltAnv12_P210_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, const int src_pitch, BYTE* dst_y, BYTE* dst_uv, const int dst_pitch, const int w, const int h)
-noexcept
+
 {
     const BYTE* sa{src_a};
     for (int i{0}; i < h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
@@ -2200,8 +2200,8 @@ noexcept
     return S_OK;
 }
 
-[[nodiscard]] constexpr HRESULT CMemSubPic::AlphaBltAnv12_Nv12_C( const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, const int src_pitch, BYTE* dst_y, BYTE* dst_uv, const int dst_pitch, const int w, const int h )
-noexcept
+[[nodiscard]] HRESULT CMemSubPic::AlphaBltAnv12_Nv12_C( const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, const int src_pitch, BYTE* dst_y, BYTE* dst_uv, const int dst_pitch, const int w, const int h )
+
 {
     AlphaBltYv12LumaC( dst_y, dst_pitch, w, h, src_y, src_a, src_pitch );
     int h2{h/2};
@@ -2224,8 +2224,8 @@ void CMemSubPic::SubsampleAndInterlace( BYTE* dst, const BYTE* u, const BYTE* v,
     }
 }
 
-constexpr void CMemSubPic::SubsampleAndInterlaceC( BYTE* dst, const BYTE* u, const BYTE* v, const int h, const int w, const int pitch )
-noexcept
+void CMemSubPic::SubsampleAndInterlaceC( BYTE* dst, const BYTE* u, const BYTE* v, const int h, const int w, const int pitch )
+
 {
     for (int i{0};i<h;i+=2)
     {
@@ -2247,8 +2247,8 @@ void CMemSubPic::SubsampleAndInterlace_422(BYTE* dst, const BYTE* u, const BYTE*
     }
 }
 
-constexpr void CMemSubPic::SubsampleAndInterlace_422_C(BYTE* dst, const BYTE* u, const BYTE* v, const int h, const int w, const int pitch)
-noexcept
+void CMemSubPic::SubsampleAndInterlace_422_C(BYTE* dst, const BYTE* u, const BYTE* v, const int h, const int w, const int pitch)
+
 {
     for (int i{0}; i < h; i += 2)
     {

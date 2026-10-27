@@ -218,8 +218,8 @@ CVobSubFile::CVobSubFile(CCritSec* pLock)
 {
 }
 
-constexpr CVobSubFile::~CVobSubFile()
-noexcept
+CVobSubFile::~CVobSubFile()
+
 {
 }
 
@@ -260,7 +260,7 @@ noexcept
             UINT uRead{vsf.m_sub.Read(buff, 2048)};
             m_sub.Write(buff, uRead);
 
-            WORD packetsize{(buff[buff[0x16U] + 0x18] << 8) | buff[buff[0x16U] + 0x19]};
+            WORD packetsize = (buff[buff[0x16U] + 0x18] << 8) | buff[buff[0x16U] + 0x19];
 
             for (int k{0}, size, sizeleft = packetsize - 4;
                     k < packetsize - 4;
@@ -302,7 +302,7 @@ void CVobSubFile::TrimExtension(CString& fn)
     }
 }
 
-[[nodiscard]] bool CVobSubFile::Open(const CString fn)
+[[nodiscard]] bool CVobSubFile::Open(CString fn)
 {
     TrimExtension(fn);
 
@@ -364,7 +364,7 @@ void CVobSubFile::TrimExtension(CString& fn)
     return false;
 }
 
-[[nodiscard]] bool CVobSubFile::Save(const CString fn, const int delay, const SubFormat sf)
+[[nodiscard]] bool CVobSubFile::Save(CString fn, const int delay, const SubFormat sf)
 {
     TrimExtension(fn);
 
@@ -407,7 +407,7 @@ void CVobSubFile::Close()
 
 //
 
-[[nodiscard]] bool CVobSubFile::ReadIdx(const CString fn, int& ver)
+[[nodiscard]] bool CVobSubFile::ReadIdx(CString fn, int& ver)
 {
     CWebTextFile f;
     if (!f.Open(fn)) {
@@ -647,7 +647,7 @@ void CVobSubFile::Close()
         } else if (entry == _T("id")) {
             str.MakeLower();
 
-            WORD langid{((str[0U] & 0xff) << 8) | (str[1U] & 0xff)};
+            WORD langid = ((str[0U] & 0xff) << 8) | (str[1U] & 0xff);
 
             i = str.Find(_T("index:"));
             if (i < 0) {
@@ -739,7 +739,7 @@ void CVobSubFile::Close()
     return !fError;
 }
 
-[[nodiscard]] bool CVobSubFile::ReadSub(const CString fn)
+[[nodiscard]] bool CVobSubFile::ReadSub(CString fn)
 {
     CFile f;
     if (!f.Open(fn, CFile::modeRead | CFile::typeBinary | CFile::shareDenyNone)) {
@@ -773,7 +773,7 @@ static unsigned int RARpos{0};
     return 1;
 }
 
-[[nodiscard]] bool CVobSubFile::ReadRar(const CString fn)
+[[nodiscard]] bool CVobSubFile::ReadRar(CString fn)
 {
 #ifndef USE_UNRAR_STATIC
 #ifdef _WIN64
@@ -877,7 +877,7 @@ static unsigned int RARpos{0};
     return true;
 }
 
-[[nodiscard]] bool CVobSubFile::ReadIfo(const CString fn)
+[[nodiscard]] bool CVobSubFile::ReadIfo(CString fn)
 {
     CFile f;
     if (!f.Open(fn, CFile::modeRead | CFile::typeBinary | CFile::shareDenyNone)) {
@@ -918,7 +918,7 @@ static unsigned int RARpos{0};
     return true;
 }
 
-[[nodiscard]] bool CVobSubFile::WriteIdx(const CString fn, const int delay)
+[[nodiscard]] bool CVobSubFile::WriteIdx(CString fn, const int delay)
 {
     CTextFile f;
     if (!f.Save(fn, CTextFile::DEFAULT_ENCODING)) {
@@ -1096,7 +1096,7 @@ static unsigned int RARpos{0};
     return true;
 }
 
-[[nodiscard]] bool CVobSubFile::WriteSub(const CString fn)
+[[nodiscard]] bool CVobSubFile::WriteSub(CString fn)
 {
     CFile f;
     if (!f.Open(fn, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary | CFile::shareDenyWrite)) {
@@ -1324,27 +1324,27 @@ static unsigned int RARpos{0};
     return (POSITION)(i + 1);
 }
 
-[[nodiscard]] STDMETHODIMP_(POSITION) CVobSubFile::GetNext(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(POSITION) CVobSubFile::GetNext(POSITION pos)
 {
     std::size_t i{(std::size_t)pos};
     return (GetFrameInfo(i) ? (POSITION)(i + 1) : nullptr);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubFile::GetStart(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubFile::GetStart(POSITION pos, const double fps)
 {
     std::size_t i{(std::size_t)pos - 1};
     const SubPos* sp{GetFrameInfo(i)};
     return (sp ? 10000i64 * sp->start : 0);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubFile::GetStop(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubFile::GetStop(POSITION pos, const double fps)
 {
     std::size_t i{(std::size_t)pos - 1};
     const SubPos* sp{GetFrameInfo(i)};
     return (sp ? 10000i64 * sp->stop : 0);
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CVobSubFile::IsAnimated(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(bool) CVobSubFile::IsAnimated(POSITION pos)
 {
     std::size_t i{(std::size_t)pos - 1};
     const SubPos* sp{GetFrameInfo(i)};
@@ -1498,7 +1498,7 @@ static void PixelAtBiLinear(RGBQUAD& c, const int x, const int y, CVobSubImage& 
                           + v2u1 + v2u2) >> 16);
 }
 
-static void StretchBlt(SubPicDesc& spd, const CRect dstrect, CVobSubImage& src)
+static void StretchBlt(SubPicDesc& spd, CRect dstrect, CVobSubImage& src)
 {
     if (dstrect.IsRectEmpty()) {
         return;
@@ -1590,7 +1590,7 @@ void CVobSubSettings::InitSettings()
 }
 
 [[nodiscard]] bool CVobSubSettings::GetCustomPal(RGBQUAD* cuspal, int& tridx)
-noexcept
+
 {
     std::memcpy(cuspal, m_cuspal, sizeof(RGBQUAD) * 4);
     tridx = m_tridx;
@@ -1706,7 +1706,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
 
 /////////////////////////////////////////////////////////
 
-[[nodiscard]] static bool CompressFile(const CString fn)
+[[nodiscard]] static bool CompressFile(CString fn)
 {
     BOOL b{FALSE};
 
@@ -1721,12 +1721,12 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
     return !!b;
 }
 
-[[nodiscard]] bool CVobSubFile::SaveVobSub(const CString fn, const int delay)
+[[nodiscard]] bool CVobSubFile::SaveVobSub(CString fn, const int delay)
 {
     return WriteIdx(fn + _T(".idx"), delay) && WriteSub(fn + _T(".sub"));
 }
 
-[[nodiscard]] bool CVobSubFile::SaveWinSubMux(const CString fn, const int delay)
+[[nodiscard]] bool CVobSubFile::SaveWinSubMux(CString fn, const int delay)
 {
     TrimExtension(fn);
 
@@ -1857,7 +1857,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
     return true;
 }
 
-[[nodiscard]] bool CVobSubFile::SaveScenarist(const CString fn, const int delay)
+[[nodiscard]] bool CVobSubFile::SaveScenarist(CString fn, const int delay)
 {
     TrimExtension(fn);
 
@@ -2003,7 +2003,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
 
             for (ptrdiff_t x{m_img.rect.left + 1}; x < m_img.rect.right - 1; x++, p++) {
                 DWORD rgb{*p & 0xffffff};
-                BYTE c{rgb == 0x0000ff ? 0 : rgb == 0xff0000 ? 1 : rgb == 0x000000 ? 2 : 3};
+                BYTE c = rgb == 0x0000ff ? 0 : rgb == 0xff0000 ? 1 : rgb == 0x000000 ? 2 : 3;
                 BYTE& c4bpp{p4bpp[(m_size.cy - y - 1) * 360 + (x >> 1)]};
                 c4bpp = (x & 1) ? ((c4bpp & 0xf0) | c) : ((c4bpp & 0x0f) | (c << 4));
             }
@@ -2117,7 +2117,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
     return true;
 }
 
-[[nodiscard]] bool CVobSubFile::SaveMaestro(const CString fn, const int delay)
+[[nodiscard]] bool CVobSubFile::SaveMaestro(CString fn, const int delay)
 {
     TrimExtension(fn);
 
@@ -2200,7 +2200,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
     CFile spf;
     if (spf.Open(fn + _T(".spf"), CFile::modeCreate | CFile::modeWrite | CFile::typeBinary)) {
         for (std::size_t i{0U}; i < 16; i++) {
-            COLORREF c{(m_orgpal[i].rgbBlue << 16) | (m_orgpal[i].rgbGreen << 8) | m_orgpal[i].rgbRed};
+            COLORREF c = (m_orgpal[i].rgbBlue << 16) | (m_orgpal[i].rgbGreen << 8) | m_orgpal[i].rgbRed;
             spf.Write(&c, sizeof(COLORREF));
         }
 
@@ -2233,7 +2233,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
 
             for (ptrdiff_t x{m_img.rect.left + 1}; x < m_img.rect.right - 1; x++, p++) {
                 DWORD rgb{*p & 0xffffff};
-                BYTE c{rgb == 0x0000ff ? 0 : rgb == 0xff0000 ? 1 : rgb == 0x000000 ? 2 : 3};
+                BYTE c = rgb == 0x0000ff ? 0 : rgb == 0xff0000 ? 1 : rgb == 0x000000 ? 2 : 3;
                 BYTE& c4bpp{p4bpp[(m_size.cy - y - 1) * 360 + (x >> 1)]};
                 c4bpp = (x & 1) ? ((c4bpp & 0xf0) | c) : ((c4bpp & 0x0f) | (c << 4));
             }
@@ -2354,12 +2354,12 @@ CVobSubStream::CVobSubStream(CCritSec* pLock)
 {
 }
 
-constexpr CVobSubStream::~CVobSubStream()
-noexcept
+CVobSubStream::~CVobSubStream()
+
 {
 }
 
-void CVobSubStream::Open(const CString name, BYTE* pData, const int len)
+void CVobSubStream::Open(CString name, BYTE* pData, const int len)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csSubPics);
 
@@ -2516,26 +2516,26 @@ void CVobSubStream::RemoveAll()
     return pos;
 }
 
-[[nodiscard]] STDMETHODIMP_(POSITION) CVobSubStream::GetNext(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(POSITION) CVobSubStream::GetNext(POSITION pos)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csSubPics);
     m_subpics.GetNext(pos);
     return pos;
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubStream::GetStart(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubStream::GetStart(POSITION pos, const double fps)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csSubPics);
     return m_subpics.GetAt(pos)->tStart;
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubStream::GetStop(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CVobSubStream::GetStop(POSITION pos, const double fps)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csSubPics);
     return m_subpics.GetAt(pos)->tStop;
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CVobSubStream::IsAnimated(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(bool) CVobSubStream::IsAnimated(POSITION pos)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csSubPics);
     return m_subpics.GetAt(pos)->fAnimated;

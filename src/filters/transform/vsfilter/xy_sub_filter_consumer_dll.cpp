@@ -79,14 +79,14 @@ int g_cTemplates{countof(g_Templates)};
 
 //////////////////////////////
 
-[[nodiscard]] STDAPI DllRegisterServer()
+STDAPI DllRegisterServer()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
     return AMovieDllRegisterServer2(TRUE);
 }
 
-[[nodiscard]] STDAPI DllUnregisterServer()
+STDAPI DllUnregisterServer()
 {
     return AMovieDllRegisterServer2(FALSE);
 }

@@ -37,8 +37,8 @@ void CH264Nalu::SetBuffer(BYTE* pBuffer, int nSize, int nNALSize)
     }
 }
 
-[[nodiscard]] constexpr bool CH264Nalu::MoveToNextAnnexBStartcode()
-noexcept
+[[nodiscard]] bool CH264Nalu::MoveToNextAnnexBStartcode()
+
 {
     int nBuffEnd{m_nSize - 4};
 
@@ -54,8 +54,8 @@ noexcept
     return false;
 }
 
-[[nodiscard]] constexpr bool CH264Nalu::MoveToNextRTPStartcode()
-noexcept
+[[nodiscard]] bool CH264Nalu::MoveToNextRTPStartcode()
+
 {
     if (m_nNextRTP < m_nSize) {
         m_nCurPos = m_nNextRTP;
@@ -66,8 +66,8 @@ noexcept
     return false;
 }
 
-[[nodiscard]] constexpr bool CH264Nalu::ReadNext()
-noexcept
+[[nodiscard]] bool CH264Nalu::ReadNext()
+
 {
     if ((m_nCurPos >= m_nSize) || (m_nCurPos < 0)) {
         return false;

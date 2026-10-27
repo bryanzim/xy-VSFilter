@@ -51,8 +51,8 @@ private:
     int m_nSize;
     int m_nNALSize;
 
-    [[nodiscard]] constexpr bool MoveToNextAnnexBStartcode() noexcept;
-    [[nodiscard]] constexpr bool MoveToNextRTPStartcode() noexcept;
+    [[nodiscard]] bool MoveToNextAnnexBStartcode();
+    [[nodiscard]] bool MoveToNextRTPStartcode();
 
 public:
     explicit CH264Nalu() :
@@ -62,20 +62,20 @@ public:
         SetBuffer(NULL, 0, 0);
     }
 
-    [[nodiscard]] constexpr NALU_TYPE GetType() const noexcept { return nal_unit_type; };
-    [[nodiscard]] constexpr bool IsRefFrame() const noexcept { return (nal_reference_idc != 0); };
+    [[nodiscard]] NALU_TYPE GetType() const { return nal_unit_type; };
+    [[nodiscard]] bool IsRefFrame() const { return (nal_reference_idc != 0); };
 
-    [[nodiscard]] constexpr int GetDataLength() const noexcept { return m_nCurPos - m_nNALDataPos; };
-    [[nodiscard]] constexpr BYTE* GetDataBuffer() noexcept { return m_pBuffer + m_nNALDataPos; };
-    [[nodiscard]] constexpr int GetRoundedDataLength() const noexcept {
+    [[nodiscard]] int GetDataLength() const { return m_nCurPos - m_nNALDataPos; };
+    [[nodiscard]] BYTE* GetDataBuffer() { return m_pBuffer + m_nNALDataPos; };
+    [[nodiscard]] int GetRoundedDataLength() const {
         int nSize{m_nCurPos - m_nNALDataPos};
         return nSize + 128 - (nSize % 128);
     }
 
     [[nodiscard]] int GetLength() const { return m_nCurPos - m_nNALStartPos; };
-    [[nodiscard]] constexpr BYTE* GetNALBuffer() noexcept { return m_pBuffer + m_nNALStartPos; };
-    [[nodiscard]] constexpr bool IsEOF() const noexcept { return m_nCurPos >= m_nSize; };
+    [[nodiscard]] BYTE* GetNALBuffer() { return m_pBuffer + m_nNALStartPos; };
+    [[nodiscard]] bool IsEOF() const { return m_nCurPos >= m_nSize; };
 
-    constexpr void SetBuffer(BYTE* pBuffer, int nSize, int nNALSize) noexcept;
-    [[nodiscard]] constexpr bool ReadNext() noexcept;
+    void SetBuffer(BYTE* pBuffer, int nSize, int nNALSize);
+    [[nodiscard]] bool ReadNext();
 };

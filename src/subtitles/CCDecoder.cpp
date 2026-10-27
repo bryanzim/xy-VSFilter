@@ -153,7 +153,7 @@ void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
 
     for (int i{0}; i < len; i++)
     {
-        BYTE c{buff[i] & 0x7f};
+        BYTE c = buff[i] & 0x7f;
         if (c >= 0x20)
         {
             static WCHAR charmap[0x60U] =

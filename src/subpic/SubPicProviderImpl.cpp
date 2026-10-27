@@ -35,8 +35,8 @@ CSubPicProviderImpl::CSubPicProviderImpl(CCritSec* pLock)
 {
 }
 
-constexpr CSubPicProviderImpl::~CSubPicProviderImpl()
-noexcept
+CSubPicProviderImpl::~CSubPicProviderImpl()
+
 {
 }
 
@@ -62,7 +62,7 @@ noexcept
 
 // ISubPicProviderEx
 
-[[nodiscard]] STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop( const POSITION pos, const double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
+[[nodiscard]] STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop( POSITION pos, const double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
 {
     start = GetStart(pos, fps);
     stop = GetStop(pos, fps);
@@ -79,8 +79,8 @@ noexcept
     return hr;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported( const int type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported( const int type )
+
 {
     return type==MSP_RGBA;
 }

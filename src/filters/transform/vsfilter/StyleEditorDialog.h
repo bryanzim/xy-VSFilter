@@ -35,9 +35,9 @@ class CColorStatic : public CStatic
 
 public:
 	explicit CColorStatic(CWnd* pParent = NULL) : m_pColor(NULL) {}
-	constexpr virtual ~CColorStatic() noexcept {}
+	virtual ~CColorStatic() {}
 
-	constexpr void SetColorPtr(COLORREF* pColor) noexcept {m_pColor = pColor;}
+	void SetColorPtr(COLORREF* pColor) {m_pColor = pColor;}
 
 	DECLARE_MESSAGE_MAP()
 
@@ -64,7 +64,7 @@ class CStyleEditorPPage : public CPropertyPage
 public:
     explicit CStyleEditorPPage();
     CStyleEditorPPage(CString title, const STSStyle* pstss);
-	constexpr virtual ~CStyleEditorPPage() noexcept;
+	virtual ~CStyleEditorPPage();
 
     void init(CString title, const STSStyle* pstss);
 

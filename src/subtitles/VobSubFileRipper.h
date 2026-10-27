@@ -108,8 +108,8 @@ protected:
 
     // IVSFRipperCallback
     [[nodiscard]] STDMETHODIMP OnMessage(const LPCTSTR msg) { return S_FALSE; }
-    [[nodiscard]] constexpr STDMETHODIMP OnProgress(const double progress /*0.0 -> 1.0*/) noexcept { return S_FALSE; }
-    [[nodiscard]] constexpr STDMETHODIMP OnFinished(const bool bSucceeded) noexcept { return S_FALSE; }
+    [[nodiscard]] STDMETHODIMP OnProgress(const double progress /*0.0 -> 1.0*/) { return S_FALSE; }
+    [[nodiscard]] STDMETHODIMP OnFinished(const bool bSucceeded) { return S_FALSE; }
 
 public:
     explicit IVSFRipperCallbackImpl() : CUnknown(NAME("IVSFRipperCallbackImpl"), nullptr) {}
@@ -185,5 +185,5 @@ public:
     [[nodiscard]] STDMETHODIMP UpdateRipperData(VSFRipperData& rd);
     STDMETHODIMP Index();
     STDMETHODIMP IsIndexing();
-    [[nodiscard]] constexpr STDMETHODIMP Abort(bool bSavePartial) noexcept;
+    [[nodiscard]] STDMETHODIMP Abort(bool bSavePartial);
 };

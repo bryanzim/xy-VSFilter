@@ -70,11 +70,11 @@ public:
     explicit CompositionObject();
     ~CompositionObject();
 
-    void  SetRLEData(const BYTE* pBuffer, int nSize, int nTotalSize) noexcept;
+    void  SetRLEData(const BYTE* pBuffer, int nSize, int nTotalSize);
     void  AppendRLEData(const BYTE* pBuffer, int nSize);
-    [[nodiscard]] constexpr const BYTE* GetRLEData() noexcept { return m_pRLEData; };
-    [[nodiscard]] constexpr int   GetRLEDataSize() noexcept { return m_nRLEDataSize; };
-    [[nodiscard]] constexpr bool  IsRLEComplete() noexcept { return m_nRLEPos >= m_nRLEDataSize; };
+    [[nodiscard]] const BYTE* GetRLEData() { return m_pRLEData; };
+    [[nodiscard]] int   GetRLEDataSize() { return m_nRLEDataSize; };
+    [[nodiscard]] bool  IsRLEComplete() { return m_nRLEPos >= m_nRLEDataSize; };
     void  RenderHdmv(SubPicDesc& spd);
     void  RenderDvb(SubPicDesc& spd, short nX, short nY, RECT *dirtyRect = NULL /* in-out */);
     void  WriteSeg(SubPicDesc& spd, short nX, short nY, short nCount, short nPaletteIndex);

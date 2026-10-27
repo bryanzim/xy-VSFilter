@@ -109,8 +109,8 @@ public:
             __super::NonDelegatingQueryInterface(riid, ppv);
     }
     
-	[[nodiscard]] constexpr CString GetFileName() noexcept {CAutoLock cAutoLock{this}; return m_fn;}
-	constexpr void SetFileName(const CString fn) noexcept {CAutoLock cAutoLock{this}; m_fn = fn;}
+	[[nodiscard]] CString GetFileName() {CAutoLock cAutoLock{this}; return m_fn;}
+	void SetFileName(CString fn) {CAutoLock cAutoLock{this}; m_fn = fn;}
 
     void SetYuvMatrix(SubPicDesc& dst)
     {
@@ -339,7 +339,7 @@ public:
 		}
 	}
 
-	[[nodiscard]] bool Open(const CString fn)
+	[[nodiscard]] bool Open(CString fn)
 	{
 		SetFileName(_T(""));
 		m_pSubPicProvider = NULL;
@@ -376,9 +376,9 @@ public:
 		}
 	}
 
-	[[nodiscard]] constexpr int GetCharSet() noexcept {return(m_CharSet);}
+	[[nodiscard]] int GetCharSet() {return(m_CharSet);}
 
-	[[nodiscard]] bool Open(const CString fn, const int CharSet = DEFAULT_CHARSET)
+	[[nodiscard]] bool Open(CString fn, const int CharSet = DEFAULT_CHARSET)
 	{
 		SetFileName(_T(""));
 		m_pSubPicProvider = NULL;
@@ -433,7 +433,7 @@ public:
         {
         public:
             explicit CVirtualDubFilter() {}
-            constexpr virtual ~CVirtualDubFilter() noexcept {}
+            virtual ~CVirtualDubFilter() {}
 
             [[nodiscard]] virtual int RunProc(const FilterActivation* fa, const FilterFunctions* ff) {
                 SubPicDesc dst;
@@ -449,7 +449,7 @@ public:
                 return 0;
             }
 
-            [[nodiscard]] constexpr virtual long ParamProc(FilterActivation* fa, const FilterFunctions* ff) noexcept {
+            [[nodiscard]] virtual long ParamProc(FilterActivation* fa, const FilterFunctions* ff) {
                 fa->dst.offset  = fa->src.offset;
                 fa->dst.modulo  = fa->src.modulo;
                 fa->dst.pitch   = fa->src.pitch;
@@ -547,8 +547,8 @@ public:
             return !(*(CVirtualDubFilter**)fa->filter_data);
         }
 
-        constexpr void baseDeinitProc(FilterActivation* fa, const FilterFunctions* ff)
-        noexcept
+        void baseDeinitProc(FilterActivation* fa, const FilterFunctions* ff)
+
         {
             CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
             SAFE_DELETE(f);
@@ -560,8 +560,8 @@ public:
             return f ? f->RunProc(fa, ff) : 1;
         }
 
-        [[nodiscard]] constexpr long baseParamProc(FilterActivation* fa, const FilterFunctions* ff)
-        noexcept
+        [[nodiscard]] long baseParamProc(FilterActivation* fa, const FilterFunctions* ff)
+
         {
             CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
             return f ? f->ParamProc(fa, ff) : 1;
@@ -702,7 +702,7 @@ public:
         {
         public:
             explicit CVirtualDubFilter() {}
-            constexpr virtual ~CVirtualDubFilter() noexcept {}
+            virtual ~CVirtualDubFilter() {}
 
             [[nodiscard]] virtual int RunProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff) {
                 SubPicDesc dst;
@@ -718,7 +718,7 @@ public:
                 return 0;
             }
 
-            [[nodiscard]] constexpr virtual long ParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff) noexcept {
+            [[nodiscard]] virtual long ParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff) {
                 fa->dst.offset  = fa->src.offset;
                 fa->dst.modulo  = fa->src.modulo;
                 fa->dst.pitch   = fa->src.pitch;
@@ -820,8 +820,8 @@ public:
             return ((*(CVirtualDubFilter**)fa->filter_data = DEBUG_NEW CTextSubVirtualDubFilter()) == NULL);
         }
 
-        constexpr void baseDeinitProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
-        noexcept
+        void baseDeinitProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
+
         {
             CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
             SAFE_DELETE(f);
@@ -833,8 +833,8 @@ public:
             return f ? f->RunProc(fa, ff) : 1;
         }
 
-        [[nodiscard]] constexpr long baseParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
-        noexcept
+        [[nodiscard]] long baseParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
+
         {
             CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
             return f ? f->ParamProc(fa, ff) : 1;
@@ -1018,18 +1018,18 @@ public:
             // Helpers for YUV420P10<->P010 and YUV420P16<->P016 conversion
 
             template<bool before>
-            static void prepare_luma_shift6_c(std::uint8_t* pdst, const int dstpitch, const std::uint8_t* src, const int srcpitch, const int width, const int height)
-            noexcept
+            static void prepare_luma_shift6_c(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
+
             {
                 for (int y{0}; y < height; y++) {
                     for (int x{0}; x < width; x++) {
                         if (before)
                         {
-                            reinterpret_cast<std::uint16_t*>(pdst)[x] = reinterpret_cast<const std::uint16_t*>(src)[x] << 6;
+                            reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] << 6;
                         }
                         else
                         {
-                            reinterpret_cast<std::uint16_t*>(pdst)[x] = reinterpret_cast<const std::uint16_t*>(src)[x] >> 6;
+                            reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] >> 6;
                         }
                     }
                     src += srcpitch;
@@ -1038,12 +1038,12 @@ public:
             }
 
             template<bool before>
-            static void prepare_luma_shift6_sse2(std::uint8_t* pdst, const int dstpitch, const std::uint8_t* src, const int srcpitch, const int width, const int height)
+            static void prepare_luma_shift6_sse2(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
             {
                 const int modw{(width / 8) * 8}; // 8 uv pairs at a time
                 for (int y{0}; y < height; y++) {
                     for (int x{0}; x < modw; x += 8) {
-                        __m128i y{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const std::uint16_t*>(src) + x))};
+                        __m128i y{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(src) + x))};
                         if (before)
                         {
                             y = _mm_slli_epi16(y, 6);
@@ -1052,17 +1052,17 @@ public:
                         {
                             y = _mm_srli_epi16(y, 6);
                         } // make 16->10 bits
-                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<std::uint16_t*>(pdst) + x), y);
+                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdst) + x), y);
                     }
 
                     for (int x{modw}; x < width; x++) {
                         if (before)
                         {
-                            reinterpret_cast<std::uint16_t*>(pdst)[x] = reinterpret_cast<const std::uint16_t*>(src)[x] << 6;
+                            reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] << 6;
                         }
                         else
                         {
-                            reinterpret_cast<std::uint16_t*>(pdst)[x] = reinterpret_cast<const std::uint16_t*>(src)[x] >> 6;
+                            reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] >> 6;
                         }
                     }
                     src += srcpitch;
@@ -1071,22 +1071,22 @@ public:
             }
 
             template<bool shift6>
-            static void prepare_to_interleaved_uv_c(std::uint8_t* pdst, const int dstpitch, const std::uint8_t* srcu, const std::uint8_t* srcv, const int pitchUV, const int width, const int height)
-            noexcept
+            static void prepare_to_interleaved_uv_c(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* srcu, const ::std::uint8_t* srcv, const int pitchUV, const int width, const int height)
+
             {
                 for (int y{0}; y < height; y++) {
                     for (int x{0}; x < width; x++) {
-                        std::uint16_t u, v;
+                        ::std::uint16_t u, v;
                         if (shift6) {
-                            u = reinterpret_cast<const std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
-                            v = reinterpret_cast<const std::uint16_t*>(srcv)[x] << 6; // make 10->16 bits
+                            u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
+                            v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x] << 6; // make 10->16 bits
                         }
                         else {
-                            u = reinterpret_cast<const std::uint16_t*>(srcu)[x];
-                            v = reinterpret_cast<const std::uint16_t*>(srcv)[x];
+                            u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x];
+                            v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x];
                         }
-                        std::uint32_t uv{(v << 16) | u};
-                        reinterpret_cast<std::uint32_t*>(pdst)[x] = uv;
+                        ::std::uint32_t uv = (v << 16) | u;
+                        reinterpret_cast<::std::uint32_t*>(pdst)[x] = uv;
                     }
                     srcu += pitchUV;
                     srcv += pitchUV;
@@ -1095,36 +1095,36 @@ public:
             }
 
             template<bool shift6>
-            static void prepare_to_interleaved_uv_sse2(std::uint8_t* pdst, const int dstpitch, const std::uint8_t* srcu, const std::uint8_t* srcv, const int pitchUV, const int width, const int height)
+            static void prepare_to_interleaved_uv_sse2(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* srcu, const ::std::uint8_t* srcv, const int pitchUV, const int width, const int height)
             {
                 const int modw{(width / 8) * 8}; // 8 uv pairs at a time
                 for (int y{0}; y < height; y++) {
                     for (int x{0}; x < modw; x += 8) {
-                        __m128i u{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const std::uint16_t*>(srcu) + x))};
-                        __m128i v{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const std::uint16_t*>(srcv) + x))};
+                        __m128i u{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcu) + x))};
+                        __m128i v{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcv) + x))};
                         if (shift6) {
                             u = _mm_slli_epi16(u, 6); // make 10->16 bits
                             v = _mm_slli_epi16(v, 6);
                         }
                         __m128i uv;
                         uv = _mm_unpacklo_epi16(u, v); // (v << 16) | u;
-                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<std::uint32_t*>(pdst) + x), uv);
+                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint32_t*>(pdst) + x), uv);
                         uv = _mm_unpackhi_epi16(u, v); // (v << 16) | u;
-                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<std::uint32_t*>(pdst) + x + 4), uv);
+                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint32_t*>(pdst) + x + 4), uv);
                     }
 
                     for (int x{modw}; x < width; x++) {
-                        std::uint16_t u, v;
+                        ::std::uint16_t u, v;
                         if (shift6) {
-                            u = reinterpret_cast<const std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
-                            v = reinterpret_cast<const std::uint16_t*>(srcv)[x] << 6; // make 10->16 bits
+                            u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
+                            v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x] << 6; // make 10->16 bits
                         }
                         else {
-                            u = reinterpret_cast<const std::uint16_t*>(srcu)[x];
-                            v = reinterpret_cast<const std::uint16_t*>(srcv)[x];
+                            u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x];
+                            v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x];
                         }
-                        std::uint32_t uv{(v << 16) | u};
-                        reinterpret_cast<std::uint32_t*>(pdst)[x] = uv;
+                        ::std::uint32_t uv = (v << 16) | u;
+                        reinterpret_cast<::std::uint32_t*>(pdst)[x] = uv;
                     }
                     srcu += pitchUV;
                     srcv += pitchUV;
@@ -1134,20 +1134,20 @@ public:
 
 
             template<bool shift6>
-            static void prepare_from_interleaved_uv_c(std::uint8_t* pdstu, std::uint8_t* pdstv, const int pitchUV, const std::uint8_t* src, const int srcpitch, const int width, const int height)
-            noexcept
+            static void prepare_from_interleaved_uv_c(::std::uint8_t* pdstu, ::std::uint8_t* pdstv, const int pitchUV, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
+
             {
                 for (int y{0}; y < height; y++) {
                     for (int x{0}; x < width; x++) {
-                        std::uint32_t uv{reinterpret_cast<const std::uint32_t*>(src)[x]};
-                        std::uint16_t u{uv & 0xFFFF};
-                        std::uint16_t v{uv >> 16};
+                        ::std::uint32_t uv{reinterpret_cast<const ::std::uint32_t*>(src)[x]};
+                        ::std::uint16_t u{uv & 0xFFFF};
+                        ::std::uint16_t v{uv >> 16};
                         if (shift6) {
                             u >>= 6;
                             v >>= 6;
                         }
-                        reinterpret_cast<std::uint16_t*>(pdstu)[x] = u;
-                        reinterpret_cast<std::uint16_t*>(pdstv)[x] = v;
+                        reinterpret_cast<::std::uint16_t*>(pdstu)[x] = u;
+                        reinterpret_cast<::std::uint16_t*>(pdstv)[x] = v;
                     }
                     pdstu += pitchUV;
                     pdstv += pitchUV;
@@ -1176,14 +1176,14 @@ public:
 #endif
 
             template<bool shift6, bool hasSSE41>
-            static void prepare_from_interleaved_uv_sse2(std::uint8_t* pdstu, std::uint8_t* pdstv, int pitchUV, const std::uint8_t* src, int srcpitch, int width, int height)
+            static void prepare_from_interleaved_uv_sse2(::std::uint8_t* pdstu, ::std::uint8_t* pdstv, int pitchUV, const ::std::uint8_t* src, int srcpitch, int width, int height)
             {
                 const int modw{(width / 8) * 8};
                 auto mask0000FFFF{_mm_set1_epi32(0x0000FFFF)};
                 for (int y{0}; y < height; y++) {
                     for (int x{0}; x < modw; x += 8) {
-                        auto uv_lo{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const std::uint32_t*>(src) + x))};
-                        auto uv_hi{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const std::uint32_t*>(src) + x + 4))};
+                        auto uv_lo{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x))};
+                        auto uv_hi{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x + 4))};
                         if (shift6) {
                             uv_lo = _mm_srli_epi16(uv_lo, 6);
                             uv_hi = _mm_srli_epi16(uv_hi, 6);
@@ -1191,24 +1191,24 @@ public:
                         auto u_lo{_mm_and_si128(uv_lo, mask0000FFFF)};
                         auto u_hi{_mm_and_si128(uv_hi, mask0000FFFF)};
                         auto u{shift6 ? _mm_packs_epi32(u_lo, u_hi) : (hasSSE41 ? _mm_packus_epi32(u_lo, u_hi) : _MM_PACKUS_EPI32(u_lo, u_hi))};
-                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<std::uint16_t*>(pdstu) + x), u);
+                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdstu) + x), u);
 
                         auto v_lo{_mm_srli_epi32(uv_lo, 16)};
                         auto v_hi{_mm_srli_epi32(uv_hi, 16)};
                         auto v{shift6 ? _mm_packs_epi32(v_lo, v_hi) : (hasSSE41 ? _mm_packus_epi32(v_lo, v_hi) : _MM_PACKUS_EPI32(v_lo, v_hi))};
-                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<std::uint16_t*>(pdstv) + x), v);
+                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdstv) + x), v);
                     }
 
                     for (int x{modw}; x < width; x++) {
-                        std::uint32_t uv{reinterpret_cast<const std::uint32_t*>(src)[x]};
-                        std::uint16_t u{uv & 0xFFFF};
-                        std::uint16_t v{uv >> 16};
+                        ::std::uint32_t uv{reinterpret_cast<const ::std::uint32_t*>(src)[x]};
+                        ::std::uint16_t u{uv & 0xFFFF};
+                        ::std::uint16_t v{uv >> 16};
                         if (shift6) {
                             u >>= 6;
                             v >>= 6;
                         }
-                        reinterpret_cast<std::uint16_t*>(pdstu)[x] = u;
-                        reinterpret_cast<std::uint16_t*>(pdstv)[x] = v;
+                        reinterpret_cast<::std::uint16_t*>(pdstu)[x] = u;
+                        reinterpret_cast<::std::uint16_t*>(pdstv)[x] = v;
                     }
 
                     pdstu += pitchUV;
@@ -1217,8 +1217,8 @@ public:
                 }
             }
 
-            constexpr void convYUY2to422_c(const std::uint8_t* src, std::uint8_t* py, std::uint8_t* pu, std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, const int width, const int height)
-            noexcept
+            void convYUY2to422_c(const ::std::uint8_t* src, ::std::uint8_t* py, ::std::uint8_t* pu, ::std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, int width, const int height)
+
             {
                 width >>= 1;
                 for (int y{0}; y < height; ++y)
@@ -1237,8 +1237,8 @@ public:
                 }
             }
 
-            void convYUY2to422_SSE2(const std::uint8_t* src, std::uint8_t* py, std::uint8_t* pu,
-                std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, const int width, const int height)
+            void convYUY2to422_SSE2(const ::std::uint8_t* src, ::std::uint8_t* py, ::std::uint8_t* pu,
+                ::std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, int width, const int height)
             {
                 width >>= 1;
                 __m128i Ymask{_mm_set1_epi16(0x00FF)};
@@ -1254,8 +1254,8 @@ public:
                         uu = _mm_packus_epi16(uu, uu); // xxxxxxxxxxxxUUUU
                         vv = _mm_packus_epi16(vv, vv); // xxxxxxxxxxxxVVVV
                         _mm_storel_epi64(reinterpret_cast<__m128i*>(py + x * 2), yy);
-                        *(std::uint32_t*)(pu + x) = _mm_cvtsi128_si32(uu);
-                        *(std::uint32_t*)(pv + x) = _mm_cvtsi128_si32(vv);
+                        *(::std::uint32_t*)(pu + x) = _mm_cvtsi128_si32(uu);
+                        *(::std::uint32_t*)(pv + x) = _mm_cvtsi128_si32(vv);
                     }
                     src += pitch1;
                     py += pitch2Y;
@@ -1264,9 +1264,9 @@ public:
                 }
             }
 
-            constexpr void conv422toYUY2_c(const std::uint8_t* py, const std::uint8_t* pu, const std::uint8_t* pv,
-                std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, const int width, const int height)
-            noexcept
+            void conv422toYUY2_c(const ::std::uint8_t* py, const ::std::uint8_t* pu, const ::std::uint8_t* pv,
+                ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, int width, const int height)
+
             {
                 width >>= 1;
                 for (int y{0}; y < height; ++y)
@@ -1285,8 +1285,8 @@ public:
                 }
             }
 
-            void conv422toYUY2_SSE2(const std::uint8_t* py, const std::uint8_t* pu, const std::uint8_t* pv,
-                std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, const int width, const int height)
+            void conv422toYUY2_SSE2(const ::std::uint8_t* py, const ::std::uint8_t* pu, const ::std::uint8_t* pv,
+                ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, int width, const int height)
             {
                 width >>= 1;
                 for (int y{0}; y < height; y++) {
@@ -1305,8 +1305,8 @@ public:
                 }
             }
 
-            void convYUY2to422(const std::uint8_t* src, std::uint8_t* py, std::uint8_t* pu,
-                std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, const int width, const int height, const bool useSSE2)
+            void convYUY2to422(const ::std::uint8_t* src, ::std::uint8_t* py, ::std::uint8_t* pu,
+                ::std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, const int width, const int height, const bool useSSE2)
             {
                 if (useSSE2)
                 {
@@ -1318,8 +1318,8 @@ public:
                 }
             }
 
-            void conv422toYUY2(const std::uint8_t* py, const std::uint8_t* pu, const std::uint8_t* pv,
-                std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, const int width, const int height, const bool useSSE2)
+            void conv422toYUY2(const ::std::uint8_t* py, const ::std::uint8_t* pu, const ::std::uint8_t* pv,
+                ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, const int width, const int height, const bool useSSE2)
             {
                 if (useSSE2)
                 {
@@ -1332,7 +1332,7 @@ public:
             }
 
             // Crash and/or corruption if MT. To be tested, why
-            [[nodiscard]] constexpr int __stdcall SetCacheHints(const int cachehints, const int frame_range) override noexcept {
+            [[nodiscard]] int __stdcall SetCacheHints(const int cachehints, const int frame_range) override {
                 return cachehints == CACHE_GET_MTMODE ? MT_SERIALIZED : 0;
             }
 
@@ -1492,7 +1492,7 @@ public:
                 }
 
                 // Common part
-                float fps{m_fps} > 0 ? m_fps : (float)vi.fps_numerator / vi.fps_denominator;
+                float fps = m_fps > 0 ? m_fps : (float)vi.fps_numerator / vi.fps_denominator;
 
                 REFERENCE_TIME timestamp;
 
@@ -1515,7 +1515,7 @@ public:
 
                     // Luma
                     if (semi_packed_p16) {
-                        env->BitBlt(pdst, pitch, src, dst.pitch, vi.width * sizeof(std::uint16_t), vi.height);
+                        env->BitBlt(pdst, pitch, src, dst.pitch, vi.width * sizeof(::std::uint16_t), vi.height);
                     }
                     else {
                         // shift by 6 make 10->16 bits
@@ -1706,7 +1706,7 @@ public:
 }
 
 
-[[nodiscard]] UINT_PTR CALLBACK OpenHookProc(const HWND hDlg, const UINT uiMsg, const WPARAM wParam, const LPARAM lParam)
+UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uiMsg) {
         case WM_NOTIFY: {

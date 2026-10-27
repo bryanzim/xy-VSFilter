@@ -32,8 +32,8 @@ SimpleSubPicProvider::SimpleSubPicProvider( int alpha_blt_dst_type, SIZE spd_siz
     m_prefered_colortype.AddTail(MSP_RGBA);
 }
 
-constexpr SimpleSubPicProvider::~SimpleSubPicProvider()
-noexcept
+SimpleSubPicProvider::~SimpleSubPicProvider()
+
 {
 
 }
@@ -281,8 +281,8 @@ noexcept
     return hr;
 }
 
-[[nodiscard]] constexpr bool SimpleSubPicProvider::IsSpdColorTypeSupported( const int type )
-noexcept
+[[nodiscard]] bool SimpleSubPicProvider::IsSpdColorTypeSupported( const int type )
+
 {
     if( (type==MSP_RGBA) 
         ||
@@ -331,8 +331,8 @@ SimpleSubPicProvider2::SimpleSubPicProvider2( int alpha_blt_dst_type, SIZE max_s
     m_cur_provider = NULL;
 }
 
-constexpr SimpleSubPicProvider2::~SimpleSubPicProvider2()
-noexcept
+SimpleSubPicProvider2::~SimpleSubPicProvider2()
+
 {
     delete m_ex_provider;
     delete m_old_provider;

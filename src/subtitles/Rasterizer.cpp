@@ -382,7 +382,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
                            const int width, const int height, const int stride, 
                            const unsigned *g_t_x, const int g_r_x, const int g_width_x, 
                            const unsigned *g_t_y, const int g_r_y, const int g_width_y)
-noexcept
+
 {
 
     int x, y;
@@ -469,7 +469,7 @@ noexcept
         if(y < g_r_y)//in case that r<0
         {            
             unsigned *srcp{t + y * (width + 1) + 1};
-            int src{*srcp};
+            int src = *srcp;
             if (src) {
                 register unsigned *dstp{srcp - 1 + (g_width_y -g_r_y +y)*(width + 1)};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
@@ -486,7 +486,7 @@ noexcept
         }
         for (y = 1; y < g_r_y; y++) {
             unsigned *srcp{t + y * (width + 1) + 1};
-            int src{*srcp};
+            int src = *srcp;
             if (src) {
                 register unsigned *dstp{srcp - 1 + width + 1};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
@@ -502,7 +502,7 @@ noexcept
         }
         for (; y < height - g_r_y; y++) {
             unsigned *srcp{t + y * (width + 1) + 1};
-            int src{*srcp};
+            int src = *srcp;
             if (src) {
                 register unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
@@ -518,7 +518,7 @@ noexcept
         }
         for (; y < height-1; y++) {
             unsigned *srcp{t + y * (width + 1) + 1};
-            int src{*srcp};
+            int src = *srcp;
             if (src) {
                 const int y2{g_r_y + height - y};
                 register unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
@@ -536,7 +536,7 @@ noexcept
         if(y == height - 1)//important: y == height - 1 failed if r==0
         {
             unsigned *srcp{t + y * (width + 1) + 1};
-            int src{*srcp};
+            int src = *srcp;
             if (src) {
                 const int y2{g_r_y + height - y};
                 register unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
@@ -896,8 +896,8 @@ extern "C" void* memsetSSE2(void* dest, int c, std::size_t count);
 
 const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 
-[[nodiscard]] constexpr bool Rasterizer::IsItReallyBlur( const float be_strength, const double gaussian_blur_strength )
-noexcept
+[[nodiscard]] bool Rasterizer::IsItReallyBlur( const float be_strength, const double gaussian_blur_strength )
+
 {
     if (be_strength<=0 && gaussian_blur_strength<=GAUSSIAN_BLUR_THREHOLD)
     {
@@ -1037,7 +1037,7 @@ noexcept
         }
     }
 
-    float scaled_be_strength{be_strength * 0.5f * (target_scale_x+target_scale_y)};
+    float scaled_be_strength = be_strength * 0.5f * (target_scale_x+target_scale_y);
     int pass_num{static_cast<int>(scaled_be_strength)};
     int pitch{output_overlay->mOverlayPitch};
     byte* blur_plan{output_overlay->mfWideOutlineEmpty ? body : border};
@@ -1272,13 +1272,13 @@ noexcept
 
 ///////////////////////////////////////////////////////////////////////////
 
-constexpr static __forceinline void   pixmix_c   (DWORD *dst, DWORD color, DWORD alpha) noexcept;
+static __forceinline void   pixmix_c   (DWORD *dst, DWORD color, DWORD alpha);
 static __forceinline void   pixmix_sse2(DWORD *dst, DWORD color, DWORD alpha);
 
-constexpr static __forceinline void pixmix_c(DWORD *dst, const DWORD color, const DWORD alpha)
-noexcept
+static __forceinline void pixmix_c(DWORD *dst, const DWORD color, const DWORD alpha)
+
 {
-    int a{alpha};
+    int a = alpha;
     // Make sure both a and ia are in range 1..256 for the >>8 operations below to be correct
     int ia{256-a};
     a+=1;
@@ -1305,8 +1305,8 @@ static __forceinline void pixmix_sse2(DWORD* dst, DWORD color, DWORD alpha)
 
 ///////////////////////////////////////////////////////////////////////////
 
-constexpr static __forceinline void pixmix2(DWORD *dst, const DWORD color, const DWORD shapealpha, const DWORD clipalpha)
-noexcept
+static __forceinline void pixmix2(DWORD *dst, const DWORD color, const DWORD shapealpha, const DWORD clipalpha)
+
 {
     int a{(((shapealpha)*(clipalpha)*(color>>24))>>12)&0xff};
     int ia{256-a};
@@ -1336,11 +1336,11 @@ static __forceinline void pixmix2_sse2(DWORD* dst, DWORD color, DWORD shapealpha
 }
 ///////////////////////////////////////////////////////////////////////////
 
-static __forceinline void  packed_pix_mix_c   (BYTE* dst, const BYTE* alpha, int w, DWORD color) noexcept;
+static __forceinline void  packed_pix_mix_c   (BYTE* dst, const BYTE* alpha, int w, DWORD color);
 static __forceinline void  packed_pix_mix_sse2(BYTE* dst, const BYTE* alpha, int w, DWORD color);
 
 static __forceinline void packed_pix_mix_c(BYTE* dst, const BYTE* alpha, const int w, const DWORD color)
-noexcept
+
 {
     DWORD * dst_w{(DWORD *)dst};
     for(int wt{0}; wt<w; ++wt)
@@ -1411,9 +1411,9 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE* alpha, cons
 
         __m128i ra;
 #ifdef _DEBUG
-        ra{_mm_setzero_si128()};
+        ra = _mm_setzero_si128();
 #endif // _DEBUG
-        ra{_mm_cmpeq_epi32(ra, ra)};
+        ra = _mm_cmpeq_epi32(ra, ra);
         ra = _mm_xor_si128(ra, a);
         __m128i a1{_mm_unpacklo_epi8(ra, a)};
         __m128i a2{_mm_unpackhi_epi8(a1, zero)};
@@ -1444,11 +1444,11 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE* alpha, cons
     }
 }
 
-static __forceinline void  packed_pix_mix_c              (BYTE* dst, BYTE alpha, int w, DWORD color) noexcept;
+static __forceinline void  packed_pix_mix_c              (BYTE* dst, BYTE alpha, int w, DWORD color);
 static __forceinline void  packed_pix_mix_sse2           (BYTE* dst, BYTE alpha, int w, DWORD color);
 
 static __forceinline void  packed_pix_mix_c              (BYTE* dst, const BYTE alpha, const int w, const DWORD color)
-noexcept
+
 {
     const BYTE *dst_end{dst + 4*w};
     for ( ; dst<dst_end; dst+=4 )
@@ -1515,7 +1515,7 @@ static __forceinline DWORD safe_subtract(DWORD a, DWORD b)
 ///////////////////////////////////////////////////////////////////////////
 
 static __forceinline void packed_pix_add_c(BYTE* dst, const BYTE* alpha, const int w, const DWORD color)
-noexcept
+
 {
     DWORD c_r{(color&0x00ff0000)};
     DWORD c_g{(color&0x0000ff00)};
@@ -1628,14 +1628,14 @@ static __forceinline void packed_pix_add_sse2(BYTE* dst, const BYTE* alpha, cons
 ///////////////////////////////////////////////////////////////////////////
 
 typedef void (*AlphaBlt8bppFunc)(byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride);
-constexpr void           AlphaBlt8bppC    (byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride) noexcept;
+void           AlphaBlt8bppC    (byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride);
 void           AlphaBlt8bppSse2 (byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride);
 
-constexpr void AlphaBlt8bppC(byte* pY,
+void AlphaBlt8bppC(byte* pY,
     const byte* pAlphaMask, 
     const byte Y, 
     int h, const int w, const int src_stride, const int dst_stride)
-noexcept
+
 {
     for( ; h>0; h--, pAlphaMask += src_stride, pY += dst_stride )
     {
@@ -1664,9 +1664,9 @@ void AlphaBlt8bppSse2(byte* pY,
 
     __m128i ones;
 #ifdef _DEBUG
-    ones{_mm_setzero_si128()};
+    ones = _mm_setzero_si128();
 #endif // _DEBUG
-    ones{_mm_cmpeq_epi32(ones, ones)};
+    ones = _mm_cmpeq_epi32(ones, ones);
     ones = _mm_srli_epi16(ones, 15);
     ones = _mm_slli_epi16(ones, 8);
 
@@ -1735,14 +1735,14 @@ void AlphaBlt8bppSse2(byte* pY,
 
 typedef 
 void (*AlphaBlt8bppSingleAlphaFunc)(byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride);
-constexpr void   AlphaBlt8bppSingleAlphaC    (byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride) noexcept;
+void   AlphaBlt8bppSingleAlphaC    (byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride);
 void   AlphaBlt8bppSingleAlphaSse2 (byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride);
 
-constexpr void AlphaBlt8bppSingleAlphaC(byte* pY,
+void AlphaBlt8bppSingleAlphaC(byte* pY,
     const byte alpha, 
     const byte Y, 
     int h, const int w, const int dst_stride)
-noexcept
+
 {   
     int yPremul{Y*(alpha+1)};
     int dstAlpha{0x100 - alpha};
@@ -1832,8 +1832,8 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
     tSpanBuffer::const_iterator itB{src.begin()};
     tSpanBuffer::const_iterator itBE{src.end()};
     // Don't worry -- even if dy<0 this will still work! // G: hehe, the evil twin :)
-    unsigned __int64 offset1{(((__int64)dy)<<32) - dx};
-    unsigned __int64 offset2{(((__int64)dy)<<32) + dx};
+    unsigned __int64 offset1 = (((__int64)dy)<<32) - dx;
+    unsigned __int64 offset2 = (((__int64)dy)<<32) + dx;
     while(itA != itAE && itB != itBE)
     {
         if((*itB).first + offset1 < (*itA).first)
@@ -2005,14 +2005,14 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
             {
                 sw += 2;
             }
-            int new_x{sw[3U] < w+xo ? sw[3U] : w+xo;
+            int new_x = sw[3U] < w+xo ? sw[3U] : w+xo;
             overlay->FillAlphaMash(s_base, fBody, fBorder, 
                 last_x, yo, new_x-last_x, h, 
                 alpha_mask_data, alpha_mask_pitch,
                 alpha );   
             last_x = new_x;
             sw += 2;
-        }}
+        }
     }
     result.reset( s_base, xy_free );
     return result;
@@ -2299,7 +2299,7 @@ void DoAdditionDrawMultiColor(      BYTE  *dst,
 // 
 void Rasterizer::AdditionDraw(XyBitmap         *bitmap   , 
                               const SharedPtrOverlay  overlay  , 
-                              const CRect      &clipRect , 
+                              CRect      &clipRect , 
                               byte             *s_base   , 
                               const int               xsub     ,
                               const int               ysub     ,
@@ -2409,24 +2409,24 @@ void Rasterizer::AdditionDraw(XyBitmap         *bitmap   ,
 
 // Overlay
 
-constexpr void FillAlphaMashBody_c   (BYTE* dst, const BYTE* src, int color_alpha, int w, int h, int pitch) noexcept;
+void FillAlphaMashBody_c   (BYTE* dst, const BYTE* src, int color_alpha, int w, int h, int pitch);
 void FillAlphaMashBody_sse2(BYTE* dst, const BYTE* src, int color_alpha, int w, int h, int pitch);
 
-constexpr void FillAlphaMashBorder_c   (BYTE* dst, const BYTE* border, const BYTE* body, int color_alpha, int w, int h, int pitch) noexcept;
+void FillAlphaMashBorder_c   (BYTE* dst, const BYTE* border, const BYTE* body, int color_alpha, int w, int h, int pitch);
 void FillAlphaMashBorder_sse2(BYTE* dst, const BYTE* border, const BYTE* body, int color_alpha, int w, int h, int pitch);
 
-constexpr void FillAlphaMashBodyMasked_c   (BYTE* dst, const BYTE* src, int color_alpha, int w, int h, int pitch,
-    const BYTE* am, int am_pitch) noexcept;
+void FillAlphaMashBodyMasked_c   (BYTE* dst, const BYTE* src, int color_alpha, int w, int h, int pitch,
+    const BYTE* am, int am_pitch);
 void FillAlphaMashBodyMasked_sse2(BYTE* dst, const BYTE* src, int color_alpha, int w, int h, int pitch,
     const BYTE* am, int am_pitch);
 
-constexpr void FillAlphaMashBorderMasked_c   (BYTE* dst, const BYTE* border, const BYTE* body, int color_alpha, int w, int h, int pitch,
-    const BYTE* am, int am_pitch) noexcept;
+void FillAlphaMashBorderMasked_c   (BYTE* dst, const BYTE* border, const BYTE* body, int color_alpha, int w, int h, int pitch,
+    const BYTE* am, int am_pitch);
 void FillAlphaMashBorderMasked_sse2(BYTE* dst, const BYTE* border, const BYTE* body, int color_alpha, int w, int h, int pitch,
     const BYTE* am, int am_pitch);
 
-constexpr void FillAlphaMashBody_c(BYTE* dst, const BYTE* src, const int color_alpha, const int w, int h, const int pitch)
-noexcept
+void FillAlphaMashBody_c(BYTE* dst, const BYTE* src, const int color_alpha, const int w, int h, const int pitch)
+
 {
     while(h--)
     {
@@ -2514,8 +2514,8 @@ void FillAlphaMashBody_sse2(BYTE* dst, const BYTE* src, const int color_alpha, c
 #endif
 }
 
-constexpr void FillAlphaMashBorder_c(BYTE* dst, const BYTE* border, const BYTE* body, const int color_alpha, const int w, int h, const int pitch)
-noexcept
+void FillAlphaMashBorder_c(BYTE* dst, const BYTE* border, const BYTE* body, const int color_alpha, const int w, int h, const int pitch)
+
 {
     while(h--)
     {
@@ -2617,7 +2617,7 @@ void FillAlphaMashBorder_sse2( BYTE* dst, const BYTE* border, const BYTE* body, 
 #endif
 }
 
-constexpr void FillAlphaMashBodyMasked_c(       BYTE* dst        , 
+void FillAlphaMashBodyMasked_c(       BYTE* dst        , 
                                 const BYTE* src        , 
                                 const int         color_alpha, 
                                 const int         w          , 
@@ -2625,7 +2625,7 @@ constexpr void FillAlphaMashBodyMasked_c(       BYTE* dst        ,
                                 const int         pitch      , 
                                 const BYTE* am         , 
                                 const int         am_pitch)
-noexcept
+
 {
     const int ROUND_ERR{1<<(12-1)};
     while(h--)
@@ -2737,7 +2737,7 @@ void FillAlphaMashBodyMasked_sse2(       BYTE* dst        ,
 #endif
 }
 
-constexpr void FillAlphaMashBorderMasked_c(       BYTE* dst        , 
+void FillAlphaMashBorderMasked_c(       BYTE* dst        , 
                                   const BYTE* border     , 
                                   const BYTE* body       ,
                                   const int         color_alpha, 
@@ -2746,7 +2746,7 @@ constexpr void FillAlphaMashBorderMasked_c(       BYTE* dst        ,
                                   const int         pitch      , 
                                   const BYTE* am         , 
                                   const int         am_pitch)
-noexcept
+
 {
     const int ROUND_ERR{1<<(12-1)};
     while(h--)
@@ -3057,8 +3057,8 @@ const PathData& PathData::operator=( const PathData& src )
     return *this;
 }
 
-constexpr PathData::~PathData()
-noexcept
+PathData::~PathData()
+
 {
     _TrashPath();
 }
@@ -3072,8 +3072,8 @@ noexcept
         );
 }
 
-constexpr void PathData::_TrashPath()
-noexcept
+void PathData::_TrashPath()
+
 {
     if (mpPathTypes)
     {
@@ -3234,8 +3234,8 @@ ScanLineData::ScanLineData()
 {
 }
 
-constexpr ScanLineData::~ScanLineData()
-noexcept
+ScanLineData::~ScanLineData()
+
 {    
 }
 
@@ -3251,14 +3251,14 @@ void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, 
     const POINT* pt1{path_data.mpPathPoints + ptbase + 1};
     const POINT* pt2{path_data.mpPathPoints + ptbase + 2};
     const POINT* pt3{path_data.mpPathPoints + ptbase + 3};
-    double x0{pt0->x};
-    double x1{pt1->x};
-    double x2{pt2->x};
-    double x3{pt3->x};
-    double y0{pt0->y};
-    double y1{pt1->y};
-    double y2{pt2->y};
-    double y3{pt3->y};
+    double x0 = pt0->x;
+    double x1 = pt1->x;
+    double x2 = pt2->x;
+    double x3 = pt3->x;
+    double y0 = pt0->y;
+    double y1 = pt1->y;
+    double y2 = pt2->y;
+    double y3 = pt3->y;
     double cx3, cx2, cx1, cx0, cy3, cy2, cy1, cy0;
     if(fBSpline)
     {
@@ -3308,7 +3308,7 @@ void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, 
     // use a step size of 1.
     double maxaccel1{std::fabs(2*cy2) + std::fabs(6*cy3)};
     double maxaccel2{std::fabs(2*cx2) + std::fabs(6*cx3)};
-    double maxaccel{maxaccel1} > maxaccel2 ? maxaccel1 : maxaccel2;
+    double maxaccel = maxaccel1 > maxaccel2 ? maxaccel1 : maxaccel2;
     double h{1.0};
     if(maxaccel > 8.0)
     {
@@ -3420,7 +3420,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
     lastp.x = lastp.y = 0;
     for(i=0; i<path_data.mPathPoints; ++i)
     {
-        BYTE t{path_data.mpPathTypes[i] & ~PT_CLOSEFIGURE};
+        BYTE t = path_data.mpPathTypes[i] & ~PT_CLOSEFIGURE;
         switch(t)
         {
         case PT_MOVETO:

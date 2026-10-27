@@ -38,7 +38,7 @@ namespace ssf
 
     public:
         explicit CRenderer(CCritSec* pLock);
-        constexpr virtual ~CRenderer() noexcept;
+        virtual ~CRenderer();
 
         [[nodiscard]] bool Open(CString fn, CString name = _T(""));
         [[nodiscard]] bool Open(InputStream& s, CString name);

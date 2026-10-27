@@ -136,7 +136,7 @@ CDirectVobSubFilter::~CDirectVobSubFilter()
     XY_LOG_INFO("Closing ThreadProc");
     m_frd.EndThreadEvent.Set();
     XY_LOG_INFO("EndThreadEvent set");
-    [[nodiscard]] CAMThread::Close();
+    CAMThread::Close();
 
     ::DeleteSystray(&m_hSystrayThread, &m_tbid);
     XY_LOG_INFO("Deconstructed");
@@ -666,7 +666,7 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
             m_tbid.graph = m_pGraph;
             m_tbid.dvs = this;
 
-            [[nodiscard]] m_hSystrayThread = ::CreateSystray(&m_tbid);
+            m_hSystrayThread = ::CreateSystray(&m_tbid);
             XY_LOG_INFO("Systray thread created "<<m_hSystrayThread);
         }
         m_pInput->SetMediaType( &m_pInput->CurrentMediaType() );
@@ -1017,7 +1017,7 @@ int CDirectVobSubFilter::FindPreferedLanguage(bool fHideToo)
 	return(0);
 }
 
-void CDirectVobSubFilter::UpdatePreferedLanguages(const CString l)
+void CDirectVobSubFilter::UpdatePreferedLanguages(CString l)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -1656,7 +1656,7 @@ CDirectVobSubFilter2::CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const G
         _T("webcamdell2."), // Dell WebCam Software
     };
 
-    for (std::size_t i{0U}; [[nodiscard]] i < _countof(blacklistedapps); i++) {
+    for (std::size_t i{0U}; i < _countof(blacklistedapps); i++) {
         if (theApp.m_AppName.Find(blacklistedapps[i]) >= 0) {
             return true;
         }
@@ -2114,7 +2114,7 @@ void CDirectVobSubFilter::AddSubStream(ISubStream* pSubStream)
         m_fIsSubStreamEmbeded.AddTail(true);//todo: fix me
     }
 
-	int len{m_pTextInput.GetCount()};
+	int len = m_pTextInput.GetCount();
 	for(std::size_t i{0U}; i < m_pTextInput.GetCount(); i++)
 	{
 		if(m_pTextInput[i]->IsConnected())
@@ -2153,7 +2153,7 @@ void CDirectVobSubFilter::RemoveSubStream(ISubStream* pSubStream)
     }
 }
 
-void CDirectVobSubFilter::Post_EC_OLE_EVENT(const CString str, const DWORD_PTR nSubtitleId)
+void CDirectVobSubFilter::Post_EC_OLE_EVENT(CString str, const DWORD_PTR nSubtitleId)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(str)<<XY_LOG_VAR_2_STR(nSubtitleId));
 	if(nSubtitleId != -1 && nSubtitleId != m_nSubtitleId)
@@ -2595,7 +2595,7 @@ void CDirectVobSubFilter::SetYuvMatrix()
 //
 // DirectVobSubImpl
 //
-[[nodiscard]] HRESULT CDirectVobSubFilter::GetCurStyles( const SubStyle sub_style[], const int count )
+[[nodiscard]] HRESULT CDirectVobSubFilter::GetCurStyles( SubStyle sub_style[], const int count )
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csFilter);
     ISubStream *curSubStream{NULL};

@@ -425,7 +425,7 @@ CHdmvInputPinHepler::CHdmvInputPinHepler( CRenderedHdmvSubtitle* pHdmvSubtitle, 
     return m_pHdmvSubtitle->ParseSample (pSample);
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler::EndOfStream( const void )
+[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler::EndOfStream()
 {
     m_pHdmvSubtitle->EndOfStream();
     return S_OK;
@@ -648,7 +648,7 @@ public IUnknown {
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP CSubtitleInputPin::EndOfStream(const void)
+[[nodiscard]] STDMETHODIMP CSubtitleInputPin::EndOfStream()
 {
     HRESULT hr{__super::EndOfStream()};
 
@@ -667,8 +667,8 @@ public IUnknown {
     return hr;
 }
 
-[[nodiscard]] constexpr bool CSubtitleInputPin::IsHdmvSub(const CMediaType* pmt)
-noexcept
+[[nodiscard]] bool CSubtitleInputPin::IsHdmvSub(const CMediaType* pmt)
+
 {
 	return pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_HDMVSUB ||			// Blu ray presentation graphics
 			pmt->subtype == MEDIASUBTYPE_DVB_SUBTITLES ||	// DVB subtitles

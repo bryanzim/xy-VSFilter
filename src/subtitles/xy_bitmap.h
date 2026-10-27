@@ -25,7 +25,7 @@ public:
         bits = NULL;
         plans[0U] = plans[1U] = plans[2U] = plans[3U] = NULL;
     }
-    constexpr ~XyBitmap() noexcept;
+    ~XyBitmap();
 
     [[nodiscard]] static XyBitmap *CreateBitmap(const CRect& target_rect, MemLayout layout);
 
@@ -52,7 +52,7 @@ public:
     [[nodiscard]] STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
 public:
     explicit XySubRenderFrame();
-    constexpr ~XySubRenderFrame() noexcept;
+    ~XySubRenderFrame();
 
     typedef ::boost::shared_ptr<XyBitmap> SharedBitmap;
 
@@ -74,17 +74,17 @@ class XySubRenderFrameCreater
 public:
     static XySubRenderFrameCreater* GetDefaultCreater();
 
-    [[nodiscard]] constexpr HRESULT SetOutputRect(const RECT& output_rect) noexcept;
-    [[nodiscard]] constexpr HRESULT SetClipRect(const RECT& clip_rect) noexcept;
-    [[nodiscard]] constexpr HRESULT SetColorSpace(XyColorSpace color_space) noexcept;
-    [[nodiscard]] constexpr HRESULT SetVsfilterCompactRgbCorrection(bool value) noexcept;
-    [[nodiscard]] constexpr HRESULT SetRgbOutputTvLevel(bool value) noexcept;
+    [[nodiscard]] HRESULT SetOutputRect(const RECT& output_rect);
+    [[nodiscard]] HRESULT SetClipRect(const RECT& clip_rect);
+    [[nodiscard]] HRESULT SetColorSpace(XyColorSpace color_space);
+    [[nodiscard]] HRESULT SetVsfilterCompactRgbCorrection(bool value);
+    [[nodiscard]] HRESULT SetRgbOutputTvLevel(bool value);
 
     [[nodiscard]] HRESULT GetOutputRect(RECT *output_rect);
     [[nodiscard]] HRESULT GetClipRect(RECT *clip_rect);
-    [[nodiscard]] constexpr HRESULT GetColorSpace(XyColorSpace *color_space) noexcept;
-    [[nodiscard]] constexpr bool GetVsfilterCompactRgbCorrection() noexcept;
-    [[nodiscard]] constexpr bool GetRgbOutputTvLevel() noexcept;
+    [[nodiscard]] HRESULT GetColorSpace(XyColorSpace *color_space);
+    [[nodiscard]] bool GetVsfilterCompactRgbCorrection();
+    [[nodiscard]] bool GetRgbOutputTvLevel();
 
     [[nodiscard]] XySubRenderFrame* NewXySubRenderFrame(UINT bitmap_count);
     [[nodiscard]] XyBitmap* CreateBitmap(const RECT& target_rect);

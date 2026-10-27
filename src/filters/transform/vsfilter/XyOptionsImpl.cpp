@@ -122,12 +122,12 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     XY_SET_TEMPLATE(OPTION_TYPE_INT, m_xy_int_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSize(const unsigned field, const SIZE value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSize(const unsigned field, SIZE value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_SIZE, m_xy_size_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRect(const unsigned field, const RECT value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRect(const unsigned field, RECT value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_RECT, m_xy_rect_opt);
 }
@@ -203,8 +203,8 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     return E_NOTIMPL;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP XyOptionsImpl::XyGetBins2( const unsigned field, const int id, void *value, const int size )
-noexcept
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBins2( const unsigned field, const int id, void *value, const int size )
+
 {
     return E_NOTIMPL;
 }
@@ -219,12 +219,12 @@ noexcept
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSizes(const unsigned field, const int id, const SIZE value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSizes(const unsigned field, const int id, SIZE value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRects(const unsigned field, const int id, const RECT value)
+[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRects(const unsigned field, const int id, RECT value)
 {
     return E_NOTIMPL;
 }

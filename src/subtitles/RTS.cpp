@@ -51,8 +51,8 @@ const double MAX_SUB_PIXEL_F{8.0};
 static HDC g_hDC;
 static int g_hDC_refcnt{0};
 
-[[nodiscard]] constexpr static long revcolor(const long c)
-noexcept
+[[nodiscard]] static long revcolor(const long c)
+
 {
     return ((c&0xff0000)>>16) + (c&0xff00) + ((c&0xff)<<16);
 }
@@ -270,7 +270,7 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
 
     int border_x{static_cast<int>(m_style.get().outlineWidthX*m_target_scale_x+0.5)};//fix me: rounding err
     int border_y{static_cast<int>(m_style.get().outlineWidthY*m_target_scale_y+0.5)};//fix me: rounding err
-    int wide_border{border_x}>border_y ? border_x:border_y;
+    int wide_border = border_x>border_y ? border_x:border_y;
     if (m_style.get().borderStyle==1)
     {
         border_x = border_y = 0;
@@ -401,7 +401,7 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
 }
 
 [[nodiscard]] bool CWord::NeedTransform()
-noexcept
+
 {
     return (std::fabs(m_style.get().fontScaleX - 100) > 0.000001) ||
            (std::fabs(m_style.get().fontScaleY - 100) > 0.000001) ||
@@ -757,8 +757,8 @@ CPolygon::CPolygon(CPolygon& src) : CWord(src)
     m_pathPointsOrg.Copy(src.m_pathPointsOrg);
 }
 
-constexpr CPolygon::~CPolygon()
-noexcept
+CPolygon::~CPolygon()
+
 {
 }
 
@@ -940,7 +940,7 @@ noexcept
 
 [[nodiscard]] bool CPolygon::CreatePath(PathData* path_data)
 {
-    int len{m_pathTypesOrg.GetCount()};
+    int len = m_pathTypesOrg.GetCount();
     if(len == 0)
     {
         return(false);
@@ -979,8 +979,8 @@ CClipper::CClipper(CStringW str, CSizeCoor2 size, double scalex, double scaley, 
 {
 }
 
-constexpr CClipper::~CClipper()
-noexcept
+CClipper::~CClipper()
+
 {
 }
 
@@ -1204,8 +1204,8 @@ noexcept
     return result;
 }
 
-constexpr void CClipper::SetEffect( const Effect& effect, const int effectType )
-noexcept
+void CClipper::SetEffect( const Effect& effect, const int effectType )
+
 {
     m_effectType = effectType;
     m_effect     = effect;
@@ -1221,8 +1221,8 @@ noexcept
 
 // CLine
 
-constexpr CLine::~CLine()
-noexcept
+CLine::~CLine()
+
 {
     //POSITION pos = GetHeadPosition();
     //while(pos) delete GetNext(pos);
@@ -1297,7 +1297,7 @@ void CLine::Compact()
 
 [[nodiscard]] CRectCoor2 CLine::PaintAll( CompositeDrawItemList* output, const CRectCoor2& clipRect, 
     const CPointCoor2& margin,
-    const SharedPtrCClipperPaintMachine &clipper, const CPoint p, const CPoint& org, const int time, const int alpha )
+    const SharedPtrCClipperPaintMachine &clipper, CPoint p, const CPoint& org, const int time, const int alpha )
 {
     CRectCoor2 bbox{0, 0, 0, 0};
     POSITION pos{GetHeadPosition()};
@@ -1344,7 +1344,7 @@ void CLine::Compact()
             //NOTE: Calculation of shadow's alpha value is different from outline's and body's in the way they're rounded.
             // Shadow is rounded to invisible while outline and body is rounded to visible.
             // Should we change it to be consist with one rounding polocy?
-            DWORD a{0xff - w->m_style.get().alpha[3U]};
+            DWORD a = 0xff - w->m_style.get().alpha[3U];
             if(alpha > 0)
             {
                 a = MulDiv(a, 0xff - alpha, 0xff);
@@ -1494,7 +1494,7 @@ void CSubtitle::Empty()
     POSITION pos{GetHeadPosition()};
     while(pos)
     {
-        [[nodiscard]] delete GetNext(pos);
+        delete GetNext(pos);
     }
 //    pos = m_words.GetHeadPosition();
 //    while(pos) delete m_words.GetNext(pos);
@@ -1516,7 +1516,7 @@ void CSubtitle::Empty()
     return(width);
 }
 
-[[nodiscard]] int CSubtitle::GetFullLineWidth(const POSITION pos)
+[[nodiscard]] int CSubtitle::GetFullLineWidth(POSITION pos)
 {
     int width{0};
     while(pos)
@@ -1531,7 +1531,7 @@ void CSubtitle::Empty()
     return(width);
 }
 
-[[nodiscard]] int CSubtitle::GetWrapWidth(const POSITION pos, int maxwidth)
+[[nodiscard]] int CSubtitle::GetWrapWidth(POSITION pos, int maxwidth)
 {
     if(m_wrapStyle == 0 || m_wrapStyle == 3)
     {
@@ -1646,7 +1646,7 @@ void CSubtitle::Empty()
     return(ret);
 }
 
-void CSubtitle::CreateClippers( const CSize size1, const CSizeCoor2& size_scale_to )
+void CSubtitle::CreateClippers( CSize size1, const CSizeCoor2& size_scale_to )
 {
     size1.cx >>= 3;
     size1.cy >>= 3;
@@ -1683,7 +1683,7 @@ void CSubtitle::CreateClippers( const CSize size1, const CSizeCoor2& size_scale_
     }
 }
 
-void CSubtitle::MakeLines(const CSize size, const CRect marginRect)
+void CSubtitle::MakeLines(CSize size, CRect marginRect)
 {
     CSize spaceNeeded{0, 0};
     bool fFirstLine{true};
@@ -1774,7 +1774,7 @@ void CScreenLayoutAllocator::AdvanceToSegment(int segment, const CAtlArray<int>&
         }
     }
     CRect r{s->m_rect + CRect(0, s->m_topborder, 0, s->m_bottomborder)};
-    bool fSearchDown{s->m_scrAlignment} > 3;
+    bool fSearchDown = s->m_scrAlignment > 3;
     bool fOK;
     do
     {
@@ -2092,7 +2092,7 @@ void CRenderedTextSubtitle::ParseEffect(CSubtitle* sub, const CStringW& str)
         s++;
     }
     
-    const CStringW effect{str_start, s-str_start};
+    CStringW effect(str_start, s-str_start);
     if(!effect.CompareNoCase( L"Banner;" ) )
     {
         int delay, lefttoright = 0, fadeawaywidth = 0;
@@ -2138,7 +2138,7 @@ void CRenderedTextSubtitle::ParseEffect(CSubtitle* sub, const CStringW& str)
     }
 }
 
-void CRenderedTextSubtitle::ParseString(CSubtitle* sub, const CStringW str, const FwSTSStyle& style)
+void CRenderedTextSubtitle::ParseString(CSubtitle* sub, CStringW str, const FwSTSStyle& style)
 {
     if(!sub)
     {
@@ -2260,7 +2260,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             pc++;
         }
 
-        const CStringW cmd{str_start, pc-str_start};
+        CStringW cmd(str_start, pc-str_start);
         if(cmd.IsEmpty())
         {
             continue;
@@ -2302,7 +2302,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                     if(newstart > param_start)
                     {
                         newend = FastSkipWhiteSpaceRight(param_start, newstart);
-                        CStringW s{param_start, newend - param_start};
+                        CStringW s(param_start, newend - param_start);
                         if(!s.IsEmpty())
                         {
                             params.Add(s);
@@ -2312,7 +2312,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 }
                 else if(param_start<param_end)
                 {
-                    CStringW s{param_start, param_end - param_start};
+                    CStringW s(param_start, param_end - param_start);
 
                     params.Add(s);
                     param_start = param_end;
@@ -2429,7 +2429,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         sub->m_hard_position_level = sub->m_hard_position_level > m_cmd_pos_level[cmd_type] ?
                                      sub->m_hard_position_level : m_cmd_pos_level[cmd_type];
         // TODO: call ParseStyleModifier(cmd, params, ..) and move the rest there
-        const CStringW& p{params.GetCount()} > 0 ? params[0U] : CStringW("");
+        const CStringW& p = params.GetCount() > 0 ? params[0U] : CStringW("");
         switch ( cmd_type )
         {
         case CMD_1c:
@@ -2441,7 +2441,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                       cmd_type==CMD_2c ? 1 :
                       cmd_type==CMD_3c ? 2 :
                     /*cmd_type==CMD_4c ?*/ 3};
-                DWORD c{wcstol(p, NULL, 16)};
+                DWORD c = wcstol(p, NULL, 16);
                 style.colors[i] = !p.IsEmpty()
                     ? (((int)CalcAnimation(c&0x0000ff, style.colors[i]&0x0000ff, fAnimate))&0x0000ff
                       |((int)CalcAnimation(c&0x00ff00, style.colors[i]&0x00ff00, fAnimate))&0x00ff00
@@ -2564,7 +2564,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_c:
             {
-                DWORD c{wcstol(p, NULL, 16)};
+                DWORD c = wcstol(p, NULL, 16);
                 style.colors[0U] = !p.IsEmpty()
                                   ? (((int)CalcAnimation(c&0x0000ff, style.colors[0U]&0x0000ff, fAnimate))&0x0000ff
                                     |((int)CalcAnimation(c&0x00ff00, style.colors[0U]&0x00ff00, fAnimate))&0x00ff00
@@ -3114,7 +3114,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
 }
 
 [[nodiscard]] double CRenderedTextSubtitle::CalcAnimation(double dst, const double src, const bool fAnimate)
-noexcept
+
 {
     int s{m_animStart ? m_animStart : 0};
     int e{m_animEnd ? m_animEnd : m_delay};
@@ -3363,7 +3363,7 @@ void CRenderedTextSubtitle::ShrinkCache()
     return (POSITION)(iSegment + 1);
 }
 
-[[nodiscard]] STDMETHODIMP_(POSITION) CRenderedTextSubtitle::GetNext(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(POSITION) CRenderedTextSubtitle::GetNext(POSITION pos)
 {
     int iSegment{(int)pos};
     const STSSegment *stss{GetSegment(iSegment)};
@@ -3374,18 +3374,18 @@ void CRenderedTextSubtitle::ShrinkCache()
     return(stss ? (POSITION)(iSegment+1) : NULL);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedTextSubtitle::GetStart(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedTextSubtitle::GetStart(POSITION pos, const double fps)
 {
     return TranslateSegmentStart((int)pos - 1, fps);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedTextSubtitle::GetStop(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedTextSubtitle::GetStop(POSITION pos, const double fps)
 {
     return TranslateSegmentEnd((int)pos - 1, fps);
 }
 
 //@start, @stop: -1 if segment not found; @stop may < @start if subIndex exceed uppper bound
-[[nodiscard]] STDMETHODIMP_(VOID) CRenderedTextSubtitle::GetStartStop(const POSITION pos, const double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop)
+[[nodiscard]] STDMETHODIMP_(VOID) CRenderedTextSubtitle::GetStartStop(POSITION pos, const double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop)
 {
     int iSegment{(int)pos-1};
     REFERENCE_TIME tempStart, tempEnd;
@@ -3394,9 +3394,9 @@ void CRenderedTextSubtitle::ShrinkCache()
     stop = tempEnd;
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CRenderedTextSubtitle::IsAnimated(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(bool) CRenderedTextSubtitle::IsAnimated(POSITION pos)
 {
-    unsigned int iSegment{(int)pos-1};
+    unsigned int iSegment = (int)pos-1;
     if(iSegment<m_segments.GetCount())
     {
         return m_segments[iSegment].animated;
@@ -3410,8 +3410,8 @@ void CRenderedTextSubtitle::ShrinkCache()
 
 struct LSub {int idx, layer, readorder;};
 
-[[nodiscard]] constexpr static int lscomp(const void* ls1, const void* ls2)
-noexcept
+[[nodiscard]] static int lscomp(const void* ls1, const void* ls2)
+
 {
     int ret{((LSub*)ls1)->layer - ((LSub*)ls2)->layer};
     if(!ret)
@@ -3984,8 +3984,8 @@ void CRenderedTextSubtitle::RenderOneSubtitle( const SIZECoor2& output_size,
     return !m_path.IsEmpty() && Open(m_path, DEFAULT_CHARSET) ? S_OK : E_FAIL;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CRenderedTextSubtitle::IsColorTypeSupported( const int type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CRenderedTextSubtitle::IsColorTypeSupported( const int type )
+
 {
     return type==MSP_AYUV_PLANAR ||
            type==MSP_AYUV ||
@@ -3993,14 +3993,14 @@ noexcept
            type==MSP_RGBA;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CRenderedTextSubtitle::IsMovable()
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CRenderedTextSubtitle::IsMovable()
+
 {
     return m_movable;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CRenderedTextSubtitle::IsSimple()
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CRenderedTextSubtitle::IsSimple()
+
 {
     return m_simple;
 }

@@ -76,7 +76,7 @@ public:
 
         HDMV_PALETTE    palette[256U];
 
-        explicit DVB_CLUT() noexcept { std::memset(palette, 0, sizeof(palette)); }
+        explicit DVB_CLUT() { std::memset(palette, 0, sizeof(palette)); }
     };
 
     struct DVB_DISPLAY {
@@ -89,7 +89,7 @@ public:
         short           vertical_position_minimun;
         short           vertical_position_maximum;
 
-        constexpr explicit DVB_DISPLAY() noexcept {
+        explicit DVB_DISPLAY() {
             // Default value (§5.1.3)
             version_number  = 0;
             width           = 720;
@@ -106,7 +106,7 @@ public:
         BYTE            foreground_pixel_code;
         BYTE            background_pixel_code;
 
-        constexpr explicit DVB_OBJECT() noexcept {
+        explicit DVB_OBJECT() {
             object_id                   = 0xFF;
             object_type                 = 0;
             object_provider_flag        = 0;
@@ -134,7 +134,7 @@ public:
         int         objectCount;
         DVB_OBJECT  objects[MAX_OBJECTS];
 
-        constexpr explicit DVB_REGION() noexcept {
+        explicit DVB_REGION() {
             id                      = 0;
             horizAddr               = 0;
             vertAddr                = 0;
@@ -203,7 +203,7 @@ private:
 
     [[nodiscard]] HRESULT             AddToBuffer(BYTE* pData, int nSize);
     [[nodiscard]] DVB_PAGE*           FindPage(REFERENCE_TIME rt);
-    [[nodiscard]] constexpr DVB_REGION*         FindRegion(DVB_PAGE* pPage, BYTE bRegionId) noexcept;
+    [[nodiscard]] DVB_REGION*         FindRegion(DVB_PAGE* pPage, BYTE bRegionId);
     [[nodiscard]] DVB_CLUT*           FindClut(DVB_PAGE* pPage, BYTE bClutId);
     [[nodiscard]] CompositionObject*  FindObject(DVB_PAGE* pPage, short sObjectId);
 

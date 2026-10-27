@@ -71,7 +71,7 @@ interface IXySubRenderFrame;
 
 class CWord
 {
-    [[nodiscard]] bool NeedTransform  () noexcept;
+    [[nodiscard]] bool NeedTransform  ();
     void Transform      (PathData* path_data, const CPointCoor2& org);
 //  void Transform_C    (PathData* path_data, const CPointCoor2 &org );
 //  void Transform_SSE2 (PathData* path_data, const CPointCoor2 &org );
@@ -162,7 +162,7 @@ public:
         , bool round_to_whole_pixel_after_scale_to_target = false);
 	// can't use a const reference because we need to use CAtlArray::Copy which expects a non-const reference
     CPolygon(CPolygon&); 
-    constexpr virtual ~CPolygon() noexcept;
+    virtual ~CPolygon();
 
     virtual SharedPtrCWord Copy();
     [[nodiscard]] virtual bool Append(const SharedPtrCWord& w);
@@ -222,8 +222,8 @@ private:
 public:
     CClipper(CStringW str, CSizeCoor2 size, double scalex, double scaley, bool inverse
         , double target_scale_x=1.0, double target_scale_y=1.0);
-    constexpr void SetEffect(const Effect& effect, int effectType) noexcept;
-    constexpr virtual ~CClipper() noexcept;
+    void SetEffect(const Effect& effect, int effectType);
+    virtual ~CClipper();
 
     [[nodiscard]] static SharedPtrGrayImage2 GetAlphaMask(const SharedPtrCClipper& clipper);
 
@@ -237,7 +237,7 @@ class CLine: private CAtlList<SharedPtrCWord>
 public:
     int m_width, m_ascent, m_descent, m_borderX, m_borderY;
 
-    constexpr virtual ~CLine() noexcept;
+    virtual ~CLine();
 
     void Compact();
 
@@ -299,9 +299,9 @@ struct CSubtitle2
 
     CSubtitle       *s;
     const CRectCoor2 clipRect;
-    const CPoint     org;
-    const CPoint     org2;
-    const CPoint     p;
+    CPoint     org;
+    CPoint     org2;
+    CPoint     p;
     int              alpha;
     int              time;
 };
@@ -439,7 +439,7 @@ private:
 
     [[nodiscard]] bool ParseHtmlTag(CSubtitle* sub, CStringW str, STSStyle& style, STSStyle& org);
 
-    [[nodiscard]] double CalcAnimation(double dst, double src, bool fAnimate) noexcept;
+    [[nodiscard]] double CalcAnimation(double dst, double src, bool fAnimate);
 
     [[nodiscard]] CSubtitle* GetSubtitle(int entry);
 
@@ -498,9 +498,9 @@ public:
         const POINTCoor2& video_org, const RECTCoor2& margin_rect, 
         const CSubtitle2& sub2, 
         CompositeDrawItemList* compDrawItemList /*output*/);
-    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
-    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsMovable() noexcept;
-    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsSimple() noexcept;
+    [[nodiscard]] STDMETHODIMP_(bool) IsColorTypeSupported(int type);
+    [[nodiscard]] STDMETHODIMP_(bool) IsMovable();
+    [[nodiscard]] STDMETHODIMP_(bool) IsSimple();
 
     // IPersist
     [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);

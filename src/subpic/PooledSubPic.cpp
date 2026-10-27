@@ -186,8 +186,8 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
     }
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(int) CPooledSubPicAllocator::SetSpdColorType( const int color_type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(int) CPooledSubPicAllocator::SetSpdColorType( const int color_type )
+
 {
     if(_type!=color_type)
     {
@@ -197,8 +197,8 @@ noexcept
     return _type;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CPooledSubPicAllocator::IsSpdColorTypeSupported( const int type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CPooledSubPicAllocator::IsSpdColorTypeSupported( const int type )
+
 {
     if( (type==MSP_RGBA) 
         ||

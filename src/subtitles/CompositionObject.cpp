@@ -59,7 +59,7 @@ void CompositionObject::InitColor(const SubPicDesc& spd)
     //fix me: move all color conv function into color_conv_table or dsutil
 #define FULL_TYPE(x,y) (((x)<<8)|y)
 
-    int paletteNumber{m_Palette.GetCount()};
+    int paletteNumber = m_Palette.GetCount();
     if (m_colorType!=spd.type)
     {
         m_colorType = -1;
@@ -140,7 +140,7 @@ void CompositionObject::InitColor(const SubPicDesc& spd)
 }
 
 void CompositionObject::SetRLEData(const BYTE* pBuffer, const int nSize, const int nTotalSize)
-noexcept
+
 {
     delete [] m_pRLEData;
     m_pRLEData     = DEBUG_NEW BYTE[nTotalSize];

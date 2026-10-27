@@ -40,7 +40,7 @@ CDVBSub::CDVBSub(void)
     m_pBuffer         = NULL;
 }
 
-CDVBSub::~CDVBSub(const void)
+CDVBSub::~CDVBSub()
 {
     Reset();
     SAFE_DELETE(m_pBuffer);
@@ -61,8 +61,8 @@ CDVBSub::~CDVBSub(const void)
     return NULL;
 }
 
-[[nodiscard]] constexpr CDVBSub::DVB_REGION* CDVBSub::FindRegion(DVB_PAGE* pPage, const BYTE bRegionId)
-noexcept
+[[nodiscard]] CDVBSub::DVB_REGION* CDVBSub::FindRegion(DVB_PAGE* pPage, const BYTE bRegionId)
+
 {
     if (pPage != NULL) {
         for (int i{0}; i < pPage->regionCount; i++) {
@@ -369,7 +369,7 @@ void CDVBSub::Render(SubPicDesc& spd, const REFERENCE_TIME rt, RECT& bbox)
     }
 }
 
-[[nodiscard]] HRESULT CDVBSub::GetTextureSize(const POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
+[[nodiscard]] HRESULT CDVBSub::GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
 {
     MaxTextureSize.cx = VideoSize.cx = m_Display.width;
     MaxTextureSize.cy = VideoSize.cy = m_Display.height;
@@ -417,19 +417,19 @@ void CDVBSub::Render(SubPicDesc& spd, const REFERENCE_TIME rt, RECT& bbox)
     return pos;
 }
 
-[[nodiscard]] POSITION CDVBSub::GetNext(const POSITION pos)
+[[nodiscard]] POSITION CDVBSub::GetNext(POSITION pos)
 {
     m_Pages.GetNext(pos);
     return pos;
 }
 
-[[nodiscard]] REFERENCE_TIME CDVBSub::GetStart(const POSITION nPos)
+[[nodiscard]] REFERENCE_TIME CDVBSub::GetStart(POSITION nPos)
 {
     DVB_PAGE* pPage{m_Pages.GetAt(nPos)};
     return pPage != NULL ? pPage->rtStart : INVALID_TIME;
 }
 
-[[nodiscard]] REFERENCE_TIME CDVBSub::GetStop(const POSITION nPos)
+[[nodiscard]] REFERENCE_TIME CDVBSub::GetStop(POSITION nPos)
 {
     DVB_PAGE* pPage{m_Pages.GetAt(nPos)};
     return pPage != NULL ? pPage->rtStop : INVALID_TIME;

@@ -21,7 +21,7 @@ class IDSMPropertyBagImpl : public ATL::CSimpleMap<CStringW, CStringW>, public I
 
 public:
 	explicit IDSMPropertyBagImpl();
-	constexpr virtual ~IDSMPropertyBagImpl() noexcept;
+	virtual ~IDSMPropertyBagImpl();
 
 	// IPropertyBag
 
@@ -34,7 +34,7 @@ public:
 	[[nodiscard]] STDMETHODIMP Write(ULONG cProperties, PROPBAG2* pPropBag, VARIANT* pvarValue);
 	[[nodiscard]] STDMETHODIMP CountProperties(ULONG* pcProperties);
 	[[nodiscard]] STDMETHODIMP GetPropertyInfo(ULONG iProperty, ULONG cProperties, PROPBAG2* pPropBag, ULONG* pcProperties);
-	[[nodiscard]] constexpr STDMETHODIMP LoadObject(LPCOLESTR pstrName, DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog) noexcept;
+	[[nodiscard]] STDMETHODIMP LoadObject(LPCOLESTR pstrName, DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog);
 
 	// IDSMPropertyBag
 
@@ -118,10 +118,10 @@ class CDSMChapter
 public:
 	REFERENCE_TIME rt;
 	CStringW name;
-	constexpr explicit CDSMChapter() noexcept;
+	explicit CDSMChapter();
 	CDSMChapter(REFERENCE_TIME rt, LPCWSTR name);
 	void operator = (const CDSMChapter& c);
-	[[nodiscard]] constexpr static int Compare(const void* a, const void* b) noexcept;
+	[[nodiscard]] static int Compare(const void* a, const void* b);
 };
 
 class IDSMChapterBagImpl : public IDSMChapterBag

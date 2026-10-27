@@ -36,7 +36,7 @@ CHdmvInputPinHepler2::CHdmvInputPinHepler2( HdmvSubtitleProvider* pHdmvSubtitle,
     return m_pHdmvSubtitle->ParseSample (pSample);
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::EndOfStream( const void )
+[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::EndOfStream()
 {
     return m_pHdmvSubtitle->EndOfStream();
 }

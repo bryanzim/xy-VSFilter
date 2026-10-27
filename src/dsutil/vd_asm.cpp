@@ -73,7 +73,7 @@ yuvtoyuy2row_loop:
 	};
 }
 
-constexpr void __declspec(naked) yuvtoyuy2row_avg_MMX(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, const DWORD width, const DWORD pitchuv)
+void __declspec(naked) yuvtoyuy2row_avg_MMX(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, const DWORD width, const DWORD pitchuv)
 {
 	static const __int64 mask{0x7f7f7f7f7f7f7f7fi64};
 
@@ -136,7 +136,7 @@ yuvtoyuy2row_avg_loop:
 	};
 }
 
-constexpr void __declspec(naked) yv12_yuy2_row_sse2() {
+void __declspec(naked) yv12_yuy2_row_sse2() {
 	__asm {
 		// ebx - Y
 		// edx - U
@@ -177,7 +177,7 @@ one:
 	};
 }
 
-constexpr void __declspec(naked) yv12_yuy2_row_sse2_linear() {
+void __declspec(naked) yv12_yuy2_row_sse2_linear() {
 	__asm {
 		// ebx - Y
 		// edx - U
@@ -223,7 +223,7 @@ one:
 	};
 }
 
-constexpr void __declspec(naked) yv12_yuy2_row_sse2_linear_interlaced() {
+void __declspec(naked) yv12_yuy2_row_sse2_linear_interlaced() {
 	__asm {
 		// ebx - Y
 		// edx - U
@@ -269,7 +269,7 @@ one:
 	};
 }
 
-constexpr void __declspec(naked) yv12_yuy2_sse2(const BYTE *Y, const BYTE *U, const BYTE *V,
+void __declspec(naked) yv12_yuy2_sse2(const BYTE *Y, const BYTE *U, const BYTE *V,
 									  const int halfstride, const unsigned halfwidth, const unsigned height,
 									  BYTE *YUY2, const int d_stride)
 {
@@ -332,7 +332,7 @@ done:
 	};
 }
 
-constexpr void __declspec(naked) yv12_yuy2_sse2_interlaced(const BYTE *Y, const BYTE *U, const BYTE *V,
+void __declspec(naked) yv12_yuy2_sse2_interlaced(const BYTE *Y, const BYTE *U, const BYTE *V,
 		const int halfstride, const unsigned halfwidth, const unsigned height,
 		BYTE *YUY2, const int d_stride)
 {

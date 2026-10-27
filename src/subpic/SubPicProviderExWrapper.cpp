@@ -18,8 +18,8 @@ CSubPicProviderExWrapper::CSubPicProviderExWrapper(ISubPicProvider* const inner_
 {
 }
 
-constexpr CSubPicProviderExWrapper::~CSubPicProviderExWrapper()
-noexcept
+CSubPicProviderExWrapper::~CSubPicProviderExWrapper()
+
 {
 }
 
@@ -49,22 +49,22 @@ noexcept
     return _inner_provider->GetStartPosition(rt, fps);
 }
 
-[[nodiscard]] STDMETHODIMP_(POSITION) CSubPicProviderExWrapper::GetNext( const POSITION pos )
+[[nodiscard]] STDMETHODIMP_(POSITION) CSubPicProviderExWrapper::GetNext( POSITION pos )
 {
     return _inner_provider->GetNext(pos);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStart( const POSITION pos, const double fps )
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStart( POSITION pos, const double fps )
 {
     return _inner_provider->GetStart(pos, fps);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStop( const POSITION pos, const double fps )
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStop( POSITION pos, const double fps )
 {
     return _inner_provider->GetStop(pos, fps);
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsAnimated( const POSITION pos )
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsAnimated( POSITION pos )
 {
     return _inner_provider->IsAnimated(pos);
 }
@@ -74,14 +74,14 @@ noexcept
     return _inner_provider->Render( spd, rt, fps, bbox );
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::GetTextureSize( const POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft )
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::GetTextureSize( POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft )
 {
     return _inner_provider->GetTextureSize( pos, MaxTextureSize, VirtualSize, VirtualTopLeft );
 }
 
 // ISubPicProviderEx
 
-[[nodiscard]] STDMETHODIMP_(VOID) CSubPicProviderExWrapper::GetStartStop( const POSITION pos, const double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
+[[nodiscard]] STDMETHODIMP_(VOID) CSubPicProviderExWrapper::GetStartStop( POSITION pos, const double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
 {
     start = _inner_provider->GetStart(pos, fps);
     stop = _inner_provider->GetStop(pos, fps);
@@ -98,14 +98,14 @@ noexcept
     return hr;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsColorTypeSupported( const int type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsColorTypeSupported( const int type )
+
 {
     return type==MSP_RGBA;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(int) CSubPicProviderExWrapper::SetOutputColorType( const int type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(int) CSubPicProviderExWrapper::SetOutputColorType( const int type )
+
 {
     (type);
     return MSP_RGBA;

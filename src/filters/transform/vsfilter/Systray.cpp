@@ -335,7 +335,7 @@ void CSystrayWindow::OnDestroy()
 			}
 
 			SetForegroundWindow();
-			UINT id{popup.TrackPopupMenu(TPM_LEFTBUTTON|TPM_RETURNCMD, p.x, p.y, CWnd::FromHandle(hWnd), 0)};
+			UINT id = popup.TrackPopupMenu(TPM_LEFTBUTTON|TPM_RETURNCMD, p.x, p.y, CWnd::FromHandle(hWnd), 0);
 			PostMessage(WM_NULL);
 
 			if(id & (1<<15)) 

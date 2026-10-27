@@ -49,11 +49,11 @@ class CUSFSubtitles
 	  void ParseKeyframe(CComPtr<IXMLDOMNode> pNode, keyframe_t* k);
 	 void ParseSubtitle(CComPtr<IXMLDOMNode> pNode, int start, int stop);
 	  void ParseText(CComPtr<IXMLDOMNode> pNode, CStringW& assstr);
-	  constexpr void ParseShape(CComPtr<IXMLDOMNode> pNode) noexcept;
+	  void ParseShape(CComPtr<IXMLDOMNode> pNode);
 
 public:
 	explicit CUSFSubtitles();
-	constexpr virtual ~CUSFSubtitles() noexcept;
+	virtual ~CUSFSubtitles();
 
 	[[nodiscard]] bool Read(LPCTSTR fn);
 //	bool Write(LPCTSTR fn); // TODO

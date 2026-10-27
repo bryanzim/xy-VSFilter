@@ -42,8 +42,8 @@ public:
     virtual ~CCDecoder();
     void DecodeCC(BYTE *buff, int len, __int64 time);
     void ExtractCC(BYTE *buff, int len, __int64 time);
-    [[nodiscard]] constexpr CSimpleTextSubtitle &GetSTS()
-    noexcept
+    [[nodiscard]] CSimpleTextSubtitle &GetSTS()
+
     {
         return m_sts;
     }

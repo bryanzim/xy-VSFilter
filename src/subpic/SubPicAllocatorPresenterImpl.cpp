@@ -47,8 +47,8 @@ CSubPicAllocatorPresenterImpl::CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT&
 	hr = S_OK;
 }
 
-constexpr CSubPicAllocatorPresenterImpl::~CSubPicAllocatorPresenterImpl()
-noexcept
+CSubPicAllocatorPresenterImpl::~CSubPicAllocatorPresenterImpl()
+
 {
 }
 
@@ -60,7 +60,7 @@ noexcept
 		__super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-void CSubPicAllocatorPresenterImpl::AlphaBltSubPic(const CSize size, SubPicDesc* pTarget)
+void CSubPicAllocatorPresenterImpl::AlphaBltSubPic(CSize size, SubPicDesc* pTarget)
 {
 	CComPtr<ISubPic> pSubPic;
 	if(m_pSubPicQueue->LookupSubPic(m_rtNow, &pSubPic)) {
@@ -104,7 +104,7 @@ void CSubPicAllocatorPresenterImpl::AlphaBltSubPic(const CSize size, SubPicDesc*
 	return(VideoSize);
 }
 
-STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetPosition(const RECT w, const RECT v)
+STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetPosition(RECT w, RECT v)
 {
 	bool fWindowPosChanged{!!(m_WindowRect != w)};
 	bool fWindowSizeChanged{!!(m_WindowRect.Size() != CRect(w).Size())};
@@ -144,20 +144,20 @@ STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetTime(const REFERENCE_TIME 
 	}
 }
 
-constexpr STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetSubtitleDelay(const int delay_ms)
-noexcept
+STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetSubtitleDelay(const int delay_ms)
+
 {
 	m_rtSubtitleDelay = delay_ms*10000i64;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(int) CSubPicAllocatorPresenterImpl::GetSubtitleDelay()
-noexcept
+[[nodiscard]] STDMETHODIMP_(int) CSubPicAllocatorPresenterImpl::GetSubtitleDelay()
+
 {
 	return (m_rtSubtitleDelay/10000);
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(double) CSubPicAllocatorPresenterImpl::GetFPS()
-noexcept
+[[nodiscard]] STDMETHODIMP_(double) CSubPicAllocatorPresenterImpl::GetFPS()
+
 {
 	return(m_fps);
 }
@@ -200,7 +200,7 @@ void CSubPicAllocatorPresenterImpl::Transform(CRect r, Vector v[4U])
 	}
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicAllocatorPresenterImpl::SetVideoAngle(const Vector v, const bool fRepaint)
+[[nodiscard]] STDMETHODIMP CSubPicAllocatorPresenterImpl::SetVideoAngle(Vector v, const bool fRepaint)
 {
 	m_xform = XForm(Ray(Vector(0, 0, 0), v), Vector(1, 1, 1), false);
 	if(fRepaint) {

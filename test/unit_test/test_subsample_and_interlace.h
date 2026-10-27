@@ -20,7 +20,7 @@ protected:
     }
 
     [[nodiscard]] const UV_TestData& GetZeroData(int w)
-    noexcept
+
     {
         data1.w = w;
         data1.FillZero();

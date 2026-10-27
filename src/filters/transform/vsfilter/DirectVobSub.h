@@ -70,11 +70,11 @@ protected:
     DirectVobSubImpl(const Option *options, CCritSec * pLock);
     virtual ~DirectVobSubImpl();
 
-    [[nodiscard]] constexpr bool is_compatible() noexcept;
+    [[nodiscard]] bool is_compatible();
     [[nodiscard]] UINT GetCompatibleProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
     [[nodiscard]] CString GetCompatibleProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault);
 
-    [[nodiscard]] virtual HRESULT GetCurStyles(const SubStyle sub_style[], const int count) { return E_NOTIMPL; }
+    [[nodiscard]] virtual HRESULT GetCurStyles(SubStyle sub_style[], const int count) { return E_NOTIMPL; }
     [[nodiscard]] virtual HRESULT SetCurStyles(const SubStyle sub_style[], const int count) { return E_NOTIMPL; }
 protected:
     CCritSec *m_propsLock;
@@ -135,23 +135,23 @@ public:
     [[nodiscard]] STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
 
     
-    [[nodiscard]] constexpr STDMETHODIMP get_SubPictToBuffer(unsigned int* uSubPictToBuffer)
-    noexcept
+    [[nodiscard]] STDMETHODIMP get_SubPictToBuffer(unsigned int* uSubPictToBuffer)
+
     {
         return E_NOTIMPL;
     }
-    [[nodiscard]] constexpr STDMETHODIMP put_SubPictToBuffer(const unsigned int uSubPictToBuffer)
-    noexcept
+    [[nodiscard]] STDMETHODIMP put_SubPictToBuffer(const unsigned int uSubPictToBuffer)
+
     {
         return E_NOTIMPL;
     }
-    [[nodiscard]] constexpr STDMETHODIMP get_AnimWhenBuffering(bool* fAnimWhenBuffering)
-    noexcept
+    [[nodiscard]] STDMETHODIMP get_AnimWhenBuffering(bool* fAnimWhenBuffering)
+
     {
         return E_NOTIMPL;
     }
-    [[nodiscard]] constexpr STDMETHODIMP put_AnimWhenBuffering(const bool fAnimWhenBuffering)
-    noexcept
+    [[nodiscard]] STDMETHODIMP put_AnimWhenBuffering(const bool fAnimWhenBuffering)
+
     {
         return E_NOTIMPL;
     }
@@ -167,14 +167,14 @@ public:
     [[nodiscard]] STDMETHODIMP put_OSD(bool fShowOSD);
 	[[nodiscard]] STDMETHODIMP get_SaveFullPath(bool* fSaveFullPath);
 	[[nodiscard]] STDMETHODIMP put_SaveFullPath(bool fSaveFullPath);
-    [[nodiscard]] constexpr STDMETHODIMP get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv) noexcept;
+    [[nodiscard]] STDMETHODIMP get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv);
     [[nodiscard]] STDMETHODIMP put_SubtitleTiming(int delay, int speedmul, int speeddiv);
-    [[nodiscard]] constexpr STDMETHODIMP get_MediaFPS(bool* fEnabled, double* fps) noexcept;
-    [[nodiscard]] constexpr STDMETHODIMP put_MediaFPS(bool fEnabled, double fps) noexcept;
-	[[nodiscard]] constexpr STDMETHODIMP get_ZoomRect(NORMALIZEDRECT* rect) noexcept;
+    [[nodiscard]] STDMETHODIMP get_MediaFPS(bool* fEnabled, double* fps);
+    [[nodiscard]] STDMETHODIMP put_MediaFPS(bool fEnabled, double fps);
+	[[nodiscard]] STDMETHODIMP get_ZoomRect(NORMALIZEDRECT* rect);
     [[nodiscard]] STDMETHODIMP put_ZoomRect(NORMALIZEDRECT* rect);
-	[[nodiscard]] constexpr STDMETHODIMP get_ColorFormat(int* iPosition) noexcept {return E_NOTIMPL;}
-    [[nodiscard]] constexpr STDMETHODIMP put_ColorFormat(const int iPosition) noexcept {return E_NOTIMPL;}
+	[[nodiscard]] STDMETHODIMP get_ColorFormat(int* iPosition) {return E_NOTIMPL;}
+    [[nodiscard]] STDMETHODIMP put_ColorFormat(const int iPosition) {return E_NOTIMPL;}
 
     STDMETHOD (get_CachesInfo)(CachesInfo* caches_info);
     STDMETHOD (get_XyFlyWeightInfo)(XyFlyWeightInfo* xy_fw_info);
@@ -198,7 +198,7 @@ public:
         
 	// IDirectVobSub2
 
-	[[nodiscard]] constexpr STDMETHODIMP AdviseSubClock(ISubClock* pSubClock) noexcept;
+	[[nodiscard]] STDMETHODIMP AdviseSubClock(ISubClock* pSubClock);
 	[[nodiscard]] STDMETHODIMP_(bool) get_Forced();
 	[[nodiscard]] STDMETHODIMP put_Forced(bool fForced);
     [[nodiscard]] STDMETHODIMP get_TextSettings(STSStyle* pDefStyle);
@@ -208,7 +208,7 @@ public:
 
 	// IFilterVersion
 	
-	[[nodiscard]] constexpr STDMETHODIMP_(DWORD) GetFilterVersion() noexcept;
+	[[nodiscard]] STDMETHODIMP_(DWORD) GetFilterVersion();
 };
 
 // For DirectVobSubFilter

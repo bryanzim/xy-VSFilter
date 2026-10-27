@@ -22,8 +22,8 @@ HdmvSubtitleProviderImpl::HdmvSubtitleProviderImpl( CBaseSub* pSub )
 
 }
 
-constexpr HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl( const void )
-noexcept
+HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
+
 {
 }
 
@@ -141,7 +141,7 @@ noexcept
     return S_OK;
 }
 
-[[nodiscard]] HRESULT HdmvSubtitleProviderImpl::Render( const REFERENCE_TIME now, const POSITION pos )
+[[nodiscard]] HRESULT HdmvSubtitleProviderImpl::Render( const REFERENCE_TIME now, POSITION pos )
 {
     REFERENCE_TIME start{m_pSub->GetStart(pos)};
     REFERENCE_TIME stop{m_pSub->GetStop(pos)};
@@ -257,8 +257,8 @@ HdmvSubtitleProvider::HdmvSubtitleProvider( CCritSec* pLock, SUBTITLE_TYPE nType
     m_rtStart = 0;
 }
 
-constexpr HdmvSubtitleProvider::~HdmvSubtitleProvider( const void )
-noexcept
+HdmvSubtitleProvider::~HdmvSubtitleProvider()
+
 {
     delete m_helper;
     delete m_pSub;
@@ -365,7 +365,7 @@ noexcept
     return S_OK;
 }
 
-[[nodiscard]] HRESULT HdmvSubtitleProvider::EndOfStream( const void )
+[[nodiscard]] HRESULT HdmvSubtitleProvider::EndOfStream()
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
 
@@ -415,7 +415,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     return ret;
 }
 
-[[nodiscard]] static CString StripPath(const CString path)
+[[nodiscard]] static CString StripPath(CString path)
 {
     CString p{path};
     p.Replace('\\', '/');
@@ -423,7 +423,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     return (p.IsEmpty() ? path : p);
 }
 
-[[nodiscard]] bool SupFileSubtitleProvider::Open(const CString fn, const CString subName /*= _T("")*/)
+[[nodiscard]] bool SupFileSubtitleProvider::Open(CString fn, CString subName /*= _T("")*/)
 {
     if (!m_fname.IsEmpty())
     {

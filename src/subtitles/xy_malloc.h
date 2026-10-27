@@ -11,7 +11,7 @@
  * you have to use xy_free for buffers allocated with xy_malloc */
 void *xy_malloc( std::size_t size, int align_shift=0);
 [[nodiscard]] void *xy_realloc( void *p, std::size_t i_size, int align_shift=0 );
-constexpr void  xy_free( void * ) noexcept;
+void  xy_free( void * );
 
 extern std::size_t g_xy_malloc_used_size;
 

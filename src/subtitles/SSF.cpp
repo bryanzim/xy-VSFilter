@@ -35,12 +35,12 @@ namespace ssf
 	{
 	}
 
-	constexpr CRenderer::~CRenderer()
-	noexcept
+	CRenderer::~CRenderer()
+
 	{
 	}
 
-	[[nodiscard]] bool CRenderer::Open(const CString fn, CString name)
+	[[nodiscard]] bool CRenderer::Open(CString fn, CString name)
 	{
 		m_fn.Empty();
 		m_name.Empty();
@@ -72,7 +72,7 @@ namespace ssf
 		return false;	
 	}
 
-	[[nodiscard]] bool CRenderer::Open(InputStream& s, const CString name)
+	[[nodiscard]] bool CRenderer::Open(InputStream& s, CString name)
 	{
 		m_fn.Empty();
 		m_name.Empty();
@@ -132,20 +132,20 @@ namespace ssf
 		return m_file && m_file->m_segments.Lookup((float)rt/10000000, k) ? (POSITION)(++k) : NULL;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(POSITION) CRenderer::GetNext(const POSITION pos)
+	[[nodiscard]] STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
 	{
 		std::size_t k{(std::size_t)pos};
 		return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : NULL;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(const POSITION pos, const double fps)
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, const double fps)
 	{
 		std::size_t k{(std::size_t)pos-1};
 		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : NULL};
 		return s ? (REFERENCE_TIME)(s->m_start*10000000) : 0;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(const POSITION pos, const double fps)
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(POSITION pos, const double fps)
 	{
 		CheckPointer(m_file, 0);
 
@@ -154,7 +154,7 @@ namespace ssf
 		return s ? (REFERENCE_TIME)(s->m_stop*10000000) : 0;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(bool) CRenderer::IsAnimated(const POSITION pos)
+	[[nodiscard]] STDMETHODIMP_(bool) CRenderer::IsAnimated(POSITION pos)
 	{
 		return true;
 	}

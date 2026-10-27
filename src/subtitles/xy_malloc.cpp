@@ -3,6 +3,8 @@
 /* date: 20110514                                                       */
 /************************************************************************/
 #include "xy_malloc.h"
+#include <cstdint>
+#include <cstring>
 #include <stdint.h>
 #include <malloc.h>
 #include <string.h>
@@ -37,8 +39,8 @@ extern std::size_t g_xy_malloc_used_size{0U};
 /****************************************************************************
  * xy_free:
  ****************************************************************************/
-constexpr void xy_free( void *p )
-noexcept
+void xy_free( void *p )
+
 {
     if( p )
     {

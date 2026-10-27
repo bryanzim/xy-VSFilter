@@ -145,7 +145,7 @@ protected:
     }
 
     [[nodiscard]] const A_Y_UV_TestData& GetZeroData()
-    noexcept
+
     {
         std::memset(data1.dst_a, 0, A_Y_UV_TestData::BUF_SIZE*5);
         return data1;

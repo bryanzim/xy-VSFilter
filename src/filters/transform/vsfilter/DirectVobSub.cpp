@@ -376,8 +376,8 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return XySetBool(DirectVobSubXyOptions::BOOL_SAVE_FULL_PATH, fSaveFullPath);
 }
 
-[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv)
-noexcept
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv)
+
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_SUBTITLE_TIMING, OPTION_TYPE_BIN2, OPTION_MODE_READ))
     {
@@ -428,20 +428,20 @@ noexcept
     return OnOptionChanged(BIN2_SUBTITLE_TIMING);
 }
 
-[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::get_MediaFPS(bool* fEnabled, double* fps)
-noexcept
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_MediaFPS(bool* fEnabled, double* fps)
+
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::put_MediaFPS(const bool fEnabled, const double fps)
-noexcept
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_MediaFPS(const bool fEnabled, const double fps)
+
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::get_ZoomRect(NORMALIZEDRECT* rect)
-noexcept
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_ZoomRect(NORMALIZEDRECT* rect)
+
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_ZOOM_RECT,OPTION_TYPE_BIN2, OPTION_MODE_READ))
     {
@@ -697,8 +697,8 @@ noexcept
 
 // IDirectVobSub2
 
-[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::AdviseSubClock(ISubClock* pSubClock)
-noexcept
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::AdviseSubClock(ISubClock* pSubClock)
+
 {
     if (!TestOption(DirectVobSubXyOptions::void_AdviseSubClock))
     {
@@ -776,14 +776,14 @@ noexcept
 
 // IFilterVersion
 
-[[nodiscard]] constexpr STDMETHODIMP_(DWORD) DirectVobSubImpl::GetFilterVersion()
-noexcept
+[[nodiscard]] STDMETHODIMP_(DWORD) DirectVobSubImpl::GetFilterVersion()
+
 {
 	return 0x0234;
 }
 
-[[nodiscard]] constexpr bool DirectVobSubImpl::is_compatible()
-noexcept
+[[nodiscard]] bool DirectVobSubImpl::is_compatible()
+
 {
     bool compatible{false};
     if ( m_config_info_version>XY_VSFILTER_VERSION_COMMIT )
@@ -799,7 +799,7 @@ noexcept
 
 [[nodiscard]] UINT DirectVobSubImpl::GetCompatibleProfileInt( const LPCTSTR lpszSection, const LPCTSTR lpszEntry, const int nDefault )
 {
-    UINT result{nDefault};
+    UINT result = nDefault;
     if (is_compatible())
     {
         result = theApp.GetProfileInt(lpszSection, lpszEntry, nDefault);
@@ -822,8 +822,8 @@ void DirectVobSubImpl::LoadKnownSourceFilters( CAtlArray<CStringW> *filter_guid,
 {
     //fixme: CString VS CStringW
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
-    int number{theApp.GetProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER),
-                                      ResStr(IDS_RK_TOTAL_NUMBER), -248336)};
+    int number = theApp.GetProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER),
+                                      ResStr(IDS_RK_TOTAL_NUMBER), -248336);
     if (number==-248336)
     {
         struct  
@@ -905,7 +905,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
                                                const CAtlArray<CStringW>& filter_name )
 {
     //fixme: CString VS CStringW
-    int number{filter_guid.GetCount()};
+    int number = filter_guid.GetCount();
     CString tmp;
     theApp.WriteProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER), ResStr(IDS_RK_TOTAL_NUMBER), number);
     for (int i{0};i<number;i++)
@@ -1350,7 +1350,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     }
     else
     {
-        for (unsigned i{0U};[[nodiscard]] i<GetOutputColorSpaceNumber();i++)
+        for (unsigned i{0U};i<GetOutputColorSpaceNumber();i++)
         {
             m_outputColorSpace[i].color_space = static_cast<ColorSpaceId>(i);
             m_outputColorSpace[i].selected = true;
@@ -1374,7 +1374,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     }
     else
     {
-        for (unsigned i{0U};[[nodiscard]] i<GetOutputColorSpaceNumber();i++)
+        for (unsigned i{0U};i<GetOutputColorSpaceNumber();i++)
         {
             m_inputColorSpace[i].color_space = static_cast<ColorSpaceId>(i);
             m_inputColorSpace[i].selected = true;
@@ -1547,7 +1547,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 
     //save output color config
     {
-        int count{GetOutputColorSpaceNumber()};
+        int count = GetOutputColorSpaceNumber();
         BYTE* pData{DEBUG_NEW BYTE[2U*count]};
         for(int i{0}; i < count; i++)
         {
@@ -1561,7 +1561,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 
     //save input color config
     {
-        int count{GetInputColorSpaceNumber()};
+        int count = GetInputColorSpaceNumber();
         BYTE* pData{DEBUG_NEW BYTE[2U*count]};
         for(int i{0}; i < count; i++)
         {

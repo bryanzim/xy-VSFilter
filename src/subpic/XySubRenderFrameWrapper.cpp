@@ -165,7 +165,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     ASSERT(inner_obj);
     int count{0};
     HRESULT hr{inner_obj->GetBitmapCount(&count)};
-    [[nodiscard]] ASSERT(SUCCEEDED(hr) && count>=0);
+    ASSERT(SUCCEEDED(hr) && count>=0);
     if (count>0)
     {
         m_ids.SetCount(count);

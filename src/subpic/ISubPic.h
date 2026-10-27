@@ -58,7 +58,7 @@ struct SubPicDesc {
 	BYTE* bitsV;
 	RECT vidrect; // video rectangle
 
-	constexpr explicit SubPicDesc() noexcept {
+	explicit SubPicDesc() {
 		type = 0;
 		w = h = bpp = pitch = pitchUV = 0;
 		bits = NULL;
@@ -96,7 +96,7 @@ public IUnknown {
 
 	STDMETHOD (AlphaBlt) (const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget = NULL /*[in]*/) PURE;
 	STDMETHOD (GetSourceAndDest) (SIZE* pSize /*[in]*/, RECT* pRcSource /*[out]*/, RECT* pRcDest /*[out]*/) PURE;
-	STDMETHOD (SetVirtualTextureSize) (const SIZE pSize, const POINT pTopLeft) PURE;
+	STDMETHOD (SetVirtualTextureSize) (SIZE pSize, POINT pTopLeft) PURE;
 
 	STDMETHOD_(REFERENCE_TIME, GetSegmentStart) () PURE;
 	STDMETHOD_(REFERENCE_TIME, GetSegmentStop) () PURE;

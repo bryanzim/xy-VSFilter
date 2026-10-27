@@ -131,8 +131,8 @@ const OutputFormatBase OutputFmts[] =
 
 [[nodiscard]] ColorSpaceId Subtype2OutputColorSpaceId( const GUID& subtype, const ColorSpaceId startId /*=0 */ )
 {
-    ColorSpaceId i{startId};
-    int num{GetOutputColorSpaceNumber()};
+    ColorSpaceId i = startId;
+    int num = GetOutputColorSpaceNumber();
     for(i=startId;i<num;i++)
     {
         if (*(OutputFmts[i].subtype)==subtype)
@@ -201,8 +201,8 @@ CBaseVideoFilter::CBaseVideoFilter(TCHAR* pName, LPUNKNOWN lpunk, HRESULT* phr, 
 	m_aryout = m_aryin = m_ary = 0;
 }
 
-constexpr CBaseVideoFilter::~CBaseVideoFilter()
-noexcept
+CBaseVideoFilter::~CBaseVideoFilter()
+
 {
 }
 
@@ -757,7 +757,7 @@ HRESULT hr1{0}, hr2 = 0;
 	pmt->majortype = MEDIATYPE_Video;
 	pmt->subtype = *m_outputFmt[iPosition/2]->subtype;
 
-	int w{m_win}, h = m_hin, arx = m_arxin, ary = m_aryin;
+	int w = m_win, h = m_hin, arx = m_arxin, ary = m_aryin;
 	GetOutputSize(w, h, arx, ary);
 
 	BITMAPINFOHEADER bihOut;
@@ -852,8 +852,8 @@ HRESULT hr1{0}, hr2 = 0;
 		m_aryin = m_ary;
 		GetOutputSize(m_w, m_h, m_arx, m_ary);
 
-		DWORD a{m_arx}, b = m_ary;
-		while(a) {int tmp{a}; a = b % tmp; b = tmp;}
+		DWORD a = m_arx, b = m_ary;
+		while(a) {int tmp = a; a = b % tmp; b = tmp;}
 		if(b)
 		{
 		    m_arx /= b, m_ary /= b;
@@ -932,7 +932,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
         return VFW_E_ALREADY_CONNECTED;
     }
 
-    int priority{count};
+    int priority = count;
     CComPtr<IEnumMediaTypes> pEnumMediaTypes = NULL;
     HRESULT hr;
     hr = m_pInput->GetConnected()->EnumMediaTypes( &pEnumMediaTypes );
@@ -998,7 +998,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
             priorities1[c] = (priorities1[c]<<16) + c;
         }
         std::sort(priorities1, priorities1+total_count);
-        int i{total_count-1};
+        int i = total_count - 1;
         for (;i>=0;i--)
         {
             if( priorities1[i]>=(1<<16) )//enabled 
@@ -1073,8 +1073,8 @@ CBaseVideoInputPin::CBaseVideoInputPin(TCHAR* pObjectName, CBaseVideoFilter* pFi
 {
 }
 
-constexpr CBaseVideoInputPin::~CBaseVideoInputPin()
-noexcept
+CBaseVideoInputPin::~CBaseVideoInputPin()
+
 {
 	delete m_pAllocator;
 }

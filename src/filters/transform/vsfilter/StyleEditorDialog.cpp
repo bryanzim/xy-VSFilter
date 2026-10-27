@@ -74,12 +74,12 @@ CStyleEditorPPage::CStyleEditorPPage(CString title, const STSStyle* pstss)
     m_psp.dwFlags |= PSP_USETITLE;
 }
 
-constexpr CStyleEditorPPage::~CStyleEditorPPage()
-noexcept
+CStyleEditorPPage::~CStyleEditorPPage()
+
 {
 }
 
-void CStyleEditorPPage::init( const CString title, const STSStyle* pstss )
+void CStyleEditorPPage::init( CString title, const STSStyle* pstss )
 {
     m_title = title;
     m_stss = *pstss;

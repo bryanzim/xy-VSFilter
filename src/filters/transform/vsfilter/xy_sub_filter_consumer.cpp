@@ -67,7 +67,7 @@ const SubRenderOptionsImpl::OptionMap options[] =
     {0}
 };
 
-const REFERENCE_TIME DEFAULT_FRAME_RATE{10000000.0/25};
+const REFERENCE_TIME DEFAULT_FRAME_RATE = 10000000.0/25;
 
 #ifndef CONSUMRE_MERIT
 #  define CONSUMRE_MERIT 0x00020000
@@ -1012,7 +1012,7 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
     return S_FALSE;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::Disconnect(const void)
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::Disconnect()
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(this));
     static bool entered{false};
@@ -1243,7 +1243,7 @@ static void LogSubPicStartStop( const REFERENCE_TIME& rtStart, const REFERENCE_T
 }
 
 void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
-noexcept
+
 {
     if(subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV 
         || subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21
@@ -1343,7 +1343,7 @@ noexcept
     }
 }
 
-[[nodiscard]] HRESULT Copy(BYTE* pSub, BYTE* pIn, const CSize sub, const CSize in, const int bpp, const GUID& subtype, const DWORD black)
+[[nodiscard]] HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, const int bpp, const GUID& subtype, const DWORD black)
 {
     int wIn{in.cx}, hIn = in.cy, pitchIn = wIn*bpp>>3;
     int wSub{sub.cx}, hSub = sub.cy, pitchSub = wSub*bpp>>3;
@@ -1407,7 +1407,7 @@ noexcept
     return NOERROR;
 }
 
-[[nodiscard]] HRESULT XySubFilterConsumer::Copy(BYTE* pSub, BYTE* pIn, const CSize sub, const CSize in, const int bpp, const GUID& subtype, const DWORD black)
+[[nodiscard]] HRESULT XySubFilterConsumer::Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, const int bpp, const GUID& subtype, const DWORD black)
 {
     return ::Copy(pSub, pIn, sub, in, bpp, subtype, black);	
 }

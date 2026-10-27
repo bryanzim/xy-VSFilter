@@ -27,9 +27,9 @@ public:
         EIGHT_X_EIGHT_MASK = 7,
         EIGHT_X_EIGHT_INTERPOLATE_MASK = 0,
     };
-    [[nodiscard]] constexpr SUBPIXEL_LEVEL SetSubpixelLevel(SUBPIXEL_LEVEL subpixel_level) noexcept;
-    [[nodiscard]] constexpr inline SUBPIXEL_LEVEL GetSubpixelLevel()
-    noexcept
+    [[nodiscard]] SUBPIXEL_LEVEL SetSubpixelLevel(SUBPIXEL_LEVEL subpixel_level);
+    [[nodiscard]] inline SUBPIXEL_LEVEL GetSubpixelLevel()
+
     {
         return _subpixel_level;
     }
@@ -38,10 +38,10 @@ public:
         [[nodiscard]] CPoint result(p.x & _subpixel_mask, p.y & _subpixel_mask);
         return result;
     }
-    [[nodiscard]] constexpr inline bool UseBilinearShift() noexcept { return _subpixel_level==EIGHT_X_EIGHT_INTERPOLATE; }
+    [[nodiscard]] inline bool UseBilinearShift() { return _subpixel_level==EIGHT_X_EIGHT_INTERPOLATE; }
 
-    [[nodiscard]] constexpr static SubpixelPositionControler& GetGlobalControler()
-    noexcept
+    [[nodiscard]] static SubpixelPositionControler& GetGlobalControler()
+
     {
         return s_subpixel_position_controler;
     }

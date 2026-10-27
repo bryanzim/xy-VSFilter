@@ -27,8 +27,8 @@ public:
 		CRect r;
 		return ::IntersectRect(r, lpRect1, lpRect2) == TRUE;
 	}
-	[[nodiscard]] constexpr inline static int Area(const LPCRECT lpRect)
-	noexcept
+	[[nodiscard]] inline static int Area(const LPCRECT lpRect)
+
 	{
 		return (lpRect->right-lpRect->left)*(lpRect->bottom-lpRect->top);
 	}
@@ -42,7 +42,7 @@ public:
 		return std::abs(p1.x - p2.x) + std::abs(p1.y - p2.y);
 	}
 	[[nodiscard]] inline static int Distance(const int x1, const int y1, const int x2, const int y2)
-	noexcept
+
 	{
 		return std::abs(x1-x2) + std::abs(y1-y2);
 	}

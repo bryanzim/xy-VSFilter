@@ -19,8 +19,8 @@ enum { TextInfoCacheKey_EQUAL, ScanLineData2CacheKey_EQUAL,
 
 int g_func_calls_num[EQUALITY_TEST_FUNC_NUM] = {0};
 
-constexpr inline void AddFuncCalls(const int func)
-noexcept
+inline void AddFuncCalls(const int func)
+
 {
     g_func_calls_num[func]++;
 }
@@ -53,7 +53,7 @@ ULONG PathDataTraits::Hash( const PathData& key )
 
 [[nodiscard]] ULONG ClipperTraits::Hash( const CClipper& key )
 {
-    ULONG hash{key.m_polygon->m_str.GetId()};
+    ULONG hash = key.m_polygon->m_str.GetId();
     hash += (hash<<5);
     hash += key.m_inverse;
     hash += (hash<<5);
@@ -113,8 +113,8 @@ ULONG PathDataTraits::Hash( const PathData& key )
 
 // PathDataCacheKey
 
-[[nodiscard]] constexpr bool PathDataCacheKey::CompareSTSStyle( const STSStyle& lhs, const STSStyle& rhs )
-noexcept
+[[nodiscard]] bool PathDataCacheKey::CompareSTSStyle( const STSStyle& lhs, const STSStyle& rhs )
+
 {
     return lhs.charSet==rhs.charSet &&
         lhs.fontName==rhs.fontName &&
@@ -357,7 +357,7 @@ DrawItemHashKey::DrawItemHashKey( const DrawItem& draw_item)
     , m_fBody(draw_item.fBody)
     , m_fBorder(draw_item.fBorder)
 {
-    for(int i{0};[[nodiscard]] i<countof(m_switchpts);i++)
+    for(int i{0};i<countof(m_switchpts);i++)
     {
         m_switchpts[i] = draw_item.switchpts[i];
     }
@@ -443,8 +443,8 @@ public:
         s_subpixel_variance_cache = NULL;
         s_ass_tag_list_cache = NULL;
     }
-    constexpr ~Caches()
-    noexcept
+    ~Caches()
+
     {
         delete s_bitmap_cache;
         delete s_clipper_alpha_mask_cache;

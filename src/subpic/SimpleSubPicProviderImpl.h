@@ -14,7 +14,7 @@ class SimpleSubPicProvider: public CUnknown, public ISimpleSubPicProvider
 {
 public:
     SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IXyOptions *consumer, HRESULT* phr=NULL);
-    constexpr virtual ~SimpleSubPicProvider() noexcept;
+    virtual ~SimpleSubPicProvider();
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -22,7 +22,7 @@ public:
     [[nodiscard]] bool LookupSubPicEx(REFERENCE_TIME rtNow, IXySubRenderFrame** sub_render_frame);
     [[nodiscard]] HRESULT GetSubPicProviderEx(ISubPicProviderEx2** pSubPicProviderEx);
     [[nodiscard]] HRESULT RenderTo(IXySubRenderFrame** pSubPic, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, double fps, BOOL bIsAnimated);
-    [[nodiscard]] constexpr bool IsSpdColorTypeSupported(int type) noexcept;
+    [[nodiscard]] bool IsSpdColorTypeSupported(int type);
 public:
     // ISimpleSubPicProvider
 
@@ -69,7 +69,7 @@ class SimpleSubPicProvider2: public CUnknown, public ISimpleSubPicProvider
 public:
     SimpleSubPicProvider2(int alpha_blt_dst_type, SIZE max_size, SIZE cur_size, RECT video_rect, 
         IXyOptions *consumer, HRESULT* phr=NULL);
-    constexpr virtual ~SimpleSubPicProvider2() noexcept;
+    virtual ~SimpleSubPicProvider2();
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);

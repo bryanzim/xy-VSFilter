@@ -222,7 +222,7 @@ protected:
 
 public:
     CDVSColorPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR *pName = NAME("DirectVobSub Property Page (color settings)"));
-    constexpr ~CDVSColorPPage() noexcept;
+    ~CDVSColorPPage();
 };
 
 [uuid("CE77C59C-CFD2-429f-868C-8B04D23F94CA")]

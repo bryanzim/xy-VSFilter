@@ -56,12 +56,12 @@ public:
 	[[nodiscard]] virtual bool Open(LPCTSTR lpszFileName);
 	[[nodiscard]] virtual bool Save(LPCTSTR lpszFileName, enc e /*= DEFAULT_ENCODING*/);
 
-	constexpr void SetEncoding(enc e) noexcept;
-	[[nodiscard]] constexpr enc GetEncoding() noexcept;
-	[[nodiscard]] constexpr bool IsUnicode() noexcept;
+	void SetEncoding(enc e);
+	[[nodiscard]] enc GetEncoding();
+	[[nodiscard]] bool IsUnicode();
 
 	// CFile
-	[[nodiscard]] constexpr CString GetFilePath() const noexcept;
+	[[nodiscard]] CString GetFilePath() const;
 
 	// CStdioFile
 

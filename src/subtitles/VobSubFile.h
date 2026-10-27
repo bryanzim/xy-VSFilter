@@ -69,7 +69,7 @@ public:
     explicit CVobSubSettings() { InitSettings(); }
     void InitSettings();
 
-    [[nodiscard]] bool GetCustomPal(RGBQUAD* cuspal, int& tridx) noexcept;
+    [[nodiscard]] bool GetCustomPal(RGBQUAD* cuspal, int& tridx);
     void SetCustomPal(const RGBQUAD* cuspal, int tridx);
 
     void GetDestrect(CRect& r); // destrect of m_img, considering the current alignment mode
@@ -125,7 +125,7 @@ public:
     std::array<SubLang, 32> m_langs;
 
     CVobSubFile(CCritSec* pLock);
-    constexpr virtual ~CVobSubFile() noexcept;
+    virtual ~CVobSubFile();
 
     [[nodiscard]] bool Copy(CVobSubFile& vsf);
 
@@ -141,7 +141,7 @@ public:
     [[nodiscard]] bool Save(CString fn, int delay = 0, SubFormat sf = VobSub);
     void Close();
 
-    [[nodiscard]] constexpr CString GetTitle() noexcept { return m_title; }
+    [[nodiscard]] CString GetTitle() { return m_title; }
 
     [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -180,7 +180,7 @@ class __declspec(uuid("D7FBFB45-2D13-494F-9B3D-FFC9557D5C45"))
 
 public:
     CVobSubStream(CCritSec* pLock);
-    constexpr virtual ~CVobSubStream() noexcept;
+    virtual ~CVobSubStream();
 
     void Open(CString name, BYTE* pData, int len);
 

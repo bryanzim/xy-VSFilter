@@ -51,8 +51,8 @@ CRenderedHdmvSubtitle::CRenderedHdmvSubtitle(CCritSec* pLock, SUBTITLE_TYPE nTyp
 	m_rtStart = 0;
 }
 
-constexpr CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle(const void)
-noexcept
+CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
+
 {
 	delete m_pSub;
 }
@@ -78,25 +78,25 @@ noexcept
 	return	m_pSub->GetStartPosition(rt - m_rtStart, fps);
 }
 
-[[nodiscard]] STDMETHODIMP_(POSITION) CRenderedHdmvSubtitle::GetNext(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(POSITION) CRenderedHdmvSubtitle::GetNext(POSITION pos)
 {
 	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
 	return m_pSub->GetNext (pos);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStart(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStart(POSITION pos, const double fps)
 {
 	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
 	return m_pSub->GetStart(pos) + m_rtStart;
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStop(const POSITION pos, const double fps)
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStop(POSITION pos, const double fps)
 {
 	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
 	return m_pSub->GetStop(pos) + m_rtStart;
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsAnimated(const POSITION pos)
+[[nodiscard]] STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsAnimated(POSITION pos)
 {
 	return false;
 }
@@ -109,7 +109,7 @@ noexcept
 	return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::GetTextureSize (const POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
+[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
 {
 	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
 	HRESULT hr{m_pSub->GetTextureSize(pos, MaxTextureSize, VideoSize, VideoTopLeft)};
@@ -191,8 +191,8 @@ void CRenderedHdmvSubtitle::EndOfStream()
     m_pSub->EndOfStream();
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsColorTypeSupported( const int type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsColorTypeSupported( const int type )
+
 {
     return type==MSP_AYUV_PLANAR ||
         type==MSP_AYUV ||

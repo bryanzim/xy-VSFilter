@@ -10,8 +10,8 @@ IDSMPropertyBagImpl::IDSMPropertyBagImpl()
 {
 }
 
-constexpr IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
-noexcept
+IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
+
 {
 }
 
@@ -87,8 +87,8 @@ noexcept
 	return S_OK;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP IDSMPropertyBagImpl::LoadObject(const LPCOLESTR pstrName, const DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog)
-noexcept
+[[nodiscard]] STDMETHODIMP IDSMPropertyBagImpl::LoadObject(const LPCOLESTR pstrName, const DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog)
+
 {
 	return E_NOTIMPL;
 }
@@ -297,7 +297,7 @@ IDSMResourceBagImpl::IDSMResourceBagImpl()
 {
 	if(tag)
 	{
-		for(int i{m_resources.GetCount() - 1}; i >= 0; i--)
+		for(int i = m_resources.GetCount() - 1; i >= 0; i--)
 		{
 			if(m_resources[i].tag == tag)
 			{
@@ -339,8 +339,8 @@ void CDSMChapter::operator = (const CDSMChapter& c)
 
 int CDSMChapter::counter = 0;
 
-[[nodiscard]] constexpr int CDSMChapter::Compare(const void* a, const void* b)
-noexcept
+[[nodiscard]] int CDSMChapter::Compare(const void* a, const void* b)
+
 {
 	const CDSMChapter* ca{(const CDSMChapter*)a};
 	const CDSMChapter* cb{(const CDSMChapter*)b};

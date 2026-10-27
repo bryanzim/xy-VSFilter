@@ -70,7 +70,7 @@ protected:
 
 	virtual void GetOutputSize(int& w, int& h, int& arx, int& ary) {}
 	[[nodiscard]] virtual HRESULT Transform(IMediaSample* pIn) = 0;
-	[[nodiscard]] constexpr virtual HRESULT IsVideoInterlaced() noexcept {return false;}
+	[[nodiscard]] virtual HRESULT IsVideoInterlaced() {return false;}
 
     void InitInputColorSpaces();
     void InitOutputColorSpaces();
@@ -82,7 +82,7 @@ protected:
     [[nodiscard]] int GetOutputSubtypePosition( const GUID& subtype, int startPos =0 );    
 public:
 	CBaseVideoFilter(TCHAR* pName, LPUNKNOWN lpunk, HRESULT* phr, REFCLSID clsid, long cBuffers = 1);
-	constexpr virtual ~CBaseVideoFilter() noexcept;
+	virtual ~CBaseVideoFilter();
 
 	[[nodiscard]] int GetPinCount();
 	[[nodiscard]] CBasePin* GetPin(int n);
@@ -114,7 +114,7 @@ class CBaseVideoInputPin : public CTransformInputPin
 
 public:
 	CBaseVideoInputPin(TCHAR* pObjectName, CBaseVideoFilter* pFilter, HRESULT* phr, LPCWSTR pName);
-	constexpr ~CBaseVideoInputPin() noexcept;
+	~CBaseVideoInputPin();
 
 	[[nodiscard]] STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
 	[[nodiscard]] STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);

@@ -85,14 +85,14 @@ int SubRenderOptionsImpl::GetIFiled( LPCSTR field, OptionType type )
     return _impl->XySetInt(ifield, value);
 }
 
-[[nodiscard]] STDMETHODIMP SubRenderOptionsImpl::SetSize(const LPCSTR field, const SIZE value)
+[[nodiscard]] STDMETHODIMP SubRenderOptionsImpl::SetSize(const LPCSTR field, SIZE value)
 {
     int ifield{GetIFiled(field, OPTION_TYPE_SIZE)};
     CheckPointer(_impl, E_POINTER);
     return _impl->XySetSize(ifield, value);
 }
 
-[[nodiscard]] STDMETHODIMP SubRenderOptionsImpl::SetRect(const LPCSTR field, const RECT value)
+[[nodiscard]] STDMETHODIMP SubRenderOptionsImpl::SetRect(const LPCSTR field, RECT value)
 {
     int ifield{GetIFiled(field, OPTION_TYPE_RECT)};
     CheckPointer(_impl, E_POINTER);

@@ -38,8 +38,8 @@ Vector::Vector(float x, float y, float z)
 	this->z = z;
 }
 
-constexpr void Vector::Set(float x, float y, float z)
-noexcept
+void Vector::Set(float x, float y, float z)
+
 {
 	this->x = x;
 	this->y = y;
@@ -47,37 +47,37 @@ noexcept
 }
 
 [[nodiscard]] float Vector::Length()
-noexcept
+
 {
 	return(std::sqrt(x * x + y * y + z * z));
 }
 
-[[nodiscard]] constexpr float Vector::Sum()
-noexcept
+[[nodiscard]] float Vector::Sum()
+
 {
 	return(x + y + z);
 }
 
-[[nodiscard]] constexpr float Vector::CrossSum()
-noexcept
+[[nodiscard]] float Vector::CrossSum()
+
 {
 	return(x*y + x*z + y*z);
 }
 
-[[nodiscard]] constexpr Vector Vector::Cross()
-noexcept
+[[nodiscard]] Vector Vector::Cross()
+
 {
 	return(Vector(x*y, x*z, y*z));
 }
 
 [[nodiscard]] Vector Vector::Pow(const float exp)
-noexcept
+
 {
 	return(exp == 0 ? Vector(1, 1, 1) : exp == 1 ? *this : Vector(std::pow(x, exp), std::pow(y, exp), std::pow(z, exp)));
 }
 
 [[nodiscard]] Vector Vector::Unit()
-noexcept
+
 {
 	float l{Length()};
 	if(!l || l == 1)
@@ -88,13 +88,13 @@ noexcept
 }
 
 [[nodiscard]] Vector& Vector::Unitalize()
-noexcept
+
 {
 	return(*this = Unit());
 }
 
-[[nodiscard]] constexpr Vector Vector::Normal(Vector& a, Vector& b)
-noexcept
+[[nodiscard]] Vector Vector::Normal(Vector& a, Vector& b)
+
 {
 	return((a - *this) % (b - a));
 }
@@ -138,8 +138,8 @@ void Vector::Angle(float& u, float& v)
 	return(ret);
 }
 
-[[nodiscard]] constexpr Vector& Vector::Min(Vector& a)
-noexcept
+[[nodiscard]] Vector& Vector::Min(Vector& a)
+
 {
 	x = (x < a.x) ? x : a.x;
 	y = (y < a.y) ? y : a.y;
@@ -147,8 +147,8 @@ noexcept
 	return(*this);
 }
 
-[[nodiscard]] constexpr Vector& Vector::Max(Vector& a)
-noexcept
+[[nodiscard]] Vector& Vector::Max(Vector& a)
+
 {
 	x = (x > a.x) ? x : a.x;
 	y = (y > a.y) ? y : a.y;
@@ -157,19 +157,19 @@ noexcept
 }
 
 [[nodiscard]] Vector Vector::Abs()
-noexcept
+
 {
 	return(Vector(std::fabs(x), std::fabs(y), std::fabs(z)));
 }
 
-[[nodiscard]] constexpr Vector Vector::Reflect(Vector& n)
-noexcept
+[[nodiscard]] Vector Vector::Reflect(Vector& n)
+
 {
 	return(n * ((-*this) | n) * 2 - (-*this));
 }
 
 [[nodiscard]] Vector Vector::Refract(Vector& N, const float nFront, const float nBack, float* nOut)
-noexcept
+
 {
 	Vector D{-*this};
 
@@ -187,7 +187,7 @@ noexcept
 		return((*this).Reflect(N));
 	}
 
-	float N_dot_T{std::sqrt(1.0 - len_sin_T)};
+	float N_dot_T = std::sqrt(1.0 - len_sin_T);
 	if(N_dot_D < 0)
 	{
 	    N_dot_T = -N_dot_T;
@@ -199,7 +199,7 @@ noexcept
 }
 
 [[nodiscard]] Vector Vector::Refract2(Vector& N, const float nFrom, const float nTo, float* nOut)
-noexcept
+
 {
 	Vector D{-*this};
 
@@ -217,7 +217,7 @@ noexcept
 		return((*this).Reflect(N));
 	}
 
-	float N_dot_T{std::sqrt(1.0 - len_sin_T)};
+	float N_dot_T = std::sqrt(1.0 - len_sin_T);
 	if(N_dot_D < 0)
 	{
 	    N_dot_T = -N_dot_T;
@@ -360,8 +360,8 @@ Ray::Ray(Vector& p, Vector& d)
 	this->d = d;
 }
 
-constexpr void Ray::Set(Vector& p, Vector& d)
-noexcept
+void Ray::Set(Vector& p, Vector& d)
+
 {
 	this->p = p;
 	this->d = d;

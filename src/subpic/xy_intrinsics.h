@@ -64,8 +64,8 @@
     m128_1 = _mm_srli_epi16(m128_1, 8);\
     }
 
-constexpr static void average_4_pix_intrinsics_3_c(__m128i& m128i_1, __m128i& m128i_last) 
-noexcept
+static void average_4_pix_intrinsics_3_c(__m128i& m128i_1, __m128i& m128i_last) 
+
 {
     int last{m128i_last.m128i_u8[1U]};
     m128i_last.m128i_u8[0U] = m128i_1.m128i_u8[14U];
@@ -104,8 +104,8 @@ noexcept
     m128_1 = _mm_slli_epi16(m128_1, 8);\
     }
 
-constexpr static void average_4_pix_intrinsics_4_c(__m128i& m128i_1, __m128i& m128i_last) 
-noexcept
+static void average_4_pix_intrinsics_4_c(__m128i& m128i_1, __m128i& m128i_last) 
+
 {
     int last{m128i_last.m128i_u8[1U]};
     m128i_last.m128i_u8[0U] = m128i_1.m128i_u8[14U];
@@ -145,8 +145,8 @@ noexcept
     m128_1 = _mm_or_si128(m128_1, m128_2);\
     }
 
-constexpr static void average_4_pix_intrinsics_5_c(__m128i& m128i_1, __m128i& m128i_last) 
-noexcept
+static void average_4_pix_intrinsics_5_c(__m128i& m128i_1, __m128i& m128i_last) 
+
 {
     int last{m128i_last.m128i_u8[1U]};
     m128i_last.m128i_u8[0U] = m128i_1.m128i_u8[14U];
@@ -167,8 +167,8 @@ noexcept
     }
 }
 
-constexpr static void subsample_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch)
-noexcept
+static void subsample_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch)
+
 {
     const BYTE* end{u + w};
     for (;u<end;dst+=2,u+=2,v+=2)
@@ -210,9 +210,9 @@ static __forceinline void pix_alpha_blend_yv12_luma_sse2(byte* dst, const byte* 
 
     __m128i ones;
 #ifdef _DEBUG
-    ones{_mm_setzero_si128()};//disable warning C4700
+    ones = _mm_setzero_si128();//disable warning C4700
 #endif
-    ones{_mm_cmpeq_epi32(ones,ones)};
+    ones = _mm_cmpeq_epi32(ones,ones);
     ones = _mm_cmpeq_epi8(ones,alpha128);
 
     __m128i dst_lo128{_mm_unpacklo_epi8(dst128, zero)};
@@ -255,9 +255,9 @@ static __forceinline void pix_alpha_blend_yv12_chroma_sse2(byte* dst, const byte
 
     __m128i ones;
 #ifdef _DEBUG
-    ones{_mm_setzero_si128()};//disable warning C4700
+    ones = _mm_setzero_si128();//disable warning C4700
 #endif
-    ones{_mm_cmpeq_epi32(ones,ones)};
+    ones = _mm_cmpeq_epi32(ones,ones);
     ones = _mm_cmpeq_epi8(ones, alpha128_1);
     
     dst128 = _mm_unpacklo_epi8(dst128, zero);
@@ -285,9 +285,9 @@ static __forceinline void mix_16_y_p010_P210_sse2(BYTE* dst, const BYTE* src, co
 
     __m128i alpha_ff;
 #ifdef _DEBUG
-    alpha_ff{_mm_setzero_si128()};//disable warning C4700
+    alpha_ff = _mm_setzero_si128();//disable warning C4700
 #endif
-    alpha_ff{_mm_cmpeq_epi32(alpha_ff,alpha_ff)};
+    alpha_ff = _mm_cmpeq_epi32(alpha_ff,alpha_ff);
 
     alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);                                           
 
@@ -299,9 +299,9 @@ static __forceinline void mix_16_y_p010_P210_sse2(BYTE* dst, const BYTE* src, co
 
     __m128i ones2;
 #ifdef _DEBUG
-    ones2{_mm_setzero_si128()};//disable warning C4700
+    ones2 = _mm_setzero_si128();//disable warning C4700
 #endif
-    ones2{_mm_cmpeq_epi32(ones2,ones2)};
+    ones2 = _mm_cmpeq_epi32(ones2,ones2);
 
     ones = _mm_xor_si128(ones, ones2);                            
     ones = _mm_srli_epi16(ones, 15);
@@ -337,7 +337,7 @@ static __forceinline void mix_16_y_p010_P210_sse2(BYTE* dst, const BYTE* src, co
 
 //for test only
 static void mix_16_y_p010_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha)
-noexcept
+
 {
     WORD* dst_word{reinterpret_cast<WORD*>(dst)};
     for (int i{0};i<16;i++)
@@ -349,11 +349,11 @@ noexcept
     }
 }
 
-constexpr static __forceinline void pix_alpha_blend_yv12_chroma(byte* dst, const byte* src, const byte* alpha, const int src_pitch)
-noexcept
+static __forceinline void pix_alpha_blend_yv12_chroma(byte* dst, const byte* src, const byte* alpha, const int src_pitch)
+
 {
-    unsigned int ia{(alpha[0U]+alpha[1U]+
-        alpha[0U+src_pitch]+alpha[1U+src_pitch])>>2};
+    unsigned int ia = (alpha[0U]+alpha[1U]+
+        alpha[0U+src_pitch]+alpha[1U+src_pitch])>>2;
     if(ia!=0xff)
     {
         *dst= (((*dst)*ia)>>8) + ((src[0U]        +src[1U]+
@@ -373,9 +373,9 @@ static __forceinline void mix_16_uv_p010_sse2(BYTE* dst, const BYTE* src, const 
 
     __m128i alpha_ff;
 #ifdef _DEBUG
-    alpha_ff{_mm_setzero_si128()};//disable warning C4700
+    alpha_ff = _mm_setzero_si128();//disable warning C4700
 #endif
-    alpha_ff{_mm_cmpeq_epi32(alpha_ff,alpha_ff)};
+    alpha_ff = _mm_cmpeq_epi32(alpha_ff,alpha_ff);
 
     alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);                                           
 
@@ -387,9 +387,9 @@ static __forceinline void mix_16_uv_p010_sse2(BYTE* dst, const BYTE* src, const 
 
     __m128i ones2;
 #ifdef _DEBUG
-    ones2{_mm_setzero_si128()};//disable warning C4700
+    ones2 = _mm_setzero_si128();//disable warning C4700
 #endif
-    ones2{_mm_cmpeq_epi32(ones2,ones2)};
+    ones2 = _mm_cmpeq_epi32(ones2,ones2);
     ones = _mm_xor_si128(ones, ones2);                            
     ones = _mm_srli_epi16(ones, 15);
     ones = _mm_and_si128(ones, lo);
@@ -437,9 +437,9 @@ static __forceinline void mix_16_uv_p210_sse2(BYTE* dst, const BYTE* src, const 
 
     __m128i alpha_ff;
 #ifdef _DEBUG
-    alpha_ff{_mm_setzero_si128()};//disable warning C4700
+    alpha_ff = _mm_setzero_si128();//disable warning C4700
 #endif
-    alpha_ff{_mm_cmpeq_epi32(alpha_ff, alpha_ff)};
+    alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
 
     alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);
 
@@ -451,9 +451,9 @@ static __forceinline void mix_16_uv_p210_sse2(BYTE* dst, const BYTE* src, const 
 
     __m128i ones2;
 #ifdef _DEBUG
-    ones2{_mm_setzero_si128()};//disable warning C4700
+    ones2 = _mm_setzero_si128();//disable warning C4700
 #endif
-    ones2{_mm_cmpeq_epi32(ones2, ones2)};
+    ones2 = _mm_cmpeq_epi32(ones2, ones2);
     ones = _mm_xor_si128(ones, ones2);
     ones = _mm_srli_epi16(ones, 15);
     ones = _mm_and_si128(ones, lo);
@@ -487,17 +487,17 @@ static __forceinline void mix_16_uv_p210_sse2(BYTE* dst, const BYTE* src, const 
 }
 
 static void mix_16_uv_p010_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
-noexcept
+
 {
     WORD* dst_word{reinterpret_cast<WORD*>(dst)};
     for (int i{0};i<8;i++, src_alpha+=2, src+=2, dst_word+=2)
     {
-        unsigned int ia{( 
+        unsigned int ia = ( 
             (src_alpha[0U]+src_alpha[0U+pitch]+1)/2+
-            (src_alpha[1U]+src_alpha[1U+pitch]+1)/2+1)/2};
+            (src_alpha[1U]+src_alpha[1U+pitch]+1)/2+1)/2;
         if( ia!=0xFF )
         {
-            int tmp{(((dst_word[0U])*ia)>>8) + (src[0U]<<8)};
+            int tmp = (((dst_word[0U])*ia)>>8) + (src[0U]<<8);
             if(tmp>0xffff)
             {
                 tmp = 0xffff;
@@ -514,16 +514,16 @@ noexcept
 }
 
 static void mix_16_uv_p210_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
-noexcept
+
 {
     WORD* dst_word{reinterpret_cast<WORD*>(dst)};
     for (int i{0}; i < 8; i++, src_alpha += 2, src += 2, dst_word += 2)
     {
         // only horizontal subsampling
-        unsigned int ia{(src_alpha[0U] + src_alpha[1U] + 1) / 2};
+        unsigned int ia = (src_alpha[0U] + src_alpha[1U] + 1) / 2;
         if (ia != 0xFF)
         {
-            int tmp{(((dst_word[0U]) * ia) >> 8) + (src[0U] << 8)};
+            int tmp = (((dst_word[0U]) * ia) >> 8) + (src[0U] << 8);
             if (tmp > 0xffff)
             {
                 tmp = 0xffff;
@@ -551,9 +551,9 @@ static __forceinline void mix_16_uv_nvxx_sse2(BYTE* dst, const BYTE* src, const 
 
     __m128i ones;
 #ifdef _DEBUG
-    ones{_mm_setzero_si128()};//disable warning C4700
+    ones = _mm_setzero_si128();//disable warning C4700
 #endif
-    ones{_mm_cmpeq_epi32(ones,ones)};
+    ones = _mm_cmpeq_epi32(ones,ones);
     ones = _mm_cmpeq_epi8(ones,alpha128_1);
 
     __m128i dst_lo128{_mm_unpacklo_epi8(dst128, zero)};
@@ -580,14 +580,14 @@ static __forceinline void mix_16_uv_nvxx_sse2(BYTE* dst, const BYTE* src, const 
 }
 
 //for test only
-constexpr static void mix_16_uv_nvxx_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
-noexcept
+static void mix_16_uv_nvxx_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
+
 {
     for (int i{0};i<8;i++, src_alpha+=2, src+=2, dst+=2)
     {
-        unsigned int ia{( 
+        unsigned int ia = ( 
             (src_alpha[0U]+src_alpha[0U+pitch]+1)/2+
-            (src_alpha[1U]+src_alpha[1U+pitch]+1)/2+1)/2};
+            (src_alpha[1U]+src_alpha[1U+pitch]+1)/2+1)/2;
         if( ia!=0xFF )
         {
             dst[0U] = (((dst[0U])*ia)>>8) + src[0U];            
@@ -605,12 +605,12 @@ noexcept
  *     o     o    ...
  *     x  x  x  x ...
  ******/
-constexpr static __forceinline void hleft_vmid_subsample_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id=0)
-noexcept
+static __forceinline void hleft_vmid_subsample_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id=0)
+
 {
     const BYTE* end{u + w};
-    BYTE last_u{(u[last_src_id]+u[last_src_id+pitch]+1)/2};
-    BYTE last_v{(v[last_src_id]+v[last_src_id+pitch]+1)/2};
+    BYTE last_u = (u[last_src_id]+u[last_src_id+pitch]+1)/2;
+    BYTE last_v = (v[last_src_id]+v[last_src_id+pitch]+1)/2;
     for (;u<end;dst+=2,u+=2,v+=2)
     {
         dst[0U] = (u[0U] + u[0U+pitch] + 1)/2;
@@ -651,8 +651,8 @@ static __forceinline void hleft_vmid_subsample_and_interlace_2_line_sse2(BYTE* d
     //hleft_vmid_subsample_and_interlace_2_line_c(dst, u, v, w&15, pitch, w>15?-1:0);
 }
 
-constexpr static __forceinline void subsample_422_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id = 0)
-noexcept
+static __forceinline void subsample_422_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id = 0)
+
 {
     const BYTE* end{u + w};
     BYTE last_u{u[last_src_id]};
@@ -693,8 +693,8 @@ static __forceinline void subsample_422_and_interlace_2_line_sse2(BYTE* dst, con
     //hleft_vmid_subsample_and_interlace_2_line_c(dst, u, v, w&15, pitch, w>15?-1:0);
 }
 
-constexpr static __forceinline void hleft_vmid_mix_uv_yv12_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id=0)
-noexcept
+static __forceinline void hleft_vmid_mix_uv_yv12_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id=0)
+
 {
     int last_alpha{(am[last_src_id]+am[last_src_id+src_pitch]+1)/2};
     int last_sub{(src[last_src_id]+src[last_src_id+src_pitch]+1)/2};
@@ -800,9 +800,9 @@ static __forceinline void hleft_vmid_mix_uv_yv12_sse2(byte* dst, const int w00, 
 
         __m128i ones;
 #ifdef _DEBUG
-        ones{_mm_setzero_si128()};//disable warning C4700
+        ones = _mm_setzero_si128();//disable warning C4700
 #endif
-        ones{_mm_cmpeq_epi32(ones,ones)};
+        ones = _mm_cmpeq_epi32(ones,ones);
         ones = _mm_cmpeq_epi8(ones, alpha128_1);
 
         dst128 = _mm_unpacklo_epi8(dst128, zero);
@@ -820,8 +820,8 @@ static __forceinline void hleft_vmid_mix_uv_yv12_sse2(byte* dst, const int w00, 
     }
 }
 
-constexpr static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
-noexcept
+static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
+
 {
     int last_alpha{am[last_src_id]};
     int last_sub{src[last_src_id]};
@@ -923,9 +923,9 @@ static __forceinline void mix_uv_yv16_sse2(byte* dst, const int w00, const byte*
 
         __m128i ones;
 #ifdef _DEBUG
-        ones{_mm_setzero_si128()};//disable warning C4700
+        ones = _mm_setzero_si128();//disable warning C4700
 #endif
-        ones{_mm_cmpeq_epi32(ones, ones)};
+        ones = _mm_cmpeq_epi32(ones, ones);
         ones = _mm_cmpeq_epi8(ones, alpha128_1);
 
         dst128 = _mm_unpacklo_epi8(dst128, zero);
@@ -944,7 +944,7 @@ static __forceinline void mix_uv_yv16_sse2(byte* dst, const int w00, const byte*
 }
 
 static __forceinline void hleft_vmid_mix_uv_p010_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
-noexcept
+
 {
     int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
     const BYTE* end{src + w};
@@ -1043,9 +1043,9 @@ static __forceinline void hleft_vmid_mix_uv_p010_sse2(BYTE* dst, const int w00, 
 
         __m128i alpha_ff;
 #ifdef _DEBUG
-        alpha_ff{_mm_setzero_si128()};//disable warning C4700
+        alpha_ff = _mm_setzero_si128();//disable warning C4700
 #endif
-        alpha_ff{_mm_cmpeq_epi32(alpha_ff,alpha_ff)};
+        alpha_ff = _mm_cmpeq_epi32(alpha_ff,alpha_ff);
 
         alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);                                           
 
@@ -1057,9 +1057,9 @@ static __forceinline void hleft_vmid_mix_uv_p010_sse2(BYTE* dst, const int w00, 
 
         __m128i ones2;
 #ifdef _DEBUG
-        ones2{_mm_setzero_si128()};//disable warning C4700
+        ones2 = _mm_setzero_si128();//disable warning C4700
 #endif
-        ones2{_mm_cmpeq_epi32(ones2,ones2)};
+        ones2 = _mm_cmpeq_epi32(ones2,ones2);
         ones = _mm_xor_si128(ones, ones2);                            
         ones = _mm_srli_epi16(ones, 15);
         ones = _mm_and_si128(ones, lo);
@@ -1092,8 +1092,8 @@ static __forceinline void hleft_vmid_mix_uv_p010_sse2(BYTE* dst, const int w00, 
     }
 }
 
-constexpr static __forceinline void hleft_vmid_mix_uv_nv12_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
-noexcept
+static __forceinline void hleft_vmid_mix_uv_nv12_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
+
 {
     int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
     const BYTE* end{src + w};
@@ -1170,9 +1170,9 @@ static __forceinline void hleft_vmid_mix_uv_nv12_sse2(BYTE* dst, const int w00, 
 
         __m128i ones;
 #ifdef _DEBUG
-        ones{_mm_setzero_si128()};//disable warning C4700
+        ones = _mm_setzero_si128();//disable warning C4700
 #endif
-        ones{_mm_cmpeq_epi32(ones,ones)};
+        ones = _mm_cmpeq_epi32(ones,ones);
         ones = _mm_cmpeq_epi8(ones,alpha128_1);
 
         __m128i dst_lo128{_mm_unpacklo_epi8(dst128, zero)};
@@ -1200,7 +1200,7 @@ static __forceinline void hleft_vmid_mix_uv_nv12_sse2(BYTE* dst, const int w00, 
 }
 
 static __forceinline void mix_uv_p210_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
-noexcept
+
 {
     // no vertical subsampling
     int last_alpha{am[last_src_id]};
@@ -1300,9 +1300,9 @@ static __forceinline void mix_uv_p210_sse2(BYTE* dst, const int w00, const BYTE*
 
         __m128i alpha_ff;
 #ifdef _DEBUG
-        alpha_ff{_mm_setzero_si128()};//disable warning C4700
+        alpha_ff = _mm_setzero_si128();//disable warning C4700
 #endif
-        alpha_ff{_mm_cmpeq_epi32(alpha_ff, alpha_ff)};
+        alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
 
         alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);
 
@@ -1314,9 +1314,9 @@ static __forceinline void mix_uv_p210_sse2(BYTE* dst, const int w00, const BYTE*
 
         __m128i ones2;
 #ifdef _DEBUG
-        ones2{_mm_setzero_si128()};//disable warning C4700
+        ones2 = _mm_setzero_si128();//disable warning C4700
 #endif
-        ones2{_mm_cmpeq_epi32(ones2, ones2)};
+        ones2 = _mm_cmpeq_epi32(ones2, ones2);
         ones = _mm_xor_si128(ones, ones2);
         ones = _mm_srli_epi16(ones, 15);
         ones = _mm_and_si128(ones, lo);

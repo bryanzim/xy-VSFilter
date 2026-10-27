@@ -49,8 +49,8 @@ CHdmvSub::~CHdmvSub()
 }
 
 
-constexpr void CHdmvSub::AllocSegment(const int nSize)
-noexcept
+void CHdmvSub::AllocSegment(const int nSize)
+
 {
     if (nSize > m_nTotalSegBuffer) {
         delete [] m_pSegBuffer;
@@ -136,7 +136,7 @@ noexcept
         while (!SampleBuffer.IsEOF()) {
             if (m_nCurSegment == NO_SEGMENT) {
                 HDMV_SEGMENT_TYPE nSegType{(HDMV_SEGMENT_TYPE)SampleBuffer.ReadByte()};
-                unsigned short nUnitSize{SampleBuffer.ReadShort()};
+                unsigned short nUnitSize = SampleBuffer.ReadShort();
                 lSampleLen -= 3;
 
                 switch (nSegType) {
@@ -406,7 +406,7 @@ void CHdmvSub::Render(SubPicDesc& spd, const REFERENCE_TIME rt, RECT& bbox)
     }
 }
 
-[[nodiscard]] HRESULT CHdmvSub::GetTextureSize(const POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
+[[nodiscard]] HRESULT CHdmvSub::GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
 {
     HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt(pos)};
     if (pPresentationSegment) {

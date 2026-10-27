@@ -65,8 +65,8 @@ CSubPicQueueImpl::CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr,
     }
 }
 
-constexpr CSubPicQueueImpl::~CSubPicQueueImpl()
-noexcept
+CSubPicQueueImpl::~CSubPicQueueImpl()
+
 {
 }
 
@@ -391,7 +391,7 @@ CSubPicQueue::~CSubPicQueue()
         //	if(pSubPicProvider->GetStartPosition(rtNow, fps))
         {
             [[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
-            int count{m_Queue.GetCount()};
+            int count = m_Queue.GetCount();
             if(count>0)
                 if(WaitForSingleObject(m_QueueEvents[QueueEvents_NOTEMPTY], CSUBPICQUEUE_LOOKUP_WAIT_TIMEOUT)==WAIT_OBJECT_0)
                 {
@@ -410,7 +410,7 @@ CSubPicQueue::~CSubPicQueue()
                             break;
                         }
                     }
-                    int count{m_Queue.GetCount()};
+                    int count = m_Queue.GetCount();
                     if(count>0)
                     {
                         SetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
@@ -488,7 +488,7 @@ CSubPicQueue::~CSubPicQueue()
 	{
 		[[nodiscard]] CAutoLock cQueueLock(&m_csQueueLock);
 		rtNow = m_rtNow;
-		int count{m_Queue.GetCount()};
+		int count = m_Queue.GetCount();
 		if(rtNow < m_rtQueueStart)
 		{
 			m_Queue.RemoveAll();
@@ -670,7 +670,7 @@ void CSubPicQueue::AppendQueue(ISubPic* pSubPic)
 		{
 			m_Queue.AddTail(pSubPic);
 		}
-		int count{m_Queue.GetCount()};
+		int count = m_Queue.GetCount();
 		if(count>0)
 		{
 			SetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
@@ -722,8 +722,8 @@ CSubPicQueueNoThread::CSubPicQueueNoThread(ISubPicExAllocator* pAllocator, HRESU
 {
 }
 
-constexpr CSubPicQueueNoThread::~CSubPicQueueNoThread()
-noexcept
+CSubPicQueueNoThread::~CSubPicQueueNoThread()
+
 {
 }
 

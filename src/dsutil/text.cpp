@@ -110,7 +110,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 	return str;
 }
 
-[[nodiscard]] CStringA UrlEncode(const CStringA str, const bool fRaw)
+[[nodiscard]] CStringA UrlEncode(CStringA str, const bool fRaw)
 {
 	CStringA urlstr;
 
@@ -135,7 +135,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 	return urlstr;
 }
 
-[[nodiscard]] CStringA UrlDecode(const CStringA str, const bool fRaw)
+[[nodiscard]] CStringA UrlDecode(CStringA str, const bool fRaw)
 {
 	str.Replace("&amp;", "&");
 

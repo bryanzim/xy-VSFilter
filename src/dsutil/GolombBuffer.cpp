@@ -28,13 +28,13 @@ CGolombBuffer::CGolombBuffer(BYTE* pBuffer, int nSize)
     Reset();
 }
 
-constexpr CGolombBuffer::~CGolombBuffer()
-noexcept
+CGolombBuffer::~CGolombBuffer()
+
 {
 }
 
-[[nodiscard]] constexpr UINT64 CGolombBuffer::BitRead(const int nBits, const bool fPeek)
-noexcept
+[[nodiscard]] UINT64 CGolombBuffer::BitRead(const int nBits, const bool fPeek)
+
 {
     //ASSERT(nBits >= 0 && nBits <= 64);
 
@@ -68,8 +68,8 @@ noexcept
     return ret;
 }
 
-[[nodiscard]] constexpr UINT64 CGolombBuffer::UExpGolombRead()
-noexcept
+[[nodiscard]] UINT64 CGolombBuffer::UExpGolombRead()
+
 {
     int n{-1};
     for (BYTE b{0}; !b; n++) {
@@ -78,21 +78,21 @@ noexcept
     return (1ui64 << n) - 1 + BitRead(n);
 }
 
-[[nodiscard]] constexpr INT64 CGolombBuffer::SExpGolombRead()
-noexcept
+[[nodiscard]] INT64 CGolombBuffer::SExpGolombRead()
+
 {
     UINT64 k{UExpGolombRead()};
     return ((k & 1) ? 1 : -1) * ((k + 1) >> 1);
 }
 
-constexpr void CGolombBuffer::BitByteAlign()
-noexcept
+void CGolombBuffer::BitByteAlign()
+
 {
     m_bitlen &= ~7;
 }
 
-[[nodiscard]] constexpr int CGolombBuffer::GetPos()
-noexcept
+[[nodiscard]] int CGolombBuffer::GetPos()
+
 {
     return m_nBitPos - (m_bitlen >> 3);
 }
@@ -122,8 +122,8 @@ void CGolombBuffer::Reset(BYTE* pNewBuffer, const int nNewSize)
     Reset();
 }
 
-constexpr void CGolombBuffer::SkipBytes(const int nCount)
-noexcept
+void CGolombBuffer::SkipBytes(const int nCount)
+
 {
     m_nBitPos += nCount;
     m_bitlen   = 0;

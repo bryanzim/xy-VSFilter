@@ -263,7 +263,7 @@ CDX9SubPic::~CDX9SubPic()
 			{(float)dst.right, (float)dst.bottom, 0.5f, 2.0f, (float)src.right / w, (float)src.bottom / h},
 		};
 
-		for(ptrdiff_t i{0}; [[nodiscard]] i < countof(pVertices); i++) {
+		for(ptrdiff_t i{0}; i < countof(pVertices); i++) {
 			pVertices[i].x -= 0.5;
 			pVertices[i].y -= 0.5;
 		}
@@ -407,7 +407,7 @@ void CDX9SubPicAllocator::ClearCache()
 	return __super::ChangeDevice(pDev);
 }
 
-[[nodiscard]] STDMETHODIMP CDX9SubPicAllocator::SetMaxTextureSize(const SIZE MaxTextureSize)
+[[nodiscard]] STDMETHODIMP CDX9SubPicAllocator::SetMaxTextureSize(SIZE MaxTextureSize)
 {
 	ClearCache();
 	m_maxsize	= MaxTextureSize;

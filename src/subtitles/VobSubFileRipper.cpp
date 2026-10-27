@@ -106,7 +106,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
     m_pCallback->OnFinished(bSucceeded);
 }
 
-[[nodiscard]] bool CVobSubFileRipper::LoadIfo(const CString fn)
+[[nodiscard]] bool CVobSubFileRipper::LoadIfo(CString fn)
 {
     CFileStatus status;
     if (!CFileGetStatus(fn, status) || !status.m_size) {
@@ -317,7 +317,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                         break;
                 }
 
-                int t{pgc.angles[0U][j].tTime};
+                int t = pgc.angles[0U][j].tTime;
                 int hh{((t >> 28) & 0xf) * 10 + ((t >> 24) & 0xf)};
                 int mm{((t >> 20) & 0xf) * 10 + ((t >> 16) & 0xf)};
                 int ss{((t >> 12) & 0xf) * 10 + ((t >> 8) & 0xf)};
@@ -367,7 +367,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
     return true;
 }
 
-[[nodiscard]] bool CVobSubFileRipper::LoadVob(const CString fn)
+[[nodiscard]] bool CVobSubFileRipper::LoadVob(CString fn)
 {
     Log(LOG_INFO, _T("Searching vobs..."));
 
@@ -453,8 +453,8 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
     return 1;
 }
 
-[[nodiscard]] constexpr static int SubPosSortProc(const void* e1, const void* e2)
-noexcept
+[[nodiscard]] static int SubPosSortProc(const void* e1, const void* e2)
+
 {
     return ((int)(((CVobSubFile::SubPos*)e1)->start - ((CVobSubFile::SubPos*)e2)->start));
 }
@@ -529,7 +529,7 @@ noexcept
         Log(LOG_INFO, _T("Indexing mode: DVD"));
 
         for (std::size_t i{0U}; i < angle.GetCount(); i++) {
-            DWORD vc{(angle[i].vob << 16) | angle[i].cell};
+            DWORD vc = (angle[i].vob << 16) | angle[i].cell;
             if (!selvcmap.Lookup(vc)) {
                 continue;
             }
@@ -684,7 +684,7 @@ noexcept
 
                 CString str, str2;
                 str.Format(_T("v%02d c%02d lba%08d"), vob, cell, (int)(curpos / 2048));
-                UINT vcid{(vob << 16) | cell};
+                UINT vcid = (vob << 16) | cell;
                 if (!selvcmap.Lookup(vcid, minPTSframeoffset)) {
                     str2 = _T(", skipping");
                 } else
@@ -695,7 +695,7 @@ noexcept
                 Log(LOG_INFO, str + str2);
             }
 
-            DWORD vcid{(vob << 16) | cell};
+            DWORD vcid = (vob << 16) | cell;
             if (!selvcmap.Lookup(vcid, minPTSframeoffset)) {
                 continue;
             }
@@ -913,7 +913,7 @@ static const DWORD s_version{1};
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CVobSubFileRipper::LoadParamFile(const CString fn)
+[[nodiscard]] STDMETHODIMP CVobSubFileRipper::LoadParamFile(CString fn)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csAccessLock);
 
@@ -1078,7 +1078,7 @@ static const DWORD s_version{1};
     return phase == P_OPTIONS ? S_OK : E_FAIL;
 }
 
-[[nodiscard]] STDMETHODIMP CVobSubFileRipper::SetInput(const CString infn)
+[[nodiscard]] STDMETHODIMP CVobSubFileRipper::SetInput(CString infn)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csAccessLock);
 
@@ -1093,7 +1093,7 @@ static const DWORD s_version{1};
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CVobSubFileRipper::SetOutput(const CString outfn)
+[[nodiscard]] STDMETHODIMP CVobSubFileRipper::SetOutput(CString outfn)
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csAccessLock);
     m_outfn = outfn;
@@ -1124,14 +1124,14 @@ static const DWORD s_version{1};
 }
 
 
-[[nodiscard]] constexpr STDMETHODIMP CVobSubFileRipper::IsIndexing()
-noexcept
+[[nodiscard]] STDMETHODIMP CVobSubFileRipper::IsIndexing()
+
 {
     return m_bIndexing ? S_OK : S_FALSE;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP CVobSubFileRipper::Abort(const bool bSavePartial)
-noexcept
+[[nodiscard]] STDMETHODIMP CVobSubFileRipper::Abort(const bool bSavePartial)
+
 {
     m_bBreakThread = true;
     return S_OK;
@@ -1166,7 +1166,7 @@ void VSFRipperData::Copy(VSFRipperData& rd)
             PGC& src{rd.pgcs[i]};
             PGC& dst{pgcs[i]};
             dst.nAngles = src.nAngles;
-            for (std::size_t j{0U}; [[nodiscard]] j < _countof(dst.angles); j++) {
+            for (std::size_t j{0U}; j < _countof(dst.angles); j++) {
                 dst.angles[j].Copy(src.angles[j]);
             }
             dst.iSelAngle = src.iSelAngle;

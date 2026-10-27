@@ -30,7 +30,7 @@ struct COutline {
         pa.RemoveAll();
         da.RemoveAll();
     }
-    void Add(const CPoint p, const int d) {
+    void Add(CPoint p, const int d) {
         pa.Add(p);
         da.Add(d);
     }
@@ -52,9 +52,9 @@ private:
     RGBQUAD* orgpal /*[16]*/, * cuspal /*[4]*/;
 
     [[nodiscard]] bool Alloc(int w, int h);
-    constexpr void Free() noexcept;
+    void Free();
 
-    [[nodiscard]] constexpr BYTE GetNibble(const BYTE* lpData) noexcept;
+    [[nodiscard]] BYTE GetNibble(const BYTE* lpData);
     void DrawPixels(CPoint p, int length, std::size_t colorId);
     void TrimSubImage();
 
@@ -70,8 +70,8 @@ public:
     SubPal pal[4U];
     RGBQUAD* lpPixels;
 
-    constexpr explicit CVobSubImage() noexcept;
-    constexpr virtual ~CVobSubImage() noexcept;
+    explicit CVobSubImage();
+    virtual ~CVobSubImage();
 
     void Invalidate() { iLang = iIdx = -1; }
 

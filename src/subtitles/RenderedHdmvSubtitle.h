@@ -34,7 +34,7 @@ class __declspec(uuid("FCA68599-C83E-4ea5-94A3-C2E1B0E326B9"))
 {
 public:
 	CRenderedHdmvSubtitle(CCritSec* pLock, SUBTITLE_TYPE nType, const CString& name, LCID lcid);
-	constexpr ~CRenderedHdmvSubtitle(void) noexcept;
+	~CRenderedHdmvSubtitle(void);
 
 	[[nodiscard]] DECLARE_IUNKNOWN
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -49,7 +49,7 @@ public:
 	[[nodiscard]] STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
 
     // ISubPicProviderEx
-    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
+    [[nodiscard]] STDMETHODIMP_(bool) IsColorTypeSupported(int type);
 
 	// IPersist
 	[[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);

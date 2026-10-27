@@ -31,45 +31,45 @@ class CMemSubPic : public CSubPicExImpl
 {
 public:
     static void AlphaBltYv12Luma(byte* dst, int dst_pitch, int w, int h, const byte* sub, const byte* alpha, int sub_pitch);
-    constexpr static void AlphaBltYv12LumaC(byte* dst, int dst_pitch, int w, int h, const byte* sub, const byte* alpha, int sub_pitch) noexcept;
+    static void AlphaBltYv12LumaC(byte* dst, int dst_pitch, int w, int h, const byte* sub, const byte* alpha, int sub_pitch);
 
     static void AlphaBltYv12Chroma(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma, 
         const byte* alpha, int sub_pitch);
-    constexpr static void AlphaBltYv12ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma, 
-        const byte* alpha, int sub_pitch) noexcept;
+    static void AlphaBltYv12ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma, 
+        const byte* alpha, int sub_pitch);
     static void AlphaBltYv16Chroma(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma,
         const byte* alpha, int sub_pitch);
-    constexpr static void AlphaBltYv16ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma,
-        const byte* alpha, int sub_pitch) noexcept;
+    static void AlphaBltYv16ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma,
+        const byte* alpha, int sub_pitch);
 
     [[nodiscard]] static HRESULT AlphaBltAnv12_P010(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
         int w, int h);
     [[nodiscard]] static HRESULT AlphaBltAnv12_P010_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
-        int w, int h) noexcept;
+        int w, int h);
     [[nodiscard]] static HRESULT AlphaBltAnv12_P210(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
         int w, int h);
     [[nodiscard]] static HRESULT AlphaBltAnv12_P210_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
-        int w, int h) noexcept;
+        int w, int h);
     [[nodiscard]] static HRESULT AlphaBltAnv12_Nv12(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
         int w, int h);
-    [[nodiscard]] constexpr static HRESULT AlphaBltAnv12_Nv12_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
+    [[nodiscard]] static HRESULT AlphaBltAnv12_Nv12_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
-        int w, int h) noexcept;
+        int w, int h);
 
     static void AlphaBlt_YUY2(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitch);
 
     static void SubsampleAndInterlace(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
-    constexpr static void SubsampleAndInterlaceC(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch) noexcept;
+    static void SubsampleAndInterlaceC(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
     static void SubsampleAndInterlace_422(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
-    constexpr static void SubsampleAndInterlace_422_C(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch) noexcept;
+    static void SubsampleAndInterlace_422_C(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
 public:
     CMemSubPic(SubPicDesc& spd, int alpha_blt_dst_type);
-    constexpr virtual ~CMemSubPic() noexcept;
+    virtual ~CMemSubPic();
 
     // ISubPic
     [[nodiscard]] STDMETHODIMP GetDesc(SubPicDesc& spd) const;

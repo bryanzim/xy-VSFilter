@@ -128,8 +128,8 @@ XySubFilter::XySubFilter( LPUNKNOWN punk,
     CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
     CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
 
-    std::size_t max_size{m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] >= 0 ?
-        m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] : m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB]};
+    std::size_t max_size = m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] >= 0 ?
+        m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] : m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB];
     max_size = max_size < (SIZE_MAX>>20) ? (max_size<<20) : SIZE_MAX;
     CRenderedTextSubtitle::SetMaxCacheSize(max_size);
     SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel( static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]) );
@@ -451,8 +451,8 @@ XySubFilter::~XySubFilter()
         break;
     case INT_MAX_CACHE_SIZE_MB:
         {
-            std::size_t max_size{m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] >= 0 ?
-                                   m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] : m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB]};
+            std::size_t max_size = m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] >= 0 ?
+                                   m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] : m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB];
             max_size = max_size < (SIZE_MAX>>20) ? (max_size<<20) : SIZE_MAX;
             CRenderedTextSubtitle::SetMaxCacheSize(max_size);
         }
@@ -602,7 +602,7 @@ XySubFilter::~XySubFilter()
 //
 // DirectVobSubImpl
 //
-[[nodiscard]] HRESULT XySubFilter::GetCurStyles( const SubStyle sub_style[], const int count )
+[[nodiscard]] HRESULT XySubFilter::GetCurStyles( SubStyle sub_style[], const int count )
 {
     [[nodiscard]] CAutoLock cAutoLock(&m_csFilter);
     if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=NULL)
@@ -1322,7 +1322,7 @@ void XySubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handles)
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilter::Disconnect( const void )
+[[nodiscard]] STDMETHODIMP XySubFilter::Disconnect()
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(this));
     //If the consumer also calls provider->Disconnect inside its Disconnect implementation, 
@@ -2214,7 +2214,7 @@ int XySubFilter::FindPreferedLanguage( bool fHideToo /*= true*/ )
     return(0);
 }
 
-void XySubFilter::UpdatePreferedLanguages(const CString l)
+void XySubFilter::UpdatePreferedLanguages(CString l)
 {
     XY_LOG_INFO(l);
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
@@ -2293,7 +2293,7 @@ void XySubFilter::AddSubStream(ISubStream* pSubStream)
         m_fIsSubStreamEmbeded.AddTail(true);//todo: fix me
     }
 
-    int len{m_pSubtitleInputPin.GetCount()};
+    int len = m_pSubtitleInputPin.GetCount();
     for(unsigned i{0U}; i < m_pSubtitleInputPin.GetCount(); i++)
     {
         if(m_pSubtitleInputPin[i]->IsConnected())
@@ -2639,7 +2639,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
                 m_tbid.graph = m_pGraph;
                 m_tbid.dvs = this;
 
-                [[nodiscard]] m_hSystrayThread = ::CreateSystray(&m_tbid);
+                m_hSystrayThread = ::CreateSystray(&m_tbid);
                 XY_LOG_INFO("Systray thread created "<<m_hSystrayThread);
             }
         }

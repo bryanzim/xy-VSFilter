@@ -31,7 +31,7 @@ class CRealTextParser
 {
 public:
     explicit CRealTextParser();
-    constexpr virtual ~CRealTextParser() noexcept;
+    virtual ~CRealTextParser();
 
     struct Tag {
         explicit Tag(): m_bOpen(false), m_bClose(false), m_bComment(false), m_bText(false) {}
@@ -60,7 +60,7 @@ public:
 
     [[nodiscard]] bool ParseRealText(std::wstring p_szFile);
 
-    [[nodiscard]] constexpr const Subtitles& GetParsedSubtitles() noexcept;
+    [[nodiscard]] const Subtitles& GetParsedSubtitles();
 
     [[nodiscard]] bool OutputSRT(std::wostream& p_rOutput);
 

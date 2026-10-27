@@ -615,7 +615,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
         }
         pNode = (CNode*)pPlex->data();
         pNode += m_nBlockSize-1;
-        for( int iBlock{m_nBlockSize-1}; iBlock >= 0; iBlock-- )
+        for( int iBlock = m_nBlockSize-1; iBlock >= 0; iBlock-- )
         {
             pNode->m_pNext = m_pFree;
             m_pFree = pNode;
@@ -628,7 +628,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 
     _ATLTRY
     {
-        [[nodiscard]] ::new( pNewNode ) CNode( key, nHash );
+        ::new( pNewNode ) CNode( key, nHash );
     }
     _ATLCATCHALL()
     {
@@ -1064,12 +1064,12 @@ class XyMru
 public:
     explicit XyMru(std::size_t max_item_num):_max_item_num(max_item_num){}
 
-    [[nodiscard]] inline POSITION UpdateCache(const POSITION pos)
+    [[nodiscard]] inline POSITION UpdateCache(POSITION pos)
     {
         _list.MoveToHead(pos);
         return pos;
     }
-    [[nodiscard]] inline POSITION UpdateCache(const POSITION pos, const V& value)
+    [[nodiscard]] inline POSITION UpdateCache(POSITION pos, const V& value)
     {
         _list.GetAt(pos).second = value;
         _list.MoveToHead(pos);
@@ -1154,15 +1154,15 @@ public:
             return NULL;
         }
     }
-    [[nodiscard]] inline V& GetAt(const POSITION pos)
+    [[nodiscard]] inline V& GetAt(POSITION pos)
     {
         return _list.GetAt(pos).second;
     }
-    [[nodiscard]] inline const V& GetAt(const POSITION pos) const
+    [[nodiscard]] inline const V& GetAt(POSITION pos) const
     {
         return _list.GetAt(pos).second;
     }
-    [[nodiscard]] inline const K& GetKeyAt(const POSITION pos) const
+    [[nodiscard]] inline const K& GetKeyAt(POSITION pos) const
     {
         return _hash.GetKeyAt(_list.GetAt(pos).first);
     }
@@ -1176,7 +1176,7 @@ public:
         }
         return _max_item_num;
     }
-    [[nodiscard]] constexpr inline std::size_t GetMaxItemNum() const noexcept { return _max_item_num; }
+    [[nodiscard]] inline std::size_t GetMaxItemNum() const { return _max_item_num; }
     [[nodiscard]] inline std::size_t GetCurItemNum() const { return _list.GetCount(); }
 protected:
     typedef std::pair<POSITION,V> ListItem;
@@ -1235,8 +1235,8 @@ public:
         return pos;
     }
 
-    [[nodiscard]] constexpr inline std::size_t GetCacheHitCount() const noexcept { return _cache_hit; }
-    [[nodiscard]] constexpr inline std::size_t GetQueryCount() const noexcept { return _query_count; }
+    [[nodiscard]] inline std::size_t GetCacheHitCount() const { return _cache_hit; }
+    [[nodiscard]] inline std::size_t GetQueryCount() const { return _query_count; }
 protected:
     std::size_t _cache_hit;
     std::size_t _query_count;

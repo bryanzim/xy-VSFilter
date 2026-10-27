@@ -62,7 +62,7 @@ public:
     [[nodiscard]] STDMETHODIMP XyGetDoubles   (unsigned field, int id, double    *value);
     [[nodiscard]] STDMETHODIMP XyGetStrings   (unsigned field, int id, LPWSTR    *value, int *chars);
     [[nodiscard]] STDMETHODIMP XyGetBins      (unsigned field, int id, LPVOID    *value, int *size );
-    [[nodiscard]] constexpr STDMETHODIMP XyGetBins2     (unsigned field, int id, void      *value, int  size ) noexcept;
+    [[nodiscard]] STDMETHODIMP XyGetBins2     (unsigned field, int id, void      *value, int  size );
 
     [[nodiscard]] STDMETHODIMP XySetBools     (unsigned field, int id, bool      value);
     [[nodiscard]] STDMETHODIMP XySetInts      (unsigned field, int id, int       value);
@@ -73,13 +73,13 @@ public:
     [[nodiscard]] STDMETHODIMP XySetStrings   (unsigned field, int id, LPWSTR    value, int chars);
     [[nodiscard]] STDMETHODIMP XySetBins      (unsigned field, int id, LPVOID    value, int size );
 
-    [[nodiscard]] constexpr inline bool TestOption(const unsigned field)
-    noexcept
+    [[nodiscard]] inline bool TestOption(const unsigned field)
+
     {
         return (field < MAX_OPTION_ID && m_option_type[field] != OPTION_TYPE_END_FLAG);
     }
-    [[nodiscard]] constexpr inline bool TestOption(const unsigned field, OptionType type, const OptionMode rw_mode=OPTION_MODE_RW)
-    noexcept
+    [[nodiscard]] inline bool TestOption(const unsigned field, OptionType type, const OptionMode rw_mode=OPTION_MODE_RW)
+
     {
         type |= rw_mode;
         return (field < MAX_OPTION_ID && (m_option_type[field] & type)== type);

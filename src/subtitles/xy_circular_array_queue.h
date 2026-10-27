@@ -20,8 +20,8 @@ public:
     {
     }
 
-    constexpr ~XYCircularArrayQueue()
-    noexcept
+    ~XYCircularArrayQueue()
+
     {
         delete[]  _elements;
     }
@@ -33,20 +33,20 @@ public:
         return _elements ? 0 : -1;
     }
 
-    [[nodiscard]] constexpr inline std::size_t capacity()
-    noexcept
+    [[nodiscard]] inline std::size_t capacity()
+
     {
         return _CAPACITY;
     }
 
-    [[nodiscard]] constexpr inline bool full() const
-    noexcept
+    [[nodiscard]] inline bool full() const
+
     {
         return size() >= (_CAPACITY -1);
     }
 
-    [[nodiscard]] constexpr inline bool empty() const
-    noexcept
+    [[nodiscard]] inline bool empty() const
+
     {
         return _head == _tail;
     }
@@ -54,8 +54,8 @@ public:
     /***
      * @return: the number of elements in the @queue.
      **/
-    [[nodiscard]] constexpr inline std::size_t size() const
-    noexcept
+    [[nodiscard]] inline std::size_t size() const
+
     {
         return (_CAPACITY -_head+_tail) %_CAPACITY;
     }
@@ -63,8 +63,8 @@ public:
     /***
      * @return: the number of free elements in the @queue. 
      **/
-    [[nodiscard]] constexpr inline std::size_t free() const
-    noexcept
+    [[nodiscard]] inline std::size_t free() const
+
     {
         return _CAPACITY - (_CAPACITY -_head+_tail) %_CAPACITY;
     }
@@ -72,8 +72,8 @@ public:
     /***
      *  @return: a read/write reference to the i-th element.
      **/
-    [[nodiscard]] constexpr inline reference get_at(int i)
-    noexcept
+    [[nodiscard]] inline reference get_at(int i)
+
     {
         i += _head;
         i %= _CAPACITY;
@@ -83,8 +83,8 @@ public:
     /***
      *  @return: a read-only reference to the i-th element.
      **/
-    [[nodiscard]] constexpr inline const_reference get_at(int i) const
-    noexcept
+    [[nodiscard]] inline const_reference get_at(int i) const
+
     {
         i += _head;
         i %= _CAPACITY;
@@ -94,8 +94,8 @@ public:
     /***
      *  @return: a read/write reference to the last element
      **/
-    [[nodiscard]] constexpr inline reference back()
-    noexcept
+    [[nodiscard]] inline reference back()
+
     {
         return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
     }
@@ -103,8 +103,8 @@ public:
     /***
      *  @return: a read-only reference to the last element
      **/
-    [[nodiscard]] constexpr inline const_reference back() const
-    noexcept
+    [[nodiscard]] inline const_reference back() const
+
     {
         return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
     }
@@ -112,8 +112,8 @@ public:
     /***
      *  @return: 0 if succeeded, -1 if failed
      **/
-    [[nodiscard]] constexpr inline int push_back(const const_reference value)
-    noexcept
+    [[nodiscard]] inline int push_back(const const_reference value)
+
     {
         if(size() == (_CAPACITY -1))
         {
@@ -127,8 +127,8 @@ public:
         }
     }
 
-    [[nodiscard]] constexpr inline reference inc_1_at_tail()
-    noexcept
+    [[nodiscard]] inline reference inc_1_at_tail()
+
     {
         _tail++;
         _tail += _CAPACITY;
@@ -136,8 +136,8 @@ public:
         return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
     }
 
-    constexpr inline void pop_front()
-    noexcept
+    inline void pop_front()
+
     {
         if(empty())
         {
@@ -149,8 +149,8 @@ public:
         }
     }
 
-    constexpr inline void pop_back()
-    noexcept
+    inline void pop_back()
+
     {
         if(empty())
         {
@@ -162,8 +162,8 @@ public:
         }
     }
 
-    constexpr inline void pop_last_n(const int n)
-    noexcept
+    inline void pop_last_n(const int n)
+
     {
         if (size()<n)
         {

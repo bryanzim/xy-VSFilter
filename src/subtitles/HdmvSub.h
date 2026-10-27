@@ -100,17 +100,17 @@ public:
     [[nodiscard]] HRESULT   ParseSample(BYTE* pData, int lSampleLen, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop);
 
     [[nodiscard]] POSITION  GetStartPosition(REFERENCE_TIME rt, double fps = 0);
-    [[nodiscard]] POSITION  GetNext(const POSITION pos) {
+    [[nodiscard]] POSITION  GetNext(POSITION pos) {
         m_pPresentationSegments.GetNext(pos);
         return pos;
     };
 
 
-    [[nodiscard]] virtual REFERENCE_TIME GetStart(const POSITION nPos) {
+    [[nodiscard]] virtual REFERENCE_TIME GetStart(POSITION nPos) {
         HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt(nPos)};
         return pPresentationSegment != NULL ? pPresentationSegment->rtStart : INVALID_TIME;
     };
-    [[nodiscard]] virtual REFERENCE_TIME GetStop(const POSITION nPos) {
+    [[nodiscard]] virtual REFERENCE_TIME GetStop(POSITION nPos) {
         HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt(nPos)};
         return pPresentationSegment != NULL ? pPresentationSegment->rtStop : INVALID_TIME;
     };
@@ -144,7 +144,7 @@ private:
     void                ParseCompositionDescriptor(CGolombBuffer* pGBuffer, COMPOSITION_DESCRIPTOR* pCompositionDescriptor);
     void                ParseCompositionObject(CGolombBuffer* pGBuffer, CompositionObject* pCompositionObject);
 
-    constexpr void                AllocSegment(int nSize) noexcept;
+    void                AllocSegment(int nSize);
 
     [[nodiscard]] HDMV_PRESENTATION_SEGMENT* FindPresentationSegment(REFERENCE_TIME rt);
     [[nodiscard]] CompositionObject*  FindObject(HDMV_PRESENTATION_SEGMENT* pPresentationSegment, short sObjectId);

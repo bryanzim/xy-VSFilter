@@ -98,7 +98,7 @@ void write_file(const char * filename, const void * buff, const int size)
     fclose(out_file);
 }
 
-void DumpPackBitmap2File(const POINT pos, const SIZE size, const LPCVOID pixels, const int pitch, const char *filename)
+void DumpPackBitmap2File(POINT pos, SIZE size, const LPCVOID pixels, const int pitch, const char *filename)
 {
     using namespace std;
 

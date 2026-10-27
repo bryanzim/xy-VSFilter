@@ -26,7 +26,7 @@ struct ColorConvTable
         , RANGE_PC
     };
 
-    constexpr static void SetDefaultConvType(YuvMatrixType yuv_type, YuvRangeType range) noexcept;
+    static void SetDefaultConvType(YuvMatrixType yuv_type, YuvRangeType range);
 
     static YuvMatrixType GetDefaultYUVType();
     static YuvRangeType GetDefaultRangeType();
@@ -34,7 +34,7 @@ struct ColorConvTable
     [[nodiscard]] static DWORD Argb2Ayuv(DWORD argb);
     [[nodiscard]] static DWORD Argb2Ayuv_TV_BT601(DWORD argb);
     [[nodiscard]] static DWORD Argb2Auyv(DWORD argb);
-    [[nodiscard]] constexpr static DWORD Ayuv2Auyv(DWORD ayuv) noexcept;
+    [[nodiscard]] static DWORD Ayuv2Auyv(DWORD ayuv);
     [[nodiscard]] static DWORD Rgb2Y(int r8, int g8, int b8);
     [[nodiscard]] static DWORD PreMulArgb2Ayuv( int a8, int r8, int g8, int b8 );
 

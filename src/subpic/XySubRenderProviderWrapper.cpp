@@ -121,7 +121,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     return hr;
 }
 
-[[nodiscard]] HRESULT XySubRenderProviderWrapper::Render( const REFERENCE_TIME now, const POSITION pos, const double fps )
+[[nodiscard]] HRESULT XySubRenderProviderWrapper::Render( const REFERENCE_TIME now, POSITION pos, const double fps )
 {
     if(m_pSubPic && m_pSubPic->GetStart() <= now && now < m_pSubPic->GetStop())
     {
@@ -416,7 +416,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     return S_OK;
 }
 
-[[nodiscard]] HRESULT XySubRenderProviderWrapper2::Render( const REFERENCE_TIME now, const POSITION pos )
+[[nodiscard]] HRESULT XySubRenderProviderWrapper2::Render( const REFERENCE_TIME now, POSITION pos )
 {
     if(m_start <= now && now < m_stop && m_xy_sub_render_frame)
     {

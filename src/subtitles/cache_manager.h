@@ -36,8 +36,8 @@ public:
     bool operator==(const TextInfoCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -79,11 +79,11 @@ public:
         return operator==(PathDataCacheKey(key));
     }
 
-    [[nodiscard]] constexpr static bool CompareSTSStyle(const STSStyle& lhs, const STSStyle& rhs) noexcept;
+    [[nodiscard]] static bool CompareSTSStyle(const STSStyle& lhs, const STSStyle& rhs);
     
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -107,8 +107,8 @@ public:
     [[nodiscard]] bool operator==(const ScanLineData2CacheKey& key)const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -126,8 +126,8 @@ public:
     [[nodiscard]] bool operator==(const OverlayNoBlurKey& key)const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -145,8 +145,8 @@ public:
     [[nodiscard]] bool operator==(const OverlayKey& key)const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -161,8 +161,8 @@ public:
     [[nodiscard]] bool operator==(const ScanLineDataCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -181,8 +181,8 @@ public:
     [[nodiscard]] bool operator==(const OverlayNoOffsetKey& key)const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -200,8 +200,8 @@ public:
     [[nodiscard]] bool operator==(const ClipperAlphaMaskCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -219,8 +219,8 @@ public:
     [[nodiscard]] bool operator==(const DrawItemHashKey& hash_key) const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }
@@ -244,8 +244,8 @@ public:
     bool operator==(const GroupedDrawItemsHashKey& key) const;
 
     ULONG UpdateHashValue();
-    [[nodiscard]] constexpr inline ULONG GetHashValue()const
-    noexcept
+    [[nodiscard]] inline ULONG GetHashValue()const
+
     {
         return m_hash_value;
     }

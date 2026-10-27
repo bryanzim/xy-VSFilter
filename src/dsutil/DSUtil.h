@@ -71,13 +71,13 @@ typedef enum {CDROM_NotFound, CDROM_Audio, CDROM_VideoCD, CDROM_DVDVideo, CDROM_
 [[nodiscard]] extern cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files);
 [[nodiscard]] extern CString GetDriveLabel(TCHAR drive);
 [[nodiscard]] extern bool GetKeyFrames(CString fn, CUIntArray& kfs);
-[[nodiscard]] constexpr extern DVD_HMSF_TIMECODE RT2HMSF(REFERENCE_TIME rt, double fps = 0) noexcept;
-[[nodiscard]] constexpr extern REFERENCE_TIME HMSF2RT(DVD_HMSF_TIMECODE hmsf, double fps = 0) noexcept;
+[[nodiscard]] extern DVD_HMSF_TIMECODE RT2HMSF(REFERENCE_TIME rt, double fps = 0);
+[[nodiscard]] extern REFERENCE_TIME HMSF2RT(DVD_HMSF_TIMECODE hmsf, double fps = 0);
 extern void memsetd(void* dst, unsigned int c, std::size_t nbytes);
 extern void memsetw(void* dst, unsigned short c, std::size_t nbytes);
 [[nodiscard]] extern bool ExtractBIH(const AM_MEDIA_TYPE* pmt, BITMAPINFOHEADER* bih);
 [[nodiscard]] extern bool ExtractBIH(IMediaSample* pMS, BITMAPINFOHEADER* bih);
-[[nodiscard]] extern bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary) noexcept;
+[[nodiscard]] extern bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary);
 [[nodiscard]] extern bool MakeMPEG2MediaType(CMediaType& mt, BYTE* seqhdr, DWORD len, int w, int h);
 [[nodiscard]] extern unsigned __int64 GetFileVersion(LPCTSTR fn);
 [[nodiscard]] extern bool CreateFilter(CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyName);
@@ -101,7 +101,7 @@ extern void UnloadExternalObjects();
 [[nodiscard]] extern CString ISO6391To6392(LPCSTR code);
 [[nodiscard]] extern CString ISO6392To6391(LPCSTR code);
 [[nodiscard]] extern CString LanguageToISO6392(LPCTSTR lang);
-[[nodiscard]] extern int MakeAACInitData(BYTE* pData, int profile, int freq, int channels) noexcept;
+[[nodiscard]] extern int MakeAACInitData(BYTE* pData, int profile, int freq, int channels);
 [[nodiscard]] extern BOOL CFileGetStatus(LPCTSTR lpszFileName, CFileStatus& status);
 [[nodiscard]] extern bool DeleteRegKey(LPCTSTR pszKey, LPCTSTR pszSubkey);
 [[nodiscard]] extern bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValueName, LPCTSTR pszValue);
@@ -220,8 +220,8 @@ static CUnknown* WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT* phr)
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
-[[nodiscard]] constexpr inline int LNKO(int a, int b)
-noexcept
+[[nodiscard]] inline int LNKO(int a, int b)
+
 {
 	if(a == 0 || b == 0) {
 		return(1);

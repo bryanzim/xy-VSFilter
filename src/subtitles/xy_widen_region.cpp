@@ -61,7 +61,7 @@ struct XyEllipse
 {
 public:
     explicit XyEllipse();
-    constexpr ~XyEllipse() noexcept;
+    ~XyEllipse();
 
     /*** 
      * ry must >0 and rx must >=0
@@ -99,7 +99,7 @@ class WidenRegionCreaterImpl
 {
 public:
     explicit WidenRegionCreaterImpl();
-    constexpr ~WidenRegionCreaterImpl() noexcept;
+    ~WidenRegionCreaterImpl();
 
     void xy_overlap_region(SpanBuffer* dst, const SpanBuffer& src, int rx, int ry);
 private:
@@ -119,8 +119,8 @@ private:
 // WidenRegionCreater
 // 
 
-[[nodiscard]] constexpr WidenRegionCreater* WidenRegionCreater::GetDefaultWidenRegionCreater()
-noexcept
+[[nodiscard]] WidenRegionCreater* WidenRegionCreater::GetDefaultWidenRegionCreater()
+
 {
     static WidenRegionCreater result;
     static WidenRegionCreaterImpl impl;
@@ -133,8 +133,8 @@ WidenRegionCreater::WidenRegionCreater():m_impl(NULL)
     
 }
 
-constexpr WidenRegionCreater::~WidenRegionCreater()
-noexcept
+WidenRegionCreater::~WidenRegionCreater()
+
 {
 
 }
@@ -152,8 +152,8 @@ WidenRegionCreaterImpl::WidenRegionCreaterImpl(): m_ellipse(NULL)
 {
 }
 
-constexpr WidenRegionCreaterImpl::~WidenRegionCreaterImpl()
-noexcept
+WidenRegionCreaterImpl::~WidenRegionCreaterImpl()
+
 {
     delete m_ellipse;
 }
@@ -199,7 +199,7 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
     {
         const XY_POINT &left{SPAN_PTR_LEFT(it_src)};
         const XY_POINT &right{SPAN_PTR_RIGHT(it_src)};
-        int line{XY_POINT_Y(left)}; //fix me
+        int line = XY_POINT_Y(left); //fix me
         if (line-ry>dst_line)
         {
             add_line(dst, link_span_list, dst_line, line - ry);
@@ -279,7 +279,7 @@ void WidenRegionCreaterImpl::add_left( LinkArc* arc, const XY_POINT center )
     ASSERT(!arc->empty()&& m_ellipse->cross_left(arc->get_at(0).arc_center, center)>=-ry );
     int y{0};
     int i{0};
-    int line{XY_POINT_Y(center)};
+    int line = XY_POINT_Y(center);
     for (i=arc->size()-1;i>=1;i--)
     {
         y = m_ellipse->cross_left( arc->get_at(i).arc_center, center );
@@ -323,7 +323,7 @@ void WidenRegionCreaterImpl::add_right( LinkArc* arc, const XY_POINT center )
     ASSERT(!arc->empty());
     int y{0};
     int i{0};
-    int line{XY_POINT_Y(center)};
+    int line = XY_POINT_Y(center);
     for (i=arc->size()-1;i>=1;i--)
     {
         y = m_ellipse->cross_right( arc->get_at(i).arc_center, center );
@@ -454,7 +454,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
 // ref: A Fast Bresenham Type Algorithm For Drawing Ellipses by John Kennedy
 // http://homepage.smc.edu/kennedy_john/belipse.pdf
 // 
-[[nodiscard]] int gen_left_arc(const int left_arc[], int rx, int ry)
+[[nodiscard]] int gen_left_arc(int left_arc[], int rx, int ry)
 {
     if (left_arc==NULL)
     {
@@ -567,8 +567,8 @@ XyEllipse::XyEllipse()
 
 }
 
-constexpr XyEllipse::~XyEllipse()
-noexcept
+XyEllipse::~XyEllipse()
+
 {
     delete[]m_left_arc_base;
     delete[]m_cross_matrix_base;
@@ -641,7 +641,7 @@ noexcept
 
     ASSERT(m_f_ry>0);
     float rx_divide_ry{m_f_rx/m_f_ry};
-    float ry_2{m_ry * m_ry};
+    float ry_2 = m_ry * m_ry;
 
     std::vector<int> cross_x_base(2*m_ry+1+1);
     int *cross_x{&cross_x_base[0U] + m_ry + 1};
@@ -699,15 +699,15 @@ noexcept
 
 [[nodiscard]] int XyEllipse::cross_left( const XY_POINT c1, const XY_POINT base ) const
 {
-    int dx{XY_POINT_X(c1) - XY_POINT_X(base)};
-    int dy{XY_POINT_Y(c1) - XY_POINT_Y(base)};
+    int dx = XY_POINT_X(c1) - XY_POINT_X(base);
+    int dy = XY_POINT_Y(c1) - XY_POINT_Y(base);
     return cross_left(dx, dy);
 }
 
 [[nodiscard]] int XyEllipse::cross_right( const XY_POINT c1, const XY_POINT base ) const
 {
-    int dx{XY_POINT_X(base) - XY_POINT_X(c1)};
-    int dy{XY_POINT_Y(c1) - XY_POINT_Y(base)};
+    int dx = XY_POINT_X(base) - XY_POINT_X(c1);
+    int dy = XY_POINT_Y(c1) - XY_POINT_Y(base);
     return cross_left(dx, dy);
 }
 
@@ -734,8 +734,8 @@ noexcept
         // unit circle with center at (0,0) and unit circle with center at (dx,dy) cross at points:
         //   x = 0.5*dx +/- 0.5*dy*sqrt(4/(dx*dx+dy*dy)-1)
         //   y = 0.5*dy -/+ 0.5*dx*sqrt(4/(dx*dx+dy*dy)-1)
-        float f_half_dy{dy*m_f_half_inv_ry};
-        float f_half_dx{dx*m_f_half_inv_rx};
+        float f_half_dy = dy*m_f_half_inv_ry;
+        float f_half_dx = dx*m_f_half_inv_rx;
         float f_tmp{1.0f/(f_half_dx*f_half_dx+f_half_dy*f_half_dy)-1.0f};
         if (f_tmp >= 0)
         {

@@ -28,7 +28,7 @@ CBaseSub::CBaseSub(SUBTITLE_TYPE nType)
 {
 }
 
-constexpr CBaseSub::~CBaseSub()
-noexcept
+CBaseSub::~CBaseSub()
+
 {
 }

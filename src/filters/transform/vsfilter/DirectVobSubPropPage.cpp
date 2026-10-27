@@ -56,7 +56,7 @@ BOOL WINAPI MyGetDialogSize(int iResourceID, DLGPROC pDlgProc, LPARAM lParam, SI
 /************************************************************************/
 
 [[nodiscard]] DirectVobSubXyOptions::SubStyle * NewSubStyles(int count);
-constexpr void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, int count) noexcept;
+void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, int count);
 [[nodiscard]] HRESULT GetSubStyles(IXyOptions *filter, DirectVobSubXyOptions::SubStyle* *style, int *count);
 [[nodiscard]] HRESULT CreateSubStyleEditDialog(const STSStyle& default_style
     , const DirectVobSubXyOptions::SubStyle sub_styles[], int count
@@ -91,8 +91,8 @@ void EditStyle(HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* default_styl
     return ret;
 }
 
-constexpr void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
-noexcept
+void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
+
 {
     if (!style)
     {
@@ -442,8 +442,8 @@ void CDVSBasePPage::DetachControls()
     m_fAttached = false;
 }
 
-constexpr void CDVSBasePPage::BindControl(const UINT id, CWnd& control)
-noexcept
+void CDVSBasePPage::BindControl(UINT id, CWnd& control)
+
 {
     m_controls[id] = &control;
 }
@@ -607,7 +607,7 @@ void CDVSMainPPage::UpdateControlData(const bool fSave)
 #else
         mbstowcs(m_fn, fn, fn.GetLength()+1);
 #endif
-        m_iSelectedLanguage{m_langs.GetCurSel()};
+        m_iSelectedLanguage = m_langs.GetCurSel();
         m_fOverridePlacement = !!m_oplacement.GetCheck();
         m_PlacementXperc = m_subposx.GetPos();
         m_PlacementYperc = m_subposy.GetPos();
@@ -1544,8 +1544,8 @@ void CDVSColorPPage::UpdateControlData(const bool fSave)
     }
 }
 
-constexpr CDVSColorPPage::~CDVSColorPPage()
-noexcept
+CDVSColorPPage::~CDVSColorPPage()
+
 {
     delete []m_outputColorSpace;
     delete []m_inputColorSpace;
@@ -1917,7 +1917,7 @@ void CXySubFilterMainPPage::UpdateControlData(const bool fSave)
 #else
         mbstowcs(m_fn, fn, fn.GetLength()+1);
 #endif
-        m_iSelectedLanguage{m_langs.GetCurSel()};
+        m_iSelectedLanguage = m_langs.GetCurSel();
         m_fOverridePlacement = !!m_oplacement.GetCheck();
         m_PlacementXperc = m_subposx.GetPos();
         m_PlacementYperc = m_subposy.GetPos();

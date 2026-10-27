@@ -27,7 +27,7 @@ static inline void FlipAlphaValueSSE(BYTE *data, int w)
     }
 }
 static inline void FlipAlphaValueC(BYTE *data, const int w)
-noexcept
+
 {
     DWORD *data_w{reinterpret_cast<DWORD*>(data)};
     for (int i{0};i<w;i++)
@@ -36,8 +36,8 @@ noexcept
     }
 }
 
-constexpr XyBitmap::~XyBitmap()
-noexcept
+XyBitmap::~XyBitmap()
+
 {
     xy_free(bits);
 }
@@ -102,7 +102,7 @@ void XyBitmap::ClearBitmap( XyBitmap *bitmap )
     }
 }
 
-void XyBitmap::AlphaBltPack( SubPicDesc& spd, const POINT pos, const SIZE size, const LPCVOID pixels, const int pitch )
+void XyBitmap::AlphaBltPack( SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pixels, const int pitch )
 {
     ASSERT( spd.type!=MSP_AYUV_PLANAR );
     CRect r{0, 0, spd.w, spd.h};
@@ -142,7 +142,7 @@ void XyBitmap::AlphaBltPack( SubPicDesc& spd, const POINT pos, const SIZE size, 
     }
 }
 
-void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, const POINT pos, const SIZE size, const XyPlannerFormatExtra& pixels, const int pitch )
+void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyPlannerFormatExtra& pixels, const int pitch )
 {
     ASSERT( spd.type==MSP_AYUV_PLANAR );
 
@@ -232,7 +232,7 @@ void XyBitmap::FlipAlphaValue( const LPVOID pixels, const int w, const int h, co
     return;
 }
 
-void XyBitmap::BltPack( SubPicDesc& spd, const POINT pos, const SIZE size, const LPCVOID pixels, const int pitch )
+void XyBitmap::BltPack( SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pixels, const int pitch )
 {
     ASSERT( spd.type!=MSP_AYUV_PLANAR );
     CRect r{0, 0, spd.w, spd.h};
@@ -275,8 +275,8 @@ XySubRenderFrame::XySubRenderFrame()
 
 }
 
-constexpr XySubRenderFrame::~XySubRenderFrame()
-noexcept
+XySubRenderFrame::~XySubRenderFrame()
+
 {
 }
 
@@ -404,29 +404,29 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
 // XySubRenderFrameCreater
 // 
 
-[[nodiscard]] constexpr XySubRenderFrameCreater* XySubRenderFrameCreater::GetDefaultCreater()
-noexcept
+[[nodiscard]] XySubRenderFrameCreater* XySubRenderFrameCreater::GetDefaultCreater()
+
 {
     static XySubRenderFrameCreater s_default_creater;
     return &s_default_creater;
 }
 
-[[nodiscard]] constexpr HRESULT XySubRenderFrameCreater::SetOutputRect( const RECT& output_rect )
-noexcept
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetOutputRect( const RECT& output_rect )
+
 {
     m_output_rect = output_rect;
     return S_OK;
 }
 
-[[nodiscard]] constexpr HRESULT XySubRenderFrameCreater::SetClipRect( const RECT& clip_rect )
-noexcept
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetClipRect( const RECT& clip_rect )
+
 {
     m_clip_rect = clip_rect;
     return S_OK;
 }
 
-[[nodiscard]] constexpr HRESULT XySubRenderFrameCreater::SetColorSpace( const XyColorSpace color_space )
-noexcept
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetColorSpace( const XyColorSpace color_space )
+
 {
     m_xy_color_space = color_space;
     switch (m_xy_color_space)
@@ -441,8 +441,8 @@ noexcept
     return S_OK;
 }
 
-[[nodiscard]] constexpr HRESULT XySubRenderFrameCreater::SetVsfilterCompactRgbCorrection( const bool value )
-noexcept
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetVsfilterCompactRgbCorrection( const bool value )
+
 {
     if (m_vsfilter_compact_rgb_correction != value) {
         m_vsfilter_compact_rgb_correction = value;
@@ -451,8 +451,8 @@ noexcept
     return S_FALSE;
 }
 
-[[nodiscard]] constexpr HRESULT XySubRenderFrameCreater::SetRgbOutputTvLevel( const bool value )
-noexcept
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetRgbOutputTvLevel( const bool value )
+
 {
     if (m_rgb_output_tv_level!=value)
     {
@@ -482,8 +482,8 @@ noexcept
     return S_OK;
 }
 
-[[nodiscard]] constexpr HRESULT XySubRenderFrameCreater::GetColorSpace( XyColorSpace *color_space )
-noexcept
+[[nodiscard]] HRESULT XySubRenderFrameCreater::GetColorSpace( XyColorSpace *color_space )
+
 {
     if (!color_space)
     {
@@ -542,14 +542,14 @@ noexcept
     return argb;
 }
 
-[[nodiscard]] constexpr bool XySubRenderFrameCreater::GetVsfilterCompactRgbCorrection()
-noexcept
+[[nodiscard]] bool XySubRenderFrameCreater::GetVsfilterCompactRgbCorrection()
+
 {
     return m_vsfilter_compact_rgb_correction;
 }
 
-[[nodiscard]] constexpr bool XySubRenderFrameCreater::GetRgbOutputTvLevel()
-noexcept
+[[nodiscard]] bool XySubRenderFrameCreater::GetRgbOutputTvLevel()
+
 {
     return m_rgb_output_tv_level;
 }

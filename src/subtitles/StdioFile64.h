@@ -28,12 +28,12 @@ class CStdioFile64 : public CStdioFile
 
 public:
     explicit CStdioFile64() : CStdioFile() {};
-    constexpr explicit CStdioFile64(CAtlTransactionManager* pTM) noexcept : CStdioFile(pTM) {};
-    constexpr explicit CStdioFile64(FILE* pOpenStream) noexcept : CStdioFile(pOpenStream) {};
+    explicit CStdioFile64(CAtlTransactionManager* pTM) : CStdioFile(pTM) {};
+    explicit CStdioFile64(FILE* pOpenStream) : CStdioFile(pOpenStream) {};
     CStdioFile64(LPCTSTR lpszFileName, UINT nOpenFlags) : CStdioFile(lpszFileName, nOpenFlags) {};
     CStdioFile64(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM) : CStdioFile(lpszFileName, nOpenFlags, pTM) {};
 
-    constexpr virtual ~CStdioFile64() noexcept {};
+    virtual ~CStdioFile64() {};
 
     [[nodiscard]] virtual ULONGLONG GetPosition() const;
     [[nodiscard]] virtual ULONGLONG GetLength() const;

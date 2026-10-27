@@ -11,7 +11,7 @@ public:
     XySubRenderFrameWrapper(CMemSubPic * inner_obj, const CRect& output_rect, const CRect& clip_rect, 
         ULONGLONG id,
         HRESULT *phr=NULL);
-    constexpr virtual ~XySubRenderFrameWrapper() noexcept {}
+    virtual ~XySubRenderFrameWrapper() {}
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -32,7 +32,7 @@ class XySubRenderFrameWrapper2 : public CUnknown, public IXySubRenderFrame
 {
 public:
     XySubRenderFrameWrapper2(IXySubRenderFrame *inner_obj, ULONGLONG context_id);
-    constexpr virtual ~XySubRenderFrameWrapper2() noexcept {}
+    virtual ~XySubRenderFrameWrapper2() {}
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);

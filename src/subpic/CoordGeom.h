@@ -35,31 +35,31 @@ class Vector
 public:
 	float x, y, z;
 
-	constexpr explicit Vector() noexcept {x = y = z = 0;}
+	explicit Vector() {x = y = z = 0;}
 	Vector(float x, float y, float z);
-	constexpr void Set(float x, float y, float z) noexcept;
+	void Set(float x, float y, float z);
 
-	[[nodiscard]] constexpr Vector Normal(Vector& a, Vector& b) noexcept;
+	[[nodiscard]] Vector Normal(Vector& a, Vector& b);
 	[[nodiscard]] float Angle(Vector& a, Vector& b);
 	[[nodiscard]] float Angle(Vector& a);
 	void Angle(float& u, float& v); // returns spherical coords in radian, -PI/2 <= u <= PI/2, -PI <= v <= PI
 	Vector Angle(); // does like prev., returns 'u' in 'ret.x', and 'v' in 'ret.y'
 
 	Vector Unit();
-	[[nodiscard]] Vector& Unitalize() noexcept;
-	[[nodiscard]] float Length() noexcept;
-	[[nodiscard]] constexpr float Sum() noexcept; // x + y + z
-	[[nodiscard]] constexpr float CrossSum() noexcept; // xy + xz + yz
+	[[nodiscard]] Vector& Unitalize();
+	[[nodiscard]] float Length();
+	[[nodiscard]] float Sum(); // x + y + z
+	[[nodiscard]] float CrossSum(); // xy + xz + yz
 	Vector Cross(); // xy, xz, yz
-	[[nodiscard]] Vector Pow(float exp) noexcept;
+	[[nodiscard]] Vector Pow(float exp);
 
-	[[nodiscard]] constexpr Vector& Min(Vector& a) noexcept;
-	[[nodiscard]] constexpr Vector& Max(Vector& a) noexcept;
+	[[nodiscard]] Vector& Min(Vector& a);
+	[[nodiscard]] Vector& Max(Vector& a);
 	Vector Abs();
 
-	[[nodiscard]] constexpr Vector Reflect(Vector& n) noexcept;
-	[[nodiscard]] Vector Refract(Vector& n, float nFront, float nBack, float* nOut = NULL) noexcept;
-	[[nodiscard]] Vector Refract2(Vector& n, float nFrom, float nTo, float* nOut = NULL) noexcept;
+	[[nodiscard]] Vector Reflect(Vector& n);
+	[[nodiscard]] Vector Refract(Vector& n, float nFront, float nBack, float* nOut = NULL);
+	[[nodiscard]] Vector Refract2(Vector& n, float nFrom, float nTo, float* nOut = NULL);
 
 	[[nodiscard]] Vector operator - ();
 	float& operator [] (int i);
@@ -93,9 +93,9 @@ class Ray
 public:
 	Vector p, d;
 
-	constexpr explicit Ray() noexcept {}
+	explicit Ray() {}
 	Ray(Vector& p, Vector& d);
-	constexpr void Set(Vector& p, Vector& d) noexcept;
+	void Set(Vector& p, Vector& d);
 
 	[[nodiscard]] float GetDistanceFrom(Ray& r); // r = plane
 	[[nodiscard]] float GetDistanceFrom(Vector& v); // v = point

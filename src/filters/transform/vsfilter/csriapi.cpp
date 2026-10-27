@@ -44,7 +44,7 @@ typedef struct csri_vsfilter_inst csri_inst;
 static csri_rend csri_vsfilter{"vsfilter"};
 
 
-[[nodiscard]] CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, struct csri_openflag *flags)
+CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, struct csri_openflag *flags)
 {
     AMTRACE((TEXT(__FUNCTION__),0));
 	int namesize;
@@ -76,7 +76,7 @@ static csri_rend csri_vsfilter{"vsfilter"};
 }
 
 
-[[nodiscard]] CSRIAPI csri_inst *csri_open_mem(csri_rend *renderer, const void *data, const std::size_t length, struct csri_openflag *flags)
+CSRIAPI csri_inst *csri_open_mem(csri_rend *renderer, const void *data, const std::size_t length, struct csri_openflag *flags)
 {
     AMTRACE((TEXT(__FUNCTION__),0));
 	// This is actually less effecient than opening a file, since this first writes the memory data to a temp file,
@@ -97,8 +97,8 @@ static csri_rend csri_vsfilter{"vsfilter"};
 }
 
 
-constexpr CSRIAPI void csri_close(csri_inst *inst)
-noexcept
+CSRIAPI void csri_close(csri_inst *inst)
+
 {
 	if (!inst)
 	{
@@ -111,7 +111,7 @@ noexcept
 }
 
 
-[[nodiscard]] CSRIAPI int csri_request_fmt(csri_inst *inst, const struct csri_fmt *fmt)
+CSRIAPI int csri_request_fmt(csri_inst *inst, const struct csri_fmt *fmt)
 {
 	if (!inst || !fmt->width || !fmt->height) {
 		return -1;
@@ -164,7 +164,7 @@ CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, const double
 
 
 // No extensions supported
-[[nodiscard]] constexpr CSRIAPI void *csri_query_ext(csri_rend *rend, const csri_ext_id extname) noexcept { return 0; }
+CSRIAPI void *csri_query_ext(csri_rend *rend, const csri_ext_id extname) { return 0; }
 
 // Get info for renderer
 static struct csri_info csri_vsfilter_info = {
@@ -179,7 +179,7 @@ static struct csri_info csri_vsfilter_info = {
 	"Copyright (c) 2003-2014 by Gabest et al." // copyright
 };
 
-[[nodiscard]] constexpr CSRIAPI struct csri_info *csri_renderer_info(csri_rend *rend) noexcept { return &csri_vsfilter_info; }
-[[nodiscard]] constexpr CSRIAPI csri_rend *csri_renderer_byname(const char *name, const char *specific) noexcept { return &csri_vsfilter; }
-[[nodiscard]] constexpr CSRIAPI csri_rend *csri_renderer_default() noexcept { return &csri_vsfilter; }
-[[nodiscard]] constexpr CSRIAPI csri_rend *csri_renderer_next(csri_rend *prev) noexcept { return 0; }
+CSRIAPI struct csri_info *csri_renderer_info(csri_rend *rend) { return &csri_vsfilter_info; }
+CSRIAPI csri_rend *csri_renderer_byname(const char *name, const char *specific) { return &csri_vsfilter; }
+CSRIAPI csri_rend *csri_renderer_default() { return &csri_vsfilter; }
+CSRIAPI csri_rend *csri_renderer_next(csri_rend *prev) { return 0; }

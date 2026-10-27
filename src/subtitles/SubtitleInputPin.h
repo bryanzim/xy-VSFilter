@@ -48,7 +48,7 @@ public:
 
     [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
     [[nodiscard]] STDMETHODIMP_(ISubStream*) GetSubStream() { return m_pSubStream; }
-    [[nodiscard]] STDMETHODIMP EndOfStream(const void) { return S_FALSE; }
+    [[nodiscard]] STDMETHODIMP EndOfStream() { return S_FALSE; }
 protected:
     CComPtr<ISubStream> m_pSubStream;
     REFERENCE_TIME m_tStart, m_tStop;
@@ -69,7 +69,7 @@ protected:
     virtual void InvalidateSubtitle(REFERENCE_TIME rtStart, ISubStream* pSubStream) = 0;
 
     STDMETHOD_(CSubtitleInputPinHelper*, CreateHelper) ( const CMediaType& mt, IPin* pReceivePin );
-    [[nodiscard]] constexpr bool IsHdmvSub(const CMediaType* pmt) noexcept;
+    [[nodiscard]] bool IsHdmvSub(const CMediaType* pmt);
 public:
     CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCritSec* pSubLock, HRESULT* phr);
 

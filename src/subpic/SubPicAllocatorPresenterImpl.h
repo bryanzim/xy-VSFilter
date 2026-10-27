@@ -58,7 +58,7 @@ protected:
 
 public:
 	CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT& hr, CString *_pError);
-    constexpr virtual ~CSubPicAllocatorPresenterImpl() noexcept;
+    virtual ~CSubPicAllocatorPresenterImpl();
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -68,35 +68,35 @@ public:
     [[nodiscard]] STDMETHODIMP CreateRenderer(IUnknown** ppRenderer) = 0;
 
     [[nodiscard]] STDMETHODIMP_(SIZE) GetVideoSize(bool fCorrectAR = true);
-	[[nodiscard]] constexpr STDMETHODIMP_(SIZE) GetVisibleVideoSize() noexcept {
+	[[nodiscard]] STDMETHODIMP_(SIZE) GetVisibleVideoSize() {
 		return m_NativeVideoSize;
 	};
     STDMETHODIMP_(void) SetPosition(RECT w, RECT v);
     [[nodiscard]] STDMETHODIMP_(bool) Paint(bool fAll) = 0;
 
     STDMETHODIMP_(void) SetTime(REFERENCE_TIME rtNow);
-    constexpr STDMETHODIMP_(void) SetSubtitleDelay(int delay_ms) noexcept;
-    [[nodiscard]] constexpr STDMETHODIMP_(int) GetSubtitleDelay() noexcept;
-    [[nodiscard]] constexpr STDMETHODIMP_(double) GetFPS() noexcept;
+    STDMETHODIMP_(void) SetSubtitleDelay(int delay_ms);
+    [[nodiscard]] STDMETHODIMP_(int) GetSubtitleDelay();
+    [[nodiscard]] STDMETHODIMP_(double) GetFPS();
 
     STDMETHODIMP_(void) SetSubPicProvider(ISubPicProvider* pSubPicProvider);
     STDMETHODIMP_(void) Invalidate(REFERENCE_TIME rtInvalidate = -1);
 
-	[[nodiscard]] constexpr STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size) noexcept {
+	[[nodiscard]] STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size) {
 		return E_NOTIMPL;
 	}
 
-	[[nodiscard]] constexpr STDMETHODIMP_(bool) ResetDevice() noexcept {
+	[[nodiscard]] STDMETHODIMP_(bool) ResetDevice() {
 		return false;
 	}
-	[[nodiscard]] constexpr STDMETHODIMP_(bool) DisplayChange() noexcept {
+	[[nodiscard]] STDMETHODIMP_(bool) DisplayChange() {
 		return false;
 	}
     [[nodiscard]] STDMETHODIMP SetVideoAngle(Vector v, bool fRepaint = true);
-	[[nodiscard]] constexpr STDMETHODIMP SetPixelShader(const LPCSTR pSrcData, const LPCSTR pTarget) noexcept {
+	[[nodiscard]] STDMETHODIMP SetPixelShader(const LPCSTR pSrcData, const LPCSTR pTarget) {
 		return E_NOTIMPL;
 	}
-	[[nodiscard]] constexpr STDMETHODIMP SetPixelShader2(const LPCSTR pSrcData, const LPCSTR pTarget, const bool bScreenSpace) noexcept {
+	[[nodiscard]] STDMETHODIMP SetPixelShader2(const LPCSTR pSrcData, const LPCSTR pTarget, const bool bScreenSpace) {
 		if (!bScreenSpace) {
 			return SetPixelShader(pSrcData, pTarget);
 		}

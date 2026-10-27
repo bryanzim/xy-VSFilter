@@ -130,8 +130,8 @@ class CSTSStyleMap : public CAtlMap<CString, STSStyle*, CStringElementTraits<CSt
 {
 public:
     explicit CSTSStyleMap() {}
-    constexpr virtual ~CSTSStyleMap() noexcept {Free();}
-    constexpr void Free() noexcept;
+    virtual ~CSTSStyleMap() {Free();}
+    void Free();
 };
 
 typedef struct
@@ -152,7 +152,7 @@ public:
     bool animated; //if this segment has animate effect
     CAtlArray<int> subs;
 
-    constexpr explicit STSSegment() noexcept {animated=false;}
+    explicit STSSegment() {animated=false;}
     STSSegment(REFERENCE_TIME s, REFERENCE_TIME e) {start = s; end = e; animated = false;}
     STSSegment(const STSSegment& stss) {*this = stss;}
     void operator = (const STSSegment& stss) {start = stss.start; end = stss.end; animated = stss.animated; subs.Copy(stss.subs);}
@@ -279,7 +279,7 @@ public:
 
     [[nodiscard]] STSStyle* GetStyle(int i);
     [[nodiscard]] bool      GetStyle(int i, STSStyle* const stss);
-    [[nodiscard]] constexpr int       GetCharSet(int i) noexcept;
+    [[nodiscard]] int       GetCharSet(int i);
     [[nodiscard]] bool      IsEntryUnicode(int i);
     void      ConvertUnicode(int i, bool fUnicode);
 

@@ -47,7 +47,7 @@ protected:
     [[nodiscard]] HRESULT GetSubPicProviderEx(ISubPicProviderEx** pSubPicProviderEx);
 public:
 	CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype=NULL, int prefered_colortype_num=0);
-	constexpr virtual ~CSubPicQueueImpl() noexcept;
+	virtual ~CSubPicQueueImpl();
 
 	DECLARE_IUNKNOWN;
 	[[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -132,7 +132,7 @@ class CSubPicQueueNoThread : public CSubPicQueueImpl
     [[nodiscard]] bool LookupSubPicEx(REFERENCE_TIME rtNow, ISubPicEx** ppSubPic);
 public:
 	CSubPicQueueNoThread(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype=NULL, int prefered_colortype_num=0);
-	constexpr virtual ~CSubPicQueueNoThread() noexcept;
+	virtual ~CSubPicQueueNoThread();
 
 	// ISubPicQueue
 	[[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);

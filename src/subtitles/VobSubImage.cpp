@@ -48,8 +48,8 @@ CVobSubImage::CVobSubImage()
     ZeroMemory(&pal, sizeof(pal));
 }
 
-constexpr CVobSubImage::~CVobSubImage()
-noexcept
+CVobSubImage::~CVobSubImage()
+
 {
     Free();
 }
@@ -90,8 +90,8 @@ noexcept
     return true;
 }
 
-constexpr void CVobSubImage::Free()
-noexcept
+void CVobSubImage::Free()
+
 {
     SAFE_DELETE_ARRAY(lpTemp1);
     SAFE_DELETE_ARRAY(lpTemp2);
@@ -272,8 +272,8 @@ void CVobSubImage::GetPacketInfo(const BYTE* lpData, const std::size_t packetSiz
     fAnimated = (nPal > 1 || nTr > 1);
 }
 
-[[nodiscard]] constexpr BYTE CVobSubImage::GetNibble(const BYTE* lpData)
-noexcept
+[[nodiscard]] BYTE CVobSubImage::GetNibble(const BYTE* lpData)
+
 {
     std::size_t& off{nOffset[nPlane]};
     BYTE ret{lpData[off]};
@@ -288,7 +288,7 @@ noexcept
     return ret;
 }
 
-void CVobSubImage::DrawPixels(const CPoint p, int length, const std::size_t colorId)
+void CVobSubImage::DrawPixels(CPoint p, int length, const std::size_t colorId)
 {
     if (length <= 0U
             || p.x + length < rect.left
@@ -360,7 +360,7 @@ void CVobSubImage::TrimSubImage()
 
     int w{r.Width()}, h = r.Height();
 
-    DWORD offset{r.top * rect.Width() + r.left};
+    DWORD offset = r.top * rect.Width() + r.left;
 
     r += CRect(1, 1, 1, 1);
 
@@ -671,7 +671,7 @@ CAutoPtrList<COutline>* CVobSubImage::GetOutlineList(CPoint& topleft)
 
     double minerr{0}, maxerr = 0;
 
-    double vx{ep.x - sp.x}, vy = ep.y - sp.y, l = std::sqrt(vx * vx + vy * vy);
+    double vx = ep.x - sp.x, vy = ep.y - sp.y, l = std::sqrt(vx * vx + vy * vy);
     vx /= l;
     vy /= l;
 
@@ -754,12 +754,12 @@ CAutoPtrList<COutline>* CVobSubImage::GetOutlineList(CPoint& topleft)
     return ret;
 }
 
-[[nodiscard]] inline double vectlen(const CPoint p)
+[[nodiscard]] inline double vectlen(CPoint p)
 {
     return std::sqrt((double)(p.x * p.x + p.y * p.y));
 }
 
-[[nodiscard]] inline double vectlen(const CPoint p1, const CPoint p2)
+[[nodiscard]] inline double vectlen(CPoint p1, CPoint p2)
 {
     return vectlen(p2 - p1);
 }
@@ -1098,9 +1098,9 @@ void CVobSubImage::AddSegment(COutline& o, CAtlArray<BYTE>& pathTypes, CAtlArray
         double l{std::sqrt((double)(d.x * d.x + d.y * d.y))}, dx = 1.0 * d.x / l, dy = 1.0 * d.y / l;
 
         pp = o.pa[start] - o.pa[start - 1];
-        double l1{std::abs(pp.x) + std::abs(pp.y)};
+        double l1 = std::abs(pp.x) + std::abs(pp.y);
         pp = o.pa[end] - o.pa[end + 1];
-        double l2{std::abs(pp.x) + std::abs(pp.y)};
+        double l2 = std::abs(pp.x) + std::abs(pp.y);
         p[0U] = CPoint((int)(1.0 * o.pa[start].x + dx * l1 + 0.5), (int)(1.0 * o.pa[start].y + dy * l1 + 0.5));
         p[1U] = CPoint((int)(1.0 * o.pa[start].x + dx * l1 * 2 + 0.5), (int)(1.0 * o.pa[start].y + dy * l1 * 2 + 0.5));
         p[2U] = CPoint((int)(1.0 * o.pa[end].x - dx * l2 * 2 + 0.5), (int)(1.0 * o.pa[end].y - dy * l2 * 2 + 0.5));
@@ -1329,14 +1329,14 @@ void CVobSubImage::Scale2x()
             for (int x{0}; x < w; x++, src++, dst++) {
                 DWORD E{*src};
 
-                DWORD A{x} > 0 && y > 0 ? src[-w - 1] : E;
-                DWORD B{y} > 0 ? src[-w] : E;
+                DWORD A = x > 0 && y > 0 ? src[-w - 1] : E;
+                DWORD B = y > 0 ? src[-w] : E;
                 DWORD C{x < w - 1 && y > 0 ? src[-w + 1] : E};
                 UNREFERENCED_PARAMETER(A);
                 UNREFERENCED_PARAMETER(C);
 
-                DWORD D{x} > 0 ? src[-1] : E;
-                DWORD F{x < w - 1 ? src[+1] : E;
+                DWORD D = x > 0 ? src[-1] : E;
+                DWORD F = x < w - 1 ? src[+1] : E;
 
                 DWORD G = x > 0 && y < h - 1 ? src[+w - 1] : E;
                 DWORD H = y < h - 1 ? src[+w] : E;
@@ -1361,4 +1361,4 @@ void CVobSubImage::Scale2x()
 
         delete [] dst;
     }
-}}
+}

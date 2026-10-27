@@ -72,7 +72,7 @@ class CHdmvClipInfo
 public:
 
     struct Stream {
-        explicit Stream() noexcept {
+        explicit Stream() {
             std::memset(this, 0, sizeof(*this));
         }
         short m_PID;
@@ -96,7 +96,7 @@ public:
         REFERENCE_TIME m_rtIn;
         REFERENCE_TIME m_rtOut;
 
-        [[nodiscard]] constexpr REFERENCE_TIME Duration() const noexcept { return m_rtOut - m_rtIn; }
+        [[nodiscard]] REFERENCE_TIME Duration() const { return m_rtOut - m_rtIn; }
 
         [[nodiscard]] bool operator == (const PlaylistItem& pi) const {
             return pi.m_strFileName == m_strFileName;
@@ -122,7 +122,7 @@ public:
 
     [[nodiscard]] HRESULT ReadInfo(LPCTSTR strFile);
     [[nodiscard]] Stream* FindStream(short wPID);
-    [[nodiscard]] constexpr bool IsHdmv() const noexcept { return m_bIsHdmv; };
+    [[nodiscard]] bool IsHdmv() const { return m_bIsHdmv; };
     [[nodiscard]] std::size_t GetStreamNumber() { return m_Streams.GetCount(); };
     [[nodiscard]] Stream* GetStreamByIndex(const std::size_t nIndex) { return (nIndex < m_Streams.GetCount()) ? &m_Streams[nIndex] : NULL; };
 

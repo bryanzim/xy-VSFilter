@@ -17,7 +17,7 @@ void xy_filter_c_v0(float *dst, const int width, const int height, const int str
 {
     ASSERT( stride>=4*(width+filter_width) );
 
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
 
     BYTE* end{reinterpret_cast<BYTE*>(dst) + height*stride};
@@ -87,7 +87,7 @@ void xy_filter_sse_v0(float *dst, const int width, const int height, const int s
     ASSERT( stride>=4*(width+filter_width) );
     ASSERT( ((stride|(4*width)|(4*filter_width)|reinterpret_cast<int>(dst)|reinterpret_cast<int>(filter))&15)==0 );
 
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
     BYTE* dst_byte{reinterpret_cast<BYTE*>(dst)};
     BYTE* end{dst_byte + height*stride};
@@ -225,7 +225,7 @@ void xy_filter_sse_v1(float *dst, const int width, const int height, const int s
     ASSERT( stride>=4*(width+filter_width) );
     ASSERT( ((stride|(4*width)|(4*filter_width)|reinterpret_cast<int>(dst)|reinterpret_cast<int>(filter))&15)==0 );
 
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
     BYTE* dst_byte{reinterpret_cast<BYTE*>(dst)};
     BYTE* end{dst_byte + height*stride};
@@ -359,7 +359,7 @@ void xy_filter_sse_v2(float *dst, const int width, const int height, const int s
     ASSERT( stride>=4*(width+filter_width) );
     ASSERT( ((stride|(4*width)|(4*filter_width)|reinterpret_cast<int>(dst)|reinterpret_cast<int>(filter))&15)==0 );
 
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
     BYTE* dst_byte{reinterpret_cast<BYTE*>(dst)};
     BYTE* end{dst_byte + height*stride};
@@ -509,7 +509,7 @@ void xy_filter_sse_v3(float *dst, const int width, const int height, const int s
     ASSERT( stride>=4*(width+filter_width) );
     ASSERT( ((stride|(4*width)|(4*filter_width)|reinterpret_cast<int>(dst)|reinterpret_cast<int>(filter))&15)==0 );
 
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
     BYTE* dst_byte{reinterpret_cast<BYTE*>(dst)};
     BYTE* end{dst_byte + height*stride};
@@ -646,7 +646,7 @@ void xy_filter_sse_v3(float *dst, const int width, const int height, const int s
 
 __forceinline void xy_filter_one_line_sse_v4(float *dst, int width, const float *filter, int filter_width)
 {
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
     float *dst2{dst - filter_width};
     float *dst_endr{dst + width};
@@ -769,7 +769,7 @@ struct M128s
     __m128 x;
     M128s<LENGTH - 4> next;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return next.GetAt<Index - 4>();
     }
@@ -920,7 +920,7 @@ void xy_filter_sse_v5(float *dst, const int width, const int height, const int s
 
 __forceinline void xy_filter_one_line_sse_v6(float *dst, const int width, const float *filter, const int filter_width)
 {
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
     float *dst2{dst - filter_width};
     float *dst_endr{dst + width};
@@ -1122,7 +1122,7 @@ struct M128s_V1
     __m128 x;
     M128s_V1<LENGTH - 4> next;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return next.GetAt<Index - 4>();
     }
@@ -1148,7 +1148,7 @@ struct M128s_V1<1>
 {
     __m128 x;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return x;
     }
@@ -1205,8 +1205,8 @@ struct Filter4_V1<FILTER_LENGTH, START, 0>
 template<int FILTER_LENGTH,int MARGIN_LENGTH>
 struct FilterAllLeftMargin_V1
 {
-    constexpr static __forceinline void cal(float * src, M128s_V1<FILTER_LENGTH>& filter128s)
-    noexcept
+    static __forceinline void cal(float * src, M128s_V1<FILTER_LENGTH>& filter128s)
+
     {
         do_cal<FILTER_LENGTH%4>(src, filter128s);
     }
@@ -1234,8 +1234,8 @@ struct FilterAllLeftMargin_V1
 template<int FILTER_LENGTH, int MARGIN_LENGTH>
 struct FilterAllRightMargin_V1
 {
-    constexpr static __forceinline void cal(float * src, M128s_V1<FILTER_LENGTH>& filter128s)
-    noexcept
+    static __forceinline void cal(float * src, M128s_V1<FILTER_LENGTH>& filter128s)
+
     {
         do_cal<FILTER_LENGTH%4>(src, filter128s);
     }
@@ -1508,7 +1508,7 @@ struct M128s_V2
     __m128 x;
     M128s_V2<LENGTH - 4> next;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return next.GetAt<Index - 4>();
     }
@@ -1534,7 +1534,7 @@ struct M128s_V2<3>
 {
     __m128 x;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return x;
     }
@@ -1549,7 +1549,7 @@ struct M128s_V2<1>
 {
     __m128 x;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return x;
     }
@@ -1624,8 +1624,8 @@ struct Filter4_V2<FILTER_LENGTH, START, 0>
 template<int FILTER_LENGTH,int MARGIN_LENGTH>
 struct FilterAllLeftMargin_V2
 {
-    constexpr static __forceinline void cal(float * src, M128s_V2<FILTER_LENGTH>& filter128s)
-    noexcept
+    static __forceinline void cal(float * src, M128s_V2<FILTER_LENGTH>& filter128s)
+
     {
         do_cal<FILTER_LENGTH%4>(src, filter128s);
     }
@@ -1653,8 +1653,8 @@ struct FilterAllLeftMargin_V2
 template<int FILTER_LENGTH, int MARGIN_LENGTH>
 struct FilterAllRightMargin_V2
 {
-    constexpr static __forceinline void cal(float * src, M128s_V2<FILTER_LENGTH>& filter128s)
-    noexcept
+    static __forceinline void cal(float * src, M128s_V2<FILTER_LENGTH>& filter128s)
+
     {
         do_cal<FILTER_LENGTH%4>(src, filter128s);
     }
@@ -1820,20 +1820,20 @@ public:
     int filter_width;
     int ex_filter_width;
 
-    constexpr explicit XyFilterTest() noexcept :buff_base(NULL),filter_f(NULL),data(NULL)
+    explicit XyFilterTest() :buff_base(NULL),filter_f(NULL),data(NULL)
     {
         buff_base = (float*)xy_malloc(MAX_BUFF_SIZE*sizeof(float));
         data = buff_base + MAX_FILTER_LENGTH;
         filter_f = data + MAX_DATA_BUFF_SIZE;
     }
-    constexpr ~XyFilterTest()
-    noexcept
+    ~XyFilterTest()
+
     {
         xy_free(buff_base);buff_base=NULL;
     }
 
     [[nodiscard]] const XyFilterTest& copy (const XyFilterTest& rhs)
-    noexcept
+
     {
         w = rhs.w;
         h = rhs.h;
@@ -2099,7 +2099,7 @@ void float_2_byte_transpose_sse_v0(UINT8 *dst, const int dst_width, const int ds
 
 void byte_2_float_c_v0(float *dst, const int dst_width, const int dst_stride, 
     PCUINT8 src, const int width, const int height, const int stride)
-noexcept
+
 {
     PUINT8 dst_byte{reinterpret_cast<PUINT8>(dst)};
 

@@ -104,8 +104,8 @@ const float IDENTITY         [3U][4U] = {
     {  0,   0,   1,   0}
 };
 
-[[nodiscard]] constexpr inline int clip(int value, const int upper_bound)
-noexcept
+[[nodiscard]] inline int clip(int value, const int upper_bound)
+
 {
     value &= ~(value>>31);//value = value > 0 ? value : 0
     return value^((value^upper_bound)&((upper_bound-value)>>31));//value = value < upper_bound ? value : upper_bound
@@ -166,7 +166,7 @@ public:
     };
 public:
     explicit ConvMatrix();
-    virtual ~ConvMatrix() noexcept;
+    virtual ~ConvMatrix();
 
     [[nodiscard]] bool Init();
     [[nodiscard]] DWORD Convert(int x1, int x2, int x3, int in_level, int in_type, int out_level, int out_type);
@@ -193,7 +193,7 @@ ConvMatrix::ConvMatrix()
 }
 
 ConvMatrix::~ConvMatrix()
-noexcept
+
 {
     int * *p_matrix{(int **)m_matrix};
     for(int i{0};i<LEVEL_COUNT*COLOR_COUNT*LEVEL_COUNT*COLOR_COUNT;i++)
@@ -534,7 +534,7 @@ class ConvFunc
 {
 public:
     ConvFunc(YuvMatrixType yuv_type, YuvRangeType range);
-    [[nodiscard]] constexpr bool InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range) noexcept;
+    [[nodiscard]] bool InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range);
 
     typedef DWORD (*R8G8B8ToYuvFunc)(int r8, int g8, int b8);
     typedef DWORD (*PreMulArgbToAyuvFunc)(int a8, int r8, int g8, int b8);
@@ -555,8 +555,8 @@ public:
 
 [[nodiscard]] ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
 
-[[nodiscard]] constexpr bool ConvFunc::InitConvFunc(const YuvMatrixType yuv_type, const YuvRangeType range)
-noexcept
+[[nodiscard]] bool ConvFunc::InitConvFunc(const YuvMatrixType yuv_type, const YuvRangeType range)
+
 {
     bool result{true};
 
@@ -729,20 +729,20 @@ ConvFunc::ConvFunc( YuvMatrixType yuv_type, YuvRangeType range )
 //
 // ColorConvTable
 //
-[[nodiscard]] constexpr ColorConvTable::YuvMatrixType ColorConvTable::GetDefaultYUVType()
-noexcept
+[[nodiscard]] ColorConvTable::YuvMatrixType ColorConvTable::GetDefaultYUVType()
+
 {
     return s_default_conv_set._yuv_type;
 }
 
-[[nodiscard]] constexpr ColorConvTable::YuvRangeType ColorConvTable::GetDefaultRangeType()
-noexcept
+[[nodiscard]] ColorConvTable::YuvRangeType ColorConvTable::GetDefaultRangeType()
+
 {
     return s_default_conv_set._range_type;
 }
 
-constexpr void ColorConvTable::SetDefaultConvType( const YuvMatrixType yuv_type, const YuvRangeType range )
-noexcept
+void ColorConvTable::SetDefaultConvType( const YuvMatrixType yuv_type, const YuvRangeType range )
+
 {
     if( s_default_conv_set._yuv_type != yuv_type || s_default_conv_set._range_type != range )
     {
@@ -774,11 +774,11 @@ noexcept
     return (argb & 0xff000000) | RGB_PC_TO_YUV_TV_601(r, g, b);
 }
 
-[[nodiscard]] constexpr DWORD ColorConvTable::Ayuv2Auyv( const DWORD ayuv )
-noexcept
+[[nodiscard]] DWORD ColorConvTable::Ayuv2Auyv( const DWORD ayuv )
+
 {
-    int y{(ayuv & 0x00ff0000) >> 8};
-    int u{(ayuv & 0x0000ff00) << 8};
+    int y = (ayuv & 0x00ff0000) >> 8;
+    int u = (ayuv & 0x0000ff00) << 8;
     return (ayuv & 0xff0000ff)| u | y;
 }
 

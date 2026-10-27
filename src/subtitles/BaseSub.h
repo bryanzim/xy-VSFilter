@@ -36,8 +36,8 @@ public:
 
     static const REFERENCE_TIME INVALID_TIME{_I64_MIN};
 
-    constexpr explicit CBaseSub(SUBTITLE_TYPE nType) noexcept;
-    constexpr virtual ~CBaseSub() noexcept;
+    explicit CBaseSub(SUBTITLE_TYPE nType);
+    virtual ~CBaseSub();
 
     [[nodiscard]] virtual HRESULT         ParseSample(IMediaSample* pSample) = NULL;
     virtual void            EndOfStream() { /* Nothing to do */ };

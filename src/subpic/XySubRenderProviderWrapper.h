@@ -11,7 +11,7 @@ class XySubRenderProviderWrapper: public CUnknown, public IXySubRenderProvider
 {
 public:
     XySubRenderProviderWrapper( ISubPicProviderEx *provider, HRESULT* phr/*=NULL*/ );
-    constexpr virtual ~XySubRenderProviderWrapper() noexcept {}
+    virtual ~XySubRenderProviderWrapper() {}
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -38,7 +38,7 @@ class XySubRenderProviderWrapper2: public CUnknown, public IXySubRenderProvider
 {
 public:
     XySubRenderProviderWrapper2( ISubPicProviderEx2 *provider, HRESULT* phr/*=NULL*/ );
-    constexpr virtual ~XySubRenderProviderWrapper2() noexcept {}
+    virtual ~XySubRenderProviderWrapper2() {}
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);

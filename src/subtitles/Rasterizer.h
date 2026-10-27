@@ -44,13 +44,13 @@ struct PathData
 {
 public:
     explicit PathData();
-    constexpr ~PathData() noexcept;
+    ~PathData();
 
     PathData(const PathData&);//important! disable default copy constructor
     const PathData& operator=(const PathData&);
     [[nodiscard]] bool operator==(const PathData& rhs)const;
 
-    constexpr void _TrashPath() noexcept;
+    void _TrashPath();
     [[nodiscard]] bool BeginPath(HDC hdc);
     [[nodiscard]] bool EndPath(HDC hdc);
     [[nodiscard]] bool PartialBeginPath(HDC hdc, bool bClearPath);
@@ -106,7 +106,7 @@ private:
 
 public:
     explicit ScanLineData();
-    constexpr virtual ~ScanLineData() noexcept;
+    virtual ~ScanLineData();
 
     [[nodiscard]] bool ScanConvert(const PathData& path_data, const CSize& size);
     void DeleteOutlines();
@@ -128,8 +128,8 @@ public:
         ,mPathOffsetY(left_top.y)
     {
     }
-    constexpr void SetOffset(const CPoint& offset)
-    noexcept
+    void SetOffset(const CPoint& offset)
+
     {
         mPathOffsetX = offset.x;
         mPathOffsetY = offset.y;
@@ -224,7 +224,7 @@ public:
 
     static bool Rasterize(const ScanLineData2& scan_line_data2, int xsub, int ysub, SharedPtrOverlay overlay);
 
-    [[nodiscard]] constexpr static bool IsItReallyBlur(float be_strength, double gaussian_blur_strength) noexcept;
+    [[nodiscard]] static bool IsItReallyBlur(float be_strength, double gaussian_blur_strength);
     [[nodiscard]] static bool OldFixedPointBlur(const Overlay& input_overlay, float be_strength, double gaussian_blur_strength, 
         double target_scale_x, double target_scale_y, SharedPtrOverlay output_overlay);
 
@@ -254,7 +254,7 @@ public:
 
     static void AdditionDraw(XyBitmap         *bitmap   , 
                              SharedPtrOverlay  overlay  , 
-                             const CRect      &clipRect , 
+                             CRect      &clipRect , 
                              byte             *s_base   , 
                              int               xsub     ,
                              int               ysub     ,

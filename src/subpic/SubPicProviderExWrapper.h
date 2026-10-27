@@ -15,7 +15,7 @@ private:
     CComPtr<ISubPicProvider> _inner_provider;
 public:
     static CSubPicProviderExWrapper* GetSubPicProviderExWrapper(ISubPicProvider* const inner_provider);
-    constexpr virtual ~CSubPicProviderExWrapper() noexcept;
+    virtual ~CSubPicProviderExWrapper();
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -42,6 +42,6 @@ public:
 
     [[nodiscard]] STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
 
-    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
-    [[nodiscard]] constexpr STDMETHODIMP_(int) SetOutputColorType(int type) noexcept;//Important! May failed!
+    [[nodiscard]] STDMETHODIMP_(bool) IsColorTypeSupported(int type);
+    [[nodiscard]] STDMETHODIMP_(int) SetOutputColorType(int type);//Important! May failed!
 };

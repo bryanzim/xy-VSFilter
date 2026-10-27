@@ -33,7 +33,7 @@ public:
     }
 
     void FillZero()
-    noexcept
+
     {
         std::memset(alpha, 0, 6*BUF_SIZE);
     }
@@ -114,7 +114,7 @@ protected:
     }
 
     [[nodiscard]] const AlphaSrcDstTestData& GetZeroData(int pitch)
-    noexcept
+
     {
         data1.pitch = pitch;
         data1.FillZero();
@@ -200,7 +200,7 @@ public:
     }
 
     void FillZero()
-    noexcept
+
     {
         std::memset(u, 0, 5*BUF_SIZE);
     }

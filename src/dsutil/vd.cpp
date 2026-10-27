@@ -311,8 +311,8 @@ CCpuID::CCpuID()
 	return VDPixmapBlt(dstpxm, srcbm);
 }
 
-constexpr static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
-noexcept
+static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
+
 {
 	WORD* dstw{(WORD*)dst};
 	for(; width > 1; width -= 2)
@@ -322,8 +322,8 @@ noexcept
 	}
 }
 
-constexpr static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, const DWORD pitchuv)
-noexcept
+static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, const DWORD pitchuv)
+
 {
 	WORD* dstw{(WORD*)dst};
 	for(; width > 1; width -= 2, srcu++, srcv++)

@@ -105,7 +105,7 @@ int g_cTemplates{countof(g_Templates)};
 /*removeme*/
 extern void JajDeGonoszVagyok();
 
-[[nodiscard]] STDAPI DllRegisterServer()
+STDAPI DllRegisterServer()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -120,7 +120,7 @@ extern void JajDeGonoszVagyok();
     return AMovieDllRegisterServer2(TRUE);
 }
 
-[[nodiscard]] STDAPI DllUnregisterServer()
+STDAPI DllUnregisterServer()
 {
 //  DVS_WriteProfileInt2(IDS_R_GENERAL, IDS_RG_SEENDIVXWARNING, 0);
 

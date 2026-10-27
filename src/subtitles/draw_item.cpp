@@ -292,13 +292,13 @@ void CreateDrawItemExTree( CompositeDrawItemListList& input,
 {
     ASSERT(out_draw_item_ex_tree!=NULL && out_rect_ex_list!=NULL);
 
-    int list_count{input.GetCount()};
+    int list_count = input.GetCount();
     out_draw_item_ex_tree->SetCount(list_count);
     POSITION list_pos{input.GetHeadPosition()};
     for (int list_id{0};list_id<list_count;list_id++)
     {
         CompositeDrawItemList& compDrawItemList{input.GetNext(list_pos)};
-        int count{compDrawItemList.GetCount()};
+        int count = compDrawItemList.GetCount();
         CompositeDrawItemExVec& out_draw_item_exs{out_draw_item_ex_tree->GetAt(list_id)};
         out_draw_item_exs.SetCount(count);
         POSITION item_pos{compDrawItemList.GetHeadPosition()};
@@ -319,7 +319,7 @@ void CreateDrawItemExTree( CompositeDrawItemListList& input,
 
 void MergeRects(const XyRectExList& input, XyRectExList* output)
 {
-    int input_count{input.GetCount()};
+    int input_count = input.GetCount();
     if(output==NULL || input_count==0)
     {
         return;
@@ -472,7 +472,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
 
 void DecideDrawMethod( CompositeDrawItemListList& compDrawItemListList, XyRectExList& rect_ex_list )
 {
-    int count{rect_ex_list.GetCount()};
+    int count = rect_ex_list.GetCount();
     if (count>128)//this implementation is too slow for input of large scale
     {
         return;
@@ -480,7 +480,7 @@ void DecideDrawMethod( CompositeDrawItemListList& compDrawItemListList, XyRectEx
     bool not_lowest[128U];
     std::memset(not_lowest, 0, sizeof(not_lowest));
 
-    int list_count{compDrawItemListList.GetCount()};
+    int list_count = compDrawItemListList.GetCount();
     POSITION list_pos{compDrawItemListList.GetHeadPosition()};
     POSITION rect_pos{rect_ex_list.GetHeadPosition()};
     bool *not_lowest1{not_lowest};

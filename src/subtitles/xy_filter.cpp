@@ -41,7 +41,7 @@ typedef const UINT CUINT, *PCUINT;
 __forceinline void xy_filter_one_line_c(float *dst, const int width, const float *filter, const int filter_width)
 {
     const float *filter_start{filter};
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     float *dst2{dst - filter_width};
     float *dst_endr{dst + width};
     float *dst_end0{dst_endr - filter_width};
@@ -157,7 +157,7 @@ void xy_filter_c(float *dst, const int width, const int height, const int stride
 
 __forceinline void xy_filter_one_line_sse_v6(float *dst, const int width, const float *filter, const int filter_width)
 {
-    int xx_fix{width} > filter_width ? 0 : filter_width - width;
+    int xx_fix = width > filter_width ? 0 : filter_width - width;
     const float *filter_start{filter};
     float *dst2{dst - filter_width};
     float *dst_endr{dst + width};
@@ -319,7 +319,7 @@ struct M128s
     __m128 x;
     M128s<LENGTH - 4> next;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return next.GetAt<Index - 4>();
     }
@@ -345,7 +345,7 @@ struct M128s<1>
 {
     __m128 x;
 
-    template<int Index> [[nodiscard]] __forceinline __m128& GetAt()
+    template<int Index> __forceinline __m128& GetAt()
     {
         return x;
     }
@@ -402,8 +402,8 @@ struct Filter4<FILTER_LENGTH, START, 0>
 template<int FILTER_LENGTH,int MARGIN_LENGTH>
 struct FilterAllLeftMargin
 {
-    constexpr static __forceinline void cal(float * src, M128s<FILTER_LENGTH>& filter128s)
-    noexcept
+    static __forceinline void cal(float * src, M128s<FILTER_LENGTH>& filter128s)
+
     {
         do_cal<FILTER_LENGTH%4>(src, filter128s);
     }
@@ -431,8 +431,8 @@ struct FilterAllLeftMargin
 template<int FILTER_LENGTH, int MARGIN_LENGTH>
 struct FilterAllRightMargin
 {
-    constexpr static __forceinline void cal(float * src, M128s<FILTER_LENGTH>& filter128s)
-    noexcept
+    static __forceinline void cal(float * src, M128s<FILTER_LENGTH>& filter128s)
+
     {
         do_cal<FILTER_LENGTH%4>(src, filter128s);
     }
@@ -645,7 +645,7 @@ void xy_filter_sse(float *dst, const int width, const int height, const int stri
  **/
 void xy_byte_2_float_c(float *dst, const int dst_width, const int dst_stride, 
     PCUINT8 src, const int width, const int height, const int stride)
-noexcept
+
 {
     PUINT8 dst_byte{reinterpret_cast<PUINT8>(dst)};
 
@@ -882,10 +882,10 @@ void xy_float_2_byte_transpose_sse(UINT8 *dst, const int dst_width, const int ds
 /****
  * To Do: decent CPU capability check
  **/
-void xy_gaussian_blur(const PUINT8 dst, const int dst_stride,
-    const PCUINT8 src, const int width, const int height, const int stride, 
-    const float *gt_x, const int r_x, const int gt_ex_width_x, 
-    const float *gt_y, const int r_y, const int gt_ex_width_y)
+void xy_gaussian_blur(PUINT8 dst, int dst_stride,
+    PCUINT8 src, int width, int height, int stride,
+    const float *gt_x, int r_x, int gt_ex_width_x,
+    const float *gt_y, int r_y, int gt_ex_width_y)
 {
     ASSERT(width<=stride && width+2*r_x<=dst_stride);
     int ex_mask_width_x{((r_x*2+1)+3)&~3};
@@ -908,9 +908,9 @@ void xy_gaussian_blur(const PUINT8 dst, const int dst_stride,
 
 
     int fwidth{(width+3)&~3};
-    int fstride{(fwidth + ex_mask_width_x)*sizeof(float)};
+    int fstride = (fwidth + ex_mask_width_x)*sizeof(float);
     int fheight{(height+3)&~3};
-    int fstride_ver{(fheight+ex_mask_width_y)*sizeof(float)};
+    int fstride_ver = (fheight+ex_mask_width_y)*sizeof(float);
 
     PUINT8 buff_base{reinterpret_cast<PUINT8>(xy_malloc(height*fstride + (fwidth + ex_mask_width_x)*fstride_ver))};
     
@@ -1348,7 +1348,7 @@ void xy_byte_2_byte_transpose_c(UINT8 *dst, const int dst_width, const int dst_s
  *   VSFilter's simple implementation. Vertical blocky artifact can be observe with big pass value 
  *   (and @pass_x==@pass_y). So it is only used for filtering of fractional part of \be strength.
  **/
-void xy_be_blur(const PUINT8 src, const int width, const int height, const int stride, const float pass_x, const float pass_y)
+void xy_be_blur(PUINT8 src, int width, int height, int stride, float pass_x, float pass_y)
 {
     //ASSERT(pass_x>0 && pass_y>0);
 

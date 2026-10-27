@@ -145,7 +145,7 @@ STDMETHODIMP_(void) CSubPicImplHelper::SetStop(const REFERENCE_TIME rtStop)
     return pMaxSize ? *pMaxSize = m_maxsize, S_OK : E_POINTER;
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicImplHelper::SetSize(const SIZE size, const RECT vidrect)
+[[nodiscard]] STDMETHODIMP CSubPicImplHelper::SetSize(SIZE size, RECT vidrect)
 {
 	m_size = size;
 	m_vidrect = vidrect;
@@ -171,7 +171,7 @@ STDMETHODIMP_(void) CSubPicImplHelper::SetStop(const REFERENCE_TIME rtStop)
 	return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicImplHelper::SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft)
+[[nodiscard]] STDMETHODIMP CSubPicImplHelper::SetVirtualTextureSize (SIZE pSize, POINT pTopLeft)
 {
 	m_VirtualTextureSize.SetSize (pSize.cx, pSize.cy);
 	m_VirtualTextureTopLeft.SetPoint (pTopLeft.x, pTopLeft.y);
@@ -314,15 +314,15 @@ CSubPicAllocatorImpl::CSubPicAllocatorImpl(SIZE cursize, bool fDynamicWriteOnly,
 
 // ISubPicAllocator
 
-[[nodiscard]] constexpr STDMETHODIMP CSubPicAllocatorImpl::SetCurSize(const SIZE cursize)
-noexcept
+[[nodiscard]] STDMETHODIMP CSubPicAllocatorImpl::SetCurSize(SIZE cursize)
+
 {
     m_cursize = cursize;
     return S_OK;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP CSubPicAllocatorImpl::SetCurVidRect(const RECT curvidrect)
-noexcept
+[[nodiscard]] STDMETHODIMP CSubPicAllocatorImpl::SetCurVidRect(RECT curvidrect)
+
 {
     m_curvidrect = curvidrect;
     return S_OK;
@@ -362,8 +362,8 @@ noexcept
 	return S_OK;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CSubPicAllocatorImpl::IsDynamicWriteOnly()
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicAllocatorImpl::IsDynamicWriteOnly()
+
 {
     return(m_fDynamicWriteOnly);
 }
@@ -397,15 +397,15 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWrite
 
 // ISubPicAllocator
 
-[[nodiscard]] constexpr STDMETHODIMP CSubPicExAllocatorImpl::SetCurSize(const SIZE cursize)
-noexcept
+[[nodiscard]] STDMETHODIMP CSubPicExAllocatorImpl::SetCurSize(SIZE cursize)
+
 {
     m_cursize = cursize;
     return S_OK;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP CSubPicExAllocatorImpl::SetCurVidRect(const RECT curvidrect)
-noexcept
+[[nodiscard]] STDMETHODIMP CSubPicExAllocatorImpl::SetCurVidRect(RECT curvidrect)
+
 {
     m_curvidrect = curvidrect;
     return S_OK;
@@ -441,8 +441,8 @@ noexcept
     }
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CSubPicExAllocatorImpl::IsDynamicWriteOnly()
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicExAllocatorImpl::IsDynamicWriteOnly()
+
 {
     return(m_fDynamicWriteOnly);
 }
@@ -504,15 +504,15 @@ noexcept
     }
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(int) CSubPicExAllocatorImpl::SetSpdColorType( const int color_type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(int) CSubPicExAllocatorImpl::SetSpdColorType( const int color_type )
+
 {
     (color_type);
     return MSP_RGBA;
 }
 
-[[nodiscard]] constexpr STDMETHODIMP_(bool) CSubPicExAllocatorImpl::IsSpdColorTypeSupported( const int type )
-noexcept
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicExAllocatorImpl::IsSpdColorTypeSupported( const int type )
+
 {
     return MSP_RGBA==type;
 }

@@ -37,7 +37,7 @@ SimpleSubpic::~SimpleSubpic()
 {
     ASSERT(target!=NULL);
     HRESULT hr{S_FALSE};
-    int count{m_bitmap.GetCount()};
+    int count = m_bitmap.GetCount();
     for(int i{0};i<count;i++)
     {
         switch(target->type)
@@ -82,7 +82,7 @@ SimpleSubpic::~SimpleSubpic()
     }
 
     int w{src.size.cx}, h = src.size.cy;
-    bool bottom_down{rd.top} > rd.bottom;
+    bool bottom_down = rd.top > rd.bottom;
 
     BYTE* d{NULL};
     BYTE* dUV{NULL};
@@ -143,7 +143,7 @@ SimpleSubpic::~SimpleSubpic()
     }
 
     int w{src.size.cx}, h = src.size.cy;
-    bool bottom_down{rd.top} > rd.bottom;
+    bool bottom_down = rd.top > rd.bottom;
 
     BYTE* d{NULL};
     BYTE* dUV{NULL};

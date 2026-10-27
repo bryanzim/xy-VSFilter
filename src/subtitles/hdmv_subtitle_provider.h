@@ -9,7 +9,7 @@ class HdmvSubtitleProviderImpl
 {
 public:
     explicit HdmvSubtitleProviderImpl (CBaseSub* pSub);
-    constexpr ~HdmvSubtitleProviderImpl(void) noexcept;
+    ~HdmvSubtitleProviderImpl(void);
 
     [[nodiscard]] STDMETHODIMP Connect     (IXyOptions *consumer);
     [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
@@ -34,7 +34,7 @@ HdmvSubtitleProvider : public CUnknown, public IXySubRenderProvider, public ISub
 {
 public:
     HdmvSubtitleProvider(CCritSec* pLock, SUBTITLE_TYPE nType, const CString& name, LCID lcid);
-    constexpr ~HdmvSubtitleProvider(void) noexcept;
+    ~HdmvSubtitleProvider(void);
 
     [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);

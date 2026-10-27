@@ -251,7 +251,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     }
 }
 
-[[nodiscard]] HRESULT CHdmvClipInfo::ReadPlaylist(const CString strPlaylistFile, REFERENCE_TIME& rtDuration, CAtlList<PlaylistItem>& Playlist)
+[[nodiscard]] HRESULT CHdmvClipInfo::ReadPlaylist(CString strPlaylistFile, REFERENCE_TIME& rtDuration, CAtlList<PlaylistItem>& Playlist)
 {
     CPath Path{strPlaylistFile};
     rtDuration = 0;
@@ -327,7 +327,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     return AmHresultFromWin32(GetLastError());
 }
 
-[[nodiscard]] HRESULT CHdmvClipInfo::ReadChapters(const CString strPlaylistFile, CAtlList<CHdmvClipInfo::PlaylistItem>& PlaylistItems, CAtlList<PlaylistChapter>& Chapters)
+[[nodiscard]] HRESULT CHdmvClipInfo::ReadChapters(CString strPlaylistFile, CAtlList<CHdmvClipInfo::PlaylistItem>& PlaylistItems, CAtlList<PlaylistChapter>& Chapters)
 {
     CPath Path{strPlaylistFile};
 

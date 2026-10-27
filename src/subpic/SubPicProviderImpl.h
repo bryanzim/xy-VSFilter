@@ -32,7 +32,7 @@ protected:
 
 public:
     explicit CSubPicProviderImpl(CCritSec* pLock);
-    constexpr virtual ~CSubPicProviderImpl() noexcept;
+    virtual ~CSubPicProviderImpl();
 
     DECLARE_IUNKNOWN;
     [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
@@ -49,7 +49,7 @@ public:
     [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps) = 0;
 
     [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox) = 0;
-	[[nodiscard]] STDMETHODIMP GetTextureSize (const POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft) {
+	[[nodiscard]] STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft) {
 		return E_NOTIMPL;
 	};
 
@@ -59,6 +59,6 @@ public:
 
     [[nodiscard]] STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
 
-    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
+    [[nodiscard]] STDMETHODIMP_(bool) IsColorTypeSupported(int type);
 };
 

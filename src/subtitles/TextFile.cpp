@@ -115,28 +115,28 @@ CTextFile::CTextFile(enc e)
 	return true;
 }
 
-constexpr void CTextFile::SetEncoding(const enc e)
-noexcept
+void CTextFile::SetEncoding(const enc e)
+
 {
 	m_encoding = e;
 }
 
-[[nodiscard]] constexpr CTextFile::enc CTextFile::GetEncoding()
-noexcept
+[[nodiscard]] CTextFile::enc CTextFile::GetEncoding()
+
 {
 	return m_encoding;
 }
 
-[[nodiscard]] constexpr bool CTextFile::IsUnicode()
-noexcept
+[[nodiscard]] bool CTextFile::IsUnicode()
+
 {
 	return m_encoding != DEFAULT_ENCODING;
 }
 
 // CFile
 
-[[nodiscard]] constexpr CString CTextFile::GetFilePath() const
-noexcept
+[[nodiscard]] CString CTextFile::GetFilePath() const
+
 {
 	// to avoid a CException coming from CTime
 	return m_strFileName; // __super::GetFilePath();

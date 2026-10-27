@@ -39,8 +39,8 @@
 // WebVTT helper RegexUtil from mpc-hc
 
 namespace RegexUtil { //taken from SubtitlesProvidersUtils and extended for wstring
-    [[nodiscard]] static constexpr std::regex::flag_type RegexFlags(std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
-    [[nodiscard]] static constexpr std::wregex::flag_type WRegexFlags(std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
+    [[nodiscard]] static std::regex::flag_type RegexFlags(std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
+    [[nodiscard]] static std::wregex::flag_type WRegexFlags(std::regex_constants::ECMAScript | std::regex_constants::icase | std::regex_constants::optimize);
 
     using wregexResult = std::vector<std::wstring>;
     using wregexResults = std::vector<wregexResult>;
@@ -306,7 +306,7 @@ static struct htmlcolor {TCHAR* name; DWORD color;} htmlcolors[] =
 
 CHtmlColorMap::CHtmlColorMap()
 {
-    for(int i{0}; [[nodiscard]] i < countof(htmlcolors); i++)
+    for(int i{0}; i < countof(htmlcolors); i++)
     {
         SetAt(htmlcolors[i].name, htmlcolors[i].color);
     }
@@ -314,7 +314,7 @@ CHtmlColorMap::CHtmlColorMap()
 
 CHtmlColorMap g_colors;
 
-[[nodiscard]] static CStringW SSAColorTag(const CStringW arg, const CStringW ctag = L"c") {
+[[nodiscard]] static CStringW SSAColorTag(CStringW arg, CStringW ctag = L"c") {
     DWORD val, color;
     if (g_colors.Lookup(CString(arg), val)) {
         color = (DWORD)val;
@@ -327,7 +327,7 @@ CHtmlColorMap g_colors;
     return CStringW(L"{\\" + ctag + L"&H") + tmp + L"&}";
 }
 
-[[nodiscard]] static std::wstring SSAColorTagCS(const std::wstring arg, const CStringW ctag = L"c") {
+[[nodiscard]] static std::wstring SSAColorTagCS(std::wstring arg, CStringW ctag = L"c") {
     CStringW _arg{arg.c_str()};
     return SSAColorTag(_arg, ctag).GetString();
 }
@@ -419,12 +419,12 @@ static void LogStyles(const CSTSStyleMap& styles)
 [[nodiscard]] static DWORD CharSetToCodePage(const DWORD dwCharSet)
 {
     CHARSETINFO cs={0};
-    DWORD_PTR dwcp{intptr_t(dwCharSet)};
+    DWORD_PTR dwcp = intptr_t(dwCharSet);
     ::TranslateCharsetInfo((DWORD *)dwcp, &cs, TCI_SRCCHARSET);
     return cs.ciACP;
 }
 
-[[nodiscard]] static int FindChar(const CStringW str, const WCHAR c, const int pos, const bool fUnicode, int CharSet)
+[[nodiscard]] static int FindChar(CStringW str, const WCHAR c, const int pos, const bool fUnicode, int CharSet)
 {
     if(fUnicode)
     {
@@ -482,7 +482,7 @@ static void LogStyles(const CSTSStyleMap& styles)
     return(-1);
 }
 
-[[nodiscard]] static CStringW ToMBCS(const CStringW str, const DWORD CharSet)
+[[nodiscard]] static CStringW ToMBCS(CStringW str, const DWORD CharSet)
 {
     CStringW ret;
 
@@ -514,7 +514,7 @@ static void LogStyles(const CSTSStyleMap& styles)
 {
     CStringW ret;
 
-    int OrgCharSet{CharSet};
+    int OrgCharSet = CharSet;
 
     for(int j{0}; j < str.GetLength(); )
     {
@@ -564,7 +564,7 @@ static void LogStyles(const CSTSStyleMap& styles)
     return(ret);
 }
 
-[[nodiscard]] static CStringW ToUnicode(const CStringW str, const DWORD CharSet)
+[[nodiscard]] static CStringW ToUnicode(CStringW str, const DWORD CharSet)
 {
     CStringW ret;
 
@@ -655,7 +655,7 @@ static void LogStyles(const CSTSStyleMap& styles)
     return(ret);
 }
 
-[[nodiscard]] static CStringW RemoveSSATags(const CStringW str, const bool fUnicode, const int CharSet)
+[[nodiscard]] static CStringW RemoveSSATags(CStringW str, const bool fUnicode, const int CharSet)
 {
     str.Replace (L"{\\i1}", L"<i>");
     str.Replace (L"{\\i}", L"</i>");
@@ -682,7 +682,7 @@ static void LogStyles(const CSTSStyleMap& styles)
 
 //
 
-[[nodiscard]] static CStringW SubRipper2SSA(const CStringW str, const int CharSet)
+[[nodiscard]] static CStringW SubRipper2SSA(CStringW str, const int CharSet)
 {
     str.Replace(L"<i>", L"{\\i1}");
     str.Replace(L"</i>", L"{\\i}");

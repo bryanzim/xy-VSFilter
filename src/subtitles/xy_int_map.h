@@ -19,7 +19,7 @@ public:
     {
         if (m_indx)
         {
-            int preserve_key_number2{preserve_key_number};
+            int preserve_key_number2 = preserve_key_number;
             void *data{m_indx};
             switch(m_cur_level)
             {
@@ -177,7 +177,7 @@ public:
 private:
     void ReleaseLevel2Data(T*** p, std::uint32_t preserve)
     {
-        int i{preserve/(IND0_SIZE*IND1_SIZE) + 1};
+        int i = preserve/(IND0_SIZE*IND1_SIZE) + 1;
         for (;i<IND2_SIZE;i++)
         {
             ReleaseLevel1Data(p[i], 0);
@@ -194,14 +194,14 @@ private:
             return;
         }
     }
-    constexpr void ReleaseLevel1Data(T** p, const std::uint32_t preserve)
-    noexcept
+    void ReleaseLevel1Data(T** p, const std::uint32_t preserve)
+
     {
         if (preserve>=IND0_SIZE*IND1_SIZE)
         {
             return;
         }
-        int i{preserve/IND0_SIZE + 1};
+        int i = preserve/IND0_SIZE + 1;
         for (;i<IND1_SIZE;i++)
         {
             delete[] p[i];
@@ -217,8 +217,8 @@ private:
             delete[] p;
         }
     }
-    constexpr void ReleaseLevel0Data(T * p, const std::uint32_t preserve)
-    noexcept
+    void ReleaseLevel0Data(T * p, const std::uint32_t preserve)
+
     {
         if (preserve>=IND0_SIZE)
         {
@@ -230,7 +230,7 @@ private:
         }
         else
         {
-            for (int i{preserve};i<IND0_SIZE;i++)
+            for (int i = preserve;i<IND0_SIZE;i++)
             {
                 p[i] = 0;
             }

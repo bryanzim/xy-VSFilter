@@ -34,12 +34,12 @@ CRealTextParser::CRealTextParser()
 {
 }
 
-constexpr CRealTextParser::~CRealTextParser()
-noexcept
+CRealTextParser::~CRealTextParser()
+
 {
 }
 
-[[nodiscard]] bool CRealTextParser::ParseRealText(const std::wstring p_szFile)
+[[nodiscard]] bool CRealTextParser::ParseRealText(std::wstring p_szFile)
 {
     std::vector<int> vStartTimecodes;
     std::vector<int> vEndTimecodes;
@@ -162,8 +162,8 @@ noexcept
     return true;
 }
 
-[[nodiscard]] constexpr const CRealTextParser::Subtitles& CRealTextParser::GetParsedSubtitles()
-noexcept
+[[nodiscard]] const CRealTextParser::Subtitles& CRealTextParser::GetParsedSubtitles()
+
 {
     return m_RealText;
 }
@@ -400,7 +400,7 @@ noexcept
 
     std::wstring szCurrentPart;
 
-    for (ptrdiff_t i{p_crszTimecode.length() - 1}; i >= 0; --i) {
+    for (ptrdiff_t i = p_crszTimecode.length() - 1; i >= 0; --i) {
         if (p_crszTimecode.at(i) == '.' || p_crszTimecode.at(i) == ':') {
             if (iMultiplier == 1) {
                 while (szCurrentPart.length() < 3) {

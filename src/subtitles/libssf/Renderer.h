@@ -48,7 +48,7 @@ namespace ssf
 
 		void Add(const CStringW& key, T& obj, bool fFlush = true)
 		{
-			if(StringMapW<T>::CPair* p = m_key2obj.Lookup(key)) delete p->m_value;
+			if(typename StringMapW<T>::CPair* p = m_key2obj.Lookup(key)) delete p->m_value;
 			else m_objs.AddTail(key);
 
 			m_key2obj[key] = obj;

@@ -72,7 +72,7 @@ STDMETHODIMP CDeCSSInputPin::Receive(IMediaSample* pSample)
 			CSSdescramble(p, m_TitleKey);
 			p[0x14] &= ~0x30;
 
-			if(CComQIPtr<IMediaSample2> pMS2 = pSample)
+			if(CComQIPtr<IMediaSample2> pMS2{pSample})
 			{
 				AM_SAMPLE2_PROPERTIES props;
 				memset(&props, 0, sizeof(props));

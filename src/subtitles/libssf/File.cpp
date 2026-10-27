@@ -42,7 +42,8 @@ namespace ssf
 
 		SetPredefined(true);
 
-		try {ParseDefs(WCharInputStream(predef), pRef);}
+		WCharInputStream predefStream(predef);
+		try {ParseDefs(predefStream, pRef);}
 		catch(Exception& e) {ASSERT(0); TRACE(_T("%s\n"), e.ToString());}
 
 		SetPredefined(false);
@@ -118,7 +119,7 @@ namespace ssf
 			if(c == '.') 
 			{
 				if(str.IsEmpty()) s.ThrowError(_T("'type' cannot be an empty string"));
-				if(!iswcsym(s.PeekChar())) s.ThrowError(_T("unexpected dot after type '%s'"), CString(str));
+				if(!iswcsym(s.PeekChar())) s.ThrowError(_T("unexpected dot after type '%s'"), str.GetString());
 
 				types.AddTail(str);
 				str.Empty();
@@ -243,9 +244,9 @@ namespace ssf
 				// TODO: allow spec references: parent.<type>, self.<type>, child.<type>
 
 				Definition* pDef = GetDefByName(str);
-				if(!pDef) s.ThrowError(_T("cannot find definition of '%s'"), CString(str));
+				if(!pDef) s.ThrowError(_T("cannot find definition of '%s'"), str.GetString());
 
-				if(!pParentDef->IsVisible(pDef)) s.ThrowError(_T("cannot access '%s' from here"), CString(str));
+				if(!pParentDef->IsVisible(pDef)) s.ThrowError(_T("cannot access '%s' from here"), str.GetString());
 
 				pParentDef->AddTail(pDef);
 			}

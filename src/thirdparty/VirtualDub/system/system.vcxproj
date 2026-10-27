@@ -51,6 +51,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExecutablePath>$(VCInstallDir);$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64' And '$(PlatformToolset)'=='ClangCL'">
+    <ExecutablePath>$(VCInstallDir)Tools\Llvm\x64\bin;$(VCInstallDir);$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64' And '$(PlatformToolset)'=='ClangCL'">
+    <ExecutablePath>$(VCInstallDir)Tools\Llvm\x64\bin;$(VCInstallDir);$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>..\h;h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

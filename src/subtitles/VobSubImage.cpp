@@ -986,9 +986,9 @@ void CVobSubImage::SplitOutline(const COutline& o, COutline& o1, COutline& o2)
 
     for (i = 0, j = 0; j < len; j++) {
         if (j + 1 == len || o.da[j]) {
-            la.Add(unsigned int(j - i));
-            sa.Add(unsigned int(i));
-            ea.Add(unsigned int(j));
+            la.Add(static_cast<unsigned int>(j - i));
+            sa.Add(static_cast<unsigned int>(i));
+            ea.Add(static_cast<unsigned int>(j));
             i = j;
         }
     }

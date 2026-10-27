@@ -88,16 +88,16 @@ namespace ssf
 		{
 			Definition& frame = (*pDef)[L"frame"];
 
-			m_frame.reference = frame[L"reference"];
+			m_frame.reference = (LPCWSTR)frame[L"reference"];
 			m_frame.resolution.cx = frame[L"resolution"][L"cx"];
 			m_frame.resolution.cy = frame[L"resolution"][L"cy"];
 
 			Definition& direction = (*pDef)[L"direction"];
 
-			m_direction.primary = direction[L"primary"];
-			m_direction.secondary = direction[L"secondary"];
+			m_direction.primary = (LPCWSTR)direction[L"primary"];
+			m_direction.secondary = (LPCWSTR)direction[L"secondary"];
 
-			m_wrap = (*pDef)[L"wrap"];
+			m_wrap = (LPCWSTR)(*pDef)[L"wrap"];
 
 			m_layer = (*pDef)[L"layer"];
 
@@ -106,7 +106,8 @@ namespace ssf
 
 			StringMapW<float> offset;
 			Definition& block = (*pDef)[L"@"];
-			Parse(WCharInputStream((LPCWSTR)block), style, at, offset, dynamic_cast<Reference*>(block.m_parent));
+			WCharInputStream blockStream((LPCWSTR)block);
+			Parse(blockStream, style, at, offset, dynamic_cast<Reference*>(block.m_parent));
 
 			// TODO: trimming should be done by the renderer later, after breaking the words into lines
 
@@ -174,7 +175,7 @@ namespace ssf
 
 		//
 
-		style.linebreak = (*pDef)[L"linebreak"];
+		style.linebreak = (LPCWSTR)(*pDef)[L"linebreak"];
 
 		Definition& placement = (*pDef)[L"placement"];
 
@@ -182,7 +183,7 @@ namespace ssf
 
 		if(clip.IsValue(Definition::string))
 		{
-			CStringW str = clip;
+			CStringW str((LPCWSTR)clip);
 
 			if(str == L"frame") style.placement.clip = frame;
 			// else ?
@@ -227,11 +228,11 @@ namespace ssf
 		if(placement[L"org"][L"x"].IsValue()) {style.placement.org.x = placement[L"org"][L"x"]; style.placement.org.auto_x = false;}
 		if(placement[L"org"][L"y"].IsValue()) {style.placement.org.y = placement[L"org"][L"y"]; style.placement.org.auto_y = false;}
 
-		style.placement.path = placement[L"path"];
+		style.placement.path = (LPCWSTR)placement[L"path"];
 
 		Definition& font = (*pDef)[L"font"];
 
-		style.font.face = font[L"face"];
+		style.font.face = (LPCWSTR)font[L"face"];
 		style.font.size = font[L"size"];
 		font[L"weight"].GetAsNumber(style.font.weight, &m_n2n.weight);
 		style.font.color.a = font[L"color"][L"a"];
@@ -253,7 +254,7 @@ namespace ssf
 		style.background.color.g = background[L"color"][L"g"];
 		style.background.color.b = background[L"color"][L"b"];
 		style.background.size = background[L"size"];
-		style.background.type = background[L"type"];
+		style.background.type = (LPCWSTR)background[L"type"];
 		style.background.blur = background[L"blur"];
 
 		Definition& shadow = (*pDef)[L"shadow"];
@@ -350,7 +351,19 @@ namespace ssf
 		return MixValue(def, value, t, &n2n);
 	}
 
-	template<class T> 
+	template<class T>
+	struct DefinitionCast
+	{
+		static T From(Definition& def) {return (T)def;}
+	};
+
+	template<>
+	struct DefinitionCast<CStringW>
+	{
+		static CStringW From(Definition& def) {return (LPCWSTR)def;}
+	};
+
+	template<class T>
 	bool Subtitle::MixValue(Definition& def, T& value, float t, StringMapW<T>* n2n)
 	{
 		if(!def.IsValue()) return false;
@@ -359,14 +372,14 @@ namespace ssf
 		{
 			if(n2n && def.IsValue(Definition::string))
 			{
-				if(StringMapW<T>::CPair* p = n2n->Lookup(def))
+				if(typename StringMapW<T>::CPair* p = n2n->Lookup(def))
 				{
 					value = p->m_value;
 					return true;
 				}
 			}
 
-			value = (T)def;
+			value = DefinitionCast<T>::From(def);
 		}
 
 		return true;
@@ -539,7 +552,8 @@ namespace ssf
 
 					if((*pDef)[L"@"].IsValue())
 					{
-						Parse(WCharInputStream((LPCWSTR)(*pDef)[L"@"]), style, at, offset, pParentRef);
+						WCharInputStream blockStream((LPCWSTR)(*pDef)[L"@"]);
+						Parse(blockStream, style, at, offset, pParentRef);
 					}
 
 					s.SkipWhiteSpace();

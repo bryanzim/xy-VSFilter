@@ -11,8 +11,28 @@ wchar* RemoveLF(wchar *Str);
 unsigned char loctolower(unsigned char ch);
 unsigned char loctoupper(unsigned char ch);
 
-char* strncpyz(char *dest, const char *src, size_t maxlen);
-wchar* wcsncpyz(wchar *dest, const wchar *src, size_t maxlen);
+#include <string.h>
+
+static inline char* strncpyz(char *dest, const char *src, size_t maxlen)
+{
+  if (maxlen>0)
+  {
+    strncpy(dest,src,maxlen-1);
+    dest[maxlen-1]=0;
+  }
+  return dest;
+}
+
+static inline wchar* wcsncpyz(wchar *dest, const wchar *src, size_t maxlen)
+{
+  if (maxlen>0)
+  {
+    wcsncpy(dest,src,maxlen-1);
+    dest[maxlen-1]=0;
+  }
+  return dest;
+}
+
 char* strncatz(char* dest, const char* src, size_t maxlen);
 wchar* wcsncatz(wchar* dest, const wchar* src, size_t maxlen);
 

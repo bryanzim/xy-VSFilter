@@ -39,53 +39,53 @@ public:
 	Vector(float x, float y, float z);
 	void Set(float x, float y, float z);
 
-	[[nodiscard]] Vector Normal(Vector& a, Vector& b);
-	[[nodiscard]] float Angle(Vector& a, Vector& b);
-	[[nodiscard]] float Angle(Vector& a);
-	void Angle(float& u, float& v); // returns spherical coords in radian, -PI/2 <= u <= PI/2, -PI <= v <= PI
-	Vector Angle(); // does like prev., returns 'u' in 'ret.x', and 'v' in 'ret.y'
+	[[nodiscard]] Vector Normal(const Vector& a, const Vector& b) const;
+	[[nodiscard]] float Angle(const Vector& a, const Vector& b) const;
+	[[nodiscard]] float Angle(const Vector& a) const;
+	void Angle(float& u, float& v) const; // returns spherical coords in radian, -PI/2 <= u <= PI/2, -PI <= v <= PI
+	Vector Angle() const; // does like prev., returns 'u' in 'ret.x', and 'v' in 'ret.y'
 
-	Vector Unit();
+	Vector Unit() const;
 	[[nodiscard]] Vector& Unitalize();
-	[[nodiscard]] float Length();
-	[[nodiscard]] float Sum(); // x + y + z
-	[[nodiscard]] float CrossSum(); // xy + xz + yz
-	Vector Cross(); // xy, xz, yz
-	[[nodiscard]] Vector Pow(float exp);
+	[[nodiscard]] float Length() const;
+	[[nodiscard]] float Sum() const; // x + y + z
+	[[nodiscard]] float CrossSum() const; // xy + xz + yz
+	Vector Cross() const; // xy, xz, yz
+	[[nodiscard]] Vector Pow(float exp) const;
 
-	[[nodiscard]] Vector& Min(Vector& a);
-	[[nodiscard]] Vector& Max(Vector& a);
-	Vector Abs();
+	[[nodiscard]] Vector& Min(const Vector& a);
+	[[nodiscard]] Vector& Max(const Vector& a);
+	Vector Abs() const;
 
-	[[nodiscard]] Vector Reflect(Vector& n);
-	[[nodiscard]] Vector Refract(Vector& n, float nFront, float nBack, float* nOut = NULL);
-	[[nodiscard]] Vector Refract2(Vector& n, float nFrom, float nTo, float* nOut = NULL);
+	[[nodiscard]] Vector Reflect(const Vector& n) const;
+	[[nodiscard]] Vector Refract(const Vector& n, float nFront, float nBack, float* nOut = NULL) const;
+	[[nodiscard]] Vector Refract2(const Vector& n, float nFrom, float nTo, float* nOut = NULL) const;
 
-	[[nodiscard]] Vector operator - ();
+	[[nodiscard]] Vector operator - () const;
 	float& operator [] (int i);
 
-	[[nodiscard]] float operator | (Vector& v); // dot
-	[[nodiscard]] Vector operator % (Vector& v); // cross
+	[[nodiscard]] float operator | (const Vector& v) const; // dot
+	[[nodiscard]] Vector operator % (const Vector& v) const; // cross
 
 	[[nodiscard]] bool operator == (const Vector& v) const;
 	[[nodiscard]] bool operator != (const Vector& v) const;
 
-	[[nodiscard]] Vector operator + (float d);
-	[[nodiscard]] Vector operator + (Vector& v);
-	[[nodiscard]] Vector operator - (float d);
-	[[nodiscard]] Vector operator - (Vector& v);
-	[[nodiscard]] Vector operator * (float d);
-	[[nodiscard]] Vector operator * (Vector& v);
-	[[nodiscard]] Vector operator / (float d);
-	[[nodiscard]] Vector operator / (Vector& v);
+	[[nodiscard]] Vector operator + (float d) const;
+	[[nodiscard]] Vector operator + (const Vector& v) const;
+	[[nodiscard]] Vector operator - (float d) const;
+	[[nodiscard]] Vector operator - (const Vector& v) const;
+	[[nodiscard]] Vector operator * (float d) const;
+	[[nodiscard]] Vector operator * (const Vector& v) const;
+	[[nodiscard]] Vector operator / (float d) const;
+	[[nodiscard]] Vector operator / (const Vector& v) const;
 	Vector& operator += (float d);
-	Vector& operator += (Vector& v);
+	Vector& operator += (const Vector& v);
 	Vector& operator -= (float d);
-	Vector& operator -= (Vector& v);
+	Vector& operator -= (const Vector& v);
 	Vector& operator *= (float d);
-	Vector& operator *= (Vector& v);
+	Vector& operator *= (const Vector& v);
 	Vector& operator /= (float d);
-	Vector& operator /= (Vector& v);
+	Vector& operator /= (const Vector& v);
 };
 
 class Ray
@@ -94,13 +94,13 @@ public:
 	Vector p, d;
 
 	explicit Ray() {}
-	Ray(Vector& p, Vector& d);
-	void Set(Vector& p, Vector& d);
+	Ray(const Vector& p, const Vector& d);
+	void Set(const Vector& p, const Vector& d);
 
-	[[nodiscard]] float GetDistanceFrom(Ray& r); // r = plane
-	[[nodiscard]] float GetDistanceFrom(Vector& v); // v = point
+	[[nodiscard]] float GetDistanceFrom(const Ray& r) const; // r = plane
+	[[nodiscard]] float GetDistanceFrom(const Vector& v) const; // v = point
 
-	Vector operator [] (float t);
+	Vector operator [] (float t) const;
 };
 
 class XForm
@@ -113,29 +113,29 @@ class XForm
 		explicit Matrix();
 		void Initalize();
 
-		[[nodiscard]] Matrix operator * (Matrix& m);
-		Matrix& operator *= (Matrix& m);
+		[[nodiscard]] Matrix operator * (const Matrix& m) const;
+		Matrix& operator *= (const Matrix& m);
 	} m;
 
 	bool m_isWorldToLocal;
 
 public:
 	explicit XForm() {}
-	XForm(Ray& r, Vector& s, bool isWorldToLocal = true);
+	XForm(const Ray& r, const Vector& s, bool isWorldToLocal = true);
 
 	void Initalize();
-	void Initalize(Ray& r, Vector& s, bool isWorldToLocal = true);
+	void Initalize(const Ray& r, const Vector& s, bool isWorldToLocal = true);
 
-	void operator *= (Vector& s); // scale
-	void operator += (Vector& t); // translate
-	void operator <<= (Vector& r); // rotate
+	void operator *= (const Vector& s); // scale
+	void operator += (const Vector& t); // translate
+	void operator <<= (const Vector& r); // rotate
 
-	void operator /= (Vector& s); // scale
-	void operator -= (Vector& t); // translate
-	void operator >>= (Vector& r); // rotate
+	void operator /= (const Vector& s); // scale
+	void operator -= (const Vector& t); // translate
+	void operator >>= (const Vector& r); // rotate
 
 //	transformations
-	[[nodiscard]] Vector operator < (Vector& n); // normal
-	Vector operator << (Vector& v); // vector
-	Ray operator << (Ray& r); // ray
+	[[nodiscard]] Vector operator < (const Vector& n) const; // normal
+	Vector operator << (const Vector& v) const; // vector
+	Ray operator << (const Ray& r) const; // ray
 };

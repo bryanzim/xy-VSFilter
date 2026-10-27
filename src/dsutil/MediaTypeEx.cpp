@@ -203,7 +203,7 @@ CMediaTypeEx::CMediaTypeEx()
 		type = _T("Unknown");
 	}
 
-	if(CComQIPtr<IMediaSeeking> pMS = pPin)
+	if(CComQIPtr<IMediaSeeking> pMS{pPin})
 	{
 		REFERENCE_TIME rtDur{0};
 		if(SUCCEEDED(pMS->GetDuration(&rtDur)) && rtDur)

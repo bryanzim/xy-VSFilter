@@ -263,7 +263,7 @@ CMemSubPic::~CMemSubPic()
     while(!m_rectListDirty.IsEmpty())
     {
         //pDirtyRect = m_rectListDirty.RemoveHead();
-        CRect& dirtyRect{m_rectListDirty.RemoveTail()};
+        CRect dirtyRect = m_rectListDirty.RemoveTail();
         BYTE* p{(BYTE*)m_spd.bits + m_spd.pitch*(dirtyRect.top) + dirtyRect.left*(m_spd.bpp>>3)};
         int w{dirtyRect.Width()};
         if(m_spd.type!=MSP_AYUV_PLANAR)

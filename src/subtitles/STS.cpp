@@ -3688,7 +3688,7 @@ bool CSimpleTextSubtitle::Open(CString fn, int CharSet, CString name)
     return(Open(&f, CharSet, name));
 }
 
-static std::size_t CountLines(CTextFile* f, ULONGLONG from, ULONGLONG to, CString& s = CString())
+static std::size_t CountLines(CTextFile* f, ULONGLONG from, ULONGLONG to, CString& s)
 {
     std::size_t n = 0;
     f->Seek(from, CFile::begin);

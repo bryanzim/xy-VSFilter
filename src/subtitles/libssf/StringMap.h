@@ -27,6 +27,8 @@ namespace ssf
 	class StringMap : public CAtlMap<S, T, CStringElementTraits<S> >
 	{
 	public:
+		typedef typename CAtlMap<S, T, CStringElementTraits<S> >::CPair CPair;
+
 		StringMap() {}
 		StringMap(const StringMap& s2t) {*this = s2t;}
 		StringMap& operator = (const StringMap& s2t)

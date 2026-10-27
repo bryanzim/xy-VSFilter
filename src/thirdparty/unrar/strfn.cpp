@@ -235,30 +235,6 @@ int wcsicompc(const wchar *Str1,const wchar *Str2)
 }
 
 
-// safe strncpy: copies maxlen-1 max and always returns zero terminated dest
-char* strncpyz(char *dest, const char *src, size_t maxlen)
-{
-  if (maxlen>0)
-  {
-    strncpy(dest,src,maxlen-1);
-    dest[maxlen-1]=0;
-  }
-  return dest;
-}
-
-
-// Safe wcsncpy: copies maxlen-1 max and always returns zero terminated dest.
-wchar* wcsncpyz(wchar *dest, const wchar *src, size_t maxlen)
-{
-  if (maxlen>0)
-  {
-    wcsncpy(dest,src,maxlen-1);
-    dest[maxlen-1]=0;
-  }
-  return dest;
-}
-
-
 // Safe strncat: resulting dest length cannot exceed maxlen and dest 
 // is always zero terminated. Note that 'maxlen' parameter defines the entire
 // dest buffer size and is not compatible with standard strncat.

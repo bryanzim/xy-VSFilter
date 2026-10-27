@@ -2405,7 +2405,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 
     BeginEnumFilters(pGraph, pEF, pBF)
     {
-        if(CComQIPtr<IFileSourceFilter> pFSF = pBF)
+        if(CComQIPtr<IFileSourceFilter> pFSF{pBF})
         {
             LPOLESTR fnw{NULL};
             if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, NULL)) || !fnw)

@@ -49,7 +49,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 {
     if (subpic_provider!=NULL)
     {
-        CComQIPtr<ISubPicProviderEx2> tmp = subpic_provider;
+        CComQIPtr<ISubPicProviderEx2> tmp{subpic_provider};
         if (tmp)
         {
             [[nodiscard]] CAutoLock cAutoLock(&m_csSubPicProvider);
@@ -352,7 +352,7 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
     if (subpic_provider!=NULL)
     {
         HRESULT hr;
-        CComQIPtr<ISubPicProviderEx2> tmp = subpic_provider;
+        CComQIPtr<ISubPicProviderEx2> tmp{subpic_provider};
         if (tmp)
         {
             m_cur_provider = NULL;

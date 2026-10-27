@@ -3,7 +3,7 @@
 function Usage()
 {
   echo "Usage:"
-  echo -e "\t$1 [-conf "'"Release"|"Debug"'"]  [-plat platform "'"Win32"|"x64"'"] [-action build|clean|rebuild] [-proj projects] [-voff|--versioning-off] [-solution sln_file] [-compiler VS2010|VS2012|VS2013|VS2019]"
+  echo -e "\t$1 [-conf "'"Release"|"Debug"'"]  [-plat platform "'"Win32"|"x64"'"] [-action build|clean|rebuild] [-proj projects] [-voff|--versioning-off] [-solution sln_file] [-compiler VS2010|VS2012|VS2013|VS2019|VS2026|VS2026Clang]"
   echo -e "\nDefault:"
   echo -e '-conf\t\t"Release"'
   echo -e '-plat\t\t"Win32"'
@@ -17,6 +17,10 @@ function Usage()
   echo -e '-compiler\tVS2013'
   echo -e "\nVisual Studio 2019:"
   echo -e '-compiler\tVS2019'
+  echo -e "\nVisual Studio 2026 MSVC:"
+  echo -e '-compiler\tVS2026'
+  echo -e "\nVisual Studio 2026 Clang:"
+  echo -e '-compiler\tVS2026Clang'
 }
 
 script_dir=`dirname $0`
@@ -29,6 +33,7 @@ platform="Win32"
 projects="vsfilter xy_sub_filter"
 compiler="VS2010"
 common_tools="%VS100COMNTOOLS%"
+toolset_arg=""
 update_version=1
 
 while [ "$1"x != ""x ]
@@ -111,6 +116,12 @@ elif [ "$compiler"x == "vs2013"x ]; then
   common_tools="%VS120COMNTOOLS%"
 elif [ "$compiler"x == "vs2019"x ]; then
   common_tools="%VS160COMNTOOLS%"
+elif [ "$compiler"x == "vs2026"x ]; then
+  common_tools="%VS180COMNTOOLS%"
+  toolset_arg="/p:PlatformToolset=v145"
+elif [ "$compiler"x == "vs2026clang"x ]; then
+  common_tools="%VS180COMNTOOLS%"
+  toolset_arg="/p:PlatformToolset=ClangCL"
 else
   echo "Invalid compiler argument: $compiler"
   Usage $0
@@ -139,6 +150,22 @@ elif [ "$compiler"x == "vs2019"x ]; then
 echo '
 CALL "'$common_tools'../../VC/Auxiliary/Build/vcvarsall.bat" '$platform_type'
 msbuild /m /t:'$project''$action' /p:Configuration='$configuration' /p:Platform='$platform' /p:BuildProjectReferences=false "'$solution'"
+exit
+' | cmd
+
+elif [ "$compiler"x == "vs2026"x ] || [ "$compiler"x == "vs2026clang"x ]; then
+echo '
+set "VCVARS="
+if defined VS180COMNTOOLS set "VCVARS=%VS180COMNTOOLS%..\..\VC\Auxiliary\Build\vcvarsall.bat"
+if not exist "%VCVARS%" (
+  for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -version "[18.0,19.0)" -latest -property installationPath`) do set "VCVARS=%%i\VC\Auxiliary\Build\vcvarsall.bat"
+)
+if not exist "%VCVARS%" (
+  echo Visual Studio 2026 was not found
+  exit /b 1
+)
+CALL "%VCVARS%" '$platform_type'
+msbuild /m /t:'$project''$action' /p:Configuration='$configuration' /p:Platform='$platform' '$toolset_arg' /p:BuildProjectReferences=false "'$solution'"
 exit
 ' | cmd
 

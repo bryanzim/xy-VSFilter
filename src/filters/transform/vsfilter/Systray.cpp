@@ -208,7 +208,7 @@ void CSystrayWindow::OnDestroy()
 //		tnid.hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 0, 0, LR_LOADTRANSPARENT);
 		tnid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP; 
 		tnid.uCallbackMessage = WM_NOTIFYICON;
-        CComQIPtr<IXyOptions> dvs_xy = m_tbid->dvs;
+        CComQIPtr<IXyOptions> dvs_xy{m_tbid->dvs};
         LPWSTR name{NULL};
         int chars{0};
         dvs_xy->XyGetString(DirectVobSubXyOptions::STRING_NAME, &name, &chars);
@@ -274,7 +274,7 @@ void CSystrayWindow::OnDestroy()
 				    continue;
 				}
 
-				if(CComQIPtr<IAMStreamSelect> pSS = pBF)
+				if(CComQIPtr<IAMStreamSelect> pSS{pBF})
 				{
 					pStreams.Add(pSS);
 					names.Add(name);
@@ -344,7 +344,7 @@ void CSystrayWindow::OnDestroy()
 			}
 			else if(id & (1<<14))
 			{
-				if(CComQIPtr<IVideoWindow> pVW = m_tbid->graph)
+				if(CComQIPtr<IVideoWindow> pVW{m_tbid->graph})
 				{
 					HWND hwnd;
 					if(SUCCEEDED(pVW->get_Owner((OAHWND*)&hwnd))
@@ -445,7 +445,7 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 
 	BeginEnumFilters(pGraph, pEF, pBF)
 	{
-		CComQIPtr<ISpecifyPropertyPages> pSPS = pBF;
+		CComQIPtr<ISpecifyPropertyPages> pSPS{pBF};
 		if(!pSPS)
 		{
 		    continue;

@@ -290,7 +290,7 @@ public:
 
     void SetStr(int i, CStringW str, bool fUnicode);
 
-    [[nodiscard]] friend bool OpenMicroDVD(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet);
+    friend bool OpenMicroDVD(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet);
 private:
     bool CopyStyles(const CSTSStyleMap& styles, bool fAppend = false);
 };

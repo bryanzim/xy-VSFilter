@@ -321,7 +321,8 @@ CSSFInputPinHepler::CSSFInputPinHepler( ssf::CRenderer* pSSF, const CMediaType& 
 {
     // LAME, implement RemoveSubtitles
     DWORD dwOffset{((SUBTITLEINFO*)m_mt.pbFormat)->dwOffset};
-    m_pSSF->Open(ssf::MemoryInputStream(m_mt.pbFormat + dwOffset, m_mt.cbFormat - dwOffset, false, false), _T(""));
+    ssf::MemoryInputStream stream(m_mt.pbFormat + dwOffset, m_mt.cbFormat - dwOffset, false, false);
+    m_pSSF->Open(stream, _T(""));
     // pSSF->RemoveSubtitles();
     return __super::NewSegment(tStart,tStop,dRate);
 }
@@ -552,7 +553,8 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
         {
             XY_LOG_INFO("Create CSSFInputPinHepler");
             ssf::CRenderer* pSSF{DEBUG_NEW ssf::CRenderer(m_pSubLock)};
-            pSSF->Open(ssf::MemoryInputStream(mt.pbFormat + dwOffset, mt.cbFormat - dwOffset, false, false), name);
+            ssf::MemoryInputStream stream(mt.pbFormat + dwOffset, mt.cbFormat - dwOffset, false, false);
+            pSSF->Open(stream, name);
             ret = DEBUG_NEW CSSFInputPinHepler{pSSF, m_mt};
         }
         else if(mt.subtype == MEDIASUBTYPE_VOBSUB)

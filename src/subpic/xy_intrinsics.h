@@ -9,6 +9,15 @@
 
 #include <WTypes.h>
 
+inline unsigned char& xy_m128i_u8(__m128i& value, const int index)
+{
+#if defined(__clang__)
+    return reinterpret_cast<unsigned char*>(&value)[index];
+#else
+    return value.m128i_u8[index];
+#endif
+}
+
 //out: m128_1 = avg(m128_1.u8[0],m128_1.u8[1]) 
 //              0 
 //              avg(...) 
@@ -67,22 +76,22 @@
 static void average_4_pix_intrinsics_3_c(__m128i& m128i_1, __m128i& m128i_last) 
 
 {
-    int last{m128i_last.m128i_u8[1U]};
-    m128i_last.m128i_u8[0U] = m128i_1.m128i_u8[14U];
-    m128i_last.m128i_u8[1U] = m128i_1.m128i_u8[15U];
+    int last{xy_m128i_u8(m128i_last, 1U)};
+    xy_m128i_u8(m128i_last, 0U) = xy_m128i_u8(m128i_1, 14U);
+    xy_m128i_u8(m128i_last, 1U) = xy_m128i_u8(m128i_1, 15U);
     for (int i{2};i<16;i++)
     {
-        m128i_last.m128i_u8[i] = 0;
+        xy_m128i_u8(m128i_last, i) = 0;
     }
     for (int i{0};i<8;i++)
     {
-        int u0{m128i_1.m128i_u8[2U*i]};
-        int u1{m128i_1.m128i_u8[2U*i+1]};
+        int u0{xy_m128i_u8(m128i_1, 2U*i)};
+        int u1{xy_m128i_u8(m128i_1, 2U*i+1)};
         last = (last + u1 + 1)/2;
         u0 = (last + u0 + 1)/2;
         last = u1;
-        m128i_1.m128i_u8[2U*i] = u0;
-        m128i_1.m128i_u8[2U*i+1] = 0;
+        xy_m128i_u8(m128i_1, 2U*i) = u0;
+        xy_m128i_u8(m128i_1, 2U*i+1) = 0;
     }
 }
 
@@ -107,22 +116,22 @@ static void average_4_pix_intrinsics_3_c(__m128i& m128i_1, __m128i& m128i_last)
 static void average_4_pix_intrinsics_4_c(__m128i& m128i_1, __m128i& m128i_last) 
 
 {
-    int last{m128i_last.m128i_u8[1U]};
-    m128i_last.m128i_u8[0U] = m128i_1.m128i_u8[14U];
-    m128i_last.m128i_u8[1U] = m128i_1.m128i_u8[15U];
+    int last{xy_m128i_u8(m128i_last, 1U)};
+    xy_m128i_u8(m128i_last, 0U) = xy_m128i_u8(m128i_1, 14U);
+    xy_m128i_u8(m128i_last, 1U) = xy_m128i_u8(m128i_1, 15U);
     for (int i{2};i<16;i++)
     {
-        m128i_last.m128i_u8[i] = 0;
+        xy_m128i_u8(m128i_last, i) = 0;
     }
     for (int i{0};i<8;i++)
     {
-        int u0{m128i_1.m128i_u8[2U*i]};
-        int u1{m128i_1.m128i_u8[2U*i+1]};
+        int u0{xy_m128i_u8(m128i_1, 2U*i)};
+        int u1{xy_m128i_u8(m128i_1, 2U*i+1)};
         last = (last + u1 + 1)/2;
         u0 = (last + u0 + 1)/2;
         last = u1;
-        m128i_1.m128i_u8[2U*i+1] = u0;
-        m128i_1.m128i_u8[2U*i] = 0;
+        xy_m128i_u8(m128i_1, 2U*i+1) = u0;
+        xy_m128i_u8(m128i_1, 2U*i) = 0;
     }
 }
 //in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
@@ -148,22 +157,22 @@ static void average_4_pix_intrinsics_4_c(__m128i& m128i_1, __m128i& m128i_last)
 static void average_4_pix_intrinsics_5_c(__m128i& m128i_1, __m128i& m128i_last) 
 
 {
-    int last{m128i_last.m128i_u8[1U]};
-    m128i_last.m128i_u8[0U] = m128i_1.m128i_u8[14U];
-    m128i_last.m128i_u8[1U] = m128i_1.m128i_u8[15U];
+    int last{xy_m128i_u8(m128i_last, 1U)};
+    xy_m128i_u8(m128i_last, 0U) = xy_m128i_u8(m128i_1, 14U);
+    xy_m128i_u8(m128i_last, 1U) = xy_m128i_u8(m128i_1, 15U);
     for (int i{2};i<16;i++)
     {
-        m128i_last.m128i_u8[i] = 0;
+        xy_m128i_u8(m128i_last, i) = 0;
     }
     for (int i{0};i<8;i++)
     {
-        int u0{m128i_1.m128i_u8[2U*i]};
-        int u1{m128i_1.m128i_u8[2U*i+1]};
+        int u0{xy_m128i_u8(m128i_1, 2U*i)};
+        int u1{xy_m128i_u8(m128i_1, 2U*i+1)};
         last = (last + u1 + 1)/2;
         u0 = (last + u0 + 1)/2;
         last = u1;
-        m128i_1.m128i_u8[2U*i+1] = u0;
-        m128i_1.m128i_u8[2U*i] = u0;
+        xy_m128i_u8(m128i_1, 2U*i+1) = u0;
+        xy_m128i_u8(m128i_1, 2U*i) = u0;
     }
 }
 

@@ -213,7 +213,7 @@ void CHdmvSub::AllocSegment(const int nSize)
         return 0;
     }
 
-    m_pCurrentPresentationSegment = DEBUG_NEW HDMV_PRESENTATION_SEGMENT{};
+    m_pCurrentPresentationSegment = DEBUG_NEW HDMV_PRESENTATION_SEGMENT();
 
     m_pCurrentPresentationSegment->rtStart = rt;
     m_pCurrentPresentationSegment->rtStop  = _I64_MAX;

@@ -290,7 +290,7 @@ namespace ssf
 		{
 			if(m_status == node) throw Exception(_T("expected value type"));
 
-			if(StringMapW<T>::CPair* p = n2n->Lookup(str))
+			if(typename StringMapW<T>::CPair* p = n2n->Lookup(str))
 			{
 				n.value = p->m_value;
 				return;
@@ -381,7 +381,7 @@ namespace ssf
 		Definition& time = (*this)[L"time"];
 
 		CStringW id;
-		if(time[L"id"].IsValue()) id = time[L"id"];
+		if(time[L"id"].IsValue()) id = (LPCWSTR)time[L"id"];
 		else id.Format(L"%d", default_id);
 
 		float scale = time[L"scale"].IsValue() ? time[L"scale"] : 1.0f;

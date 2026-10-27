@@ -31,9 +31,6 @@
 #include <math.h>
 #include <InitGuid.h>
 #include <d3d9types.h>
-#include <dxva.h>
-#include <dxva2api.h>
-
 void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 {
 	CString s, ss;
@@ -726,7 +723,7 @@ void ShowPPage(CString DisplayName, const HWND hParentWnd)
 
 void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
 {
-	CComQIPtr<ISpecifyPropertyPages> pSPP = pUnk;
+	CComQIPtr<ISpecifyPropertyPages> pSPP{pUnk};
 	if(!pSPP)
 	{
 	    return;
@@ -734,9 +731,9 @@ void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
 
 	CString str;
 
-	CComQIPtr<IBaseFilter> pBF = pSPP;
+	CComQIPtr<IBaseFilter> pBF{pUnk};
 	CFilterInfo fi;
-	CComQIPtr<IPin> pPin = pSPP;
+	CComQIPtr<IPin> pPin{pUnk};
 	CPinInfo pi;
 	if(pBF && SUCCEEDED(pBF->QueryFilterInfo(&fi)))
 	{
@@ -937,7 +934,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 						if(TOC.TrackData[i-1].Control == 0 || TOC.TrackData[i-1].Control == 1) 
 						{
 							CString fn;
-							fn.Format(_T("%s\\track%02d.cda"), path, i);
+							fn.Format(_T("%s\\track%02d.cda"), path.GetString(), i);
 							files.AddTail(fn);
 						}
 					}
@@ -1594,18 +1591,18 @@ void UnloadExternalObjects()
 	if(full.GetLength() >= 2 && full[0U] == '\\' && full[1U] != '\\')
 	{
 		p.StripToRoot();
-		full = CString(p) + full.Mid(1); 
+		full = CString((LPCTSTR)p) + full.Mid(1); 
 	}
 	else if(full.Find(_T(":\\")) < 0)
 	{
 		p.RemoveFileSpec();
 		p.AddBackslash();
-		full = CString(p) + full;
+		full = CString((LPCTSTR)p) + full;
 	}
 
 	CPath c{full};
 	c.Canonicalize();
-	return CString(c);
+	return CString((LPCTSTR)c);
 }
 
 //
@@ -2593,10 +2590,10 @@ void UnRegisterSourceFilter(const GUID& subtype)
 {
 	CString		strTemp;
 	LONGLONG	llTotalMs{ConvertToMilliseconds (rtVal)};
-	int			lHour{(int)(llTotalMs  / (1000*60*60))};
-	int			lMinute{(llTotalMs / (1000*60)) % 60};
-	int			lSecond{(llTotalMs /  1000) % 60};
-	int			lMillisec{llTotalMs  %  1000};
+	int			lHour = (int)(llTotalMs  / (1000*60*60));
+	int			lMinute = (llTotalMs / (1000*60)) % 60;
+	int			lSecond = (llTotalMs /  1000) % 60;
+	int			lMillisec = llTotalMs  %  1000;
 	strTemp.Format (_T("%02d:%02d:%02d,%03d"), lHour, lMinute, lSecond, lMillisec);
 	return strTemp;
 }

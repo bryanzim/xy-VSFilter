@@ -5,6 +5,9 @@
     <PlatformToolset Condition="'$(VisualStudioVersion)'=='12.0'">v120_xp</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)'=='16.0'">v142</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)'=='17.0'">v143</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)'=='18.0' And '$(PlatformToolset)'!='ClangCL' And '$(UseClangCL)'!='true'">v145</PlatformToolset>
+    <PlatformToolset Condition="'$(UseClangCL)'=='true'">ClangCL</PlatformToolset>
 	<WholeProgramOptimization Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='Release Unicode'">true</WholeProgramOptimization>
+    <WholeProgramOptimization Condition="'$(PlatformToolset)'=='ClangCL'">false</WholeProgramOptimization>
   </PropertyGroup>
 </Project>

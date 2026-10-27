@@ -321,7 +321,7 @@ struct M128s
 
     template<int Index> __forceinline __m128& GetAt()
     {
-        return next.GetAt<Index - 4>();
+        return next.template GetAt<Index - 4>();
     }
     template<> __forceinline __m128& GetAt<0>()
     {
@@ -369,7 +369,7 @@ struct Filter4
     static __forceinline void do_cal(__m128& src0_128, const float * src4, M128s<FILTER_LENGTH>& filter128s, __m128& sum)
     {
         __m128 src4_128{_mm_load_ps(src4)};
-        { XY_FILTER_4(src0_128, src4_128, filter128s.GetAt<START>(), sum); }
+        { XY_FILTER_4(src0_128, src4_128, filter128s.template GetAt<START>(), sum); }
         Filter4<FILTER_LENGTH,START+4,LENGTH-4>::do_cal(src4_128, src4+4, filter128s, sum);
         src0_128 = src4_128;
     }
@@ -387,7 +387,7 @@ struct Filter4<FILTER_LENGTH, START, 1>
     template<>
     static __forceinline void cal_tail<1>(__m128& src0_128, const float * src4, M128s<FILTER_LENGTH>& filter128s, __m128& sum)
     {
-        { XY_FILTER_4_1(src0_128, filter128s.GetAt<FILTER_LENGTH-1>(), sum); }
+        { XY_FILTER_4_1(src0_128, filter128s.template GetAt<FILTER_LENGTH-1>(), sum); }
     }
 };
 
@@ -415,7 +415,7 @@ struct FilterAllLeftMargin
         __m128 sum{_mm_setzero_ps()};
         Filter4<FILTER_LENGTH,MARGIN_LENGTH-4,FILTER_LENGTH-MARGIN_LENGTH+4>::do_cal(src0, src, filter128s, sum);
         _mm_store_ps(src-MARGIN_LENGTH, sum);
-        FilterAllLeftMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::do_cal<0>(src, filter128s);
+        FilterAllLeftMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::template do_cal<0>(src, filter128s);
     }
     template<>
     static __forceinline void do_cal<1>(float * src, M128s<FILTER_LENGTH>& filter128s)
@@ -424,7 +424,7 @@ struct FilterAllLeftMargin
         __m128 sum{_mm_setzero_ps()};
         //Only one of the last 4 filter coefficiences is non-zero
         _mm_store_ps(src-MARGIN_LENGTH, sum);
-        FilterAllLeftMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::do_cal<0>(src, filter128s);
+        FilterAllLeftMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::template do_cal<0>(src, filter128s);
     }
 };
 
@@ -445,11 +445,11 @@ struct FilterAllRightMargin
             __m128 sum{_mm_setzero_ps()};
             Filter4<FILTER_LENGTH,0,MARGIN_LENGTH-4>::do_cal(src0, src+4, filter128s, sum);
             __m128 src4{_mm_setzero_ps()};
-            { XY_FILTER_4(src0, src4, filter128s.GetAt<MARGIN_LENGTH-4>(), sum); }
+            { XY_FILTER_4(src0, src4, filter128s.template GetAt<MARGIN_LENGTH-4>(), sum); }
             //store result
             _mm_store_ps(src, sum);
         }
-        FilterAllRightMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::do_cal<0>(src+4, filter128s);
+        FilterAllRightMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::template do_cal<0>(src+4, filter128s);
     }
     template<>
     static __forceinline void do_cal<1>(float * src, M128s<FILTER_LENGTH>& filter128s)
@@ -460,11 +460,11 @@ struct FilterAllRightMargin
             __m128 sum{_mm_setzero_ps()};
             Filter4<FILTER_LENGTH,0,MARGIN_LENGTH-4>::do_cal(src0, src+4, filter128s, sum);
             //Only one of the last 4 filter coefficiences is non-zero
-            { XY_FILTER_4_1(src0, filter128s.GetAt<MARGIN_LENGTH-4>(), sum); }
+            { XY_FILTER_4_1(src0, filter128s.template GetAt<MARGIN_LENGTH-4>(), sum); }
             //store result
             _mm_store_ps(src, sum);
         }
-        FilterAllRightMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::do_cal<0>(src+4, filter128s);
+        FilterAllRightMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::template do_cal<0>(src+4, filter128s);
     }
 };
 

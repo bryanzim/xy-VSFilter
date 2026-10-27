@@ -128,14 +128,14 @@ CSubPicQueueImpl::~CSubPicQueueImpl()
 {
     if (subpic_provider!=NULL)
     {
-        CComQIPtr<ISubPicProviderEx> tmp = subpic_provider;
+        CComQIPtr<ISubPicProviderEx> tmp{subpic_provider};
         if (tmp)
         {
             return SetSubPicProviderEx(tmp);
         }
         else
         {
-            CComQIPtr<ISubPicProvider> tmp2 = subpic_provider;
+            CComQIPtr<ISubPicProvider> tmp2{subpic_provider};
             if (tmp2)
             {
                 return SetSubPicProvider(tmp);

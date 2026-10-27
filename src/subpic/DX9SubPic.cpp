@@ -396,7 +396,7 @@ void CDX9SubPicAllocator::ClearCache()
 [[nodiscard]] STDMETHODIMP CDX9SubPicAllocator::ChangeDevice(IUnknown* pDev)
 {
 	ClearCache();
-	CComQIPtr<IDirect3DDevice9> pD3DDev = pDev;
+	CComQIPtr<IDirect3DDevice9> pD3DDev{pDev};
 	if(!pD3DDev) {
 		return E_NOINTERFACE;
 	}

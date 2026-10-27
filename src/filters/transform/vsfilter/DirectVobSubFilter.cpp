@@ -313,7 +313,7 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
         m_tPrev = m_pInput->CurrentStartTime() + rtStart * (m_bExternalSubtitle ? dRate : 1);
 
 		REFERENCE_TIME rtAvgTimePerFrame{rtStop - rtStart};
-		if(CComQIPtr<ISubClock2> pSC2 = m_pSubClock)
+		if(CComQIPtr<ISubClock2> pSC2{m_pSubClock})
 		{
 			REFERENCE_TIME rt;
 			 if(S_OK == pSC2->GetAvgTimePerFrame(&rt))
@@ -743,7 +743,7 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
 
 [[nodiscard]] REFERENCE_TIME CDirectVobSubFilter::CalcCurrentTime()
 {
-	REFERENCE_TIME rt{m_pSubClock ? m_pSubClock->GetTime() : m_tPrev};
+	REFERENCE_TIME rt{m_pSubClock ? (REFERENCE_TIME)m_pSubClock->GetTime() : (REFERENCE_TIME)m_tPrev};
     // no, it won't overflow even without normalizing if we use normal parameters
     // (__int64 is enough for about 2000 hours if we multiply it by the max: 65536 as m_SubtitleSpeedMul)
     // anyway, m_SubtitleSpeed and m_SubtitleSpeedDiv parameters are normalized upon read
@@ -1721,7 +1721,7 @@ CDirectVobSubFilter2::CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const G
 
 	BeginEnumFilters(pGraph, pEF, pBF)
 	{
-		if(CComQIPtr<IFileSourceFilter> pFSF = pBF)
+		if(CComQIPtr<IFileSourceFilter> pFSF{pBF})
 		{
 			LPOLESTR fnw{NULL};
 			if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, NULL)) || !fnw)
@@ -2161,7 +2161,7 @@ void CDirectVobSubFilter::Post_EC_OLE_EVENT(CString str, const DWORD_PTR nSubtit
 		return;
 	}
 
-	CComQIPtr<IMediaEventSink> pMES = m_pGraph;
+	CComQIPtr<IMediaEventSink> pMES{m_pGraph};
 	if(!pMES)
 	{
 	    return;

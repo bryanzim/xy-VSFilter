@@ -293,7 +293,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
         m_tPrev = m_pInput->CurrentStartTime() + dRate*rtStart;
 
         REFERENCE_TIME rtAvgTimePerFrame{rtStop - rtStart};
-        if(CComQIPtr<ISubClock2> pSC2 = m_pSubClock)
+        if(CComQIPtr<ISubClock2> pSC2{m_pSubClock})
         {
             REFERENCE_TIME rt;
             if(S_OK == pSC2->GetAvgTimePerFrame(&rt))
@@ -702,7 +702,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
 
 [[nodiscard]] REFERENCE_TIME XySubFilterConsumer::CalcCurrentTime()
 {
-    REFERENCE_TIME rt{m_pSubClock ? m_pSubClock->GetTime() : m_tPrev};
+    REFERENCE_TIME rt{m_pSubClock ? (REFERENCE_TIME)m_pSubClock->GetTime() : (REFERENCE_TIME)m_tPrev};
     // no, it won't overflow even without normalizing if we use normal parameters
     // (__int64 is enough for about 2000 hours if we multiply it by the max: 65536 as m_SubtitleSpeedMul)
     // anyway, m_SubtitleSpeed and m_SubtitleSpeedDiv parameters are normalized upon read
@@ -1469,7 +1469,7 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
             m_xy_int_opt[INT_COLOR_SPACE]==CDirectVobSub::GUESS ? _T("Guessed") : _T("Forced") );
         msg += tmp;
 #endif
-        CComQIPtr<IXyOptions> provider = m_provider;
+        CComQIPtr<IXyOptions> provider{m_provider};
         if (provider)
         {
             //print cache info

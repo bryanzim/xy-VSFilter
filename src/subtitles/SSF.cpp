@@ -58,7 +58,8 @@ namespace ssf
 
 		try
 		{
-			if(Open(FileInputStream(fn), name)) 
+			FileInputStream stream(fn);
+			if(Open(stream, name)) 
 			{
 				m_fn = fn;
 				return true;
@@ -104,7 +105,8 @@ namespace ssf
 
 		try
 		{
-			m_file->Append(ssf::WCharInputStream(str), (float)rtStart / 10000000, (float)rtStop / 10000000);
+			ssf::WCharInputStream stream(str);
+			m_file->Append(stream, (float)rtStart / 10000000, (float)rtStop / 10000000);
 		}
 		catch(Exception& e)
 		{

@@ -42,6 +42,8 @@
 
 #include <emmintrin.h>
 
+UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
+
 using namespace DirectVobSubXyOptions;
 
 //
@@ -224,7 +226,7 @@ public:
         {
             CSize playres{0,0};
             CLSID clsid;
-            CComQIPtr<IPersist> tmp = m_pSubPicProvider;
+            CComQIPtr<IPersist> tmp{m_pSubPicProvider};
             tmp->GetClassID(&clsid);
             if(clsid == __uuidof(CRenderedTextSubtitle))
             {
@@ -285,7 +287,7 @@ public:
 					{
 						fs.m_mtime = fs2.m_mtime;
 
-						if(CComQIPtr<ISubStream> pSubStream = m_pSubPicProvider)
+						if(CComQIPtr<ISubStream> pSubStream{m_pSubPicProvider})
 						{
 							[[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
 							pSubStream->Reload();
@@ -505,7 +507,6 @@ public:
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
                 [[nodiscard]] CFileDialog fd(TRUE, NULL, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK,
                                formats, CWnd::FromHandle(hwnd), sizeof(OPENFILENAME));
-                [[nodiscard]] UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
 
                 fd.m_pOFN->hInstance = AfxGetResourceHandle();
                 fd.m_pOFN->lpTemplateName = MAKEINTRESOURCE(IDD_TEXTSUBOPENTEMPLATE);
@@ -776,7 +777,6 @@ public:
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
                 [[nodiscard]] CFileDialog fd(TRUE, NULL, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK,
                                formats, CWnd::FromHandle((HWND)hwnd), sizeof(OPENFILENAME));
-                [[nodiscard]] UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
 
                 fd.m_pOFN->hInstance = AfxGetResourceHandle();
                 fd.m_pOFN->lpTemplateName = MAKEINTRESOURCE(IDD_TEXTSUBOPENTEMPLATE);
@@ -1177,6 +1177,9 @@ public:
 
             template<bool shift6, bool hasSSE41>
             static void prepare_from_interleaved_uv_sse2(::std::uint8_t* pdstu, ::std::uint8_t* pdstv, int pitchUV, const ::std::uint8_t* src, int srcpitch, int width, int height)
+#if defined(__clang__)
+                __attribute__((target("sse4.1")))
+#endif
             {
                 const int modw{(width / 8) * 8};
                 auto mask0000FFFF{_mm_set1_epi32(0x0000FFFF)};

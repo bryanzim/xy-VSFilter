@@ -3,14 +3,14 @@
 class CMediaTypeEx : public CMediaType
 {
 public:
-	CMediaTypeEx();
-	CMediaTypeEx(const CMediaType& mt) {CMediaType::operator = (mt);}
+	explicit CMediaTypeEx();
+	constexpr explicit CMediaTypeEx(const CMediaType& mt) noexcept {CMediaType::operator = (mt);}
 
-	CString ToString(IPin* pPin = NULL);
+	[[nodiscard]] CString ToString(IPin* pPin = NULL);
 
-	static CString GetVideoCodecName(const GUID& subtype, DWORD biCompression);
-	static CString GetAudioCodecName(const GUID& subtype, WORD wFormatTag);
-	static CString GetSubtitleCodecName(const GUID& subtype);
+	[[nodiscard]] static CString GetVideoCodecName(const GUID& subtype, DWORD biCompression);
+	[[nodiscard]] static CString GetAudioCodecName(const GUID& subtype, WORD wFormatTag);
+	[[nodiscard]] static CString GetSubtitleCodecName(const GUID& subtype);
 
 	void Dump(CAtlList<CString>& sl);
 };

@@ -41,7 +41,7 @@
     f.Read(&((BYTE*)&var)[1], 1); \
     f.Read(&((BYTE*)&var)[0], 1);
 
-extern CString FindLangFromId(WORD id);
+[[nodiscard]] extern CString FindLangFromId(WORD id);
 
 class CVobSubSettings
 {
@@ -62,14 +62,14 @@ public:
     bool m_fOnlyShowForcedSubs;
     bool m_fCustomPal;
     int m_tridx;
-    RGBQUAD m_orgpal[16], m_cuspal[4];
+    RGBQUAD m_orgpal[16U], m_cuspal[4U];
 
     CVobSubImage m_img;
 
-    CVobSubSettings() { InitSettings(); }
+    explicit CVobSubSettings() { InitSettings(); }
     void InitSettings();
 
-    bool GetCustomPal(RGBQUAD* cuspal, int& tridx);
+    [[nodiscard]] bool GetCustomPal(RGBQUAD* cuspal, int& tridx) noexcept;
     void SetCustomPal(const RGBQUAD* cuspal, int tridx);
 
     void GetDestrect(CRect& r); // destrect of m_img, considering the current alignment mode
@@ -109,25 +109,25 @@ protected:
 
     CMemFile m_sub;
 
-    BYTE* GetPacket(size_t idx, size_t& packetSize, size_t& dataSize, size_t nLang = -1);
-    const SubPos* GetFrameInfo(size_t idx, size_t nLang = -1) const;
-    bool GetFrame(size_t idx, size_t nLang = -1, REFERENCE_TIME rt = -1);
-    bool GetFrameByTimeStamp(__int64 time);
-    size_t GetFrameIdxByTimeStamp(__int64 time);
+    [[nodiscard]] BYTE* GetPacket(std::size_t idx, std::size_t& packetSize, std::size_t& dataSize, std::size_t nLang = -1);
+    [[nodiscard]] const SubPos* GetFrameInfo(std::size_t idx, std::size_t nLang = -1) const;
+    [[nodiscard]] bool GetFrame(std::size_t idx, std::size_t nLang = -1, REFERENCE_TIME rt = -1);
+    [[nodiscard]] bool GetFrameByTimeStamp(__int64 time);
+    [[nodiscard]] std::size_t GetFrameIdxByTimeStamp(__int64 time);
 
-    bool SaveVobSub(CString fn, int delay);
-    bool SaveWinSubMux(CString fn, int delay);
-    bool SaveScenarist(CString fn, int delay);
-    bool SaveMaestro(CString fn, int delay);
+    [[nodiscard]] bool SaveVobSub(CString fn, int delay);
+    [[nodiscard]] bool SaveWinSubMux(CString fn, int delay);
+    [[nodiscard]] bool SaveScenarist(CString fn, int delay);
+    [[nodiscard]] bool SaveMaestro(CString fn, int delay);
 
 public:
-    size_t m_iLang;
+    std::size_t m_iLang;
     std::array<SubLang, 32> m_langs;
 
     CVobSubFile(CCritSec* pLock);
-    virtual ~CVobSubFile();
+    constexpr virtual ~CVobSubFile() noexcept;
 
-    bool Copy(CVobSubFile& vsf);
+    [[nodiscard]] bool Copy(CVobSubFile& vsf);
 
     enum SubFormat {
         None,
@@ -137,31 +137,31 @@ public:
         Maestro
     };
 
-    bool Open(CString fn);
-    bool Save(CString fn, int delay = 0, SubFormat sf = VobSub);
+    [[nodiscard]] bool Open(CString fn);
+    [[nodiscard]] bool Save(CString fn, int delay = 0, SubFormat sf = VobSub);
     void Close();
 
-    CString GetTitle() { return m_title; }
+    [[nodiscard]] constexpr CString GetTitle() noexcept { return m_title; }
 
-    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
-    STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-    STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-    STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-    STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-    STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+    [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
 
     // IPersist
-    STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    STDMETHODIMP_(int) GetStreamCount();
-    STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    STDMETHODIMP_(int) GetStream();
-    STDMETHODIMP SetStream(int iStream);
+    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
     STDMETHODIMP Reload();
 };
 
@@ -180,31 +180,31 @@ class __declspec(uuid("D7FBFB45-2D13-494F-9B3D-FFC9557D5C45"))
 
 public:
     CVobSubStream(CCritSec* pLock);
-    virtual ~CVobSubStream();
+    constexpr virtual ~CVobSubStream() noexcept;
 
     void Open(CString name, BYTE* pData, int len);
 
     void Add(REFERENCE_TIME tStart, REFERENCE_TIME tStop, BYTE* pData, int len);
     void RemoveAll();
 
-    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
-    STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-    STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-    STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-    STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-    STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+    [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
 
     // IPersist
-    STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    STDMETHODIMP_(int) GetStreamCount();
-    STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    STDMETHODIMP_(int) GetStream();
-    STDMETHODIMP SetStream(int iStream);
-    STDMETHODIMP Reload() { return E_NOTIMPL; }
+    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
+    [[nodiscard]] STDMETHODIMP Reload() { return E_NOTIMPL; }
 };

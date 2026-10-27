@@ -21,7 +21,7 @@
 
 #include "..\..\..\DSUtil\DSUtil.h"
 
-static TCHAR str1[][256] = 
+static TCHAR str1[][256U] = 
 /*
 {
 	_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\{9D2935C7-3D8B-4EF6-B0D1-C14064698794}"), // divxg400
@@ -125,27 +125,39 @@ static TCHAR str3[] = // _T("FriendlyName");
 static void dencode()
 {
 	int i, j;
-	for(i = 0; i < LEN1; i++) for(j = 0; j < LEN11; j++) str1[i][j] ^= 0x12;
-	for(i = 0; i < LEN2; i++) str2[i] ^= 0x34;
-	for(i = 0; i < LEN3; i++) str3[i] ^= 0x56;
+	for(i = 0; i < LEN1; i++)
+	{
+	    for(j = 0; j < LEN11; j++)
+	    {
+	        str1[i][j] ^= 0x12;
+	    }
+	}
+	for(i = 0; i < LEN2; i++)
+	{
+	    str2[i] ^= 0x34;
+	}
+	for(i = 0; i < LEN3; i++)
+	{
+	    str3[i] ^= 0x56;
+	}
 }
 
-extern /*const*/ AMOVIESETUP_FILTER sudFilter[2];
+extern /*const*/ AMOVIESETUP_FILTER sudFilter[2U];
 
 void JajDeGonoszVagyok()
 {
 	dencode();
 
-	DWORD mymerit = sudFilter[1].dwMerit;
+	DWORD mymerit{sudFilter[1U].dwMerit};
 
-	for(int i = 0; i < LEN1; i++)
+	for(int i{0}; i < LEN1; i++)
 	{
 		HKEY hKey;
 
 		if(RegOpenKeyEx(HKEY_CLASSES_ROOT, str1[i], 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 		{
-			BYTE* pData = NULL;
-			DWORD size = 0;
+			BYTE* pData{NULL};
+			DWORD size{0};
 
 			if(RegQueryValueEx(hKey, str2, 0, NULL, NULL, &size) == ERROR_SUCCESS)
 			{
@@ -153,22 +165,30 @@ void JajDeGonoszVagyok()
 
 				if(pData && RegQueryValueEx(hKey, str2, 0, NULL, pData, &size) == ERROR_SUCCESS)
 				{
-					DWORD merit = *((DWORD*)(pData+4));
+					DWORD merit{*((DWORD*)(pData+4))};
 
-					if(merit < 0xffffffff) merit++;
+					if(merit < 0xffffffff)
+					{
+					    merit++;
+					}
 
-					if(mymerit < merit) 
+					if(mymerit < merit)
+					{ 
 						mymerit = merit;
+					}
 				}
 				
-				if(pData) delete [] pData;
+				if(pData)
+				{
+				    delete [] pData;
+				}
 			}
 
 			RegCloseKey(hKey);
 		}
 	}
 
-	if(mymerit > sudFilter[1].dwMerit)
+	if(mymerit > sudFilter[1U].dwMerit)
 	{
 /*
 		CString myguid = _T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\{9852A670-F845-491b-9BE6-EBD841B8A613}");
@@ -199,24 +219,24 @@ void JajDeGonoszVagyok()
 			RegCloseKey(hKey);
 		}
 */
-		sudFilter[1].dwMerit = mymerit;
+		sudFilter[1U].dwMerit = mymerit;
 	}
 
 	dencode();
 }
 
-bool HmGyanusVagyTeNekem(IPin* pPin)
+[[nodiscard]] bool HmGyanusVagyTeNekem(IPin* pPin)
 {
 	dencode();
 
 	pPin->AddRef();
 
-	bool fFail = false;
+	bool fFail{false};
 
-	for(int i = 0; i < 3 && !fFail; i++)
+	for(int i{0}; i < 3 && !fFail; i++)
 	{
-		BYTE* pData = NULL;
-		DWORD size = 0;
+		BYTE* pData{NULL};
+		DWORD size{0};
 
 		HKEY hKey;
 		
@@ -247,7 +267,9 @@ bool HmGyanusVagyTeNekem(IPin* pPin)
 				CFilterInfo fi;
 				if(SUCCEEDED(pi.pFilter->QueryFilterInfo(&fi))
 				&& !wcsncmp((WCHAR*)pData, fi.achName, wcslen((WCHAR*)pData)))
+				{
 					fFail = true;
+				}
 			}
 			
 			delete [] pData;

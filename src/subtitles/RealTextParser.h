@@ -30,11 +30,11 @@
 class CRealTextParser
 {
 public:
-    CRealTextParser();
-    virtual ~CRealTextParser();
+    explicit CRealTextParser();
+    constexpr virtual ~CRealTextParser() noexcept;
 
     struct Tag {
-        Tag(): m_bOpen(false), m_bClose(false), m_bComment(false), m_bText(false) {}
+        explicit Tag(): m_bOpen(false), m_bClose(false), m_bComment(false), m_bText(false) {}
 
         std::wstring m_szName;
 
@@ -48,7 +48,7 @@ public:
     };
 
     struct Subtitles {
-        Subtitles(): m_WindowTag(), m_FontTag(), m_bCenter(false) {}
+        explicit Subtitles(): m_WindowTag(), m_FontTag(), m_bCenter(false) {}
 
         Tag m_WindowTag;
         Tag m_FontTag;
@@ -58,30 +58,30 @@ public:
         std::map<std::pair<int, int>, std::wstring> m_mapLines;
     };
 
-    bool ParseRealText(std::wstring p_szFile);
+    [[nodiscard]] bool ParseRealText(std::wstring p_szFile);
 
-    const Subtitles& GetParsedSubtitles();
+    [[nodiscard]] constexpr const Subtitles& GetParsedSubtitles() noexcept;
 
-    bool OutputSRT(std::wostream& p_rOutput);
+    [[nodiscard]] bool OutputSRT(std::wostream& p_rOutput);
 
 private:
     bool ExtractTag(std::wstring& p_rszLine, Tag& p_rTag);
-    bool ExtractTextTag(std::wstring& p_rszLine, Tag& p_rTag);
-    bool ExtractString(std::wstring& p_rszLine, std::wstring& p_rszString);
-    bool SkipSpaces(std::wstring& p_rszLine, unsigned int& p_riPos);
-    bool GetString(std::wstring& p_rszLine, unsigned int& p_riPos, std::wstring& p_rszString, const std::wstring& p_crszEndChars);
-    bool GetAttributes(std::wstring& p_rszLine, unsigned int& p_riPos, std::map<std::wstring, std::wstring>& p_rmapAttributes);
+    [[nodiscard]] bool ExtractTextTag(std::wstring& p_rszLine, Tag& p_rTag);
+    [[nodiscard]] bool ExtractString(std::wstring& p_rszLine, std::wstring& p_rszString);
+    [[nodiscard]] bool SkipSpaces(std::wstring& p_rszLine, unsigned int& p_riPos);
+    [[nodiscard]] bool GetString(std::wstring& p_rszLine, unsigned int& p_riPos, std::wstring& p_rszString, const std::wstring& p_crszEndChars);
+    [[nodiscard]] bool GetAttributes(std::wstring& p_rszLine, unsigned int& p_riPos, std::map<std::wstring, std::wstring>& p_rmapAttributes);
 
-    int GetTimecode(const std::wstring& p_crszTimecode);
-    std::wstring FormatTimecode(int iTimecode,
+    [[nodiscard]] int GetTimecode(const std::wstring& p_crszTimecode);
+    [[nodiscard]] std::wstring FormatTimecode(int iTimecode,
                                 int iMillisecondPrecision = 3,
                                 bool p_bPadZeroes = true,
                                 const std::wstring& p_crszSeparator = L":",
                                 const std::wstring& p_crszMillisecondSeparator = L".");
 
-    std::wstring StringToLower(const std::wstring& p_crszString);
+    [[nodiscard]] std::wstring StringToLower(const std::wstring& p_crszString);
 
-    std::wstring RenderTags(const std::list<Tag>& p_crlTags);
+    [[nodiscard]] std::wstring RenderTags(const std::list<Tag>& p_crlTags);
 
     void PopTag(std::list<Tag>& p_rlistTags, const std::wstring& p_crszTagName);
 

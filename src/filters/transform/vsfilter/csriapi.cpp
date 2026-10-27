@@ -37,14 +37,14 @@ extern "C" struct csri_vsfilter_inst {
 	CSize screen_res;
 	CRect video_rect;
 	enum csri_pixfmt pixfmt;
-	size_t readorder;
+	std::size_t readorder;
 };
 typedef struct csri_vsfilter_inst csri_inst;
 #include "csri.h"
-static csri_rend csri_vsfilter = "vsfilter";
+static csri_rend csri_vsfilter{"vsfilter"};
 
 
-CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, struct csri_openflag *flags)
+[[nodiscard]] CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, struct csri_openflag *flags)
 {
     AMTRACE((TEXT(__FUNCTION__),0));
 	int namesize;
@@ -52,12 +52,14 @@ CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, str
 
 	namesize = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
 	if (!namesize)
+	{
 		return 0;
+	}
 	namesize++;
 	namebuf = new wchar_t[namesize];
 	MultiByteToWideChar(CP_UTF8, 0, filename, -1, namebuf, namesize);
 
-	csri_inst *inst = new csri_inst();
+	csri_inst *inst{new csri_inst()};
 	inst->cs = new CCritSec();
 	inst->rts = new CRenderedTextSubtitle(inst->cs);
 	if (inst->rts->Open(CString(namebuf), DEFAULT_CHARSET)) {
@@ -74,12 +76,12 @@ CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, str
 }
 
 
-CSRIAPI csri_inst *csri_open_mem(csri_rend *renderer, const void *data, size_t length, struct csri_openflag *flags)
+[[nodiscard]] CSRIAPI csri_inst *csri_open_mem(csri_rend *renderer, const void *data, const std::size_t length, struct csri_openflag *flags)
 {
     AMTRACE((TEXT(__FUNCTION__),0));
 	// This is actually less effecient than opening a file, since this first writes the memory data to a temp file,
 	// then opens that file and parses from that.
-	csri_inst *inst = new csri_inst();
+	csri_inst *inst{new csri_inst()};
 
 	inst->cs = new CCritSec();
 	inst->rts = new CRenderedTextSubtitle(inst->cs);
@@ -95,9 +97,13 @@ CSRIAPI csri_inst *csri_open_mem(csri_rend *renderer, const void *data, size_t l
 }
 
 
-CSRIAPI void csri_close(csri_inst *inst)
+constexpr CSRIAPI void csri_close(csri_inst *inst)
+noexcept
 {
-	if (!inst) return;
+	if (!inst)
+	{
+	    return;
+	}
 
 	delete inst->rts;
 	delete inst->cs;
@@ -105,7 +111,7 @@ CSRIAPI void csri_close(csri_inst *inst)
 }
 
 
-CSRIAPI int csri_request_fmt(csri_inst *inst, const struct csri_fmt *fmt)
+[[nodiscard]] CSRIAPI int csri_request_fmt(csri_inst *inst, const struct csri_fmt *fmt)
 {
 	if (!inst || !fmt->width || !fmt->height) {
 		return -1;
@@ -129,9 +135,9 @@ CSRIAPI int csri_request_fmt(csri_inst *inst, const struct csri_fmt *fmt)
 }
 
 
-CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, double time)
+CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, const double time)
 {
-	const double arbitrary_framerate = 25.0;
+	const double arbitrary_framerate{25.0};
 	SubPicDesc spd;
 	spd.w = inst->screen_res.cx;
 	spd.h = inst->screen_res.cy;
@@ -139,8 +145,8 @@ CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, double time)
 		case CSRI_F_BGR_:
 			spd.type = MSP_RGBA;
 			spd.bpp = 32;
-			spd.bits = frame->planes[0];
-			spd.pitch = frame->strides[0];
+			spd.bits = frame->planes[0U];
+			spd.pitch = frame->strides[0U];
 			break;
 
 		default:
@@ -148,7 +154,7 @@ CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, double time)
             CString msg;
             msg.Format(_T("Anything other then RGB32 is NOT supported!"));
             MessageBox(NULL, msg, _T("Warning"), MB_OKCANCEL|MB_ICONWARNING);
-            int o = 0; o=o/o;
+            int o{0}; o=o/o;
 			return;
 	}
 	spd.vidrect = inst->video_rect;
@@ -158,7 +164,7 @@ CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, double time)
 
 
 // No extensions supported
-CSRIAPI void *csri_query_ext(csri_rend *rend, csri_ext_id extname) { return 0; }
+[[nodiscard]] constexpr CSRIAPI void *csri_query_ext(csri_rend *rend, const csri_ext_id extname) noexcept { return 0; }
 
 // Get info for renderer
 static struct csri_info csri_vsfilter_info = {
@@ -173,7 +179,7 @@ static struct csri_info csri_vsfilter_info = {
 	"Copyright (c) 2003-2014 by Gabest et al." // copyright
 };
 
-CSRIAPI struct csri_info *csri_renderer_info(csri_rend *rend) { return &csri_vsfilter_info; }
-CSRIAPI csri_rend *csri_renderer_byname(const char *name, const char *specific) { return &csri_vsfilter; }
-CSRIAPI csri_rend *csri_renderer_default() { return &csri_vsfilter; }
-CSRIAPI csri_rend *csri_renderer_next(csri_rend *prev) { return 0; }
+[[nodiscard]] constexpr CSRIAPI struct csri_info *csri_renderer_info(csri_rend *rend) noexcept { return &csri_vsfilter_info; }
+[[nodiscard]] constexpr CSRIAPI csri_rend *csri_renderer_byname(const char *name, const char *specific) noexcept { return &csri_vsfilter; }
+[[nodiscard]] constexpr CSRIAPI csri_rend *csri_renderer_default() noexcept { return &csri_vsfilter; }
+[[nodiscard]] constexpr CSRIAPI csri_rend *csri_renderer_next(csri_rend *prev) noexcept { return 0; }

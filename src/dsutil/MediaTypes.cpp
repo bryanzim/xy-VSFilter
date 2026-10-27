@@ -501,61 +501,85 @@ VIH2 vih2s[] =
 	},
 };
 
-int VIHSIZE = countof(vihs);
+int VIHSIZE{countof(vihs)};
 
-CString VIH2String(int i)
+[[nodiscard]] CString VIH2String(const int i)
 {
-	CString ret = CString(GuidNames[*vihs[i].subtype]);
-	if(!ret.Left(13).CompareNoCase(_T("MEDIASUBTYPE_"))) ret = ret.Mid(13);
-	if(vihs[i].vih.bmiHeader.biCompression == BI_BITFIELDS) ret += _T(" BITF");
-	if(*vihs[i].subtype == MEDIASUBTYPE_I420) ret = _T("I420"); // FIXME
-    else if(*vihs[i].subtype == MEDIASUBTYPE_NV21) ret = _T("NV21"); // FIXME
+	CString ret{CString(GuidNames[*vihs[i].subtype])};
+	if(!ret.Left(13).CompareNoCase(_T("MEDIASUBTYPE_")))
+	{
+	    ret = ret.Mid(13);
+	}
+	if(vihs[i].vih.bmiHeader.biCompression == BI_BITFIELDS)
+	{
+	    ret += _T(" BITF");
+	}
+	if(*vihs[i].subtype == MEDIASUBTYPE_I420)
+	{
+	    ret = _T("I420");
+	} // FIXME
+    else if(*vihs[i].subtype == MEDIASUBTYPE_NV21)
+    {
+        ret = _T("NV21");
+    } // FIXME
 	return(ret);
 }
 
-CString Subtype2String(const GUID& subtype)
+[[nodiscard]] CString Subtype2String(const GUID& subtype)
 {
-	CString ret = CString(GuidNames[subtype]);
-	if(!ret.Left(13).CompareNoCase(_T("MEDIASUBTYPE_"))) ret = ret.Mid(13);
-	if(subtype == MEDIASUBTYPE_I420) ret = _T("I420"); // FIXME
-    else if(subtype == MEDIASUBTYPE_NV21) ret = _T("NV21"); // FIXME
+	CString ret{CString(GuidNames[subtype])};
+	if(!ret.Left(13).CompareNoCase(_T("MEDIASUBTYPE_")))
+	{
+	    ret = ret.Mid(13);
+	}
+	if(subtype == MEDIASUBTYPE_I420)
+	{
+	    ret = _T("I420");
+	} // FIXME
+    else if(subtype == MEDIASUBTYPE_NV21)
+    {
+        ret = _T("NV21");
+    } // FIXME
 	return(ret);
 }
 
 void CorrectMediaType(AM_MEDIA_TYPE* pmt)
 {
-	if(!pmt) return;
+	if(!pmt)
+	{
+	    return;
+	}
 
-	CMediaType mt(*pmt);
+	[[nodiscard]] CMediaType mt(*pmt);
 
 	if(mt.formattype == FORMAT_VideoInfo)
 	{
-		VIDEOINFOHEADER* vih = (VIDEOINFOHEADER*)mt.pbFormat;
+		VIDEOINFOHEADER* vih{(VIDEOINFOHEADER*)mt.pbFormat};
 
-		for(int i = 0; i < VIHSIZE; i++)
+		for(int i{0}; i < VIHSIZE; i++)
 		{
 			if(mt.subtype == *vihs[i].subtype
 			&& vih->bmiHeader.biCompression == vihs[i].vih.bmiHeader.biCompression)
 			{
 				mt.AllocFormatBuffer(vihs[i].size);
-				memcpy(mt.pbFormat, &vihs[i], vihs[i].size);
-				memcpy(mt.pbFormat, pmt->pbFormat, sizeof(VIDEOINFOHEADER));
+				std::memcpy(mt.pbFormat, &vihs[i], vihs[i].size);
+				std::memcpy(mt.pbFormat, pmt->pbFormat, sizeof(VIDEOINFOHEADER));
 				break;
 			}
 		}
 	}
 	else if(mt.formattype == FORMAT_VideoInfo2)
 	{
-		VIDEOINFOHEADER2* vih2 = (VIDEOINFOHEADER2*)mt.pbFormat;
+		VIDEOINFOHEADER2* vih2{(VIDEOINFOHEADER2*)mt.pbFormat};
 
-		for(int i = 0; i < VIHSIZE; i++)
+		for(int i{0}; i < VIHSIZE; i++)
 		{
 			if(mt.subtype == *vih2s[i].subtype
 			&& vih2->bmiHeader.biCompression == vih2s[i].vih.bmiHeader.biCompression)
 			{
 				mt.AllocFormatBuffer(vih2s[i].size);
-				memcpy(mt.pbFormat, &vih2s[i], vih2s[i].size);
-				memcpy(mt.pbFormat, pmt->pbFormat, sizeof(VIDEOINFOHEADER2));
+				std::memcpy(mt.pbFormat, &vih2s[i], vih2s[i].size);
+				std::memcpy(mt.pbFormat, pmt->pbFormat, sizeof(VIDEOINFOHEADER2));
 				break;
 			}
 		}

@@ -214,7 +214,7 @@ namespace DirectVobSubXyOptions
     };
     struct SubStyle
     {
-        WCHAR name[64];
+        WCHAR name[64U];
         void *style;//STSStyle*
     };
     const XyOptionsImpl::Option DirectVobFilterOptions[] = {

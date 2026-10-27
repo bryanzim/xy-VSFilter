@@ -26,12 +26,12 @@
 class CVSFilterApp : public CWinApp
 {
 public:
-	CVSFilterApp();
+	explicit CVSFilterApp();
 
 	CString m_AppName;
 
-    virtual UINT GetProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
-    virtual CString GetProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault = NULL);
+    [[nodiscard]] virtual UINT GetProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
+    [[nodiscard]] virtual CString GetProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault = NULL);
 protected:
 	HINSTANCE LoadAppLangResourceDLL();
 

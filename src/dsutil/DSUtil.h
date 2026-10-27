@@ -36,108 +36,114 @@
 #define LCID_NOSUBTITLES -1
 
 extern void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap);
-extern int CountPins(IBaseFilter* pBF, int& nIn, int& nOut, int& nInC, int& nOutC);
-extern bool IsSplitter(IBaseFilter* pBF, bool fCountConnectedOnly = false);
-extern bool IsMultiplexer(IBaseFilter* pBF, bool fCountConnectedOnly = false);
-extern bool IsStreamStart(IBaseFilter* pBF);
-extern bool IsStreamEnd(IBaseFilter* pBF);
-extern bool IsVideoRenderer(IBaseFilter* pBF);
-extern bool IsAudioWaveRenderer(IBaseFilter* pBF);
-extern IBaseFilter* GetUpStreamFilter(IBaseFilter* pBF, IPin* pInputPin = NULL);
-extern IPin* GetUpStreamPin(IBaseFilter* pBF, IPin* pInputPin = NULL);
-extern IPin* GetFirstPin(IBaseFilter* pBF, PIN_DIRECTION dir = PINDIR_INPUT);
-extern IPin* GetFirstDisconnectedPin(IBaseFilter* pBF, PIN_DIRECTION dir);
+[[nodiscard]] extern int CountPins(IBaseFilter* pBF, int& nIn, int& nOut, int& nInC, int& nOutC);
+[[nodiscard]] extern bool IsSplitter(IBaseFilter* pBF, bool fCountConnectedOnly = false);
+[[nodiscard]] extern bool IsMultiplexer(IBaseFilter* pBF, bool fCountConnectedOnly = false);
+[[nodiscard]] extern bool IsStreamStart(IBaseFilter* pBF);
+[[nodiscard]] extern bool IsStreamEnd(IBaseFilter* pBF);
+[[nodiscard]] extern bool IsVideoRenderer(IBaseFilter* pBF);
+[[nodiscard]] extern bool IsAudioWaveRenderer(IBaseFilter* pBF);
+[[nodiscard]] extern IBaseFilter* GetUpStreamFilter(IBaseFilter* pBF, IPin* pInputPin = NULL);
+[[nodiscard]] extern IPin* GetUpStreamPin(IBaseFilter* pBF, IPin* pInputPin = NULL);
+[[nodiscard]] extern IPin* GetFirstPin(IBaseFilter* pBF, PIN_DIRECTION dir = PINDIR_INPUT);
+[[nodiscard]] extern IPin* GetFirstDisconnectedPin(IBaseFilter* pBF, PIN_DIRECTION dir);
 extern void NukeDownstream(IBaseFilter* pBF, IFilterGraph* pFG);
 extern void NukeDownstream(IPin* pPin, IFilterGraph* pFG);
-extern IBaseFilter* FindFilter(LPCWSTR clsid, IFilterGraph* pFG);
-extern IBaseFilter* FindFilter(const CLSID& clsid, IFilterGraph* pFG);
-extern CStringW GetFilterName(IBaseFilter* pBF);
-extern CStringW GetPinName(IPin* pPin);
-extern IFilterGraph* GetGraphFromFilter(IBaseFilter* pBF);
-extern IBaseFilter* GetFilterFromPin(IPin* pPin);
-extern IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB);
-extern IPin* InsertFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB);
+[[nodiscard]] extern IBaseFilter* FindFilter(LPCWSTR clsid, IFilterGraph* pFG);
+[[nodiscard]] extern IBaseFilter* FindFilter(const CLSID& clsid, IFilterGraph* pFG);
+[[nodiscard]] extern CStringW GetFilterName(IBaseFilter* pBF);
+[[nodiscard]] extern CStringW GetPinName(IPin* pPin);
+[[nodiscard]] extern IFilterGraph* GetGraphFromFilter(IBaseFilter* pBF);
+[[nodiscard]] extern IBaseFilter* GetFilterFromPin(IPin* pPin);
+[[nodiscard]] extern IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB);
+[[nodiscard]] extern IPin* InsertFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB);
 extern void ExtractMediaTypes(IPin* pPin, CAtlArray<GUID>& types);
 extern void ExtractMediaTypes(IPin* pPin, CAtlList<CMediaType>& mts);
 extern void ShowPPage(CString DisplayName, HWND hParentWnd);
 extern void ShowPPage(IUnknown* pUnknown, HWND hParentWnd);
-extern CLSID GetCLSID(IBaseFilter* pBF);
-extern CLSID GetCLSID(IPin* pPin);
-extern bool IsCLSIDRegistered(LPCTSTR clsid);
-extern bool IsCLSIDRegistered(const CLSID& clsid);
+[[nodiscard]] extern CLSID GetCLSID(IBaseFilter* pBF);
+[[nodiscard]] extern CLSID GetCLSID(IPin* pPin);
+[[nodiscard]] extern bool IsCLSIDRegistered(LPCTSTR clsid);
+[[nodiscard]] extern bool IsCLSIDRegistered(const CLSID& clsid);
 extern void CStringToBin(CString str, CAtlArray<BYTE>& data);
-extern CString BinToCString(BYTE* ptr, int len);
+[[nodiscard]] extern CString BinToCString(BYTE* ptr, int len);
 typedef enum {CDROM_NotFound, CDROM_Audio, CDROM_VideoCD, CDROM_DVDVideo, CDROM_Unknown} cdrom_t;
-extern cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files);
-extern CString GetDriveLabel(TCHAR drive);
-extern bool GetKeyFrames(CString fn, CUIntArray& kfs);
-extern DVD_HMSF_TIMECODE RT2HMSF(REFERENCE_TIME rt, double fps = 0);
-extern REFERENCE_TIME HMSF2RT(DVD_HMSF_TIMECODE hmsf, double fps = 0);
-extern void memsetd(void* dst, unsigned int c, size_t nbytes);
-extern void memsetw(void* dst, unsigned short c, size_t nbytes);
-extern bool ExtractBIH(const AM_MEDIA_TYPE* pmt, BITMAPINFOHEADER* bih);
-extern bool ExtractBIH(IMediaSample* pMS, BITMAPINFOHEADER* bih);
-extern bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary);
-extern bool MakeMPEG2MediaType(CMediaType& mt, BYTE* seqhdr, DWORD len, int w, int h);
-extern unsigned __int64 GetFileVersion(LPCTSTR fn);
-extern bool CreateFilter(CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyName);
-extern IBaseFilter* AppendFilter(IPin* pPin, IMoniker* pMoniker, IGraphBuilder* pGB);
-extern CStringW GetFriendlyName(CStringW DisplayName);
-extern HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, REFIID iid, void** ppv);
-extern HRESULT LoadExternalFilter(LPCTSTR path, REFCLSID clsid, IBaseFilter** ppBF);
-extern HRESULT LoadExternalPropertyPage(IPersist* pP, REFCLSID clsid, IPropertyPage** ppPP);
+[[nodiscard]] extern cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files);
+[[nodiscard]] extern CString GetDriveLabel(TCHAR drive);
+[[nodiscard]] extern bool GetKeyFrames(CString fn, CUIntArray& kfs);
+[[nodiscard]] constexpr extern DVD_HMSF_TIMECODE RT2HMSF(REFERENCE_TIME rt, double fps = 0) noexcept;
+[[nodiscard]] constexpr extern REFERENCE_TIME HMSF2RT(DVD_HMSF_TIMECODE hmsf, double fps = 0) noexcept;
+extern void memsetd(void* dst, unsigned int c, std::size_t nbytes);
+extern void memsetw(void* dst, unsigned short c, std::size_t nbytes);
+[[nodiscard]] extern bool ExtractBIH(const AM_MEDIA_TYPE* pmt, BITMAPINFOHEADER* bih);
+[[nodiscard]] extern bool ExtractBIH(IMediaSample* pMS, BITMAPINFOHEADER* bih);
+[[nodiscard]] extern bool ExtractDim(const AM_MEDIA_TYPE* pmt, int& w, int& h, int& arx, int& ary) noexcept;
+[[nodiscard]] extern bool MakeMPEG2MediaType(CMediaType& mt, BYTE* seqhdr, DWORD len, int w, int h);
+[[nodiscard]] extern unsigned __int64 GetFileVersion(LPCTSTR fn);
+[[nodiscard]] extern bool CreateFilter(CStringW DisplayName, IBaseFilter** ppBF, CStringW& FriendlyName);
+[[nodiscard]] extern IBaseFilter* AppendFilter(IPin* pPin, IMoniker* pMoniker, IGraphBuilder* pGB);
+[[nodiscard]] extern CStringW GetFriendlyName(CStringW DisplayName);
+[[nodiscard]] extern HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, REFIID iid, void** ppv);
+[[nodiscard]] extern HRESULT LoadExternalFilter(LPCTSTR path, REFCLSID clsid, IBaseFilter** ppBF);
+[[nodiscard]] extern HRESULT LoadExternalPropertyPage(IPersist* pP, REFCLSID clsid, IPropertyPage** ppPP);
 extern void UnloadExternalObjects();
-extern CString MakeFullPath(LPCTSTR path);
-extern CString GetMediaTypeName(const GUID& guid);
-extern GUID GUIDFromCString(CString str);
-extern HRESULT GUIDFromCString(CString str, GUID& guid);
-extern CString CStringFromGUID(const GUID& guid);
-extern CStringW UTF8To16(LPCSTR utf8);
-extern CStringA UTF16To8(LPCWSTR utf16);
-extern CString ISO6391ToLanguage(LPCSTR code);
-extern CString ISO6392ToLanguage(LPCSTR code);
-extern LCID    ISO6391ToLcid(LPCSTR code);
-extern LCID    ISO6392ToLcid(LPCSTR code);
-extern CString ISO6391To6392(LPCSTR code);
-extern CString ISO6392To6391(LPCSTR code);
-extern CString LanguageToISO6392(LPCTSTR lang);
-extern int MakeAACInitData(BYTE* pData, int profile, int freq, int channels);
-extern BOOL CFileGetStatus(LPCTSTR lpszFileName, CFileStatus& status);
-extern bool DeleteRegKey(LPCTSTR pszKey, LPCTSTR pszSubkey);
-extern bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValueName, LPCTSTR pszValue);
-extern bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValue);
+[[nodiscard]] extern CString MakeFullPath(LPCTSTR path);
+[[nodiscard]] extern CString GetMediaTypeName(const GUID& guid);
+[[nodiscard]] extern GUID GUIDFromCString(CString str);
+[[nodiscard]] extern HRESULT GUIDFromCString(CString str, GUID& guid);
+[[nodiscard]] extern CString CStringFromGUID(const GUID& guid);
+[[nodiscard]] extern CStringW UTF8To16(LPCSTR utf8);
+[[nodiscard]] extern CStringA UTF16To8(LPCWSTR utf16);
+[[nodiscard]] extern CString ISO6391ToLanguage(LPCSTR code);
+[[nodiscard]] extern CString ISO6392ToLanguage(LPCSTR code);
+[[nodiscard]] extern LCID    ISO6391ToLcid(LPCSTR code);
+[[nodiscard]] extern LCID    ISO6392ToLcid(LPCSTR code);
+[[nodiscard]] extern CString ISO6391To6392(LPCSTR code);
+[[nodiscard]] extern CString ISO6392To6391(LPCSTR code);
+[[nodiscard]] extern CString LanguageToISO6392(LPCTSTR lang);
+[[nodiscard]] extern int MakeAACInitData(BYTE* pData, int profile, int freq, int channels) noexcept;
+[[nodiscard]] extern BOOL CFileGetStatus(LPCTSTR lpszFileName, CFileStatus& status);
+[[nodiscard]] extern bool DeleteRegKey(LPCTSTR pszKey, LPCTSTR pszSubkey);
+[[nodiscard]] extern bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValueName, LPCTSTR pszValue);
+[[nodiscard]] extern bool SetRegKeyValue(LPCTSTR pszKey, LPCTSTR pszSubkey, LPCTSTR pszValue);
 extern void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, LPCTSTR chkbytes, LPCTSTR ext = NULL, ...);
 extern void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, const CAtlList<CString>& chkbytes, LPCTSTR ext = NULL, ...);
 extern void UnRegisterSourceFilter(const GUID& subtype);
-extern LPCTSTR GetDXVAMode(const GUID* guidDecoder);
+[[nodiscard]] extern LPCTSTR GetDXVAMode(const GUID* guidDecoder);
 extern void DumpBuffer(BYTE* pBuffer, int nSize);
-extern CString ReftimeToString(const REFERENCE_TIME& rtVal);
-extern CString ReftimeToString2(const REFERENCE_TIME& rtVal);
-extern CString DVDtimeToString(const DVD_HMSF_TIMECODE& rtVal, bool bAlwaysShowHours=false);
-REFERENCE_TIME StringToReftime(LPCTSTR strVal);
-extern COLORREF YCrCbToRGB_Rec601(BYTE Y, BYTE Cr, BYTE Cb);
-extern COLORREF YCrCbToRGB_Rec709(BYTE Y, BYTE Cr, BYTE Cb);
-extern DWORD	YCrCbToRGB_Rec601(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
-extern DWORD	YCrCbToRGB_Rec709(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
+[[nodiscard]] extern CString ReftimeToString(const REFERENCE_TIME& rtVal);
+[[nodiscard]] extern CString ReftimeToString2(const REFERENCE_TIME& rtVal);
+[[nodiscard]] extern CString DVDtimeToString(const DVD_HMSF_TIMECODE& rtVal, bool bAlwaysShowHours=false);
+[[nodiscard]] REFERENCE_TIME StringToReftime(LPCTSTR strVal);
+[[nodiscard]] extern COLORREF YCrCbToRGB_Rec601(BYTE Y, BYTE Cr, BYTE Cb);
+[[nodiscard]] extern COLORREF YCrCbToRGB_Rec709(BYTE Y, BYTE Cr, BYTE Cb);
+[[nodiscard]] extern DWORD	YCrCbToRGB_Rec601(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
+[[nodiscard]] extern DWORD	YCrCbToRGB_Rec709(BYTE A, BYTE Y, BYTE Cr, BYTE Cb);
 extern void		TraceFilterInfo(IBaseFilter* pBF);
 extern void		TracePinInfo(IPin* pPin);
 extern void		SetThreadName( DWORD dwThreadID, LPCSTR szThreadName);
 extern void		HexDump(CString fName, BYTE* buf, int size);
-extern DWORD	GetDefChannelMask(WORD nChannels);
+[[nodiscard]] extern DWORD	GetDefChannelMask(WORD nChannels);
 extern void		CorrectComboListWidth(CComboBox& m_pComboBox);
 
 class CPinInfo : public PIN_INFO
 {
 public:
-	CPinInfo() {pFilter = NULL;}
-	~CPinInfo() {if(pFilter) pFilter->Release();}
+	explicit CPinInfo() {pFilter = NULL;}
+	~CPinInfo() {if(pFilter)
+	{
+	    pFilter->Release();
+	}}
 };
 
 class CFilterInfo : public FILTER_INFO
 {
 public:
-	CFilterInfo() {pGraph = NULL;}
-	~CFilterInfo() {if(pGraph) pGraph->Release();}
+	explicit CFilterInfo() {pGraph = NULL;}
+	~CFilterInfo() {if(pGraph)
+	{
+	    pGraph->Release();
+	}}
 };
 
 #define BeginEnumFilters(pFilterGraph, pEnumFilters, pBaseFilter) \
@@ -204,14 +210,18 @@ template <class T>
 static CUnknown* WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT* phr)
 {
 	*phr = S_OK;
-    CUnknown* punk = new T(lpunk, phr);
-    if(punk == NULL) *phr = E_OUTOFMEMORY;
+    CUnknown* punk{new T(lpunk, phr)};
+    if(punk == NULL)
+    {
+        *phr = E_OUTOFMEMORY;
+    }
 	return punk;
 }
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
-inline int LNKO(int a, int b)
+[[nodiscard]] constexpr inline int LNKO(int a, int b)
+noexcept
 {
 	if(a == 0 || b == 0) {
 		return(1);

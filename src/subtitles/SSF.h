@@ -37,33 +37,33 @@ namespace ssf
         CAutoPtr<Renderer> m_renderer;
 
     public:
-        CRenderer(CCritSec* pLock);
-        virtual ~CRenderer();
+        explicit CRenderer(CCritSec* pLock);
+        constexpr virtual ~CRenderer() noexcept;
 
-        bool Open(CString fn, CString name = _T(""));
-        bool Open(InputStream& s, CString name);
+        [[nodiscard]] bool Open(CString fn, CString name = _T(""));
+        [[nodiscard]] bool Open(InputStream& s, CString name);
 
         void Append(REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, LPCWSTR str);
 
-        DECLARE_IUNKNOWN
+        [[nodiscard]] DECLARE_IUNKNOWN
         STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
         // ISubPicProvider
-        STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-        STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-        STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-        STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-        STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-        STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+        [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+        [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+        [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+        [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+        [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+        [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
 
         // IPersist
-        STDMETHODIMP GetClassID(CLSID* pClassID);
+        [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
 
         // ISubStream
-        STDMETHODIMP_(int) GetStreamCount();
-        STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-        STDMETHODIMP_(int) GetStream();
-        STDMETHODIMP SetStream(int iStream);
+        [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
+        [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+        [[nodiscard]] STDMETHODIMP_(int) GetStream();
+        [[nodiscard]] STDMETHODIMP SetStream(int iStream);
         STDMETHODIMP Reload();
     };
 

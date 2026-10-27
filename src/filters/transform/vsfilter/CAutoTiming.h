@@ -16,7 +16,7 @@ private:
     int _start;
     int _end;
 public:
-    CAutoTiming(const TCHAR* szBlkName, const int level = 15)
+    explicit CAutoTiming(const TCHAR* szBlkName, const int level = 15)
         : _szBlkName(szBlkName), _level(level)
     {
         _start = GetTickCount();

@@ -19,22 +19,23 @@ protected:
     {  
     }
 
-    const UV_TestData& GetZeroData(int w)
+    [[nodiscard]] const UV_TestData& GetZeroData(int w)
+    noexcept
     {
         data1.w = w;
         data1.FillZero();
         return data1;
     }
-    const UV_TestData& GetRandomData(int w)
+    [[nodiscard]] const UV_TestData& GetRandomData(int w)
     {
         data1.w = w;
         FillRandByte( data1.u, w );
         FillRandByte( data1.v, w );
         return data1;        
     }
-    void FillRandByte(BYTE* buf, int size)
+    void FillRandByte(BYTE* buf, const int size)
     {
-        for (int i=0;i<size;i++)
+        for (int i{0};i<size;i++)
         {
             buf[i] = rand() & 0xff;
         }
@@ -51,9 +52,9 @@ TEST_F(SubSampleAndInterlaceTest, Check_subsample_and_interlace_2_line)
 {
     UV_TestData data0,data1,data2;
 
-    for (int i=0;i<10000;i++)
+    for (int i{0};i<10000;i++)
     {        
-        for (int w=16;w<33*16;w+=16)
+        for (int w{16};w<33*16;w+=16)
         {            
             //zero
             data0 = GetZeroData(w*2);
@@ -86,7 +87,7 @@ TEST_F(SubSampleAndInterlaceTest, Check_subsample_and_interlace_2_line)
                 <<"data2"<<data2;
         }
         //large input test
-        int w = 960;
+        int w{960};
         data0 = GetRandomData(w*2);
         data1 = data0;
         data2 = data1;
@@ -105,11 +106,11 @@ TEST_F(SubSampleAndInterlaceTest, Check_hleft_vmid_subsample_and_interlace_2_lin
 {
     UV_TestData data0,data1,data2;
 
-    for (int i=0;i<1000;i++)
+    for (int i{0};i<1000;i++)
     {
-        for (int pitch=16;pitch<=160;pitch+=16)
+        for (int pitch{16};pitch<=160;pitch+=16)
         {
-            int w = pitch;
+            int w{pitch};
             //for (int w=pitch-15;w<=pitch;w++)
             {
                 //zero
@@ -148,7 +149,7 @@ TEST_F(SubSampleAndInterlaceTest, Check_hleft_vmid_subsample_and_interlace_2_lin
         }
         
         //large input test
-        int w = 960;
+        int w{960};
         data0 = GetRandomData(w*2);
         data1 = data0;
         data2 = data1;

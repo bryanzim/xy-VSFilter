@@ -26,26 +26,26 @@ struct ColorConvTable
         , RANGE_PC
     };
 
-    static void SetDefaultConvType(YuvMatrixType yuv_type, YuvRangeType range);
+    constexpr static void SetDefaultConvType(YuvMatrixType yuv_type, YuvRangeType range) noexcept;
 
     static YuvMatrixType GetDefaultYUVType();
     static YuvRangeType GetDefaultRangeType();
 
-    static DWORD Argb2Ayuv(DWORD argb);
-    static DWORD Argb2Ayuv_TV_BT601(DWORD argb);
-    static DWORD Argb2Auyv(DWORD argb);
-    static DWORD Ayuv2Auyv(DWORD ayuv);
-    static DWORD Rgb2Y(int r8, int g8, int b8);
-    static DWORD PreMulArgb2Ayuv( int a8, int r8, int g8, int b8 );
+    [[nodiscard]] static DWORD Argb2Ayuv(DWORD argb);
+    [[nodiscard]] static DWORD Argb2Ayuv_TV_BT601(DWORD argb);
+    [[nodiscard]] static DWORD Argb2Auyv(DWORD argb);
+    [[nodiscard]] constexpr static DWORD Ayuv2Auyv(DWORD ayuv) noexcept;
+    [[nodiscard]] static DWORD Rgb2Y(int r8, int g8, int b8);
+    [[nodiscard]] static DWORD PreMulArgb2Ayuv( int a8, int r8, int g8, int b8 );
 
-    static DWORD Ayuv2Argb(DWORD ayuv);
-    static DWORD Ayuv2Argb_TV_BT601(DWORD ayuv);
+    [[nodiscard]] static DWORD Ayuv2Argb(DWORD ayuv);
+    [[nodiscard]] static DWORD Ayuv2Argb_TV_BT601(DWORD ayuv);
     static DWORD A8Y8U8V8_To_ARGB_TV_BT601( int a8, int y8, int u8, int v8 );
     static DWORD A8Y8U8V8_To_ARGB_PC_BT601( int a8, int y8, int u8, int v8 );
-    static DWORD Ayuv2Argb_TV_BT709(DWORD ayuv);
+    [[nodiscard]] static DWORD Ayuv2Argb_TV_BT709(DWORD ayuv);
     static DWORD A8Y8U8V8_To_ARGB_TV_BT709( int a8, int y8, int u8, int v8 );
     static DWORD A8Y8U8V8_To_ARGB_PC_BT709( int a8, int y8, int u8, int v8 );
-    static DWORD Ayuv2Argb_TV_BT2020(DWORD ayuv);
+    [[nodiscard]] static DWORD Ayuv2Argb_TV_BT2020(DWORD ayuv);
     static DWORD A8Y8U8V8_To_ARGB_TV_BT2020( int a8, int y8, int u8, int v8 );
     static DWORD A8Y8U8V8_To_ARGB_PC_BT2020( int a8, int y8, int u8, int v8 );
 
@@ -64,11 +64,11 @@ struct ColorConvTable
         YuvRangeType in_range, YuvMatrixType in_type,
         bool output_tv_level);
 
-    static DWORD RGB_PC_TO_TV(DWORD argb);
+    [[nodiscard]] static DWORD RGB_PC_TO_TV(DWORD argb);
 
-    static DWORD VSFilterCompactCorretion(DWORD argb, bool output_tv_level);
+    [[nodiscard]] static DWORD VSFilterCompactCorretion(DWORD argb, bool output_tv_level);
 private:
-    ColorConvTable();
+    explicit ColorConvTable();
 };
 
 #endif // end of __COLOR_CONV_TABLE_H_53D078BB_BBA1_441B_9728_67E29A1CB521__

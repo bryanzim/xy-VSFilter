@@ -44,7 +44,7 @@ class CMyFont : public CFont
 public:
     int m_ascent, m_descent;
 
-    CMyFont(const STSStyleBase& style);
+    explicit CMyFont(const STSStyleBase& style);
 };
 
 typedef ::boost::flyweights::flyweight<::boost::flyweights::key_value<STSStyleBase, CMyFont>, ::boost::flyweights::no_locking> FwCMyFont;
@@ -71,16 +71,16 @@ interface IXySubRenderFrame;
 
 class CWord
 {
-    bool NeedTransform  ();
+    [[nodiscard]] bool NeedTransform  () noexcept;
     void Transform      (PathData* path_data, const CPointCoor2& org);
 //  void Transform_C    (PathData* path_data, const CPointCoor2 &org );
 //  void Transform_SSE2 (PathData* path_data, const CPointCoor2 &org );
-    bool CreateOpaqueBox();
+    [[nodiscard]] bool CreateOpaqueBox();
 
 protected:
     virtual bool CreatePath(PathData* path_data) = 0;
 
-    bool DoPaint(const CPointCoor2& p, const CPointCoor2& trans_org, SharedPtrOverlay* overlay, const OverlayKey& key);
+    [[nodiscard]] bool DoPaint(const CPointCoor2& p, const CPointCoor2& trans_org, SharedPtrOverlay* overlay, const OverlayKey& key);
 public:
     // str[0] = 0 -> m_fLineBreak = true (in this case we only need and use the height of m_font from the whole class)
     CWord(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend
@@ -89,16 +89,16 @@ public:
     CWord(const CWord&);
     virtual ~CWord();
 
-    virtual SharedPtrCWord Copy() = 0;
-    virtual bool Append(const SharedPtrCWord& w);
+    [[nodiscard]] virtual SharedPtrCWord Copy() = 0;
+    [[nodiscard]] virtual bool Append(const SharedPtrCWord& w);
     
-    bool operator==(const CWord& rhs)const;
+    [[nodiscard]] bool operator==(const CWord& rhs)const;
 
     static void PaintFromOverlay   (const CPointCoor2& p, const CPointCoor2& trans_org2, OverlayKey &subpixel_variance_key, SharedPtrOverlay& overlay);
     void PaintFromNoneBluredOverlay(SharedPtrOverlay raterize_result, const OverlayKey& overlay_key, SharedPtrOverlay* overlay);
-    bool PaintFromScanLineData2    (const CPointCoor2& psub, const ScanLineData2& scan_line_data2, const OverlayKey& key    , SharedPtrOverlay* overlay);
-    bool PaintFromPathData         (const CPointCoor2& psub, const CPointCoor2& trans_org, const PathData& path_data, const OverlayKey& key, SharedPtrOverlay* overlay );
-    bool PaintFromRawData          (const CPointCoor2& psub, const CPointCoor2& trans_org, const OverlayKey& key    , SharedPtrOverlay* overlay );
+    [[nodiscard]] bool PaintFromScanLineData2    (const CPointCoor2& psub, const ScanLineData2& scan_line_data2, const OverlayKey& key    , SharedPtrOverlay* overlay);
+    [[nodiscard]] bool PaintFromPathData         (const CPointCoor2& psub, const CPointCoor2& trans_org, const PathData& path_data, const OverlayKey& key, SharedPtrOverlay* overlay );
+    [[nodiscard]] bool PaintFromRawData          (const CPointCoor2& psub, const CPointCoor2& trans_org, const OverlayKey& key    , SharedPtrOverlay* overlay );
 
 protected:
     XyFwStringW       m_str;
@@ -138,14 +138,14 @@ public:
     CText(const CText& src);
 
     virtual SharedPtrCWord Copy();
-    virtual bool Append(const SharedPtrCWord& w);
+    [[nodiscard]] virtual bool Append(const SharedPtrCWord& w);
 };
 
 class CPolygon : public CWord
 {
-    bool Get6BitFixedPoint(CStringW& str, LONG& ret);
-    bool GetPOINT(CStringW& str, POINT& ret);
-    bool ParseStr();
+    [[nodiscard]] bool Get6BitFixedPoint(CStringW& str, LONG& ret);
+    [[nodiscard]] bool GetPOINT(CStringW& str, POINT& ret);
+    [[nodiscard]] bool ParseStr();
 
 protected:
     double            m_scalex, m_scaley;
@@ -153,7 +153,7 @@ protected:
     CAtlArray<BYTE>   m_pathTypesOrg;
     CAtlArray<CPoint> m_pathPointsOrg;
 
-    virtual bool CreatePath(PathData* path_data);
+    [[nodiscard]] virtual bool CreatePath(PathData* path_data);
 
 public:
     CPolygon(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend
@@ -162,10 +162,10 @@ public:
         , bool round_to_whole_pixel_after_scale_to_target = false);
 	// can't use a const reference because we need to use CAtlArray::Copy which expects a non-const reference
     CPolygon(CPolygon&); 
-    virtual ~CPolygon();
+    constexpr virtual ~CPolygon() noexcept;
 
     virtual SharedPtrCWord Copy();
-    virtual bool Append(const SharedPtrCWord& w);
+    [[nodiscard]] virtual bool Append(const SharedPtrCWord& w);
 
     friend class ClipperTraits;
     friend class ClipperAlphaMaskCacheKey;
@@ -186,21 +186,21 @@ enum eftype
 class Effect
 {
 public:
-    Effect()
+    explicit Effect()
     {
-        memset(param, 0, sizeof(param));
-        memset(t, 0, sizeof(t));
+        std::memset(param, 0, sizeof(param));
+        std::memset(t, 0, sizeof(t));
     }
-    bool operator==(const Effect& rhs)const
+    [[nodiscard]] bool operator==(const Effect& rhs)const
     {
         return type==rhs.type 
-            && !memcmp(param, rhs.param, sizeof(param))
-            && !memcmp(t, rhs.t, sizeof(t));
+            && !std::memcmp(param, rhs.param, sizeof(param))
+            && !std::memcmp(t, rhs.t, sizeof(t));
     }
 public:
     enum eftype type;
-    int param[8];
-    int t[4];
+    int param[8U];
+    int t[4U];
 };
 
 class CClipper
@@ -213,19 +213,19 @@ private:
     int               m_effectType;
     bool              m_painted;
 
-    GrayImage2* PaintSimpleClipper();
-    GrayImage2* PaintBaseClipper();
-    GrayImage2* PaintBannerClipper();
-    GrayImage2* PaintScrollClipper();
+    [[nodiscard]] GrayImage2* PaintSimpleClipper();
+    [[nodiscard]] GrayImage2* PaintBaseClipper();
+    [[nodiscard]] GrayImage2* PaintBannerClipper();
+    [[nodiscard]] GrayImage2* PaintScrollClipper();
     
-    GrayImage2* Paint();
+    [[nodiscard]] GrayImage2* Paint();
 public:
     CClipper(CStringW str, CSizeCoor2 size, double scalex, double scaley, bool inverse
         , double target_scale_x=1.0, double target_scale_y=1.0);
-    void SetEffect(const Effect& effect, int effectType);
-    virtual ~CClipper();
+    constexpr void SetEffect(const Effect& effect, int effectType) noexcept;
+    constexpr virtual ~CClipper() noexcept;
 
-    static SharedPtrGrayImage2 GetAlphaMask(const SharedPtrCClipper& clipper);
+    [[nodiscard]] static SharedPtrGrayImage2 GetAlphaMask(const SharedPtrCClipper& clipper);
 
     friend class ClipperTraits;
     friend class ClipperAlphaMaskCacheKey;
@@ -237,15 +237,15 @@ class CLine: private CAtlList<SharedPtrCWord>
 public:
     int m_width, m_ascent, m_descent, m_borderX, m_borderY;
 
-    virtual ~CLine();
+    constexpr virtual ~CLine() noexcept;
 
     void Compact();
 
-    int GetWordCount();
+    [[nodiscard]] int GetWordCount();
     void AddWord2Tail(SharedPtrCWord words);
-    bool IsEmpty();
+    [[nodiscard]] bool IsEmpty();
 
-    CRectCoor2 PaintAll(CompositeDrawItemList* output, const CRectCoor2& clipRect, 
+    [[nodiscard]] CRectCoor2 PaintAll(CompositeDrawItemList* output, const CRectCoor2& clipRect, 
         const CPointCoor2& margin,
         const SharedPtrCClipperPaintMachine &clipper, 
         CPoint p, const CPoint& org, const int time, const int alpha);
@@ -253,10 +253,10 @@ public:
 
 class CSubtitle: private CAtlList<CLine*>
 {
-    int GetFullWidth();
-    int GetFullLineWidth(POSITION pos);
-    int GetWrapWidth(POSITION pos, int maxwidth);
-    CLine* GetNextLine(POSITION& pos, int maxwidth);
+    [[nodiscard]] int GetFullWidth();
+    [[nodiscard]] int GetFullLineWidth(POSITION pos);
+    [[nodiscard]] int GetWrapWidth(POSITION pos, int maxwidth);
+    [[nodiscard]] CLine* GetNextLine(POSITION& pos, int maxwidth);
 
 public:
     int                      m_scrAlignment;
@@ -274,7 +274,7 @@ public:
     double                   m_target_scale_x, m_target_scale_y;
     int                      m_hard_position_level;//-1: for no style override at all, others see @AssCmdPosLevel
 public:
-    CSubtitle();
+    explicit CSubtitle();
     virtual ~CSubtitle();
     virtual void Empty();
 
@@ -283,12 +283,12 @@ public:
     void MakeLines(CSize size, CRect marginRect);
 
     POSITION GetHeadLinePosition();
-    CLine* GetNextLine(POSITION& pos);
+    [[nodiscard]] CLine* GetNextLine(POSITION& pos);
 };
 
 struct CSubtitle2
 {
-    CSubtitle2():s(NULL){}
+    explicit CSubtitle2():s(NULL){}
 
     CSubtitle2(CSubtitle* s_,const CRectCoor2& clipRect_, const CPoint& org_, const CPoint& org2_
         , const CPoint& p_, int alpha_, int time_)
@@ -322,7 +322,7 @@ public:
     virtual void Empty();
 
     void AdvanceToSegment(int segment, const CAtlArray<int>& sa);
-    CRect AllocRect(CSubtitle* s, int segment, int entry, int layer, int collisions);
+    [[nodiscard]] CRect AllocRect(CSubtitle* s, int segment, int entry, int layer, int collisions);
 };
 
 [uuid("537DCACA-2812-4a4f-B2C6-1A34C17ADEB0")]
@@ -387,8 +387,8 @@ public:
         CMD_yshad,
         CMD_COUNT
     };
-    static const int MIN_CMD_LENGTH = 1;//c etc
-    static const int MAX_CMD_LENGTH = 5;//alpha, iclip, xbord, xshad, ybord, yshad
+    static const int MIN_CMD_LENGTH{1};//c etc
+    static const int MAX_CMD_LENGTH{5};//alpha, iclip, xbord, xshad, ybord, yshad
     static CAtlMap<CStringW, AssCmdType, CStringElementTraits<CStringW>> m_cmdMap;
 
     static CAtlArray<AssCmdPosLevel> m_cmd_pos_level;
@@ -433,15 +433,15 @@ private:
     void ParseString (CSubtitle* sub, CStringW str, const FwSTSStyle& style);
     void ParsePolygon(CSubtitle* sub, const CStringW& str, const FwSTSStyle& style);
 
-    static bool ParseSSATag(AssTagList *assTags, const CStringW& str);
-    bool ParseSSATag(CSubtitle* sub, const AssTagList& assTags, STSStyle& style, const STSStyle& org, bool fAnimate = false);
-    bool ParseSSATag(CSubtitle* sub, const CStringW& str, STSStyle& style, const STSStyle& org, bool fAnimate = false);
+    [[nodiscard]] static bool ParseSSATag(AssTagList *assTags, const CStringW& str);
+    [[nodiscard]] bool ParseSSATag(CSubtitle* sub, const AssTagList& assTags, STSStyle& style, const STSStyle& org, bool fAnimate = false);
+    [[nodiscard]] bool ParseSSATag(CSubtitle* sub, const CStringW& str, STSStyle& style, const STSStyle& org, bool fAnimate = false);
 
-    bool ParseHtmlTag(CSubtitle* sub, CStringW str, STSStyle& style, STSStyle& org);
+    [[nodiscard]] bool ParseHtmlTag(CSubtitle* sub, CStringW str, STSStyle& style, STSStyle& org);
 
-    double CalcAnimation(double dst, double src, bool fAnimate);
+    [[nodiscard]] double CalcAnimation(double dst, double src, bool fAnimate) noexcept;
 
-    CSubtitle* GetSubtitle(int entry);
+    [[nodiscard]] CSubtitle* GetSubtitle(int entry);
 
     void ClearUnCachedSubtitle(CSubtitle2List& sub2List);
     void ShrinkCache();
@@ -451,7 +451,7 @@ protected:
     virtual void OnChanged();
     
 public:
-    CRenderedTextSubtitle(CCritSec* pLock);
+    explicit CRenderedTextSubtitle(CCritSec* pLock);
     virtual ~CRenderedTextSubtitle();
 
     virtual void Copy(CSimpleTextSubtitle& sts);
@@ -469,27 +469,27 @@ private:
 public:
     void Deinit();
 
-    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProviderEx2
     STDMETHODIMP Lock();
     STDMETHODIMP Unlock();
-    STDMETHODIMP RenderEx(IXySubRenderFrame**subRenderFrame, int spd_type, 
+    [[nodiscard]] STDMETHODIMP RenderEx(IXySubRenderFrame**subRenderFrame, int spd_type, 
         const RECT& video_rect, const RECT& subtitle_target_rect,
         const SIZE& original_video_size,
         REFERENCE_TIME rt, double fps);
 
     // ISubPicProviderEx && ISubPicProviderEx2
-    STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-    STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-    STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-    STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop);
-    STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-    STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECTCoor2& bbox);
-    STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRectCoor2>& rectList);
-    HRESULT ParseScript(REFERENCE_TIME rt, double fps, CSubtitle2List *outputSub2List );
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+    [[nodiscard]] STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop);
+    [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECTCoor2& bbox);
+    [[nodiscard]] STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRectCoor2>& rectList);
+    [[nodiscard]] HRESULT ParseScript(REFERENCE_TIME rt, double fps, CSubtitle2List *outputSub2List );
     static void DoRender( const SIZECoor2& output_size, 
         const POINTCoor2& video_org, const RECTCoor2& margin_rect, 
         const CSubtitle2List& sub2List, 
@@ -498,17 +498,17 @@ public:
         const POINTCoor2& video_org, const RECTCoor2& margin_rect, 
         const CSubtitle2& sub2, 
         CompositeDrawItemList* compDrawItemList /*output*/);
-    STDMETHODIMP_(bool) IsColorTypeSupported(int type);
-    STDMETHODIMP_(bool) IsMovable();
-    STDMETHODIMP_(bool) IsSimple();
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsMovable() noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsSimple() noexcept;
 
     // IPersist
-    STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    STDMETHODIMP_(int) GetStreamCount();
-    STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    STDMETHODIMP_(int) GetStream();
-    STDMETHODIMP SetStream(int iStream);
+    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
     STDMETHODIMP Reload();
 };

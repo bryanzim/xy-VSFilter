@@ -65,8 +65,8 @@ const AMOVIESETUP_PIN sudpPin2 = {L"Input", FALSE, FALSE, TRUE, FALSE, &CLSID_NU
 
 CFactoryTemplate g_Templates[] =
 {
-    {sudFilter[0].strName, sudFilter[0].clsID, CreateInstance<XySubFilter>, NULL, &sudFilter[0]},
-    {sudFilter[1].strName, sudFilter[1].clsID, CreateInstance<XySubFilterAutoLoader>, NULL, &sudFilter[1]},
+    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<XySubFilter>, NULL, &sudFilter[0U]},
+    {sudFilter[1U].strName, sudFilter[1U].clsID, CreateInstance<XySubFilterAutoLoader>, NULL, &sudFilter[1U]},
     {L"XySubFilterMainPPage", &__uuidof(CXySubFilterMainPPage), CreateInstance<CXySubFilterMainPPage>},
     {L"XySubFilterMorePPage", &__uuidof(CXySubFilterMorePPage), CreateInstance<CXySubFilterMorePPage>},
     {L"XySubFilterTimingPPage", &__uuidof(CXySubFilterTimingPPage), CreateInstance<CXySubFilterTimingPPage>},
@@ -74,25 +74,28 @@ CFactoryTemplate g_Templates[] =
     {L"XySubFilterAboutPPage", &__uuidof(CXySubFilterAboutPPage), CreateInstance<CXySubFilterAboutPPage>},
 };
 
-int g_cTemplates = countof(g_Templates);
+int g_cTemplates{countof(g_Templates)};
 
 //////////////////////////////
 
-STDAPI DllRegisterServer()
+[[nodiscard]] STDAPI DllRegisterServer()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
     return AMovieDllRegisterServer2(TRUE);
 }
 
-STDAPI DllUnregisterServer()
+[[nodiscard]] STDAPI DllUnregisterServer()
 {
     return AMovieDllRegisterServer2(FALSE);
 }
 
-void CALLBACK XySubFilterConfiguration(HWND hwnd, HINSTANCE hinst, LPSTR lpszCmdLine, int nCmdShow)
+void CALLBACK XySubFilterConfiguration(const HWND hwnd, const HINSTANCE hinst, const LPSTR lpszCmdLine, const int nCmdShow)
 {
-    if(FAILED(::CoInitialize(0))) return;
+    if(FAILED(::CoInitialize(0)))
+    {
+        return;
+    }
 
     CComPtr<IBaseFilter> pFilter;
     CComQIPtr<ISpecifyPropertyPages> pSpecify;

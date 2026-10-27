@@ -8,9 +8,9 @@ TEST_F(AlphaBlendTest, CheckP010LumaSSE2)
 {
     AlphaSrcDstTestData data0,data1,data2;
 
-    for (int i=0;i<10000;i++)
+    for (int i{0};i<10000;i++)
     {        
-        int w = 16;
+        int w{16};
         //for (int w=16;w<33*16;w+=16)
         {            
             //zero
@@ -55,9 +55,9 @@ TEST_F(AlphaBlendTest, CheckP010ChromaSSE2)
 {
     AlphaSrcDstTestData data0,data1,data2;
 
-    for (int i=0;i<10000;i++)
+    for (int i{0};i<10000;i++)
     {        
-        int w = 16;
+        int w{16};
         //for (int w=16;w<33*16;w+=16)
         {            
             //zero
@@ -102,9 +102,9 @@ TEST_F(AlphaBlendTest, CheckNvxxChromaSSE2)
 {
     AlphaSrcDstTestData data0,data1,data2;
 
-    for (int i=0;i<10000;i++)
+    for (int i{0};i<10000;i++)
     {        
-        int w = 16;
+        int w{16};
         //for (int w=16;w<33*16;w+=16)
         {            
             //zero
@@ -149,11 +149,11 @@ TEST_F(AlphaBlendTest, Check_hleft_vmid_mix_uv_yv12)
 {
     AlphaSrcDstTestData data0,data1,data2;
 
-    for (int i=0;i<100;i++)
+    for (int i{0};i<100;i++)
     {
-        for (int pitch=16;pitch<160;pitch+=16)
+        for (int pitch{16};pitch<160;pitch+=16)
         {
-            for (int w=pitch-14;w<=pitch;w+=2)
+            for (int w{pitch-14};w<=pitch;w+=2)
             {
                 //zero
                 data0 = GetZeroData(pitch);
@@ -200,11 +200,11 @@ TEST_F(AlphaBlendTest, Check_hleft_vmid_mix_uv_nvxx)
 {
     AlphaSrcDstTestData data0,data1,data2;
 
-    for (int i=0;i<1000;i++)
+    for (int i{0};i<1000;i++)
     {
-        for (int pitch=16;pitch<160;pitch+=16)
+        for (int pitch{16};pitch<160;pitch+=16)
         {
-            for (int w=pitch-14;w<=pitch;w+=2)
+            for (int w{pitch-14};w<=pitch;w+=2)
             {
                 //zero
                 data0 = GetZeroData(pitch);
@@ -251,11 +251,11 @@ TEST_F(AlphaBlendTest, Check_hleft_vmid_mix_uv_p010)
 {
     AlphaSrcDstTestData data0,data1,data2;
 
-    for (int i=0;i<1000;i++)
+    for (int i{0};i<1000;i++)
     {
-        for (int pitch=16;pitch<160;pitch+=16)
+        for (int pitch{16};pitch<160;pitch+=16)
         {
-            for (int w=pitch-14;w<=pitch;w+=2)
+            for (int w{pitch-14};w<=pitch;w+=2)
             {
                 //zero
                 data0 = GetZeroData(pitch);

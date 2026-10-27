@@ -36,7 +36,7 @@ CTextFile::CTextFile(enc e)
 {
 }
 
-bool CTextFile::Open(LPCTSTR lpszFileName)
+[[nodiscard]] bool CTextFile::Open(const LPCTSTR lpszFileName)
 {
 	if (!__super::Open(lpszFileName, modeRead | typeBinary | shareDenyNone)) {
 		return false;
@@ -50,7 +50,9 @@ bool CTextFile::Open(LPCTSTR lpszFileName)
 	{
 		WORD w;
 		if(sizeof(w) != Read(&w, sizeof(w)))
+		{
 			return Close(), false;
+		}
 
 		if(w == 0xfeff)
 		{
@@ -66,7 +68,9 @@ bool CTextFile::Open(LPCTSTR lpszFileName)
 		{
 			BYTE b;
 			if(sizeof(b) != Read(&b, sizeof(b)))
+			{
 				return Close(), false;
+			}
 
 			if(b == 0xbf)
 			{
@@ -83,24 +87,26 @@ bool CTextFile::Open(LPCTSTR lpszFileName)
 	return true;
 }
 
-bool CTextFile::Save(LPCTSTR lpszFileName, enc e)
+[[nodiscard]] bool CTextFile::Save(const LPCTSTR lpszFileName, const enc e)
 {
 	if(!__super::Open(lpszFileName, modeCreate|modeWrite|shareDenyWrite|(e==DEFAULT_ENCODING?typeText:typeBinary)))
+	{
 		return(false);
+	}
 
 	if(e == UTF8)
 	{
-		BYTE b[3] = {0xef,0xbb,0xbf};
+		BYTE b[3U] = {0xef,0xbb,0xbf};
 		Write(b, sizeof(b));
 	}
 	else if(e == LE16)
 	{
-		BYTE b[2] = {0xff,0xfe};
+		BYTE b[2U] = {0xff,0xfe};
 		Write(b, sizeof(b));
 	}
 	else if(e == BE16)
 	{
-		BYTE b[2] = {0xfe,0xff};
+		BYTE b[2U] = {0xfe,0xff};
 		Write(b, sizeof(b));
 	}
 
@@ -109,24 +115,28 @@ bool CTextFile::Save(LPCTSTR lpszFileName, enc e)
 	return true;
 }
 
-void CTextFile::SetEncoding(enc e)
+constexpr void CTextFile::SetEncoding(const enc e)
+noexcept
 {
 	m_encoding = e;
 }
 
-CTextFile::enc CTextFile::GetEncoding()
+[[nodiscard]] constexpr CTextFile::enc CTextFile::GetEncoding()
+noexcept
 {
 	return m_encoding;
 }
 
-bool CTextFile::IsUnicode()
+[[nodiscard]] constexpr bool CTextFile::IsUnicode()
+noexcept
 {
 	return m_encoding != DEFAULT_ENCODING;
 }
 
 // CFile
 
-CString CTextFile::GetFilePath() const
+[[nodiscard]] constexpr CString CTextFile::GetFilePath() const
+noexcept
 {
 	// to avoid a CException coming from CTime
 	return m_strFileName; // __super::GetFilePath();
@@ -134,20 +144,20 @@ CString CTextFile::GetFilePath() const
 
 // CStdioFile
 
-ULONGLONG CTextFile::GetPosition() const
+[[nodiscard]] ULONGLONG CTextFile::GetPosition() const
 {
 	return (__super::GetPosition() - m_offset - (m_bufferCount ? m_bufferCount - m_bufferPos : 0));
 }
 
-ULONGLONG CTextFile::GetLength() const
+[[nodiscard]] ULONGLONG CTextFile::GetLength() const
 {
 	return (__super::GetLength() - m_offset);
 }
 
-ULONGLONG CTextFile::Seek(LONGLONG lOff, UINT nFrom)
+[[nodiscard]] ULONGLONG CTextFile::Seek(LONGLONG lOff, const UINT nFrom)
 {
-	ULONGLONG pos = GetPosition();
-	ULONGLONG len = GetLength();
+	ULONGLONG pos{GetPosition()};
+	ULONGLONG len{GetLength()};
 
 	switch(nFrom)
 	{
@@ -165,9 +175,9 @@ ULONGLONG CTextFile::Seek(LONGLONG lOff, UINT nFrom)
 	return pos;
 }
 
-void CTextFile::WriteString(LPCWSTR lpsz/*CStringW str*/)
+void CTextFile::WriteString(const LPCWSTR lpsz/*CStringW str*/)
 {
-	CStringW str(lpsz);
+	CStringW str{lpsz};
 
 	if(m_encoding == DEFAULT_ENCODING)
 	{
@@ -176,8 +186,8 @@ void CTextFile::WriteString(LPCWSTR lpsz/*CStringW str*/)
 	else if(m_encoding == UTF8)
 	{
 		str.Replace(L"\n", L"\r\n");
-		CW2AEX<1024> utf8(str, CP_UTF8);
-		Write(utf8, ::strlen(utf8));
+		[[nodiscard]] CW2AEX<1024> utf8(str, CP_UTF8);
+		Write(utf8, std::strlen(utf8));
 	}
 	else if(m_encoding == LE16)
 	{
@@ -187,27 +197,36 @@ void CTextFile::WriteString(LPCWSTR lpsz/*CStringW str*/)
 	else if(m_encoding == BE16)
 	{
 		str.Replace(L"\n", L"\r\n");
-		for (unsigned int i = 0, l = str.GetLength(); i < l; i++) {
+		for (unsigned int i{0}, l = str.GetLength(); i < l; i++) {
 			str.SetAt(i, ((str[i] >> 8) & 0x00ff) | ((str[i] << 8) & 0xff00));
 		}
 		Write((LPCWSTR)str, str.GetLength() * 2);
 	}
 }
 
-bool CTextFile::ReadLine() {
+[[nodiscard]] bool CTextFile::ReadLine() {
 	m_convertedBuffer.clear();
-	ULONGLONG startPos = GetPosition();
+	ULONGLONG startPos{GetPosition()};
 
 	while (true) {
 		if (m_bufferPos >= m_bufferCount) {
 			m_bufferCount = Read(m_readbuffer, sizeof(m_readbuffer));
-			if (!m_bufferCount) return true;
+			if (!m_bufferCount)
+			{
+			    return true;
+			}
 			m_bufferPos = 0;
 		}
 
-		int c = NextChar();
-		if (c == '\r') continue;
-		if (c == '\n') return false;
+		int c{NextChar()};
+		if (c == '\r')
+		{
+		    continue;
+		}
+		if (c == '\n')
+		{
+		    return false;
+		}
 		if (c >= 0 && c < 0x10000) {
 			m_convertedBuffer.push_back((wchar_t)c);
 			continue;
@@ -220,11 +239,14 @@ bool CTextFile::ReadLine() {
 		}
 
 		if (c == CHARERR_NEED_MORE) {
-			size_t count = m_bufferCount - m_bufferPos;
-			memmove(m_readbuffer, m_readbuffer + m_bufferPos, count);
+			std::size_t count{m_bufferCount - m_bufferPos};
+			std::memmove(m_readbuffer, m_readbuffer + m_bufferPos, count);
 			m_bufferCount = count + Read(m_readbuffer + count, sizeof(m_readbuffer) - count);
 			m_bufferPos = 0;
-			if (m_bufferCount == count) return true;
+			if (m_bufferCount == count)
+			{
+			    return true;
+			}
 			continue;
 		}
 
@@ -247,28 +269,34 @@ bool CTextFile::ReadLine() {
 	}
 }
 
-int CTextFile::NextChar() {
+[[nodiscard]] int CTextFile::NextChar() {
 	if (m_encoding == UTF8) {
-		unsigned char c = m_readbuffer[m_bufferPos++];
-		if (Utf8::isSingleByte(c)) return c;
-		if (!Utf8::isFirstOfMultibyte(c)) return CHARERR_REOPEN;
+		unsigned char c{m_readbuffer[m_bufferPos++]};
+		if (Utf8::isSingleByte(c))
+		{
+		    return c;
+		}
+		if (!Utf8::isFirstOfMultibyte(c))
+		{
+		    return CHARERR_REOPEN;
+		}
 
-		int nContinuationBytes = Utf8::continuationBytes(c);
+		int nContinuationBytes{Utf8::continuationBytes(c)};
 		if (m_bufferCount - m_bufferPos < nContinuationBytes) {
 			--m_bufferPos;
 			return CHARERR_NEED_MORE;
 		}
 
-		unsigned char *rdbuf = m_readbuffer + m_bufferPos - 1;
+		unsigned char *rdbuf{m_readbuffer + m_bufferPos - 1};
 		m_bufferPos += nContinuationBytes;
 
 		switch (nContinuationBytes) {
 		case 1: // 110xxxxx 10xxxxxx
-			return (rdbuf[0] & 0x1f) << 6 | (rdbuf[1] & 0x3f);
+			return (rdbuf[0U] & 0x1f) << 6 | (rdbuf[1U] & 0x3f);
 		case 2: // 1110xxxx 10xxxxxx 10xxxxxx
-			return (rdbuf[0] & 0x0f) << 12 | (rdbuf[1] & 0x3f) << 6 | (rdbuf[2] & 0x3f);
+			return (rdbuf[0U] & 0x0f) << 12 | (rdbuf[1U] & 0x3f) << 6 | (rdbuf[2U] & 0x3f);
 		case 3: // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-			return (rdbuf[0] & 0x07) << 18 | (rdbuf[1] & 0x3f) << 12 | (rdbuf[2] & 0x3f) << 6 | (rdbuf[3] & 0x3f);
+			return (rdbuf[0U] & 0x07) << 18 | (rdbuf[1U] & 0x3f) << 12 | (rdbuf[2U] & 0x3f) << 6 | (rdbuf[3U] & 0x3f);
 		}
 	}
 
@@ -277,28 +305,34 @@ int CTextFile::NextChar() {
 	}
 
 	if (m_encoding == LE16) {
-		if (m_bufferCount - m_bufferPos < 2) return CHARERR_NEED_MORE;
-		unsigned char c1 = m_readbuffer[m_bufferPos++];
-		unsigned char c2 = m_readbuffer[m_bufferPos++];
+		if (m_bufferCount - m_bufferPos < 2)
+		{
+		    return CHARERR_NEED_MORE;
+		}
+		unsigned char c1{m_readbuffer[m_bufferPos++]};
+		unsigned char c2{m_readbuffer[m_bufferPos++]};
 		return (c2 << 8) + c1;
 	}
 
 	if (m_encoding == BE16) {
-		if (m_bufferCount - m_bufferPos < 2) return CHARERR_NEED_MORE;
-		unsigned char c1 = m_readbuffer[m_bufferPos++];
-		unsigned char c2 = m_readbuffer[m_bufferPos++];
+		if (m_bufferCount - m_bufferPos < 2)
+		{
+		    return CHARERR_NEED_MORE;
+		}
+		unsigned char c1{m_readbuffer[m_bufferPos++]};
+		unsigned char c2{m_readbuffer[m_bufferPos++]};
 		return (c1 << 8) + c2;
 	}
 
 	return CHARERR_REOPEN;
 }
 
-BOOL CTextFile::ReadString(CStringW& str) {
-	bool fEOF = ReadLine();
+[[nodiscard]] BOOL CTextFile::ReadString(CStringW& str) {
+	bool fEOF{ReadLine()};
 
 	str.Empty();
 	if (!m_convertedBuffer.empty()) {
-		str.Append(&m_convertedBuffer[0], m_convertedBuffer.size());
+		str.Append(&m_convertedBuffer[0U], m_convertedBuffer.size());
 	}
 	return !fEOF;
 }
@@ -312,26 +346,34 @@ CWebTextFile::CWebTextFile(CTextFile::enc e, LONGLONG llMaxSize)
 {
 }
 
-bool CWebTextFile::Open(LPCTSTR lpszFileName)
+[[nodiscard]] bool CWebTextFile::Open(const LPCTSTR lpszFileName)
 {
-	CString fn(lpszFileName);
+	CString fn{lpszFileName};
 
 	if(fn.Find(_T("http://")) != 0)
+	{
 		return __super::Open(lpszFileName);
+	}
 
 	try
 	{
 		CInternetSession is;
 
 		CAutoPtr<CStdioFile> f(is.OpenURL(fn, 1, INTERNET_FLAG_TRANSFER_BINARY|INTERNET_FLAG_EXISTING_CONNECT));
-		if(!f) return(false);
+		if(!f)
+		{
+		    return(false);
+		}
 
 		TCHAR path[MAX_PATH];
 		GetTempPath(MAX_PATH, path);
 
 		fn = path + fn.Mid(fn.ReverseFind('/')+1);
-		int i = fn.Find(_T("?"));
-		if(i > 0) fn = fn.Left(i);
+		int i{fn.Find(_T("?"))};
+		if(i > 0)
+		{
+		    fn = fn.Left(i);
+		}
 		CFile temp;
 		if(!temp.Open(fn, modeCreate|modeWrite|typeBinary|shareDenyWrite))
 		{
@@ -339,11 +381,16 @@ bool CWebTextFile::Open(LPCTSTR lpszFileName)
 			return(false);
 		}
 
-		BYTE buff[1024];
+		BYTE buff[1024U];
 		int len, total = 0;
 		while((len = f->Read(buff, 1024)) == 1024 && (m_llMaxSize < 0 || (total+=1024) < m_llMaxSize))
+		{
 			temp.Write(buff, len);
-		if(len > 0) temp.Write(buff, len);
+		}
+		if(len > 0)
+		{
+		    temp.Write(buff, len);
+		}
 
 		m_tempfn = fn;
 
@@ -358,7 +405,7 @@ bool CWebTextFile::Open(LPCTSTR lpszFileName)
 	return __super::Open(m_tempfn);
 }
 
-bool CWebTextFile::Save(LPCTSTR lpszFileName, enc e)
+[[nodiscard]] bool CWebTextFile::Save(const LPCTSTR lpszFileName, const enc e)
 {
 	// CWebTextFile is read-only...
 	ASSERT(0);

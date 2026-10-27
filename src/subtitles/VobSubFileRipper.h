@@ -50,10 +50,10 @@ struct vc_t {
 
 struct PGC {
     int nAngles;
-    CAtlArray<vc_t> angles[10];
+    CAtlArray<vc_t> angles[10U];
     int iSelAngle;
-    RGBQUAD pal[16];
-    WORD ids[32];
+    RGBQUAD pal[16U];
+    WORD ids[32U];
 };
 
 struct VSFRipperData {
@@ -107,12 +107,12 @@ protected:
     }
 
     // IVSFRipperCallback
-    STDMETHODIMP OnMessage(LPCTSTR msg) { return S_FALSE; }
-    STDMETHODIMP OnProgress(double progress /*0.0 -> 1.0*/) { return S_FALSE; }
-    STDMETHODIMP OnFinished(bool bSucceeded) { return S_FALSE; }
+    [[nodiscard]] STDMETHODIMP OnMessage(const LPCTSTR msg) { return S_FALSE; }
+    [[nodiscard]] constexpr STDMETHODIMP OnProgress(const double progress /*0.0 -> 1.0*/) noexcept { return S_FALSE; }
+    [[nodiscard]] constexpr STDMETHODIMP OnFinished(const bool bSucceeded) noexcept { return S_FALSE; }
 
 public:
-    IVSFRipperCallbackImpl() : CUnknown(NAME("IVSFRipperCallbackImpl"), nullptr) {}
+    explicit IVSFRipperCallbackImpl() : CUnknown(NAME("IVSFRipperCallbackImpl"), nullptr) {}
 };
 
 //
@@ -139,7 +139,7 @@ private:
     bool m_bThreadActive, m_bBreakThread, m_bIndexing;
     enum { CMD_EXIT, CMD_INDEX };
     DWORD ThreadProc();
-    bool Create();
+    [[nodiscard]] bool Create();
 
     //
 
@@ -159,10 +159,10 @@ private:
     CVobFile m_vob;
     VSFRipperData m_rd;
 
-    bool LoadIfo(CString fn);
-    bool LoadVob(CString fn);
-    bool LoadChunks(CAtlArray<vcchunk>& chunks);
-    bool SaveChunks(CAtlArray<vcchunk>& chunks);
+    [[nodiscard]] bool LoadIfo(CString fn);
+    [[nodiscard]] bool LoadVob(CString fn);
+    [[nodiscard]] bool LoadChunks(CAtlArray<vcchunk>& chunks);
+    [[nodiscard]] bool SaveChunks(CAtlArray<vcchunk>& chunks);
 
     //
 
@@ -170,20 +170,20 @@ private:
     CComPtr<IVSFRipperCallback> m_pCallback;
 
 public:
-    CVobSubFileRipper();
+    explicit CVobSubFileRipper();
     virtual ~CVobSubFileRipper();
 
-    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IVSFRipper
-    STDMETHODIMP SetCallBack(IVSFRipperCallback* pCallback);
-    STDMETHODIMP LoadParamFile(CString fn);
-    STDMETHODIMP SetInput(CString infn);
-    STDMETHODIMP SetOutput(CString outfn);
-    STDMETHODIMP GetRipperData(VSFRipperData& rd);
-    STDMETHODIMP UpdateRipperData(VSFRipperData& rd);
+    [[nodiscard]] STDMETHODIMP SetCallBack(IVSFRipperCallback* pCallback);
+    [[nodiscard]] STDMETHODIMP LoadParamFile(CString fn);
+    [[nodiscard]] STDMETHODIMP SetInput(CString infn);
+    [[nodiscard]] STDMETHODIMP SetOutput(CString outfn);
+    [[nodiscard]] STDMETHODIMP GetRipperData(VSFRipperData& rd);
+    [[nodiscard]] STDMETHODIMP UpdateRipperData(VSFRipperData& rd);
     STDMETHODIMP Index();
     STDMETHODIMP IsIndexing();
-    STDMETHODIMP Abort(bool bSavePartial);
+    [[nodiscard]] constexpr STDMETHODIMP Abort(bool bSavePartial) noexcept;
 };

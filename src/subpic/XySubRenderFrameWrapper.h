@@ -11,17 +11,17 @@ public:
     XySubRenderFrameWrapper(CMemSubPic * inner_obj, const CRect& output_rect, const CRect& clip_rect, 
         ULONGLONG id,
         HRESULT *phr=NULL);
-    virtual ~XySubRenderFrameWrapper(){}
+    constexpr virtual ~XySubRenderFrameWrapper() noexcept {}
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    STDMETHODIMP GetOutputRect(RECT *outputRect);
-    STDMETHODIMP GetClipRect(RECT *clipRect);
-    STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
-    STDMETHODIMP GetBitmapCount(int *count);
-    STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
-    STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
+    [[nodiscard]] STDMETHODIMP GetOutputRect(RECT *outputRect);
+    [[nodiscard]] STDMETHODIMP GetClipRect(RECT *clipRect);
+    [[nodiscard]] STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
+    [[nodiscard]] STDMETHODIMP GetBitmapCount(int *count);
+    [[nodiscard]] STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
+    [[nodiscard]] STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
 private:
     CComPtr<CMemSubPic> m_inner_obj;
     CRect m_output_rect, m_clip_rect;
@@ -32,17 +32,17 @@ class XySubRenderFrameWrapper2 : public CUnknown, public IXySubRenderFrame
 {
 public:
     XySubRenderFrameWrapper2(IXySubRenderFrame *inner_obj, ULONGLONG context_id);
-    virtual ~XySubRenderFrameWrapper2(){}
+    constexpr virtual ~XySubRenderFrameWrapper2() noexcept {}
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    STDMETHODIMP GetOutputRect(RECT *outputRect);
-    STDMETHODIMP GetClipRect(RECT *clipRect);
-    STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
-    STDMETHODIMP GetBitmapCount(int *count);
-    STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
-    STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
+    [[nodiscard]] STDMETHODIMP GetOutputRect(RECT *outputRect);
+    [[nodiscard]] STDMETHODIMP GetClipRect(RECT *clipRect);
+    [[nodiscard]] STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
+    [[nodiscard]] STDMETHODIMP GetBitmapCount(int *count);
+    [[nodiscard]] STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
+    [[nodiscard]] STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
 
 private:
     CComPtr<IXySubRenderFrame> m_inner_obj;
@@ -51,6 +51,6 @@ private:
 
 #ifdef SUBTITLE_FRAME_DUMP_FILE
 HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename );
-HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_channel, bool dump_rgb_bmp
+[[nodiscard]] HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_channel, bool dump_rgb_bmp
     , DWORD background_color );
 #endif

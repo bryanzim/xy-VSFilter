@@ -34,38 +34,38 @@ class __declspec(uuid("FCA68599-C83E-4ea5-94A3-C2E1B0E326B9"))
 {
 public:
 	CRenderedHdmvSubtitle(CCritSec* pLock, SUBTITLE_TYPE nType, const CString& name, LCID lcid);
-	~CRenderedHdmvSubtitle(void);
+	constexpr ~CRenderedHdmvSubtitle(void) noexcept;
 
-	DECLARE_IUNKNOWN
+	[[nodiscard]] DECLARE_IUNKNOWN
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
 	// ISubPicProvider
-	STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-	STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-	STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-	STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-	STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-	STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
-	STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
+	[[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+	[[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+	[[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+	[[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+	[[nodiscard]] STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
 
     // ISubPicProviderEx
-    STDMETHODIMP_(bool) IsColorTypeSupported(int type);
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsColorTypeSupported(int type) noexcept;
 
 	// IPersist
-	STDMETHODIMP GetClassID(CLSID* pClassID);
+	[[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
 
 	// ISubStream
-	STDMETHODIMP_(int) GetStreamCount();
-	STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-	STDMETHODIMP_(int) GetStream();
-	STDMETHODIMP SetStream(int iStream);
+	[[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
+	[[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+	[[nodiscard]] STDMETHODIMP_(int) GetStream();
+	[[nodiscard]] STDMETHODIMP SetStream(int iStream);
 	STDMETHODIMP Reload();
 
-	HRESULT ParseSample (IMediaSample* pSample);
-    HRESULT NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+	[[nodiscard]] HRESULT ParseSample (IMediaSample* pSample);
+    [[nodiscard]] HRESULT NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
     void EndOfStream();
 
-    HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
+    [[nodiscard]] HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
 private :
 	CString			m_name;
 	LCID			m_lcid;

@@ -67,36 +67,36 @@ public:
     short m_cropping_width;
     short m_cropping_height;
 
-    CompositionObject();
+    explicit CompositionObject();
     ~CompositionObject();
 
-    void  SetRLEData(const BYTE* pBuffer, int nSize, int nTotalSize);
+    void  SetRLEData(const BYTE* pBuffer, int nSize, int nTotalSize) noexcept;
     void  AppendRLEData(const BYTE* pBuffer, int nSize);
-    const BYTE* GetRLEData() { return m_pRLEData; };
-    int   GetRLEDataSize() { return m_nRLEDataSize; };
-    bool  IsRLEComplete() { return m_nRLEPos >= m_nRLEDataSize; };
+    [[nodiscard]] constexpr const BYTE* GetRLEData() noexcept { return m_pRLEData; };
+    [[nodiscard]] constexpr int   GetRLEDataSize() noexcept { return m_nRLEDataSize; };
+    [[nodiscard]] constexpr bool  IsRLEComplete() noexcept { return m_nRLEPos >= m_nRLEDataSize; };
     void  RenderHdmv(SubPicDesc& spd);
     void  RenderDvb(SubPicDesc& spd, short nX, short nY, RECT *dirtyRect = NULL /* in-out */);
     void  WriteSeg(SubPicDesc& spd, short nX, short nY, short nCount, short nPaletteIndex);
     void  InitColor(const SubPicDesc& spd);
     void  SetPalette(int nNbEntry, HDMV_PALETTE* pPalette, ColorType color_type, YuvRangeType yuv_range);
     void  SetPalette(int nNbEntry, DWORD* dwColors);
-    bool  HavePalette() {
+    [[nodiscard]] bool  HavePalette() {
         return !m_Palette.IsEmpty();
     };
 
-    CompositionObject* Copy() {
-        CompositionObject* pCompositionObject = DEBUG_NEW CompositionObject();
+    [[nodiscard]] CompositionObject* Copy() {
+        CompositionObject* pCompositionObject{DEBUG_NEW CompositionObject()};
 
         pCompositionObject->m_Palette.SetCount(m_Palette.GetCount());
-        for (int i=0,n=m_Palette.GetCount();i<n;i++)
+        for (int i{0},n=m_Palette.GetCount();i<n;i++)
         {
             pCompositionObject->m_Palette[i] = m_Palette[i];
         }
         pCompositionObject->m_OriginalColorType = m_OriginalColorType;
         pCompositionObject->m_OriginalYuvRangeType = m_OriginalYuvRangeType;
 
-        memcpy(pCompositionObject->m_Colors, m_Colors, sizeof(m_Colors));
+        std::memcpy(pCompositionObject->m_Colors, m_Colors, sizeof(m_Colors));
         pCompositionObject->m_colorType = m_colorType;
 
         pCompositionObject->m_pRLEData = NULL;
@@ -115,7 +115,7 @@ private:
     ColorType   m_OriginalColorType;
     YuvRangeType m_OriginalYuvRangeType;
 
-    DWORD       m_Colors[256];
+    DWORD       m_Colors[256U];
     int         m_colorType;
 
     void  DvbRenderField(SubPicDesc& spd, CGolombBuffer& gb, short nXStart, short nYStart, short nLength, RECT *dirtyRect = NULL);

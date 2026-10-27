@@ -12,14 +12,14 @@ class CFontInstaller
 
 	CAtlList<HANDLE> m_fonts;
 	CAtlList<CString> m_files;
-	bool InstallFontMemory(const void* pData, UINT len);
-	bool InstallFontFile(const void* pData, UINT len);
+	[[nodiscard]] bool InstallFontMemory(const void* pData, UINT len);
+	[[nodiscard]] bool InstallFontFile(const void* pData, UINT len);
 
 public:
-	CFontInstaller();
+	explicit CFontInstaller();
 	virtual ~CFontInstaller();
 
-	bool InstallFont(const CAtlArray<BYTE>& data);
-	bool InstallFont(const void* pData, UINT len);	
+	[[nodiscard]] bool InstallFont(const CAtlArray<BYTE>& data);
+	[[nodiscard]] bool InstallFont(const void* pData, UINT len);	
 	void UninstallFonts();
 };

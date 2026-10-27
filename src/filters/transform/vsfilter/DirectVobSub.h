@@ -55,8 +55,8 @@ public:
         LOADLEVEL_COUNT
     };
 
-    static const int REQUIRED_CONFIG_VERSION = 706;
-    static const int CUR_SUPPORTED_FILTER_VERSION = 39;
+    static const int REQUIRED_CONFIG_VERSION{706};
+    static const int CUR_SUPPORTED_FILTER_VERSION{39};
 
     typedef DirectVobSubXyOptions::CachesInfo CachesInfo;
     typedef DirectVobSubXyOptions::XyFlyWeightInfo XyFlyWeightInfo;
@@ -70,18 +70,18 @@ protected:
     DirectVobSubImpl(const Option *options, CCritSec * pLock);
     virtual ~DirectVobSubImpl();
 
-    bool is_compatible();
-    UINT GetCompatibleProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
-    CString GetCompatibleProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault);
+    [[nodiscard]] constexpr bool is_compatible() noexcept;
+    [[nodiscard]] UINT GetCompatibleProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
+    [[nodiscard]] CString GetCompatibleProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault);
 
-    virtual HRESULT GetCurStyles(SubStyle sub_style[], int count) { return E_NOTIMPL; }
-    virtual HRESULT SetCurStyles(const SubStyle sub_style[], int count) { return E_NOTIMPL; }
+    [[nodiscard]] virtual HRESULT GetCurStyles(const SubStyle sub_style[], const int count) { return E_NOTIMPL; }
+    [[nodiscard]] virtual HRESULT SetCurStyles(const SubStyle sub_style[], const int count) { return E_NOTIMPL; }
 protected:
     CCritSec *m_propsLock;
 
     int m_bt601Width, m_bt601Height;//for AUTO_GUESS
 
-    static int const MAX_COLOR_SPACE = 256;
+    static int const MAX_COLOR_SPACE{256};
     ColorSpaceOpt m_outputColorSpace[MAX_COLOR_SPACE];
     ColorSpaceOpt m_inputColorSpace[MAX_COLOR_SPACE];
 
@@ -113,98 +113,102 @@ public:
 public:
     // XyOptionsImpl
     HRESULT DoGetField(unsigned field, void *value);
-    HRESULT DoSetField(unsigned field, void const *value);
+    [[nodiscard]] HRESULT DoSetField(unsigned field, void const *value);
 
     // IXyOptions
-    STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size );
-    STDMETHODIMP XyGetBin2     (unsigned field, void      *value, int size );
+    [[nodiscard]] STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size );
+    [[nodiscard]] STDMETHODIMP XyGetBin2     (unsigned field, void      *value, int size );
 
-    STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size );
+    [[nodiscard]] STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size );
 
 	// IDirectVobSub
 
-    STDMETHODIMP get_FileName(WCHAR* fn);
-    STDMETHODIMP put_FileName(WCHAR* fn);
-    STDMETHODIMP get_LanguageCount(int* nLangs);
-    STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
-    STDMETHODIMP get_SelectedLanguage(int* iSelected);
-    STDMETHODIMP put_SelectedLanguage(int iSelected);
-    STDMETHODIMP get_HideSubtitles(bool* fHideSubtitles);
-    STDMETHODIMP put_HideSubtitles(bool fHideSubtitles);
-    STDMETHODIMP get_PreBuffering(bool* fDoPreBuffering);
-    STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
+    [[nodiscard]] STDMETHODIMP get_FileName(WCHAR* fn);
+    [[nodiscard]] STDMETHODIMP put_FileName(WCHAR* fn);
+    [[nodiscard]] STDMETHODIMP get_LanguageCount(int* nLangs);
+    [[nodiscard]] STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
+    [[nodiscard]] STDMETHODIMP get_SelectedLanguage(int* iSelected);
+    [[nodiscard]] STDMETHODIMP put_SelectedLanguage(int iSelected);
+    [[nodiscard]] STDMETHODIMP get_HideSubtitles(bool* fHideSubtitles);
+    [[nodiscard]] STDMETHODIMP put_HideSubtitles(bool fHideSubtitles);
+    [[nodiscard]] STDMETHODIMP get_PreBuffering(bool* fDoPreBuffering);
+    [[nodiscard]] STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
 
     
-    STDMETHODIMP get_SubPictToBuffer(unsigned int* uSubPictToBuffer)
+    [[nodiscard]] constexpr STDMETHODIMP get_SubPictToBuffer(unsigned int* uSubPictToBuffer)
+    noexcept
     {
         return E_NOTIMPL;
     }
-    STDMETHODIMP put_SubPictToBuffer(unsigned int uSubPictToBuffer)
+    [[nodiscard]] constexpr STDMETHODIMP put_SubPictToBuffer(const unsigned int uSubPictToBuffer)
+    noexcept
     {
         return E_NOTIMPL;
     }
-    STDMETHODIMP get_AnimWhenBuffering(bool* fAnimWhenBuffering)
+    [[nodiscard]] constexpr STDMETHODIMP get_AnimWhenBuffering(bool* fAnimWhenBuffering)
+    noexcept
     {
         return E_NOTIMPL;
     }
-    STDMETHODIMP put_AnimWhenBuffering(bool fAnimWhenBuffering)
+    [[nodiscard]] constexpr STDMETHODIMP put_AnimWhenBuffering(const bool fAnimWhenBuffering)
+    noexcept
     {
         return E_NOTIMPL;
     }
-    STDMETHODIMP get_Placement(bool* fOverridePlacement, int* xperc, int* yperc);
-    STDMETHODIMP put_Placement(bool fOverridePlacement, int xperc, int yperc);
-    STDMETHODIMP get_VobSubSettings(bool* fBuffer, bool* fOnlyShowForcedSubs, bool* fPolygonize);
-    STDMETHODIMP put_VobSubSettings(bool fBuffer, bool fOnlyShowForcedSubs, bool fPolygonize);
-    STDMETHODIMP get_TextSettings(void* lf, int lflen, COLORREF* color, bool* fShadow, bool* fOutline, bool* fAdvancedRenderer);
-    STDMETHODIMP put_TextSettings(void* lf, int lflen, COLORREF color, bool fShadow, bool fOutline, bool fAdvancedRenderer);
-    STDMETHODIMP get_Flip(bool* fPicture, bool* fSubtitles);
-    STDMETHODIMP put_Flip(bool fPicture, bool fSubtitles);
-    STDMETHODIMP get_OSD(bool* fShowOSD);
-    STDMETHODIMP put_OSD(bool fShowOSD);
-	STDMETHODIMP get_SaveFullPath(bool* fSaveFullPath);
-	STDMETHODIMP put_SaveFullPath(bool fSaveFullPath);
-    STDMETHODIMP get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv);
-    STDMETHODIMP put_SubtitleTiming(int delay, int speedmul, int speeddiv);
-    STDMETHODIMP get_MediaFPS(bool* fEnabled, double* fps);
-    STDMETHODIMP put_MediaFPS(bool fEnabled, double fps);
-	STDMETHODIMP get_ZoomRect(NORMALIZEDRECT* rect);
-    STDMETHODIMP put_ZoomRect(NORMALIZEDRECT* rect);
-	STDMETHODIMP get_ColorFormat(int* iPosition) {return E_NOTIMPL;}
-    STDMETHODIMP put_ColorFormat(int iPosition) {return E_NOTIMPL;}
+    [[nodiscard]] STDMETHODIMP get_Placement(bool* fOverridePlacement, int* xperc, int* yperc);
+    [[nodiscard]] STDMETHODIMP put_Placement(bool fOverridePlacement, int xperc, int yperc);
+    [[nodiscard]] STDMETHODIMP get_VobSubSettings(bool* fBuffer, bool* fOnlyShowForcedSubs, bool* fPolygonize);
+    [[nodiscard]] STDMETHODIMP put_VobSubSettings(bool fBuffer, bool fOnlyShowForcedSubs, bool fPolygonize);
+    [[nodiscard]] STDMETHODIMP get_TextSettings(void* lf, int lflen, COLORREF* color, bool* fShadow, bool* fOutline, bool* fAdvancedRenderer);
+    [[nodiscard]] STDMETHODIMP put_TextSettings(void* lf, int lflen, COLORREF color, bool fShadow, bool fOutline, bool fAdvancedRenderer);
+    [[nodiscard]] STDMETHODIMP get_Flip(bool* fPicture, bool* fSubtitles);
+    [[nodiscard]] STDMETHODIMP put_Flip(bool fPicture, bool fSubtitles);
+    [[nodiscard]] STDMETHODIMP get_OSD(bool* fShowOSD);
+    [[nodiscard]] STDMETHODIMP put_OSD(bool fShowOSD);
+	[[nodiscard]] STDMETHODIMP get_SaveFullPath(bool* fSaveFullPath);
+	[[nodiscard]] STDMETHODIMP put_SaveFullPath(bool fSaveFullPath);
+    [[nodiscard]] constexpr STDMETHODIMP get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv) noexcept;
+    [[nodiscard]] STDMETHODIMP put_SubtitleTiming(int delay, int speedmul, int speeddiv);
+    [[nodiscard]] constexpr STDMETHODIMP get_MediaFPS(bool* fEnabled, double* fps) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP put_MediaFPS(bool fEnabled, double fps) noexcept;
+	[[nodiscard]] constexpr STDMETHODIMP get_ZoomRect(NORMALIZEDRECT* rect) noexcept;
+    [[nodiscard]] STDMETHODIMP put_ZoomRect(NORMALIZEDRECT* rect);
+	[[nodiscard]] constexpr STDMETHODIMP get_ColorFormat(int* iPosition) noexcept {return E_NOTIMPL;}
+    [[nodiscard]] constexpr STDMETHODIMP put_ColorFormat(const int iPosition) noexcept {return E_NOTIMPL;}
 
     STDMETHOD (get_CachesInfo)(CachesInfo* caches_info);
     STDMETHOD (get_XyFlyWeightInfo)(XyFlyWeightInfo* xy_fw_info);
 
-	STDMETHODIMP HasConfigDialog(int iSelected);
-	STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
+	[[nodiscard]] STDMETHODIMP HasConfigDialog(int iSelected);
+	[[nodiscard]] STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
 
 	// settings for the rest are stored in the registry
 
-	STDMETHODIMP IsSubtitleReloaderLocked(bool* fLocked);
-    STDMETHODIMP LockSubtitleReloader(bool fLock);
-	STDMETHODIMP get_SubtitleReloader(bool* fDisabled);
-    STDMETHODIMP put_SubtitleReloader(bool fDisable);
+	[[nodiscard]] STDMETHODIMP IsSubtitleReloaderLocked(bool* fLocked);
+    [[nodiscard]] STDMETHODIMP LockSubtitleReloader(bool fLock);
+	[[nodiscard]] STDMETHODIMP get_SubtitleReloader(bool* fDisabled);
+    [[nodiscard]] STDMETHODIMP put_SubtitleReloader(bool fDisable);
 
 	// the followings need a partial or full reloading of the filter
 
-	STDMETHODIMP get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh);
-	STDMETHODIMP put_ExtendPicture(int horizontal, int vertical, int resx2, int resx2minw, int resx2minh);
-	STDMETHODIMP get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad);
-	STDMETHODIMP put_LoadSettings(int level, bool fExternalLoad, bool fWebLoad, bool fEmbeddedLoad);
+	[[nodiscard]] STDMETHODIMP get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh);
+	[[nodiscard]] STDMETHODIMP put_ExtendPicture(int horizontal, int vertical, int resx2, int resx2minw, int resx2minh);
+	[[nodiscard]] STDMETHODIMP get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad);
+	[[nodiscard]] STDMETHODIMP put_LoadSettings(int level, bool fExternalLoad, bool fWebLoad, bool fEmbeddedLoad);
         
 	// IDirectVobSub2
 
-	STDMETHODIMP AdviseSubClock(ISubClock* pSubClock);
-	STDMETHODIMP_(bool) get_Forced();
-	STDMETHODIMP put_Forced(bool fForced);
-    STDMETHODIMP get_TextSettings(STSStyle* pDefStyle);
-    STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
-	STDMETHODIMP get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
-	STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
+	[[nodiscard]] constexpr STDMETHODIMP AdviseSubClock(ISubClock* pSubClock) noexcept;
+	[[nodiscard]] STDMETHODIMP_(bool) get_Forced();
+	[[nodiscard]] STDMETHODIMP put_Forced(bool fForced);
+    [[nodiscard]] STDMETHODIMP get_TextSettings(STSStyle* pDefStyle);
+    [[nodiscard]] STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
+	[[nodiscard]] STDMETHODIMP get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
+	[[nodiscard]] STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
 
 	// IFilterVersion
 	
-	STDMETHODIMP_(DWORD) GetFilterVersion();
+	[[nodiscard]] constexpr STDMETHODIMP_(DWORD) GetFilterVersion() noexcept;
 };
 
 // For DirectVobSubFilter

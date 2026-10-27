@@ -7,20 +7,20 @@
 #include <malloc.h>
 #include <string.h>
 
-extern std::size_t g_xy_malloc_used_size = 0;
+extern std::size_t g_xy_malloc_used_size{0U};
 
 //gathered from x264
 /****************************************************************************
  * xy_malloc:
  ****************************************************************************/
-void *xy_malloc( std::size_t i_size, int align_shift )
+[[nodiscard]] void *xy_malloc( const std::size_t i_size, int align_shift )
 {
-    const int ALIGNMENT = 16;
-    const int MASK = ALIGNMENT - 1;
-    uint8_t * buf;
-    uint8_t * align_buf;
+    const int ALIGNMENT{16};
+    const int MASK{ALIGNMENT - 1};
+    std::uint8_t * buf;
+    std::uint8_t * align_buf;
     align_shift &= MASK;
-    buf = (uint8_t *) malloc( i_size + MASK + sizeof( void ** ) +
+    buf = (std::uint8_t *) malloc( i_size + MASK + sizeof( void ** ) +
               sizeof( i_size ) );
     if (!buf)
     {
@@ -37,11 +37,12 @@ void *xy_malloc( std::size_t i_size, int align_shift )
 /****************************************************************************
  * xy_free:
  ****************************************************************************/
-void xy_free( void *p )
+constexpr void xy_free( void *p )
+noexcept
 {
     if( p )
     {
-        g_xy_malloc_used_size -= *( (std::size_t*) ( (uint8_t*) p - sizeof( void ** ) -
+        g_xy_malloc_used_size -= *( (std::size_t*) ( (std::uint8_t*) p - sizeof( void ** ) -
             sizeof( std::size_t ) ) );
         free( *( ( ( void **) p ) - 1 ) );
     }
@@ -50,16 +51,16 @@ void xy_free( void *p )
 /****************************************************************************
  * xy_realloc:
  ****************************************************************************/
-void *xy_realloc( void *p, std::size_t i_size, int align_shift )
+[[nodiscard]] void *xy_realloc( void *p, const std::size_t i_size, const int align_shift )
 {
-    std::size_t i_old_size = 0;
-    uint8_t    *p_new = NULL;
-    p_new = (uint8_t*)xy_malloc( i_size, align_shift );
+    std::size_t i_old_size{0U};
+    std::uint8_t    *p_new{NULL};
+    p_new = (std::uint8_t*)xy_malloc( i_size, align_shift );
     if (p_new && p)
     {
-        i_old_size = *( (std::size_t*) ( (uint8_t*) p - sizeof( void ** ) -
+        i_old_size = *( (std::size_t*) ( (std::uint8_t*) p - sizeof( void ** ) -
             sizeof( i_size ) ) );
-        memcpy( p_new, p, ( i_old_size < i_size ) ? i_old_size : i_size );
+        std::memcpy( p_new, p, ( i_old_size < i_size ) ? i_old_size : i_size );
         xy_free(p);
     }
     return p_new;

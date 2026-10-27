@@ -28,12 +28,14 @@ CCDecoder::CCDecoder(CString fn, CString rawfn) : m_fn(fn), m_rawfn(rawfn)
 
     m_time = 0;
     m_fEndOfCaption = false;
-    memset(m_buff, 0, sizeof(m_buff));
-    memset(m_disp, 0, sizeof(m_disp));
+    std::memset(m_buff, 0, sizeof(m_buff));
+    std::memset(m_disp, 0, sizeof(m_disp));
     m_cursor = CPoint(0, 0);
 
     if (!m_rawfn.IsEmpty())
+    {
         _tremove(m_rawfn);
+    }
 }
 
 CCDecoder::~CCDecoder()
@@ -51,52 +53,73 @@ CCDecoder::~CCDecoder()
 void CCDecoder::MoveCursor(int x, int y)
 {
     m_cursor = CPoint(x, y);
-    if (m_cursor.x < 0) m_cursor.x = 0;
-    if (m_cursor.y < 0) m_cursor.y = 0;
-    if (m_cursor.x >= 32) m_cursor.x = 0, m_cursor.y++;
-    if (m_cursor.y >= 16) m_cursor.y = 0;
+    if (m_cursor.x < 0)
+    {
+        m_cursor.x = 0;
+    }
+    if (m_cursor.y < 0)
+    {
+        m_cursor.y = 0;
+    }
+    if (m_cursor.x >= 32)
+    {
+        m_cursor.x = 0, m_cursor.y++;
+    }
+    if (m_cursor.y >= 16)
+    {
+        m_cursor.y = 0;
+    }
 }
 
-void CCDecoder::OffsetCursor(int x, int y)
+void CCDecoder::OffsetCursor(const int x, const int y)
 {
     MoveCursor(m_cursor.x + x, m_cursor.y + y);
 }
 
-void CCDecoder::PutChar(WCHAR c)
+void CCDecoder::PutChar(const WCHAR c)
 {
     m_buff[m_cursor.y][m_cursor.x] = c;
     OffsetCursor(1, 0);
 }
 
-void CCDecoder::SaveDisp(__int64 time)
+void CCDecoder::SaveDisp(const __int64 time)
 {
     CStringW str;
 
-    for (int row = 0; row < 16; row++)
+    for (int row{0}; row < 16; row++)
     {
-        bool fNonEmptyRow = false;
+        bool fNonEmptyRow{false};
 
-        for (int col = 0; col < 32; col++)
+        for (int col{0}; col < 32; col++)
         {
             if (m_disp[row][col])
             {
-                CStringW str2(&m_disp[row][col]);
-                if (fNonEmptyRow) str += ' ';
+                [[nodiscard]] CStringW str2(&m_disp[row][col]);
+                if (fNonEmptyRow)
+                {
+                    str += ' ';
+                }
                 str += str2;
                 col += str2.GetLength();
                 fNonEmptyRow = true;
             }
         }
 
-        if (fNonEmptyRow) str += '\n';
+        if (fNonEmptyRow)
+        {
+            str += '\n';
+        }
     }
 
-    if (str.IsEmpty()) return;
+    if (str.IsEmpty())
+    {
+        return;
+    }
 
     m_sts.Add(str, true, (int)m_time, (int)time);
 }
 
-void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
+void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
 {
     if (!m_rawfn.IsEmpty())
     {
@@ -108,23 +131,32 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
                       (int)((time / 1000) % 60),
                       (int)(time % 1000));
 
-            for (int i = 0; i < len; i++)
+            for (int i{0}; i < len; i++)
             {
                 _ftprintf(f, _T("%02x"), buff[i]);
-                if (i < len - 1) _ftprintf(f, _T(" "));
-                if (i > 0 && (i & 15) == 15) _ftprintf(f, _T("\n"));
+                if (i < len - 1)
+                {
+                    _ftprintf(f, _T(" "));
+                }
+                if (i > 0 && (i & 15) == 15)
+                {
+                    _ftprintf(f, _T("\n"));
+                }
             }
-            if (len > 0) _ftprintf(f, _T("\n\n"));
+            if (len > 0)
+            {
+                _ftprintf(f, _T("\n\n"));
+            }
             fclose(f);
         }
     }
 
-    for (int i = 0; i < len; i++)
+    for (int i{0}; i < len; i++)
     {
-        BYTE c = buff[i] & 0x7f;
+        BYTE c{buff[i] & 0x7f};
         if (c >= 0x20)
         {
-            static WCHAR charmap[0x60] =
+            static WCHAR charmap[0x60U] =
             {
                 ' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', 0xE1, '+', ',', '-', '.', '/',
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', 0x3F,
@@ -140,7 +172,9 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
         {
             // codes and special characters are supposed to be doubled
             if (i < len - 3 && buff[i] == buff[i + 2] && buff[i + 1] == buff[i + 3])
+            {
                 i += 2;
+            }
 
             c = buff[i + 1] & 0x7f;
             if (buff[i] == 0x91 && c >= 0x20 && c < 0x30) // formating
@@ -153,7 +187,7 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
             }
             else if (buff[i] == 0x91 && c >= 0x30 && c < 0x40) // special characters
             {
-                static WCHAR charmap[0x10] =
+                static WCHAR charmap[0x10U] =
                 {
                     0x00ae, // (r)egistered
                     0x00b0, // degree
@@ -177,7 +211,7 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
             }
             else if (buff[i] == 0x92 && c >= 0x20 && c < 0x40) // extended characters
             {
-                static WCHAR charmap[0x20] =
+                static WCHAR charmap[0x20U] =
                 {
                     0x00c0, // A'
                     0x00c9, // E'
@@ -218,7 +252,7 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
             }
             else if (buff[i] == 0x13 && c >= 0x20 && c < 0x40) // more extended characters
             {
-                static WCHAR charmap[0x20] =
+                static WCHAR charmap[0x20U] =
                 {
                     0x00c3, // A~
                     0x00e3, // a~
@@ -259,21 +293,23 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
             }
             else if (buff[i] == 0x94 && buff[i + 1] == 0xae) // Erase Non-displayed [buffer] Memory
             {
-                memset(m_buff, 0, sizeof(m_buff));
+                std::memset(m_buff, 0, sizeof(m_buff));
             }
             else if (buff[i] == 0x94 && buff[i + 1] == 0x20) // Resume Caption Loading
             {
-                memset(m_buff, 0, sizeof(m_buff));
+                std::memset(m_buff, 0, sizeof(m_buff));
             }
             else if (buff[i] == 0x94 && buff[i + 1] == 0x2f) // End Of Caption
             {
-                if (memcmp(m_disp, m_buff, sizeof(m_disp)) != 0)
+                if (std::memcmp(m_disp, m_buff, sizeof(m_disp)) != 0)
                 {
                     if (m_fEndOfCaption)
+                    {
                         SaveDisp(time + (i / 2) * 1000 / 30);
+                    }
 
                     m_fEndOfCaption = true;
-                    memcpy(m_disp, m_buff, sizeof(m_disp));
+                    std::memcpy(m_disp, m_buff, sizeof(m_disp));
                     m_time = time + (i / 2) * 1000 / 30;
                 }
             }
@@ -285,7 +321,7 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
                     SaveDisp(time + (i / 2) * 1000 / 30);
                 }
 
-                memset(m_disp, 0, sizeof(m_disp));
+                std::memset(m_disp, 0, sizeof(m_disp));
             }
             else if (buff[i] == 0x97 && (buff[i + 1] == 0xa1 || buff[i + 1] == 0xa2 || buff[i + 1] == 0x23)) // Tab Over
             {
@@ -294,7 +330,7 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
             else if (buff[i] == 0x91 || buff[i] == 0x92 || buff[i] == 0x15 || buff[i] == 0x16
                      || buff[i] == 0x97 || buff[i] == 0x10 || buff[i] == 0x13 || buff[i] == 0x94) // curpos, color, underline
             {
-                int row = 0;
+                int row{0};
                 switch (buff[i])
                 {
                 default:
@@ -307,17 +343,26 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
                 case 0x13: row = 12; break;
                 case 0x94: row = 14; break;
                 }
-                if (buff[i + 1] & 0x20) row++;
+                if (buff[i + 1] & 0x20)
+                {
+                    row++;
+                }
 
-                int col = buff[i + 1] & 0xe;
-                if (col == 0 || (col > 0 && !(buff[i + 1] & 0x10))) col = 0;
-                else col <<= 1;
+                int col{buff[i + 1] & 0xe};
+                if (col == 0 || (col > 0 && !(buff[i + 1] & 0x10)))
+                {
+                    col = 0;
+                }
+                else
+                {
+                    col <<= 1;
+                }
 
                 MoveCursor(col, row);
             }
             else
             {
-                int iiii = 0;
+                int iiii{0};
             }
 
             i++;
@@ -325,57 +370,76 @@ void CCDecoder::DecodeCC(BYTE *buff, int len, __int64 time)
     }
 }
 
-void CCDecoder::ExtractCC(BYTE *buff, int len, __int64 time)
+void CCDecoder::ExtractCC(BYTE *buff, const int len, const __int64 time)
 {
-    for (int i = 0; i < len - 9; i++)
+    for (int i{0}; i < len - 9; i++)
     {
         if (*(DWORD *)&buff[i] == 0xb2010000 && *(DWORD *)&buff[i + 4] == 0xf8014343)
         {
             i += 8;
-            int nBytes = buff[i++] & 0x3f;
+            int nBytes{buff[i++] & 0x3f};
             if (nBytes > 0)
             {
                 nBytes = (nBytes + 1)&~1;
 
-                BYTE *pData1 = new BYTE[nBytes];
-                BYTE *pData2 = new BYTE[nBytes];
+                BYTE *pData1{new BYTE[nBytes]};
+                BYTE *pData2{new BYTE[nBytes]};
 
                 if (pData1 && pData2)
                 {
-                    int nBytes1 = 0, nBytes2 = 0;
+                    int nBytes1{0}, nBytes2 = 0;
 
-                    for (int j = 0; j < nBytes && i < 0x800;)
+                    for (int j{0}; j < nBytes && i < 0x800;)
                     {
                         if (buff[i++] == 0xff)
                         {
                             pData1[nBytes1++] = buff[i++];
                             pData1[nBytes1++] = buff[i++];
                         }
-                        else i += 2;
+                        else
+                        {
+                            i += 2;
+                        }
 
                         j++;
 
-                        if (j >= nBytes) break;
+                        if (j >= nBytes)
+                        {
+                            break;
+                        }
 
                         if (buff[i++] == 0xff)
                         {
                             pData2[nBytes2++] = buff[i++];
                             pData2[nBytes2++] = buff[i++];
                         }
-                        else i += 2;
+                        else
+                        {
+                            i += 2;
+                        }
 
                         j++;
                     }
 
                     if (nBytes1 > 0)
+                    {
                         DecodeCC(pData1, nBytes1, time);
+                    }
 
                     if (nBytes2 > 0)
+                    {
                         DecodeCC(pData2, nBytes2, time);
+                    }
                 }
 
-                if (pData1) delete [] pData1;
-                if (pData2) delete [] pData2;
+                if (pData1)
+                {
+                    delete [] pData1;
+                }
+                if (pData2)
+                {
+                    delete [] pData2;
+                }
             }
 
             break;

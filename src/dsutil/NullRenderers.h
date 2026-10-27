@@ -80,14 +80,14 @@ class CNullTextRenderer : public CBaseFilter, public CCritSec
 	public:
 		CTextInputPin(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr) 
 			: CBaseInputPin(NAME("CTextInputPin"), pFilter, pLock, phr, L"In") {}
-	    HRESULT CheckMediaType(const CMediaType* pmt);
+	    [[nodiscard]] HRESULT CheckMediaType(const CMediaType* pmt);
 	};
 
 	CAutoPtr<CTextInputPin> m_pInput;
 
 public:
 	CNullTextRenderer(LPUNKNOWN pUnk, HRESULT* phr);
-	int GetPinCount() {return (int)!!m_pInput;}
-	CBasePin* GetPin(int n) {return n == 0 ? (CBasePin*)m_pInput : NULL;}
+	[[nodiscard]] int GetPinCount() {return (int)!!m_pInput;}
+	[[nodiscard]] CBasePin* GetPin(const int n) {return n == 0 ? (CBasePin*)m_pInput : NULL;}
 };
 

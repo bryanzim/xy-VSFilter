@@ -27,10 +27,12 @@
 using namespace DirectVobSubXyOptions;
 
 // greatest common divisor helps normalizing mul/div formulas
-int get_gcd(int a, int b)
+[[nodiscard]] int get_gcd(const int a, const int b)
 {
     if (b == 0)
+    {
         return a;
+    }
     return get_gcd(b, a % b);
 }
 
@@ -46,10 +48,10 @@ DirectVobSubImpl::~DirectVobSubImpl()
 {
 }
 
-STDMETHODIMP DirectVobSubImpl::get_FileName(WCHAR* fn)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_FileName(WCHAR* fn)
 {
-    WCHAR *tmp = NULL;
-    HRESULT hr = XyGetString(STRING_FILE_NAME, &tmp, NULL);
+    WCHAR *tmp{NULL};
+    HRESULT hr{XyGetString(STRING_FILE_NAME, &tmp, NULL)};
     if (SUCCEEDED(hr))
     {
         wcscpy_s(fn, wcslen(tmp)+1, tmp);
@@ -58,17 +60,17 @@ STDMETHODIMP DirectVobSubImpl::get_FileName(WCHAR* fn)
     return hr;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_FileName(WCHAR* fn)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_FileName(WCHAR* fn)
 {
     return XySetString(STRING_FILE_NAME, fn, wcslen(fn));
 }
 
-STDMETHODIMP DirectVobSubImpl::get_LanguageCount(int* nLangs)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_LanguageCount(int* nLangs)
 {
     return XyGetInt(DirectVobSubXyOptions::INT_LANGUAGE_COUNT, nLangs);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_LanguageName(int iLanguage, WCHAR** ppName)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_LanguageName(const int iLanguage, WCHAR** ppName)
 {
     if (!TestOption(DirectVobSubXyOptions::void_LanguageName))
     {
@@ -77,40 +79,40 @@ STDMETHODIMP DirectVobSubImpl::get_LanguageName(int iLanguage, WCHAR** ppName)
 	return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::get_SelectedLanguage(int* iSelected)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SelectedLanguage(int* iSelected)
 {
     return XyGetInt(DirectVobSubXyOptions::INT_SELECTED_LANGUAGE, iSelected);
 }
 
-STDMETHODIMP DirectVobSubImpl::put_SelectedLanguage(int iSelected)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SelectedLanguage(const int iSelected)
 {
     return XySetInt(DirectVobSubXyOptions::INT_SELECTED_LANGUAGE, iSelected);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_HideSubtitles(bool* fHideSubtitles)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_HideSubtitles(bool* fHideSubtitles)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_HIDE_SUBTITLES, fHideSubtitles);
 }
 
-STDMETHODIMP DirectVobSubImpl::put_HideSubtitles(bool fHideSubtitles)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_HideSubtitles(const bool fHideSubtitles)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_HIDE_SUBTITLES, fHideSubtitles);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_PreBuffering(bool* fDoPreBuffering)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_PreBuffering(bool* fDoPreBuffering)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_PRE_BUFFERING, fDoPreBuffering);
 }
 
-STDMETHODIMP DirectVobSubImpl::put_PreBuffering(bool fDoPreBuffering)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_PreBuffering(const bool fDoPreBuffering)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_PRE_BUFFERING, fDoPreBuffering);
 }
 
 
-STDMETHODIMP DirectVobSubImpl::get_Placement(bool* fOverridePlacement, int* xperc, int* yperc)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_Placement(bool* fOverridePlacement, int* xperc, int* yperc)
 {
-    HRESULT hr = XyGetBool(DirectVobSubXyOptions::BOOL_OVERRIDE_PLACEMENT, fOverridePlacement);
+    HRESULT hr{XyGetBool(DirectVobSubXyOptions::BOOL_OVERRIDE_PLACEMENT, fOverridePlacement)};
     if (FAILED(hr))
     {
         XY_LOG_ERROR("Failed to get option override placement. "<<XY_LOG_VAR_2_STR(fOverridePlacement));
@@ -123,26 +125,32 @@ STDMETHODIMP DirectVobSubImpl::get_Placement(bool* fOverridePlacement, int* xper
         XY_LOG_ERROR("Failed to get option placement perc. ");
         return hr;
     }
-    if(xperc) *xperc = cs.cx;
-    if(yperc) *yperc = cs.cy;
+    if(xperc)
+    {
+        *xperc = cs.cx;
+    }
+    if(yperc)
+    {
+        *yperc = cs.cy;
+    }
 
     return hr;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_Placement(bool fOverridePlacement, int xperc, int yperc)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_Placement(const bool fOverridePlacement, const int xperc, const int yperc)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_OVERRIDE_PLACEMENT, OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::SIZE_PLACEMENT_PERC, OPTION_TYPE_SIZE, OPTION_MODE_WRITE))
     {
         return E_NOTIMPL;
     }
-    HRESULT hr = XySetBool(DirectVobSubXyOptions::BOOL_OVERRIDE_PLACEMENT, fOverridePlacement);
+    HRESULT hr{XySetBool(DirectVobSubXyOptions::BOOL_OVERRIDE_PLACEMENT, fOverridePlacement)};
     if (FAILED(hr))
     {
         XY_LOG_ERROR("Failed to set option override placement. "<<XY_LOG_VAR_2_STR(fOverridePlacement));
         return hr;
     }
-    CSize cs(xperc, yperc);
+    CSize cs{xperc, yperc};
     hr = XySetSize(DirectVobSubXyOptions::SIZE_PLACEMENT_PERC, cs);
     if (FAILED(hr))
     {
@@ -152,9 +160,9 @@ STDMETHODIMP DirectVobSubImpl::put_Placement(bool fOverridePlacement, int xperc,
     return hr;
 }
 
-STDMETHODIMP DirectVobSubImpl::get_VobSubSettings(bool* fBuffer, bool* fOnlyShowForcedSubs, bool* fPolygonize)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_VobSubSettings(bool* fBuffer, bool* fOnlyShowForcedSubs, bool* fPolygonize)
 {
-    HRESULT hr = XyGetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_BUFFER, fBuffer);
+    HRESULT hr{XyGetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_BUFFER, fBuffer)};
     if (FAILED(hr))
     {
         XY_LOG_ERROR("Failed to get option BOOL_VOBSUBSETTINGS_BUFFER"<<XY_LOG_VAR_2_STR(fBuffer));
@@ -175,7 +183,7 @@ STDMETHODIMP DirectVobSubImpl::get_VobSubSettings(bool* fBuffer, bool* fOnlyShow
     return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_VobSubSettings(bool fBuffer, bool fOnlyShowForcedSubs, bool fPolygonize)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_VobSubSettings(const bool fBuffer, const bool fOnlyShowForcedSubs, const bool fPolygonize)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_BUFFER, OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_ONLY_SHOW_FORCED_SUBS, OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
@@ -183,19 +191,19 @@ STDMETHODIMP DirectVobSubImpl::put_VobSubSettings(bool fBuffer, bool fOnlyShowFo
     {
         return E_NOTIMPL;
     }
-    HRESULT hr1 = XySetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_BUFFER, fBuffer);
+    HRESULT hr1{XySetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_BUFFER, fBuffer)};
     if (FAILED(hr1))
     {
         XY_LOG_ERROR("Failed to set option BOOL_VOBSUBSETTINGS_BUFFER"<<XY_LOG_VAR_2_STR(fBuffer));
         return hr1;
     }
-    HRESULT hr2 = XySetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_ONLY_SHOW_FORCED_SUBS, fOnlyShowForcedSubs);
+    HRESULT hr2{XySetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_ONLY_SHOW_FORCED_SUBS, fOnlyShowForcedSubs)};
     if (FAILED(hr2))
     {
         XY_LOG_ERROR("Failed to set option BOOL_VOBSUBSETTINGS_ONLY_SHOW_FORCED_SUBS"<<XY_LOG_VAR_2_STR(fOnlyShowForcedSubs));
         return hr2;
     }
-    HRESULT hr3 = XySetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_POLYGONIZE, fPolygonize);
+    HRESULT hr3{XySetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_POLYGONIZE, fPolygonize)};
     if (FAILED(hr3))
     {
         XY_LOG_ERROR("Failed to set option BOOL_VOBSUBSETTINGS_POLYGONIZE"<<XY_LOG_VAR_2_STR(fPolygonize));
@@ -204,21 +212,27 @@ STDMETHODIMP DirectVobSubImpl::put_VobSubSettings(bool fBuffer, bool fOnlyShowFo
     return (hr1==S_FALSE&&hr2==S_FALSE&&hr3==S_FALSE) ? S_FALSE : S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::get_TextSettings(void* lf, int lflen, COLORREF* color, bool* fShadow, bool* fOutline, bool* fAdvancedRenderer)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_TextSettings(void* lf, const int lflen, COLORREF* color, bool* fShadow, bool* fOutline, bool* fAdvancedRenderer)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS, OPTION_TYPE_BIN2, OPTION_MODE_READ))
     {
         return E_NOTIMPL;
     }
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
     if (lf)
     {
         if(lflen == sizeof(LOGFONTA))
+        {
             strncpy_s(((LOGFONTA*)lf)->lfFaceName, LF_FACESIZE, CStringA(m_defStyle.fontName), _TRUNCATE);
+        }
         else if(lflen == sizeof(LOGFONTW))
+        {
             wcsncpy_s(((LOGFONTW*)lf)->lfFaceName, LF_FACESIZE, CStringW(m_defStyle.fontName), _TRUNCATE);
+        }
         else
+        {
             return E_INVALIDARG;
+        }
 
         ((LOGFONT*)lf)->lfCharSet = m_defStyle.charSet;
         ((LOGFONT*)lf)->lfItalic = m_defStyle.fItalic;
@@ -228,30 +242,48 @@ STDMETHODIMP DirectVobSubImpl::get_TextSettings(void* lf, int lflen, COLORREF* c
         ((LOGFONT*)lf)->lfUnderline = m_defStyle.fUnderline;
     }
 
-    if(color) *color = m_defStyle.colors[0];
-    if(fShadow) *fShadow = (m_defStyle.shadowDepthX>0) || (m_defStyle.shadowDepthY>0);
-    if(fOutline) *fOutline = (m_defStyle.outlineWidthX>0) || (m_defStyle.outlineWidthY>0);
-    if(fAdvancedRenderer) *fAdvancedRenderer = m_fAdvancedRenderer;
+    if(color)
+    {
+        *color = m_defStyle.colors[0U];
+    }
+    if(fShadow)
+    {
+        *fShadow = (m_defStyle.shadowDepthX>0) || (m_defStyle.shadowDepthY>0);
+    }
+    if(fOutline)
+    {
+        *fOutline = (m_defStyle.outlineWidthX>0) || (m_defStyle.outlineWidthY>0);
+    }
+    if(fAdvancedRenderer)
+    {
+        *fAdvancedRenderer = m_fAdvancedRenderer;
+    }
 
     return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_TextSettings(void* lf, int lflen, COLORREF color, bool fShadow, bool fOutline, bool fAdvancedRenderer)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_TextSettings(void* lf, const int lflen, const COLORREF color, const bool fShadow, const bool fOutline, const bool fAdvancedRenderer)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS, OPTION_TYPE_BIN2, OPTION_MODE_WRITE))
     {
         return E_NOTIMPL;
     }
-    CAutoLock cAutoLock(m_propsLock);
-    STSStyle tmp = m_defStyle;
+    CAutoLock cAutoLock{m_propsLock};
+    STSStyle tmp{m_defStyle};
     if(lf)
     {
         if(lflen == sizeof(LOGFONTA))
+        {
             tmp.fontName = ((LOGFONTA*)lf)->lfFaceName;
+        }
         else if(lflen == sizeof(LOGFONTW))
+        {
             tmp.fontName = ((LOGFONTW*)lf)->lfFaceName;
+        }
         else
+        {
             return E_INVALIDARG;
+        }
 
         tmp.charSet = ((LOGFONT*)lf)->lfCharSet;
         tmp.fItalic = !!((LOGFONT*)lf)->lfItalic;
@@ -262,14 +294,14 @@ STDMETHODIMP DirectVobSubImpl::put_TextSettings(void* lf, int lflen, COLORREF co
 
         if(tmp.fontSize < 0)
         {
-            HDC hdc = ::GetDC(0);
+            HDC hdc{::GetDC(0)};
             m_defStyle.fontSize = -m_defStyle.fontSize * 72 / GetDeviceCaps(hdc, LOGPIXELSY);
             ::ReleaseDC(0, hdc);
         }
 
     }
 
-    tmp.colors[0] = color;
+    tmp.colors[0U] = color;
     tmp.shadowDepthX = tmp.shadowDepthY = fShadow?2:0;
     tmp.outlineWidthX = tmp.outlineWidthY = fOutline?2:0;
 
@@ -284,9 +316,9 @@ STDMETHODIMP DirectVobSubImpl::put_TextSettings(void* lf, int lflen, COLORREF co
     }
 }
 
-STDMETHODIMP DirectVobSubImpl::get_Flip(bool* fPicture, bool* fSubtitles)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_Flip(bool* fPicture, bool* fSubtitles)
 {
-    HRESULT hr = XyGetBool(DirectVobSubXyOptions::BOOL_FLIP_PICTURE, fPicture);
+    HRESULT hr{XyGetBool(DirectVobSubXyOptions::BOOL_FLIP_PICTURE, fPicture)};
     if (FAILED(hr))
     {
         XY_LOG_ERROR("Failed to get flip picture option."<<XY_LOG_VAR_2_STR(fPicture));
@@ -302,14 +334,14 @@ STDMETHODIMP DirectVobSubImpl::get_Flip(bool* fPicture, bool* fSubtitles)
     return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_Flip(bool fPicture, bool fSubtitles)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_Flip(const bool fPicture, const bool fSubtitles)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_FLIP_PICTURE,OPTION_TYPE_BOOL,OPTION_MODE_WRITE) || 
         !TestOption(DirectVobSubXyOptions::BOOL_FLIP_SUBTITLE,OPTION_TYPE_BOOL,OPTION_MODE_WRITE))
     {
         return E_NOTIMPL;
     }
-    HRESULT hr = XySetBool(DirectVobSubXyOptions::BOOL_FLIP_PICTURE, fPicture);
+    HRESULT hr{XySetBool(DirectVobSubXyOptions::BOOL_FLIP_PICTURE, fPicture)};
     if (FAILED(hr))
     {
         XY_LOG_ERROR("Failed to set flip picture option."<<XY_LOG_VAR_2_STR(fPicture));
@@ -324,117 +356,145 @@ STDMETHODIMP DirectVobSubImpl::put_Flip(bool fPicture, bool fSubtitles)
     return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::get_OSD(bool* fOSD)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_OSD(bool* fOSD)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_OSD, fOSD);
 }
 
-STDMETHODIMP DirectVobSubImpl::put_OSD(bool fOSD)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_OSD(const bool fOSD)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_OSD, fOSD);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_SaveFullPath(bool* fSaveFullPath)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SaveFullPath(bool* fSaveFullPath)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_SAVE_FULL_PATH, fSaveFullPath);
 }
 
-STDMETHODIMP DirectVobSubImpl::put_SaveFullPath(bool fSaveFullPath)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SaveFullPath(const bool fSaveFullPath)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_SAVE_FULL_PATH, fSaveFullPath);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv)
+[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv)
+noexcept
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_SUBTITLE_TIMING, OPTION_TYPE_BIN2, OPTION_MODE_READ))
     {
         return E_NOTIMPL;
     }
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
-    if(delay) *delay = m_SubtitleDelay;
-    if(speedmul) *speedmul = m_SubtitleSpeedMul;
-    if(speeddiv) *speeddiv = m_SubtitleSpeedDiv;
+    if(delay)
+    {
+        *delay = m_SubtitleDelay;
+    }
+    if(speedmul)
+    {
+        *speedmul = m_SubtitleSpeedMul;
+    }
+    if(speeddiv)
+    {
+        *speeddiv = m_SubtitleSpeedDiv;
+    }
 
     return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_SubtitleTiming(int delay, int speedmul, int speeddiv)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SubtitleTiming(const int delay, const int speedmul, const int speeddiv)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_SUBTITLE_TIMING, OPTION_TYPE_BIN2, OPTION_MODE_WRITE))
     {
         return E_NOTIMPL;
     }
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
-    if(m_SubtitleDelay == delay && m_SubtitleSpeedMul == speedmul && m_SubtitleSpeedDiv == speeddiv) return S_FALSE;
+    if(m_SubtitleDelay == delay && m_SubtitleSpeedMul == speedmul && m_SubtitleSpeedDiv == speeddiv)
+    {
+        return S_FALSE;
+    }
 
     m_SubtitleDelay = delay;
     m_SubtitleSpeedMul = speedmul;
-    if(speeddiv > 0) m_SubtitleSpeedDiv = speeddiv;
+    if(speeddiv > 0)
+    {
+        m_SubtitleSpeedDiv = speeddiv;
+    }
 
-    int gcd = get_gcd(m_SubtitleSpeedMul, m_SubtitleSpeedDiv);
+    int gcd{get_gcd(m_SubtitleSpeedMul, m_SubtitleSpeedDiv)};
     m_SubtitleSpeedNormalizedMul = m_SubtitleSpeedMul / gcd;
     m_SubtitleSpeedNormalizedDiv = m_SubtitleSpeedDiv / gcd;
 
     return OnOptionChanged(BIN2_SUBTITLE_TIMING);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_MediaFPS(bool* fEnabled, double* fps)
+[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::get_MediaFPS(bool* fEnabled, double* fps)
+noexcept
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_MediaFPS(bool fEnabled, double fps)
+[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::put_MediaFPS(const bool fEnabled, const double fps)
+noexcept
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::get_ZoomRect(NORMALIZEDRECT* rect)
+[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::get_ZoomRect(NORMALIZEDRECT* rect)
+noexcept
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_ZOOM_RECT,OPTION_TYPE_BIN2, OPTION_MODE_READ))
     {
         return E_NOTIMPL;
     }
 
-    if(!rect) return E_POINTER;
+    if(!rect)
+    {
+        return E_POINTER;
+    }
 
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
     *rect = m_ZoomRect;
 
     return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_ZoomRect(NORMALIZEDRECT* rect)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_ZoomRect(NORMALIZEDRECT* rect)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_ZOOM_RECT, OPTION_TYPE_BIN2, OPTION_MODE_WRITE))
     {
         return E_NOTIMPL;
     }
 
-    if(!rect) return E_POINTER;
+    if(!rect)
+    {
+        return E_POINTER;
+    }
 
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
-    if(!memcmp(&m_ZoomRect, rect, sizeof(m_ZoomRect))) return S_FALSE;
+    if(!std::memcmp(&m_ZoomRect, rect, sizeof(m_ZoomRect)))
+    {
+        return S_FALSE;
+    }
 
     m_ZoomRect = *rect;
 
     return OnOptionChanged(BIN2_ZOOM_RECT);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_CachesInfo(CachesInfo* caches_info)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_CachesInfo(CachesInfo* caches_info)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::HasConfigDialog(int iSelected)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::HasConfigDialog(const int iSelected)
 {
     if (!TestOption(DirectVobSubXyOptions::void_HasConfigDialog))
     {
@@ -443,7 +503,7 @@ STDMETHODIMP DirectVobSubImpl::HasConfigDialog(int iSelected)
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::ShowConfigDialog(int iSelected, HWND hWndParent)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::ShowConfigDialog(const int iSelected, const HWND hWndParent)
 {
     if (!TestOption(DirectVobSubXyOptions::void_ShowConfigDialog))
     {
@@ -452,21 +512,27 @@ STDMETHODIMP DirectVobSubImpl::ShowConfigDialog(int iSelected, HWND hWndParent)
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::IsSubtitleReloaderLocked(bool* fLocked)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::IsSubtitleReloaderLocked(bool* fLocked)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_LOCK, fLocked);
 }
 
-STDMETHODIMP DirectVobSubImpl::LockSubtitleReloader(bool fLock)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::LockSubtitleReloader(const bool fLock)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_LOCK, OPTION_TYPE_BOOL, OPTION_MODE_WRITE))
     {
         return E_NOTIMPL;
     }
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
-    if(fLock) m_nReloaderDisableCount++;
-    else m_nReloaderDisableCount--;
+    if(fLock)
+    {
+        m_nReloaderDisableCount++;
+    }
+    else
+    {
+        m_nReloaderDisableCount--;
+    }
 
     ASSERT(m_nReloaderDisableCount >= 0);
     if (m_nReloaderDisableCount < 0) {
@@ -477,19 +543,19 @@ STDMETHODIMP DirectVobSubImpl::LockSubtitleReloader(bool fLock)
     return OnOptionChanged(BOOL_SUBTITLE_RELOADER_LOCK);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_SubtitleReloader(bool* fDisabled)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SubtitleReloader(bool* fDisabled)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_DISABLED, fDisabled);
 }
 
-STDMETHODIMP DirectVobSubImpl::put_SubtitleReloader(bool fDisable)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SubtitleReloader(const bool fDisable)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_DISABLED, fDisable);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh)
 {
-    HRESULT hr = XyGetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_HORIZONTAL, horizontal);
+    HRESULT hr{XyGetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_HORIZONTAL, horizontal)};
     if (FAILED(hr))
     {
         XY_LOG_ERROR("Failed to get option INT_EXTEND_PICTURE_HORIZONTAL"<<XY_LOG_VAR_2_STR(horizontal));
@@ -514,13 +580,19 @@ STDMETHODIMP DirectVobSubImpl::get_ExtendPicture(int* horizontal, int* vertical,
         XY_LOG_ERROR("Failed to get option SIZE_EXTEND_PICTURE_RESX2MIN.");
         return hr;
     }
-    if(resx2minw) *resx2minw = cs.cx;
-    if(resx2minh) *resx2minh = cs.cy;
+    if(resx2minw)
+    {
+        *resx2minw = cs.cx;
+    }
+    if(resx2minh)
+    {
+        *resx2minh = cs.cy;
+    }
 
     return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_ExtendPicture(int horizontal, int vertical, int resx2, int resx2minw, int resx2minh)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_ExtendPicture(const int horizontal, const int vertical, const int resx2, const int resx2minw, const int resx2minh)
 {
     if (!TestOption(DirectVobSubXyOptions::INT_EXTEND_PICTURE_HORIZONTAL, OPTION_TYPE_INT , OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::INT_EXTEND_PICTURE_VERTICAL  , OPTION_TYPE_INT , OPTION_MODE_WRITE) ||
@@ -529,26 +601,26 @@ STDMETHODIMP DirectVobSubImpl::put_ExtendPicture(int horizontal, int vertical, i
     {
         return E_NOTIMPL;
     }
-    HRESULT hr1 = XySetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_HORIZONTAL, horizontal);
+    HRESULT hr1{XySetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_HORIZONTAL, horizontal)};
     if (FAILED(hr1))
     {
         XY_LOG_ERROR("Failed to set option INT_EXTEND_PICTURE_HORIZONTAL"<<XY_LOG_VAR_2_STR(horizontal));
         return hr1;
     }
-    HRESULT hr2 = XySetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_VERTICAL, vertical);
+    HRESULT hr2{XySetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_VERTICAL, vertical)};
     if (FAILED(hr2))
     {
         XY_LOG_ERROR("Failed to set option INT_EXTEND_PICTURE_VERTICAL"<<XY_LOG_VAR_2_STR(vertical));
         return hr2;
     }
-    HRESULT hr3 = XySetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_RESX2, resx2);
+    HRESULT hr3{XySetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_RESX2, resx2)};
     if (FAILED(hr3))
     {
         XY_LOG_ERROR("Failed to set option INT_EXTEND_PICTURE_RESX2."<<XY_LOG_VAR_2_STR(resx2));
         return hr3;
     }
-    CSize cs(resx2minw, resx2minh);
-    HRESULT hr4 = XySetSize(DirectVobSubXyOptions::SIZE_EXTEND_PICTURE_RESX2MIN, cs);
+    CSize cs{resx2minw, resx2minh};
+    HRESULT hr4{XySetSize(DirectVobSubXyOptions::SIZE_EXTEND_PICTURE_RESX2MIN, cs)};
     if (FAILED(hr4))
     {
         XY_LOG_ERROR("Failed to set option SIZE_EXTEND_PICTURE_RESX2MIN."<<XY_LOG_VAR_2_STR(resx2minw)<<XY_LOG_VAR_2_STR(resx2minh));
@@ -558,9 +630,9 @@ STDMETHODIMP DirectVobSubImpl::put_ExtendPicture(int horizontal, int vertical, i
     return (hr1==hr2&&hr2==hr3&&hr3==hr4&&hr4==S_FALSE)? S_FALSE : S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad)
 {
-    HRESULT hr = XyGetInt(DirectVobSubXyOptions::INT_LOAD_SETTINGS_LEVEL, level);
+    HRESULT hr{XyGetInt(DirectVobSubXyOptions::INT_LOAD_SETTINGS_LEVEL, level)};
     if (FAILED(hr))
     {
         XY_LOG_ERROR("Failed to get option INT_LOAD_SETTINGS_LEVEL."<<XY_LOG_VAR_2_STR(level));
@@ -587,7 +659,7 @@ STDMETHODIMP DirectVobSubImpl::get_LoadSettings(int* level, bool* fExternalLoad,
     return hr;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_LoadSettings(int level, bool fExternalLoad, bool fWebLoad, bool fEmbeddedLoad)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_LoadSettings(const int level, const bool fExternalLoad, const bool fWebLoad, const bool fEmbeddedLoad)
 {
     if (!TestOption(DirectVobSubXyOptions::INT_LOAD_SETTINGS_LEVEL    , OPTION_TYPE_INT , OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_EXTENAL , OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
@@ -596,25 +668,25 @@ STDMETHODIMP DirectVobSubImpl::put_LoadSettings(int level, bool fExternalLoad, b
     {
         return E_NOTIMPL;
     }
-    HRESULT hr1 = XySetInt(DirectVobSubXyOptions::INT_LOAD_SETTINGS_LEVEL, level);
+    HRESULT hr1{XySetInt(DirectVobSubXyOptions::INT_LOAD_SETTINGS_LEVEL, level)};
     if (FAILED(hr1))
     {
         XY_LOG_ERROR("Failed to set option INT_LOAD_SETTINGS_LEVEL."<<XY_LOG_VAR_2_STR(level));
         return hr1;
     }
-    HRESULT hr2 = XySetBool(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_EXTENAL, fExternalLoad);
+    HRESULT hr2{XySetBool(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_EXTENAL, fExternalLoad)};
     if (FAILED(hr2))
     {
         XY_LOG_ERROR("Failed to set option BOOL_LOAD_SETTINGS_EXTENAL."<<XY_LOG_VAR_2_STR(fExternalLoad));
         return hr2;
     }
-    HRESULT hr3 = XySetBool(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_WEB, fWebLoad);
+    HRESULT hr3{XySetBool(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_WEB, fWebLoad)};
     if (FAILED(hr3))
     {
         XY_LOG_ERROR("Failed to set option BOOL_LOAD_SETTINGS_WEB."<<XY_LOG_VAR_2_STR(fWebLoad));
         return hr3;
     }
-    HRESULT hr4 = XySetBool(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_EMBEDDED, fEmbeddedLoad);
+    HRESULT hr4{XySetBool(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_EMBEDDED, fEmbeddedLoad)};
     if (FAILED(hr4))
     {
         XY_LOG_ERROR("Failed to set option BOOL_LOAD_SETTINGS_EMBEDDED."<<XY_LOG_VAR_2_STR(fEmbeddedLoad));
@@ -625,7 +697,8 @@ STDMETHODIMP DirectVobSubImpl::put_LoadSettings(int level, bool fExternalLoad, b
 
 // IDirectVobSub2
 
-STDMETHODIMP DirectVobSubImpl::AdviseSubClock(ISubClock* pSubClock)
+[[nodiscard]] constexpr STDMETHODIMP DirectVobSubImpl::AdviseSubClock(ISubClock* pSubClock)
+noexcept
 {
     if (!TestOption(DirectVobSubXyOptions::void_AdviseSubClock))
     {
@@ -635,9 +708,9 @@ STDMETHODIMP DirectVobSubImpl::AdviseSubClock(ISubClock* pSubClock)
 	return S_OK;
 }
 
-STDMETHODIMP_(bool) DirectVobSubImpl::get_Forced()
+[[nodiscard]] STDMETHODIMP_(bool) DirectVobSubImpl::get_Forced()
 {
-    bool forced = false;
+    bool forced{false};
     if (FAILED(XyGetBool(DirectVobSubXyOptions::BOOL_FORCED_LOAD, &forced)))
     {
         XY_LOG_ERROR("Forced loading is NOT supported!");
@@ -646,12 +719,12 @@ STDMETHODIMP_(bool) DirectVobSubImpl::get_Forced()
     return forced;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_Forced(bool fForced)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_Forced(const bool fForced)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_FORCED_LOAD, fForced);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_TextSettings(STSStyle* pDefStyle)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_TextSettings(STSStyle* pDefStyle)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS))
     {
@@ -659,14 +732,14 @@ STDMETHODIMP DirectVobSubImpl::get_TextSettings(STSStyle* pDefStyle)
     }
 	CheckPointer(pDefStyle, E_POINTER);
 
-	CAutoLock cAutoLock(m_propsLock);
+	CAutoLock cAutoLock{m_propsLock};
 
 	*pDefStyle = m_defStyle;
 
 	return S_OK;
 }
 
-STDMETHODIMP DirectVobSubImpl::put_TextSettings(STSStyle* pDefStyle)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_TextSettings(STSStyle* pDefStyle)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS))
     {
@@ -674,24 +747,28 @@ STDMETHODIMP DirectVobSubImpl::put_TextSettings(STSStyle* pDefStyle)
     }
     CheckPointer(pDefStyle, E_POINTER);
 
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
     if(m_defStyle==*pDefStyle)
+    {
         return S_FALSE;
-    if(!memcmp(&m_defStyle, pDefStyle, sizeof(m_defStyle)))
+    }
+    if(!std::memcmp(&m_defStyle, pDefStyle, sizeof(m_defStyle)))
+    {
         return S_FALSE;
+    }
 
     m_defStyle = *pDefStyle;
 
     return OnOptionChanged(BIN2_TEXT_SETTINGS);
 }
 
-STDMETHODIMP DirectVobSubImpl::get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
 {
     return XyGetInt(DirectVobSubXyOptions::INT_ASPECT_RATIO_SETTINGS, (int*)ePARCompensationType);
 }
 
-STDMETHODIMP DirectVobSubImpl::put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
 {
     CheckPointer(ePARCompensationType, E_POINTER);
     return XySetInt(DirectVobSubXyOptions::INT_ASPECT_RATIO_SETTINGS, *ePARCompensationType);
@@ -699,14 +776,16 @@ STDMETHODIMP DirectVobSubImpl::put_AspectRatioSettings(CSimpleTextSubtitle::EPAR
 
 // IFilterVersion
 
-STDMETHODIMP_(DWORD) DirectVobSubImpl::GetFilterVersion()
+[[nodiscard]] constexpr STDMETHODIMP_(DWORD) DirectVobSubImpl::GetFilterVersion()
+noexcept
 {
 	return 0x0234;
 }
 
-bool DirectVobSubImpl::is_compatible()
+[[nodiscard]] constexpr bool DirectVobSubImpl::is_compatible()
+noexcept
 {
-    bool compatible = false;
+    bool compatible{false};
     if ( m_config_info_version>XY_VSFILTER_VERSION_COMMIT )
     {
         compatible = m_supported_filter_verion<=XY_VSFILTER_VERSION_COMMIT;
@@ -718,9 +797,9 @@ bool DirectVobSubImpl::is_compatible()
     return compatible;
 }
 
-UINT DirectVobSubImpl::GetCompatibleProfileInt( LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault )
+[[nodiscard]] UINT DirectVobSubImpl::GetCompatibleProfileInt( const LPCTSTR lpszSection, const LPCTSTR lpszEntry, const int nDefault )
 {
-    UINT result = nDefault;
+    UINT result{nDefault};
     if (is_compatible())
     {
         result = theApp.GetProfileInt(lpszSection, lpszEntry, nDefault);
@@ -728,9 +807,9 @@ UINT DirectVobSubImpl::GetCompatibleProfileInt( LPCTSTR lpszSection, LPCTSTR lps
     return result;
 }
 
-CString DirectVobSubImpl::GetCompatibleProfileString( LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault )
+[[nodiscard]] CString DirectVobSubImpl::GetCompatibleProfileString( const LPCTSTR lpszSection, const LPCTSTR lpszEntry, const LPCTSTR lpszDefault )
 {
-    CString result = lpszDefault;
+    CString result{lpszDefault};
     if (is_compatible())
     {
     	result = theApp.GetProfileString(lpszSection, lpszEntry, lpszDefault);
@@ -743,8 +822,8 @@ void DirectVobSubImpl::LoadKnownSourceFilters( CAtlArray<CStringW> *filter_guid,
 {
     //fixme: CString VS CStringW
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
-    int number = theApp.GetProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER),
-                                      ResStr(IDS_RK_TOTAL_NUMBER), -248336);
+    int number{theApp.GetProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER),
+                                      ResStr(IDS_RK_TOTAL_NUMBER), -248336)};
     if (number==-248336)
     {
         struct  
@@ -777,20 +856,38 @@ void DirectVobSubImpl::LoadKnownSourceFilters( CAtlArray<CStringW> *filter_guid,
         };
 
         number = countof(DefaultKnownSourceFilters);
-        if (filter_guid) filter_guid->SetCount(number);
-        if (filter_name) filter_name->SetCount(number);
-        for (int i=0;i<number;i++)
+        if (filter_guid)
         {
-            if (filter_guid) filter_guid->GetAt(i) = DefaultKnownSourceFilters[i].guid;
-            if (filter_name) filter_name->GetAt(i) = DefaultKnownSourceFilters[i].friendly_name;
+            filter_guid->SetCount(number);
+        }
+        if (filter_name)
+        {
+            filter_name->SetCount(number);
+        }
+        for (int i{0};i<number;i++)
+        {
+            if (filter_guid)
+            {
+                filter_guid->GetAt(i) = DefaultKnownSourceFilters[i].guid;
+            }
+            if (filter_name)
+            {
+                filter_name->GetAt(i) = DefaultKnownSourceFilters[i].friendly_name;
+            }
         }
     }
     else
     {
-        if (filter_guid) filter_guid->SetCount(number);
-        if (filter_name) filter_name->SetCount(number);
+        if (filter_guid)
+        {
+            filter_guid->SetCount(number);
+        }
+        if (filter_name)
+        {
+            filter_name->SetCount(number);
+        }
         CString tmp;
-        for (int i=0;i<number;i++)
+        for (int i{0};i<number;i++)
         {
             if (filter_guid) {
                 tmp.Format(ResStr(IDS_RK_GUID), i+1);
@@ -808,10 +905,10 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
                                                const CAtlArray<CStringW>& filter_name )
 {
     //fixme: CString VS CStringW
-    int number = filter_guid.GetCount();
+    int number{filter_guid.GetCount()};
     CString tmp;
     theApp.WriteProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER), ResStr(IDS_RK_TOTAL_NUMBER), number);
-    for (int i=0;i<number;i++)
+    for (int i{0};i<number;i++)
     {
         tmp.Format(ResStr(IDS_RK_GUID), i+1);
         theApp.WriteProfileString(ResStr(IDS_R_KNOWN_SOURCE_FILTER), tmp, filter_guid[i]);
@@ -822,16 +919,16 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
 
 // XyOptionsImpl
 
-HRESULT DirectVobSubImpl::DoGetField( unsigned field, void *value )
+[[nodiscard]] HRESULT DirectVobSubImpl::DoGetField( const unsigned field, void *value )
 {
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
     switch(field) {
     case BOOL_SUBTITLE_RELOADER_LOCK: 
         *(bool*)value = m_xy_bool_opt[BOOL_SUBTITLE_RELOADER_DISABLED] || m_nReloaderDisableCount > 0;
         break;
     case SIZE_LAYOUT_WITH:
         {
-            SIZE *size_value = (SIZE*)value;
+            SIZE *size_value{(SIZE*)value};
             switch(m_xy_int_opt[INT_LAYOUT_SIZE_OPT])
             {
             case LAYOUT_SIZE_OPT_ORIGINAL_VIDEO_SIZE:
@@ -860,7 +957,7 @@ HRESULT DirectVobSubImpl::DoGetField( unsigned field, void *value )
     return S_OK;
 }
 
-HRESULT DirectVobSubImpl::DoSetField( unsigned field, void const *value )
+[[nodiscard]] HRESULT DirectVobSubImpl::DoSetField( const unsigned field, void const *value )
 {
     switch(field)
     {
@@ -882,28 +979,32 @@ HRESULT DirectVobSubImpl::DoSetField( unsigned field, void const *value )
         int nCount;
         if(FAILED(get_LanguageCount(&nCount))
             || *(int*)value < 0 
-            || *(int*)value >= nCount) 
+            || *(int*)value >= nCount)
+        { 
             return E_FAIL;
+        }
         break;
     case STRING_FILE_NAME:
         {
-            CAutoLock cAutoLock(m_propsLock);
-            CStringW tmp = *(CStringW*)value;
+            CAutoLock cAutoLock{m_propsLock};
+            CStringW tmp{*(CStringW*)value};
             tmp = tmp.Left(tmp.ReverseFind(L'.')+1);
-            CStringW file_name = m_xy_str_opt[STRING_FILE_NAME].Left(m_xy_str_opt[STRING_FILE_NAME].ReverseFind(L'.')+1);
+            CStringW file_name{m_xy_str_opt[STRING_FILE_NAME].Left(m_xy_str_opt[STRING_FILE_NAME].ReverseFind(L'.')+1)};
             if(!file_name.CompareNoCase(tmp))
+            {
                 return S_FALSE;
+            }
             return XyOptionsImpl::DoSetField(field, value);
         }
         break;
     }
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
     return XyOptionsImpl::DoSetField(field, value);
 }
 
 // IXyOptions
 
-STDMETHODIMP DirectVobSubImpl::XyGetBin      (unsigned field, LPVOID    *value, int *size )
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::XyGetBin      (const unsigned field, LPVOID    *value, int *size )
 {
     if (!TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN, XyOptionsImpl::OPTION_MODE_READ))
     {
@@ -918,7 +1019,7 @@ STDMETHODIMP DirectVobSubImpl::XyGetBin      (unsigned field, LPVOID    *value, 
     {
         *value = NULL;
     }
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
     switch(field)
     {
     case BIN_OUTPUT_COLOR_FORMAT:
@@ -930,7 +1031,7 @@ STDMETHODIMP DirectVobSubImpl::XyGetBin      (unsigned field, LPVOID    *value, 
         {
             *value = DEBUG_NEW ColorSpaceOpt[*size];
             ASSERT(*value);
-            memcpy(*value, m_outputColorSpace, GetOutputColorSpaceNumber()*sizeof(m_outputColorSpace[0]));
+            std::memcpy(*value, m_outputColorSpace, GetOutputColorSpaceNumber()*sizeof(m_outputColorSpace[0U]));
         }
         return S_OK;
     case BIN_INPUT_COLOR_FORMAT:
@@ -942,21 +1043,21 @@ STDMETHODIMP DirectVobSubImpl::XyGetBin      (unsigned field, LPVOID    *value, 
         {
             *value = DEBUG_NEW ColorSpaceOpt[*size];
             ASSERT(*value);
-            memcpy(*value, m_inputColorSpace, GetInputColorSpaceNumber()*sizeof(m_inputColorSpace[0]));
+            std::memcpy(*value, m_inputColorSpace, GetInputColorSpaceNumber()*sizeof(m_inputColorSpace[0U]));
         }
         return S_OK;
     }
     return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::XyGetBin2( unsigned field, void *value, int size )
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::XyGetBin2( const unsigned field, void *value, const int size )
 {
     if (!TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN2, XyOptionsImpl::OPTION_MODE_READ))
     {
         return E_NOTIMPL;
     }
     CheckPointer(value, E_POINTER);
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
     switch(field)
     {
     case BIN2_CACHES_INFO:
@@ -977,7 +1078,7 @@ STDMETHODIMP DirectVobSubImpl::XyGetBin2( unsigned field, void *value, int size 
             return E_INVALIDARG;
         }
         {
-            TextSettings* tmp = reinterpret_cast<TextSettings*>(value);
+            TextSettings* tmp{reinterpret_cast<TextSettings*>(value)};
             return get_TextSettings(tmp->lf, tmp->lflen, &tmp->color, &tmp->shadow, &tmp->outline, &tmp->advanced_renderer);
         }
     case BIN2_SUBTITLE_TIMING:
@@ -986,7 +1087,7 @@ STDMETHODIMP DirectVobSubImpl::XyGetBin2( unsigned field, void *value, int size 
             return E_INVALIDARG;
         }
         {
-            SubtitleTiming* tmp = reinterpret_cast<SubtitleTiming*>(value);
+            SubtitleTiming* tmp{reinterpret_cast<SubtitleTiming*>(value)};
             return get_SubtitleTiming(&tmp->delay, &tmp->speedmul, &tmp->speeddiv);
         }
     case BIN2_ZOOM_RECT:
@@ -995,7 +1096,7 @@ STDMETHODIMP DirectVobSubImpl::XyGetBin2( unsigned field, void *value, int size 
             return E_INVALIDARG;
         }
         {
-            NORMALIZEDRECT* tmp = reinterpret_cast<NORMALIZEDRECT*>(value);
+            NORMALIZEDRECT* tmp{reinterpret_cast<NORMALIZEDRECT*>(value)};
             return get_ZoomRect(tmp);
         }
     case BIN2_CUR_STYLES:
@@ -1004,31 +1105,35 @@ STDMETHODIMP DirectVobSubImpl::XyGetBin2( unsigned field, void *value, int size 
     return E_NOTIMPL;
 }
 
-STDMETHODIMP DirectVobSubImpl::XySetBin( unsigned field, LPVOID value, int size )
+[[nodiscard]] STDMETHODIMP DirectVobSubImpl::XySetBin( const unsigned field, const LPVOID value, const int size )
 {
     if (!TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN, XyOptionsImpl::OPTION_MODE_WRITE) &&
         !TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN2, XyOptionsImpl::OPTION_MODE_WRITE))
     {
         return E_NOTIMPL;
     }
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
     switch(field)
     {
     case BIN_OUTPUT_COLOR_FORMAT:
         if( size!=GetOutputColorSpaceNumber() )
-            return E_INVALIDARG;
-        if(value && memcmp(m_outputColorSpace, value, size*sizeof(m_outputColorSpace[0])))
         {
-            memcpy(m_outputColorSpace, value, size*sizeof(m_outputColorSpace[0]));
+            return E_INVALIDARG;
+        }
+        if(value && std::memcmp(m_outputColorSpace, value, size*sizeof(m_outputColorSpace[0U])))
+        {
+            std::memcpy(m_outputColorSpace, value, size*sizeof(m_outputColorSpace[0U]));
             return S_OK;
         }
         return S_FALSE;
     case BIN_INPUT_COLOR_FORMAT:
         if( size!=GetInputColorSpaceNumber() )
-            return S_FALSE;
-        if( value && memcmp(m_inputColorSpace, value, size*sizeof(m_inputColorSpace[0])))
         {
-            memcpy(m_inputColorSpace, value, size*sizeof(m_inputColorSpace[0]));
+            return S_FALSE;
+        }
+        if( value && std::memcmp(m_inputColorSpace, value, size*sizeof(m_inputColorSpace[0U])))
+        {
+            std::memcpy(m_inputColorSpace, value, size*sizeof(m_inputColorSpace[0U]));
             return S_OK;
         }
         return S_FALSE;
@@ -1038,7 +1143,7 @@ STDMETHODIMP DirectVobSubImpl::XySetBin( unsigned field, LPVOID value, int size 
             return E_INVALIDARG;
         }
         {
-            TextSettings* tmp = reinterpret_cast<TextSettings*>(value);
+            TextSettings* tmp{reinterpret_cast<TextSettings*>(value)};
             return put_TextSettings(tmp->lf,tmp->lflen, tmp->color, tmp->shadow, tmp->outline, tmp->advanced_renderer);
         }
     case BIN2_SUBTITLE_TIMING:
@@ -1047,7 +1152,7 @@ STDMETHODIMP DirectVobSubImpl::XySetBin( unsigned field, LPVOID value, int size 
             return E_INVALIDARG;
         }
         {
-            SubtitleTiming* tmp = reinterpret_cast<SubtitleTiming*>(value);
+            SubtitleTiming* tmp{reinterpret_cast<SubtitleTiming*>(value)};
             return put_SubtitleTiming(tmp->delay, tmp->speedmul, tmp->speeddiv);
         }
     case BIN2_ZOOM_RECT:
@@ -1070,8 +1175,8 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-    BYTE* pData = NULL;
-    UINT nSize = 0;
+    BYTE* pData{NULL};
+    UINT nSize{0};
 
     m_supported_filter_verion = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_SUPPORTED_VERSION), 0);
     m_config_info_version = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_VERSION), 0);
@@ -1116,7 +1221,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     m_SubtitleDelay = theApp.GetProfileInt(ResStr(IDS_R_TIMING), ResStr(IDS_RTM_SUBTITLEDELAY), 0);
     m_SubtitleSpeedMul = theApp.GetProfileInt(ResStr(IDS_R_TIMING), ResStr(IDS_RTM_SUBTITLESPEEDMUL), 1000);
     m_SubtitleSpeedDiv = theApp.GetProfileInt(ResStr(IDS_R_TIMING), ResStr(IDS_RTM_SUBTITLESPEEDDIV), 1000);
-    int gcd = get_gcd(m_SubtitleSpeedMul, m_SubtitleSpeedDiv);
+    int gcd{get_gcd(m_SubtitleSpeedMul, m_SubtitleSpeedDiv)};
     m_SubtitleSpeedNormalizedMul = m_SubtitleSpeedMul / gcd;
     m_SubtitleSpeedNormalizedDiv = m_SubtitleSpeedDiv / gcd;
 
@@ -1125,41 +1230,71 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 
     m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_OVERLAY_CACHE_MAX_ITEM_NUM)
         , CacheManager::OVERLAY_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM)
         , CacheManager::OVERLAY_NO_BLUR_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM)
         , CacheManager::SCAN_LINE_DATA_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_PATH_DATA_CACHE_MAX_ITEM_NUM)
         , CacheManager::PATH_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_BITMAP_MRU_CACHE_ITEM_NUM)
         , CacheManager::BITMAP_MRU_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_CLIPPER_MRU_CACHE_ITEM_NUM)
         , CacheManager::CLIPPER_MRU_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_TEXT_INFO_CACHE_ITEM_NUM)
         , CacheManager::TEXT_INFO_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_ASS_TAG_LIST_CACHE_ITEM_NUM)
         , CacheManager::ASS_TAG_LIST_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL] = theApp.GetProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_SUBPIXEL_POS_LEVEL), SubpixelPositionControler::EIGHT_X_EIGHT);
-    if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]<0) m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=0;
-    else if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]>=SubpixelPositionControler::MAX_COUNT) m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=SubpixelPositionControler::EIGHT_X_EIGHT;
+    if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]<0)
+    {
+        m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=0;
+    }
+    else if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]>=SubpixelPositionControler::MAX_COUNT)
+    {
+        m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=SubpixelPositionControler::EIGHT_X_EIGHT;
+    }
 
-    CString str_layout_size_opt = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LAYOUT_SIZE_OPT), _T("Use Original Video Size"));
+    CString str_layout_size_opt{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LAYOUT_SIZE_OPT), _T("Use Original Video Size"))};
     str_layout_size_opt.MakeLower();
     if (str_layout_size_opt.Left(14)==_T("user specified"))
     {
@@ -1175,7 +1310,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     }
 
     m_xy_int_opt[INT_VSFILTER_COMPACT_RGB_CORRECTION] = DirectVobSubXyOptions::RGB_CORRECTION_AUTO;
-    CString str_rgb_correction_setting = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_RGB_CORRECTION), _T("auto"));
+    CString str_rgb_correction_setting{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_RGB_CORRECTION), _T("auto"))};
     str_rgb_correction_setting.MakeLower();
     if (str_rgb_correction_setting.Compare(_T("never"))==0)
     {
@@ -1207,15 +1342,15 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     if(theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_OUTPUT_COLORFORMATS), &pData, &nSize)
         && pData && nSize == 2*GetOutputColorSpaceNumber())
     {
-        for (unsigned i=0;i<nSize/2;i++)
+        for (unsigned i{0U};i<nSize/2;i++)
         {
-            m_outputColorSpace[i].color_space = static_cast<ColorSpaceId>(pData[2*i]);
-            m_outputColorSpace[i].selected = !!pData[2*i+1];
+            m_outputColorSpace[i].color_space = static_cast<ColorSpaceId>(pData[2U*i]);
+            m_outputColorSpace[i].selected = !!pData[2U*i+1];
         }
     }
     else
     {
-        for (unsigned i=0;i<GetOutputColorSpaceNumber();i++)
+        for (unsigned i{0U};[[nodiscard]] i<GetOutputColorSpaceNumber();i++)
         {
             m_outputColorSpace[i].color_space = static_cast<ColorSpaceId>(i);
             m_outputColorSpace[i].selected = true;
@@ -1231,15 +1366,15 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     if(theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INPUT_COLORFORMATS), &pData, &nSize)
         && pData && nSize == 2*GetInputColorSpaceNumber())
     {
-        for (unsigned i=0;i<nSize/2;i++)
+        for (unsigned i{0U};i<nSize/2;i++)
         {
-            m_inputColorSpace[i].color_space = static_cast<ColorSpaceId>(pData[2*i]);
-            m_inputColorSpace[i].selected = !!pData[2*i+1];
+            m_inputColorSpace[i].color_space = static_cast<ColorSpaceId>(pData[2U*i]);
+            m_inputColorSpace[i].selected = !!pData[2U*i+1];
         }        
     }
     else
     {
-        for (unsigned i=0;i<GetOutputColorSpaceNumber();i++)
+        for (unsigned i{0U};[[nodiscard]] i<GetOutputColorSpaceNumber();i++)
         {
             m_inputColorSpace[i].color_space = static_cast<ColorSpaceId>(i);
             m_inputColorSpace[i].selected = true;
@@ -1254,7 +1389,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     m_xy_str_opt[STRING_LOAD_EXT_LIST] = 
         GetCompatibleProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOAD_EXT_LIST), _T("ass;ssa;srt;idx;sup;txt;usf;xss;ssf;smi;psb;rt;sub"));
 
-    CString str_pgs_yuv_setting = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_PGS_COLOR_TYPE), _T("GUESS.GUESS"));
+    CString str_pgs_yuv_setting{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_PGS_COLOR_TYPE), _T("GUESS.GUESS"))};
     if (str_pgs_yuv_setting.Left(2).CompareNoCase(_T("TV"))==0)
     {
         m_xy_str_opt[STRING_PGS_YUV_RANGE] = _T("TV");
@@ -1285,9 +1420,9 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
         m_xy_str_opt[STRING_PGS_YUV_MATRIX] = _T("GUESS");
     }
 
-    CStringA version = XY_ABOUT_VERSION_STR;
+    CStringA version{XY_ABOUT_VERSION_STR};
     m_xy_str_opt[STRING_VERSION] = "";
-    for (int i=0;i<version.GetLength();i++)
+    for (int i{0};i<version.GetLength();i++)
     {
         m_xy_str_opt[STRING_VERSION] += version[i];
     }
@@ -1325,11 +1460,11 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 
 }
 
-STDMETHODIMP CDirectVobSub::UpdateRegistry()
+[[nodiscard]] STDMETHODIMP CDirectVobSub::UpdateRegistry()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
     theApp.WriteProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_HIDE), m_xy_bool_opt[BOOL_HIDE_SUBTITLES]);
     theApp.WriteProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_ALLOWMOVING), m_xy_bool_opt[BOOL_ALLOW_MOVING]);
@@ -1373,7 +1508,7 @@ STDMETHODIMP CDirectVobSub::UpdateRegistry()
     theApp.WriteProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_SUBPIXEL_POS_LEVEL), m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]);
     theApp.WriteProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_USE_UPSTREAM_PREFERRED_ORDER), m_xy_bool_opt[BOOL_FOLLOW_UPSTREAM_PREFERRED_ORDER]);
 
-    CString str_layout_size_opt = _T("Use Original Video Size");
+    CString str_layout_size_opt{_T("Use Original Video Size")};
     switch(m_xy_int_opt[INT_LAYOUT_SIZE_OPT])
     {
     case LAYOUT_SIZE_OPT_USER_SPECIFIED:
@@ -1407,17 +1542,17 @@ STDMETHODIMP CDirectVobSub::UpdateRegistry()
 
     theApp.WriteProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOAD_EXT_LIST), m_xy_str_opt[STRING_LOAD_EXT_LIST]);//fix me:m_xy_str_opt[] is wide char string
 
-    CString str_pgs_yuv_type = m_xy_str_opt[STRING_PGS_YUV_RANGE] + _T(".") + m_xy_str_opt[STRING_PGS_YUV_MATRIX];
+    CString str_pgs_yuv_type{m_xy_str_opt[STRING_PGS_YUV_RANGE] + _T(".") + m_xy_str_opt[STRING_PGS_YUV_MATRIX]};
     theApp.WriteProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_PGS_COLOR_TYPE), str_pgs_yuv_type);
 
     //save output color config
     {
-        int count = GetOutputColorSpaceNumber();
-        BYTE* pData = DEBUG_NEW BYTE[2*count];
-        for(int i = 0; i < count; i++)
+        int count{GetOutputColorSpaceNumber()};
+        BYTE* pData{DEBUG_NEW BYTE[2U*count]};
+        for(int i{0}; i < count; i++)
         {
-            pData[2*i] = static_cast<BYTE>(m_outputColorSpace[i].color_space);
-            pData[2*i+1] = static_cast<BYTE>(m_outputColorSpace[i].selected);
+            pData[2U*i] = static_cast<BYTE>(m_outputColorSpace[i].color_space);
+            pData[2U*i+1] = static_cast<BYTE>(m_outputColorSpace[i].selected);
         }
         theApp.WriteProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_OUTPUT_COLORFORMATS), pData, 2*count);
 
@@ -1426,12 +1561,12 @@ STDMETHODIMP CDirectVobSub::UpdateRegistry()
 
     //save input color config
     {
-        int count = GetInputColorSpaceNumber();
-        BYTE* pData = DEBUG_NEW BYTE[2*count];
-        for(int i = 0; i < count; i++)
+        int count{GetInputColorSpaceNumber()};
+        BYTE* pData{DEBUG_NEW BYTE[2U*count]};
+        for(int i{0}; i < count; i++)
         {
-            pData[2*i] = static_cast<BYTE>(m_inputColorSpace[i].color_space);
-            pData[2*i+1] = static_cast<BYTE>(m_inputColorSpace[i].selected);
+            pData[2U*i] = static_cast<BYTE>(m_inputColorSpace[i].color_space);
+            pData[2U*i+1] = static_cast<BYTE>(m_inputColorSpace[i].selected);
         }
         theApp.WriteProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INPUT_COLORFORMATS), pData, 2*count);
 
@@ -1477,7 +1612,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     m_xy_bool_opt[BOOL_ALLOW_MOVING    ] = !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_ALLOWMOVING), 0);
 
 
-    CString str_color_space = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_COLOR_SPACE), _T("AUTO"));
+    CString str_color_space{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_COLOR_SPACE), _T("AUTO"))};
     if (str_color_space.Left(2).CompareNoCase(_T("TV"))==0)
     {
         m_xy_int_opt[INT_YUV_RANGE] = DirectVobSubImpl::YuvRange_TV;
@@ -1527,7 +1662,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     m_SubtitleDelay                         =   theApp.GetProfileInt(ResStr(IDS_R_TIMING), ResStr(IDS_RTM_SUBTITLEDELAY), 0);
     m_SubtitleSpeedMul                      =   theApp.GetProfileInt(ResStr(IDS_R_TIMING), ResStr(IDS_RTM_SUBTITLESPEEDMUL), 1000);
     m_SubtitleSpeedDiv                      =   theApp.GetProfileInt(ResStr(IDS_R_TIMING), ResStr(IDS_RTM_SUBTITLESPEEDDIV), 1000);
-    int gcd = get_gcd(m_SubtitleSpeedMul, m_SubtitleSpeedDiv);
+    int gcd{get_gcd(m_SubtitleSpeedMul, m_SubtitleSpeedDiv)};
     m_SubtitleSpeedNormalizedMul = m_SubtitleSpeedMul / gcd;
     m_SubtitleSpeedNormalizedDiv = m_SubtitleSpeedDiv / gcd;
 
@@ -1535,35 +1670,59 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
 
     m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_OVERLAY_CACHE_MAX_ITEM_NUM)
         , CacheManager::OVERLAY_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM)
         , CacheManager::OVERLAY_NO_BLUR_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM)
         , CacheManager::SCAN_LINE_DATA_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_PATH_DATA_CACHE_MAX_ITEM_NUM)
         , CacheManager::PATH_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]<0) m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_BITMAP_MRU_CACHE_ITEM_NUM)
         , CacheManager::BITMAP_MRU_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_CLIPPER_MRU_CACHE_ITEM_NUM)
         , CacheManager::CLIPPER_MRU_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_TEXT_INFO_CACHE_ITEM_NUM)
         , CacheManager::TEXT_INFO_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM] = GetCompatibleProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_ASS_TAG_LIST_CACHE_ITEM_NUM)
         , CacheManager::ASS_TAG_LIST_CACHE_ITEM_NUM);
-    if(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]<0) m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM] = 0;
+    if(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]<0)
+    {
+        m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM] = 0;
+    }
 
     m_xy_int_opt[INT_MAX_CACHE_SIZE_MB] = theApp.GetProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_MAX_CACHE_SIZE_MB), -1);
 
@@ -1576,10 +1735,16 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
                                                m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] : (SIZE_MAX>>23);
 
     m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL] = theApp.GetProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_SUBPIXEL_POS_LEVEL), SubpixelPositionControler::EIGHT_X_EIGHT);
-    if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]<0) m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=0;
-    else if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]>=SubpixelPositionControler::MAX_COUNT) m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=SubpixelPositionControler::EIGHT_X_EIGHT;
+    if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]<0)
+    {
+        m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=0;
+    }
+    else if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]>=SubpixelPositionControler::MAX_COUNT)
+    {
+        m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]=SubpixelPositionControler::EIGHT_X_EIGHT;
+    }
 
-    CString str_layout_size_opt = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LAYOUT_SIZE_OPT), _T("Use Original Video Size"));
+    CString str_layout_size_opt{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LAYOUT_SIZE_OPT), _T("Use Original Video Size"))};
     str_layout_size_opt.MakeLower();
     if (str_layout_size_opt.Left(14)==_T("user specified"))
     {
@@ -1595,7 +1760,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     }
 
     m_xy_int_opt[INT_VSFILTER_COMPACT_RGB_CORRECTION] = DirectVobSubXyOptions::RGB_CORRECTION_AUTO;
-    CString str_rgb_correction_setting = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_RGB_CORRECTION), _T("auto"));
+    CString str_rgb_correction_setting{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_RGB_CORRECTION), _T("auto"))};
     str_rgb_correction_setting.MakeLower();
     if (str_rgb_correction_setting.Compare(_T("never"))==0)
     {
@@ -1621,7 +1786,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     m_xy_str_opt[STRING_LOAD_EXT_LIST] = 
         GetCompatibleProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOAD_EXT_LIST), _T("ass;ssa;srt;idx;sup;txt;usf;xss;ssf;smi;psb;rt;sub"));
 
-    CString str_pgs_yuv_setting = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_PGS_COLOR_TYPE), _T("GUESS.GUESS"));
+    CString str_pgs_yuv_setting{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_PGS_COLOR_TYPE), _T("GUESS.GUESS"))};
     if (str_pgs_yuv_setting.Left(2).CompareNoCase(_T("TV"))==0)
     {
         m_xy_str_opt[STRING_PGS_YUV_RANGE] = _T("TV");
@@ -1652,9 +1817,9 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
         m_xy_str_opt[STRING_PGS_YUV_MATRIX] = _T("GUESS");
     }
 
-    CStringA version = XY_ABOUT_VERSION_STR;
+    CStringA version{XY_ABOUT_VERSION_STR};
     m_xy_str_opt[STRING_VERSION] = "";
-    for (int i=0;i<version.GetLength();i++)
+    for (int i{0};i<version.GetLength();i++)
     {
         m_xy_str_opt[STRING_VERSION] += version[i];
     }
@@ -1668,7 +1833,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     }
 
     m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL     ] = LOADLEVEL_WHEN_NEEDED;
-    CString str_load_level = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOADLEVEL), _T("when_needed"));
+    CString str_load_level{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOADLEVEL), _T("when_needed"))};
     str_load_level.MakeLower();
     if (str_load_level.Compare(_T("always"))==0)
     {
@@ -1685,7 +1850,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
 
     m_xy_bool_opt[BOOL_SUBTITLE_RELOADER_DISABLED] = !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_DISABLERELOADER), 0);
 
-    CString str_rgb_output_level = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_RGB_OUTPUT_LEVEL), _T("AUTO"));
+    CString str_rgb_output_level{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_RGB_OUTPUT_LEVEL), _T("AUTO"))};
     str_rgb_output_level.MakeLower();
     if (str_rgb_output_level.Left(2)==_T("pc"))
     {
@@ -1709,11 +1874,11 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     LoadKnownSourceFilters(&m_known_source_filters_guid, &m_known_source_filters_name);
 }
 
-STDMETHODIMP CDVS4XySubFilter::UpdateRegistry()
+[[nodiscard]] STDMETHODIMP CDVS4XySubFilter::UpdateRegistry()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-    CAutoLock cAutoLock(m_propsLock);
+    CAutoLock cAutoLock{m_propsLock};
 
     theApp.WriteProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_HIDE), m_xy_bool_opt[BOOL_HIDE_SUBTITLES]);
     theApp.WriteProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_ALLOWMOVING), m_xy_bool_opt[BOOL_ALLOW_MOVING]);
@@ -1780,7 +1945,7 @@ STDMETHODIMP CDVS4XySubFilter::UpdateRegistry()
     theApp.WriteProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_MAX_CACHE_SIZE_MB), m_xy_int_opt[INT_MAX_CACHE_SIZE_MB]);
     theApp.WriteProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_SUBPIXEL_POS_LEVEL), m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]);
 
-    CString str_layout_size_opt = _T("Use Original Video Size");
+    CString str_layout_size_opt{_T("Use Original Video Size")};
     switch(m_xy_int_opt[INT_LAYOUT_SIZE_OPT])
     {
     case LAYOUT_SIZE_OPT_USER_SPECIFIED:
@@ -1814,7 +1979,7 @@ STDMETHODIMP CDVS4XySubFilter::UpdateRegistry()
 
     theApp.WriteProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOAD_EXT_LIST), m_xy_str_opt[STRING_LOAD_EXT_LIST]);//fix me:m_xy_str_opt[] is wide char string
 
-    CString str_pgs_yuv_type = m_xy_str_opt[STRING_PGS_YUV_RANGE] + _T(".") + m_xy_str_opt[STRING_PGS_YUV_MATRIX];
+    CString str_pgs_yuv_type{m_xy_str_opt[STRING_PGS_YUV_RANGE] + _T(".") + m_xy_str_opt[STRING_PGS_YUV_MATRIX]};
     theApp.WriteProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_PGS_COLOR_TYPE), str_pgs_yuv_type);
 
     CString str_load_level;

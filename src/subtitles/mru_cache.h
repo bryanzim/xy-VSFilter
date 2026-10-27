@@ -25,7 +25,7 @@ public:
         public __POSITION
     {
     protected:
-        CPair(/* _In_ */ KINARGTYPE key) :
+        explicit CPair(/* _In_ */ KINARGTYPE key) :
              m_key( key )
              {
              }
@@ -60,61 +60,61 @@ private:
     };
 
 public:
-    XyAtlMap(
+    explicit XyAtlMap(
         _In_ UINT nBins = 17,
         _In_ float fOptimalLoad = 0.75f,
         _In_ float fLoThreshold = 0.25f,
         _In_ float fHiThreshold = 2.25f,
         _In_ UINT nBlockSize = 10) throw();
 
-    size_t GetCount() const throw();
-    bool IsEmpty() const throw();
+    [[nodiscard]] std::size_t GetCount() const throw();
+    [[nodiscard]] bool IsEmpty() const throw();
 
-    bool Lookup(
+    [[nodiscard]] bool Lookup(
         /* _In_ */ KINARGTYPE key,
         _Out_ VOUTARGTYPE value) const;
-    const CPair* Lookup(/* _In_ */ KINARGTYPE key) const throw();
-    CPair* Lookup(/* _In_ */ KINARGTYPE key) throw();
+    [[nodiscard]] const CPair* Lookup(/* _In_ */ KINARGTYPE key) const throw();
+    [[nodiscard]] CPair* Lookup(/* _In_ */ KINARGTYPE key) throw();
     V& operator[](/* _In_ */ KINARGTYPE key) throw(...);
 
-    POSITION SetAtIfNotExists(
+    [[nodiscard]] POSITION SetAtIfNotExists(
         /* _In_ */ KINARGTYPE key, 
         /* _In_ */ VINARGTYPE value,
         bool *new_item_added);
 
-    POSITION SetAt(
+    [[nodiscard]] POSITION SetAt(
         /* _In_ */ KINARGTYPE key,
         /* _In_ */ VINARGTYPE value);
     void SetValueAt(
         _In_ POSITION pos,
         /* _In_ */ VINARGTYPE value);
 
-    bool RemoveKey(/* _In_ */ KINARGTYPE key) throw();
+    [[nodiscard]] bool RemoveKey(/* _In_ */ KINARGTYPE key) throw();
     void RemoveAll();
     void RemoveAtPos(_In_ POSITION pos) throw();
 
-    POSITION GetStartPosition() const throw();
+    [[nodiscard]] POSITION GetStartPosition() const throw();
     void GetNextAssoc(
         _Inout_ POSITION& pos,
         _Out_ KOUTARGTYPE key,
         _Out_ VOUTARGTYPE value) const;
-    const CPair* GetNext(_Inout_ POSITION& pos) const throw();
-    CPair* GetNext(_Inout_ POSITION& pos) throw();
-    const K& GetNextKey(_Inout_ POSITION& pos) const;
-    const V& GetNextValue(_Inout_ POSITION& pos) const;
-    V& GetNextValue(_Inout_ POSITION& pos);
+    [[nodiscard]] const CPair* GetNext(_Inout_ POSITION& pos) const throw();
+    [[nodiscard]] CPair* GetNext(_Inout_ POSITION& pos) throw();
+    [[nodiscard]] const K& GetNextKey(_Inout_ POSITION& pos) const;
+    [[nodiscard]] const V& GetNextValue(_Inout_ POSITION& pos) const;
+    [[nodiscard]] V& GetNextValue(_Inout_ POSITION& pos);
     void GetAt(
         _In_ POSITION pos,
         _Out_ KOUTARGTYPE key,
         _Out_ VOUTARGTYPE value) const;
-    CPair* GetAt(_In_ POSITION pos) throw();
-    const CPair* GetAt(_In_ POSITION pos) const throw();
-    const K& GetKeyAt(_In_ POSITION pos) const;
-    const V& GetValueAt(_In_ POSITION pos) const;
-    V& GetValueAt(_In_ POSITION pos);
+    [[nodiscard]] CPair* GetAt(_In_ POSITION pos) throw();
+    [[nodiscard]] const CPair* GetAt(_In_ POSITION pos) const throw();
+    [[nodiscard]] const K& GetKeyAt(_In_ POSITION pos) const;
+    [[nodiscard]] const V& GetValueAt(_In_ POSITION pos) const;
+    [[nodiscard]] V& GetValueAt(_In_ POSITION pos);
 
-    UINT GetHashTableSize() const throw();
-    bool InitHashTable(
+    [[nodiscard]] UINT GetHashTableSize() const throw();
+    [[nodiscard]] bool InitHashTable(
         _In_ UINT nBins,
         _In_ bool bAllocNow = true);
     void EnableAutoRehash() throw();
@@ -133,13 +133,13 @@ public:
     // Implementation
 private:
     CNode** m_ppBins;
-    size_t m_nElements;
+    std::size_t m_nElements;
     UINT m_nBins;
     float m_fOptimalLoad;
     float m_fLoThreshold;
     float m_fHiThreshold;
-    size_t m_nHiRehashThreshold;
-    size_t m_nLoRehashThreshold;
+    std::size_t m_nHiRehashThreshold;
+    std::size_t m_nLoRehashThreshold;
     ULONG m_nLockCount;
     UINT m_nBlockSize;
     CAtlPlex* m_pBlocks;
@@ -147,26 +147,26 @@ private:
 
 private:
     bool IsLocked() const throw();
-    UINT PickSize(_In_ size_t nElements) const throw();
-    CNode* NewNode(
+    [[nodiscard]] UINT PickSize(_In_ std::size_t nElements) const throw();
+    [[nodiscard]] CNode* NewNode(
         /* _In_ */ KINARGTYPE key,
         _In_ UINT iBin,
         _In_ UINT nHash);
     void FreeNode(_Inout_ CNode* pNode);
     void FreePlexes() throw();
-    CNode* GetNode(
+    [[nodiscard]] CNode* GetNode(
         /* _In_ */ KINARGTYPE key,
         _Out_ UINT& iBin,
         _Out_ UINT& nHash,
         _Deref_out_opt_ CNode*& pPrev) const throw();
-    CNode* CreateNode(
+    [[nodiscard]] CNode* CreateNode(
         /* _In_ */ KINARGTYPE key,
         _In_ UINT iBin,
         _In_ UINT nHash) throw(...);
     void RemoveNode(
         _In_ CNode* pNode,
         _In_opt_ CNode* pPrev) throw();
-    CNode* FindNextNode(_In_ CNode* pNode) const throw();
+    [[nodiscard]] CNode* FindNextNode(_In_ CNode* pNode) const throw();
     void UpdateRehashThresholds() throw();
 
 public:
@@ -174,13 +174,13 @@ public:
 
 private:
     // Private to prevent use
-    XyAtlMap(_In_ const XyAtlMap&) throw();
+    explicit XyAtlMap(_In_ const XyAtlMap&) throw();
     XyAtlMap& operator=(_In_ const XyAtlMap&) throw();
 };
 
 
 template< typename K, typename V, class KTraits, class VTraits >
-inline size_t XyAtlMap< K, V, KTraits, VTraits >::GetCount() const throw()
+inline std::size_t XyAtlMap< K, V, KTraits, VTraits >::GetCount() const throw()
 {
     return( m_nElements );
 }
@@ -222,7 +222,7 @@ inline void XyAtlMap< K, V, KTraits, VTraits >::GetAt(
 {
     ATLENSURE( pos != NULL );
 
-    CNode* pNode = static_cast< CNode* >( pos );
+    CNode* pNode{static_cast< CNode* >( pos )};
 
     key = pNode->m_key;
     value = pNode->m_value;
@@ -251,7 +251,7 @@ inline const K& XyAtlMap< K, V, KTraits, VTraits >::GetKeyAt(_In_ POSITION pos) 
 {
     ATLENSURE( pos != NULL );
 
-    CNode* pNode = (CNode*)pos;
+    CNode* pNode{(CNode*)pos};
 
     return( pNode->m_key );
 }
@@ -261,7 +261,7 @@ inline const V& XyAtlMap< K, V, KTraits, VTraits >::GetValueAt(_In_ POSITION pos
 {
     ATLENSURE( pos != NULL );
 
-    CNode* pNode = (CNode*)pos;
+    CNode* pNode{(CNode*)pos};
 
     return( pNode->m_value );
 }
@@ -271,7 +271,7 @@ inline V& XyAtlMap< K, V, KTraits, VTraits >::GetValueAt(_In_ POSITION pos)
 {
     ATLENSURE( pos != NULL );
 
-    CNode* pNode = (CNode*)pos;
+    CNode* pNode{(CNode*)pos};
 
     return( pNode->m_value );
 }
@@ -296,7 +296,7 @@ inline bool XyAtlMap< K, V, KTraits, VTraits >::IsLocked() const throw()
 }
 
 template< typename K, typename V, class KTraits, class VTraits >
-UINT XyAtlMap< K, V, KTraits, VTraits >::PickSize(_In_ size_t nElements) const throw()
+UINT XyAtlMap< K, V, KTraits, VTraits >::PickSize(_In_ std::size_t nElements) const throw()
 {
     // List of primes such that s_anPrimes[i] is the smallest prime greater than 2^(5+i/3)
     static const UINT s_anPrimes[] =
@@ -309,11 +309,11 @@ UINT XyAtlMap< K, V, KTraits, VTraits >::PickSize(_In_ size_t nElements) const t
         5284493, 6658049, 8388617, 10568993, 13316089, UINT_MAX
     };
 
-    size_t nBins = (size_t)(nElements/m_fOptimalLoad);
+    std::size_t nBins{(std::size_t)(nElements/m_fOptimalLoad)};
     UINT nBinsEstimate = UINT(  UINT_MAX < nBins ? UINT_MAX : nBins );
 
     // Find the smallest prime greater than our estimate
-    int iPrime = 0;
+    int iPrime{0};
     while( nBinsEstimate > s_anPrimes[iPrime] )
     {
         iPrime++;
@@ -361,7 +361,7 @@ POSITION XyAtlMap< K, V, KTraits, VTraits >::GetStartPosition() const throw()
         return( NULL );
     }
 
-    for( UINT iBin = 0; iBin < m_nBins; iBin++ )
+    for( UINT iBin{0}; iBin < m_nBins; iBin++ )
     {
         if( m_ppBins[iBin] != NULL )
         {
@@ -448,7 +448,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::SetValueAt(
 {
     ATLASSUME( pos != NULL );
 
-    CNode* pNode = static_cast< CNode* >( pos );
+    CNode* pNode{static_cast< CNode* >( pos )};
 
     pNode->m_value = value;
 }
@@ -506,8 +506,8 @@ void XyAtlMap< K, V, KTraits, VTraits >::SetOptimalLoad(
 template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::UpdateRehashThresholds() throw()
 {
-    m_nHiRehashThreshold = size_t( m_fHiThreshold*m_nBins );
-    m_nLoRehashThreshold = size_t( m_fLoThreshold*m_nBins );
+    m_nHiRehashThreshold = std::size_t( m_fHiThreshold*m_nBins );
+    m_nLoRehashThreshold = std::size_t( m_fLoThreshold*m_nBins );
     if( m_nLoRehashThreshold < 17 )
     {
         m_nLoRehashThreshold = 0;
@@ -535,7 +535,7 @@ bool XyAtlMap< K, V, KTraits, VTraits >::InitHashTable(_In_ UINT nBins, _In_ boo
         }
 
         ATLENSURE( UINT_MAX / sizeof( CNode* ) >= nBins );
-        memset( m_ppBins, 0, sizeof( CNode* )*nBins );
+        std::memset( m_ppBins, 0, sizeof( CNode* )*nBins );
     }
     m_nBins = nBins;
 
@@ -550,7 +550,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAll()
     DisableAutoRehash();
     if( m_ppBins != NULL )
     {
-        for( UINT iBin = 0; iBin < m_nBins; iBin++ )
+        for( UINT iBin{0}; iBin < m_nBins; iBin++ )
         {
             CNode* pNext;
 
@@ -615,7 +615,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
         }
         pNode = (CNode*)pPlex->data();
         pNode += m_nBlockSize-1;
-        for( int iBlock = m_nBlockSize-1; iBlock >= 0; iBlock-- )
+        for( int iBlock{m_nBlockSize-1}; iBlock >= 0; iBlock-- )
         {
             pNode->m_pNext = m_pFree;
             m_pFree = pNode;
@@ -628,7 +628,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 
     _ATLTRY
     {
-        ::new( pNewNode ) CNode( key, nHash );
+        [[nodiscard]] ::new( pNewNode ) CNode( key, nHash );
     }
     _ATLCATCHALL()
     {
@@ -705,7 +705,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 
     pFollow = NULL;
     pPrev = NULL;
-    for( CNode* pNode = m_ppBins[iBin]; pNode != NULL; pNode = pNode->m_pNext )
+    for( CNode* pNode{m_ppBins[iBin]}; pNode != NULL; pNode = pNode->m_pNext )
     {
         if( (pNode->GetHash() == nHash) && KTraits::CompareElements( pNode->m_key, key ) )
         {
@@ -794,7 +794,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveNode(
 {
     ATLENSURE( pNode != NULL );
 
-    UINT iBin = pNode->GetHash() % m_nBins;
+    UINT iBin{pNode->GetHash() % m_nBins};
 
     if( pPrev == NULL )
     {
@@ -814,9 +814,9 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAtPos(_In_ POSITION pos)
 {
     ATLENSURE( pos != NULL );
 
-    CNode* pNode = static_cast< CNode* >( pos );
-    CNode* pPrev = NULL;
-    UINT iBin = pNode->GetHash() % m_nBins;
+    CNode* pNode{static_cast< CNode* >( pos )};
+    CNode* pPrev{NULL};
+    UINT iBin{pNode->GetHash() % m_nBins};
 
     ATLASSUME( m_ppBins[iBin] != NULL );
     if( pNode == m_ppBins[iBin] )
@@ -838,7 +838,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAtPos(_In_ POSITION pos)
 template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
 {
-    CNode** ppBins = NULL;
+    CNode** ppBins{NULL};
 
     if( nBins == 0 )
     {
@@ -866,11 +866,11 @@ void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
     }
 
     ATLENSURE( UINT_MAX / sizeof( CNode* ) >= nBins );
-    memset( ppBins, 0, nBins*sizeof( CNode* ) );
+    std::memset( ppBins, 0, nBins*sizeof( CNode* ) );
 
     // Nothing gets copied.  We just rewire the old nodes
     // into the new bins.
-    for( UINT iSrcBin = 0; iSrcBin < m_nBins; iSrcBin++ )
+    for( UINT iSrcBin{0}; iSrcBin < m_nBins; iSrcBin++ )
     {
         CNode* pNode;
 
@@ -941,8 +941,8 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CPair* XyAtlMap< K, V, KTraits, VTr
     ATLASSUME( m_ppBins != NULL );
     ATLASSERT( pos != NULL );
 
-    CNode* pNode = static_cast< CNode* >( pos );
-    CNode* pNext = FindNextNode( pNode );
+    CNode* pNode{static_cast< CNode* >( pos )};
+    CNode* pNext{FindNextNode( pNode )};
 
     pos = POSITION( pNext );
 
@@ -1062,24 +1062,24 @@ template<
 class XyMru
 {
 public:
-    XyMru(std::size_t max_item_num):_max_item_num(max_item_num){}
+    explicit XyMru(std::size_t max_item_num):_max_item_num(max_item_num){}
 
-    inline POSITION UpdateCache(POSITION pos)
+    [[nodiscard]] inline POSITION UpdateCache(const POSITION pos)
     {
         _list.MoveToHead(pos);
         return pos;
     }
-    inline POSITION UpdateCache(POSITION pos, const V& value)
+    [[nodiscard]] inline POSITION UpdateCache(const POSITION pos, const V& value)
     {
         _list.GetAt(pos).second = value;
         _list.MoveToHead(pos);
         return pos;
     }
-    inline POSITION UpdateCache(const K& key, const V& value)
+    [[nodiscard]] inline POSITION UpdateCache(const K& key, const V& value)
     {
         POSITION pos;
-        POSITION pos_hash_value = NULL;
-        bool new_item_added = false;
+        POSITION pos_hash_value{NULL};
+        bool new_item_added{false};
         pos = _hash.SetAtIfNotExists(key, (POSITION)NULL, &new_item_added);
         if (new_item_added)
         {
@@ -1099,11 +1099,11 @@ public:
         }
         return pos_hash_value;
     }
-    inline POSITION AddHeadIfNotExists(const K& key, const V& value, bool *new_item_added)
+    [[nodiscard]] inline POSITION AddHeadIfNotExists(const K& key, const V& value, bool *new_item_added)
     {
         POSITION pos;
-        POSITION pos_hash_value = NULL;
-        bool new_hash_item_added = false;
+        POSITION pos_hash_value{NULL};
+        bool new_hash_item_added{false};
         pos = _hash.SetAtIfNotExists(key, (POSITION)NULL, &new_hash_item_added);
         if (new_hash_item_added)
         {
@@ -1142,7 +1142,7 @@ public:
         }
     }
 
-    inline POSITION Lookup(const K& key) const
+    [[nodiscard]] inline POSITION Lookup(const K& key) const
     {
         POSITION pos;
         if( _hash.Lookup(key,pos) )
@@ -1154,19 +1154,19 @@ public:
             return NULL;
         }
     }
-    inline V& GetAt(POSITION pos)
+    [[nodiscard]] inline V& GetAt(const POSITION pos)
     {
         return _list.GetAt(pos).second;
     }
-    inline const V& GetAt(POSITION pos) const
+    [[nodiscard]] inline const V& GetAt(const POSITION pos) const
     {
         return _list.GetAt(pos).second;
     }
-    inline const K& GetKeyAt(POSITION pos) const
+    [[nodiscard]] inline const K& GetKeyAt(const POSITION pos) const
     {
         return _hash.GetKeyAt(_list.GetAt(pos).first);
     }
-    inline std::size_t SetMaxItemNum( std::size_t max_item_num )
+    [[nodiscard]] inline std::size_t SetMaxItemNum( const std::size_t max_item_num )
     {
         _max_item_num = max_item_num;
         while(_list.GetCount()>_max_item_num)
@@ -1176,8 +1176,8 @@ public:
         }
         return _max_item_num;
     }
-    inline std::size_t GetMaxItemNum() const { return _max_item_num; }
-    inline std::size_t GetCurItemNum() const { return _list.GetCount(); }
+    [[nodiscard]] constexpr inline std::size_t GetMaxItemNum() const noexcept { return _max_item_num; }
+    [[nodiscard]] inline std::size_t GetCurItemNum() const { return _list.GetCount(); }
 protected:
     typedef std::pair<POSITION,V> ListItem;
     CAtlList<ListItem> _list;
@@ -1194,9 +1194,9 @@ class KTraits = CElementTraits< K >
 class EnhancedXyMru:public XyMru<K,V,KTraits>
 {
 public:
-    EnhancedXyMru(std::size_t max_item_num):XyMru<K, V, KTraits>(max_item_num),_cache_hit(0),_query_count(0){}
+    explicit EnhancedXyMru(std::size_t max_item_num):XyMru<K, V, KTraits>(max_item_num),_cache_hit(0),_query_count(0){}
 
-    std::size_t SetMaxItemNum( std::size_t max_item_num, bool clear_statistic_info=false )
+    [[nodiscard]] std::size_t SetMaxItemNum( const std::size_t max_item_num, const bool clear_statistic_info=false )
     {
         if(clear_statistic_info)
         {
@@ -1205,7 +1205,7 @@ public:
         }
         return __super::SetMaxItemNum(max_item_num);
     }
-    void RemoveAll(bool clear_statistic_info=false) 
+    void RemoveAll(const bool clear_statistic_info=false) 
     { 
         if(clear_statistic_info) 
         { 
@@ -1215,26 +1215,28 @@ public:
         __super::RemoveAll();         
     }
 
-    inline POSITION Lookup(const K& key)
+    [[nodiscard]] inline POSITION Lookup(const K& key)
     {
         _query_count++;
-        POSITION pos = __super::Lookup(key);
+        POSITION pos{__super::Lookup(key)};
         _cache_hit += (pos!=NULL);
         return pos;
     }
-    inline POSITION AddHeadIfNotExists(const K& key, const V& value, bool *new_item_added)
+    [[nodiscard]] inline POSITION AddHeadIfNotExists(const K& key, const V& value, bool *new_item_added)
     {
         _query_count++;
-        bool tmp = false;
-        POSITION pos = __super::AddHeadIfNotExists(key, value, &tmp);
+        bool tmp{false};
+        POSITION pos{__super::AddHeadIfNotExists(key, value, &tmp)};
         _cache_hit += (tmp==false);
         if(new_item_added)
+        {
             *new_item_added = tmp;
+        }
         return pos;
     }
 
-    inline std::size_t GetCacheHitCount() const { return _cache_hit; }
-    inline std::size_t GetQueryCount() const { return _query_count; }
+    [[nodiscard]] constexpr inline std::size_t GetCacheHitCount() const noexcept { return _cache_hit; }
+    [[nodiscard]] constexpr inline std::size_t GetQueryCount() const noexcept { return _query_count; }
 protected:
     std::size_t _cache_hit;
     std::size_t _query_count;

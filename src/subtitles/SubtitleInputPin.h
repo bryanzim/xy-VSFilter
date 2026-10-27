@@ -44,11 +44,11 @@ public:
 class CSubtitleInputPinHelperImpl: public CSubtitleInputPinHelper
 {
 public:
-    CSubtitleInputPinHelperImpl(CComPtr<ISubStream> pSubStream) : m_pSubStream(pSubStream){}
+    explicit CSubtitleInputPinHelperImpl(CComPtr<ISubStream> pSubStream) : m_pSubStream(pSubStream){}
 
-    STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    STDMETHODIMP_(ISubStream*) GetSubStream() { return m_pSubStream; }
-    STDMETHODIMP EndOfStream(void) { return S_FALSE; }
+    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] STDMETHODIMP_(ISubStream*) GetSubStream() { return m_pSubStream; }
+    [[nodiscard]] STDMETHODIMP EndOfStream(const void) { return S_FALSE; }
 protected:
     CComPtr<ISubStream> m_pSubStream;
     REFERENCE_TIME m_tStart, m_tStop;
@@ -69,17 +69,17 @@ protected:
     virtual void InvalidateSubtitle(REFERENCE_TIME rtStart, ISubStream* pSubStream) = 0;
 
     STDMETHOD_(CSubtitleInputPinHelper*, CreateHelper) ( const CMediaType& mt, IPin* pReceivePin );
-    bool IsHdmvSub(const CMediaType* pmt);
+    [[nodiscard]] constexpr bool IsHdmvSub(const CMediaType* pmt) noexcept;
 public:
     CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCritSec* pSubLock, HRESULT* phr);
 
-    HRESULT CheckMediaType(const CMediaType* pmt);
-    HRESULT CompleteConnect(IPin* pReceivePin);
+    [[nodiscard]] HRESULT CheckMediaType(const CMediaType* pmt);
+    [[nodiscard]] HRESULT CompleteConnect(IPin* pReceivePin);
     HRESULT BreakConnect();
-    STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
-    STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    STDMETHODIMP Receive(IMediaSample* pSample);
-    STDMETHODIMP EndOfStream(void);
+    [[nodiscard]] STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
+    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] STDMETHODIMP EndOfStream(void);
 
-    ISubStream* GetSubStream();
+    [[nodiscard]] ISubStream* GetSubStream();
 };

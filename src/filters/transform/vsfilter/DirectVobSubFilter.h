@@ -47,9 +47,9 @@ class CDirectVobSubFilter
 	void InitSubPicQueue();
 	SubPicDesc m_spd;
 
-	bool AdjustFrameSize(CSize& s);
+	[[nodiscard]] bool AdjustFrameSize(CSize& s);
 
-    HRESULT TryNotCopy( IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn );
+    [[nodiscard]] HRESULT TryNotCopy( IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn );
 
     ColorConvTable::YuvMatrixType m_video_yuv_matrix_decided_by_sub;
     ColorConvTable::YuvRangeType m_video_yuv_range_decided_by_sub;
@@ -57,8 +57,8 @@ class CDirectVobSubFilter
     void SetYuvMatrix();
 protected:
 	void GetOutputSize(int& w, int& h, int& arx, int& ary);
-	HRESULT Transform(IMediaSample* pIn);    
-    HRESULT GetIsEmbeddedSubStream(int iSelected, bool *fIsEmbedded);
+	[[nodiscard]] HRESULT Transform(IMediaSample* pIn);    
+    [[nodiscard]] HRESULT GetIsEmbeddedSubStream(int iSelected, bool *fIsEmbedded);
 
     void UpdateLanguageCount();
 public:
@@ -66,15 +66,15 @@ public:
 	virtual ~CDirectVobSubFilter();
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // CBaseFilter
 
-	CBasePin* GetPin(int n);
-	int GetPinCount();
+	[[nodiscard]] CBasePin* GetPin(int n);
+	[[nodiscard]] int GetPinCount();
 
-	STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
-	STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+	[[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+	[[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
     // CTransformFilter
 	HRESULT SetMediaType(PIN_DIRECTION dir, const CMediaType* pMediaType),
@@ -92,40 +92,40 @@ public:
     void GetOutputColorspaces(ColorSpaceId *preferredOrder, UINT *count);
 
     // XyOptionsImpl
-    virtual HRESULT OnOptionChanged(unsigned field);
-    virtual HRESULT DoGetField(unsigned field, void *value);
+    [[nodiscard]] virtual HRESULT OnOptionChanged(unsigned field);
+    [[nodiscard]] virtual HRESULT DoGetField(unsigned field, void *value);
 
     // IXyOptions
-    STDMETHODIMP XySetBool     (unsigned field, bool      value);
-    STDMETHODIMP XySetInt      (unsigned field, int       value);
+    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] STDMETHODIMP XySetInt      (unsigned field, int       value);
 
     // DirectVobSubImpl
-    HRESULT GetCurStyles( SubStyle sub_style[], int count );
-    HRESULT SetCurStyles( const SubStyle sub_style[], int count );
+    [[nodiscard]] HRESULT GetCurStyles( SubStyle sub_style[], int count );
+    [[nodiscard]] HRESULT SetCurStyles( const SubStyle sub_style[], int count );
 
     // IDirectVobSub
-	STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
-	STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
+	[[nodiscard]] STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
+	[[nodiscard]] STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
 
-    STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
-    STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
+    [[nodiscard]] STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
+    [[nodiscard]] STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
 
-	STDMETHODIMP HasConfigDialog(int iSelected);
-	STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
+	[[nodiscard]] STDMETHODIMP HasConfigDialog(int iSelected);
+	[[nodiscard]] STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
 
 	// IDirectVobSub2
-	STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
+	[[nodiscard]] STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
 
     // ISpecifyPropertyPages
-    STDMETHODIMP GetPages(CAUUID* pPages);
+    [[nodiscard]] STDMETHODIMP GetPages(CAUUID* pPages);
 
 	// IAMStreamSelect
-	STDMETHODIMP Count(DWORD* pcStreams); 
-	STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
-	STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);  
+	[[nodiscard]] STDMETHODIMP Count(DWORD* pcStreams); 
+	[[nodiscard]] STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
+	[[nodiscard]] STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);  
 
     // CPersistStream
-	STDMETHODIMP GetClassID(CLSID* pClsid);
+	[[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClsid);
 
 protected:
     //OSD
@@ -143,7 +143,7 @@ protected:
 
     /* ResX2 */
 	CAutoVectorPtr<BYTE> m_pTempPicBuff;
-	HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black);
+	[[nodiscard]] HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black);
 	// segment start time, absolute time
 	CRefTime m_tPrev;
 	REFERENCE_TIME CalcCurrentTime();
@@ -156,9 +156,9 @@ protected:
 	// don't set the "hide subtitles" stream until we are finished with loading
 	bool m_fLoading;
 
-	bool Open();
+	[[nodiscard]] bool Open();
 
-	int FindPreferedLanguage(bool fHideToo = true);
+	[[nodiscard]] int FindPreferedLanguage(bool fHideToo = true);
 	void UpdatePreferedLanguages(CString lang);
 
 	CCritSec m_csSubLock;
@@ -193,7 +193,7 @@ private:
 
 	VIDEOINFOHEADER2 m_CurrentVIH2;
 
-    bool m_bExternalSubtitle = false;
+    bool m_bExternalSubtitle{false};
 	std::vector<ISubStream*> m_ExternalSubstreams;
 };
 
@@ -202,15 +202,15 @@ private:
 [uuid("9852A670-F845-491b-9BE6-EBD841B8A613")]
 class CDirectVobSubFilter2 : public CDirectVobSubFilter
 {
-    bool IsAppBlackListed();
-	bool ShouldWeAutoload(IFilterGraph* pGraph);
+    [[nodiscard]] bool IsAppBlackListed();
+	[[nodiscard]] bool ShouldWeAutoload(IFilterGraph* pGraph);
 	void GetRidOfInternalScriptRenderer();
 
 public:
     CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(CDirectVobSubFilter2));
 
-	HRESULT CheckConnect(PIN_DIRECTION dir, IPin* pPin);
-	STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
-    HRESULT CheckInputType(const CMediaType* mtIn);
+	[[nodiscard]] HRESULT CheckConnect(PIN_DIRECTION dir, IPin* pPin);
+	[[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+    [[nodiscard]] HRESULT CheckInputType(const CMediaType* mtIn);
 };
 

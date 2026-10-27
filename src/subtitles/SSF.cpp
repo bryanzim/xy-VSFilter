@@ -35,11 +35,12 @@ namespace ssf
 	{
 	}
 
-	CRenderer::~CRenderer()
+	constexpr CRenderer::~CRenderer()
+	noexcept
 	{
 	}
 
-	bool CRenderer::Open(CString fn, CString name)
+	[[nodiscard]] bool CRenderer::Open(const CString fn, CString name)
 	{
 		m_fn.Empty();
 		m_name.Empty();
@@ -48,7 +49,7 @@ namespace ssf
 
 		if(name.IsEmpty())
 		{
-			CString str = fn;
+			CString str{fn};
 			str.Replace('\\', '/');
 			name = str.Left(str.ReverseFind('.'));
 			name = name.Mid(name.ReverseFind('/')+1);
@@ -71,7 +72,7 @@ namespace ssf
 		return false;	
 	}
 
-	bool CRenderer::Open(InputStream& s, CString name)
+	[[nodiscard]] bool CRenderer::Open(InputStream& s, const CString name)
 	{
 		m_fn.Empty();
 		m_name.Empty();
@@ -94,9 +95,12 @@ namespace ssf
 		return false;
 	}
 
-	void CRenderer::Append(REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, LPCWSTR str)
+	void CRenderer::Append(const REFERENCE_TIME rtStart, const REFERENCE_TIME rtStop, const LPCWSTR str)
 	{
-		if(!m_file) return;
+		if(!m_file)
+		{
+		    return;
+		}
 
 		try
 		{
@@ -108,7 +112,7 @@ namespace ssf
 		}
 	}
 
-	STDMETHODIMP CRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+	[[nodiscard]] STDMETHODIMP CRenderer::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
 	{
 		CheckPointer(ppv, E_POINTER);
 		*ppv = NULL;
@@ -122,47 +126,50 @@ namespace ssf
 
 	// ISubPicProvider
 
-	STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(REFERENCE_TIME rt, double fps)
+	[[nodiscard]] STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(const REFERENCE_TIME rt, const double fps)
 	{
-		size_t k;
+		std::size_t k;
 		return m_file && m_file->m_segments.Lookup((float)rt/10000000, k) ? (POSITION)(++k) : NULL;
 	}
 
-	STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
+	[[nodiscard]] STDMETHODIMP_(POSITION) CRenderer::GetNext(const POSITION pos)
 	{
-		size_t k = (size_t)pos;
+		std::size_t k{(std::size_t)pos};
 		return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : NULL;
 	}
 
-	STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, double fps)
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(const POSITION pos, const double fps)
 	{
-		size_t k = (size_t)pos-1;
-		const SubtitleFile::Segment* s = m_file ? m_file->m_segments.GetSegment(k) : NULL;
+		std::size_t k{(std::size_t)pos-1};
+		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : NULL};
 		return s ? (REFERENCE_TIME)(s->m_start*10000000) : 0;
 	}
 
-	STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(POSITION pos, double fps)
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(const POSITION pos, const double fps)
 	{
 		CheckPointer(m_file, 0);
 
-		size_t k = (size_t)pos-1;
-		const SubtitleFile::Segment* s = m_file ? m_file->m_segments.GetSegment(k) : NULL;
+		std::size_t k{(std::size_t)pos-1};
+		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : NULL};
 		return s ? (REFERENCE_TIME)(s->m_stop*10000000) : 0;
 	}
 
-	STDMETHODIMP_(bool) CRenderer::IsAnimated(POSITION pos)
+	[[nodiscard]] STDMETHODIMP_(bool) CRenderer::IsAnimated(const POSITION pos)
 	{
 		return true;
 	}
 
-	STDMETHODIMP CRenderer::Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox)
+	[[nodiscard]] STDMETHODIMP CRenderer::Render(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox)
 	{
 		CheckPointer(m_file, E_UNEXPECTED);
 		CheckPointer(m_renderer, E_UNEXPECTED);	
 
-		if(spd.type != MSP_RGBA) return E_INVALIDARG;
+		if(spd.type != MSP_RGBA)
+		{
+		    return E_INVALIDARG;
+		}
 
-		CAutoLock csAutoLock(m_pLock);
+		CAutoLock csAutoLock{m_pLock};
 
 		CRect bbox2;
 		bbox2.SetRectEmpty();
@@ -172,12 +179,15 @@ namespace ssf
 
 		m_renderer->NextSegment(subs);
 
-		POSITION pos = subs.GetHeadPosition();
+		POSITION pos{subs.GetHeadPosition()};
 		while(pos)
 		{
-			const Subtitle* s = subs.GetNext(pos);
-			const RenderedSubtitle* rs = m_renderer->Lookup(s, CSize(spd.w, spd.h), spd.vidrect);
-			if(rs) bbox2 |= rs->Draw(spd);
+			const Subtitle* s{subs.GetNext(pos)};
+			const RenderedSubtitle* rs{m_renderer->Lookup(s, CSize(spd.w, spd.h), spd.vidrect)};
+			if(rs)
+			{
+			    bbox2 |= rs->Draw(spd);
+			}
 		}
 
 		bbox = bbox2 & CRect(0, 0, spd.w, spd.h);
@@ -187,27 +197,32 @@ namespace ssf
 
 	// IPersist
 
-	STDMETHODIMP CRenderer::GetClassID(CLSID* pClassID)
+	[[nodiscard]] STDMETHODIMP CRenderer::GetClassID(CLSID* pClassID)
 	{
 		return pClassID ? *pClassID = __uuidof(this), S_OK : E_POINTER;
 	}
 
 	// ISubStream
 
-	STDMETHODIMP_(int) CRenderer::GetStreamCount()
+	[[nodiscard]] STDMETHODIMP_(int) CRenderer::GetStreamCount()
 	{
 		return 1;
 	}
 
-	STDMETHODIMP CRenderer::GetStreamInfo(int iStream, WCHAR** ppName, LCID* pLCID)
+	[[nodiscard]] STDMETHODIMP CRenderer::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
 	{
-		if(iStream != 0) return E_INVALIDARG;
+		if(iStream != 0)
+		{
+		    return E_INVALIDARG;
+		}
 
 		if(ppName)
 		{
             *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength()+1)*sizeof(WCHAR));
 			if(!(*ppName))
+			{
 				return E_OUTOFMEMORY;
+			}
 
 			wcscpy(*ppName, CStringW(m_name));
 		}
@@ -220,19 +235,19 @@ namespace ssf
 		return S_OK;
 	}
 
-	STDMETHODIMP_(int) CRenderer::GetStream()
+	[[nodiscard]] STDMETHODIMP_(int) CRenderer::GetStream()
 	{
 		return 0;
 	}
 
-	STDMETHODIMP CRenderer::SetStream(int iStream)
+	[[nodiscard]] STDMETHODIMP CRenderer::SetStream(const int iStream)
 	{
 		return iStream == 0 ? S_OK : E_FAIL;
 	}
 
-	STDMETHODIMP CRenderer::Reload()
+	[[nodiscard]] STDMETHODIMP CRenderer::Reload()
 	{
-		CAutoLock csAutoLock(m_pLock);
+		CAutoLock csAutoLock{m_pLock};
 
 		return !m_fn.IsEmpty() && Open(m_fn, m_name) ? S_OK : E_FAIL;
 	}

@@ -30,19 +30,19 @@ class CGolombBuffer;
 class CDVBSub : public CBaseSub
 {
 public:
-    CDVBSub(void);
+    explicit CDVBSub(void);
     ~CDVBSub(void);
 
-    virtual HRESULT         ParseSample(IMediaSample* pSample);
+    [[nodiscard]] virtual HRESULT         ParseSample(IMediaSample* pSample);
     virtual void            EndOfStream();
     virtual void            Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox);
-    virtual HRESULT         GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft);
-    virtual POSITION        GetStartPosition(REFERENCE_TIME rt, double fps = 0);
-    virtual POSITION        GetNext(POSITION pos);
-    virtual REFERENCE_TIME  GetStart(POSITION nPos);
-    virtual REFERENCE_TIME  GetStop(POSITION nPos);
+    [[nodiscard]] virtual HRESULT         GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft);
+    [[nodiscard]] virtual POSITION        GetStartPosition(REFERENCE_TIME rt, double fps = 0);
+    [[nodiscard]] virtual POSITION        GetNext(POSITION pos);
+    [[nodiscard]] virtual REFERENCE_TIME  GetStart(POSITION nPos);
+    [[nodiscard]] virtual REFERENCE_TIME  GetStop(POSITION nPos);
     virtual void            Reset();
-    virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType);
+    [[nodiscard]] virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType);
 
     // EN 300-743, table 2
     enum DVB_SEGMENT_TYPE {
@@ -74,9 +74,9 @@ public:
         BYTE            version_number;
         BYTE            size;
 
-        HDMV_PALETTE    palette[256];
+        HDMV_PALETTE    palette[256U];
 
-        DVB_CLUT() { memset(palette, 0, sizeof(palette)); }
+        explicit DVB_CLUT() noexcept { std::memset(palette, 0, sizeof(palette)); }
     };
 
     struct DVB_DISPLAY {
@@ -89,7 +89,7 @@ public:
         short           vertical_position_minimun;
         short           vertical_position_maximum;
 
-        DVB_DISPLAY() {
+        constexpr explicit DVB_DISPLAY() noexcept {
             // Default value (§5.1.3)
             version_number  = 0;
             width           = 720;
@@ -106,7 +106,7 @@ public:
         BYTE            foreground_pixel_code;
         BYTE            background_pixel_code;
 
-        DVB_OBJECT() {
+        constexpr explicit DVB_OBJECT() noexcept {
             object_id                   = 0xFF;
             object_type                 = 0;
             object_provider_flag        = 0;
@@ -134,7 +134,7 @@ public:
         int         objectCount;
         DVB_OBJECT  objects[MAX_OBJECTS];
 
-        DVB_REGION() {
+        constexpr explicit DVB_REGION() noexcept {
             id                      = 0;
             horizAddr               = 0;
             vertAddr                = 0;
@@ -165,7 +165,7 @@ public:
         CAtlList<DVB_CLUT*>             CLUTs;
         bool                            rendered;
 
-        DVB_PAGE() {
+        explicit DVB_PAGE() {
             pageTimeOut         = 0;
             pageVersionNumber   = 0;
             pageState           = 0;
@@ -189,7 +189,7 @@ public:
     };
 
 private:
-    static const REFERENCE_TIME INVALID_TIME = _I64_MIN;
+    static const REFERENCE_TIME INVALID_TIME{_I64_MIN};
 
     int                 m_nBufferSize;
     int                 m_nBufferReadPos;
@@ -201,18 +201,18 @@ private:
     REFERENCE_TIME      m_rtStart;
     REFERENCE_TIME      m_rtStop;
 
-    HRESULT             AddToBuffer(BYTE* pData, int nSize);
-    DVB_PAGE*           FindPage(REFERENCE_TIME rt);
-    DVB_REGION*         FindRegion(DVB_PAGE* pPage, BYTE bRegionId);
-    DVB_CLUT*           FindClut(DVB_PAGE* pPage, BYTE bClutId);
-    CompositionObject*  FindObject(DVB_PAGE* pPage, short sObjectId);
+    [[nodiscard]] HRESULT             AddToBuffer(BYTE* pData, int nSize);
+    [[nodiscard]] DVB_PAGE*           FindPage(REFERENCE_TIME rt);
+    [[nodiscard]] constexpr DVB_REGION*         FindRegion(DVB_PAGE* pPage, BYTE bRegionId) noexcept;
+    [[nodiscard]] DVB_CLUT*           FindClut(DVB_PAGE* pPage, BYTE bClutId);
+    [[nodiscard]] CompositionObject*  FindObject(DVB_PAGE* pPage, short sObjectId);
 
-    HRESULT             ParsePage(CGolombBuffer& gb, WORD wSegLength, CAutoPtr<DVB_PAGE>& pPage);
-    HRESULT             ParseDisplay(CGolombBuffer& gb, WORD wSegLength);
-    HRESULT             ParseRegion(CGolombBuffer& gb, WORD wSegLength);
-    HRESULT             ParseClut(CGolombBuffer& gb, WORD wSegLength);
-    HRESULT             ParseObject(CGolombBuffer& gb, WORD wSegLength);
+    [[nodiscard]] HRESULT             ParsePage(CGolombBuffer& gb, WORD wSegLength, CAutoPtr<DVB_PAGE>& pPage);
+    [[nodiscard]] HRESULT             ParseDisplay(CGolombBuffer& gb, WORD wSegLength);
+    [[nodiscard]] HRESULT             ParseRegion(CGolombBuffer& gb, WORD wSegLength);
+    [[nodiscard]] HRESULT             ParseClut(CGolombBuffer& gb, WORD wSegLength);
+    [[nodiscard]] HRESULT             ParseObject(CGolombBuffer& gb, WORD wSegLength);
 
-    HRESULT             EnqueuePage(REFERENCE_TIME rtStop);
-    HRESULT             UpdateTimeStamp(REFERENCE_TIME rtStop);
+    [[nodiscard]] HRESULT             EnqueuePage(REFERENCE_TIME rtStop);
+    [[nodiscard]] HRESULT             UpdateTimeStamp(REFERENCE_TIME rtStop);
 };

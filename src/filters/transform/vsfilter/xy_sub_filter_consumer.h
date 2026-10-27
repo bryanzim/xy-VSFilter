@@ -45,9 +45,9 @@ class XySubFilterConsumer
     void InitConsumerFields();
     SubPicDesc m_spd;
 
-    bool AdjustFrameSize(CSize& s);
+    [[nodiscard]] bool AdjustFrameSize(CSize& s);
 
-    HRESULT TryNotCopy( IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn );
+    [[nodiscard]] HRESULT TryNotCopy( IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn );
 
     ColorConvTable::YuvMatrixType m_video_yuv_matrix_decided_by_sub;
     ColorConvTable::YuvRangeType m_video_yuv_range_decided_by_sub;
@@ -55,21 +55,21 @@ class XySubFilterConsumer
     void SetYuvMatrix();
 protected:
     void GetOutputSize(int& w, int& h, int& arx, int& ary);
-    HRESULT Transform(IMediaSample* pIn);
+    [[nodiscard]] HRESULT Transform(IMediaSample* pIn);
 
-    HRESULT AlphaBlt(SubPicDesc& spd);
+    [[nodiscard]] HRESULT AlphaBlt(SubPicDesc& spd);
 public:
     XySubFilterConsumer(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(XySubFilterConsumer));
     virtual ~XySubFilterConsumer();
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     DECLARE_ISUBRENDEROPTIONS;
 
     // CBaseFilter
-    STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
-    STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+    [[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+    [[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
     // CTransformFilter
     HRESULT SetMediaType(PIN_DIRECTION dir, const CMediaType* pMediaType),
@@ -85,20 +85,20 @@ public:
     void GetOutputColorspaces(ColorSpaceId *preferredOrder, UINT *count);
 
     //ISubRenderConsumer
-    STDMETHODIMP GetMerit(ULONG *merit);
-    STDMETHODIMP Connect(ISubRenderProvider *subtitleRenderer);
-    STDMETHODIMP Disconnect(void);
-    STDMETHODIMP DeliverFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context, ISubRenderFrame *subtitleFrame);
+    [[nodiscard]] STDMETHODIMP GetMerit(ULONG *merit);
+    [[nodiscard]] STDMETHODIMP Connect(ISubRenderProvider *subtitleRenderer);
+    [[nodiscard]] STDMETHODIMP Disconnect(void);
+    [[nodiscard]] STDMETHODIMP DeliverFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context, ISubRenderFrame *subtitleFrame);
 
     // IXyOptions
-    STDMETHODIMP XySetBool     (unsigned field, bool      value);
-    STDMETHODIMP XySetInt      (unsigned field, int       value);
+    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] STDMETHODIMP XySetInt      (unsigned field, int       value);
 
     // ISpecifyPropertyPages
-    STDMETHODIMP GetPages(CAUUID* pPages);
+    [[nodiscard]] STDMETHODIMP GetPages(CAUUID* pPages);
 
     // CPersistStream
-    STDMETHODIMP GetClassID(CLSID* pClsid);
+    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClsid);
 
 protected:
     //OSD
@@ -116,7 +116,7 @@ protected:
 
     /* ResX2 */
     CAutoVectorPtr<BYTE> m_pTempPicBuff;
-    HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black);
+    [[nodiscard]] HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black);
     // segment start time, absolute time
     CRefTime m_tPrev;
     REFERENCE_TIME CalcCurrentTime();

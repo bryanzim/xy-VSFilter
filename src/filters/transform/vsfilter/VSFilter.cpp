@@ -46,9 +46,9 @@ CVSFilterApp::CVSFilterApp()
 {
     _CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
 #if ENABLE_XY_LOG
-    LPTSTR  strDLLPath = DEBUG_NEW TCHAR[_MAX_PATH];
+    LPTSTR  strDLLPath{DEBUG_NEW TCHAR[_MAX_PATH]};
     ::GetModuleFileName( reinterpret_cast<HINSTANCE>(&__ImageBase), strDLLPath, _MAX_PATH);
-    CString dllPath = strDLLPath;
+    CString dllPath{strDLLPath};
     dllPath += ".properties";
     xy_logger::doConfigure( dllPath.GetString() );
     delete [] strDLLPath;
@@ -62,10 +62,12 @@ CVSFilterApp::CVSFilterApp()
 
 extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
 
-BOOL CVSFilterApp::InitInstance()
+[[nodiscard]] BOOL CVSFilterApp::InitInstance()
 {
 	if(!CWinApp::InitInstance())
+	{
 		return FALSE;
+	}
 
 	SetRegistryKey(_T("Gabest"));
 #if (defined XY_SUB_FILTER_DLL)
@@ -85,14 +87,14 @@ BOOL CVSFilterApp::InitInstance()
 	return TRUE;
 }
 
-int CVSFilterApp::ExitInstance()
+[[nodiscard]] int CVSFilterApp::ExitInstance()
 {
 	DllEntryPoint(AfxGetInstanceHandle(), DLL_PROCESS_DETACH, 0); // "DllMain" of the dshow baseclasses
 
 	return CWinApp::ExitInstance();
 }
 
-HINSTANCE CVSFilterApp::LoadAppLangResourceDLL()
+[[nodiscard]] HINSTANCE CVSFilterApp::LoadAppLangResourceDLL()
 {
     CString fn;
     fn.ReleaseBufferSetLength(::GetModuleFileName(m_hInstance, fn.GetBuffer(MAX_PATH), MAX_PATH));
@@ -102,16 +104,16 @@ HINSTANCE CVSFilterApp::LoadAppLangResourceDLL()
     return ::LoadLibrary(fn);
 }
 
-UINT CVSFilterApp::GetProfileInt( LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault )
+[[nodiscard]] UINT CVSFilterApp::GetProfileInt( const LPCTSTR lpszSection, const LPCTSTR lpszEntry, const int nDefault )
 {
-    UINT rv = __super::GetProfileInt(lpszSection, lpszEntry, nDefault);
+    UINT rv{__super::GetProfileInt(lpszSection, lpszEntry, nDefault)};
     TRACE_REG_CONFIG(lpszSection<<" "<<lpszEntry<<" "<<rv);
     return rv;
 }
 
-CString CVSFilterApp::GetProfileString( LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault /*= NULL*/ )
+[[nodiscard]] CString CVSFilterApp::GetProfileString( const LPCTSTR lpszSection, const LPCTSTR lpszEntry, const LPCTSTR lpszDefault /*= NULL*/ )
 {
-    CString rv = __super::GetProfileString(lpszSection, lpszEntry, lpszDefault);
+    CString rv{__super::GetProfileString(lpszSection, lpszEntry, lpszDefault)};
     TRACE_REG_CONFIG(lpszSection<<" "<<lpszEntry<<" '"<<rv.GetString()<<"'");
     return rv;
 }

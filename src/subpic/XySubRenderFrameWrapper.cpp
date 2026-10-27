@@ -22,14 +22,14 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     }
 }
 
-STDMETHODIMP XySubRenderFrameWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-STDMETHODIMP XySubRenderFrameWrapper::GetOutputRect( RECT *outputRect )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetOutputRect( RECT *outputRect )
 {
     TRACE_SUB_RENDER_FRAME(outputRect<<" "<<m_output_rect);
     if (!outputRect)
@@ -40,7 +40,7 @@ STDMETHODIMP XySubRenderFrameWrapper::GetOutputRect( RECT *outputRect )
     return S_OK;
 }
 
-STDMETHODIMP XySubRenderFrameWrapper::GetClipRect( RECT *clipRect )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetClipRect( RECT *clipRect )
 {
     TRACE_SUB_RENDER_FRAME(clipRect<<" "<<m_clip_rect);
     if (!clipRect)
@@ -51,7 +51,7 @@ STDMETHODIMP XySubRenderFrameWrapper::GetClipRect( RECT *clipRect )
     return S_OK;
 }
 
-STDMETHODIMP XySubRenderFrameWrapper::GetXyColorSpace( int *xyColorSpace )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetXyColorSpace( int *xyColorSpace )
 {
     TRACE_SUB_RENDER_FRAME(xyColorSpace);
     if (!xyColorSpace)
@@ -62,7 +62,7 @@ STDMETHODIMP XySubRenderFrameWrapper::GetXyColorSpace( int *xyColorSpace )
     return S_OK;
 }
 
-STDMETHODIMP XySubRenderFrameWrapper::GetBitmapCount( int *count )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetBitmapCount( int *count )
 {
     TRACE_SUB_RENDER_FRAME(count<<" "<<1);
     if (!count)
@@ -73,7 +73,7 @@ STDMETHODIMP XySubRenderFrameWrapper::GetBitmapCount( int *count )
     return S_OK;
 }
 
-STDMETHODIMP XySubRenderFrameWrapper::GetBitmap( int index, ULONGLONG *id, POINT *position, SIZE *size
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size
     , LPCVOID *pixels, int *pitch )
 {
     if (index!=0)
@@ -89,7 +89,7 @@ STDMETHODIMP XySubRenderFrameWrapper::GetBitmap( int index, ULONGLONG *id, POINT
         *id = m_id;
     }
     CRect dirty_rect;
-    HRESULT hr = m_inner_obj->GetDirtyRect(&dirty_rect);
+    HRESULT hr{m_inner_obj->GetDirtyRect(&dirty_rect)};
     if (FAILED(hr))
     {
         return hr;
@@ -117,7 +117,7 @@ STDMETHODIMP XySubRenderFrameWrapper::GetBitmap( int index, ULONGLONG *id, POINT
     return S_OK;
 }
 
-STDMETHODIMP XySubRenderFrameWrapper::GetBitmapExtra( int index, LPVOID extra_info )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetBitmapExtra( const int index, const LPVOID extra_info )
 {
     if (index!=0)
     {
@@ -134,7 +134,7 @@ class ContextedBitmapId
 {
 public:
     ContextedBitmapId(ULONGLONG context_id, ULONGLONG bitmap_id):m_context_id(context_id),m_bitmap_id(bitmap_id){}
-    bool operator==(const ContextedBitmapId& key) const
+    [[nodiscard]] bool operator==(const ContextedBitmapId& key) const
     {
         return key.m_context_id == m_context_id && key.m_bitmap_id == m_bitmap_id;
     }
@@ -163,13 +163,13 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     , m_inner_obj(inner_obj)
 {
     ASSERT(inner_obj);
-    int count = 0;
-    HRESULT hr = inner_obj->GetBitmapCount(&count);
-    ASSERT(SUCCEEDED(hr) && count>=0);
+    int count{0};
+    HRESULT hr{inner_obj->GetBitmapCount(&count)};
+    [[nodiscard]] ASSERT(SUCCEEDED(hr) && count>=0);
     if (count>0)
     {
         m_ids.SetCount(count);
-        for (int i=0;i<count;i++)
+        for (int i{0};i<count;i++)
         {
             ULONGLONG id;
             hr = inner_obj->GetBitmap(i, &id, NULL, NULL, NULL, NULL);
@@ -179,37 +179,37 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     }
 }
 
-STDMETHODIMP XySubRenderFrameWrapper2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-STDMETHODIMP XySubRenderFrameWrapper2::GetOutputRect( RECT *outputRect )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetOutputRect( RECT *outputRect )
 {
     return m_inner_obj->GetOutputRect(outputRect);
 }
 
-STDMETHODIMP XySubRenderFrameWrapper2::GetClipRect( RECT *clipRect )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetClipRect( RECT *clipRect )
 {
     return m_inner_obj->GetClipRect(clipRect);
 }
 
-STDMETHODIMP XySubRenderFrameWrapper2::GetXyColorSpace( int *xyColorSpace )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetXyColorSpace( int *xyColorSpace )
 {
     return m_inner_obj->GetXyColorSpace(xyColorSpace);
 }
 
-STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapCount( int *count )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapCount( int *count )
 {
     return m_inner_obj->GetBitmapCount(count);
 }
 
-STDMETHODIMP XySubRenderFrameWrapper2::GetBitmap( int index, ULONGLONG *id, POINT *position, SIZE *size
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size
     , LPCVOID *pixels, int *pitch )
 {
-    HRESULT hr = m_inner_obj->GetBitmap(index, id, position, size, pixels, pitch);
+    HRESULT hr{m_inner_obj->GetBitmap(index, id, position, size, pixels, pitch)};
     if (FAILED(hr))
     {
         return hr;
@@ -223,7 +223,7 @@ STDMETHODIMP XySubRenderFrameWrapper2::GetBitmap( int index, ULONGLONG *id, POIN
     return hr;
 }
 
-STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapExtra( int index, LPVOID extra_info )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapExtra( const int index, const LPVOID extra_info )
 {
     return m_inner_obj->GetBitmapExtra(index, extra_info);
 }
@@ -237,13 +237,13 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
     using namespace std;
 
     ASSERT(sub);
-    ofstream output(filename, ios::out);
+    [[nodiscard]] ofstream output(filename, ios::out);
     if (!output)
     {
         XY_LOG_ERROR("Failed to open file '"<<filename<<"'");
         return E_FAIL;
     }
-    HRESULT hr = E_FAIL;
+    HRESULT hr{E_FAIL};
     RECT rect;
     hr = sub->GetOutputRect(&rect);
     if (FAILED(hr))
@@ -261,7 +261,7 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
     }
     output<<"clip rect:"<<rect<<endl;
 
-    int xyColorSpace = 0;
+    int xyColorSpace{0};
     hr = sub->GetXyColorSpace(&xyColorSpace);
     if (FAILED(hr))
     {
@@ -269,7 +269,7 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
         return hr;
     }
     output<<"xyColorSpace:"<<xyColorSpace<<endl;
-    int count = 0;
+    int count{0};
     hr = sub->GetBitmapCount(&count);
     if (FAILED(hr)) {
         XY_LOG_ERROR("Failed to get bitmap count. "<<XY_LOG_VAR_2_STR(hr));
@@ -281,7 +281,7 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
         output<<"Colorspace NOT Supported! "<<endl;
         return S_FALSE;
     }
-    for (int i=0;i<count;i++)
+    for (int i{0};i<count;i++)
     {
         ULONGLONG id;
         POINT position;
@@ -294,14 +294,14 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
             XY_LOG_ERROR("Failed to get bitmap count. "<<XY_LOG_VAR_2_STR(hr));
             return hr;
         }
-        const DWORD* pixels2 = (const DWORD*)pixels;
+        const DWORD* pixels2{(const DWORD*)pixels};
         output<<"\tbitmap "<<i<<" id: "<<id<<" position: "<<position<<" size: "<<size<<" pitch: "<<pitch
             <<" pixels: "<<pixels2<<endl;
         output<<hex;
-        for (int m=0;m<size.cy;m++)
+        for (int m{0};m<size.cy;m++)
         {
             output<<"\timg:";
-            for (int n=0;n<size.cx;n++)
+            for (int n{0};n<size.cx;n++)
             {
                 output<<" "<<setfill('0')<<setw(8)<<(int)pixels2[n];
             }
@@ -325,7 +325,7 @@ DEFINE_GUID(ImageFormatPNG, 0xb96b3caf,0x0728,0x11d3,0x9d,0x7b,0x00,0x00,0xf8,0x
 HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_channel, bool dump_rgb_bmp
     , DWORD background_color)
 {
-    HRESULT hr = E_FAIL;
+    HRESULT hr{E_FAIL};
     CRect output_rect, clip_rect;
     hr = sub->GetOutputRect(&output_rect);
     if (FAILED(hr))
@@ -335,26 +335,26 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
     }
 
     CImage imageBmp, image8bbp;
-    bool succeeded = imageBmp.Create(output_rect.Width(),output_rect.Height(),32) &&
-        image8bbp.Create(output_rect.Width(),output_rect.Height(),8);
+    bool succeeded{imageBmp.Create(output_rect.Width(),output_rect.Height(),32) &&
+        image8bbp.Create(output_rect.Width(),output_rect.Height(),8)};
     if (!succeeded) {
         XY_LOG_ERROR("Failed to create image.");
         hr = E_FAIL;
         return hr;
     }
 
-    RGBQUAD bmiColors[256];
-    for (int i = 0; i < 256; i++) {
+    RGBQUAD bmiColors[256U];
+    for (int i{0}; i < 256; i++) {
         bmiColors[i].rgbRed   = i;
         bmiColors[i].rgbGreen = i;
         bmiColors[i].rgbBlue  = i;
     }
     image8bbp.SetColorTable(0, 256, bmiColors);
 
-    DWORD ba = (background_color&0xff000000)>>24;
-    DWORD br = (background_color&0x00ff0000)>>16;
-    DWORD bg = (background_color&0x0000ff00)>>8;
-    DWORD bb = (background_color&0x000000ff);
+    DWORD ba{(background_color&0xff000000)>>24};
+    DWORD br{(background_color&0x00ff0000)>>16};
+    DWORD bg{(background_color&0x0000ff00)>>8};
+    DWORD bb{(background_color&0x000000ff)};
 
     hr = sub->GetClipRect(&clip_rect);
     if (FAILED(hr))
@@ -363,7 +363,7 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
         return hr;
     }
     clip_rect &= output_rect;
-    int xyColorSpace = 0;
+    int xyColorSpace{0};
     hr = sub->GetXyColorSpace(&xyColorSpace);
     if (FAILED(hr))
     {
@@ -371,7 +371,7 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
         return hr;
     }
 
-    int count = 0;
+    int count{0};
     hr = sub->GetBitmapCount(&count);
     if (FAILED(hr)) {
         XY_LOG_ERROR("Failed to get bitmap count. "<<XY_LOG_VAR_2_STR(hr));
@@ -382,7 +382,7 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
         XY_LOG_ERROR("Colorspace NOT Supported!");
         return S_FALSE;
     }
-    for (int i=0;i<count;i++)
+    for (int i{0};i<count;i++)
     {
         ULONGLONG id;
         POINT position;
@@ -395,7 +395,7 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
             XY_LOG_ERROR("Failed to get bitmap count. "<<XY_LOG_VAR_2_STR(hr));
             return hr;
         }
-        const DWORD* pixels2 = (const DWORD*)pixels;
+        const DWORD* pixels2{(const DWORD*)pixels};
         if (position.x < clip_rect.left)
         {
             pixels2 += clip_rect.left - position.x;
@@ -417,17 +417,17 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
             size.cy -= position.y + size.cy - clip_rect.bottom;
         }
 
-        for (int m=0;m<size.cy;m++)
+        for (int m{0};m<size.cy;m++)
         {
-            BYTE * pix_8bpp = (BYTE *)image8bbp.GetPixelAddress(position.x-output_rect.left, position.y+m-output_rect.top);
-            BYTE * pix_32bpp = (BYTE *)imageBmp.GetPixelAddress(position.x-output_rect.left, position.y+m-output_rect.top);
-            for (int n=0;n<size.cx;n++)
+            BYTE * pix_8bpp{(BYTE *)image8bbp.GetPixelAddress(position.x-output_rect.left, position.y+m-output_rect.top)};
+            BYTE * pix_32bpp{(BYTE *)imageBmp.GetPixelAddress(position.x-output_rect.left, position.y+m-output_rect.top)};
+            for (int n{0};n<size.cx;n++)
             {
-                DWORD argb = pixels2[n];
-                DWORD a = (argb&0xff000000)>>24;
-                DWORD r = (argb&0x00ff0000)>>16;
-                DWORD g = (argb&0x0000ff00)>>8;
-                DWORD b = (argb&0x000000ff);
+                DWORD argb{pixels2[n]};
+                DWORD a{(argb&0xff000000)>>24};
+                DWORD r{(argb&0x00ff0000)>>16};
+                DWORD g{(argb&0x0000ff00)>>8};
+                DWORD b{(argb&0x000000ff)};
                 *pix_8bpp++ = a;
                 *pix_32bpp++ = b + (((256-a)*bb)>>8);
                 *pix_32bpp++ = g + (((256-a)*bg)>>8);
@@ -438,9 +438,9 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
         }
     }
 
-    CString filename_alpha(filename);
+    CString filename_alpha{filename};
     filename_alpha += "_alpha.bmp";
-    CString filename_rgb(filename);
+    CString filename_rgb{filename};
     filename_rgb += "_rgb.bmp";
 
     succeeded = true;

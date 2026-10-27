@@ -40,37 +40,37 @@ private:
 	enc m_encoding, m_defaultencoding;
 	int m_offset;
 
-	unsigned char m_readbuffer[4096];
-	size_t m_bufferPos;
-	size_t m_bufferCount;
+	unsigned char m_readbuffer[4096U];
+	std::size_t m_bufferPos;
+	std::size_t m_bufferCount;
 	std::vector<wchar_t> m_convertedBuffer;
 
 	enum charerror {CHARERR_NEED_MORE=-1, CHARERR_REOPEN=-2};
 
-	int NextChar();
-	bool ReadLine();
+	[[nodiscard]] int NextChar();
+	[[nodiscard]] bool ReadLine();
 
 public:
-	CTextFile(enc e = DEFAULT_ENCODING);
+	explicit CTextFile(enc e = DEFAULT_ENCODING);
 
-	virtual bool Open(LPCTSTR lpszFileName);
-	virtual bool Save(LPCTSTR lpszFileName, enc e /*= DEFAULT_ENCODING*/);
+	[[nodiscard]] virtual bool Open(LPCTSTR lpszFileName);
+	[[nodiscard]] virtual bool Save(LPCTSTR lpszFileName, enc e /*= DEFAULT_ENCODING*/);
 
-	void SetEncoding(enc e);
-	enc GetEncoding();
-	bool IsUnicode();
+	constexpr void SetEncoding(enc e) noexcept;
+	[[nodiscard]] constexpr enc GetEncoding() noexcept;
+	[[nodiscard]] constexpr bool IsUnicode() noexcept;
 
 	// CFile
-	CString GetFilePath() const;
+	[[nodiscard]] constexpr CString GetFilePath() const noexcept;
 
 	// CStdioFile
 
-    ULONGLONG GetPosition() const;
-	ULONGLONG GetLength() const;
-	ULONGLONG Seek(LONGLONG lOff, UINT nFrom);
+    [[nodiscard]] ULONGLONG GetPosition() const;
+	[[nodiscard]] ULONGLONG GetLength() const;
+	[[nodiscard]] ULONGLONG Seek(LONGLONG lOff, UINT nFrom);
 
 	void WriteString(LPCWSTR lpsz/*CStringW str*/);
-	BOOL ReadString(CStringW& str);
+	[[nodiscard]] BOOL ReadString(CStringW& str);
 };
 
 class CWebTextFile : public CTextFile
@@ -79,9 +79,9 @@ class CWebTextFile : public CTextFile
 	CString m_tempfn;
 
 public:
-    CWebTextFile(CTextFile::enc e = DEFAULT_ENCODING, LONGLONG llMaxSize = 1024 * 1024);
+    explicit CWebTextFile(CTextFile::enc e = DEFAULT_ENCODING, LONGLONG llMaxSize = 1024 * 1024);
 
-	bool Open(LPCTSTR lpszFileName);
-	bool Save(LPCTSTR lpszFileName, enc e /*= DEFAULT_ENCODING*/);
+	[[nodiscard]] bool Open(LPCTSTR lpszFileName);
+	[[nodiscard]] bool Save(LPCTSTR lpszFileName, enc e /*= DEFAULT_ENCODING*/);
 	void Close();
 };

@@ -74,11 +74,12 @@ CStyleEditorPPage::CStyleEditorPPage(CString title, const STSStyle* pstss)
     m_psp.dwFlags |= PSP_USETITLE;
 }
 
-CStyleEditorPPage::~CStyleEditorPPage()
+constexpr CStyleEditorPPage::~CStyleEditorPPage()
+noexcept
 {
 }
 
-void CStyleEditorPPage::init( CString title, const STSStyle* pstss )
+void CStyleEditorPPage::init( const CString title, const STSStyle* pstss )
 {
     m_title = title;
     m_stss = *pstss;
@@ -112,28 +113,31 @@ void CStyleEditorPPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SPIN8, m_margintopspin);
 	DDX_Text(pDX, IDC_EDIT10, m_margin.bottom);
 	DDX_Control(pDX, IDC_SPIN9, m_marginbottomspin);
-	DDX_Control(pDX, IDC_COLORPRI, m_color[0]);
-	DDX_Control(pDX, IDC_COLORSEC, m_color[1]);
-	DDX_Control(pDX, IDC_COLOROUTL, m_color[2]);
-	DDX_Control(pDX, IDC_COLORSHAD, m_color[3]);
-	DDX_Slider(pDX, IDC_SLIDER2, m_alpha[0]);
-	DDX_Slider(pDX, IDC_SLIDER3, m_alpha[1]);
-	DDX_Slider(pDX, IDC_SLIDER5, m_alpha[2]);
-	DDX_Slider(pDX, IDC_SLIDER6, m_alpha[3]);
-	DDX_Control(pDX, IDC_SLIDER2, m_alphasliders[0]);
-	DDX_Control(pDX, IDC_SLIDER3, m_alphasliders[1]);
-	DDX_Control(pDX, IDC_SLIDER5, m_alphasliders[2]);
-	DDX_Control(pDX, IDC_SLIDER6, m_alphasliders[3]);
+	DDX_Control(pDX, IDC_COLORPRI, m_color[0U]);
+	DDX_Control(pDX, IDC_COLORSEC, m_color[1U]);
+	DDX_Control(pDX, IDC_COLOROUTL, m_color[2U]);
+	DDX_Control(pDX, IDC_COLORSHAD, m_color[3U]);
+	DDX_Slider(pDX, IDC_SLIDER2, m_alpha[0U]);
+	DDX_Slider(pDX, IDC_SLIDER3, m_alpha[1U]);
+	DDX_Slider(pDX, IDC_SLIDER5, m_alpha[2U]);
+	DDX_Slider(pDX, IDC_SLIDER6, m_alpha[3U]);
+	DDX_Control(pDX, IDC_SLIDER2, m_alphasliders[0U]);
+	DDX_Control(pDX, IDC_SLIDER3, m_alphasliders[1U]);
+	DDX_Control(pDX, IDC_SLIDER5, m_alphasliders[2U]);
+	DDX_Control(pDX, IDC_SLIDER6, m_alphasliders[3U]);
 	DDX_Check(pDX, IDC_CHECK1, m_linkalphasliders);
 }
 
-void CStyleEditorPPage::UpdateControlData(bool fSave)
+void CStyleEditorPPage::UpdateControlData(const bool fSave)
 {
 	if(fSave)
 	{
 		UpdateData();
 
-		if(m_iCharset >= 0) m_stss.charSet = m_charset.GetItemData(m_iCharset);
+		if(m_iCharset >= 0)
+		{
+		    m_stss.charSet = m_charset.GetItemData(m_iCharset);
+		}
 		m_stss.fontSpacing = m_spacing;
 		m_stss.fontAngleZ = m_angle;
 		m_stss.fontScaleX = m_scalex;
@@ -152,7 +156,10 @@ void CStyleEditorPPage::UpdateControlData(bool fSave)
 		m_stss.scrAlignment = m_screenalignment+1;
 		m_stss.marginRect = m_margin;
 
-		for(int i = 0; i < 4; i++) m_stss.alpha[i] = 255-m_alpha[i];
+		for(int i{0}; i < 4; i++)
+		{
+		    m_stss.alpha[i] = 255-m_alpha[i];
+		}
 	}
 	else
 	{
@@ -161,21 +168,27 @@ void CStyleEditorPPage::UpdateControlData(bool fSave)
         if (m_charset.GetCount()==0)
         {
             m_iCharset = -1;
-            for(int i = 0; i < CharSetLen; i++)
+            for(int i{0}; i < CharSetLen; i++)
             {
                 CString str;
                 str.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
                 m_charset.AddString(str);
                 m_charset.SetItemData(i, CharSetList[i]);
-                if(m_stss.charSet == CharSetList[i]) m_iCharset = i;
+                if(m_stss.charSet == CharSetList[i])
+                {
+                    m_iCharset = i;
+                }
             }
         }
 
 		// TODO: allow floats in these edit boxes
 		m_spacing = m_stss.fontSpacing;
 		m_spacingspin.SetRange32(-10000, 10000);
-		while(m_stss.fontAngleZ < 0) m_stss.fontAngleZ += 360;
-		m_angle = fmod(m_stss.fontAngleZ, 360);
+		while(m_stss.fontAngleZ < 0)
+		{
+		    m_stss.fontAngleZ += 360;
+		}
+		m_angle = std::fmod(m_stss.fontAngleZ, 360);
 		m_anglespin.SetRange32(0, 359);
 		m_scalex = m_stss.fontScaleX;
 		m_scalexspin.SetRange32(-10000, 10000);
@@ -195,7 +208,7 @@ void CStyleEditorPPage::UpdateControlData(bool fSave)
 		m_margintopspin.SetRange32(-10000, 10000);
 		m_marginbottomspin.SetRange32(-10000, 10000);
 
-		for(int i = 0; i < 4; i++)
+		for(int i{0}; i < 4; i++)
 		{
 			m_color[i].SetColorPtr(&m_stss.colors[i]);
 			m_alpha[i] = 255-m_stss.alpha[i];
@@ -208,9 +221,9 @@ void CStyleEditorPPage::UpdateControlData(bool fSave)
 	}
 }
 
-void CStyleEditorPPage::AskColor(int i)
+void CStyleEditorPPage::AskColor(const int i)
 {
-	CColorDialog dlg(m_stss.colors[i]);
+	CColorDialog dlg{m_stss.colors[i]};
 	dlg.m_cc.Flags |= CC_FULLOPEN;
 	if(dlg.DoModal() == IDOK)
 	{
@@ -253,14 +266,17 @@ void CStyleEditorPPage::OnBnClickedButton1()
 	LOGFONT lf;
 	lf <<= m_stss;
 
-	CFontDialog dlg(&lf, CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT|CF_FORCEFONTEXIST|CF_SCALABLEONLY|CF_EFFECTS);
+	[[nodiscard]] CFontDialog dlg(&lf, CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT|CF_FORCEFONTEXIST|CF_SCALABLEONLY|CF_EFFECTS);
 	if(dlg.DoModal() == IDOK)
 	{
-		CString str(lf.lfFaceName);
-		if(str.GetLength() > 16) str = str.Left(14) + _T("...");
+		CString str{lf.lfFaceName};
+		if(str.GetLength() > 16)
+		{
+		    str = str.Left(14) + _T("...");
+		}
 		m_font.SetWindowText(str);
 
-		for(int i = 0, j = m_charset.GetCount(); i < j; i++)
+		for(int i{0}, j = m_charset.GetCount(); i < j; i++)
 		{
 			if(m_charset.GetItemData(i) == lf.lfCharSet)
 			{
@@ -297,18 +313,27 @@ void CStyleEditorPPage::OnBnClickedCheck1()
 {
 	UpdateData();
 
-	int avg = 0;
-	for(int i = 0; i < 4; i++) avg += m_alphasliders[i].GetPos();
+	int avg{0};
+	for(int i{0}; i < 4; i++)
+	{
+	    avg += m_alphasliders[i].GetPos();
+	}
 	avg /= 4;
-	for(int i = 0; i < 4; i++) m_alphasliders[i].SetPos(avg);
+	for(int i{0}; i < 4; i++)
+	{
+	    m_alphasliders[i].SetPos(avg);
+	}
 }
 
-void CStyleEditorPPage::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+void CStyleEditorPPage::OnHScroll(const UINT nSBCode, const UINT nPos, CScrollBar* pScrollBar)
 {
 	if(m_linkalphasliders && pScrollBar)
 	{
-		int pos = ((CSliderCtrl*)pScrollBar)->GetPos();
-		for(int i = 0; i < 4; i++) m_alphasliders[i].SetPos(pos);
+		int pos{((CSliderCtrl*)pScrollBar)->GetPos()};
+		for(int i{0}; i < 4; i++)
+		{
+		    m_alphasliders[i].SetPos(pos);
+		}
 	}
 
 	CPropertyPage::OnHScroll(nSBCode, nPos, pScrollBar);

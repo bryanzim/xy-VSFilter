@@ -53,9 +53,9 @@ TEST_F(XyIntrinsicsTest, Check_AVERAGE_4_PIX_INTRINSICS_3)
         <<M128I_U8_TO_STR_2(m128_last_out)<<std::endl;
 
     m128_1_in = _mm_cmpeq_epi32(m128_1_in, m128_1_in);    
-    m128_last_in.m128i_u8[0] = 0xff;
-    m128_last_in.m128i_u8[1] = 0xff;
-    for (int i=2;i<16;i++)
+    m128_last_in.m128i_u8[0U] = 0xff;
+    m128_last_in.m128i_u8[1U] = 0xff;
+    for (int i{2};i<16;i++)
     {
         m128_last_in.m128i_u8[i] = 0;
     }
@@ -78,16 +78,16 @@ TEST_F(XyIntrinsicsTest, Check_AVERAGE_4_PIX_INTRINSICS_3)
         <<M128I_U8_TO_STR_2(m128_1_out)<<std::endl
         <<M128I_U8_TO_STR_2(m128_last_out)<<std::endl;
 
-    for (int i=0;i<100000;i++)
+    for (int i{0};i<100000;i++)
     {
-        for (int j=0;j<4;j++)
+        for (int j{0};j<4;j++)
         {
             m128_1_in.m128i_i32[j] = rand();
             m128_last_in.m128i_i32[j] = rand();
         }
-        m128_last_in.m128i_u8[0] = rand();
-        m128_last_in.m128i_u8[1] = rand();
-        for (int i=2;i<16;i++)
+        m128_last_in.m128i_u8[0U] = rand();
+        m128_last_in.m128i_u8[1U] = rand();
+        for (int i{2};i<16;i++)
         {
             m128_last_in.m128i_u8[i] = 0;
         }
@@ -140,9 +140,9 @@ TEST_F(XyIntrinsicsTest, Check_AVERAGE_4_PIX_INTRINSICS_4)
         <<M128I_U8_TO_STR_2(m128_last_out)<<std::endl;
 
     m128_1_in = _mm_cmpeq_epi32(m128_1_in, m128_1_in);    
-    m128_last_in.m128i_u8[0] = 0xff;
-    m128_last_in.m128i_u8[1] = 0xff;
-    for (int i=2;i<16;i++)
+    m128_last_in.m128i_u8[0U] = 0xff;
+    m128_last_in.m128i_u8[1U] = 0xff;
+    for (int i{2};i<16;i++)
     {
         m128_last_in.m128i_u8[i] = 0;
     }
@@ -165,16 +165,16 @@ TEST_F(XyIntrinsicsTest, Check_AVERAGE_4_PIX_INTRINSICS_4)
         <<M128I_U8_TO_STR_2(m128_1_out)<<std::endl
         <<M128I_U8_TO_STR_2(m128_last_out)<<std::endl;
 
-    for (int i=0;i<100000;i++)
+    for (int i{0};i<100000;i++)
     {
-        for (int j=0;j<4;j++)
+        for (int j{0};j<4;j++)
         {
             m128_1_in.m128i_i32[j] = rand();
             m128_last_in.m128i_i32[j] = rand();
         }
-        m128_last_in.m128i_u8[0] = rand();
-        m128_last_in.m128i_u8[1] = rand();
-        for (int i=2;i<16;i++)
+        m128_last_in.m128i_u8[0U] = rand();
+        m128_last_in.m128i_u8[1U] = rand();
+        for (int i{2};i<16;i++)
         {
             m128_last_in.m128i_u8[i] = 0;
         }
@@ -227,9 +227,9 @@ TEST_F(XyIntrinsicsTest, Check_AVERAGE_4_PIX_INTRINSICS_5)
         <<M128I_U8_TO_STR_2(m128_last_out)<<std::endl;
 
     m128_1_in = _mm_cmpeq_epi32(m128_1_in, m128_1_in);    
-    m128_last_in.m128i_u8[0] = 0xff;
-    m128_last_in.m128i_u8[1] = 0xff;
-    for (int i=2;i<16;i++)
+    m128_last_in.m128i_u8[0U] = 0xff;
+    m128_last_in.m128i_u8[1U] = 0xff;
+    for (int i{2};i<16;i++)
     {
         m128_last_in.m128i_u8[i] = 0;
     }
@@ -252,16 +252,16 @@ TEST_F(XyIntrinsicsTest, Check_AVERAGE_4_PIX_INTRINSICS_5)
         <<M128I_U8_TO_STR_2(m128_1_out)<<std::endl
         <<M128I_U8_TO_STR_2(m128_last_out)<<std::endl;
 
-    for (int i=0;i<100000;i++)
+    for (int i{0};i<100000;i++)
     {
-        for (int j=0;j<4;j++)
+        for (int j{0};j<4;j++)
         {
             m128_1_in.m128i_i32[j] = rand();
             m128_last_in.m128i_i32[j] = rand();
         }
-        m128_last_in.m128i_u8[0] = rand();
-        m128_last_in.m128i_u8[1] = rand();
-        for (int i=2;i<16;i++)
+        m128_last_in.m128i_u8[0U] = rand();
+        m128_last_in.m128i_u8[1U] = rand();
+        for (int i{2};i<16;i++)
         {
             m128_last_in.m128i_u8[i] = 0;
         }

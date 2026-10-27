@@ -44,7 +44,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 /*removeme*/
-bool g_RegOK = true;//false; // doesn't work with the dvd graph builder
+bool g_RegOK{true};//false; // doesn't work with the dvd graph builder
 #include "valami.cpp"
 
 #if ENABLE_XY_LOG
@@ -67,7 +67,7 @@ const SubRenderOptionsImpl::OptionMap options[] =
     {0}
 };
 
-const REFERENCE_TIME DEFAULT_FRAME_RATE = 10000000.0/25;
+const REFERENCE_TIME DEFAULT_FRAME_RATE{10000000.0/25};
 
 #ifndef CONSUMRE_MERIT
 #  define CONSUMRE_MERIT 0x00020000
@@ -104,7 +104,7 @@ XySubFilterConsumer::XySubFilterConsumer(LPUNKNOWN punk, HRESULT* phr, const GUI
     tmp.Format(ResStr(IDS_RP_PATH), 2);
     theApp.WriteProfileString(ResStr(IDS_R_DEFTEXTPATHES), tmp, _T(".\\subtitles"));
 
-    memset(&m_CurrentVIH2, 0, sizeof(VIDEOINFOHEADER2));
+    std::memset(&m_CurrentVIH2, 0, sizeof(VIDEOINFOHEADER2));
 
     m_donot_follow_upstream_preferred_order = !m_xy_bool_opt[BOOL_FOLLOW_UPSTREAM_PREFERRED_ORDER];
 
@@ -114,14 +114,14 @@ XySubFilterConsumer::XySubFilterConsumer(LPUNKNOWN punk, HRESULT* phr, const GUI
 
 XySubFilterConsumer::~XySubFilterConsumer()
 {
-    CAutoLock cAutoLock(&m_csSubLock);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
 
     DeleteObj4OSD();
 
     XY_LOG_INFO("Deconstructed");
 }
 
-STDMETHODIMP XySubFilterConsumer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 
@@ -147,24 +147,32 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
 
     if(w != os.cx)
     {
-        while(arx < 100) arx *= 10, ary *= 10;
+        while(arx < 100)
+        {
+            arx *= 10, ary *= 10;
+        }
         arx = arx * w / os.cx;
     }
 
     if(h != os.cy)
     {
-        while(ary < 100) arx *= 10, ary *= 10;
+        while(ary < 100)
+        {
+            arx *= 10, ary *= 10;
+        }
         ary = ary * h / os.cy;
     }
 }
 
-HRESULT XySubFilterConsumer::TryNotCopy(IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn )
+[[nodiscard]] HRESULT XySubFilterConsumer::TryNotCopy(IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn )
 {
-    CSize sub(m_w, m_h);
-    CSize in(bihIn.biWidth, bihIn.biHeight);
-    BYTE* pDataIn = NULL;
+    CSize sub{m_w, m_h};
+    CSize in{bihIn.biWidth, bihIn.biHeight};
+    BYTE* pDataIn{NULL};
     if(FAILED(pIn->GetPointer(&pDataIn)) || !pDataIn)
+    {
         return S_FALSE;
+    }
     if( sub==in )
     {
         m_spd.bits = pDataIn;
@@ -172,104 +180,126 @@ HRESULT XySubFilterConsumer::TryNotCopy(IMediaSample* pIn, const CMediaType& mt,
     else
     {
         m_spd.bits = static_cast<BYTE*>(m_pTempPicBuff);
-        bool fYV12 = (mt.subtype == MEDIASUBTYPE_YV12 || mt.subtype == MEDIASUBTYPE_I420 || mt.subtype == MEDIASUBTYPE_IYUV);
-        bool fYV16 = (mt.subtype == MEDIASUBTYPE_YV16);
-        bool fYV24 = (mt.subtype == MEDIASUBTYPE_YV24);
-        bool fNV12 = (mt.subtype == MEDIASUBTYPE_NV12 || mt.subtype == MEDIASUBTYPE_NV21);
-        bool fP010 = (mt.subtype == MEDIASUBTYPE_P010 || mt.subtype == MEDIASUBTYPE_P016);
-        bool fP210 = (mt.subtype == MEDIASUBTYPE_P210 || mt.subtype == MEDIASUBTYPE_P216);
+        bool fYV12{(mt.subtype == MEDIASUBTYPE_YV12 || mt.subtype == MEDIASUBTYPE_I420 || mt.subtype == MEDIASUBTYPE_IYUV)};
+        bool fYV16{(mt.subtype == MEDIASUBTYPE_YV16)};
+        bool fYV24{(mt.subtype == MEDIASUBTYPE_YV24)};
+        bool fNV12{(mt.subtype == MEDIASUBTYPE_NV12 || mt.subtype == MEDIASUBTYPE_NV21)};
+        bool fP010{(mt.subtype == MEDIASUBTYPE_P010 || mt.subtype == MEDIASUBTYPE_P016)};
+        bool fP210{(mt.subtype == MEDIASUBTYPE_P210 || mt.subtype == MEDIASUBTYPE_P216)};
 
-        int bpp = fP010 || fP210 ? 16 : (fYV24 || fYV16 || fYV12 || fNV12) ? 8 : bihIn.biBitCount;
-        DWORD black = fP010 || fP210 ? 0x10001000 : (fYV24 || fYV16 || fYV12 || fNV12) ? 0x10101010 : (bihIn.biCompression == '2YUY') ? 0x80108010 : 0;
+        int bpp{fP010 || fP210 ? 16 : (fYV24 || fYV16 || fYV12 || fNV12) ? 8 : bihIn.biBitCount};
+        DWORD black{fP010 || fP210 ? 0x10001000 : (fYV24 || fYV16 || fYV12 || fNV12) ? 0x10101010 : (bihIn.biCompression == '2YUY') ? 0x80108010 : 0};
 
 
         if(FAILED(Copy((BYTE*)m_pTempPicBuff, pDataIn, sub, in, bpp, mt.subtype, black)))
+        {
             return E_FAIL;
+        }
 
         if(fYV12)
         {
-            BYTE* pSubV = (BYTE*)m_pTempPicBuff + (sub.cx*bpp>>3)*sub.cy;
-            BYTE* pInV = pDataIn + (in.cx*bpp>>3)*in.cy;
+            BYTE* pSubV{(BYTE*)m_pTempPicBuff + (sub.cx*bpp>>3)*sub.cy};
+            BYTE* pInV{pDataIn + (in.cx*bpp>>3)*in.cy};
             sub.cx >>= 1; sub.cy >>= 1; in.cx >>= 1; in.cy >>= 1;
-            BYTE* pSubU = pSubV + (sub.cx*bpp>>3)*sub.cy;
-            BYTE* pInU = pInV + (in.cx*bpp>>3)*in.cy;
+            BYTE* pSubU{pSubV + (sub.cx*bpp>>3)*sub.cy};
+            BYTE* pInU{pInV + (in.cx*bpp>>3)*in.cy};
             if(FAILED(Copy(pSubV, pInV, sub, in, bpp, mt.subtype, 0x80808080)))
+            {
                 return E_FAIL;
+            }
             if(FAILED(Copy(pSubU, pInU, sub, in, bpp, mt.subtype, 0x80808080)))
+            {
                 return E_FAIL;
+            }
         }
         else if (fYV16)
         {
-            BYTE* pSubV = (BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy;
-            BYTE* pInV = pDataIn + (in.cx * bpp >> 3) * in.cy;
+            BYTE* pSubV{(BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy};
+            BYTE* pInV{pDataIn + (in.cx * bpp >> 3) * in.cy};
             // no vertical subsampling
             sub.cx >>= 1; /*sub.cy >>= 1;*/ in.cx >>= 1; /*in.cy >>= 1;*/
-            BYTE* pSubU = pSubV + (sub.cx * bpp >> 3) * sub.cy;
-            BYTE* pInU = pInV + (in.cx * bpp >> 3) * in.cy;
+            BYTE* pSubU{pSubV + (sub.cx * bpp >> 3) * sub.cy};
+            BYTE* pInU{pInV + (in.cx * bpp >> 3) * in.cy};
             if (FAILED(Copy(pSubV, pInV, sub, in, bpp, mt.subtype, 0x80808080)))
+            {
                 return E_FAIL;
+            }
             if (FAILED(Copy(pSubU, pInU, sub, in, bpp, mt.subtype, 0x80808080)))
+            {
                 return E_FAIL;
+            }
         }
         else if (fYV24)
         {
-            BYTE* pSubV = (BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy;
-            BYTE* pInV = pDataIn + (in.cx * bpp >> 3) * in.cy;
+            BYTE* pSubV{(BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy};
+            BYTE* pInV{pDataIn + (in.cx * bpp >> 3) * in.cy};
             // no subsampling. sub.cx >>= 1; sub.cy >>= 1; in.cx >>= 1; in.cy >>= 1;
-            BYTE* pSubU = pSubV + (sub.cx * bpp >> 3) * sub.cy;
-            BYTE* pInU = pInV + (in.cx * bpp >> 3) * in.cy;
+            BYTE* pSubU{pSubV + (sub.cx * bpp >> 3) * sub.cy};
+            BYTE* pInU{pInV + (in.cx * bpp >> 3) * in.cy};
             if (FAILED(Copy(pSubV, pInV, sub, in, bpp, mt.subtype, 0x80808080)))
+            {
                 return E_FAIL;
+            }
             if (FAILED(Copy(pSubU, pInU, sub, in, bpp, mt.subtype, 0x80808080)))
+            {
                 return E_FAIL;
+            }
         }
         else if (fP010)
         {
-            BYTE* pSubUV = (BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy;
-            BYTE* pInUV = pDataIn + (in.cx * bpp >> 3) * in.cy;
+            BYTE* pSubUV{(BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy};
+            BYTE* pInUV{pDataIn + (in.cx * bpp >> 3) * in.cy};
             // no sub.cx >>= 1 because P010 is word sized
             sub.cy >>= 1; in.cy >>= 1;
             if (FAILED(Copy(pSubUV, pInUV, sub, in, bpp, mt.subtype, 0x80008000)))
+            {
                 return E_FAIL;
+            }
         }
         else if (fP210)
         {
-            BYTE* pSubUV = (BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy;
-            BYTE* pInUV = pDataIn + (in.cx * bpp >> 3) * in.cy;
+            BYTE* pSubUV{(BYTE*)m_pTempPicBuff + (sub.cx * bpp >> 3) * sub.cy};
+            BYTE* pInUV{pDataIn + (in.cx * bpp >> 3) * in.cy};
             // no sub.cx >>= 1 because P010 is word sized
             // no V subsampling // sub.cy >>= 1; in.cy >>= 1;
             if (FAILED(Copy(pSubUV, pInUV, sub, in, bpp, mt.subtype, 0x80008000)))
+            {
                 return E_FAIL;
+            }
         }
         else if(fNV12) {
-            BYTE* pSubUV = (BYTE*)m_pTempPicBuff + (sub.cx*bpp>>3)*sub.cy;
-            BYTE* pInUV = pDataIn + (in.cx*bpp>>3)*in.cy;
+            BYTE* pSubUV{(BYTE*)m_pTempPicBuff + (sub.cx*bpp>>3)*sub.cy};
+            BYTE* pInUV{pDataIn + (in.cx*bpp>>3)*in.cy};
             sub.cy >>= 1;
             in.cy >>= 1;
             if(FAILED(Copy(pSubUV, pInUV, sub, in, bpp, mt.subtype, 0x80808080)))
+            {
                 return E_FAIL;
+            }
         }
     }
     return S_OK;
 }
 
-HRESULT XySubFilterConsumer::Transform(IMediaSample* pIn)
+[[nodiscard]] HRESULT XySubFilterConsumer::Transform(IMediaSample* pIn)
 {
     HRESULT hr;
 
     REFERENCE_TIME rtStart, rtStop;
     if(SUCCEEDED(pIn->GetTime(&rtStart, &rtStop)))
     {
-        double dRate = m_pInput->CurrentRate();
+        double dRate{m_pInput->CurrentRate()};
 
         m_tPrev = m_pInput->CurrentStartTime() + dRate*rtStart;
 
-        REFERENCE_TIME rtAvgTimePerFrame = rtStop - rtStart;
+        REFERENCE_TIME rtAvgTimePerFrame{rtStop - rtStart};
         if(CComQIPtr<ISubClock2> pSC2 = m_pSubClock)
         {
             REFERENCE_TIME rt;
             if(S_OK == pSC2->GetAvgTimePerFrame(&rt))
+            {
                 rtAvgTimePerFrame = rt;
+            }
         }
 
         m_xy_ulonglong_opt[ULONGLOG_FRAME_RATE] = rtAvgTimePerFrame * dRate;
@@ -278,7 +308,7 @@ HRESULT XySubFilterConsumer::Transform(IMediaSample* pIn)
     //
 
     {
-        CAutoLock cAutoLock(&m_csSubLock);
+        [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
         m_sub_render_frame = NULL;
         if(m_provider)
         {
@@ -289,7 +319,7 @@ HRESULT XySubFilterConsumer::Transform(IMediaSample* pIn)
 
     //
 
-    const CMediaType& mt = m_pInput->CurrentMediaType();
+    const CMediaType& mt{m_pInput->CurrentMediaType()};
 
     BITMAPINFOHEADER bihIn;
     ExtractBIH(&mt, &bihIn);
@@ -302,13 +332,15 @@ HRESULT XySubFilterConsumer::Transform(IMediaSample* pIn)
     }
     //
 
-    SubPicDesc spd = m_spd;
+    SubPicDesc spd{m_spd};
 
     CComPtr<IMediaSample> pOut;
-    BYTE* pDataOut = NULL;
+    BYTE* pDataOut{NULL};
     if(FAILED(hr = GetDeliveryBuffer(spd.w, spd.h, &pOut))
         || FAILED(hr = pOut->GetPointer(&pDataOut)))
+    {
         return hr;
+    }
     pOut->SetTime(&rtStart, &rtStop);
     pOut->SetMediaTime(NULL, NULL);
     pOut->SetDiscontinuity(pIn->IsDiscontinuity() == S_OK);
@@ -319,25 +351,36 @@ HRESULT XySubFilterConsumer::Transform(IMediaSample* pIn)
     BITMAPINFOHEADER bihOut;
     ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
 
-    bool fInputFlipped = bihIn.biHeight >= 0 && bihIn.biCompression <= 3;
-    bool fOutputFlipped = bihOut.biHeight >= 0 && bihOut.biCompression <= 3;
+    bool fInputFlipped{bihIn.biHeight >= 0 && bihIn.biCompression <= 3};
+    bool fOutputFlipped{bihOut.biHeight >= 0 && bihOut.biCompression <= 3};
 
-    bool fFlip = fInputFlipped != fOutputFlipped;
-    if(m_xy_bool_opt[BOOL_FLIP_PICTURE]) fFlip = !fFlip;
-    if(m_fMSMpeg4Fix) fFlip = !fFlip;
+    bool fFlip{fInputFlipped != fOutputFlipped};
+    if(m_xy_bool_opt[BOOL_FLIP_PICTURE])
+    {
+        fFlip = !fFlip;
+    }
+    if(m_fMSMpeg4Fix)
+    {
+        fFlip = !fFlip;
+    }
 
-    bool fFlipSub = fOutputFlipped;
-    if(m_xy_bool_opt[BOOL_FLIP_SUBTITLE]) fFlipSub = !fFlipSub;
+    bool fFlipSub{fOutputFlipped};
+    if(m_xy_bool_opt[BOOL_FLIP_SUBTITLE])
+    {
+        fFlipSub = !fFlipSub;
+    }
 
     //
 
     {
-        CAutoLock cAutoLock(&m_csSubLock);
+        [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
 
         if(m_sub_render_frame)
         {
             if(fFlip ^ fFlipSub)
+            {
                 spd.h = -spd.h;
+            }
 
             TRACE_RENDERER_REQUEST("AlphaBlt");
             hr = AlphaBlt(spd);
@@ -348,22 +391,22 @@ HRESULT XySubFilterConsumer::Transform(IMediaSample* pIn)
             TRACE_RENDERER_REQUEST("AlphaBlt finished");
         }
     }
-    CopyBuffer(pDataOut, (BYTE*)spd.bits, spd.w, abs(spd.h)*(fFlip?-1:1), spd.pitch, mt.subtype);
+    CopyBuffer(pDataOut, (BYTE*)spd.bits, spd.w, std::abs(spd.h)*(fFlip?-1:1), spd.pitch, mt.subtype);
 
     PrintMessages(pDataOut);
     return m_pOutput->Deliver(pOut);
 }
 
-HRESULT XySubFilterConsumer::AlphaBlt(SubPicDesc& spd)
+[[nodiscard]] HRESULT XySubFilterConsumer::AlphaBlt(SubPicDesc& spd)
 {
-    HRESULT hr = NOERROR;
+    HRESULT hr{NOERROR};
     XySubPicPlan dst = { spd.w, spd.h, spd.pitch, spd.bits };
     ASSERT(m_sub_render_frame);
 
-    int count = 0;
+    int count{0};
     hr = m_sub_render_frame->GetBitmapCount(&count);
     ASSERT(SUCCEEDED(hr));
-    for (int i=0;i<count;i++)
+    for (int i{0};i<count;i++)
     {
         XySubPicPlan sub;
         CPoint pos;
@@ -388,7 +431,7 @@ HRESULT XySubFilterConsumer::AlphaBlt(SubPicDesc& spd)
 
 // CBaseFilter
 
-HRESULT XySubFilterConsumer::JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName)
+[[nodiscard]] HRESULT XySubFilterConsumer::JoinFilterGraph(IFilterGraph* pGraph, const LPCWSTR pName)
 {
     XY_LOG_INFO("pGraph:"<<(void*)pGraph<<" pName:"<<(pName?pName:L"NULL"));
     if(pGraph)
@@ -397,12 +440,12 @@ HRESULT XySubFilterConsumer::JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName
 
         if(!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_SEENDIVXWARNING), 0))
         {
-            unsigned __int64 ver = GetFileVersion(_T("divx_c32.ax"));
+            unsigned __int64 ver{GetFileVersion(_T("divx_c32.ax"))};
             if(((ver >> 48)&0xffff) == 4 && ((ver >> 32)&0xffff) == 2)
             {
-                DWORD dwVersion = GetVersion();
-                DWORD dwWindowsMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
-                DWORD dwWindowsMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
+                DWORD dwVersion{GetVersion()};
+                DWORD dwWindowsMajorVersion{(DWORD)(LOBYTE(LOWORD(dwVersion)))};
+                DWORD dwWindowsMinorVersion{(DWORD)(HIBYTE(LOWORD(dwVersion)))};
 
                 if(dwVersion < 0x80000000 && dwWindowsMajorVersion >= 5)
                 {
@@ -423,7 +466,7 @@ HRESULT XySubFilterConsumer::JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName
     return __super::JoinFilterGraph(pGraph, pName);
 }
 
-STDMETHODIMP XySubFilterConsumer::QueryFilterInfo(FILTER_INFO* pInfo)
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::QueryFilterInfo(FILTER_INFO* pInfo)
 {
     CheckPointer(pInfo, E_POINTER);
     ValidateReadWritePtr(pInfo, sizeof(FILTER_INFO));
@@ -434,32 +477,39 @@ STDMETHODIMP XySubFilterConsumer::QueryFilterInfo(FILTER_INFO* pInfo)
     else {
         swprintf_s(pInfo->achName, L"XySubFilterConsumer (merit:0x%x|forced loading)", CONSUMRE_MERIT);
     }
-    if(pInfo->pGraph = m_pGraph) m_pGraph->AddRef();
+    if(pInfo->pGraph = m_pGraph)
+    {
+        m_pGraph->AddRef();
+    }
 
     return S_OK;
 }
 
 // CTransformFilter
 
-HRESULT XySubFilterConsumer::SetMediaType(PIN_DIRECTION dir, const CMediaType* pmt)
+[[nodiscard]] HRESULT XySubFilterConsumer::SetMediaType(const PIN_DIRECTION dir, const CMediaType* pmt)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(dir)<<XY_LOG_VAR_2_STR(pmt));
-    HRESULT hr = __super::SetMediaType(dir, pmt);
-    if(FAILED(hr)) return hr;
+    HRESULT hr{__super::SetMediaType(dir, pmt)};
+    if(FAILED(hr))
+    {
+        return hr;
+    }
 
     if(dir == PINDIR_INPUT)
     {
-        CAutoLock cAutoLock(&m_csReceive);
+        [[nodiscard]] CAutoLock cAutoLock(&m_csReceive);
 
-        REFERENCE_TIME atpf =
-            pmt->formattype == FORMAT_VideoInfo ? ((VIDEOINFOHEADER*)pmt->Format())->AvgTimePerFrame :
+        REFERENCE_TIME atpf{pmt->formattype == FORMAT_VideoInfo ? ((VIDEOINFOHEADER*)pmt->Format())->AvgTimePerFrame :
             pmt->formattype == FORMAT_VideoInfo2 ? ((VIDEOINFOHEADER2*)pmt->Format())->AvgTimePerFrame :
-            0;
+            0};
 
         m_xy_ulonglong_opt[ULONGLOG_FRAME_RATE] = atpf ? atpf : DEFAULT_FRAME_RATE;
 
         if (pmt->formattype == FORMAT_VideoInfo2)
+        {
             m_CurrentVIH2 = *(VIDEOINFOHEADER2*)pmt->Format();
+        }
 
         InitConsumerFields();
     }
@@ -471,7 +521,7 @@ HRESULT XySubFilterConsumer::SetMediaType(PIN_DIRECTION dir, const CMediaType* p
     return hr;
 }
 
-HRESULT XySubFilterConsumer::CheckConnect(PIN_DIRECTION dir, IPin* pPin)
+[[nodiscard]] HRESULT XySubFilterConsumer::CheckConnect(const PIN_DIRECTION dir, IPin* pPin)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(dir)<<XY_LOG_VAR_2_STR(pPin));
     if(dir == PINDIR_INPUT)
@@ -480,16 +530,19 @@ HRESULT XySubFilterConsumer::CheckConnect(PIN_DIRECTION dir, IPin* pPin)
     else if(dir == PINDIR_OUTPUT)
     {
         /*removeme*/
-        if(HmGyanusVagyTeNekem(pPin)) return(E_FAIL);
+        if(HmGyanusVagyTeNekem(pPin))
+        {
+            return(E_FAIL);
+        }
     }
 
     return __super::CheckConnect(dir, pPin);
 }
 
-HRESULT XySubFilterConsumer::CompleteConnect(PIN_DIRECTION dir, IPin* pReceivePin)
+[[nodiscard]] HRESULT XySubFilterConsumer::CompleteConnect(const PIN_DIRECTION dir, IPin* pReceivePin)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(dir)<<XY_LOG_VAR_2_STR(pReceivePin));
-    bool reconnected = false;
+    bool reconnected{false};
     if(dir == PINDIR_INPUT)
     {
         DumpGraph(m_pGraph,0);
@@ -508,14 +561,14 @@ HRESULT XySubFilterConsumer::CompleteConnect(PIN_DIRECTION dir, IPin* pReceivePi
     else if(dir == PINDIR_OUTPUT)
     {
         DumpGraph(m_pGraph,0);
-        const CMediaType* mtIn = &(m_pInput->CurrentMediaType());
-        const CMediaType* mtOut = &(m_pOutput->CurrentMediaType());
+        const CMediaType* mtIn{&(m_pInput->CurrentMediaType())};
+        const CMediaType* mtOut{&(m_pOutput->CurrentMediaType())};
         CMediaType desiredMt;
-        int position = 0;
+        int position{0};
         HRESULT hr;
 
-        bool can_reconnect = false;
-        bool can_transform = (CheckTransform(mtIn, mtOut)==S_OK);
+        bool can_reconnect{false};
+        bool can_transform{(CheckTransform(mtIn, mtOut)==S_OK)};
         if( mtIn->subtype!=mtOut->subtype )
         {
             position = GetOutputSubtypePosition(mtOut->subtype);
@@ -592,13 +645,13 @@ HRESULT XySubFilterConsumer::CompleteConnect(PIN_DIRECTION dir, IPin* pReceivePi
         m_pInput->SetMediaType( &m_pInput->CurrentMediaType() );
     }
 
-    HRESULT hr = __super::CompleteConnect(dir, pReceivePin);
+    HRESULT hr{__super::CompleteConnect(dir, pReceivePin)};
     XY_LOG_INFO(_T("Connection fininshed!")<<XY_LOG_VAR_2_STR(hr));
     DumpGraph(m_pGraph,0);
     return hr;
 }
 
-HRESULT XySubFilterConsumer::BreakConnect(PIN_DIRECTION dir)
+[[nodiscard]] HRESULT XySubFilterConsumer::BreakConnect(const PIN_DIRECTION dir)
 {
     XY_LOG_INFO(dir);
     if(dir == PINDIR_INPUT)
@@ -617,7 +670,7 @@ HRESULT XySubFilterConsumer::BreakConnect(PIN_DIRECTION dir)
     return __super::BreakConnect(dir);
 }
 
-HRESULT XySubFilterConsumer::StartStreaming()
+[[nodiscard]] HRESULT XySubFilterConsumer::StartStreaming()
 {
     XY_LOG_INFO("");
     /* WARNING: calls to m_pGraph member functions from within this function will generate deadlock with Haali
@@ -625,20 +678,20 @@ HRESULT XySubFilterConsumer::StartStreaming()
      * CFGManager class.
      */
 
-    HRESULT hr = NOERROR;
+    HRESULT hr{NOERROR};
 
     InitConsumerFields();
 
     return __super::StartStreaming();
 }
 
-HRESULT XySubFilterConsumer::StopStreaming()
+[[nodiscard]] HRESULT XySubFilterConsumer::StopStreaming()
 {
     XY_LOG_INFO("");
     return __super::StopStreaming();
 }
 
-HRESULT XySubFilterConsumer::NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate)
+[[nodiscard]] HRESULT XySubFilterConsumer::NewSegment(const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate)
 {
     TRACE_RENDERER_REQUEST(XY_LOG_VAR_2_STR(tStart)<<XY_LOG_VAR_2_STR(tStop)<<XY_LOG_VAR_2_STR(dRate));
     m_tPrev = tStart;
@@ -647,9 +700,9 @@ HRESULT XySubFilterConsumer::NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tS
 
 //
 
-REFERENCE_TIME XySubFilterConsumer::CalcCurrentTime()
+[[nodiscard]] REFERENCE_TIME XySubFilterConsumer::CalcCurrentTime()
 {
-    REFERENCE_TIME rt = m_pSubClock ? m_pSubClock->GetTime() : m_tPrev;
+    REFERENCE_TIME rt{m_pSubClock ? m_pSubClock->GetTime() : m_tPrev};
     // no, it won't overflow even without normalizing if we use normal parameters
     // (__int64 is enough for about 2000 hours if we multiply it by the max: 65536 as m_SubtitleSpeedMul)
     // anyway, m_SubtitleSpeed and m_SubtitleSpeedDiv parameters are normalized upon read
@@ -659,32 +712,80 @@ REFERENCE_TIME XySubFilterConsumer::CalcCurrentTime()
 void XySubFilterConsumer::InitConsumerFields()
 {
     XY_LOG_INFO("");
-    CAutoLock cAutoLock(&m_csSubLock);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
 
-    const GUID& subtype = m_pInput->CurrentMediaType().subtype;
+    const GUID& subtype{m_pInput->CurrentMediaType().subtype};
 
     BITMAPINFOHEADER bihIn;
     ExtractBIH(&m_pInput->CurrentMediaType(), &bihIn);
 
     m_spd.type = -1;
 
-    if(subtype == MEDIASUBTYPE_YV12) m_spd.type = MSP_YV12;
-    else if(subtype == MEDIASUBTYPE_P010) m_spd.type = MSP_P010;
-    else if(subtype == MEDIASUBTYPE_P016) m_spd.type = MSP_P016;
-    else if(subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV) m_spd.type = MSP_IYUV;
-    else if(subtype == MEDIASUBTYPE_YUY2) m_spd.type = MSP_YUY2;
-    else if(subtype == MEDIASUBTYPE_RGB32) m_spd.type = MSP_RGB32;
-    else if(subtype == MEDIASUBTYPE_RGB24) m_spd.type = MSP_RGB24;
-    else if(subtype == MEDIASUBTYPE_RGB565) m_spd.type = MSP_RGB16;
-    else if(subtype == MEDIASUBTYPE_RGB555) m_spd.type = MSP_RGB15;
-    else if(subtype == MEDIASUBTYPE_NV12) m_spd.type = MSP_NV12;
-    else if(subtype == MEDIASUBTYPE_NV21) m_spd.type = MSP_NV21;
-    else if(subtype == MEDIASUBTYPE_AYUV) m_spd.type = MSP_AYUV;
+    if(subtype == MEDIASUBTYPE_YV12)
+    {
+        m_spd.type = MSP_YV12;
+    }
+    else if(subtype == MEDIASUBTYPE_P010)
+    {
+        m_spd.type = MSP_P010;
+    }
+    else if(subtype == MEDIASUBTYPE_P016)
+    {
+        m_spd.type = MSP_P016;
+    }
+    else if(subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV)
+    {
+        m_spd.type = MSP_IYUV;
+    }
+    else if(subtype == MEDIASUBTYPE_YUY2)
+    {
+        m_spd.type = MSP_YUY2;
+    }
+    else if(subtype == MEDIASUBTYPE_RGB32)
+    {
+        m_spd.type = MSP_RGB32;
+    }
+    else if(subtype == MEDIASUBTYPE_RGB24)
+    {
+        m_spd.type = MSP_RGB24;
+    }
+    else if(subtype == MEDIASUBTYPE_RGB565)
+    {
+        m_spd.type = MSP_RGB16;
+    }
+    else if(subtype == MEDIASUBTYPE_RGB555)
+    {
+        m_spd.type = MSP_RGB15;
+    }
+    else if(subtype == MEDIASUBTYPE_NV12)
+    {
+        m_spd.type = MSP_NV12;
+    }
+    else if(subtype == MEDIASUBTYPE_NV21)
+    {
+        m_spd.type = MSP_NV21;
+    }
+    else if(subtype == MEDIASUBTYPE_AYUV)
+    {
+        m_spd.type = MSP_AYUV;
+    }
     // pf additions
-    else if (subtype == MEDIASUBTYPE_YV16) m_spd.type = MSP_YV16;
-    else if (subtype == MEDIASUBTYPE_YV24) m_spd.type = MSP_YV24;
-    else if (subtype == MEDIASUBTYPE_P210) m_spd.type = MSP_P210;
-    else if (subtype == MEDIASUBTYPE_P216) m_spd.type = MSP_P216;
+    else if (subtype == MEDIASUBTYPE_YV16)
+    {
+        m_spd.type = MSP_YV16;
+    }
+    else if (subtype == MEDIASUBTYPE_YV24)
+    {
+        m_spd.type = MSP_YV24;
+    }
+    else if (subtype == MEDIASUBTYPE_P210)
+    {
+        m_spd.type = MSP_P210;
+    }
+    else if (subtype == MEDIASUBTYPE_P216)
+    {
+        m_spd.type = MSP_P216;
+    }
 
     m_spd.w = m_w;
     m_spd.h = m_h;
@@ -696,18 +797,26 @@ void XySubFilterConsumer::InitConsumerFields()
     m_pTempPicBuff.Free();
     if (m_spd.type == MSP_YV12 || m_spd.type == MSP_IYUV || m_spd.type == MSP_NV12 || m_spd.type == MSP_NV21
         || m_spd.type == MSP_YV16 || m_spd.type == MSP_YV24)
-        m_pTempPicBuff.Allocate(4 * m_spd.pitch * m_spd.h);//fix me: can be smaller
-    else if (m_spd.type == MSP_P010 || m_spd.type == MSP_P016) // 4:2:0
+    {
+        m_pTempPicBuff.Allocate(4 * m_spd.pitch * m_spd.h);
+    }//fix me: can be smaller
+    else if (m_spd.type == MSP_P010 || m_spd.type == MSP_P016)
+    { // 4:2:0
         m_pTempPicBuff.Allocate(m_spd.pitch * m_spd.h + m_spd.pitch * m_spd.h / 4 * 2);
-    else if (m_spd.type == MSP_P210 || m_spd.type == MSP_P216) // 4:2:2
+    }
+    else if (m_spd.type == MSP_P210 || m_spd.type == MSP_P216)
+    { // 4:2:2
         m_pTempPicBuff.Allocate(m_spd.pitch * m_spd.h + m_spd.pitch * m_spd.h / 2 * 2);
+    }
     else
+    {
         m_pTempPicBuff.Allocate(m_spd.pitch*m_spd.h);
+    }
     m_spd.bits = (BYTE*)m_pTempPicBuff;
 
-    CSize video(bihIn.biWidth, bihIn.biHeight);
+    CSize video{bihIn.biWidth, bihIn.biHeight};
 
-    HRESULT hr = S_OK;
+    HRESULT hr{S_OK};
 
     m_xy_size_opt[SIZE_ORIGINAL_VIDEO   ].SetSize(m_w, m_h);
     m_xy_size_opt[SIZE_AR_ADJUSTED_VIDEO].SetSize(m_w, m_h);//fix me: important! AR adjusted video size not filled properly
@@ -717,12 +826,12 @@ void XySubFilterConsumer::InitConsumerFields()
     InitObj4OSD();
 }
 
-bool XySubFilterConsumer::AdjustFrameSize(CSize& s)
+[[nodiscard]] bool XySubFilterConsumer::AdjustFrameSize(CSize& s)
 {
     int horizontal, vertical, resx2, resx2minw, resx2minh;
     get_ExtendPicture(&horizontal, &vertical, &resx2, &resx2minw, &resx2minh);
 
-    bool fRet = (resx2 == 1) || (resx2 == 2 && s.cx*s.cy <= resx2minw*resx2minh);
+    bool fRet{(resx2 == 1) || (resx2 == 2 && s.cx*s.cy <= resx2minw*resx2minh)};
 
     if(fRet)
     {
@@ -735,19 +844,31 @@ bool XySubFilterConsumer::AdjustFrameSize(CSize& s)
     {
     case 1:
         h = s.cx * 9 / 16;
-        if(s.cy < h || !!(vertical&0x80)) s.cy = (h + 3) & ~3;
+        if(s.cy < h || !!(vertical&0x80))
+        {
+            s.cy = (h + 3) & ~3;
+        }
         break;
     case 2:
         h = s.cx * 3 / 4;
-        if(s.cy < h || !!(vertical&0x80)) s.cy = (h + 3) & ~3;
+        if(s.cy < h || !!(vertical&0x80))
+        {
+            s.cy = (h + 3) & ~3;
+        }
         break;
     case 3:
         h = 480;
-        if(s.cy < h || !!(vertical&0x80)) s.cy = (h + 3) & ~3;
+        if(s.cy < h || !!(vertical&0x80))
+        {
+            s.cy = (h + 3) & ~3;
+        }
         break;
     case 4:
         h = 576;
-        if(s.cy < h || !!(vertical&0x80)) s.cy = (h + 3) & ~3;
+        if(s.cy < h || !!(vertical&0x80))
+        {
+            s.cy = (h + 3) & ~3;
+        }
         break;
     }
 
@@ -760,23 +881,29 @@ bool XySubFilterConsumer::AdjustFrameSize(CSize& s)
     return(fRet);
 }
 
-STDMETHODIMP XySubFilterConsumer::GetClassID(CLSID* pClsid)
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::GetClassID(CLSID* pClsid)
 {
-    if(pClsid == NULL) return E_POINTER;
+    if(pClsid == NULL)
+    {
+        return E_POINTER;
+    }
     *pClsid = m_clsid;
     return NOERROR;
 }
 
-STDMETHODIMP XySubFilterConsumer::GetPages(CAUUID* pPages)
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::GetPages(CAUUID* pPages)
 {
     CheckPointer(pPages, E_POINTER);
 
     pPages->cElems = 4;
     pPages->pElems = (GUID*)CoTaskMemAlloc(sizeof(GUID)*pPages->cElems);
 
-    if(pPages->pElems == NULL) return E_OUTOFMEMORY;
+    if(pPages->pElems == NULL)
+    {
+        return E_OUTOFMEMORY;
+    }
 
-    int i = 0;
+    int i{0};
     pPages->pElems[i++] = __uuidof(CXySubFilterConsumerGeneralPPage);
     pPages->pElems[i++] = __uuidof(CXySubFilterConsumerMiscPPage);
     pPages->pElems[i++] = __uuidof(CXySubFilterConsumerColorPPage);
@@ -790,15 +917,15 @@ STDMETHODIMP XySubFilterConsumer::GetPages(CAUUID* pPages)
 void XySubFilterConsumer::GetInputColorspaces( ColorSpaceId *preferredOrder, UINT *count )
 {
     XY_LOG_INFO("");
-    HRESULT hr = NOERROR;
-    ColorSpaceOpt *color_space=NULL;
-    int tempCount = 0;
+    HRESULT hr{NOERROR};
+    ColorSpaceOpt *color_space{NULL};
+    int tempCount{0};
     hr = XyGetBin(BIN_INPUT_COLOR_FORMAT, reinterpret_cast<LPVOID*>(&color_space), &tempCount);
     CHECK_N_LOG(hr, "Failed to get option");
     if( hr==S_OK )
     {
         *count = 0;
-        for (int i=0;i<tempCount;i++)
+        for (int i{0};i<tempCount;i++)
         {
             if(color_space[i].selected)
             {
@@ -817,15 +944,15 @@ void XySubFilterConsumer::GetInputColorspaces( ColorSpaceId *preferredOrder, UIN
 void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT *count )
 {
     XY_LOG_INFO("");
-    HRESULT hr = NOERROR;
-    ColorSpaceOpt *color_space=NULL;
-    int tempCount = 0;
+    HRESULT hr{NOERROR};
+    ColorSpaceOpt *color_space{NULL};
+    int tempCount{0};
     hr = XyGetBin(BIN_OUTPUT_COLOR_FORMAT, reinterpret_cast<LPVOID*>(&color_space), &tempCount);
     CHECK_N_LOG(hr, "Failed to get option");
     if( hr==S_OK )
     {
         *count = 0;
-        for (int i=0;i<tempCount;i++)
+        for (int i{0};i<tempCount;i++)
         {
             if(color_space[i].selected)
             {
@@ -843,17 +970,17 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
 
 // ISubRenderConsumer
 
-STDMETHODIMP XySubFilterConsumer::GetMerit( ULONG *merit )
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::GetMerit( ULONG *merit )
 {
     CheckPointer(merit, E_POINTER);
     *merit = CONSUMRE_MERIT;//Video Post Processor
     return S_OK;
 }
 
-STDMETHODIMP XySubFilterConsumer::Connect( ISubRenderProvider *subtitleRenderer )
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::Connect( ISubRenderProvider *subtitleRenderer )
 {
     CheckPointer(subtitleRenderer, E_POINTER);
-    HRESULT hr = S_OK;
+    HRESULT hr{S_OK};
     if (m_provider!=subtitleRenderer)
     {
         if (m_provider!=NULL)
@@ -885,22 +1012,22 @@ STDMETHODIMP XySubFilterConsumer::Connect( ISubRenderProvider *subtitleRenderer 
     return S_FALSE;
 }
 
-STDMETHODIMP XySubFilterConsumer::Disconnect(void)
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::Disconnect(const void)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(this));
-    static bool entered = false;
+    static bool entered{false};
     //If the provider also calls provider->Disconnect inside its Disconnect implementation, 
     //we won't fall into a dead loop.
     if (!entered)
     {
         entered = true;
         this->AddRef();//so that we won't be destroy because a call to m_provider->Disconnect
-        CAutoLock cAutoLock(&m_csSubLock);
+        [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
 
         ASSERT(m_provider);
         if (m_provider)
         {
-            HRESULT hr = m_provider->Disconnect();
+            HRESULT hr{m_provider->Disconnect()};
             if (FAILED(hr))
             {
                 XY_LOG_WARN("Failed to disconnect with provider!");
@@ -918,9 +1045,9 @@ STDMETHODIMP XySubFilterConsumer::Disconnect(void)
     return S_FALSE;
 }
 
-STDMETHODIMP XySubFilterConsumer::DeliverFrame( REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context, ISubRenderFrame *subtitleFrame )
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::DeliverFrame( const REFERENCE_TIME start, const REFERENCE_TIME stop, const LPVOID context, ISubRenderFrame *subtitleFrame )
 {
-    CAutoLock cAutoLock(&m_csSubLock);
+    [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
     //fix me
     m_sub_render_frame = subtitleFrame;
     return S_FALSE;
@@ -929,9 +1056,9 @@ STDMETHODIMP XySubFilterConsumer::DeliverFrame( REFERENCE_TIME start, REFERENCE_
 void XySubFilterConsumer::SetYuvMatrix()
 {
 #if FIX_ME
-    XY_LOG_INFO("");
-    ColorConvTable::YuvMatrixType yuv_matrix = ColorConvTable::BT601;
-    ColorConvTable::YuvRangeType yuv_range = ColorConvTable::RANGE_TV;
+    XY_LOG_INFO{""};
+    ColorConvTable::YuvMatrixType yuv_matrix{ColorConvTable::BT601};
+    ColorConvTable::YuvRangeType yuv_range{ColorConvTable::RANGE_TV};
 
     if ( m_xy_int_opt[INT_COLOR_SPACE]==CDirectVobSub::YuvMatrix_AUTO )
     {
@@ -967,9 +1094,13 @@ void XySubFilterConsumer::SetYuvMatrix()
     if( m_xy_int_opt[INT_YUV_RANGE]==CDirectVobSub::YuvRange_Auto )
     {
         if (m_video_yuv_range_decided_by_sub!=ColorConvTable::RANGE_NONE)
+        {
             yuv_range = m_video_yuv_range_decided_by_sub;
+        }
         else
+        {
             yuv_range = ColorConvTable::RANGE_TV;
+        }
     }
     else
     {
@@ -995,10 +1126,10 @@ void XySubFilterConsumer::SetYuvMatrix()
 // IXyOptions
 //
 
-STDMETHODIMP XySubFilterConsumer::XySetBool( unsigned field, bool value )
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::XySetBool( const unsigned field, const bool value )
 {
-    CAutoLock cAutolock(&m_csSubLock);
-    HRESULT hr = CDirectVobSub::XySetBool(field, value);
+    [[nodiscard]] CAutoLock cAutolock(&m_csSubLock);
+    HRESULT hr{CDirectVobSub::XySetBool(field, value)};
     if(hr != NOERROR)
     {
         return hr;
@@ -1017,10 +1148,10 @@ STDMETHODIMP XySubFilterConsumer::XySetBool( unsigned field, bool value )
     return hr;
 }
 
-STDMETHODIMP XySubFilterConsumer::XySetInt( unsigned field, int value )
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::XySetInt( const unsigned field, const int value )
 {
-    CAutoLock cAutolock(&m_csSubLock);
-    HRESULT hr = CDirectVobSub::XySetInt(field, value);
+    [[nodiscard]] CAutoLock cAutolock(&m_csSubLock);
+    HRESULT hr{CDirectVobSub::XySetInt(field, value)};
     if(hr != NOERROR)
     {
         return hr;
@@ -1050,12 +1181,12 @@ void XySubFilterConsumer::ZeroObj4OSD()
 
     {
         LOGFONT lf;
-        memset(&lf, 0, sizeof(lf));
+        std::memset(&lf, 0, sizeof(lf));
         lf.lfCharSet = DEFAULT_CHARSET;
         lf.lfOutPrecision = OUT_CHARACTER_PRECIS;
         lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
         lf.lfQuality = ANTIALIASED_QUALITY;
-        HDC hdc = GetDC(NULL);
+        HDC hdc{GetDC(NULL)};
         lf.lfHeight = 16;
         //MulDiv(20, GetDeviceCaps(hdc, LOGPIXELSY), 54);
         ReleaseDC(NULL, hdc);
@@ -1081,12 +1212,12 @@ void XySubFilterConsumer::InitObj4OSD()
 
     struct {
         BITMAPINFOHEADER bih;
-        RGBQUAD biColors[256];
+        RGBQUAD biColors[256U];
     } b = {
         {sizeof(BITMAPINFOHEADER), m_w, -(int)m_h, 1, 8, BI_RGB, 0, 0, 0, 0, 0},
         {0}
     };
-    for (int i=0;i<256;i++)
+    for (int i{0};i<256;i++)
     {
         b.biColors[i].rgbBlue = b.biColors[i].rgbGreen = b.biColors[i].rgbRed = i;
     }
@@ -1095,13 +1226,13 @@ void XySubFilterConsumer::InitObj4OSD()
 
     BITMAP bm;
     GetObject(m_hbm, sizeof(bm), &bm);
-    memset(bm.bmBits, 0, bm.bmHeight*bm.bmWidthBytes);
+    std::memset(bm.bmBits, 0, bm.bmHeight*bm.bmWidthBytes);
 }
 
 static void LogSubPicStartStop( const REFERENCE_TIME& rtStart, const REFERENCE_TIME& rtStop, const CString& msg)
 {
 #if ENABLE_XY_LOG
-    static REFERENCE_TIME s_rtStart = -1, s_rtStop = -1;
+    static REFERENCE_TIME s_rtStart{-1}, s_rtStop = -1;
     if(s_rtStart!=rtStart || s_rtStop!=rtStop)
     {
         XY_LOG_INFO(msg.GetString());
@@ -1111,15 +1242,16 @@ static void LogSubPicStartStop( const REFERENCE_TIME& rtStart, const REFERENCE_T
 #endif
 }
 
-void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
+void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
+noexcept
 {
     if(subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV 
         || subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21
         || subtype == MEDIASUBTYPE_YV16 || subtype == MEDIASUBTYPE_YV24)
     {
         //TODO: Fix ME!
-        BYTE* db = (BYTE*)d;
-        BYTE* dbtend = db + w;
+        BYTE* db{(BYTE*)d};
+        BYTE* dbtend{db + w};
 
         for(; db < dbtend; sub++, db++)
         {
@@ -1130,8 +1262,8 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
         || subtype == MEDIASUBTYPE_P210 || subtype == MEDIASUBTYPE_P216)
     {
         //TODO: Fix ME!
-        WORD* db = reinterpret_cast<WORD*>(d);
-        WORD* dbtend = db + w;
+        WORD* db{reinterpret_cast<WORD*>(d)};
+        WORD* dbtend{db + w};
 
         for(; db < dbtend; sub++, db++)
         {
@@ -1140,33 +1272,33 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
     }
     else if(subtype == MEDIASUBTYPE_YUY2)
     {
-        BYTE* ds = (BYTE*)d;
-        BYTE* dstend = ds + w*2;
+        BYTE* ds{(BYTE*)d};
+        BYTE* dstend{ds + w*2};
 
         for(; ds < dstend; sub++, ds+=2)
         {
-            ds[0] = (ds[0]+*sub)>>1;
+            ds[0U] = (ds[0U]+*sub)>>1;
         }
     }
     else if (subtype == MEDIASUBTYPE_AYUV)
     {
-        BYTE* db = (BYTE*)d;
-        BYTE* dbtend = db + w*4;
+        BYTE* db{(BYTE*)d};
+        BYTE* dbtend{db + w*4};
 
         for(; db < dbtend; sub++, db+=4)
         {
-            db[2] = (db[2]+*sub)>>1;
+            db[2U] = (db[2U]+*sub)>>1;
         }
     }
     else if(subtype == MEDIASUBTYPE_RGB555)
     {
-        WORD* ds = (WORD*)d;
-        WORD* dstend = ds + w;
+        WORD* ds{(WORD*)d};
+        WORD* dstend{ds + w};
 
         for(; ds < dstend; sub++, ds++)
         {
-            DWORD tmp = *ds;
-            WORD tmpsub = *sub;
+            DWORD tmp{*ds};
+            WORD tmpsub{*sub};
             *ds  = ((tmp>>10) + tmpsub)>>1<<10;
             *ds |= (((tmp>>5)&0x001f) + tmpsub)>>1<<5;
             *ds |= ((tmp&0x001f) + tmpsub)>>1;
@@ -1174,12 +1306,12 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
     }
     else if(subtype == MEDIASUBTYPE_RGB565)
     {
-        WORD* ds = (WORD*)d;
-        WORD* dstend = ds + w;
+        WORD* ds{(WORD*)d};
+        WORD* dstend{ds + w};
 
         for(; ds < dstend; sub++, ds++)
         {
-            WORD tmp = *ds;
+            WORD tmp{*ds};
             *ds  = ((tmp>>11) + (*sub>>3))>>1<<11;
             *ds |= (((tmp>>5)&0x003f) + (*sub>>2))>>1<<5;
             *ds |= ((tmp&0x001f) + (*sub>>3))>>1;
@@ -1187,50 +1319,53 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
     }
     else if(subtype == MEDIASUBTYPE_RGB24)
     {
-        BYTE* dt = (BYTE*)d;
-        BYTE* dstend = dt + w*3;
+        BYTE* dt{(BYTE*)d};
+        BYTE* dstend{dt + w*3};
 
         for(; dt < dstend; sub++, dt+=3)
         {
-            dt[0] = (dt[0]+*sub)>>1;
-            dt[1] = (dt[1]+*sub)>>1;
-            dt[2] = (dt[2]+*sub)>>1;
+            dt[0U] = (dt[0U]+*sub)>>1;
+            dt[1U] = (dt[1U]+*sub)>>1;
+            dt[2U] = (dt[2U]+*sub)>>1;
         }
     }
     else if(subtype == MEDIASUBTYPE_RGB32 || subtype == MEDIASUBTYPE_ARGB32)
     {
-        BYTE* dt = (BYTE*)d;
-        BYTE* dstend = dt + w*4;
+        BYTE* dt{(BYTE*)d};
+        BYTE* dstend{dt + w*4};
 
         for(; dt < dstend; sub++, dt+=4)
         {
-            dt[0] = (dt[0]+*sub)>>1;
-            dt[1] = (dt[1]+*sub)>>1;
-            dt[2] = (dt[2]+*sub)>>1;
+            dt[0U] = (dt[0U]+*sub)>>1;
+            dt[1U] = (dt[1U]+*sub)>>1;
+            dt[2U] = (dt[2U]+*sub)>>1;
         }
     }
 }
 
-HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black)
+[[nodiscard]] HRESULT Copy(BYTE* pSub, BYTE* pIn, const CSize sub, const CSize in, const int bpp, const GUID& subtype, const DWORD black)
 {
-    int wIn = in.cx, hIn = in.cy, pitchIn = wIn*bpp>>3;
-    int wSub = sub.cx, hSub = sub.cy, pitchSub = wSub*bpp>>3;
-    bool fScale2x = wIn*2 <= wSub;
+    int wIn{in.cx}, hIn = in.cy, pitchIn = wIn*bpp>>3;
+    int wSub{sub.cx}, hSub = sub.cy, pitchSub = wSub*bpp>>3;
+    bool fScale2x{wIn*2 <= wSub};
 
-    if(fScale2x) wIn <<= 1, hIn <<= 1;
+    if(fScale2x)
+    {
+        wIn <<= 1, hIn <<= 1;
+    }
 
-    int left = ((wSub - wIn)>>1)&~1;
-    int mid = wIn;
-    int right = left + ((wSub - wIn)&1);
+    int left{((wSub - wIn)>>1)&~1};
+    int mid{wIn};
+    int right{left + ((wSub - wIn)&1)};
 
-    int dpLeft = left*bpp>>3;
-    int dpMid = mid*bpp>>3;
-    int dpRight = right*bpp>>3;
+    int dpLeft{left*bpp>>3};
+    int dpMid{mid*bpp>>3};
+    int dpRight{right*bpp>>3};
 
     ASSERT(wSub >= wIn);
 
     {
-        int i = 0, j = 0;
+        int i{0}, j = 0;
 
         j += (hSub - hIn) >> 1;
 
@@ -1242,7 +1377,9 @@ HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& su
         j += hIn;
 
         if(hIn > hSub)
+        {
             pIn += pitchIn * ((hIn - hSub) >> (fScale2x?2:1));
+        }
 
         if(fScale2x)
         {
@@ -1251,10 +1388,10 @@ HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& su
         }
         else
         {
-            for(int k = min(j, hSub); i < k; i++, pIn += pitchIn, pSub += pitchSub)
+            for(int k{min(j, hSub)}; i < k; i++, pIn += pitchIn, pSub += pitchSub)
             {
                 memsetd(pSub, black, dpLeft);
-                memcpy(pSub + dpLeft, pIn, dpMid);
+                std::memcpy(pSub + dpLeft, pIn, dpMid);
                 memsetd(pSub + dpLeft+dpMid, black, dpRight);
             }
         }
@@ -1270,7 +1407,7 @@ HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& su
     return NOERROR;
 }
 
-HRESULT XySubFilterConsumer::Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, int bpp, const GUID& subtype, DWORD black)
+[[nodiscard]] HRESULT XySubFilterConsumer::Copy(BYTE* pSub, BYTE* pIn, const CSize sub, const CSize in, const int bpp, const GUID& subtype, const DWORD black)
 {
     return ::Copy(pSub, pIn, sub, in, bpp, subtype, black);	
 }
@@ -1278,9 +1415,11 @@ HRESULT XySubFilterConsumer::Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, in
 void XySubFilterConsumer::PrintMessages(BYTE* pOut)
 {
     if(!m_hdc || !m_hbm)
+    {
         return;
+    }
 
-    const GUID& subtype = m_pOutput->CurrentMediaType().subtype;
+    const GUID& subtype{m_pOutput->CurrentMediaType().subtype};
 
     BITMAPINFOHEADER bihOut;
     ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
@@ -1307,13 +1446,13 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
         CAutoLock cAutoLock(&m_csSubLock);
         if(m_provider)
         {
-            int nSubPics = -1;
-            REFERENCE_TIME rtNow = -1, rtStart = -1, rtStop = -1;
+            int nSubPics{-1};
+            REFERENCE_TIME rtNow{-1}, rtStart = -1, rtStop = -1;
             m_provider->GetStats(nSubPics, rtNow, rtStart, rtStop);
             tmp.Format(_T("queue stats: %I64d - %I64d [ms]\n"), rtStart/10000, rtStop/10000);
             msg += tmp;
 
-            for(int i = 0; i < nSubPics; i++)
+            for(int i{0}; i < nSubPics; i++)
             {
                 m_provider->GetStats(i, rtStart, rtStop);
                 tmp.Format(_T("%d: %I64d - %I64d [ms]\n"), i, rtStart/10000, rtStop/10000);
@@ -1384,10 +1523,13 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
         }
     }
 
-    if(msg.IsEmpty()) return;
+    if(msg.IsEmpty())
+    {
+        return;
+    }
 
-    HANDLE hOldBitmap = SelectObject(m_hdc, m_hbm);
-    HANDLE hOldFont = SelectObject(m_hdc, m_hfont);
+    HANDLE hOldBitmap{SelectObject(m_hdc, m_hbm)};
+    HANDLE hOldFont{SelectObject(m_hdc, m_hfont)};
 
     SetTextColor(m_hdc, 0xffffff);
     SetBkMode(m_hdc, TRANSPARENT);
@@ -1396,19 +1538,19 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
     BITMAP bm;
     GetObject(m_hbm, sizeof(BITMAP), &bm);
 
-    const int MARGIN = 8;
-    CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
+    const int MARGIN{8};
+    [[nodiscard]] CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
     DrawText(m_hdc, msg, _tcslen(msg), &r, DT_CALCRECT|DT_EXTERNALLEADING|DT_NOPREFIX|DT_WORDBREAK);
 
     r &= CRect(0, 0, bm.bmWidth, bm.bmHeight);
 
     DrawText(m_hdc, msg, _tcslen(msg), &r, DT_LEFT|DT_TOP|DT_NOPREFIX|DT_WORDBREAK);
 
-    BYTE* pIn = (BYTE*)bm.bmBits;
+    BYTE* pIn{(BYTE*)bm.bmBits};
 
-    int pitchIn = bm.bmWidthBytes;
+    int pitchIn{bm.bmWidthBytes};
 
-    int pitchOut = bihOut.biWidth * bihOut.biBitCount >> 3;
+    int pitchOut{bihOut.biWidth * bihOut.biBitCount >> 3};
 
     if( subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV 
         || subtype== MEDIASUBTYPE_NV12 || subtype==MEDIASUBTYPE_NV21
@@ -1424,14 +1566,14 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
 
     if(bihOut.biHeight > 0 && bihOut.biCompression <= 3) // flip if the dst bitmap is flipped rgb (m_hbm is a top-down bitmap, not like the subpictures)
     {
-        pOut += pitchOut * (abs(bihOut.biHeight)-1);
+        pOut += pitchOut * (std::abs(bihOut.biHeight)-1);
         pitchOut = -pitchOut;
     }
 
-    for(int w = min(r.right + MARGIN, m_w), h = min(r.bottom,abs(m_h)); h--; pIn += pitchIn, pOut += pitchOut)
+    for(int w{min(r.right + MARGIN, m_w)}, h = min(r.bottom,std::abs(m_h)); h--; pIn += pitchIn, pOut += pitchOut)
     {
         BltLineRGB32((DWORD*)pOut, pIn, w, subtype);
-        memset(pIn+r.left, 0, r.Width());
+        std::memset(pIn+r.left, 0, r.Width());
     }
 
     SelectObject(m_hdc, hOldBitmap);

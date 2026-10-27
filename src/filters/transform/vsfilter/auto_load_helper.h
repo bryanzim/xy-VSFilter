@@ -10,7 +10,7 @@ public:
         HRESULT *phr,
         LPCWSTR pName);
 
-    HRESULT CheckMediaType(const CMediaType *);
+    [[nodiscard]] HRESULT CheckMediaType(const CMediaType *);
 private:
     XySubFilterAutoLoader *m_filter;
 };
@@ -25,14 +25,14 @@ public:
     DECLARE_IUNKNOWN;
 
     //CBaseFilter
-    CBasePin* GetPin(int n);
-    int GetPinCount();
-    STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+    [[nodiscard]] CBasePin* GetPin(int n);
+    [[nodiscard]] int GetPinCount();
+    [[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
 
-    STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+    [[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
-    bool ShouldWeAutoLoad(IFilterGraph* pGraph);
-    HRESULT CheckInput(const CMediaType * mt);
+    [[nodiscard]] bool ShouldWeAutoLoad(IFilterGraph* pGraph);
+    [[nodiscard]] HRESULT CheckInput(const CMediaType * mt);
 public:
     static HRESULT GetMerit( const GUID& clsid, DWORD *merit );
 protected:

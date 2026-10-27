@@ -13,8 +13,8 @@ using namespace std;
 void CPooledSubPicAllocator::OnItemDestruct( void* Item )
 {
     TRACE_ALLOCATOR(Item);
-    CAutoLock lock(&_poolLock);
-    POSITION pos = _using.Find((CPooledSubPic*)Item);
+    [[nodiscard]] CAutoLock lock(&_poolLock);
+    POSITION pos{_using.Find((CPooledSubPic*)Item)};
     if(pos!=NULL)
     {
         _using.RemoveAt(pos);
@@ -23,14 +23,16 @@ void CPooledSubPicAllocator::OnItemDestruct( void* Item )
     ASSERT(_free.Find((CPooledSubPic*)Item)==NULL);
 }
 
-bool STDMETHODCALLTYPE CPooledSubPicAllocator::InitPool( int capacity )
+[[nodiscard]] bool STDMETHODCALLTYPE CPooledSubPicAllocator::InitPool( int capacity )
 {
     TRACE_ALLOCATOR(capacity);
-    CAutoLock lock(&_poolLock);
-    CPooledSubPic* temp = NULL;
+    [[nodiscard]] CAutoLock lock(&_poolLock);
+    CPooledSubPic* temp{NULL};
 
     if(capacity<0)
+    {
         capacity = 0;
+    }
 
     //while(capacity<_capacity)
     while(_capacity>0)
@@ -107,19 +109,19 @@ CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE max
 }
 
 
-bool CPooledSubPicAllocator::AllocEx( bool fStatic, ISubPicEx** ppSubPic )
+[[nodiscard]] bool CPooledSubPicAllocator::AllocEx( const bool fStatic, ISubPicEx** ppSubPic )
 {
     if(!ppSubPic)
     {
         return(false);
     }
     {
-        CAutoLock lock(&_poolLock);
+        [[nodiscard]] CAutoLock lock(&_poolLock);
         CollectUnUsedItem();
 
         if(!_free.IsEmpty())
         {
-            CPooledSubPic *item = _free.RemoveHead();
+            CPooledSubPic *item{_free.RemoveHead()};
             if(item->m_spd.type!=_type)
             {
                 item->_pool = NULL;
@@ -134,7 +136,7 @@ bool CPooledSubPicAllocator::AllocEx( bool fStatic, ISubPicEx** ppSubPic )
         else
         {
             TRACE_ALLOCATOR("Queue fulfilled. Auto grow.");
-            CPooledSubPic *item = DoAlloc();
+            CPooledSubPic *item{DoAlloc()};
             if (!item)
             {
                 ASSERT(0);
@@ -162,9 +164,9 @@ bool CPooledSubPicAllocator::AllocEx( bool fStatic, ISubPicEx** ppSubPic )
 CPooledSubPicAllocator::~CPooledSubPicAllocator()
 {
     TRACE_ALLOCATOR("");
-    CPooledSubPic* item = NULL;
-    CAutoLock lock(&_poolLock);
-    for(POSITION pos = _free.GetHeadPosition(); pos!=NULL; )
+    CPooledSubPic* item{NULL};
+    [[nodiscard]] CAutoLock lock(&_poolLock);
+    for(POSITION pos{_free.GetHeadPosition()}; pos!=NULL; )
     {
         item = _free.GetNext(pos);
         if(item!=NULL)
@@ -173,7 +175,7 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
             item->Release();
         }
     }
-    for(POSITION pos = _using.GetHeadPosition(); pos!=NULL; )
+    for(POSITION pos{_using.GetHeadPosition()}; pos!=NULL; )
     {
         item = _using.GetNext(pos);
         if(item!=NULL)
@@ -184,7 +186,8 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
     }
 }
 
-STDMETHODIMP_(int) CPooledSubPicAllocator::SetSpdColorType( int color_type )
+[[nodiscard]] constexpr STDMETHODIMP_(int) CPooledSubPicAllocator::SetSpdColorType( const int color_type )
+noexcept
 {
     if(_type!=color_type)
     {
@@ -194,7 +197,8 @@ STDMETHODIMP_(int) CPooledSubPicAllocator::SetSpdColorType( int color_type )
     return _type;
 }
 
-STDMETHODIMP_(bool) CPooledSubPicAllocator::IsSpdColorTypeSupported( int type )
+[[nodiscard]] constexpr STDMETHODIMP_(bool) CPooledSubPicAllocator::IsSpdColorTypeSupported( const int type )
+noexcept
 {
     if( (type==MSP_RGBA) 
         ||
@@ -219,7 +223,7 @@ STDMETHODIMP_(bool) CPooledSubPicAllocator::IsSpdColorTypeSupported( int type )
     return false;
 }
 
-CPooledSubPic* CPooledSubPicAllocator::DoAlloc()
+[[nodiscard]] CPooledSubPic* CPooledSubPicAllocator::DoAlloc()
 {
     SubPicDesc spd;
     spd.type = _type;
@@ -243,8 +247,8 @@ CPooledSubPic* CPooledSubPicAllocator::DoAlloc()
         ASSERT(0);
         return(NULL);
     }
-    CPooledSubPic* temp = NULL;
-    temp = DEBUG_NEW CPooledSubPic(spd, _alpha_blt_dst_type, this);
+    CPooledSubPic* temp{NULL};
+    temp = DEBUG_NEW CPooledSubPic{spd, _alpha_blt_dst_type, this};
     if(!temp)
     {
         xy_free(spd.bits);
@@ -257,10 +261,10 @@ CPooledSubPic* CPooledSubPicAllocator::DoAlloc()
 
 void CPooledSubPicAllocator::CollectUnUsedItem()
 {
-    POSITION pos = _using.GetHeadPosition();
+    POSITION pos{_using.GetHeadPosition()};
     if(pos)
     {
-        CPooledSubPic* item = _using.RemoveHead();
+        CPooledSubPic* item{_using.RemoveHead()};
         if (item->m_cRef==1)
         {
             _free.AddTail(item);
@@ -273,7 +277,7 @@ void CPooledSubPicAllocator::CollectUnUsedItem()
     pos = _using.GetHeadPosition();
     if(pos)
     {
-        CPooledSubPic* item = _using.RemoveHead();
+        CPooledSubPic* item{_using.RemoveHead()};
         if (item->m_cRef==1)
         {
             _free.AddTail(item);
@@ -286,7 +290,7 @@ void CPooledSubPicAllocator::CollectUnUsedItem()
     if (_free.GetCount()>MAX_FREE_ITEM)
     {
         TRACE_ALLOCATOR("Free items count exceeded "<<MAX_FREE_ITEM<<". Auto shrink.");
-        CPooledSubPic* item = _free.RemoveHead();
+        CPooledSubPic* item{_free.RemoveHead()};
         if(item!=NULL)
         {
             item->_pool = NULL;
@@ -300,7 +304,9 @@ CPooledSubPic::~CPooledSubPic()
 {
     TRACE_ALLOCATOR("");
     if(_pool!=NULL)
+    {
         _pool->OnItemDestruct(this);
+    }
     xy_free(m_spd.bits);
     m_spd.bits = NULL;
 }

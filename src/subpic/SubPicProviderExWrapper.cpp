@@ -9,7 +9,7 @@
 
 CSubPicProviderExWrapper* CSubPicProviderExWrapper::GetSubPicProviderExWrapper(ISubPicProvider* const inner_provider)
 {
-    return DEBUG_NEW CSubPicProviderExWrapper(inner_provider);
+    return DEBUG_NEW CSubPicProviderExWrapper{inner_provider};
 }
 
 CSubPicProviderExWrapper::CSubPicProviderExWrapper(ISubPicProvider* const inner_provider)
@@ -18,14 +18,15 @@ CSubPicProviderExWrapper::CSubPicProviderExWrapper(ISubPicProvider* const inner_
 {
 }
 
-CSubPicProviderExWrapper::~CSubPicProviderExWrapper()
+constexpr CSubPicProviderExWrapper::~CSubPicProviderExWrapper()
+noexcept
 {
 }
 
 
 // ISubPicProvider
 
-STDMETHODIMP CSubPicProviderExWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
 {
     return
         QI(ISubPicProvider)
@@ -33,74 +34,78 @@ STDMETHODIMP CSubPicProviderExWrapper::NonDelegatingQueryInterface( REFIID riid,
         __super::NonDelegatingQueryInterface(riid, ppv);    
 }
 
-STDMETHODIMP CSubPicProviderExWrapper::Lock()
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::Lock()
 {
     return _inner_provider->Lock();
 }
 
-STDMETHODIMP CSubPicProviderExWrapper::Unlock()
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::Unlock()
 {
     return _inner_provider->Unlock();
 }
 
-STDMETHODIMP_(POSITION) CSubPicProviderExWrapper::GetStartPosition( REFERENCE_TIME rt, double fps )
+[[nodiscard]] STDMETHODIMP_(POSITION) CSubPicProviderExWrapper::GetStartPosition( const REFERENCE_TIME rt, const double fps )
 {
     return _inner_provider->GetStartPosition(rt, fps);
 }
 
-STDMETHODIMP_(POSITION) CSubPicProviderExWrapper::GetNext( POSITION pos )
+[[nodiscard]] STDMETHODIMP_(POSITION) CSubPicProviderExWrapper::GetNext( const POSITION pos )
 {
     return _inner_provider->GetNext(pos);
 }
 
-STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStart( POSITION pos, double fps )
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStart( const POSITION pos, const double fps )
 {
     return _inner_provider->GetStart(pos, fps);
 }
 
-STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStop( POSITION pos, double fps )
+[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CSubPicProviderExWrapper::GetStop( const POSITION pos, const double fps )
 {
     return _inner_provider->GetStop(pos, fps);
 }
 
-STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsAnimated( POSITION pos )
+[[nodiscard]] STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsAnimated( const POSITION pos )
 {
     return _inner_provider->IsAnimated(pos);
 }
 
-STDMETHODIMP CSubPicProviderExWrapper::Render( SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox )
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::Render( SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox )
 {
     return _inner_provider->Render( spd, rt, fps, bbox );
 }
 
-STDMETHODIMP CSubPicProviderExWrapper::GetTextureSize( POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft )
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::GetTextureSize( const POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft )
 {
     return _inner_provider->GetTextureSize( pos, MaxTextureSize, VirtualSize, VirtualTopLeft );
 }
 
 // ISubPicProviderEx
 
-STDMETHODIMP_(VOID) CSubPicProviderExWrapper::GetStartStop( POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
+[[nodiscard]] STDMETHODIMP_(VOID) CSubPicProviderExWrapper::GetStartStop( const POSITION pos, const double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
 {
     start = _inner_provider->GetStart(pos, fps);
     stop = _inner_provider->GetStop(pos, fps);
 }
 
-STDMETHODIMP CSubPicProviderExWrapper::RenderEx( SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList )
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::RenderEx( SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, CAtlList<CRect>& rectList )
 {
     CRect cRect;
-    HRESULT hr = Render(spd, rt, fps, cRect);
+    HRESULT hr{Render(spd, rt, fps, cRect)};
     if(SUCCEEDED(hr))
+    {
         rectList.AddTail(cRect);
+    }
     return hr;
 }
 
-STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsColorTypeSupported( int type )
+[[nodiscard]] constexpr STDMETHODIMP_(bool) CSubPicProviderExWrapper::IsColorTypeSupported( const int type )
+noexcept
 {
     return type==MSP_RGBA;
 }
 
-STDMETHODIMP_(int) CSubPicProviderExWrapper::SetOutputColorType( int type )
+[[nodiscard]] constexpr STDMETHODIMP_(int) CSubPicProviderExWrapper::SetOutputColorType( const int type )
+noexcept
 {
     (type);
     return MSP_RGBA;

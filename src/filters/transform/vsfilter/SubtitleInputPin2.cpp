@@ -11,9 +11,9 @@ class CHdmvInputPinHepler2: public CSubtitleInputPinHelperImpl
 public:
     CHdmvInputPinHepler2(HdmvSubtitleProvider* pHdmvSubtitle, const CMediaType& mt);
 
-    STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    STDMETHODIMP Receive(IMediaSample* pSample);
-    STDMETHODIMP EndOfStream(void);
+    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] STDMETHODIMP EndOfStream(void);
 private:
     HdmvSubtitleProvider* m_pHdmvSubtitle;
     const CMediaType& m_mt;
@@ -26,17 +26,17 @@ CHdmvInputPinHepler2::CHdmvInputPinHepler2( HdmvSubtitleProvider* pHdmvSubtitle,
 
 }
 
-STDMETHODIMP CHdmvInputPinHepler2::NewSegment( REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate )
+[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
 {
     return m_pHdmvSubtitle->NewSegment (tStart, tStop, dRate);
 }
 
-STDMETHODIMP CHdmvInputPinHepler2::Receive( IMediaSample* pSample )
+[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::Receive( IMediaSample* pSample )
 {
     return m_pHdmvSubtitle->ParseSample (pSample);
 }
 
-STDMETHODIMP CHdmvInputPinHepler2::EndOfStream( void )
+[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::EndOfStream( const void )
 {
     return m_pHdmvSubtitle->EndOfStream();
 }
@@ -62,20 +62,20 @@ void SubtitleInputPin2::RemoveSubStream( ISubStream* pSubStream )
     xy_sub_filter->RemoveSubStream(pSubStream);
 }
 
-void SubtitleInputPin2::InvalidateSubtitle( REFERENCE_TIME rtStart, ISubStream* pSubStream )
+void SubtitleInputPin2::InvalidateSubtitle( const REFERENCE_TIME rtStart, ISubStream* pSubStream )
 {
     xy_sub_filter->InvalidateSubtitle(rtStart, (DWORD_PTR)(ISubStream*)pSubStream);
 }
 
-STDMETHODIMP_(CSubtitleInputPinHelper*) SubtitleInputPin2::CreateHelper( const CMediaType& mt, IPin* pReceivePin )
+[[nodiscard]] STDMETHODIMP_(CSubtitleInputPinHelper*) SubtitleInputPin2::CreateHelper( const CMediaType& mt, IPin* pReceivePin )
 {
     if (IsHdmvSub(&mt)) 
     {
         XY_LOG_INFO("Create CHdmvInputPinHepler2");
-        SUBTITLEINFO* psi = (SUBTITLEINFO*)mt.pbFormat;
-        DWORD			dwOffset	= 0;
+        SUBTITLEINFO* psi{(SUBTITLEINFO*)mt.pbFormat};
+        DWORD			dwOffset{0};
         CString			name;
-        LCID			lcid = 0;
+        LCID			lcid{0};
 
         if (psi != NULL) {
             dwOffset = psi->dwOffset;
@@ -91,9 +91,9 @@ STDMETHODIMP_(CSubtitleInputPinHelper*) SubtitleInputPin2::CreateHelper( const C
             }
         }
 
-        HdmvSubtitleProvider *hdmv_sub = DEBUG_NEW HdmvSubtitleProvider(m_pSubLock,
-            (mt.subtype == MEDIASUBTYPE_DVB_SUBTITLES) ? ST_DVB : ST_HDMV, name, lcid);
-        return DEBUG_NEW CHdmvInputPinHepler2(hdmv_sub, m_mt);
+        HdmvSubtitleProvider *hdmv_sub{DEBUG_NEW HdmvSubtitleProvider(m_pSubLock,
+            (mt.subtype == MEDIASUBTYPE_DVB_SUBTITLES) ? ST_DVB : ST_HDMV, name, lcid)};
+        return DEBUG_NEW CHdmvInputPinHepler2{hdmv_sub, m_mt};
     }
     else
     {
@@ -102,9 +102,9 @@ STDMETHODIMP_(CSubtitleInputPinHelper*) SubtitleInputPin2::CreateHelper( const C
     return NULL;
 }
 
-HRESULT SubtitleInputPin2::CheckMediaType(const CMediaType* pmt)
+[[nodiscard]] HRESULT SubtitleInputPin2::CheckMediaType(const CMediaType* pmt)
 {
-    HRESULT hr = xy_sub_filter->CheckInputType(pmt);
+    HRESULT hr{xy_sub_filter->CheckInputType(pmt)};
     if (FAILED(hr))
     {
         return hr;

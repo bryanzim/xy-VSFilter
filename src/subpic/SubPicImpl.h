@@ -67,35 +67,35 @@ protected:
 
 	*/
 
-    CSubPicImplHelper();
+    constexpr explicit CSubPicImplHelper() noexcept;
     
     // ISubPic
 
-    STDMETHODIMP_(REFERENCE_TIME) GetStart() const;
-    STDMETHODIMP_(REFERENCE_TIME) GetStop() const;
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart() const;
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop() const;
     STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart);
     STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop);
 
     //STDMETHODIMP GetDesc(SubPicDesc& spd) const = 0;
-    STDMETHODIMP CopyTo(ISubPic* pSubPic);
+    [[nodiscard]] STDMETHODIMP CopyTo(ISubPic* pSubPic);
 
     //STDMETHODIMP ClearDirtyRect(DWORD color) = 0;
-    STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const;
-    STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/);
+    [[nodiscard]] STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const;
+    [[nodiscard]] STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/);
 
-    STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const;
-    STDMETHODIMP SetSize(SIZE size, RECT vidrect);
+    [[nodiscard]] STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const;
+    [[nodiscard]] STDMETHODIMP SetSize(SIZE size, RECT vidrect);
 
     //STDMETHODIMP Lock(SubPicDesc& spd) = 0;
     //STDMETHODIMP Unlock(RECT* pDirtyRect /*[in]*/) = 0;
 
     //STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
 
-	STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft);
-	STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest);
+	[[nodiscard]] STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft);
+	[[nodiscard]] STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest);
 
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart();
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop();
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart();
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop();
 	STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart);
 	STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop);
 };
@@ -103,82 +103,82 @@ protected:
 class CSubPicImpl : public CUnknown, public CSubPicImplHelper, public ISubPic
 {
 public:
-    CSubPicImpl();
+    explicit CSubPicImpl();
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPic
 
-    STDMETHODIMP_(REFERENCE_TIME) GetStart() const
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart() const
     {
         return CSubPicImplHelper::GetStart();
     }
-    STDMETHODIMP_(REFERENCE_TIME) GetStop() const
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop() const
     {
         return CSubPicImplHelper::GetStop();
     }
-    STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart)
+    STDMETHODIMP_(void) SetStart(const REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetStart(rtStart);
     }
-    STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop)
+    STDMETHODIMP_(void) SetStop(const REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetStop(rtStop);
     }
 
-    STDMETHODIMP GetDesc(SubPicDesc& spd) const = 0;
-    STDMETHODIMP CopyTo(ISubPic* pSubPic)
+    [[nodiscard]] STDMETHODIMP GetDesc(SubPicDesc& spd) const = 0;
+    [[nodiscard]] STDMETHODIMP CopyTo(ISubPic* pSubPic)
     {
         return CSubPicImplHelper::CopyTo(pSubPic);
     }
 
-    STDMETHODIMP ClearDirtyRect(DWORD color) = 0;
-    STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const
+    [[nodiscard]] STDMETHODIMP ClearDirtyRect(DWORD color) = 0;
+    [[nodiscard]] STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const
     {
         return CSubPicImplHelper::GetDirtyRect(pDirtyRect);
     }
-    STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/)
+    [[nodiscard]] STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/)
     {
         return CSubPicImplHelper::SetDirtyRect(pDirtyRect);
     }
 
-    STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const
+    [[nodiscard]] STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const
     {
         return CSubPicImplHelper::GetMaxSize(pMaxSize);
     }
-    STDMETHODIMP SetSize(SIZE size, RECT vidrect)
+    [[nodiscard]] STDMETHODIMP SetSize(const SIZE size, const RECT vidrect)
     {
         return CSubPicImplHelper::SetSize(size, vidrect);
     }
 
-    STDMETHODIMP Lock(SubPicDesc& spd) = 0;
-    STDMETHODIMP Unlock(RECT* pDirtyRect /*[in]*/) = 0;
+    [[nodiscard]] STDMETHODIMP Lock(SubPicDesc& spd) = 0;
+    [[nodiscard]] STDMETHODIMP Unlock(RECT* pDirtyRect /*[in]*/) = 0;
 
-    STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
+    [[nodiscard]] STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
 
-	STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft)
+	[[nodiscard]] STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft)
     {
         return CSubPicImplHelper::SetVirtualTextureSize(pSize, pTopLeft);
     }
-	STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest)
+	[[nodiscard]] STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest)
     {
         return CSubPicImplHelper::GetSourceAndDest(pSize, pRcSource, pRcDest);
     }
 
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart()
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart()
     {
         return CSubPicImplHelper::GetSegmentStart();
     }
-	STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop()
+	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop()
     {
         return CSubPicImplHelper::GetSegmentStop();
     }
-	STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart)
+	STDMETHODIMP_(void) SetSegmentStart(const REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetSegmentStart(rtStart);
     }
-	STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop)
+	STDMETHODIMP_(void) SetSegmentStop(const REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetSegmentStop(rtStop);
     }
@@ -190,90 +190,90 @@ protected:
     CAtlList<CRect> m_rectListDirty;
 
 public:	
-    CSubPicExImpl();
+    explicit CSubPicExImpl();
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
     
     // ISubPic
 
-    STDMETHODIMP_(REFERENCE_TIME) GetStart() const
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart() const
     {
         return CSubPicImplHelper::GetStart();
     }
-    STDMETHODIMP_(REFERENCE_TIME) GetStop() const
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop() const
     {
         return CSubPicImplHelper::GetStop();
     }
-    STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart)
+    STDMETHODIMP_(void) SetStart(const REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetStart(rtStart);
     }
-    STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop)
+    STDMETHODIMP_(void) SetStop(const REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetStop(rtStop);
     }
 
-    STDMETHODIMP GetDesc(SubPicDesc& spd) const = 0;
-    STDMETHODIMP CopyTo(ISubPic* pSubPic)
+    [[nodiscard]] STDMETHODIMP GetDesc(SubPicDesc& spd) const = 0;
+    [[nodiscard]] STDMETHODIMP CopyTo(ISubPic* pSubPic)
     {
         return CSubPicImplHelper::CopyTo(pSubPic);
     }
 
-    STDMETHODIMP ClearDirtyRect(DWORD color) = 0;
-    STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const
+    [[nodiscard]] STDMETHODIMP ClearDirtyRect(DWORD color) = 0;
+    [[nodiscard]] STDMETHODIMP GetDirtyRect(RECT* pDirtyRect) const
     {
         return CSubPicImplHelper::GetDirtyRect(pDirtyRect);
     }
-    STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/);
+    [[nodiscard]] STDMETHODIMP SetDirtyRect(RECT* pDirtyRect /*[in]*/);
 
-    STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const
+    [[nodiscard]] STDMETHODIMP GetMaxSize(SIZE* pMaxSize) const
     {
         return CSubPicImplHelper::GetMaxSize(pMaxSize);
     }
-    STDMETHODIMP SetSize(SIZE size, RECT vidrect)
+    [[nodiscard]] STDMETHODIMP SetSize(const SIZE size, const RECT vidrect)
     {
         return CSubPicImplHelper::SetSize(size, vidrect);
     }
 
-    STDMETHODIMP Lock(SubPicDesc& spd) = 0;
-    STDMETHODIMP Unlock(RECT* pDirtyRect /*[in]*/);
+    [[nodiscard]] STDMETHODIMP Lock(SubPicDesc& spd) = 0;
+    [[nodiscard]] STDMETHODIMP Unlock(RECT* pDirtyRect /*[in]*/);
 
-    STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
+    [[nodiscard]] STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget) = 0;
 
-    STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft)
+    [[nodiscard]] STDMETHODIMP SetVirtualTextureSize (const SIZE pSize, const POINT pTopLeft)
     {
         return CSubPicImplHelper::SetVirtualTextureSize(pSize, pTopLeft);
     }
-    STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest)
+    [[nodiscard]] STDMETHODIMP GetSourceAndDest(SIZE* pSize, RECT* pRcSource, RECT* pRcDest)
     {
         return CSubPicImplHelper::GetSourceAndDest(pSize, pRcSource, pRcDest);
     }
 
-    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart()
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetSegmentStart()
     {
         return CSubPicImplHelper::GetSegmentStart();
     }
-    STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop()
+    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetSegmentStop()
     {
         return CSubPicImplHelper::GetSegmentStop();
     }
-    STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart)
+    STDMETHODIMP_(void) SetSegmentStart(const REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetSegmentStart(rtStart);
     }
-    STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop)
+    STDMETHODIMP_(void) SetSegmentStop(const REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetSegmentStop(rtStop);
     }
 
     // ISubPicEx
-    STDMETHODIMP CopyTo(ISubPicEx* pSubPicEx);
+    [[nodiscard]] STDMETHODIMP CopyTo(ISubPicEx* pSubPicEx);
 
-    STDMETHODIMP GetDirtyRects(CAtlList<const CRect>& dirtyRectList /*[out]*/) const;
-    STDMETHODIMP SetDirtyRectEx(CAtlList<CRect>* dirtyRectList /*[in]*/);
+    [[nodiscard]] STDMETHODIMP GetDirtyRects(CAtlList<const CRect>& dirtyRectList /*[out]*/) const;
+    [[nodiscard]] STDMETHODIMP SetDirtyRectEx(CAtlList<CRect>* dirtyRectList /*[in]*/);
 
-    STDMETHODIMP UnlockEx(CAtlList<CRect>* dirtyRectList /*[in]*/) = 0;
+    [[nodiscard]] STDMETHODIMP UnlockEx(CAtlList<CRect>* dirtyRectList /*[in]*/) = 0;
 };
 
 class CSubPicAllocatorImpl : public CUnknown, public ISubPicAllocator
@@ -285,24 +285,24 @@ private:
     CRect m_curvidrect;
     bool m_fDynamicWriteOnly;
 
-    virtual bool Alloc(bool fStatic, ISubPic** ppSubPic) = 0;
+    [[nodiscard]] virtual bool Alloc(bool fStatic, ISubPic** ppSubPic) = 0;
 protected:
     bool m_fPow2Textures;
 public:
     CSubPicAllocatorImpl(SIZE cursize, bool fDynamicWriteOnly, bool fPow2Textures);
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicAllocator
 
-    STDMETHODIMP SetCurSize(SIZE cursize);
-    STDMETHODIMP SetCurVidRect(RECT curvidrect);
-    STDMETHODIMP GetStatic(ISubPic** ppSubPic);
-    STDMETHODIMP AllocDynamic(ISubPic** ppSubPic);
-    STDMETHODIMP_(bool) IsDynamicWriteOnly();
-    STDMETHODIMP ChangeDevice(IUnknown* pDev);
-    STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize) {
+    [[nodiscard]] constexpr STDMETHODIMP SetCurSize(SIZE cursize) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP SetCurVidRect(RECT curvidrect) noexcept;
+    [[nodiscard]] STDMETHODIMP GetStatic(ISubPic** ppSubPic);
+    [[nodiscard]] STDMETHODIMP AllocDynamic(ISubPic** ppSubPic);
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsDynamicWriteOnly() noexcept;
+    [[nodiscard]] STDMETHODIMP ChangeDevice(IUnknown* pDev);
+    [[nodiscard]] STDMETHODIMP SetMaxTextureSize(const SIZE MaxTextureSize) {
         return E_NOTIMPL;
     };
 };
@@ -314,9 +314,9 @@ private:
     CRect m_curvidrect;
     bool m_fDynamicWriteOnly;
     
-    bool Alloc(bool fStatic, ISubPic** ppSubPic);
+    [[nodiscard]] bool Alloc(bool fStatic, ISubPic** ppSubPic);
     
-    virtual bool AllocEx(bool fStatic, ISubPicEx** ppSubPic) = 0;
+    [[nodiscard]] virtual bool AllocEx(bool fStatic, ISubPicEx** ppSubPic) = 0;
 protected:
     CComPtr<ISubPicEx> m_pStatic;
     bool m_fPow2Textures;
@@ -324,24 +324,24 @@ public:
     CSubPicExAllocatorImpl(SIZE cursize, bool fDynamicWriteOnly, bool fPow2Textures);
 
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicAllocator
 
-    STDMETHODIMP SetCurSize(SIZE cursize);
-    STDMETHODIMP SetCurVidRect(RECT curvidrect);
-    STDMETHODIMP GetStatic(ISubPic** ppSubPic);
-    STDMETHODIMP AllocDynamic(ISubPic** ppSubPic);
-    STDMETHODIMP_(bool) IsDynamicWriteOnly();
-    STDMETHODIMP ChangeDevice(IUnknown* pDev);
-    STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize) {
+    [[nodiscard]] constexpr STDMETHODIMP SetCurSize(SIZE cursize) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP SetCurVidRect(RECT curvidrect) noexcept;
+    [[nodiscard]] STDMETHODIMP GetStatic(ISubPic** ppSubPic);
+    [[nodiscard]] STDMETHODIMP AllocDynamic(ISubPic** ppSubPic);
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsDynamicWriteOnly() noexcept;
+    [[nodiscard]] STDMETHODIMP ChangeDevice(IUnknown* pDev);
+    [[nodiscard]] STDMETHODIMP SetMaxTextureSize(const SIZE MaxTextureSize) {
         return E_NOTIMPL;
     };
 
     // ISubPicExAllocator
-    STDMETHODIMP_(bool) IsSpdColorTypeSupported(int type);
-    STDMETHODIMP_(int) SetSpdColorType(int color_type);
+    [[nodiscard]] constexpr STDMETHODIMP_(bool) IsSpdColorTypeSupported(int type) noexcept;
+    [[nodiscard]] constexpr STDMETHODIMP_(int) SetSpdColorType(int color_type) noexcept;
 
-    STDMETHODIMP GetStaticEx(ISubPicEx** ppSubPic);
-    STDMETHODIMP AllocDynamicEx(ISubPicEx** ppSubPic);
+    [[nodiscard]] STDMETHODIMP GetStaticEx(ISubPicEx** ppSubPic);
+    [[nodiscard]] STDMETHODIMP AllocDynamicEx(ISubPicEx** ppSubPic);
 };

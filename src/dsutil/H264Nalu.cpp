@@ -37,11 +37,12 @@ void CH264Nalu::SetBuffer(BYTE* pBuffer, int nSize, int nNALSize)
     }
 }
 
-bool CH264Nalu::MoveToNextAnnexBStartcode()
+[[nodiscard]] constexpr bool CH264Nalu::MoveToNextAnnexBStartcode()
+noexcept
 {
-    int nBuffEnd = m_nSize - 4;
+    int nBuffEnd{m_nSize - 4};
 
-    for (int i = m_nCurPos; i < nBuffEnd; i++) {
+    for (int i{m_nCurPos}; i < nBuffEnd; i++) {
         if ((*((DWORD*)(m_pBuffer + i)) & 0x00FFFFFF) == 0x00010000) {
             // Find next AnnexB Nal
             m_nCurPos = i;
@@ -53,7 +54,8 @@ bool CH264Nalu::MoveToNextAnnexBStartcode()
     return false;
 }
 
-bool CH264Nalu::MoveToNextRTPStartcode()
+[[nodiscard]] constexpr bool CH264Nalu::MoveToNextRTPStartcode()
+noexcept
 {
     if (m_nNextRTP < m_nSize) {
         m_nCurPos = m_nNextRTP;
@@ -64,7 +66,8 @@ bool CH264Nalu::MoveToNextRTPStartcode()
     return false;
 }
 
-bool CH264Nalu::ReadNext()
+[[nodiscard]] constexpr bool CH264Nalu::ReadNext()
+noexcept
 {
     if ((m_nCurPos >= m_nSize) || (m_nCurPos < 0)) {
         return false;
@@ -74,8 +77,8 @@ bool CH264Nalu::ReadNext()
         // RTP Nalu type : (XX XX) XX XX NAL..., with XX XX XX XX or XX XX equal to NAL size
         m_nNALStartPos = m_nCurPos;
         m_nNALDataPos  = m_nCurPos + m_nNALSize;
-        unsigned nTemp = 0;
-        for (int i = 0; i < m_nNALSize; i++) {
+        unsigned nTemp{0U};
+        for (int i{0}; i < m_nNALSize; i++) {
             nTemp = (nTemp << 8) + m_pBuffer[m_nCurPos++];
         }
         m_nNextRTP += nTemp + m_nNALSize;

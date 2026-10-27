@@ -38,10 +38,10 @@ TCHAR* G_EXTTYPESTR[] =
 
 static int SubFileCompare(const void* elem1, const void* elem2)
 {
-    const SubFile* file1 = ((const SubFile*)elem1);
-    const SubFile* file2 = ((const SubFile*)elem2);
+    const SubFile* file1{((const SubFile*)elem1)};
+    const SubFile* file2{((const SubFile*)elem2)};
 
-    int rv = file1->path_order - file2->path_order;
+    int rv{file1->path_order - file2->path_order};
     rv = rv ? rv : file1->ext_order - file2->ext_order;
     rv = rv ? rv : file2->extra_name.IsEmpty() - file1->extra_name.IsEmpty();
     rv = rv ? rv : file1->extra_name.CompareNoCase(file2->extra_name);
@@ -53,17 +53,17 @@ class ExtSupport
 public:
     bool init(const CString& load_ext_list)
     {
-        int extsubnum = countof(G_EXTTYPESTR);
-        for (int i=0;i<extsubnum;i++)
+        int extsubnum{countof(G_EXTTYPESTR)};
+        for (int i{0};i<extsubnum;i++)
         {
             ext_map[CString(G_EXTTYPESTR[i])] = -1;
         }
-        for (int i=0, start=0;true;i++)
+        for (int i{0}, start=0;true;i++)
         {
-            CString ext = load_ext_list.Tokenize(_T(";"), start);
+            CString ext{load_ext_list.Tokenize(_T(";"), start)};
             if (ext!="")
             {
-                int tmp = 0;
+                int tmp{0};
                 if (ext_map.Lookup(ext, tmp))
                 {
                     ext_map[ext] = i;
@@ -77,15 +77,15 @@ public:
         return true;
     }
 
-    int ext_support_order(const CString& ext)
+    [[nodiscard]] int ext_support_order(const CString& ext)
     {
-        int tmp = 0;
+        int tmp{0};
         return ext_map.Lookup(ext, tmp) ? tmp : -1;
     }
     CAtlMap<CString, int, CStringElementTraits<CString>> ext_map;
 };
 
-void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_list, CAtlArray<SubFile>& ret)
+void GetSubFileNames(CString fn, CAtlArray<CString>& paths, const CString load_ext_list, CAtlArray<SubFile>& ret)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(fn.GetString())<<XY_LOG_VAR_2_STR(paths.GetCount())<<XY_LOG_VAR_2_STR(load_ext_list.GetString()));
 
@@ -93,21 +93,24 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
 
     fn.Replace('\\', '/');
 
-    bool fWeb = false;
+    bool fWeb{false};
     {
         //int i = fn.Find(_T("://"));
-        int i = fn.Find(_T("http://"));
+        int i{fn.Find(_T("http://"))};
         if(i > 0) {fn = _T("http") + fn.Mid(i); fWeb = true;}
     }
 
-    int	l = fn.GetLength(), l2 = l;
+    int	l{fn.GetLength()}, l2 = l;
     l2 = fn.ReverseFind('.');
     l = fn.ReverseFind('/') + 1;
-    if(l2 < l) l2 = l;
+    if(l2 < l)
+    {
+        l2 = l;
+    }
 
-    CString orgpath = fn.Left(l);
-    CString title = fn.Mid(l, l2-l);
-    CString filename = title + _T(".nooneexpectsthespanishinquisition");
+    CString orgpath{fn.Left(l)};
+    CString title{fn.Mid(l, l2-l)};
+    CString filename{title + _T(".nooneexpectsthespanishinquisition")};
     
     ExtSupport ext_support;
     if (!ext_support.init(load_ext_list))
@@ -119,24 +122,30 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
     if(!fWeb)
     {
         WIN32_FIND_DATA wfd;
-        for(size_t k = 0; k < paths.GetCount(); k++)
+        for(std::size_t k{0U}; k < paths.GetCount(); k++)
         {
-            CString path = paths[k];
+            CString path{paths[k]};
             path.Replace('\\', '/');
 
             l = path.GetLength();
-            if(l > 0 && path[l-1] != '/') path += '/';
+            if(l > 0 && path[l-1] != '/')
+            {
+                path += '/';
+            }
 
-            if(path.Find(':') == -1 && path.Find(_T("\\\\")) != 0) path = orgpath + path;
+            if(path.Find(':') == -1 && path.Find(_T("\\\\")) != 0)
+            {
+                path = orgpath + path;
+            }
 
             path.Replace(_T("/./"), _T("/"));
             path.Replace('/', '\\');
 
             CAtlList<CString> sl;
 
-            bool fEmpty = true;
+            bool fEmpty{true};
 
-            HANDLE hFile = FindFirstFile(path + title + _T(".*"), &wfd);
+            HANDLE hFile{FindFirstFile(path + title + _T(".*"), &wfd)};
             if(hFile != INVALID_HANDLE_VALUE)
             {
                 do
@@ -152,21 +161,24 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
                 FindClose(hFile);
             }
 
-            if(fEmpty) continue;
+            if(fEmpty)
+            {
+                continue;
+            }
 
-            POSITION pos = sl.GetHeadPosition();
+            POSITION pos{sl.GetHeadPosition()};
             while(pos)
             {
-                const CString& fn = sl.GetNext(pos);
-                int l = fn.ReverseFind('.');
-                CString ext = fn.Mid(l+1).MakeLower();
-                int ext_order = ext_support.ext_support_order(ext);
+                const CString& fn{sl.GetNext(pos)};
+                int l{fn.ReverseFind('.')};
+                CString ext{fn.Mid(l+1).MakeLower()};
+                int ext_order{ext_support.ext_support_order(ext)};
                 if (ext_order>-1)
                 {
                     SubFile f;
                     f.full_file_name = path + fn;
 
-                    int l2 = fn.Find('.');
+                    int l2{fn.Find('.')};
                     if (l2==l)
                     {
                         f.extra_name = "";

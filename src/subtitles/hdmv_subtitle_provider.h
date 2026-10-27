@@ -8,15 +8,15 @@
 class HdmvSubtitleProviderImpl
 {
 public:
-    HdmvSubtitleProviderImpl (CBaseSub* pSub);
-    ~HdmvSubtitleProviderImpl(void);
+    explicit HdmvSubtitleProviderImpl (CBaseSub* pSub);
+    constexpr ~HdmvSubtitleProviderImpl(void) noexcept;
 
-    STDMETHODIMP Connect     (IXyOptions *consumer);
-    STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] STDMETHODIMP Connect     (IXyOptions *consumer);
+    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
 private:
     HRESULT ResetAllocator();
-    HRESULT Render(REFERENCE_TIME now, POSITION pos);
+    [[nodiscard]] HRESULT Render(REFERENCE_TIME now, POSITION pos);
 private :
     CBaseSub*                   m_pSub;
 
@@ -34,32 +34,32 @@ HdmvSubtitleProvider : public CUnknown, public IXySubRenderProvider, public ISub
 {
 public:
     HdmvSubtitleProvider(CCritSec* pLock, SUBTITLE_TYPE nType, const CString& name, LCID lcid);
-    ~HdmvSubtitleProvider(void);
+    constexpr ~HdmvSubtitleProvider(void) noexcept;
 
-    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IXySubRenderProvider
-    STDMETHODIMP Connect     (IXyOptions *consumer);
-    STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] STDMETHODIMP Connect     (IXyOptions *consumer);
+    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
 
     // IPersist
-    STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    STDMETHODIMP_(int) GetStreamCount();
-    STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    STDMETHODIMP_(int) GetStream();
-    STDMETHODIMP SetStream(int iStream);
+    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
     STDMETHODIMP Reload();
 
     //fix me: add to an interface
-    HRESULT ParseSample(IMediaSample* pSample);
-    HRESULT NewSegment (REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    HRESULT EndOfStream(void);
+    [[nodiscard]] HRESULT ParseSample(IMediaSample* pSample);
+    [[nodiscard]] HRESULT NewSegment (REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] HRESULT EndOfStream(void);
 
-    HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
+    [[nodiscard]] HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
 private :
     CString         m_name;
     LCID            m_lcid;
@@ -78,27 +78,27 @@ public:
     SupFileSubtitleProvider();
     virtual ~SupFileSubtitleProvider();
 
-    bool Open(CString fn, CString subName = _T(""));
+    [[nodiscard]] bool Open(CString fn, CString subName = _T(""));
 
-    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IXySubRenderProvider
-    STDMETHODIMP Connect     (IXyOptions *consumer);
-    STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] STDMETHODIMP Connect     (IXyOptions *consumer);
+    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
 
     // IPersist
-    STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    STDMETHODIMP_(int) GetStreamCount();
-    STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    STDMETHODIMP_(int) GetStream();
-    STDMETHODIMP SetStream(int iStream);
+    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
     STDMETHODIMP Reload();
 
-    HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
+    [[nodiscard]] HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
 protected:
     DWORD ThreadProc();
 private:

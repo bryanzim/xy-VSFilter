@@ -34,10 +34,10 @@ class CColorStatic : public CStatic
 	COLORREF* m_pColor;
 
 public:
-	CColorStatic(CWnd* pParent = NULL) : m_pColor(NULL) {}
-	virtual ~CColorStatic() {}
+	explicit CColorStatic(CWnd* pParent = NULL) : m_pColor(NULL) {}
+	constexpr virtual ~CColorStatic() noexcept {}
 
-	void SetColorPtr(COLORREF* pColor) {m_pColor = pColor;}
+	constexpr void SetColorPtr(COLORREF* pColor) noexcept {m_pColor = pColor;}
 
 	DECLARE_MESSAGE_MAP()
 
@@ -62,9 +62,9 @@ class CStyleEditorPPage : public CPropertyPage
 	void AskColor(int i);
 
 public:
-    CStyleEditorPPage();
+    explicit CStyleEditorPPage();
     CStyleEditorPPage(CString title, const STSStyle* pstss);
-	virtual ~CStyleEditorPPage();
+	constexpr virtual ~CStyleEditorPPage() noexcept;
 
     void init(CString title, const STSStyle* pstss);
 
@@ -103,9 +103,9 @@ public:
 	CSpinButtonCtrl m_marginrightspin;
 	CSpinButtonCtrl m_margintopspin;
 	CSpinButtonCtrl m_marginbottomspin;
-	CColorStatic m_color[4];
-	int m_alpha[4];
-	CSliderCtrl m_alphasliders[4];
+	CColorStatic m_color[4U];
+	int m_alpha[4U];
+	CSliderCtrl m_alphasliders[4U];
 	BOOL m_linkalphasliders;
 
 	afx_msg void OnBnClickedButton1();

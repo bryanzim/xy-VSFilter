@@ -30,13 +30,13 @@ class CDVSBasePPage : public CBasePropertyPage
 public:
 	// we have to override these to use external, resource-only dlls
 	STDMETHODIMP GetPageInfo(LPPROPPAGEINFO pPageInfo);
-	STDMETHODIMP Activate(HWND hwndParent, LPCRECT pRect, BOOL fModal);
+	[[nodiscard]] STDMETHODIMP Activate(HWND hwndParent, LPCRECT pRect, BOOL fModal);
 
 protected:
 	CComQIPtr<IDirectVobSub2> m_pDirectVobSub;
     CComQIPtr<IXyOptions> m_pDirectVobSubXy;
 
-	virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {return(false);}
+	[[nodiscard]] virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {return(false);}
 	virtual void UpdateObjectData(bool fSave) {}
 	virtual void UpdateControlData(bool fSave) {}
 
@@ -49,7 +49,7 @@ private:
     BOOL m_bIsInitialized;
 
     HRESULT OnConnect(IUnknown* pUnknown), OnDisconnect(), OnActivate(), OnDeactivate(), OnApplyChanges();
-	INT_PTR OnReceiveMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	[[nodiscard]] INT_PTR OnReceiveMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
 	bool m_fAttached;
@@ -180,7 +180,7 @@ class CDVSAboutPPage : public CDVSBasePPage
 public:
     CDVSAboutPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR* pName=NAME("About Property Page"));
     
-    bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    [[nodiscard]] bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
 [uuid("525F116F-04AD-40a2-AE2F-A0C4E1AFEF98")]
@@ -205,7 +205,7 @@ class CDVSColorPPage : public CDVSBasePPage
     CListCtrl m_outputFmtList, m_inputFmtList;
     CButton m_followUpstreamPreferredOrder, m_btnColorUp, m_btnColorDown;
     
-    static const int MAX_COLOR_SPACE = 256;
+    static const int MAX_COLOR_SPACE{256};
 
     typedef DirectVobSubXyOptions::ColorSpaceOpt ColorSpaceOpt;
     ColorSpaceOpt *m_outputColorSpace;
@@ -222,7 +222,7 @@ protected:
 
 public:
     CDVSColorPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR *pName = NAME("DirectVobSub Property Page (color settings)"));
-    ~CDVSColorPPage();
+    constexpr ~CDVSColorPPage() noexcept;
 };
 
 [uuid("CE77C59C-CFD2-429f-868C-8B04D23F94CA")]

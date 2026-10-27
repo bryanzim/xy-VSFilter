@@ -51,31 +51,31 @@ private:
     int m_nSize;
     int m_nNALSize;
 
-    bool MoveToNextAnnexBStartcode();
-    bool MoveToNextRTPStartcode();
+    [[nodiscard]] constexpr bool MoveToNextAnnexBStartcode() noexcept;
+    [[nodiscard]] constexpr bool MoveToNextRTPStartcode() noexcept;
 
 public:
-    CH264Nalu() :
+    explicit CH264Nalu() :
         forbidden_bit(0),
         nal_reference_idc(0),
         nal_unit_type() {
         SetBuffer(NULL, 0, 0);
     }
 
-    NALU_TYPE GetType() const { return nal_unit_type; };
-    bool IsRefFrame() const { return (nal_reference_idc != 0); };
+    [[nodiscard]] constexpr NALU_TYPE GetType() const noexcept { return nal_unit_type; };
+    [[nodiscard]] constexpr bool IsRefFrame() const noexcept { return (nal_reference_idc != 0); };
 
-    int GetDataLength() const { return m_nCurPos - m_nNALDataPos; };
-    BYTE* GetDataBuffer() { return m_pBuffer + m_nNALDataPos; };
-    int GetRoundedDataLength() const {
-        int nSize = m_nCurPos - m_nNALDataPos;
+    [[nodiscard]] constexpr int GetDataLength() const noexcept { return m_nCurPos - m_nNALDataPos; };
+    [[nodiscard]] constexpr BYTE* GetDataBuffer() noexcept { return m_pBuffer + m_nNALDataPos; };
+    [[nodiscard]] constexpr int GetRoundedDataLength() const noexcept {
+        int nSize{m_nCurPos - m_nNALDataPos};
         return nSize + 128 - (nSize % 128);
     }
 
-    int GetLength() const { return m_nCurPos - m_nNALStartPos; };
-    BYTE* GetNALBuffer() { return m_pBuffer + m_nNALStartPos; };
-    bool IsEOF() const { return m_nCurPos >= m_nSize; };
+    [[nodiscard]] int GetLength() const { return m_nCurPos - m_nNALStartPos; };
+    [[nodiscard]] constexpr BYTE* GetNALBuffer() noexcept { return m_pBuffer + m_nNALStartPos; };
+    [[nodiscard]] constexpr bool IsEOF() const noexcept { return m_nCurPos >= m_nSize; };
 
-    void SetBuffer(BYTE* pBuffer, int nSize, int nNALSize);
-    bool ReadNext();
+    constexpr void SetBuffer(BYTE* pBuffer, int nSize, int nNALSize) noexcept;
+    [[nodiscard]] constexpr bool ReadNext() noexcept;
 };

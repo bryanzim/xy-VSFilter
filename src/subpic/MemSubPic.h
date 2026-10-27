@@ -31,59 +31,59 @@ class CMemSubPic : public CSubPicExImpl
 {
 public:
     static void AlphaBltYv12Luma(byte* dst, int dst_pitch, int w, int h, const byte* sub, const byte* alpha, int sub_pitch);
-    static void AlphaBltYv12LumaC(byte* dst, int dst_pitch, int w, int h, const byte* sub, const byte* alpha, int sub_pitch);
+    constexpr static void AlphaBltYv12LumaC(byte* dst, int dst_pitch, int w, int h, const byte* sub, const byte* alpha, int sub_pitch) noexcept;
 
     static void AlphaBltYv12Chroma(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma, 
         const byte* alpha, int sub_pitch);
-    static void AlphaBltYv12ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma, 
-        const byte* alpha, int sub_pitch);
+    constexpr static void AlphaBltYv12ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma, 
+        const byte* alpha, int sub_pitch) noexcept;
     static void AlphaBltYv16Chroma(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma,
         const byte* alpha, int sub_pitch);
-    static void AlphaBltYv16ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma,
-        const byte* alpha, int sub_pitch);
+    constexpr static void AlphaBltYv16ChromaC(byte* dst, int dst_pitch, int w, int chroma_h, const byte* sub_chroma,
+        const byte* alpha, int sub_pitch) noexcept;
 
-    static HRESULT AlphaBltAnv12_P010(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
+    [[nodiscard]] static HRESULT AlphaBltAnv12_P010(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
         int w, int h);
-    static HRESULT AlphaBltAnv12_P010_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
+    [[nodiscard]] static HRESULT AlphaBltAnv12_P010_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
+        BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
+        int w, int h) noexcept;
+    [[nodiscard]] static HRESULT AlphaBltAnv12_P210(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
         int w, int h);
-    static HRESULT AlphaBltAnv12_P210(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
+    [[nodiscard]] static HRESULT AlphaBltAnv12_P210_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
+        BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
+        int w, int h) noexcept;
+    [[nodiscard]] static HRESULT AlphaBltAnv12_Nv12(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
         int w, int h);
-    static HRESULT AlphaBltAnv12_P210_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
+    [[nodiscard]] constexpr static HRESULT AlphaBltAnv12_Nv12_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
         BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
-        int w, int h);
-    static HRESULT AlphaBltAnv12_Nv12(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
-        BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
-        int w, int h);
-    static HRESULT AlphaBltAnv12_Nv12_C(const BYTE* src_a, const BYTE* src_y, const BYTE* src_uv, int src_pitch,
-        BYTE* dst_y, BYTE* dst_uv, int dst_pitch,
-        int w, int h);
+        int w, int h) noexcept;
 
     static void AlphaBlt_YUY2(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitch);
 
     static void SubsampleAndInterlace(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
-    static void SubsampleAndInterlaceC(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
+    constexpr static void SubsampleAndInterlaceC(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch) noexcept;
     static void SubsampleAndInterlace_422(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
-    static void SubsampleAndInterlace_422_C(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch);
+    constexpr static void SubsampleAndInterlace_422_C(BYTE* dst, const BYTE* u, const BYTE* v, int h, int w, int pitch) noexcept;
 public:
     CMemSubPic(SubPicDesc& spd, int alpha_blt_dst_type);
-    virtual ~CMemSubPic();
+    constexpr virtual ~CMemSubPic() noexcept;
 
     // ISubPic
-    STDMETHODIMP GetDesc(SubPicDesc& spd) const;
-    STDMETHODIMP ClearDirtyRect(DWORD color);
-    STDMETHODIMP Lock(SubPicDesc& spd);
-    STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] STDMETHODIMP GetDesc(SubPicDesc& spd) const;
+    [[nodiscard]] STDMETHODIMP ClearDirtyRect(DWORD color);
+    [[nodiscard]] STDMETHODIMP Lock(SubPicDesc& spd);
+    [[nodiscard]] STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
 
     // ISubPicEx
-    STDMETHODIMP CopyTo(ISubPicEx* pSubPic);
-    STDMETHODIMP UnlockEx(CAtlList<CRect>* dirtyRectList);
-    STDMETHODIMP SetDirtyRectEx(CAtlList<CRect>* dirtyRectList);
+    [[nodiscard]] STDMETHODIMP CopyTo(ISubPicEx* pSubPic);
+    [[nodiscard]] STDMETHODIMP UnlockEx(CAtlList<CRect>* dirtyRectList);
+    [[nodiscard]] STDMETHODIMP SetDirtyRectEx(CAtlList<CRect>* dirtyRectList);
 
     //
-    HRESULT FlipAlphaValue(const CRect& dirtyRect);
+    [[nodiscard]] HRESULT FlipAlphaValue(const CRect& dirtyRect);
 
 protected:
     bool converted;
@@ -95,18 +95,18 @@ protected:
 protected:
 	STDMETHODIMP_(void*) GetObject() const; // returns SubPicDesc*
     
-    HRESULT AlphaBltAxyuAxyv_P010(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
-    HRESULT AlphaBltAxyuAxyv_P210(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
-    HRESULT AlphaBltAxyuAxyv_Yv12(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
-    HRESULT AlphaBltAxyuAxyv_Yv16(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
-    HRESULT AlphaBltAxyuAxyv_Yv24(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
-    HRESULT AlphaBltAxyuAxyv_Nv12(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
-    HRESULT AlphaBltAnv12_P010_P210(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget, bool is422);
-    HRESULT AlphaBltAnv12_Nv12(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
-    HRESULT AlphaBltOther(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltAxyuAxyv_P010(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltAxyuAxyv_P210(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltAxyuAxyv_Yv12(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltAxyuAxyv_Yv16(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltAxyuAxyv_Yv24(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltAxyuAxyv_Nv12(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltAnv12_P010_P210(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget, bool is422);
+    [[nodiscard]] HRESULT AlphaBltAnv12_Nv12(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] HRESULT AlphaBltOther(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
 
-    HRESULT UnlockRGBA_YUV(CAtlList<CRect>* dirtyRectList);
-    HRESULT UnlockOther(CAtlList<CRect>* dirtyRectList);
+    [[nodiscard]] HRESULT UnlockRGBA_YUV(CAtlList<CRect>* dirtyRectList);
+    [[nodiscard]] HRESULT UnlockOther(CAtlList<CRect>* dirtyRectList);
 
     void SubsampleAndInterlace( const CRect& cRect, bool u_first );
     void SubsampleAndInterlace_422(const CRect& cRect, bool u_first);
@@ -122,7 +122,7 @@ class CMemSubPicAllocator : public CSubPicExAllocatorImpl
     int m_alpha_blt_dst_type;
 	CSize m_maxsize;
 
-	bool AllocEx(bool fStatic, ISubPicEx** ppSubPic);
+	[[nodiscard]] bool AllocEx(bool fStatic, ISubPicEx** ppSubPic);
 
 public:
 	CMemSubPicAllocator(int alpha_blt_dst_type, SIZE maxsize, int type=-1);

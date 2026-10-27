@@ -20,7 +20,9 @@ public:
         using namespace log4cplus;
 
 		if( s_entered[id]>0 )
+		{
 			return;
+		}
 
 		s_entered[id]++;
         if(logger.isEnabledFor(TRACE_LOG_LEVEL))
@@ -32,11 +34,13 @@ public:
         }
     }
 
-    OnceLogger()
+    explicit OnceLogger()
     {
         using namespace log4cplus;
 		if( s_entered[id]>1 )
+		{
 			return;
+		}
 
 		s_entered[id]++;
         if(logger.isEnabledFor(TRACE_LOG_LEVEL))
@@ -48,7 +52,7 @@ public:
         }
     }
 private:
-	static int s_entered[256];
+	static int s_entered[256U];
     int id;
 
     log4cplus::Logger logger;

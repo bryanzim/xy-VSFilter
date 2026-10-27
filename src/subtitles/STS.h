@@ -51,7 +51,7 @@ struct STSStyleBase
     bool    fUnderline;
     bool    fStrikeOut;
 
-    bool operator == (const STSStyleBase& s)const;
+    [[nodiscard]] bool operator == (const STSStyleBase& s)const;
 };
 
 LOGFONTA& operator <<= (LOGFONTA& lfa, const STSStyleBase& s);
@@ -65,8 +65,8 @@ public:
     int      borderStyle;  // 0: outline, 1: opaque box
     double   outlineWidthX, outlineWidthY;
     double   shadowDepthX, shadowDepthY;
-    COLORREF colors[4];    // usually: {primary, secondary, outline/background, shadow}
-    BYTE     alpha[4];
+    COLORREF colors[4U];    // usually: {primary, secondary, outline/background, shadow}
+    BYTE     alpha[4U];
 
     double   fontScaleX, fontScaleY; // percent
     double   fontSpacing;  // +/- pixels
@@ -78,15 +78,15 @@ public:
     int      relativeTo;   // 0: window, 1: video, 2: undefined (~window)
                            // Edit: NOT supported now
 
-    STSStyle();
+    explicit STSStyle();
 
     void SetDefault();
 
-	bool operator == (const STSStyle& s)const;
-    bool operator != (const STSStyle& s) const {
+	[[nodiscard]] bool operator == (const STSStyle& s)const;
+    [[nodiscard]] bool operator != (const STSStyle& s) const {
         return !(*this == s);
     };
-	bool IsFontStyleEqual(const STSStyle& s) const;
+	[[nodiscard]] bool IsFontStyleEqual(const STSStyle& s) const;
 
     void operator = (const LOGFONT& lf);
 
@@ -97,9 +97,9 @@ public:
 typedef ::boost::flyweights::flyweight<STSStyle, ::boost::flyweights::no_locking> FwSTSStyle;
 
 //for FwSTSStyle
-static inline std::size_t hash_value(const STSStyleBase& s)
+[[nodiscard]] static inline std::size_t hash_value(const STSStyleBase& s)
 {    
-    std::size_t hash = CStringElementTraits<CString>::Hash(s.fontName);
+    std::size_t hash{CStringElementTraits<CString>::Hash(s.fontName)};
     hash = (hash<<5) + (hash) + s.charSet;
     hash = (hash<<5) + (hash) + hash_value(s.fontSize);
     hash = (hash<<5) + (hash) + s.fontWeight;
@@ -109,12 +109,12 @@ static inline std::size_t hash_value(const STSStyleBase& s)
     return  hash;
 }
 
-static inline std::size_t hash_value(const STSStyle& s)
+[[nodiscard]] static inline std::size_t hash_value(const STSStyle& s)
 {
     //Todo: fix me
-    std::size_t hash = hash_value(static_cast<const STSStyleBase&>(s));
-    hash = (hash<<5) + (hash) + s.colors[0];
-    hash = (hash<<5) + (hash) + s.colors[2];
+    std::size_t hash{hash_value(static_cast<const STSStyleBase&>(s))};
+    hash = (hash<<5) + (hash) + s.colors[0U];
+    hash = (hash<<5) + (hash) + s.colors[2U];
     hash = (hash<<5) + (hash) + hash_value(s.fontScaleX);
     hash = (hash<<5) + (hash) + hash_value(s.fontScaleY);
     hash = (hash<<5) + (hash) + hash_value(s.fontAngleX);
@@ -129,9 +129,9 @@ static inline std::size_t hash_value(const STSStyle& s)
 class CSTSStyleMap : public CAtlMap<CString, STSStyle*, CStringElementTraits<CString> >
 {
 public:
-    CSTSStyleMap() {}
-    virtual ~CSTSStyleMap() {Free();}
-    void Free();
+    explicit CSTSStyleMap() {}
+    constexpr virtual ~CSTSStyleMap() noexcept {Free();}
+    constexpr void Free() noexcept;
 };
 
 typedef struct
@@ -152,7 +152,7 @@ public:
     bool animated; //if this segment has animate effect
     CAtlArray<int> subs;
 
-    STSSegment() {animated=false;}
+    constexpr explicit STSSegment() noexcept {animated=false;}
     STSSegment(REFERENCE_TIME s, REFERENCE_TIME e) {start = s; end = e; animated = false;}
     STSSegment(const STSSegment& stss) {*this = stss;}
     void operator = (const STSSegment& stss) {start = stss.start; end = stss.end; animated = stss.animated; subs.Copy(stss.subs);}
@@ -214,22 +214,22 @@ public:
     YCbCrMatrix    m_eYCbCrMatrix;
     YCbCrRange     m_eYCbCrRange;
 public:
-    CSimpleTextSubtitle();
+    explicit CSimpleTextSubtitle();
     virtual ~CSimpleTextSubtitle();
 
     virtual void Copy(CSimpleTextSubtitle& sts);
     virtual void Empty();
 
-    bool IsEmpty();
+    [[nodiscard]] bool IsEmpty();
 
     void Sort(bool fRestoreReadorder = false);
     void RemoveAllEntries();
     void CreateSegments();
 
-    bool Open(CString    fn           , int CharSet, CString name = _T(""));
-    bool Open(CTextFile* f            , int CharSet, CString name);
-    bool Open(BYTE     * data, int len, int CharSet, CString name);
-    bool SaveAs(CString fn, exttype et, double fps = -1, CTextFile::enc = CTextFile::DEFAULT_ENCODING);
+    [[nodiscard]] bool Open(CString    fn           , int CharSet, CString name = _T(""));
+    [[nodiscard]] bool Open(CTextFile* f            , int CharSet, CString name);
+    [[nodiscard]] bool Open(BYTE     * data, int len, int CharSet, CString name);
+    [[nodiscard]] bool SaveAs(CString fn, exttype et, double fps = -1, CTextFile::enc = CTextFile::DEFAULT_ENCODING);
 
     void Add(CStringW str, bool fUnicode, REFERENCE_TIME start, REFERENCE_TIME end, CString style = CString(_T("Default")),
         const CString& actor  = CString(_T("")), 
@@ -243,54 +243,54 @@ public:
     //remember to call sort when all STSEntrys are ready
     void AddSTSEntryOnly(CStringW str, bool fUnicode, REFERENCE_TIME start, REFERENCE_TIME end, CString style = _T("Default"), const CString& actor = _T(""), const CString& effect = _T(""), const CRect& marginRect = CRect(0,0,0,0), int layer = 0, int readorder = -1);
 
-    STSStyle* CreateDefaultStyle(int CharSet);
+    [[nodiscard]] STSStyle* CreateDefaultStyle(int CharSet);
     void ChangeUnknownStylesToDefault();
     void AddStyle(CString name, STSStyle* style); // style will be stored and freed in Empty() later
 
-    bool SetDefaultStyle(STSStyle& s);
-    bool GetDefaultStyle(STSStyle& s);
+    [[nodiscard]] bool SetDefaultStyle(STSStyle& s);
+    [[nodiscard]] bool GetDefaultStyle(STSStyle& s);
 
     void SetForceDefaultStyle(bool value);
 
     void ConvertToTimeBased (double fps);
     void ConvertToFrameBased(double fps);
 
-    REFERENCE_TIME TranslateStart(int i, double fps);
-    REFERENCE_TIME TranslateEnd  (int i, double fps);
-    int SearchSub     (REFERENCE_TIME t, double fps);
+    [[nodiscard]] REFERENCE_TIME TranslateStart(int i, double fps);
+    [[nodiscard]] REFERENCE_TIME TranslateEnd  (int i, double fps);
+    [[nodiscard]] int SearchSub     (REFERENCE_TIME t, double fps);
 
-    REFERENCE_TIME TranslateSegmentStart   (int i, double fps);
-    REFERENCE_TIME TranslateSegmentEnd     (int i, double fps);
+    [[nodiscard]] REFERENCE_TIME TranslateSegmentStart   (int i, double fps);
+    [[nodiscard]] REFERENCE_TIME TranslateSegmentEnd     (int i, double fps);
     void TranslateSegmentStartEnd(int i, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& end);
 
     //find the first STSSegment with stop time > @t
     //@iSegment: return the index, 0 based, of the STSSegment found, return STSSegments count if all STSSegments' stop time are NOT bigger than @t
     //@nSegment: return the STSSegments count
     //@return: the ptr to the STSSegment found, return NULL if such STSSegment not exist
-    const STSSegment* SearchSubs(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment = NULL, int* nSegments = NULL);
+    [[nodiscard]] const STSSegment* SearchSubs(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment = NULL, int* nSegments = NULL);
 
     //find STSSegment with a duration containing @t, i.e. with a start time <= @t and a stop time > @t
     //@iSegment: return the index, 0 based, of the STSSegment found. Return -1 if such STSSegment not exist
     //@nSegment: return the STSSegments count
     //@return: the ptr to the STSSegment found, return NULL if such STSSegment not exist
-    STSSegment* SearchSubs2(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment=NULL, int* nSegments=NULL);
+    [[nodiscard]] STSSegment* SearchSubs2(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment=NULL, int* nSegments=NULL);
 
-    const STSSegment* GetSegment(int iSegment) {return iSegment >= 0 && iSegment < (int)m_segments.GetCount() ? &m_segments[iSegment] : NULL;}
+    [[nodiscard]] const STSSegment* GetSegment(const int iSegment) {return iSegment >= 0 && iSegment < (int)m_segments.GetCount() ? &m_segments[iSegment] : NULL;}
 
-    STSStyle* GetStyle(int i);
-    bool      GetStyle(int i, STSStyle* const stss);
-    int       GetCharSet(int i);
-    bool      IsEntryUnicode(int i);
+    [[nodiscard]] STSStyle* GetStyle(int i);
+    [[nodiscard]] bool      GetStyle(int i, STSStyle* const stss);
+    [[nodiscard]] constexpr int       GetCharSet(int i) noexcept;
+    [[nodiscard]] bool      IsEntryUnicode(int i);
     void      ConvertUnicode(int i, bool fUnicode);
 
-    CStringW GetStrW (int i, bool fSSA = false);
-    CStringW GetStrWA(int i, bool fSSA = false);
+    [[nodiscard]] CStringW GetStrW (int i, bool fSSA = false);
+    [[nodiscard]] CStringW GetStrWA(int i, bool fSSA = false);
 
 #  define GetStr GetStrW
 
     void SetStr(int i, CStringW str, bool fUnicode);
 
-    friend bool OpenMicroDVD(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet);
+    [[nodiscard]] friend bool OpenMicroDVD(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet);
 private:
     bool CopyStyles(const CSTSStyleMap& styles, bool fAppend = false);
 };
@@ -299,5 +299,5 @@ extern BYTE   CharSetList[];
 extern TCHAR* CharSetNames[];
 extern int    CharSetLen;
 
-class CHtmlColorMap : public CAtlMap<CString, DWORD, CStringElementTraits<CString> > {public: CHtmlColorMap();};
+class CHtmlColorMap : public CAtlMap<CString, DWORD, CStringElementTraits<CString> > {public: explicit CHtmlColorMap();};
 extern CHtmlColorMap g_colors;

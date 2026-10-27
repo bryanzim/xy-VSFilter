@@ -17,7 +17,7 @@ public:
     {
         return key.GetHashValue();
     }
-    static inline bool CompareElements(
+    [[nodiscard]] static inline bool CompareElements(
         const CahcheKey& element1,
         const CahcheKey& element2)
     {
@@ -36,7 +36,8 @@ public:
     bool operator==(const TextInfoCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -45,9 +46,9 @@ public:
 class PathDataCacheKey
 {
 public:
-    PathDataCacheKey(const CWord& word):m_style(word.m_style)
+    explicit PathDataCacheKey(const CWord& word):m_style(word.m_style)
     {
-        const CPolygon *tmp = dynamic_cast<const CPolygon *>(&word);
+        const CPolygon *tmp{dynamic_cast<const CPolygon *>(&word)};
         if (tmp)
         {
             m_scalex = tmp->m_scalex;
@@ -66,22 +67,23 @@ public:
         ,m_scaley(key.m_scaley)
         ,m_style(key.m_style)
         ,m_hash_value(key.m_hash_value){}
-    bool operator==(const PathDataCacheKey& key)const
+    [[nodiscard]] bool operator==(const PathDataCacheKey& key)const
     {
         return m_str_id==key.m_str_id 
-            && fabs(m_scalex-key.m_scalex)<0.000001
-            && fabs(m_scaley-key.m_scaley)<0.000001 
+            && std::fabs(m_scalex-key.m_scalex)<0.000001
+            && std::fabs(m_scaley-key.m_scaley)<0.000001 
             && ( m_style==key.m_style || CompareSTSStyle(m_style, key.m_style) );
     }
-    bool operator==(const CWord& key)const
+    [[nodiscard]] bool operator==(const CWord& key)const
     {
         return operator==(PathDataCacheKey(key));
     }
 
-    static bool CompareSTSStyle(const STSStyle& lhs, const STSStyle& rhs);
+    [[nodiscard]] constexpr static bool CompareSTSStyle(const STSStyle& lhs, const STSStyle& rhs) noexcept;
     
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -102,10 +104,11 @@ public:
         ,m_org(key.m_org)
         ,m_hash_value(key.m_hash_value) { }
 
-    bool operator==(const ScanLineData2CacheKey& key)const;
+    [[nodiscard]] bool operator==(const ScanLineData2CacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -120,10 +123,11 @@ public:
     OverlayNoBlurKey(const CWord& word, const POINT& p, const POINT& org):ScanLineData2CacheKey(word,org),m_p(p) {}
     OverlayNoBlurKey(const OverlayNoBlurKey& key):ScanLineData2CacheKey(key),m_p(key.m_p),m_hash_value(key.m_hash_value) {}
 
-    bool operator==(const OverlayNoBlurKey& key)const;
+    [[nodiscard]] bool operator==(const OverlayNoBlurKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -138,10 +142,11 @@ public:
     OverlayKey(const CWord& word, const POINT& p, const POINT& org):OverlayNoBlurKey(word, p, org) {}
     OverlayKey(const OverlayKey& key):OverlayNoBlurKey(key), m_hash_value(key.m_hash_value) {}
 
-    bool operator==(const OverlayKey& key)const;
+    [[nodiscard]] bool operator==(const OverlayKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -152,11 +157,12 @@ public:
 class ScanLineDataCacheKey
 {
 public:
-    ScanLineDataCacheKey(const SharedPtrConstPathData& path_data):m_path_data(path_data){}
-    bool operator==(const ScanLineDataCacheKey& key)const;
+    explicit ScanLineDataCacheKey(const SharedPtrConstPathData& path_data):m_path_data(path_data){}
+    [[nodiscard]] bool operator==(const ScanLineDataCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -172,10 +178,11 @@ public:
         : ScanLineDataCacheKey(path_data)
         , m_border( border_x+(border_y<<16) )
         , m_rasterize_sub( xsub+(ysub<<16) ){}
-    bool operator==(const OverlayNoOffsetKey& key)const;
+    [[nodiscard]] bool operator==(const OverlayNoOffsetKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -189,11 +196,12 @@ public:
 class ClipperAlphaMaskCacheKey
 {
 public:
-    ClipperAlphaMaskCacheKey(const SharedPtrCClipper& clipper):m_clipper(clipper){}
-    bool operator==(const ClipperAlphaMaskCacheKey& key)const;
+    explicit ClipperAlphaMaskCacheKey(const SharedPtrCClipper& clipper):m_clipper(clipper){}
+    [[nodiscard]] bool operator==(const ClipperAlphaMaskCacheKey& key)const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -207,11 +215,12 @@ struct DrawItem;
 class DrawItemHashKey
 {
 public:
-    DrawItemHashKey(const DrawItem& draw_item);
-    bool operator==(const DrawItemHashKey& hash_key) const;
+    explicit DrawItemHashKey(const DrawItem& draw_item);
+    [[nodiscard]] bool operator==(const DrawItemHashKey& hash_key) const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -224,7 +233,7 @@ private:
     CRect m_clip_rect;
     int m_xsub;
     int m_ysub;
-    DWORD m_switchpts[6];
+    DWORD m_switchpts[6U];
     bool m_fBody;
     bool m_fBorder;
 };
@@ -235,7 +244,8 @@ public:
     bool operator==(const GroupedDrawItemsHashKey& key) const;
 
     ULONG UpdateHashValue();
-    inline ULONG GetHashValue()const
+    [[nodiscard]] constexpr inline ULONG GetHashValue()const
+    noexcept
     {
         return m_hash_value;
     }
@@ -297,33 +307,33 @@ typedef EnhancedXyMru<std::size_t, SharedPtrXyBitmap> BitmapMruCache;
 class CacheManager
 {
 public:
-    static const int BITMAP_MRU_CACHE_ITEM_NUM = 64;//for test only 
-    static const int CLIPPER_MRU_CACHE_ITEM_NUM = 48;
+    static const int BITMAP_MRU_CACHE_ITEM_NUM{64};//for test only 
+    static const int CLIPPER_MRU_CACHE_ITEM_NUM{48};
 
-    static const int TEXT_INFO_CACHE_ITEM_NUM = 2048;
-    static const int ASS_TAG_LIST_CACHE_ITEM_NUM = 2048;
-    static const int SUBPIXEL_VARIANCE_CACHE_ITEM_NUM = 2048;
-    static const int OVERLAY_CACHE_ITEM_NUM = 2048;
+    static const int TEXT_INFO_CACHE_ITEM_NUM{2048};
+    static const int ASS_TAG_LIST_CACHE_ITEM_NUM{2048};
+    static const int SUBPIXEL_VARIANCE_CACHE_ITEM_NUM{2048};
+    static const int OVERLAY_CACHE_ITEM_NUM{2048};
 
-    static const int OVERLAY_NO_BLUR_CACHE_ITEM_NUM = 256;
-    static const int SCAN_LINE_DATA_CACHE_ITEM_NUM = 512;
-    static const int PATH_CACHE_ITEM_NUM = 768;
-    static const int WORD_CACHE_ITEM_NUM = 512;
+    static const int OVERLAY_NO_BLUR_CACHE_ITEM_NUM{256};
+    static const int SCAN_LINE_DATA_CACHE_ITEM_NUM{512};
+    static const int PATH_CACHE_ITEM_NUM{768};
+    static const int WORD_CACHE_ITEM_NUM{512};
 
-    static BitmapMruCache* GetBitmapMruCache();
+    [[nodiscard]] static BitmapMruCache* GetBitmapMruCache();
 
-    static ClipperAlphaMaskMruCache* GetClipperAlphaMaskMruCache();
-    static TextInfoMruCache* GetTextInfoCache();
-    static AssTagListMruCache* GetAssTagListMruCache();
+    [[nodiscard]] static ClipperAlphaMaskMruCache* GetClipperAlphaMaskMruCache();
+    [[nodiscard]] static TextInfoMruCache* GetTextInfoCache();
+    [[nodiscard]] static AssTagListMruCache* GetAssTagListMruCache();
 
-    static ScanLineDataMruCache* GetScanLineDataMruCache();
-    static OverlayNoOffsetMruCache* GetOverlayNoOffsetMruCache();
+    [[nodiscard]] static ScanLineDataMruCache* GetScanLineDataMruCache();
+    [[nodiscard]] static OverlayNoOffsetMruCache* GetOverlayNoOffsetMruCache();
 
-    static OverlayMruCache* GetSubpixelVarianceCache();
-    static OverlayMruCache* GetOverlayMruCache();
-    static OverlayNoBlurMruCache* GetOverlayNoBlurMruCache();
-    static ScanLineData2MruCache* GetScanLineData2MruCache();
-    static PathDataMruCache* GetPathDataMruCache();
+    [[nodiscard]] static OverlayMruCache* GetSubpixelVarianceCache();
+    [[nodiscard]] static OverlayMruCache* GetOverlayMruCache();
+    [[nodiscard]] static OverlayNoBlurMruCache* GetOverlayNoBlurMruCache();
+    [[nodiscard]] static ScanLineData2MruCache* GetScanLineData2MruCache();
+    [[nodiscard]] static PathDataMruCache* GetPathDataMruCache();
 };
 
 

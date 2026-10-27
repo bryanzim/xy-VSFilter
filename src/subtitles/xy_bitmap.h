@@ -15,19 +15,19 @@ public:
     int x, y, w, h;
     int pitch, bpp;
     void* bits;
-    BYTE* plans[4];
+    BYTE* plans[4U];
 public:
-    XyBitmap()
+    explicit XyBitmap()
     {
         x = y = w = h = 0;
         type = 0;
         pitch = 0;
         bits = NULL;
-        plans[0] = plans[1] = plans[2] = plans[3] = NULL;
+        plans[0U] = plans[1U] = plans[2U] = plans[3U] = NULL;
     }
-    ~XyBitmap();
+    constexpr ~XyBitmap() noexcept;
 
-    static XyBitmap *CreateBitmap(const CRect& target_rect, MemLayout layout);
+    [[nodiscard]] static XyBitmap *CreateBitmap(const CRect& target_rect, MemLayout layout);
 
     static void FlipAlphaValue( LPVOID pixels, int w, int h, int pitch );
     static void AlphaBltPack(SubPicDesc& spd, POINT pos, SIZE size, LPCVOID pixels, int pitch);
@@ -42,17 +42,17 @@ class XySubRenderFrame: public CUnknown, public IXySubRenderFrame
 {
 public:
     DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    STDMETHODIMP GetOutputRect(RECT *outputRect);
-    STDMETHODIMP GetClipRect(RECT *clipRect);
-    STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
-    STDMETHODIMP GetBitmapCount(int *count);
-    STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
-    STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
+    [[nodiscard]] STDMETHODIMP GetOutputRect(RECT *outputRect);
+    [[nodiscard]] STDMETHODIMP GetClipRect(RECT *clipRect);
+    [[nodiscard]] STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
+    [[nodiscard]] STDMETHODIMP GetBitmapCount(int *count);
+    [[nodiscard]] STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
+    [[nodiscard]] STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
 public:
-    XySubRenderFrame();
-    ~XySubRenderFrame();
+    explicit XySubRenderFrame();
+    constexpr ~XySubRenderFrame() noexcept;
 
     typedef ::boost::shared_ptr<XyBitmap> SharedBitmap;
 
@@ -74,23 +74,23 @@ class XySubRenderFrameCreater
 public:
     static XySubRenderFrameCreater* GetDefaultCreater();
 
-    HRESULT SetOutputRect(const RECT& output_rect);
-    HRESULT SetClipRect(const RECT& clip_rect);
-    HRESULT SetColorSpace(XyColorSpace color_space);
-    HRESULT SetVsfilterCompactRgbCorrection(bool value);
-    HRESULT SetRgbOutputTvLevel(bool value);
+    [[nodiscard]] constexpr HRESULT SetOutputRect(const RECT& output_rect) noexcept;
+    [[nodiscard]] constexpr HRESULT SetClipRect(const RECT& clip_rect) noexcept;
+    [[nodiscard]] constexpr HRESULT SetColorSpace(XyColorSpace color_space) noexcept;
+    [[nodiscard]] constexpr HRESULT SetVsfilterCompactRgbCorrection(bool value) noexcept;
+    [[nodiscard]] constexpr HRESULT SetRgbOutputTvLevel(bool value) noexcept;
 
-    HRESULT GetOutputRect(RECT *output_rect);
-    HRESULT GetClipRect(RECT *clip_rect);
-    HRESULT GetColorSpace(XyColorSpace *color_space);
-    bool GetVsfilterCompactRgbCorrection();
-    bool GetRgbOutputTvLevel();
+    [[nodiscard]] HRESULT GetOutputRect(RECT *output_rect);
+    [[nodiscard]] HRESULT GetClipRect(RECT *clip_rect);
+    [[nodiscard]] constexpr HRESULT GetColorSpace(XyColorSpace *color_space) noexcept;
+    [[nodiscard]] constexpr bool GetVsfilterCompactRgbCorrection() noexcept;
+    [[nodiscard]] constexpr bool GetRgbOutputTvLevel() noexcept;
 
-    XySubRenderFrame* NewXySubRenderFrame(UINT bitmap_count);
-    XyBitmap* CreateBitmap(const RECT& target_rect);
-    DWORD TransColor(DWORD argb);
+    [[nodiscard]] XySubRenderFrame* NewXySubRenderFrame(UINT bitmap_count);
+    [[nodiscard]] XyBitmap* CreateBitmap(const RECT& target_rect);
+    [[nodiscard]] DWORD TransColor(DWORD argb);
 
-    XySubRenderFrameCreater():m_xy_color_space(XY_CS_ARGB), m_bitmap_layout(XyBitmap::PACK)
+    explicit XySubRenderFrameCreater():m_xy_color_space(XY_CS_ARGB), m_bitmap_layout(XyBitmap::PACK)
         , m_vsfilter_compact_rgb_correction(false), m_rgb_output_tv_level(false){}
 private:
     CRect m_output_rect;

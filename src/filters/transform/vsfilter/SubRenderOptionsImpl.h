@@ -31,23 +31,23 @@ public:
     virtual ~SubRenderOptionsImpl(void) {};
 
     // ISubRenderOptions
-    STDMETHODIMP GetBool     (LPCSTR field, bool      *value);
-    STDMETHODIMP GetInt      (LPCSTR field, int       *value);
-    STDMETHODIMP GetSize     (LPCSTR field, SIZE      *value);
-    STDMETHODIMP GetRect     (LPCSTR field, RECT      *value);
-    STDMETHODIMP GetUlonglong(LPCSTR field, ULONGLONG *value);
-    STDMETHODIMP GetDouble   (LPCSTR field, double    *value);
-    STDMETHODIMP GetString   (LPCSTR field, LPWSTR    *value, int *chars);
-    STDMETHODIMP GetBin      (LPCSTR field, LPVOID    *value, int *size );
+    [[nodiscard]] STDMETHODIMP GetBool     (LPCSTR field, bool      *value);
+    [[nodiscard]] STDMETHODIMP GetInt      (LPCSTR field, int       *value);
+    [[nodiscard]] STDMETHODIMP GetSize     (LPCSTR field, SIZE      *value);
+    [[nodiscard]] STDMETHODIMP GetRect     (LPCSTR field, RECT      *value);
+    [[nodiscard]] STDMETHODIMP GetUlonglong(LPCSTR field, ULONGLONG *value);
+    [[nodiscard]] STDMETHODIMP GetDouble   (LPCSTR field, double    *value);
+    [[nodiscard]] STDMETHODIMP GetString   (LPCSTR field, LPWSTR    *value, int *chars);
+    [[nodiscard]] STDMETHODIMP GetBin      (LPCSTR field, LPVOID    *value, int *size );
 
-    STDMETHODIMP SetBool     (LPCSTR field, bool      value);
-    STDMETHODIMP SetInt      (LPCSTR field, int       value);
-    STDMETHODIMP SetSize     (LPCSTR field, SIZE      value);
-    STDMETHODIMP SetRect     (LPCSTR field, RECT      value);
-    STDMETHODIMP SetUlonglong(LPCSTR field, ULONGLONG value);
-    STDMETHODIMP SetDouble   (LPCSTR field, double    value);
-    STDMETHODIMP SetString   (LPCSTR field, LPWSTR    value, int chars);
-    STDMETHODIMP SetBin      (LPCSTR field, LPVOID    value, int size );
+    [[nodiscard]] STDMETHODIMP SetBool     (LPCSTR field, bool      value);
+    [[nodiscard]] STDMETHODIMP SetInt      (LPCSTR field, int       value);
+    [[nodiscard]] STDMETHODIMP SetSize     (LPCSTR field, SIZE      value);
+    [[nodiscard]] STDMETHODIMP SetRect     (LPCSTR field, RECT      value);
+    [[nodiscard]] STDMETHODIMP SetUlonglong(LPCSTR field, ULONGLONG value);
+    [[nodiscard]] STDMETHODIMP SetDouble   (LPCSTR field, double    value);
+    [[nodiscard]] STDMETHODIMP SetString   (LPCSTR field, LPWSTR    value, int chars);
+    [[nodiscard]] STDMETHODIMP SetBin      (LPCSTR field, LPVOID    value, int size );
 private:
     int GetIFiled(LPCSTR field, OptionType type);
 

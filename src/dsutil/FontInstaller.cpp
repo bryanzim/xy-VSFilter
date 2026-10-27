@@ -22,12 +22,12 @@ CFontInstaller::~CFontInstaller()
 	UninstallFonts();
 }
 
-bool CFontInstaller::InstallFont(const CAtlArray<BYTE>& data)
+[[nodiscard]] bool CFontInstaller::InstallFont(const CAtlArray<BYTE>& data)
 {
 	return InstallFont(data.GetData(), data.GetCount());
 }
 
-bool CFontInstaller::InstallFont(const void* pData, UINT len)
+[[nodiscard]] bool CFontInstaller::InstallFont(const void* pData, const UINT len)
 {
 	return InstallFontFile(pData, len) || InstallFontMemory(pData, len);
 }
@@ -36,46 +36,60 @@ void CFontInstaller::UninstallFonts()
 {
 	if(pRemoveFontMemResourceEx)
 	{
-		POSITION pos = m_fonts.GetHeadPosition();
-		while(pos) pRemoveFontMemResourceEx(m_fonts.GetNext(pos));
+		POSITION pos{m_fonts.GetHeadPosition()};
+		while(pos)
+		{
+		    pRemoveFontMemResourceEx(m_fonts.GetNext(pos));
+		}
 		m_fonts.RemoveAll();
 	}
 
 	if(pRemoveFontResourceEx)
 	{
-		POSITION pos = m_files.GetHeadPosition();
+		POSITION pos{m_files.GetHeadPosition()};
 		while(pos)
 		{
-			CString fn = m_files.GetNext(pos);
+			CString fn{m_files.GetNext(pos)};
 			pRemoveFontResourceEx(fn, FR_PRIVATE, 0);
 			if(!DeleteFile(fn) && pMoveFileEx)
+			{
 				pMoveFileEx(fn, NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
+			}
 		}
 		
 		m_files.RemoveAll();
 	}
 }
 
-bool CFontInstaller::InstallFontMemory(const void* pData, UINT len)
+[[nodiscard]] bool CFontInstaller::InstallFontMemory(const void* pData, const UINT len)
 {
 	if(!pAddFontMemResourceEx)
+	{
 		return false;
+	}
 
-	DWORD nFonts = 0;
-	HANDLE hFont = pAddFontMemResourceEx((PVOID)pData, len, NULL, &nFonts);
-	if(hFont && nFonts > 0) m_fonts.AddTail(hFont);
+	DWORD nFonts{0};
+	HANDLE hFont{pAddFontMemResourceEx((PVOID)pData, len, NULL, &nFonts)};
+	if(hFont && nFonts > 0)
+	{
+	    m_fonts.AddTail(hFont);
+	}
 	return hFont && nFonts > 0;
 }
 
-bool CFontInstaller::InstallFontFile(const void* pData, UINT len)
+[[nodiscard]] bool CFontInstaller::InstallFontFile(const void* pData, const UINT len)
 {
-	if(!pAddFontResourceEx) 
+	if(!pAddFontResourceEx)
+	{ 
 		return false;
+	}
 
 	CFile f;
 	TCHAR path[MAX_PATH], fn[MAX_PATH];
 	if(!GetTempPath(MAX_PATH, path) || !GetTempFileName(path, _T("g_font"), 0, fn))
+	{
 		return false;
+	}
 
 	if(f.Open(fn, CFile::modeWrite))
 	{

@@ -34,16 +34,16 @@ enum ColorSpaceDir
     INPUT_COLOR_SPACE = 0,
     OUTPUT_COLOR_SPACE = 1
 };
-CString GetColorSpaceName(ColorSpaceId colorSpace, ColorSpaceDir inputOrOutput);
+[[nodiscard]] CString GetColorSpaceName(ColorSpaceId colorSpace, ColorSpaceDir inputOrOutput);
 UINT GetOutputColorSpaceNumber();
 UINT GetInputColorSpaceNumber();
-ColorSpaceId Subtype2OutputColorSpaceId( const GUID& subtype, ColorSpaceId startPos =0 );
+[[nodiscard]] ColorSpaceId Subtype2OutputColorSpaceId( const GUID& subtype, ColorSpaceId startPos =0 );
 
 class CBaseVideoFilter : public CTransformFilter
 {
 private:
     HRESULT Receive(IMediaSample* pIn);
-	HRESULT ReconnectOutput(int w, int h);
+	[[nodiscard]] HRESULT ReconnectOutput(int w, int h);
 
 	// these are private for a reason, don't bother them
 	DWORD m_win, m_hin, m_arxin, m_aryin;
@@ -57,43 +57,43 @@ protected:
 
 	int m_w, m_h, m_arx, m_ary;
 
-    static const int MAX_COLOR_SPACE_NUM = 256;
+    static const int MAX_COLOR_SPACE_NUM{256};
     const GUID* m_inputFmt[MAX_COLOR_SPACE_NUM];
     int m_inputFmtCount;
 
     const OutputFormatBase* m_outputFmt[MAX_COLOR_SPACE_NUM];
     int m_outputFmtCount;
 
-	HRESULT GetDeliveryBuffer(int w, int h, IMediaSample** ppOut);
-	HRESULT CopyBuffer(BYTE* pOut, BYTE* pIn, int w, int h, int pitchIn, const GUID& subtype, bool fInterlaced = false);
-	HRESULT CopyBuffer(BYTE* pOut, BYTE** ppIn, int w, int h, int pitchIn, const GUID& subtype, bool fInterlaced = false);
+	[[nodiscard]] HRESULT GetDeliveryBuffer(int w, int h, IMediaSample** ppOut);
+	[[nodiscard]] HRESULT CopyBuffer(BYTE* pOut, BYTE* pIn, int w, int h, int pitchIn, const GUID& subtype, bool fInterlaced = false);
+	[[nodiscard]] HRESULT CopyBuffer(BYTE* pOut, BYTE** ppIn, int w, int h, int pitchIn, const GUID& subtype, bool fInterlaced = false);
 
 	virtual void GetOutputSize(int& w, int& h, int& arx, int& ary) {}
-	virtual HRESULT Transform(IMediaSample* pIn) = 0;
-	virtual HRESULT IsVideoInterlaced() {return false;}
+	[[nodiscard]] virtual HRESULT Transform(IMediaSample* pIn) = 0;
+	[[nodiscard]] constexpr virtual HRESULT IsVideoInterlaced() noexcept {return false;}
 
     void InitInputColorSpaces();
     void InitOutputColorSpaces();
     virtual void GetInputColorspaces(ColorSpaceId *preferredOrder, UINT *count);
     virtual void GetOutputColorspaces(ColorSpaceId *preferredOrder, UINT *count);
-    HRESULT GetUpstreamOutputPriority(int *priorities, UINT count);
-    HRESULT CombineOutputPriority( ColorSpaceId *preferredOrder, UINT *count );
-    int GetInputSubtypePosition(const GUID& subtype);
-    int GetOutputSubtypePosition( const GUID& subtype, int startPos =0 );    
+    [[nodiscard]] HRESULT GetUpstreamOutputPriority(int *priorities, UINT count);
+    [[nodiscard]] HRESULT CombineOutputPriority( ColorSpaceId *preferredOrder, UINT *count );
+    [[nodiscard]] int GetInputSubtypePosition(const GUID& subtype);
+    [[nodiscard]] int GetOutputSubtypePosition( const GUID& subtype, int startPos =0 );    
 public:
 	CBaseVideoFilter(TCHAR* pName, LPUNKNOWN lpunk, HRESULT* phr, REFCLSID clsid, long cBuffers = 1);
-	virtual ~CBaseVideoFilter();
+	constexpr virtual ~CBaseVideoFilter() noexcept;
 
-	int GetPinCount();
-	CBasePin* GetPin(int n);
+	[[nodiscard]] int GetPinCount();
+	[[nodiscard]] CBasePin* GetPin(int n);
 
-    HRESULT CheckInputType(const CMediaType* mtIn);
-	HRESULT CheckOutputType(const CMediaType& mtOut);
-    HRESULT CheckTransform(const CMediaType* mtIn, const CMediaType* mtOut);
-    HRESULT CheckReconnect(const CMediaType* mtIn, const CMediaType* mtOut);
-    HRESULT DecideBufferSize(IMemAllocator* pAllocator, ALLOCATOR_PROPERTIES* pProperties);
-    HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);    
-	HRESULT SetMediaType(PIN_DIRECTION dir, const CMediaType* pmt);
+    [[nodiscard]] HRESULT CheckInputType(const CMediaType* mtIn);
+	[[nodiscard]] HRESULT CheckOutputType(const CMediaType& mtOut);
+    [[nodiscard]] HRESULT CheckTransform(const CMediaType* mtIn, const CMediaType* mtOut);
+    [[nodiscard]] HRESULT CheckReconnect(const CMediaType* mtIn, const CMediaType* mtOut);
+    [[nodiscard]] HRESULT DecideBufferSize(IMemAllocator* pAllocator, ALLOCATOR_PROPERTIES* pProperties);
+    [[nodiscard]] HRESULT GetMediaType(int iPosition, CMediaType* pMediaType);    
+	[[nodiscard]] HRESULT SetMediaType(PIN_DIRECTION dir, const CMediaType* pmt);
     
     friend class CBaseVideoOutputPin;
 };
@@ -103,9 +103,9 @@ class CBaseVideoInputAllocator : public CMemAllocator
 	CMediaType m_mt;
 
 public:
-	CBaseVideoInputAllocator(HRESULT* phr);
+	explicit CBaseVideoInputAllocator(HRESULT* phr);
 	void SetMediaType(const CMediaType& mt);
-	STDMETHODIMP GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, DWORD dwFlags);
+	[[nodiscard]] STDMETHODIMP GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, DWORD dwFlags);
 };
 
 class CBaseVideoInputPin : public CTransformInputPin
@@ -114,10 +114,10 @@ class CBaseVideoInputPin : public CTransformInputPin
 
 public:
 	CBaseVideoInputPin(TCHAR* pObjectName, CBaseVideoFilter* pFilter, HRESULT* phr, LPCWSTR pName);
-	~CBaseVideoInputPin();
+	constexpr ~CBaseVideoInputPin() noexcept;
 
-	STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
-	STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
+	[[nodiscard]] STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
+	[[nodiscard]] STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
 };
 
 class CBaseVideoOutputPin : public CTransformOutputPin
@@ -125,10 +125,10 @@ class CBaseVideoOutputPin : public CTransformOutputPin
 public:
 	CBaseVideoOutputPin(TCHAR* pObjectName, CBaseVideoFilter* pFilter, HRESULT* phr, LPCWSTR pName);
 
-    HRESULT CheckMediaType(const CMediaType* mtOut);
+    [[nodiscard]] HRESULT CheckMediaType(const CMediaType* mtOut);
     //STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
 
-    HRESULT CompleteConnect(IPin *pReceivePin);
+    [[nodiscard]] HRESULT CompleteConnect(IPin *pReceivePin);
 protected:
     CBaseVideoFilter * m_pFilter;
 };

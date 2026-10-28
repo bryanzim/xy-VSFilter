@@ -1,0 +1,77 @@
+function(xy_first_party_warnings target)
+    target_compile_options(${target} PRIVATE
+        /W4
+        /w34706
+        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANG_AND_ID:CXX,MSVC>>:/Gw /Qfast_transcendentals>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wno-non-pod-varargs>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wno-c++11-narrowing>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=parentheses>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wno-error=shift-op-parentheses>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=bitwise-op-parentheses>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=switch>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-const-variable>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=braced-scalar-init>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=bool-conversion>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=constant-conversion>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-but-set-variable>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-value>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-result>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=pointer-to-int-cast>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=int-to-pointer-cast>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=duplicate-decl-specifier>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=deprecated-register>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=self-assign>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=extern-initializer>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=ignored-reference-qualifiers>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=reserved-user-defined-literal>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=microsoft-enum-forward-reference>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=typename-missing>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=nonportable-include-path>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=reorder-ctor>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-variable>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=missing-braces>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-function>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=overloaded-virtual>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-private-field>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=inconsistent-missing-override>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=missing-exception-spec>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=comment>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=pragma-pack>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=explicit-specialization-storage-class>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=microsoft-exception-spec>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=writable-strings>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=ignored-attributes>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=multichar>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=deprecated-declarations>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=microsoft-include>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=microsoft-extra-qualification>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=unused-local-typedef>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=extra-tokens>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=extern-c-compat>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=macro-redefined>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=microsoft-template>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=mismatched-new-delete>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=delete-non-abstract-non-virtual-dtor>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wshadow>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=implicit-fallthrough>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wformat>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=deprecated-copy>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Werror=extra-semi>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wno-c++98-compat-extra-semi>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wunreachable-code>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wmove>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wrange-loop-analysis>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wconditional-uninitialized>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wtautological-compare>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wfor-loop-analysis>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wheader-hygiene>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wmicrosoft-goto>)
+endfunction()
+
+function(xy_third_party_warnings target)
+    target_compile_options(${target} PRIVATE
+        /W0
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wno-non-pod-varargs>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-Wno-c++11-narrowing>
+        $<$<COMPILE_LANG_AND_ID:CXX,Clang>:/clang:-w>)
+endfunction()

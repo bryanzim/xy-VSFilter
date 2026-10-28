@@ -1,0 +1,370 @@
+# Source lists taken from the Visual Studio projects. Platform-specific
+# translation units and YASM files are separate so the caller can select them.
+
+set(XY_DSUTIL_SOURCES
+    DSMPropertyBag.cpp
+    DSUtil.cpp
+    FontInstaller.cpp
+    GolombBuffer.cpp
+    H264Nalu.cpp
+    HdmvClipInfo.cpp
+    MediaTypeEx.cpp
+    MediaTypes.cpp
+    NullRenderers.cpp
+    stdafx.cpp
+    text.cpp
+    vd.cpp
+    vd_asm.cpp
+    xy_utils.cpp)
+
+set(XY_SUBPIC_SOURCES
+    alpha_blender.cpp
+    color_conv_table.cpp
+    CoordGeom.cpp
+    CRect2.cpp
+    DX9SubPic.cpp
+    MemSubPic.cpp
+    PooledSubPic.cpp
+    SimpleSubpicImpl.cpp
+    SimpleSubPicProviderImpl.cpp
+    SimpleSubPicWrapper.cpp
+    stdafx.cpp
+    SubPicAllocatorPresenterImpl.cpp
+    SubPicImpl.cpp
+    SubPicProviderExWrapper.cpp
+    SubPicProviderImpl.cpp
+    SubPicQueueImpl.cpp
+    XySubRenderFrameWrapper.cpp
+    XySubRenderProviderWrapper.cpp)
+
+set(XY_SUBPIC_NO_PCH
+    color_conv_table.cpp
+    CRect2.cpp
+    PooledSubPic.cpp)
+
+set(XY_SUBTITLES_SOURCES
+    BaseSub.cpp
+    cache_manager.cpp
+    CCDecoder.cpp
+    CompositionObject.cpp
+    draw_item.cpp
+    DVBSub.cpp
+    GFN.cpp
+    HdmvSub.cpp
+    hdmv_subtitle_provider.cpp
+    Rasterizer.cpp
+    RealTextParser.cpp
+    RenderedHdmvSubtitle.cpp
+    RTS.cpp
+    SSF.cpp
+    stdafx.cpp
+    StdioFile64.cpp
+    STS.cpp
+    subpixel_position_controler.cpp
+    SubtitleInputPin.cpp
+    TextFile.cpp
+    USFSubtitles.cpp
+    VobSubFile.cpp
+    VobSubFileRipper.cpp
+    VobSubImage.cpp
+    xy_clipper_paint_machine.cpp
+    xy_bitmap.cpp
+    xy_filter.cpp
+    xy_malloc.cpp
+    xy_overlay_paint_machine.cpp
+    xy_widen_region.cpp)
+
+set(XY_LIBSSF_SOURCES
+    Arabic.cpp
+    Array.cpp
+    Exception.cpp
+    File.cpp
+    FontWrapper.cpp
+    Glyph.cpp
+    GlyphPath.cpp
+    Node.cpp
+    NodeFactory.cpp
+    Rasterizer.cpp
+    Renderer.cpp
+    Split.cpp
+    stdafx.cpp
+    Stream.cpp
+    StringMap.cpp
+    Subtitle.cpp
+    SubtitleFile.cpp)
+
+set(XY_STRMBASE_SOURCES
+    amextra.cpp
+    amfilter.cpp
+    amvideo.cpp
+    combase.cpp
+    cprop.cpp
+    ctlutil.cpp
+    ddmm.cpp
+    dllentry.cpp
+    dllsetup.cpp
+    mtype.cpp
+    outputq.cpp
+    pstream.cpp
+    pullpin.cpp
+    refclock.cpp
+    renbase.cpp
+    schedule.cpp
+    seekpt.cpp
+    source.cpp
+    strmctl.cpp
+    sysclock.cpp
+    transfrm.cpp
+    transip.cpp
+    videoctl.cpp
+    vtrans.cpp
+    winctrl.cpp
+    winutil.cpp
+    wxdebug.cpp
+    wxlist.cpp
+    wxutil.cpp)
+
+set(XY_UNRAR_SOURCES
+    archive.cpp
+    arcread.cpp
+    blake2s.cpp
+    cmddata.cpp
+    consio.cpp
+    crc.cpp
+    crypt.cpp
+    dll.cpp
+    encname.cpp
+    errhnd.cpp
+    extinfo.cpp
+    extract.cpp
+    filcreat.cpp
+    file.cpp
+    filefn.cpp
+    filestr.cpp
+    find.cpp
+    getbits.cpp
+    global.cpp
+    hash.cpp
+    headers.cpp
+    isnt.cpp
+    largepage.cpp
+    list.cpp
+    match.cpp
+    motw.cpp
+    options.cpp
+    pathfn.cpp
+    qopen.cpp
+    rar.cpp
+    rarpch.cpp
+    rarvm.cpp
+    rawread.cpp
+    rdwrfn.cpp
+    resource.cpp
+    rijndael.cpp
+    rs.cpp
+    rs16.cpp
+    scantree.cpp
+    secpassword.cpp
+    sha1.cpp
+    sha256.cpp
+    smallfn.cpp
+    strfn.cpp
+    strlist.cpp
+    system.cpp
+    threadpool.cpp
+    timefn.cpp
+    ui.cpp
+    unicode.cpp
+    unpack.cpp
+    volume.cpp)
+
+set(XY_KASUMI_SOURCES
+    source/alphablt.cpp
+    source/blitter.cpp
+    source/blt.cpp
+    source/blt_reference.cpp
+    source/blt_reference_pal.cpp
+    source/blt_reference_rgb.cpp
+    source/blt_reference_yuv.cpp
+    source/blt_reference_yuv2yuv.cpp
+    source/blt_reference_yuvrev.cpp
+    source/blt_setup.cpp
+    source/blt_spanutils.cpp
+    source/blt_uberblit.cpp
+    source/pixel.cpp
+    source/pixmaputils.cpp
+    source/region.cpp
+    source/resample.cpp
+    source/resample_kernels.cpp
+    source/resample_stages.cpp
+    source/resample_stages_reference.cpp
+    source/stdafx.cpp
+    source/stretchblt_reference.cpp
+    source/tables.cpp
+    source/text.cpp
+    source/triblt.cpp
+    source/uberblit.cpp
+    source/uberblit_16f.cpp
+    source/uberblit_gen.cpp
+    source/uberblit_resample.cpp
+    source/uberblit_resample_special.cpp
+    source/uberblit_rgb64.cpp
+    source/uberblit_swizzle.cpp
+    source/uberblit_v210.cpp
+    source/uberblit_ycbcr_generic.cpp)
+
+set(XY_KASUMI_WIN32_SOURCES
+    source/uberblit_swizzle_x86.cpp
+    source/uberblit_ycbcr_x86.cpp
+    source/blt_spanutils_x86.cpp
+    source/blt_x86.cpp
+    source/resample_stages_x86.cpp
+    source/uberblit_resample_special_x86.cpp)
+
+set(XY_KASUMI_X64_SOURCES
+    source/resample_stages_x64.cpp)
+
+set(XY_KASUMI_WIN32_ASM
+    source/a_bltrgb.asm
+    source/a_bltrgb2yuv_mmx.asm
+    source/a_bltrgb_mmx.asm
+    source/a_bltyuv2rgb_sse2.asm
+    source/a_resample_mmx.asm
+    source/a_resample_sse41.asm
+    source/a_spanutils_isse.asm
+    source/a_stretchrgb_mmx.asm
+    source/a_stretchrgb_point.asm
+    source/a_triblt_mmx.asm
+    source/a_triblt_scalar.asm
+    source/a_triblt_sse2.asm)
+
+set(XY_KASUMI_X64_ASM
+    source/a64_resample.asm64)
+
+set(XY_SYSTEM_SOURCES
+    ../h/vd2/system/source/registrymemory.cpp
+    source/bitmath.cpp
+    source/cache.cpp
+    source/cmdline.cpp
+    source/cpuaccel.cpp
+    source/date.cpp
+    source/debug.cpp
+    source/debugx86.cpp
+    source/Error.cpp
+    source/error_win32.cpp
+    source/event.cpp
+    source/file.cpp
+    source/fileasync.cpp
+    source/filestream.cpp
+    source/filesys.cpp
+    source/filewatcher.cpp
+    source/Fraction.cpp
+    source/halffloat.cpp
+    source/hash.cpp
+    source/int128.cpp
+    source/linearalloc.cpp
+    source/list.cpp
+    source/log.cpp
+    source/math.cpp
+    source/memory.cpp
+    source/process.cpp
+    source/profile.cpp
+    source/progress.cpp
+    source/protscope.cpp
+    source/refcount.cpp
+    source/registry.cpp
+    source/strutil.cpp
+    source/text.cpp
+    source/thread.cpp
+    source/thunk.cpp
+    source/time.cpp
+    source/tls.cpp
+    source/vdalloc.cpp
+    source/VDNamespace.cpp
+    source/VDScheduler.cpp
+    source/vdstl.cpp
+    source/vdstl_hash.cpp
+    source/vdstl_hashtable.cpp
+    source/VDString.cpp
+    source/vectors.cpp
+    source/w32assist.cpp
+    source/zip.cpp
+    source/stdafx.cpp)
+
+set(XY_SYSTEM_WIN32_ASM
+    source/a_memory.asm
+    source/a_thunk.asm)
+
+set(XY_SYSTEM_X64_ASM
+    source/a64_cpuaccel.asm
+    source/a64_fraction.asm
+    source/a64_int128.asm
+    source/a64_thunk.asm)
+
+set(XY_LOG4CPLUS_SOURCES
+    ../src/appender.cxx
+    ../src/appenderattachableimpl.cxx
+    ../src/asyncappender.cxx
+    ../src/callbackappender.cxx
+    ../src/clogger.cxx
+    ../src/configurator.cxx
+    ../src/connectorthread.cxx
+    ../src/consoleappender.cxx
+    ../src/env.cxx
+    ../src/eventcounter.cxx
+    ../src/exception.cxx
+    ../src/factory.cxx
+    ../src/fileappender.cxx
+    ../src/fileinfo.cxx
+    ../src/filter.cxx
+    ../src/global-init.cxx
+    ../src/hierarchy.cxx
+    ../src/hierarchylocker.cxx
+    ../src/layout.cxx
+    ../src/lockfile.cxx
+    ../src/log4judpappender.cxx
+    ../src/logger.cxx
+    ../src/loggerimpl.cxx
+    ../src/loggingevent.cxx
+    ../src/loggingmacros.cxx
+    ../src/loglevel.cxx
+    ../src/loglog.cxx
+    ../src/mdc.cxx
+    ../src/ndc.cxx
+    ../src/nteventlogappender.cxx
+    ../src/nullappender.cxx
+    ../src/objectregistry.cxx
+    ../src/patternlayout.cxx
+    ../src/pointer.cxx
+    ../src/property.cxx
+    ../src/queue.cxx
+    ../src/rootlogger.cxx
+    ../src/snprintf.cxx
+    ../src/socket.cxx
+    ../src/socket-win32.cxx
+    ../src/socketappender.cxx
+    ../src/socketbuffer.cxx
+    ../src/stringhelper.cxx
+    ../src/stringhelper-clocale.cxx
+    ../src/stringhelper-cxxlocale.cxx
+    ../src/stringhelper-iconv.cxx
+    ../src/syncprims.cxx
+    ../src/syslogappender.cxx
+    ../src/threads.cxx
+    ../src/timehelper.cxx
+    ../src/tls.cxx
+    ../src/version.cxx
+    ../src/win32consoleappender.cxx
+    ../src/win32debugappender.cxx)
+
+set(XY_FILTER_SHARED_SOURCES
+    DirectVobSub.cpp
+    DirectVobSubPropPage.cpp
+    once_logger.cpp
+    StdAfx.cpp
+    StyleEditorDialog.cpp
+    SubRenderOptionsImpl.cpp
+    VSFilter.cpp
+    XyOptionsImpl.cpp
+    xy_logger.cpp
+    VSFilter.rc)

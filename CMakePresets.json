@@ -1,0 +1,79 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "msvc-x64",
+      "displayName": "MSVC x64",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/msvc-x64"
+    },
+    {
+      "name": "msvc-win32",
+      "displayName": "MSVC Win32",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "Win32",
+      "binaryDir": "${sourceDir}/build/msvc-win32"
+    },
+    {
+      "name": "clang-x64",
+      "displayName": "ClangCL x64",
+      "generator": "Visual Studio 18 2026",
+      "toolset": "ClangCL",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/clang-x64"
+    },
+    {
+      "name": "clang-win32",
+      "displayName": "ClangCL Win32",
+      "generator": "Visual Studio 18 2026",
+      "toolset": "ClangCL",
+      "architecture": "Win32",
+      "binaryDir": "${sourceDir}/build/clang-win32"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "msvc-x64",
+      "configurePreset": "msvc-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "msvc-win32",
+      "configurePreset": "msvc-win32",
+      "configuration": "Release"
+    },
+    {
+      "name": "clang-x64",
+      "configurePreset": "clang-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "clang-win32",
+      "configurePreset": "clang-win32",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "msvc-x64",
+      "configurePreset": "msvc-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "msvc-win32",
+      "configurePreset": "msvc-win32",
+      "configuration": "Release"
+    },
+    {
+      "name": "clang-x64",
+      "configurePreset": "clang-x64",
+      "configuration": "Release"
+    },
+    {
+      "name": "clang-win32",
+      "configurePreset": "clang-win32",
+      "configuration": "Release"
+    }
+  ]
+}

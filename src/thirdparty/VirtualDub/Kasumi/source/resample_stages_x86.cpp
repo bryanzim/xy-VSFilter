@@ -1,20 +1,10 @@
-//	VirtualDub - Video processing and capture application
-//	Graphics support library
-//	Copyright (C) 1998-2009 Avery Lee
+// VirtualDub - Video processing and capture application
+// Graphics support library
 //
-//	This program is free software; you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation; either version 2 of the License, or
-//	(at your option) any later version.
+// Copyright (C) 1998-2009 Avery Lee
 //
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
+// SPDX-License-Identifier: GPL-2.0-or-later
 //
-//	You should have received a copy of the GNU General Public License
-//	along with this program; if not, write to the Free Software
-//	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <stdafx.h>
 #include <numeric>
@@ -295,7 +285,8 @@ void VDResamplerSeparableTableRowStage8MMX::RedoRowFilters(const VDResamplerAxis
 	}
 }
 
-static const __declspec(align(8)) __int64 kRound_row_k8 = 0x0000000000002000;
+static const __declspec(align(8)) __int64 kRound_2000 = 0x0000000000002000;
+static const __declspec(align(8)) __int64 kRound_20002000 = 0x0000200000002000;
 
 void __declspec(naked) vdasm_resize_table_row_8_k8_4x_MMX(void *dst, const void *src, uint32 width, const void *kernel) {
 	__asm {
@@ -305,7 +296,7 @@ void __declspec(naked) vdasm_resize_table_row_8_k8_4x_MMX(void *dst, const void 
 		push		ebx
 
 		pxor		mm7, mm7
-		movq		mm6, kRound_row_k8
+		movq		mm6, kRound_2000
 
 		mov			ebp, [esp +  4 + 16]		;ebp = dst
 		mov			esi, [esp + 12 + 16]		;esi = width
@@ -400,8 +391,6 @@ yloop:
 	}
 }
 
-static const __declspec(align(8)) __int64 kRound_row_k12 = 0x0000200000002000;
-
 void __declspec(naked) vdasm_resize_table_row_8_k12_4x_MMX(void *dst, const void *src, uint32 width, const void *kernel) {
 	__asm {
 		push		ebp
@@ -410,7 +399,7 @@ void __declspec(naked) vdasm_resize_table_row_8_k12_4x_MMX(void *dst, const void
 		push		ebx
 
 		pxor		mm7, mm7
-		movq		mm6, kRound_row_k12
+		movq		mm6, kRound_20002000
 
 		mov			ebp, [esp +  4 + 16]		;ebp = dst
 		mov			esi, [esp + 12 + 16]		;esi = width
@@ -523,8 +512,6 @@ yloop:
 	}
 }
 
-static const __declspec(align(8)) __int64 kRound_row_8 = 0x0000000000002000;
-
 void __declspec(naked) vdasm_resize_table_row_8_MMX(void *dst, const void *src, uint32 width, const void *kernel, uint32 kwidth) {
 	__asm {
 		push		ebp
@@ -533,7 +520,7 @@ void __declspec(naked) vdasm_resize_table_row_8_MMX(void *dst, const void *src, 
 		push		ebx
 
 		pxor		mm7, mm7
-		movq		mm6, kRound_row_8
+		movq		mm6, kRound_2000
 
 		mov			edi, [esp +  4 + 16]		;edi = dst
 		mov			ebx, [esp +  8 + 16]		;ebx = src
@@ -744,10 +731,7 @@ VDResamplerSeparableTableColStage8MMX::VDResamplerSeparableTableColStage8MMX(con
 	VDResamplerSwizzleTable(mFilterBank.data(), (unsigned)mFilterBank.size() >> 1);
 }
 
-static const __declspec(align(8)) __int64 kRound_col_k2 = 0x0000200000002000;
-
 void __declspec(naked) vdasm_resize_table_col_8_k2_MMX(void *dst, const void *const *srcs, uint32 width, const void *kernel) {
-
 	__asm {
 		push		ebp
 		push		edi
@@ -755,7 +739,7 @@ void __declspec(naked) vdasm_resize_table_col_8_k2_MMX(void *dst, const void *co
 		push		ebx
 
 		pxor		mm7, mm7
-		movq		mm6, kRound_col_k2
+		movq		mm6, kRound_20002000
 
 		mov			esi, [esp +  4 + 16]		;esi = dst
 		mov			edi, [esp + 16 + 16]		;edi = kernel
@@ -808,10 +792,7 @@ yloop:
 	}
 }
 
-static const __declspec(align(8)) __int64 kRound_col_k4 = 0x0000200000002000;
-
 void __declspec(naked) vdasm_resize_table_col_8_k4_MMX(void *dst, const void *const *srcs, uint32 width, const void *kernel) {
-
 	__asm {
 		push		ebp
 		push		edi
@@ -819,7 +800,7 @@ void __declspec(naked) vdasm_resize_table_col_8_k4_MMX(void *dst, const void *co
 		push		ebx
 
 		pxor		mm7, mm7
-		movq		mm6, kRound_col_k4
+		movq		mm6, kRound_20002000
 
 		mov			esi, [esp +  4 + 16]		;esi = dst
 		mov			edi, [esp + 16 + 16]		;edi = kernel
@@ -885,10 +866,7 @@ yloop:
 	}
 }
 
-static const __declspec(align(8)) __int64 kRound_col_8 = 0x0000200000002000;
-
 void __declspec(naked) vdasm_resize_table_col_8_MMX(void *dst, const void *const *srcs, uint32 width, const void *kernel, uint32 kwidth) {
-
 	__asm {
 		push		ebp
 		push		edi
@@ -896,7 +874,7 @@ void __declspec(naked) vdasm_resize_table_col_8_MMX(void *dst, const void *const
 		push		ebx
 
 		pxor		mm7, mm7
-		movq		mm6, kRound_col_8
+		movq		mm6, kRound_20002000
 
 		mov			edi, [esp +  4 + 16]		;edi = dst
 		xor			ebp, ebp

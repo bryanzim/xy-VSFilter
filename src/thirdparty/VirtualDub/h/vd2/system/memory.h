@@ -1,37 +1,35 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2016 Anton Shekhovtsov
+// Copyright (C) 2026 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_MEMORY_H
 #define f_VD2_SYSTEM_MEMORY_H
 
 #include <vd2/system/vdtypes.h>
 
-void *VDAlignedMalloc(size_t n, unsigned alignment);
+template <typename T, typename U>
+inline constexpr T VDAlignDown(const T value, const U align) // aligning downwards is just truncation
+{
+	return value & ~((T)align - 1);
+};
+
+template <typename T, typename U>
+inline constexpr T VDAlignUp(const T value, const U align) // align up: round up to next boundary
+{
+	const T align_mask = (T)align - 1;
+	return (value + align_mask) & ~align_mask;
+};
+
+void *VDAlignedMalloc(size_t n, size_t alignment);
 void VDAlignedFree(void *p);
 
-template<unsigned alignment>
+template<size_t alignment>
 struct VDAlignedObject {
 	inline void *operator new(size_t n) { return VDAlignedMalloc(n, alignment); }
 	inline void operator delete(void *p) { VDAlignedFree(p); }
@@ -63,6 +61,7 @@ void VDMemset8Rect(void *dst, ptrdiff_t pitch, uint8 value, size_t w, size_t h);
 void VDMemset16Rect(void *dst, ptrdiff_t pitch, uint16 value, size_t w, size_t h);
 void VDMemset24Rect(void *dst, ptrdiff_t pitch, uint32 value, size_t w, size_t h);
 void VDMemset32Rect(void *dst, ptrdiff_t pitch, uint32 value, size_t w, size_t h);
+void VDMemset64Rect(void *dst, ptrdiff_t pitch, uint64 value, size_t w, size_t h);
 
 #if defined(_WIN32) && defined(VD_CPU_X86) && defined(VD_COMPILER_MSVC)
 	extern void (__cdecl *VDFastMemcpyPartial)(void *dst, const void *src, size_t bytes);

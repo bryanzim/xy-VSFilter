@@ -3,7 +3,7 @@
 // Created: 4/2003
 // Author:  Michael CATANZARITI
 //
-// Copyright 2003-2010 Michael CATANZARITI
+// Copyright 2003-2017 Michael CATANZARITI
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,30 +17,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <log4cplus/config.hxx>
+#if defined (LOG4CPLUS_HAVE_NT_EVENT_LOG)
+
 #include <log4cplus/nteventlogappender.h>
 #include <log4cplus/loglevel.h>
 #include <log4cplus/streams.h>
 #include <log4cplus/helpers/loglog.h>
+#include <log4cplus/helpers/property.h>
 #include <log4cplus/spi/loggingevent.h>
+#include <log4cplus/internal/internal.h>
+#include <log4cplus/thread/syncprims-pub-impl.h>
+#include <sstream>
 #include <cstdlib>
 
 
-#if defined (LOG4CPLUS_HAVE_NT_EVENT_LOG)
-
-using namespace log4cplus;
-using namespace log4cplus::spi;
-using namespace log4cplus::helpers;
+namespace log4cplus
+{
 
 
 //////////////////////////////////////////////////////////////////////////////
 // File LOCAL methods
 //////////////////////////////////////////////////////////////////////////////
 
-namespace
-{
+namespace {
 
-    bool 
-    copySID(SID** ppDstSid, SID* pSrcSid) 
+    static
+    bool
+    copySID(SID** ppDstSid, SID* pSrcSid)
     {
         DWORD dwLength = ::GetLengthSid(pSrcSid);
 
@@ -61,11 +65,12 @@ namespace
     }
 
 
-    bool 
-    GetCurrentUserSID(SID** ppSid) 
+    static
+    bool
+    GetCurrentUserSID(SID** ppSid)
     {
         bool bSuccess = false;
-        TOKEN_USER * ptu = 0;
+        TOKEN_USER * ptu = nullptr;
         DWORD tusize = 0;
         HANDLE hProcess = ::GetCurrentProcess();
         HANDLE hToken = 0;
@@ -74,7 +79,7 @@ namespace
             goto finish;
 
         // Get the required size
-        if (! GetTokenInformation(hToken, TokenUser, NULL, 0, &tusize))
+        if (! GetTokenInformation(hToken, TokenUser, nullptr, 0, &tusize))
             goto finish;
 
         ptu = (TOKEN_USER*) std::calloc (1, tusize);
@@ -94,44 +99,46 @@ namespace
     }
 
 
-    HKEY 
-    regGetKey(const log4cplus::tstring& subkey, DWORD* disposition)
+    static
+    HKEY
+    regGetKey(const tstring& subkey, DWORD* disposition)
     {
         HKEY hkey = 0;
-        RegCreateKeyEx(HKEY_LOCAL_MACHINE, 
-                       subkey.c_str(), 
-                       0, 
-                       NULL, 
-                       REG_OPTION_NON_VOLATILE, 
-                       KEY_SET_VALUE, 
-                       NULL, 
-                       &hkey, 
+        RegCreateKeyEx(HKEY_LOCAL_MACHINE,
+                       subkey.c_str(),
+                       0,
+                       nullptr,
+                       REG_OPTION_NON_VOLATILE,
+                       KEY_SET_VALUE,
+                       nullptr,
+                       &hkey,
                        disposition);
         return hkey;
     }
 
 
-    void 
-    regSetString(HKEY hkey, const log4cplus::tstring& name, const log4cplus::tstring& value)
+    static
+    void
+    regSetString(HKEY hkey, const tstring& name, const tstring& value)
     {
-        RegSetValueEx(hkey, 
-                      name.c_str(), 
-                      0, 
-                      REG_SZ, 
-                      (LPBYTE)value.c_str(), 
+        RegSetValueEx(hkey,
+                      name.c_str(),
+                      0,
+                      REG_SZ,
+                      reinterpret_cast<BYTE const *>(value.c_str()),
                       static_cast<DWORD>(value.length() * sizeof(tchar)));
     }
 
 
-
-    void 
-    regSetDword(HKEY hkey, const log4cplus::tstring& name, DWORD value)
+    static
+    void
+    regSetDword(HKEY hkey, const tstring& name, DWORD value)
     {
-        RegSetValueEx(hkey, 
-                      name.c_str(), 
-                      0, 
-                      REG_DWORD, 
-                      (LPBYTE)&value, 
+        RegSetValueEx(hkey,
+                      name.c_str(),
+                      0,
+                      REG_DWORD,
+                      reinterpret_cast<LPBYTE>(&value),
                       sizeof(DWORD));
     }
 
@@ -140,27 +147,27 @@ namespace
 
 
 //////////////////////////////////////////////////////////////////////////////
-// log4cplus::NTEventLogAppender ctor and dtor
+// NTEventLogAppender ctor and dtor
 //////////////////////////////////////////////////////////////////////////////
 
-NTEventLogAppender::NTEventLogAppender(const log4cplus::tstring& server, 
-                                       const log4cplus::tstring& log, 
-                                       const log4cplus::tstring& source)
-: server(server), 
-  log(log), 
-  source(source), 
-  hEventLog(NULL), 
-  pCurrentUserSID(NULL)
+NTEventLogAppender::NTEventLogAppender(const tstring& server,
+                                       const tstring& log,
+                                       const tstring& source)
+: server(server),
+  log(log),
+  source(source),
+  hEventLog(NULL),
+  pCurrentUserSID(nullptr)
 {
     init();
 }
 
 
 
-NTEventLogAppender::NTEventLogAppender(const Properties properties)
+NTEventLogAppender::NTEventLogAppender(const helpers::Properties & properties)
 : Appender(properties),
-  hEventLog(NULL), 
-  pCurrentUserSID(NULL)
+  hEventLog(NULL),
+  pCurrentUserSID(nullptr)
 {
     server = properties.getProperty( LOG4CPLUS_TEXT("server") );
     log = properties.getProperty( LOG4CPLUS_TEXT("log") );
@@ -171,13 +178,14 @@ NTEventLogAppender::NTEventLogAppender(const Properties properties)
 
 
 
-void 
+void
 NTEventLogAppender::init()
 {
     if(source.empty()) {
-        getLogLog().warn(  LOG4CPLUS_TEXT("Source option not set for appender [")
-                         + name 
-                         + LOG4CPLUS_TEXT("]."));
+        helpers::getLogLog().warn(
+            LOG4CPLUS_TEXT("Source option not set for appender [")
+            + name
+            + LOG4CPLUS_TEXT("]."));
         return;
     }
 
@@ -193,7 +201,8 @@ NTEventLogAppender::init()
     hEventLog = ::RegisterEventSource(server.empty () ? 0 : server.c_str(),
         source.c_str());
     if (! hEventLog || hEventLog == HANDLE(ERROR_INVALID_HANDLE))
-        getLogLog().warn (LOG4CPLUS_TEXT("Event source registration failed."));
+        helpers::getLogLog().warn (
+            LOG4CPLUS_TEXT("Event source registration failed."));
 }
 
 
@@ -202,19 +211,19 @@ NTEventLogAppender::~NTEventLogAppender()
 {
     destructorImpl();
 
-    if(pCurrentUserSID != NULL) {
+    if(pCurrentUserSID != nullptr) {
         std::free (pCurrentUserSID);
-        pCurrentUserSID = NULL;
+        pCurrentUserSID = nullptr;
     }
 }
 
 
 
 //////////////////////////////////////////////////////////////////////////////
-// log4cplus::NTEventLogAppender public methods
+// NTEventLogAppender public methods
 //////////////////////////////////////////////////////////////////////////////
 
-void 
+void
 NTEventLogAppender::close()
 {
     if(hEventLog != NULL) {
@@ -227,28 +236,25 @@ NTEventLogAppender::close()
 
 
 //////////////////////////////////////////////////////////////////////////////
-// log4cplus::NTEventLogAppender protected methods
+// NTEventLogAppender protected methods
 //////////////////////////////////////////////////////////////////////////////
 
-void 
-NTEventLogAppender::append(const InternalLoggingEvent& event)
+void
+NTEventLogAppender::append(const spi::InternalLoggingEvent& event)
 {
     if(hEventLog == NULL) {
-        getLogLog().warn(LOG4CPLUS_TEXT("NT EventLog not opened."));
+        helpers::getLogLog().warn(LOG4CPLUS_TEXT("NT EventLog not opened."));
         return;
     }
 
-    tostringstream buf;
-    layout->formatAndAppend(buf, event);
-    tstring sz = buf.str();
+    tstring & str = formatEvent (event);
 
     // From MSDN documentation for ReportEvent():
     // Each string is limited to 31,839 characters.
-    if (sz.size () > 31839)
-        sz.resize (31839);
+    if (str.size () > 31839)
+        str.resize (31839);
 
-    const tchar * s = sz.c_str();
-
+    const tchar * s = str.c_str ();
     BOOL bSuccess = ::ReportEvent(hEventLog,
                                   getEventType(event),
                                   getEventCategory(event),
@@ -260,15 +266,16 @@ NTEventLogAppender::append(const InternalLoggingEvent& event)
                                   NULL);
 
     if(!bSuccess) {
-        getLogLog().error(LOG4CPLUS_TEXT("Cannot report event in NT EventLog."));
+        helpers::getLogLog().error(
+            LOG4CPLUS_TEXT("Cannot report event in NT EventLog."));
     }
 }
 
 
 
 
-WORD 
-NTEventLogAppender::getEventType(const InternalLoggingEvent& event)
+WORD
+NTEventLogAppender::getEventType(const spi::InternalLoggingEvent& event)
 {
     WORD ret_val;
     LogLevel const ll = event.getLogLevel();
@@ -285,8 +292,8 @@ NTEventLogAppender::getEventType(const InternalLoggingEvent& event)
 
 
 
-WORD 
-NTEventLogAppender::getEventCategory(const InternalLoggingEvent& event)
+WORD
+NTEventLogAppender::getEventCategory(const spi::InternalLoggingEvent& event)
 {
     WORD ret_val;
     LogLevel const ll = event.getLogLevel();
@@ -309,31 +316,34 @@ NTEventLogAppender::getEventCategory(const InternalLoggingEvent& event)
 
 
 // Add this source with appropriate configuration keys to the registry.
-void 
+void
 NTEventLogAppender::addRegistryInfo()
 {
     DWORD disposition;
     HKEY hkey = 0;
     tstring subkey =   LOG4CPLUS_TEXT("SYSTEM\\CurrentControlSet\\Services\\EventLog\\")
-                     + log 
-                     + LOG4CPLUS_TEXT("\\") 
+                     + log
+                     + LOG4CPLUS_TEXT("\\")
                      + source;
-    
+
     hkey = regGetKey(subkey, &disposition);
     if(disposition == REG_CREATED_NEW_KEY) {
-        regSetString(hkey, 
-                     LOG4CPLUS_TEXT("EventMessageFile"), 
+        regSetString(hkey,
+                     LOG4CPLUS_TEXT("EventMessageFile"),
                      LOG4CPLUS_TEXT("NTEventLogAppender.dll"));
-        regSetString(hkey, 
-                     LOG4CPLUS_TEXT("CategoryMessageFile"), 
+        regSetString(hkey,
+                     LOG4CPLUS_TEXT("CategoryMessageFile"),
                      LOG4CPLUS_TEXT("NTEventLogAppender.dll"));
         regSetDword(hkey, LOG4CPLUS_TEXT("TypesSupported"), (DWORD)7);
         regSetDword(hkey, LOG4CPLUS_TEXT("CategoryCount"), (DWORD)5);
     }
-    
+
     RegCloseKey(hkey);
     return;
 }
 
 
-#endif
+} // namespace log4cplus
+
+
+#endif // LOG4CPLUS_HAVE_NT_EVENT_LOG

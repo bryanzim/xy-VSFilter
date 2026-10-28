@@ -1,10 +1,10 @@
 // Module:  Log4CPLUS
-// File:    socket-win32.cxx
+// File:    socket.cxx
 // Created: 4/2003
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2003-2009 Tad E. Smith
+// Copyright 2003-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,52 +18,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <log4cplus/helpers/socket.h>
 #include <log4cplus/helpers/loglog.h>
+#include <log4cplus/internal/socket.h>
+#include <log4cplus/internal/internal.h>
 
-
-using namespace log4cplus;
-using namespace log4cplus::helpers;
-
-#if !defined(_WIN32)
-#  include <errno.h>
-#  include <unistd.h>
-#  define GET_LAST_ERROR errno
-#else
-#  define GET_LAST_ERROR WSAGetLastError()
+#if defined (LOG4CPLUS_WITH_UNIT_TESTS)
+#include <catch.hpp>
 #endif
 
+namespace log4cplus { namespace helpers {
+
+
+extern LOG4CPLUS_EXPORT SOCKET_TYPE const INVALID_SOCKET_VALUE
+#if defined(_WIN32)
+    = static_cast<SOCKET_TYPE>(INVALID_SOCKET);
+#else
+    = static_cast<SOCKET_TYPE>(-1);
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////
 // AbstractSocket ctors and dtor
 //////////////////////////////////////////////////////////////////////////////
 
-log4cplus::helpers::AbstractSocket::AbstractSocket()
-: sock(INVALID_SOCKET),
-  state(not_opened),
-  err(0)
+AbstractSocket::AbstractSocket()
+    : sock(INVALID_SOCKET_VALUE),
+      state(not_opened),
+      err(0)
 {
 }
 
 
 
-log4cplus::helpers::AbstractSocket::AbstractSocket(SOCKET_TYPE sock_, SocketState state_, int err_)
-: sock(sock_),
-  state(state_),
-  err(err_)
+AbstractSocket::AbstractSocket(SOCKET_TYPE sock_, SocketState state_, int err_)
+    : sock(sock_),
+      state(state_),
+      err(err_)
 {
 }
 
 
 
-log4cplus::helpers::AbstractSocket::AbstractSocket(const log4cplus::helpers::AbstractSocket& rhs)
+AbstractSocket::AbstractSocket(AbstractSocket && rhs) LOG4CPLUS_NOEXCEPT
+    : AbstractSocket ()
 {
-    copy(rhs);
+    swap (rhs);
 }
 
 
-log4cplus::helpers::AbstractSocket::~AbstractSocket()
+AbstractSocket::~AbstractSocket()
 {
     close();
 }
@@ -75,86 +78,98 @@ log4cplus::helpers::AbstractSocket::~AbstractSocket()
 //////////////////////////////////////////////////////////////////////////////
 
 void
-log4cplus::helpers::AbstractSocket::close()
+AbstractSocket::close()
 {
-    if(sock != INVALID_SOCKET) {
+    if (sock != INVALID_SOCKET_VALUE)
+    {
         closeSocket(sock);
-        sock = INVALID_SOCKET;
+        sock = INVALID_SOCKET_VALUE;
+        state = not_opened;
     }
 }
 
+
+void
+AbstractSocket::shutdown()
+{
+    if (sock != INVALID_SOCKET_VALUE)
+        shutdownSocket(sock);
+}
 
 
 bool
-log4cplus::helpers::AbstractSocket::isOpen() const
+AbstractSocket::isOpen() const
 {
-    return sock != INVALID_SOCKET;
+    return sock != INVALID_SOCKET_VALUE;
 }
 
 
-
-
-log4cplus::helpers::AbstractSocket&
-log4cplus::helpers::AbstractSocket::operator=(const log4cplus::helpers::AbstractSocket& rhs)
+AbstractSocket &
+AbstractSocket::operator = (AbstractSocket && rhs) LOG4CPLUS_NOEXCEPT
 {
-    if(&rhs != this) {
-        close();
-        copy(rhs);
-    }
-
+    swap (rhs);
     return *this;
 }
 
 
-
 void
-log4cplus::helpers::AbstractSocket::copy(const log4cplus::helpers::AbstractSocket& r)
+AbstractSocket::swap (AbstractSocket & rhs)
 {
-    AbstractSocket& rhs = const_cast<AbstractSocket&>(r);
-    sock = rhs.sock;
-    state = rhs.state;
-    err = rhs.err;
-    rhs.sock = INVALID_SOCKET;
-    rhs.state = not_opened;
-    rhs.err = 0;
-}
+    using std::swap;
 
+    swap (sock, rhs.sock);
+    swap (state, rhs.state);
+    swap (err, rhs.err);
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
 // Socket ctors and dtor
 //////////////////////////////////////////////////////////////////////////////
 
-log4cplus::helpers::Socket::Socket()
-: AbstractSocket()
+Socket::Socket()
+    : AbstractSocket()
+{ }
+
+
+Socket::Socket(const tstring& address, unsigned short port,
+    bool udp /*= false*/, bool ipv6 /*= false */)
+    : AbstractSocket()
 {
+    sock = connectSocket(address, port, udp, ipv6, state);
+    if (sock == INVALID_SOCKET_VALUE)
+        goto error;
+
+    if (! udp && setTCPNoDelay (sock, true) != 0)
+        goto error;
+
+    return;
+
+error:
+    err = get_last_socket_error ();
 }
 
 
+Socket::Socket(SOCKET_TYPE sock_, SocketState state_, int err_)
+    : AbstractSocket(sock_, state_, err_)
+{ }
 
-log4cplus::helpers::Socket::Socket(const tstring& address, int port)
-: AbstractSocket()
+
+Socket::Socket (Socket && other) LOG4CPLUS_NOEXCEPT
+    : AbstractSocket (std::move (other))
+{ }
+
+
+Socket::~Socket()
+{ }
+
+
+Socket &
+Socket::operator = (Socket && other) LOG4CPLUS_NOEXCEPT
 {
-    sock = connectSocket(address, port, state);
-    if(sock == INVALID_SOCKET) {
-        err = GET_LAST_ERROR;
-    }
+    swap (other);
+    return *this;
 }
-
-
-log4cplus::helpers::Socket::Socket(SOCKET_TYPE sock_, SocketState state_, int err_)
-: AbstractSocket(sock_, state_, err_)
-{
-}
-
-
-
-log4cplus::helpers::Socket::~Socket()
-{
-}
-
-
-
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -162,9 +177,9 @@ log4cplus::helpers::Socket::~Socket()
 //////////////////////////////////////////////////////////////////////////////
 
 bool
-log4cplus::helpers::Socket::read(SocketBuffer& buffer)
+Socket::read(SocketBuffer& buffer)
 {
-    long retval = log4cplus::helpers::read(sock, buffer);
+    long retval = helpers::read(sock, buffer);
     if(retval <= 0) {
         close();
     }
@@ -178,9 +193,9 @@ log4cplus::helpers::Socket::read(SocketBuffer& buffer)
 
 
 bool
-log4cplus::helpers::Socket::write(const SocketBuffer& buffer)
+Socket::write(const SocketBuffer& buffer)
 {
-    long retval = log4cplus::helpers::write(sock, buffer);
+    long retval = helpers::write(sock, buffer);
     if(retval <= 0) {
         close();
     }
@@ -189,38 +204,88 @@ log4cplus::helpers::Socket::write(const SocketBuffer& buffer)
 }
 
 
-
-
-//////////////////////////////////////////////////////////////////////////////
-// ServerSocket ctor and dtor
-//////////////////////////////////////////////////////////////////////////////
-
-log4cplus::helpers::ServerSocket::ServerSocket(int port)
+bool
+Socket::write(std::size_t bufferCount, SocketBuffer const * const * buffers)
 {
-    sock = openSocket(port, state);
-    if(sock == INVALID_SOCKET) {
-        err = GET_LAST_ERROR;
+    long retval = helpers::write(sock, bufferCount, buffers);
+    if (retval <= 0)
+        close ();
+
+    return retval > 0;
+}
+
+
+bool
+Socket::write(const std::string & buffer)
+{
+    long retval = helpers::write (sock, buffer);
+    if (retval <= 0)
+        close();
+
+    return retval > 0;
+}
+
+
+//
+//
+//
+
+ServerSocket::ServerSocket (ServerSocket && other) LOG4CPLUS_NOEXCEPT
+    : AbstractSocket (std::move (other))
+{
+    interruptHandles[0] = -1;
+    interruptHandles[1] = -1;
+    interruptHandles.swap (other.interruptHandles);
+}
+
+
+ServerSocket &
+ServerSocket::operator = (ServerSocket && other) LOG4CPLUS_NOEXCEPT
+{
+    swap (other);
+    return *this;
+}
+
+
+void
+ServerSocket::swap (ServerSocket & other)
+{
+    AbstractSocket::swap (other);
+    interruptHandles.swap (other.interruptHandles);
+}
+
+
+//
+//
+//
+
+SOCKET_TYPE
+openSocket(unsigned short port, bool udp, bool ipv6, SocketState& state)
+{
+    return openSocket(log4cplus::internal::empty_str, port, udp, ipv6, state);
+}
+
+
+#if defined (LOG4CPLUS_WITH_UNIT_TESTS)
+CATCH_TEST_CASE ("Socket", "[sockets]")
+{
+    CATCH_SECTION ("hostname resolution")
+    {
+        CATCH_SECTION ("FQDN")
+        {
+            auto result = getHostname(true);
+            CATCH_REQUIRE (result != LOG4CPLUS_C_STR_TO_TSTRING ("-"));
+
+        }
+
+        CATCH_SECTION ("non-FQDN")
+        {
+            auto result = getHostname(false);
+            CATCH_REQUIRE (result != LOG4CPLUS_C_STR_TO_TSTRING ("-"));
+        }
     }
 }
+#endif // LOG4CPLUS_WITH_UNIT_TESTS
 
 
-
-log4cplus::helpers::ServerSocket::~ServerSocket()
-{
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-// ServerSocket methods
-//////////////////////////////////////////////////////////////////////////////
-
-log4cplus::helpers::Socket
-log4cplus::helpers::ServerSocket::accept()
-{
-    SocketState state_;
-    SOCKET_TYPE clientSock = acceptSocket(sock, state_);
-    return Socket(clientSock, state_, 0);
-}
-
-
+} } // namespace log4cplus { namespace helpers {

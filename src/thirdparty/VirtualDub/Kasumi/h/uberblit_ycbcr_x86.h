@@ -1,9 +1,21 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2019 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_UBERBLIT_YCBCR_X86_H
 #define f_VD2_KASUMI_UBERBLIT_YCBCR_X86_H
 
 #include <vd2/system/cpuaccel.h>
 #include "uberblit.h"
 #include "uberblit_ycbcr.h"
+
+/*
+this code fails with extreme YCbCr values: F9 7D 8A and like
 
 extern "C" void __cdecl vdasm_pixblt_YUV444Planar_to_XRGB8888_scan_MMX(void *dst, const uint8 *y, const uint8 *cb, const uint8 *cr, uint32 count);
 
@@ -18,6 +30,7 @@ protected:
 		vdasm_pixblt_YUV444Planar_to_XRGB8888_scan_MMX(dst, srcY, srcCb, srcCr, mWidth);
 	}
 };
+*/
 
 class VDPixmapGenRGB32ToYCbCr601_SSE2 : public VDPixmapGenRGB32ToYCbCr601 {
 protected:

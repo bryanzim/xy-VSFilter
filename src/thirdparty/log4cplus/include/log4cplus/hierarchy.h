@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2001-2009 Tad E. Smith
+// Copyright 2001-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,14 +21,17 @@
 
 /** @file */
 
-#ifndef _LOG4CPLUS_HIERARCHY_HEADER_
-#define _LOG4CPLUS_HIERARCHY_HEADER_
+#ifndef LOG4CPLUS_HIERARCHY_HEADER_
+#define LOG4CPLUS_HIERARCHY_HEADER_
 
 #include <log4cplus/config.hxx>
+
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
+#endif
+
 #include <log4cplus/logger.h>
-#include <log4cplus/helpers/logloguser.h>
-#include <log4cplus/helpers/pointer.h>
-#include <log4cplus/helpers/threads.h>
+#include <log4cplus/thread/syncprims.h>
 #include <map>
 #include <memory>
 #include <vector>
@@ -57,7 +60,8 @@ namespace log4cplus {
      * to the provision node. Other descendants of the same ancestor add
      * themselves to the previously created provision node.
      */
-    class LOG4CPLUS_EXPORT Hierarchy : protected log4cplus::helpers::LogLogUser {
+    class LOG4CPLUS_EXPORT Hierarchy
+    {
     public:
         // DISABLE_OFF should be set to a value lower than all possible
         // priorities.
@@ -78,23 +82,23 @@ namespace log4cplus {
          * This call will clear all logger definitions from the internal
          * hashtable. Invoking this method will irrevocably mess up the
          * logger hierarchy.
-         *                     
+         *
          * You should <em>really</em> know what you are doing before
          * invoking this method.
          */
         virtual void clear();
 
         /**
-         * Returns <code>true </code>if the named logger exists 
+         * Returns <code>true </code>if the named logger exists
          * (in the default hierarchy).
-         *                
+         *
          * @param name The name of the logger to search for.
          */
         virtual bool exists(const log4cplus::tstring& name);
 
         /**
          * Similar to {@link #disable(LogLevel)} except that the LogLevel
-         * argument is given as a log4cplus::tstring.  
+         * argument is given as a log4cplus::tstring.
          */
         virtual void disable(const log4cplus::tstring& loglevelStr);
 
@@ -104,11 +108,9 @@ namespace log4cplus {
          * <em>all</em> loggers in this hierarchy. Logging requests of
          * higher LogLevel then <code>p</code> remain unaffected.
          *
-         * Nevertheless, if the {@link
-         * BasicConfigurator#DISABLE_OVERRIDE_KEY} system property is set to
-         * "true" or any value other than "false", then logging requests are
-         * evaluated as usual, i.e. according to the <a
-         * href="../../../../manual.html#selectionRule">Basic Selection Rule</a>.
+         * Nevertheless, if the
+         * BasicConfigurator::DISABLE_OVERRIDE_KEY property is set to
+         * true, then logging requests are evaluated as usual.
          *
          * The "disable" family of methods are there for speed. They
          * allow printing methods such as debug, info, etc. to return
@@ -151,12 +153,12 @@ namespace log4cplus {
 
         /**
          * Return a new logger instance named as the first parameter using
-         * the default factory. 
-         *                
+         * the default factory.
+         *
          * If a logger of that name already exists, then it will be
          * returned.  Otherwise, a new logger will be instantiated and
          * then linked with its existing ancestors as well as children.
-         *                                    
+         *
          * @param name The name of the logger to retrieve.
          */
         virtual Logger getInstance(const log4cplus::tstring& name);
@@ -164,12 +166,12 @@ namespace log4cplus {
         /**
          * Return a new logger instance named as the first parameter using
          * <code>factory</code>.
-         *                
+         *
          * If a logger of that name already exists, then it will be
          * returned.  Otherwise, a new logger will be instantiated by the
          * <code>factory</code> parameter and linked with its existing
          * ancestors as well as children.
-         *                                         
+         *
          * @param name The name of the logger to retrieve.
          * @param factory The factory that will make the new logger instance.
          */
@@ -178,12 +180,12 @@ namespace log4cplus {
         /**
          * Returns all the currently defined loggers in this hierarchy.
          *
-         * The root logger is <em>not</em> included in the returned list. 
+         * The root logger is <em>not</em> included in the returned list.
          */
         virtual LoggerList getCurrentLoggers();
 
-        /** 
-         * Is the LogLevel specified by <code>level</code> enabled? 
+        /**
+         * Is the LogLevel specified by <code>level</code> enabled?
          */
         virtual bool isDisabled(LogLevel level);
 
@@ -205,22 +207,22 @@ namespace log4cplus {
          * This method should be used sparingly and with care as it will
          * block all logging until it is completed.</p>
          */
-        virtual void resetConfiguration(); 
+        virtual void resetConfiguration();
 
         /**
          * Set the default LoggerFactory instance.
          */
-        virtual void setLoggerFactory(std::auto_ptr<spi::LoggerFactory> factory);
-        
+        virtual void setLoggerFactory(std::unique_ptr<spi::LoggerFactory> factory);
+
         /**
          * Returns the default LoggerFactory instance.
          */
-        virtual spi::LoggerFactory* getLoggerFactory() { return defaultFactory.get(); }
+        virtual spi::LoggerFactory* getLoggerFactory();
 
         /**
          * Shutting down a hierarchy will <em>safely</em> close and remove
          * all appenders in all loggers including the root logger.
-         *                
+         *
          * Some appenders such as SocketAppender need to be closed before the
          * application exits. Otherwise, pending logging events might be
          * lost.
@@ -243,15 +245,17 @@ namespace log4cplus {
          * This is the implementation of the <code>getInstance()</code> method.
          * NOTE: This method does not lock the <code>hashtable_mutex</code>.
          */
-        virtual Logger getInstanceImpl(const log4cplus::tstring& name, 
-                                       spi::LoggerFactory& factory);
-        
+        LOG4CPLUS_PRIVATE
+        Logger getInstanceImpl(const log4cplus::tstring& name,
+            spi::LoggerFactory& factory);
+
         /**
          * This is the implementation of the <code>getCurrentLoggers()</code>.
          * NOTE: This method does not lock the <code>hashtable_mutex</code>.
          */
-        virtual void initializeLoggerList(LoggerList& list) const;
-        
+        LOG4CPLUS_PRIVATE
+        void initializeLoggerList(LoggerList& list) const;
+
         /**
          * This method loops through all the *potential* parents of
          * logger'. There 3 possible cases:
@@ -272,7 +276,7 @@ namespace log4cplus {
          *
          *    We add 'logger' to the list of children for this potential parent.
          */
-        void updateParents(Logger logger);
+        LOG4CPLUS_PRIVATE void updateParents(Logger const & logger);
 
         /**
          * We update the links for all the children that placed themselves
@@ -288,30 +292,33 @@ namespace log4cplus {
          *   Otherwise, we set logger's parent field to c's parent and set
          *   c's parent field to logger.
          */
-        void updateChildren(ProvisionNode& pn, Logger logger);
+        LOG4CPLUS_PRIVATE void updateChildren(ProvisionNode& pn,
+            Logger const & logger);
 
-    // Data
-       LOG4CPLUS_MUTEX_PTR_DECLARE hashtable_mutex;
-       std::auto_ptr<spi::LoggerFactory> defaultFactory;
-       ProvisionNodeMap provisionNodes;
-       LoggerMap loggerPtrs;
-       Logger root;
+     // Data
+        thread::Mutex hashtable_mutex;
+        std::unique_ptr<spi::LoggerFactory> defaultFactory;
+        ProvisionNodeMap provisionNodes;
+        LoggerMap loggerPtrs;
+        Logger root;
 
-       int disableValue;
+        int disableValue;
 
-       bool emittedNoAppenderWarning;
-       bool emittedNoResourceBundleWarning;
+        bool emittedNoAppenderWarning;
 
-     // Disallow copying of instances of this class
-       Hierarchy(const Hierarchy&);
-       Hierarchy& operator=(const Hierarchy&);
+        // Disallow copying of instances of this class
+        Hierarchy(const Hierarchy&);
+        Hierarchy& operator=(const Hierarchy&);
 
-    // Friends
-       friend class log4cplus::spi::LoggerImpl;
-       friend class log4cplus::HierarchyLocker;
+     // Friends
+        friend class log4cplus::spi::LoggerImpl;
+        friend class log4cplus::HierarchyLocker;
     };
+
+
+    LOG4CPLUS_EXPORT Hierarchy & getDefaultHierarchy ();
+
 
 } // end namespace log4cplus
 
-#endif // _LOG4CPLUS_HIERARCHY_HEADER_
-
+#endif // LOG4CPLUS_HIERARCHY_HEADER_

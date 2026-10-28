@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// System library component
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2024 v0lt
+//
+// SPDX-License-Identifier: Zlib
+//
+
 #include "stdafx.h"
 #include <windows.h>
 #include <map>
@@ -235,7 +244,7 @@ VDFunctionThunk *VDCreateFunctionThunkFromMethod(void *method, void *pThis, size
 		uint8 thunkbytes[16]={
 			0xE8, 0x00, 0x00, 0x00, 0x00,				// call VDFunctionThunk32
 			0xC3,										// ret
-			argbytes,									// db argbytes
+			(uint8)argbytes,							// db argbytes
 			0,											// db 0
 			0x00, 0x00, 0x00, 0x00,						// dd method
 			0x00, 0x00, 0x00, 0x00,						// dd this

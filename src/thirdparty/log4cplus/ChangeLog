@@ -1,475 +1,384 @@
-Version 1.0.4.3
+# Unreleased (2.2.1)
 
-  - Fixed bug #125 - Build failure with Solaris Studio on Solaris,
-    threading detection problem.
-  - Fixed bug #161 - Compilation problem due to missing towupper() and
-    towlower() in global namespace.
+  - **IMPORTANT**: CMake builds now require CMake 3.20 or later. The
+    implementation language remains C++11. GitHub PR #698.
 
-Version 1.0.4.2
+  - **IMPORTANT**: iOS builds now use CMake's native platform support. The
+    legacy custom iOS toolchain, `IOS_PLATFORM`/`CMAKE_IOS_*` variables, and
+    ARMv7/i386 build scripts have been removed. The obsolete Android
+    `LIBRARY_OUTPUT_PATH_ROOT` toolchain integration has also been removed.
+    GitHub PR #698.
 
-  - Update with Automake 1.12.6.
-  - Fixed DllMain() issue with MinGW.
+  - Prevent `DailyRollingFileAppender` process-exit rollover from accessing a
+    destroyed directory separator string when `RollOnClose` is enabled. Keep
+    the separator valid throughout shutdown by using a constant character.
+    GitHub issue #272. GitHub PR #711.
 
-Version 1.0.4.2-RC1
+  - Fix `TimeBasedRollingFileAppender` archive cleanup when consecutive
+    cleanups cross a partial rollover period, so expired archives are not
+    skipped during sparse logging. GitHub issue #634. GitHub PR #687,
+    backported in #690. (fhgffy)
 
-  - Fixed log4cplus.spec for Fedora builds.
-  - Add compatibility typedef for return type of LogLog::getLogLog()
-    to hide differences between 1.0.4.x and 1.1.x releases.
-  - Improved compatibility with Solaris Studio builds without
-    '-library=stlport4' option. The '-library=stlport4' option is now
-    added only if CXXFLAGS is missing any of
-    '-library=(stlport4|stdcxx4|Cstd)' options.
+  - Fix `TimeBasedRollingFileAppender` rollover when `File` is omitted or
+    empty. Keep completed dated files and append to the next `FilenamePattern`
+    destination, preserving existing messages during repeated rollover and
+    `RollOnClose`. Initial opening still honors `Append`. GitHub issue #668.
+    GitHub PR #697.
 
-Version 1.0.4.1
+  - Honor `CreateDirs` for dated archive directories in
+    `TimeBasedRollingFileAppender` with a fixed `File`. On rename failure,
+    preserve the active log and retry the original archive destination on the
+    next eligible event instead of truncating the log. Report rename errors
+    through the appender's error handler. GitHub issue #644. GitHub PR #708.
 
-  - There are no significant changes compared to 1.0.4.1-RC2.
+  - Fix `TimeBasedRollingFileAppender` period recovery across sequential
+    process restarts. Use the modification time of a nonempty fixed `File`
+    opened with `Append=true` to select its archive period, and roll over an
+    expired period before writing the first eligible new event. Retain that
+    period through stream reopens and failed rollover retries. GitHub issue
+    #588. GitHub PR #710.
 
-Version 1.0.4.1-RC2
+  - Fix accounting for asynchronous events dropped when the nonblocking thread
+    pool queue is full. Appender shutdown and destruction can now finish after
+    accepted events drain when `log4cplus.threadPoolBlockOnFull=false`. GitHub
+    PR #694.
 
-  - Fixed bug #3520891 - FileAppender buffer size override does not
-    work.
-  - Update to Autoconf 2.69, Automake 1.12 and Libtool 2.4.2.
-  - Improved Solaris Studio support.
-  - Fixed detection of clock_gettime() on Linux.
+  - Fix asynchronous event accounting when an accepted nonblocking task
+    finishes with an exception before its result is polled. Decrement the
+    pending count only once, preventing unsigned underflow and shutdown hangs
+    after queued work has drained. GitHub PR #716.
 
-Version 1.0.4.1-RC1
+  - Fix `AsyncAppender::close()` to join its queue worker even after the
+    worker stops running, so `close()` waits for thread-local cleanup after
+    worker failure. Preserve queue draining and the synchronous logging
+    fallback. GitHub PR #705.
 
-  - Fixed use of uninitialized member in ConfigurationWatchDogThread.
-  - Updated libtool to 2.4; updated configure macros.
-  - Improved resource and error handling in NTEventLogAppender and
-    Win32 sockets code.
-  - Limit the logged text size to 31839 for NTEventLogAppender as per
-    MSDN recommendation.
-  - Use range checks instead of equality checks when converting
-    LogLevel value to NT EventLog category and event type to allow
-    user defined log levels to work.
-  - Fixed issue with function-try-catch blocks in dtors.
+  - Update the internal ThreadPool to recover safely from worker creation and
+    pool growth failures, create one worker when a zero size is requested,
+    reclaim retired workers, and wait for complete worker exit during
+    shutdown. GitHub issue #646. GitHub PR #701 and ThreadPool PR
+    log4cplus/ThreadPool#3.
 
-Version 1.0.4
+  - Fix Windows DLL cleanup hangs and crashes during process termination
+    through `exit()` or `ExitProcess()`. Skip resource cleanup once Windows
+    has started terminating threads. Pending logging may be lost during
+    process termination; orderly shutdown still drains accepted events. GitHub
+    issue #408. GitHub PR #703.
 
-  - Fixed bug #3101459 - TTCCLayout time is not in milliseconds since
-    process start by default.
-  - Fixed compilation of Non-Windows builds.
-  - Fixed various compilation and linking issues on SunOS.
+  - Keep fractional timestamp padding for `%q` and `%Q` valid during startup
+    and shutdown by replacing global strings with constant literal tables.
+    Preserve the existing formatted output. GitHub issue #273. GitHub PR #714.
 
-Version 1.0.4-RC11
+  - Fix installed CMake packages to discover `Threads` for static
+    multithreaded libraries and provide `log4cplus::log4cplus` for static and
+    Unicode builds with decorated library names. Add installed-package
+    consumer regression coverage for shared/static and narrow/Unicode
+    configurations. GitHub PR #690.
 
-  - Fixed bug #3083313, deadlock because of double locking when using
-    ConfigurationWatchDogThread.
-  - Improved portability to HP-UX and aCC compiler.
-  - Added %b PatternLayout format specifier; it expands to file
-    component of file path.
-  - Fixed bug #3058706, compilation error on AIX in socket-unix.cxx.
-  - Added %b pattern layout specifier. It expands to file name
-    component of path name.
-  - Fixed bug #3034758. Fixed infinite loop in
-    Hierarchy::updateParents() when logger hierarchy name starts with
-    a dot.
-  - Fixed bug #3034748. Fixed infinite loop in
-    PatternParser::extractOption() on missing '}'.
+  - Generate CMake pkg-config metadata using the selected library name,
+    including static/Unicode decoration and the Windows Debug postfix. Refresh
+    the installed metadata when switching build configurations. GitHub PR
+    #698.
 
-Version 1.0.4-RC10
+  - Enable the internal thread pool in the handwritten MSBuild projects,
+    restoring asynchronous logging support in both shared and static builds.
+    GitHub PR #698.
 
-  - Fixed bug #3030133. Make Autoconf/Automake build system to respect
-    provided --includedir= value.
-  - Removed %X{N} PatternLayout format specifier for NDC with limited
-    depth. Replaced it with NDCMaxDepth property.
-  - Improved compatibility with Windows CE.
-  - Fixed memory leak when using POSIX threads.
-  - Fixed leak of mutex used to synchronize gethostbyname() calls.
-  - Fixed problem with how std::toupper(), std::tolower() and
-    std::isspace() are used in non-Unicode builds.
+  - Fix Windows archive-cleanup unit-test compilation and fixture creation.
+    Remove an obsolete Win32 stream test source dependency from MinGW
+    Autotools builds. GitHub PR #691 and #698.
 
-Version 1.0.4-RC9
+  - Move Visual Studio 2019 and 2022 CMake/MSBuild CI builds to GitHub Actions
+    with explicit `v142`/`v143` toolsets. Retain Visual Studio 2017 on
+    AppVeyor and update its CMake installation to satisfy the new minimum
+    version. GitHub PR #691 and #699.
 
-  - Fixed compilation problem in timehelper.cxx.
-  - Added %X{N} PatternLayout format specifier for NDC with limited
-    depth.
-  - Added facility property to SysLogAppender.
+  - Support native CMake device and Simulator builds for iOS 15 and later. iOS
+    builds default to static libraries with tests and the logging server
+    disabled, and disable interprocedural optimization so that installed
+    archives can be packaged into an XCFramework. GitHub PR #698.
 
-Version 1.0.4-RC8
+  - Add the Android-only `log4cplus::AndroidAppender`, which writes formatted
+    events to Logcat through system `liblog`. Its `Tag` property defaults to
+    `log4cplus`; tags and long message chunks preserve UTF-8 boundaries.
+    Android production builds now link `liblog`, with static CMake consumers
+    receiving the dependency without an absolute NDK path. GitHub PR #698.
 
-  - Always handle %s time format specifier (seconds since epoch) in
-    log4cplus. Detect and use clock_gettime() when available.
-  - Fixed compilation on OpenSolaris with Sun C++.
-  - Fixed compilation on OpenBSD.
-  - Fixed use of operator delete/delete[] in FileAppender (Patch
-    #3005234).
-  - Updated config.guess and config.sub to latest Git repository
+  - Modernize Android build and installed-package validation using NDK r29,
+    C++11, API level 21, and all four current NDK ABIs. The logging server now
+    defaults to disabled on Android. GitHub PR #698.
+
+  - Add iOS archive and XCFramework CI validation. Mobile CI checks
+    compilation, linking, installation and packaging, without running device
+    tests. GitHub PR #698.
+
+  - Preserve the configured IPv6 setting when `SocketAppender` and
+    `SysLogAppender` reconnect. Improve Apple socket portability by preventing
+    `SIGPIPE` on socket writes and avoiding descriptor and size narrowing.
+    GitHub PR #698.
+
+# log4cplus 2.2.0.1
+
+  This release has the same code and features as 2.2.0, with updated
+  documentation for the Windows file appender changes.
+
+# log4cplus 2.2.0
+
+  **IMPORTANT**: Use a custom Win32-backed file stream for file-based appenders
+  on Windows, allowing log files to be renamed while they are open by another
+  process. File-based appenders on Windows now store log files as UTF-8,
+  converting `wchar_t` log messages directly and narrow `char` log messages
+  through the stream locale's Windows code page. This change is source
+  compatible but ABI-changing.
+
+  - Remove `LOG4CPLUS_ASSERT_FORMAT()`. It is not implemented in 2.x branch.
+
+  - Fix compilation of Python bindings with Python 3.12+.
+
+  - Fix Win32 lock file handling by matching `LockFileEx()` with
+    `UnlockFileEx()` and preserving `GetLastError()` before cleanup.
+
+  - Use `PRIVATE` linkage in CMake `target_link_libraries()` calls. GitHub
+    issue #659.
+
+  - Regenerate the Autotools build system with newer Automake and Libtool
     versions.
-  - Added BufferSize property to FileAppender to allow control of the
-    appender's output buffer.
-  - Removed -fkeep-inline-functions from GCC flags for non-debugging
-    build.
 
-Version 1.0.4-RC7
-
-  - Fixed thread safety issues with gethostbyname() by using
-    getaddrinfo() instead, where available.
-  - Fixed bug #2965390 - Minor internal debugging output issue.
-  - Added --enable-warnings (--disable-warnings) switches to the
-    configure script.
-  - Added ReopenDelay property to FileAppender, allowing the appender
-    to reopen output stream after write failure. (Patch #2971315)
-
-Version 1.0.4-RC6
-
-  - Fixed bug #2945335 - MinGW/MSYS build problems. For Windows builds
-    the source now defaults to static library/empty LOG4CPLUS_EXPORT
-    macro.
-  - Fixed a security problem in SyslogAppender.
-  - Fixed bug #2955058 - Looping over properties during variables
-    expansion.
-  - Added missing dependency on log4cplus_dll project to filter_test
-    project.
-  - Added a constructor with Properties parameter to DenyAllFilter.
-  - Reworked Layout, Appender and Filter factories registration.
-
-Version 1.0.4-RC5
-
-  - Implemented feature request #2927416 "Add a native Win32 Console
-    Appender".
-  - Loggingserver now exits with value 2 when it cannot open
-    listening socket.
-  - Improved Doxygen documentation.
-  - Added PropertyConfigurator::getProperties() and
-    PropertyConfigurator::getPropertyFilename() functions.
-  - Removed LOG4CPLUS_EXPORT on SharedObjectPtr<>.
-  - Turned on linker optimizations for MSVC8 builds to make resulting
-    binaries slightly smaller.
-  - Added --enable-runtime-pseudo-reloc linker option for Cygwin and
-    Mingw. Enable --enable-auto-import linker flag also for Mingw.
-
-Version 1.0.4-RC4
-
-  - Fixed bug #2875993 - Implement connector thread for
-    SocketAppender.
-  - Improved documentation of Appenders' properties.
-  - Improved behaviour of DailyRollingFileAppender.
-  - Added x64 (AMD64) build configuration to MSVC8 project files.
-  - Reworked MSVC8 project files to use .vsprops files to share
-    project settings.
-  - Moved all tests into Tests project folder.
-  - Improved behaviour of ConfigurationWatchDogThread.
-  - Fixed bug #2890819 - Handle empty input in towstring_internal()
-    and tostring_internal().
-  - Corrected VERSION and SOVERSION in CMakeLists.txt.
-  - Fixed thread_test compilation on AIX.
-  - Added missing syncprims.cxx file in log4cplus_static.vcproj.
-
-Version 1.0.4-RC3
-
-  IMPORTANT: Majority of log4cplus' source code is now licensed using
-  the Apache Software License 2.0. The rest is covered by two clause
-  BSD license.
-
-  - Fixed bug #2747435. Implement handling of log4cplus.configDebug
-    configuration property.
-  - Fixed variables shadowing.
-  - Doxygen documentation improvements and fixes.
-  - Add %i PatternLayout format. It expands to process ID.
-  - Fix logging macros compilation for LOG4CPLUS_SINGLE_THREADED case.
-  - Fix Logger log level configuration and root Logger handling log
-    level handling.
-
-Version 1.0.4-RC2
-
-  - Fixed bug #2834811. Accessing index 0 of empty strings.
-  - Fixed bug #2834808. Memory leak in thread local storage code.
-  - Removed MSVC6 directory and project files.
-  - Update to libtool-2.2.6.
-
-Version 1.0.4-RC1
-
-  - Fixed compilation with Borland C++ Builder compiler.
-  - Improved CMake build system to also build tests.
-  - Fixed compilation and improved support for Windows CE.
-  - Fixed compilation and improved support for Sun Studio 11 compiler.
-  - Fixed use after free and improved shutdown handling in
-    ConfigurationWatchDogThread.
-  - Implement %H (FQDN) and %h (host name) PatternLayout format
-    specifiers.
-  - Fixed bug #2829604. Environment variables substitution.
-
-Version 1.0.3
-
-  - List of bugs fixed or otherwise dealt with:
-    <https://sourceforge.net/tracker/?func=browse&group_id=40830&atid=429073&artgroup=877523>
-
-Version 1.0.3-RC9
-
-  - Tweaked Doxygen docs in comments for more recent Doxygen versions.
-  - Fix bug #2632087. Reworked WinSock initialization to fix deadlock
-    in WSAStartup() on Windows Vista.
-  - Fixed excessive errors reported in RollingFileAppender when
-    renaming non-existing files.
-  - Fall back to DAILY schedule in DailyRollingFileAppender for
-    invalid schedule specification.
-  - Added Debug_Unicode and Release_Unicode targets to MSVC8 test
-    cases builds.
-
-Version 1.0.3-RC8
-
-  - Fixed SysLogAppender not being exported out of shared library
-    because of missing LOG4CPLUS_EXPORT.
-  - Fix bug #1168433. RollingFileAppender does a rename() to rename
-    logfile to logfile.1 etc. rename() on Windows will not overwrite
-    an existing file so only the first rename works. On Windows
-    (only), try to remove existing file first before calling rename().
-  - Fix bug #2573222. License issues. Most of log4cplus is covered by
-    ASL 1.1. The bits that are not covered by ASL 1.1 are covered by
-    two clause BSD licence. Texts of both licences are in LICENCE
-    file.
-  - Fix bug #2580037. Trim leading white space before comment
-    character '#' and both leading and trailing white space around
-    both key and value (e.g. " key = value ") in property files.
-  - Fix bug #2594345. Loggingserver and SocketAppender message format
-    mismatch.
-  - Fixed CMake builds.
-
-Version 1.0.3-RC7
-
-  - Fix Bug #894464. Really only consider prefixes when searching for
-    matching properties.
-  - Fix compilation for combination of non-threaded and UNICODE
-    settings.
-
-Version 1.0.3-RC6
-
-  - Fix Bug #852513 - Reconfiguring a logger does not remove old
-    appenders.
-  - Changed log4cplus thread helpers to block all signals on POSIX
-    platforms to enable their handling in a dedicated thread. (See
-    README, chapter Notes for explanation.)
-  - Changed thread creation from using CreateThread() to using
-    _beginthreadex() to avoid leaking C and C++ runtime memory.
-  - Fixed convertIntegerToString() to for negative numbers.
-  - Fixed wrong name used in BasicConfigurator for the
-    ConsoleAppender.
-
-Version 1.0.3-RC5
-
-  - Add CMakeLists.txt to facilitate compilation of log4cplus on
-    Windows with different compilers than just the MSVC8.
-  - Fix compilation of Unicode enabled build without working locale.
-    (Patch #2429185)
-
-Version 1.0.3-RC4
-
-  - IMPORTANT: log4cplus shared library version has been bumped to
-    3. The interfaces have slightly changed and 1.0.3 is not binary
-    compatible with 1.0.2.
-
-  - Fix more MSVC compilation problems.
-  - Changed log4cplus_static.vcproj to link with DLL C/C++ run time
-    (MSVCR80.dll and MSVCP80.dll).
-  - Implemented environment variables shadowing by properties and
-    recursive properties expansion.
-  - Reworked output directories layout of MSVC8 project. Now it
-    produces directories of the form
-    "log4cplus_{static,dll}.{Release,Debug}{_Unicode,}" and
-    "loggingserver.{Release,Debug}{_Unicode,}". The tests directory
-    projects still only compile using non-Unicode release and debug
-    version of the library.
-  - For single-threaded builds, re-use single tostringstream instead
-    of using a new one for each LOG4CPLUS_DEBUG() etc. macros.
-  - Merge Win32DebugAppender from trunk. (Patches #834925 and #858128)
-  - Make configuration of local server for NTEventLogAppender easier
-    by allowing empty server parameter string. (Feature Request
-    #875935)
-
-Version 1.0.3-RC3
-
-  - Fix Bug #2268760 - Trailing garbage in strings produced by
-    Time::getFormattedTime().
-  - Fixed compilation of MSVC builds.
-
-Version 1.0.3-RC2
-
-  - Fix Bug #2106949 - Compilation problem with Borland's compiler.
-  - Fix Bug #1717320, #1040902, #1040676 - strftime() complains about
-    our custom %q and %Q format specifiers with "Invalid format
-    directive".
-  - Removed safe_auto_ptr.
-  - Added --enable-debugging switch to configure script. It disables
-    optimization and turns on debugging info generation.
-  - Use locale and its codecvt facet in towstring()/tostring()
-    implementations when --with-working-locale is defined.
-  - Added support for GCC's -fvisibility=hidden flag where available
-    together with __attribute__ ((visibility("default"))).
-
-Version 1.0.3-RC1
-  - IMPORTANT: VC6 users, VC6 is unsupported. Its standard C++ library
-    is too broken. The work around for VC6's std::string has been
-    removed from log4cplus code; it actually does not fix the problem,
-    it only makes it a little bit less likely to manifest. VC6 project
-    files are still distributed with the source but they are broken as
-    we have no means to update them. We strongly suggest that you
-    either move away from VC6 to some more modern and standard
-    conforming compiler (like VC8) or that you use the STLport
-    standard C++ library implementation instead of VC6's own.
-
-  - Fixed various compilation issues with MSVC8.
-  - Added MSVC8 project files.
-  - Fixed compilation with GCC 4.3.
-  - Fixed autoconf/automake build machinery so that it is possible to
-    build log4cplus in separate directory.
-  - Updated used autoconf and automake to version 2.62 and 1.10
-    respectively.
-  - Enabled DLL building on Cygwin.
-  - Fixed Bug #894623, #1178841 - Various compilation issues on
-    Cygwin.
-  - Fixed Bug #2017876 - Destruction synchronization issue.
-  - Fixed Bug #1831238 - Unintentional sign extension in char ->
-    wchar_t conversion.
-  - Fixed Bug #1548998 - config.h is exporting symbols that conflict
-    with other applications/libraries.
-  - Fixed Bug #898646 - Ambiguity between ::yield() and
-    thread::yeild() on Solaris.
-  - Fixed Bug #954455 - LOG4CPLUS_ macros semicolon problem.
-
-Version 1.0.2 (February 10, 2004)
-  - Added "ImmediateFlush" configuration option to log4cplus::ConsoleAppender.
-  - Added do while loops around the logging statements in the macros.
-  - Fixed Bug #875960 - "log4cplus::ConfigureAndWatchThread crash"
-  - Fixed Bug #992034 - "rpm[build] -ta log4cplus-1.0.1.tar.gz doesn't work"
-  - Fixed Bug #875724 - "ConfigureAndWatchThread and mounted file systems"
-  - Fixed Bug #842280 - "'Append' mode when using FileAppended from cfg file."
-    All FileAppenders now have the "Append" configuration option.  If this is
-    "true" any existing files will be opened with ios::append, otherwise they
-    will be opened with ios::trunc.
-  - Fixed Bug #805203 - "%q ConversionFormat does not accept modifiers"
+  - Remove unsupported macOS versions from the GitHub Actions build matrix.
 
 
-Version 1.0.1 (December 18, 2003)
-  - Fixed Bug #831311 - "loggingserver.cxx clientsock.read()"
-  - Fixed Bug #851074 - "build problem HPUX 11, gcc 3.3"
-  - Fixed Bug #805242 - "Crash in log4cplus::helpers::SocketBuffer::appendSize_t"
-  - Fixed Bug #808119 - "TRACE_METHOD not displaying file name in log"
-  - Fixed Bug #827804 - "UMR in ConfigurationWatchdogThread"
-  - Fixed Bug #851116 - "Can not build"
-  - Added the OFF_LOG_LEVEL and the ALL_LOG_LEVEL LogLevels.
+# log4cplus 2.1.2
+
+  **IMPORTANT**: Dropping Visual Studio 2015 compatibility. It is no longer
+  able to compile the thread pool source.
+
+  - Implement `LOG4CPLUS_ASSERT_FMT()` - formats assertion message using C-style
+    format string.
+
+  - ~~Implement `LOG4CPLUS_ASSERT_FORMAT()` - formats assertion message using
+    C++20 `<format>` header facilities.~~
+
+  - New configuration property: `log4cplus.threadPoolBlockOnFull`. When this
+    property is `true` (default), threads will block when internal thread pool
+    queue is full.
+
+  - Warn about full internal thread pool queue when dropping events due to
+    `log4cplus.threadPoolBlockOnFull` being `false`.
 
 
-Version 1.0 (September 6 2003)
-  - Fix Bug #96934.  (fileappender.cxx would not compile in a UNICODE build)
-  - Fixed compilation warning in MSVC for pointer.h
+# log4cplus 2.1.1
+
+  - Add missing source files to MSVC project files.
+
+  - Resolve environment variables in `include` directive
+    in configuration file. (Martin Engelmann)
 
 
-Version 0.9.10 (August 27 2003)
-  - Fixed singled-threaded build compilation issues
-  - The DailyRollingFileAppender no longer truncates files
-  - The DailyRollingFileAppender now performs a "rollover" on close().  If the
-    "rollover file" exists, then it will be renamed according to the pattern
-    that is used by the RollingFileAppender class.  (Thanks Philip Green for
-    the suggestion.)
-  - Some socket-unix.cxx corrections.
-  - Fixed the *Factory initialization so that it compile with the HP aCC
-    compiler.
-  - Corrected the getCurrentThreadName() for MacOS X and DEC.
-  - "make install" now installs the header files.
+# log4cplus 2.1.0
+
+This release breaks ABI with 2.0.x. It is source compatible.
+
+  - Throw exception on nonexistent properties file,
+    if requested by `fThrow` flag.
+
+  - Generate pkgconfig file with CMake.
+
+  - Add locale support to ConsoleAppender. (Choy Kho Yee)
+
+  - Initialize thread pool for async logging on demand.
+
+  - SysLogAppender: Allow non-FQDN hostname
+    in syslog messages.
+
+  - Update Catch2 to v2.13.9.
 
 
-Version 0.9.9 (August 9 2003)
-  - Fixed many MSVC++ compilation errors (6 and 7).
-  - Updated the MSVC++ projects
-  - Modified the Time::getFormattedTime() method to increase performance
-  - Modified Hierarcy::getInstanceImpl() to "deep copy" Logger names.
-  - Corrected some of the PatternLayout documentation to work better with
-    doxygen.
-  - Some Borland C++ Builder 6 fixes.
+# log4cplus 2.0.8
+
+  - Add CMake alias libraries. GitHub issue #511.
+
+  - Add an option to disable tests to `configure` script. (Fabrice Fontaine)
+
+  - Fix C++11 compatibility: C++11 does not have `basic_string_view`.
+
+  - Look for Android's `log` library. GitHub issue #543.
+
+  - Fix handling of `,aux` extension for `FileAppender`. GitHub issue
+    #534. (Pieter du Preez)
+
+  - `filename` should not be empty for `TimeBasedRollingFileAppender`. GitHub
+    issue #517. (Fox Chen)
 
 
-Version 0.9.8 (August 3 2003)
-  - Changed the LogLog class so that it is now reference counted.
-  - Restored the LOG4CPLUS_*_STR logging macros.
-  - Added support to disable the ERROR and FATAL macros by defining
-    LOG4CPLUS_DISABLE_*
-  - API Change:  The LOG4CPLUS_TRACE macro now has behavior similar to all of
-    the other logging macros.  If the old behavior is desired, then the new
-    LOG4CPLUS_TRACE_METHOD macro should be used.
-  - Modified Appender class to support the "Threshold" property.
-  - "localtime" is now the default time in log4cplus.
-  - The FileAppender no longer prints out the "header" when it opens a file.
-  - Added the "immediateFlush" field to the FileAppender class.
-  - Changed the API of the LogLevelManager class.
-  - Initial port work done to run on MacOS X.
-  - Added the HierarchyLocker class
-  - Added the ConfigureAndWatchThread class for runtime dynamic reconfiguration.
-  - Added several performance enhancements to the InternalLoggingEvent class.
-  - Renamed the PatternLayout "Pattern" configuration option to
-    "ConversionPattern".
-  - Added 3 new tests: configandwatch_test, customloglevel_test, and
-    performance_test.  (No MSVC projects created for these tests, yet.)
+# log4cplus 2.0.7
+
+  - Fix compilation with C++20 compiler, use std::invoke_result.
+
+  - TimeBasedRollingFileAppender: Clear files before `MaxHistory` when
+    `CleanHistoryOnStart=false`.
+
+  - Update embedded Catch2 to version v2.13.7 to compilation with current
+    Glibc. GitHub issue #519.
 
 
-Version 0.9.7 (June 28 2003)
-  - Added the log4cplus::DailyRollingFileAppender class.
-  - Added the log4cplus::helper::Time class.  Now log with millisecond
-    granularity. (microsecond granularity if the gettimeofday() function is
-    available.)
-  - Changed log4cplus::spi::InternalLoggingEvent from a POD to a class and
-    introduced several performance ehancements to that class.  This class
-    can now be extended to introduce "customized" logging.
-  - Fixed Bug #757989 - "TraceLogger should not hold a Logger reference"
-  - Added TYPE_SOCKLEN_T to configure.in (checking for whether <sys/socket.h>
-    defines `socklen_t').
-  - Added the "operator!=" to log4cplus::helpers::SharedObjectPtr.
-  - Made changes to make the DEC CXX 6.1 compiler happy.
-  - Renamed the tolower and toupper methods to avoid a name collision with a
-    macro with the DEC CXX compiler.
-  - Removed "-lstdc++" from the list of libraries in all Makefiles.
+# log4cplus 2.0.6
+
+  - Fixes to internal thread pool.
+
+  - Internal thread pool can now be disabled during compilation. Use
+    `--disable-thread-pool` with Autotools based build or set
+    `LOG4CPLUS_ENABLE_THREAD_POOL` to `OFF` with CMake based build.
+
+  - Improved SONAME handling in CMake.
+
+  - Update Catch to 2.13.4 to fix compilation on MacOS X on AArch64.
 
 
-Version 0.9.6 (June 10 2003)
-  - Fixed multiple compiler warnings for the MSVC++ 7 compiler
-  - Modified configure.in so that it can now build on Solaris.
-  - Modified the configure script so that it can build a single-threaded
-    library (--enable-threads=no)
-  - Added "Filtering" to Appenders.
-  - Fixed Bug #741515 - "LogLog is causing a core on HP".
-  - Fixed Bug #733944 - "logging in system/local time"
-  - Fixed Bug #749040 - "Use of gmtime and localtime not thread-safe"
-  - Fixed Bug #750232 - "Copying of Hierarchy should not be allowed"
-  - Added an MSVC++ project to build log4cplus as a static library.
+# log4cplus 2.0.5
+
+  - Modernized CMake build.
+
+  - Update iOS support to build for current hardware architectures. (Patch by
+    Pawel Maczewski)
+
+  - Fix issue with `std::va_list` value reuse.
+
+  - Fix parsing of `include` in configuration when included file path contains
+    `=`. (Patch by Peter Pei)
+
+  - Fix build issue #455. Source file `callbackappender.cxx` is missing from
+    Visual Studio project for static library.
+
+  - Fix issue #415. Wrong base source file name is provided if path on Windows
+    contains `/`.
+
+  - Change of default behaviour: Instantiate thread pool with only 4 threads.
 
 
-Version 0.9.5 (May 19 2003)
-  - Removed the LOG4CPLUS_*_STR logging macros.
-  - Added support to disable the TRACE, DEBUG, and INFO macros by defining
-    LOG4CPLUS_DISABLE_*
-  - Added a static doConfigure() method to PropertyConfigurator and
-    BasicConfigurator.
-  - Fixed problems with the configure script on several platforms.
-  - Optimized single-threaded mode.
-  - Fixed some problems with the MSVC++ 7 compiler.
+# log4cplus 2.0.4
+
+  - Fix Catch2 include path. GitHub issue #379.
+
+  - Disable POSIX signals reception in thread before creating pool
+    threads. GitHub issue #385 and follow up issue #390.
+
+  - Fix compilation with NVCC in CUDA mode. GitHub issue #375.
+
+  - Fix compilation with Visual Studio in C++17 mode. GitHub issue #401.
+
+  - Allow disabling implicit initialization through `configure` script option
+    `--disable-implicit-initialization`, or CMake build option
+    `LOG4CPLUS_REQUIRE_EXPLICIT_INITIALIZATION`. (MaksymB)
+
+  - Remove `android` directory with obsolete Android support. GitHub
+    issue #283.
+
+  - Link with `libatomic` when necessary. (Fabrice Fontaine)
 
 
-Version 0.9.4 (May-5-2003)
-  Added SocketAppender class.
-  Now builds loggingserver to act as a source of logging messages from a
-  SocketAppender.
-  Numerous fixes needed for various compilers.
+# log4cplus 2.0.3
+
+  - Fix compilation on systems without `O_CLOEXEC`. This affects, e.g.,
+    Solaris 10. GitHub issue #326. (Patch by Jiangrz).
+
+  - Provide `log4cplus::deinitialize()` to make the API symmetric
+    (`log4cplus::initialize()` already exists) and to allow
+    de-/initialization without `log4cplus::Initializer` instance. GitHub
+    issue #340.
+
+  - Deal with `register` keyword being generated in SWIG based bindings. The
+    keyword is unused and reserved in C++17. Remove use of
+    `std::unary_function`, it was removed in C++17.
+
+  - Add ability to define new log levels using C API. Add reconfiguration
+    API. (Jens Rehsack)
+
+  - Add `NDCMatchFilter` and `MDCMatchFilter`. (Franck)
 
 
-Version 0.9.3 (Apr-19-2003)
-  Added preliminary UNICODE support. (Little testing.)  Thanks Michael CATANZARITI
-  Now built as a shared library instead of a static library.
-  Add support for Microsoft Visual C++ 6.0 back in.  (Multi-threaded DLL)
-  Added SysLogAppender class.
-  Added NTEventLogAppender class.  (Thanks Michael CATANZARITI)
+# log4cplus 2.0.2
+
+  - Allow setting thread pool size using new function
+    `setThreadPoolSize()`. Allow setting the size from `log4cplus.properties`
+    using `log4cplus.threadPoolSize` property. Lower initial thread pool size
+    by half to `std::thread::hardware_concurrency()` threads. GitHub issue
+    #315.
+
+  - Fix Autotools based build for MinGW. GitHub issue #317.
+
+  - Add `configure` script option `--enable-lto` to allow easier LTO builds.
+
+  - Optimization of `getFormattedTime()`. (Alexey Vishtak)
+
+  - Introduction of `LOG4CPLUS_MACRO_FILE()` used in logging macros to allow
+    users to redefine it and consequently hide source file names from their
+    compiled executables and logging output.
 
 
-Version 0.9.2 (Apr-5-2003)
-  Major API change:  Changed the name of the Category class to Logger and
-             replaced the Priority class with LogLevel.
-  Added PropertyConfigurator class.
-  Added BasicConfigurator class.
+# log4cplus 2.0.1
+
+  - Update to Automake 1.16.1.
+
+  - Adjust `spi::LoggerFactory` to allow custom `spi::LoggerImpl`. GitHub
+    issue #309.
+
+  - Fix MacOS X compilation. GitHub issue #312.
 
 
-Version 0.9.1 (Mar-22-2003)
-  Added PatternLayout class.
+# log4cplus 2.0
+
+  - CMake improvements: Automate export of includes if building as Cmake
+    sub-module. (Rodion Malinovsky)
+
+  - Debian spec file improvements: Use parallel build. Fix installation path
+    on 64bit. (Michal Marek)
+
+  - CMake improvements: Use `${CMAKE_INSTALL_LIBDIR}` instead of hardcoding
+    lib. (Radek Dostál)
+
+  - Experimental Windows 10 ARM support through CMAKE
 
 
-Version 0.9.0
-  Initial beta release.
+# log4cplus 2.0-RC2
+
+  - Avoid copying whole message just to prepend message length in
+    `SocketAppender`. Instead, use OS specific "gather" socket write.
+
+  - Fixed GitHub issue #136.
+
+  - `FileAppender` classes now have `TextMode` property that can be set to
+    `Binary` or `Text` (default) to specify underlying IO stream behavior
+    with respect to end-of-line handling. (Patch by raphaelmarcucci).
+
+  - Fixed compilation issues when building log4cplus with Visual Studio and
+    Clang toolchain.
+
+  - Fixed various shutdown and initialization related deadlocks and
+    crashes. GitHub issues #251, #253.
+
+  - Fixed GitHub issue #243. Single-threaded build with Visual Studio and
+    CMake were not single-threaded.
+
+  - Fixed GitHub issue #250. Creating WiX based installer using CPack does
+    not work because of missing license file.
+
+
+# log4cplus 2.0-RC1
+
+  - **IMPORTANT**: Implementation language is now C++11. OS specific
+    implementations have been replaced by C++11 facilities wherever
+    possible. This lowers complexity of the library and improves
+    maintainability but it also brings limitations to when the library can be
+    used. Specifically, the library should not be used before `main()` is
+    entered and after `main()` is left. Even more specifically, the library
+    should not be used during global objects construction and destruction.
+
+  - log4cplus uses Catch unit testing framework and has unit tests.
+
+  - log4cplus supports IPv6.
+
+  - Autotools based build system is now partially generated from templates by
+    the Autogen tool.
+
+  - Autotools based build system can build both `wchar_t` and plain `char`
+    variants at once.

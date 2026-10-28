@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2024-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_FILE_H
 #define f_VD2_SYSTEM_FILE_H
@@ -42,7 +26,8 @@
 	#error No operating system target declared??
 #endif
 
-namespace nsVDFile {
+namespace nsVDFile
+{
 	enum eSeekMode {
 		kSeekStart=0, kSeekCur, kSeekEnd
 	};
@@ -75,16 +60,16 @@ namespace nsVDFile {
 
 class VDFile {
 protected:
-	VDFileHandle	mhFile;
-	vdautoptr2<wchar_t>	mpFilename;
-	sint64			mFilePosition;
+	VDFileHandle mhFile = NULL;
+	vdautoptr2<wchar_t> mpFilename;
+	sint64 mFilePosition = 0;
 
 private:
 	VDFile(const VDFile&);
 	const VDFile& operator=(const VDFile& f);
 
 public:
-	VDFile() : mhFile(NULL) {}
+	VDFile() = default;
 	VDFile(const char *pszFileName, uint32 flags = nsVDFile::kRead | nsVDFile::kDenyWrite | nsVDFile::kOpenExisting);
 	VDFile(const wchar_t *pwszFileName, uint32 flags = nsVDFile::kRead | nsVDFile::kDenyWrite | nsVDFile::kOpenExisting);
 	VDFile(VDFileHandle h);
@@ -145,7 +130,7 @@ public:
 	static void FreeUnbuffer(void *p);
 
 protected:
-	bool	open_internal(const char *pszFilename, const wchar_t *pwszFilename, uint32 flags, bool throwOnError);
+	bool	open_internal(const wchar_t *pwszFilename, uint32 flags, bool throwOnError);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -168,14 +153,10 @@ public:
 
 	pointer			allocate(size_type n, void *p = 0)	{ return (pointer)VDFile::AllocUnbuffer(n * sizeof(T)); }
 	void			deallocate(pointer p, size_type n)	{ VDFile::FreeUnbuffer(p); }
-	size_type		max_size() const throw()			{ return INT_MAX; }
+	size_type		max_size() const noexcept			{ return INT_MAX; }
 
 	void			construct(pointer p, const T& val)	{ new((void *)p) T(val); }
 	void			destroy(pointer p)					{ ((T*)p)->~T(); }
-
-#if defined(_MSC_VER) && _MSC_VER < 1300
-	char *			_Charalloc(size_type n)				{ return (char *)allocate((n + sizeof(T) - 1) / sizeof(T)); }
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -201,13 +182,13 @@ private:
 	const VDFileStream& operator=(const VDFileStream& f);
 
 public:
-	VDFileStream() {}
+	VDFileStream() = default;
 	VDFileStream(const char *pszFileName, uint32 flags = nsVDFile::kRead | nsVDFile::kDenyWrite | nsVDFile::kOpenExisting)
 		: VDFile(pszFileName, flags) {}
 	VDFileStream(const wchar_t *pwszFileName, uint32 flags = nsVDFile::kRead | nsVDFile::kDenyWrite | nsVDFile::kOpenExisting)
 		: VDFile(pwszFileName, flags) {}
 	VDFileStream(VDFileHandle h) : VDFile(h) {}
-	~VDFileStream();
+	~VDFileStream() = default;
 
 	const wchar_t *GetNameForError();
 	sint64	Pos();
@@ -239,7 +220,7 @@ protected:
 class VDBufferedStream : public IVDRandomAccessStream {
 public:
 	VDBufferedStream(IVDRandomAccessStream *pSrc, uint32 bufferSize);
-	~VDBufferedStream();
+	~VDBufferedStream() = default;
 
 	const wchar_t *GetNameForError();
 	sint64	Pos();
@@ -254,7 +235,7 @@ public:
 
 protected:
 	IVDRandomAccessStream *mpSrc;
-	vdblock<char>	mBuffer;
+	vdblock<uint8>	mBuffer;
 	sint64		mBasePosition;
 	uint32		mBufferOffset;
 	uint32		mBufferValidSize;
@@ -263,7 +244,7 @@ protected:
 class VDTextStream {
 public:
 	VDTextStream(IVDStream *pSrc);
-	~VDTextStream();
+	~VDTextStream() = default;
 
 	const char *GetNextLine();
 
@@ -288,7 +269,7 @@ protected:
 class VDTextInputFile {
 public:
 	VDTextInputFile(const wchar_t *filename, uint32 flags = nsVDFile::kOpenExisting);
-	~VDTextInputFile();
+	~VDTextInputFile() = default;
 
 	inline const char *GetNextLine() {
 		return mTextStream.GetNextLine();

@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2016-2018 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_UBERBLIT_YCBCR_GENERIC_H
 #define f_VD2_KASUMI_UBERBLIT_YCBCR_GENERIC_H
 
@@ -11,7 +20,6 @@ struct VDPixmapGenYCbCrBasis {
 
 extern const VDPixmapGenYCbCrBasis g_VDPixmapGenYCbCrBasis_601;
 extern const VDPixmapGenYCbCrBasis g_VDPixmapGenYCbCrBasis_709;
-extern const VDPixmapGenYCbCrBasis g_VDPixmapGenYCbCrBasis_2020;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -36,19 +44,67 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////
 
+class VDPixmapGenYCbCrToRGB64Generic : public VDPixmapGenYCbCrToRGB64Base {
+public:
+	VDPixmapGenYCbCrToRGB64Generic(const VDPixmapGenYCbCrBasis& basis, bool studioRGB);
+
+	uint32 GetType(uint32 output) const;
+
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		FilterModPixmapInfo buf;
+		mpSrcY->TransformPixmapInfo(src,buf);
+		mpSrcCr->TransformPixmapInfo(src,buf);
+		mpSrcCb->TransformPixmapInfo(src,buf);
+		dst.copy_frame(buf);
+		dst.ref_r = 0xFFFF;
+		dst.ref_g = 0xFFFF;
+		dst.ref_b = 0xFFFF;
+		dst.ref_a = 0xFFFF;
+		ref_r = buf.ref_r;
+	}
+
+	void Start() {
+		VDPixmapGenYCbCrToRGB64Base::Start();
+		UpdateParams();
+	}
+
+protected:
+	void UpdateParams();
+	virtual void Compute(void *dst0, sint32 y);
+
+	VDPixmapGenYCbCrBasis basis;
+	bool studioRGB;
+	int ref_r;
+
+	float mCoY;
+	float mCoRCr;
+	float mCoGCr;
+	float mCoGCb;
+	float mCoBCb;
+	float mBiasR;
+	float mBiasG;
+	float mBiasB;
+};
+
+////////////////////////////////////////////////////////////////////////////
+
 class VDPixmapGenYCbCrToRGB32FGeneric : public VDPixmapGenYCbCrToRGB32FBase {
 public:
-	VDPixmapGenYCbCrToRGB32FGeneric(const VDPixmapGenYCbCrBasis& basis);
+	VDPixmapGenYCbCrToRGB32FGeneric(const VDPixmapGenYCbCrBasis& basis, bool studioRGB);
 
 	uint32 GetType(uint32 output) const;
 
 protected:
 	void Compute(void *dst0, sint32 y);
 
+	float mCoY;
 	float mCoRCr;
 	float mCoGCr;
 	float mCoGCb;
 	float mCoBCb;
+	float mBiasR;
+	float mBiasG;
+	float mBiasB;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -82,18 +138,25 @@ protected:
 
 class VDPixmapGenRGB32FToYCbCrGeneric : public VDPixmapGenRGB32FToYCbCrBase {
 public:
-	VDPixmapGenRGB32FToYCbCrGeneric(const VDPixmapGenYCbCrBasis& basis, uint32 colorSpace);
+	VDPixmapGenRGB32FToYCbCrGeneric(const VDPixmapGenYCbCrBasis& basis, bool studioRGB, uint32 colorSpace);
 
 	uint32 GetType(uint32 output) const;
 
 protected:
 	void Compute(void *dst0, sint32 y);
 
-	float mCoYR;
+ 	float mCoYR;
 	float mCoYG;
 	float mCoYB;
-	float mCoCb;
-	float mCoCr;
+	float mCoYA;
+	float mCoCbR;
+	float mCoCbG;
+	float mCoCbB;
+	float mCoCbA;
+	float mCoCrR;
+	float mCoCrG;
+	float mCoCrB;
+	float mCoCrA;
 
 	const uint32 mColorSpace;
 };
@@ -107,6 +170,8 @@ public:
 	void Start();
 	const void *GetRow(sint32 y, uint32 index);
 	uint32 GetType(uint32 output) const;
+
+	virtual const char* dump_name(){ return "YCbCrToYCbCr"; }
 
 protected:
 	void Compute(void *dst0, sint32 ypos);
@@ -134,6 +199,8 @@ public:
 	void Start();
 	const void *GetRow(sint32 y, uint32 index);
 	uint32 GetType(uint32 output) const;
+
+	virtual const char* dump_name(){ return "YCbCrToYCbCr_32F"; }
 
 protected:
 	void Compute(void *dst0, sint32 ypos);

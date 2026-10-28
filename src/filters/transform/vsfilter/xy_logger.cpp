@@ -4,6 +4,7 @@
 /************************************************************************/
 #include "StdAfx.h"
 #include "xy_logger.h"
+#include <log4cplus/initializer.h>
 #include <fstream>
 #include <moreuuids.h>
 
@@ -62,7 +63,8 @@ namespace xy_logger
 
 #if ENABLE_XY_LOG
     int g_log_once_id{0};
-    
+
+    log4cplus::Initializer g_initializer;
     log4cplus::Logger g_logger{log4cplus::Logger::getInstance( XY_TEXT("global_logger_xy") )};
 #endif
 

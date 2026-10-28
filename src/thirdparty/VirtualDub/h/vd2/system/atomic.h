@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_ATOMIC_H
 #define f_VD2_SYSTEM_ATOMIC_H
@@ -45,7 +29,7 @@
 	// Intrinsics available in VC7.1. Note that the compiler is smart enough to
 	// use straight LOCK AND/OR/XOR if the return value is not needed; otherwise
 	// it uses a LOCK CMPXCHG loop.
-	#if _MSC_VER >= 1310
+	#if _MSC_VER
 		extern "C" long __cdecl _InterlockedAnd(volatile long *p, long n);
 		extern "C" long __cdecl _InterlockedOr(volatile long *p, long n);
 		extern "C" long __cdecl _InterlockedXor(volatile long *p, long n);
@@ -90,7 +74,7 @@ protected:
 	volatile int n;
 
 public:
-	VDAtomicInt() {}
+	VDAtomicInt() = default;
 	VDAtomicInt(int v) : n(v) {}
 
 	bool operator!() const { return !n; }
@@ -182,7 +166,7 @@ public:
 	int operator+=(int v)	{ return staticAdd(&n, v); }
 	int operator-=(int v)	{ return staticAdd(&n, -v); }
 
-#if _MSC_VER >= 1310
+#if _MSC_VER
 
 	void operator&=(int v)	{ _InterlockedAnd((volatile long *)&n, v); }	///< Atomic bitwise AND.
 	void operator|=(int v)	{ _InterlockedOr((volatile long *)&n, v); }		///< Atomic bitwise OR.
@@ -261,7 +245,7 @@ protected:
 	volatile float n;
 
 public:
-	VDAtomicFloat() {}
+	VDAtomicFloat() = default;
 	VDAtomicFloat(float v) : n(v) {}
 
 	bool operator!=(float v) const  { return n!=v; }
@@ -292,7 +276,7 @@ protected:
 	volatile char n;
 
 public:
-	VDAtomicBool() {}
+	VDAtomicBool() = default;
 	VDAtomicBool(bool v) : n(v) {}
 
 	bool operator!=(bool v) const { return (n != 0) != v; }

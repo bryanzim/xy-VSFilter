@@ -1,27 +1,12 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2019 Anton Shekhovtsov
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_FILESYS_H
 #define f_VD2_SYSTEM_FILESYS_H
@@ -59,8 +44,8 @@ static inline wchar_t *VDFileSplitPath(wchar_t *s) {
 	return const_cast<wchar_t *>(VDFileSplitPath(const_cast<const wchar_t *>(s)));
 }
 
-VDString VDFileSplitPathLeft(const VDString&);
-VDString VDFileSplitPathRight(const VDString&);
+VDStringA VDFileSplitPathLeft(const VDStringA&);
+VDStringA VDFileSplitPathRight(const VDStringA&);
 VDStringW VDFileSplitPathLeft(const VDStringW&);
 VDStringW VDFileSplitPathRight(const VDStringW&);
 
@@ -78,7 +63,7 @@ static inline wchar_t *VDFileSplitRoot(wchar_t *s) {
 	return const_cast<wchar_t *>(VDFileSplitRoot(const_cast<const wchar_t *>(s)));
 }
 
-VDString VDFileSplitRoot(const VDString&);
+VDStringA VDFileSplitRoot(const VDStringA&);
 VDStringW VDFileSplitRoot(const VDStringW&);
 
 // VDSplitExtension returns a pointer to the extension, including the period.
@@ -95,9 +80,9 @@ static inline wchar_t *VDFileSplitExt(wchar_t *s) {
 	return const_cast<wchar_t *>(VDFileSplitExt(const_cast<const wchar_t *>(s)));
 }
 
-VDString VDFileSplitExtLeft(const VDString&);
+VDStringA VDFileSplitExtLeft(const VDStringA&);
 VDStringW VDFileSplitExtLeft(const VDStringW&);
-VDString VDFileSplitExtRight(const VDString&);
+VDStringA VDFileSplitExtRight(const VDStringA&);
 VDStringW VDFileSplitExtRight(const VDStringW&);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -178,17 +163,20 @@ sint64 VDGetDiskFreeSpace(const wchar_t *path);
 void VDCreateDirectory(const wchar_t *path);
 void VDRemoveDirectory(const wchar_t *path);
 
-extern bool (*VDRemoveFile)(const wchar_t *path);
+bool VDRemoveFile(const wchar_t *path);
 
 void VDMoveFile(const wchar_t *srcPath, const wchar_t *dstPath);
 
 bool VDDoesPathExist(const wchar_t *fileName);
+VDStringW VDIncrementPath(const VDStringW& fileName);
+VDStringW VDAutoIncrementPath(const VDStringW& fileName);
+bool VDIsValidFileName(const wchar_t *fileName);
 
 uint64 VDFileGetLastWriteTime(const wchar_t *path);
 VDStringW VDFileGetRootPath(const wchar_t *partialPath);
 VDStringW VDGetFullPath(const wchar_t *partialPath);
 
-extern VDStringW (*VDGetLongPath)(const wchar_t *path);
+VDStringW VDGetLongPath(const wchar_t *path);
 
 VDStringW VDMakePath(const wchar_t *base, const wchar_t *file);
 bool VDFileIsPathEqual(const wchar_t *path1, const wchar_t *path2);
@@ -254,18 +242,18 @@ public:
 	}
 
 protected:
-	void *mpHandle;
-	bool mbSearchComplete;
+	void* mpHandle        = nullptr;
+	bool mbSearchComplete = false;
 
 	VDStringW	mSearchPath;
 	VDStringW	mBasePath;
 
 	VDStringW	mFilename;
-	sint64		mFileSize;
-	bool		mbDirectory;
-	uint32		mAttributes;
+	sint64		mFileSize   = 0;
+	bool		mbDirectory = false;
+	uint32		mAttributes = 0;
 
-	VDDate		mLastWriteDate;
+	VDDate		mLastWriteDate = {};
 };
 
 #endif

@@ -1,115 +1,92 @@
 lib_LTLIBRARIES = liblog4cplus.la
 
-AM_CPPFLAGS = -DINSIDE_LOG4CPLUS \
-	-I$(top_srcdir)/include -I$(top_builddir)/include \
-	@LOG4CPLUS_NDEBUG@
-
-AM_CXXFLAGS = -no-suppress
-
-INCLUDES_SRC_PATH = $(top_srcdir)/include/log4cplus
-
-INCLUDES_SRC = \
-    $(INCLUDES_SRC_PATH)/appender.h \
-	$(INCLUDES_SRC_PATH)/config.hxx \
-	$(INCLUDES_SRC_PATH)/config/win32.h \
-	$(INCLUDES_SRC_PATH)/config/macosx.h \
-	$(INCLUDES_SRC_PATH)/configurator.h \
-	$(INCLUDES_SRC_PATH)/consoleappender.h \
-	$(INCLUDES_SRC_PATH)/fileappender.h \
-	$(INCLUDES_SRC_PATH)/fstreams.h \
-	$(INCLUDES_SRC_PATH)/hierarchy.h \
-	$(INCLUDES_SRC_PATH)/hierarchylocker.h \
-	$(INCLUDES_SRC_PATH)/layout.h \
-	$(INCLUDES_SRC_PATH)/logger.h \
-	$(INCLUDES_SRC_PATH)/loggingmacros.h \
-	$(INCLUDES_SRC_PATH)/loglevel.h \
-	$(INCLUDES_SRC_PATH)/ndc.h \
-	$(INCLUDES_SRC_PATH)/nullappender.h \
-	$(INCLUDES_SRC_PATH)/socketappender.h \
-	$(INCLUDES_SRC_PATH)/streams.h \
-	$(INCLUDES_SRC_PATH)/syslogappender.h \
-	$(INCLUDES_SRC_PATH)/tstring.h \
-	$(INCLUDES_SRC_PATH)/version.h \
-	$(INCLUDES_SRC_PATH)/helpers/appenderattachableimpl.h \
-	$(INCLUDES_SRC_PATH)/helpers/loglog.h \
-	$(INCLUDES_SRC_PATH)/helpers/logloguser.h \
-	$(INCLUDES_SRC_PATH)/helpers/pointer.h \
-	$(INCLUDES_SRC_PATH)/helpers/property.h \
-	$(INCLUDES_SRC_PATH)/helpers/sleep.h \
-	$(INCLUDES_SRC_PATH)/helpers/socketbuffer.h \
-	$(INCLUDES_SRC_PATH)/helpers/socket.h \
-	$(INCLUDES_SRC_PATH)/helpers/stringhelper.h \
-	$(INCLUDES_SRC_PATH)/helpers/syncprims.h \
-	$(INCLUDES_SRC_PATH)/helpers/syncprims-pthreads.h \
-	$(INCLUDES_SRC_PATH)/helpers/thread-config.h \
-	$(INCLUDES_SRC_PATH)/helpers/threads.h \
-	$(INCLUDES_SRC_PATH)/helpers/timehelper.h \
-	$(INCLUDES_SRC_PATH)/spi/appenderattachable.h \
-	$(INCLUDES_SRC_PATH)/spi/factory.h \
-	$(INCLUDES_SRC_PATH)/spi/filter.h \
-	$(INCLUDES_SRC_PATH)/spi/loggerfactory.h \
-	$(INCLUDES_SRC_PATH)/spi/loggerimpl.h \
-	$(INCLUDES_SRC_PATH)/spi/loggingevent.h \
-	$(INCLUDES_SRC_PATH)/spi/objectregistry.h \
-	$(INCLUDES_SRC_PATH)/spi/rootlogger.h \
-	$(top_builddir)/include/log4cplus/config/defines.hxx
-
 SINGLE_THREADED_SRC = \
-    $(INCLUDES_SRC) \
-	appenderattachableimpl.cxx \
-	appender.cxx \
-	configurator.cxx \
-	consoleappender.cxx \
-	factory.cxx \
-	fileappender.cxx \
-	filter.cxx \
-	global-init.cxx \
-	hierarchy.cxx \
-	hierarchylocker.cxx \
-	layout.cxx \
-	logger.cxx \
-	loggerimpl.cxx \
-	loggingevent.cxx \
-	loglevel.cxx \
-	loglog.cxx \
-	logloguser.cxx \
-	ndc.cxx \
-	nteventlogappender.cxx \
-	nullappender.cxx \
-	objectregistry.cxx \
-	patternlayout.cxx \
-	pointer.cxx \
-	property.cxx \
-	rootlogger.cxx \
-	sleep.cxx \
-	socket.cxx \
-	socketappender.cxx \
-	socketbuffer.cxx \
-	stringhelper.cxx \
-	syslogappender.cxx \
-	timehelper.cxx \
-	version.cxx \
-	win32consoleappender.cxx \
-	win32debugappender.cxx
+	%D%/androidappender.cxx \
+	%D%/appenderattachableimpl.cxx \
+	%D%/appender.cxx \
+	%D%/asyncappender.cxx \
+	%D%/callbackappender.cxx \
+	%D%/clogger.cxx \
+	%D%/configurator.cxx \
+	%D%/connectorthread.cxx \
+	%D%/consoleappender.cxx \
+	%D%/cygwin-win32.cxx \
+	%D%/env.cxx \
+	%D%/eventcounter.cxx \
+	%D%/exception.cxx \
+	%D%/factory.cxx \
+	%D%/fileappender.cxx \
+	%D%/fileinfo.cxx \
+	%D%/filter.cxx \
+	%D%/global-init.cxx \
+	%D%/hierarchy.cxx \
+	%D%/hierarchylocker.cxx \
+	%D%/layout.cxx \
+	%D%/log4judpappender.cxx \
+	%D%/lockfile.cxx \
+	%D%/logger.cxx \
+	%D%/loggerimpl.cxx \
+	%D%/loggingevent.cxx \
+	%D%/loggingmacros.cxx \
+	%D%/loglevel.cxx \
+	%D%/loglog.cxx \
+	%D%/mdc.cxx \
+	%D%/ndc.cxx \
+	%D%/nullappender.cxx \
+	%D%/nteventlogappender.cxx \
+	%D%/objectregistry.cxx \
+	%D%/patternlayout.cxx \
+	%D%/pointer.cxx \
+	%D%/property.cxx \
+	%D%/queue.cxx \
+	%D%/rootlogger.cxx \
+	%D%/snprintf.cxx \
+	%D%/socketappender.cxx \
+	%D%/socketbuffer.cxx \
+	%D%/socket.cxx \
+	%D%/socket-unix.cxx \
+	%D%/socket-win32.cxx \
+	%D%/stringhelper.cxx \
+	%D%/stringhelper-clocale.cxx \
+	%D%/stringhelper-cxxlocale.cxx \
+	%D%/stringhelper-iconv.cxx \
+	%D%/syncprims.cxx \
+	%D%/syslogappender.cxx \
+	%D%/threads.cxx \
+	%D%/timehelper.cxx \
+	%D%/tls.cxx \
+	%D%/version.cxx \
+	%D%/win32consoleappender.cxx \
+	%D%/win32debugappender.cxx
 
-if WINSOCK_SOCKETS
-SOCKETS_SRC = socket-win32.cxx
+LIB_SRC = $(SINGLE_THREADED_SRC)
+
+common_liblog4cplus_la_cppflags = $(AM_CPPFLAGS) -DINSIDE_LOG4CPLUS
+liblog4cplus_la_CPPFLAGS = $(common_liblog4cplus_la_cppflags)
+
+common_liblog4cplus_la_sources = $(LIB_SRC)
+liblog4cplus_la_SOURCES = $(common_liblog4cplus_la_sources)
+
+if USE_LOG4CPLUS_EXPORT_SYMBOLS_REGEX
+LOG4CPLUS_EXPORT_SYMBOLS_REGEX = -export-symbols-regex 'log4cplus'
 else
-SOCKETS_SRC = socket-unix.cxx
+LOG4CPLUS_EXPORT_SYMBOLS_REGEX =
 endif
 
-if MULTI_THREADED
-THREADS_SRC = threads.cxx \
-	syncprims.cxx
-else
-THREADS_SRC =
+common_liblog4cplus_la_ldflags = -no-undefined \
+	$(LOG4CPLUS_VERSION_LT_FLAGS) \
+	$(LOG4CPLUS_PROFILING_LDFLAGS) \
+        $(LOG4CPLUS_LTO_LDFLAGS) \
+	$(LOG4CPLUS_AIX_XLC_LDFLAGS) \
+	$(LOG4CPLUS_EXPORT_SYMBOLS_REGEX)
+liblog4cplus_la_LDFLAGS = $(common_liblog4cplus_la_ldflags)
+
+if BUILD_WITH_WCHAR_T_SUPPORT
+lib_LTLIBRARIES += liblog4cplusU.la
+
+liblog4cplusU_la_CPPFLAGS = $(common_liblog4cplus_la_cppflags) -DUNICODE=1 -D_UNICODE=1
+
+liblog4cplusU_la_SOURCES = $(common_liblog4cplus_la_sources)
+
+liblog4cplusU_la_LDFLAGS = $(common_liblog4cplus_la_ldflags)
 endif
-
-LIB_SRC = $(SINGLE_THREADED_SRC) \
-	$(THREADS_SRC) \
-	$(SOCKETS_SRC)
-
-liblog4cplus_la_SOURCES = $(LIB_SRC)
-
-#liblog4cplus_a_LIBADD = @LIBOBJS@ @ALLOCA@
-liblog4cplus_la_LDFLAGS = -no-undefined -version-info @LT_VERSION@ -release 1.0

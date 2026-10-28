@@ -1,150 +1,250 @@
-project (log4cplus CXX C)
-cmake_minimum_required (VERSION 2.6)
-set (CMAKE_VERBOSE_MAKEFILE on)
+cmake_minimum_required (VERSION 3.20)
 
-set (log4cplus_version_major 1)
-set (log4cplus_version_minor 0)
-set (log4cplus_version_patch 4)
-set (log4cplus_soversion 4)
+project (log4cplus)
+
+# Use "-fPIC" / "-fPIE" for all targets by default, including static libs.
+set (CMAKE_POSITION_INDEPENDENT_CODE ON)
+# Enable LTO / IPO by default. Keep it disabled for iOS static libraries:
+# xcodebuild -create-xcframework cannot determine the architectures of an
+# archive whose members are LLVM bitcode rather than Mach-O object files.
+if (IOS)
+  set (_LOG4CPLUS_IPO_DEFAULT OFF)
+else ()
+  set (_LOG4CPLUS_IPO_DEFAULT ON)
+endif ()
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ${_LOG4CPLUS_IPO_DEFAULT})
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ${_LOG4CPLUS_IPO_DEFAULT})
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ${_LOG4CPLUS_IPO_DEFAULT})
+# Hint to prefer -pthread over -lpthread
+set (THREADS_PREFER_PTHREAD_FLAG ON)
+
+enable_language (CXX)
+if (MSVC)
+  #set (CMAKE_CXX_STANDARD 14)
+  if (CMAKE_VS_PLATFORM_NAME MATCHES "ARM")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+  endif ()
+else ()
+  set (CMAKE_CXX_STANDARD 11)
+endif ()
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_EXTENSIONS ON)
+include(GNUInstallDirs)
+
+include (Log4CPlusUtils.cmake)
+log4cplus_get_version ("${PROJECT_SOURCE_DIR}/include"
+  log4cplus_version_major log4cplus_version_minor log4cplus_version_patch)
+set (log4cplus_version_str "${log4cplus_version_major}.${log4cplus_version_minor}.${log4cplus_version_patch}")
+message("-- Generating build for Log4cplus version ${log4cplus_version_str}")
+set (log4cplus_soversion 11)
 set (log4cplus_postfix "")
-
-find_package (Threads)
-message (STATUS "Threads: ${CMAKE_THREAD_LIBS_INIT}")
-
-set (log4cplus_headers
-  include/log4cplus/appender.h
-  include/log4cplus/config/macosx.h
-  include/log4cplus/config/win32.h
-  include/log4cplus/config.hxx
-  include/log4cplus/configurator.h
-  include/log4cplus/consoleappender.h
-  include/log4cplus/fileappender.h
-  include/log4cplus/fstreams.h
-  include/log4cplus/helpers/appenderattachableimpl.h
-  include/log4cplus/helpers/loglog.h
-  include/log4cplus/helpers/logloguser.h
-  include/log4cplus/helpers/pointer.h
-  include/log4cplus/helpers/property.h
-  include/log4cplus/helpers/sleep.h
-  include/log4cplus/helpers/socket.h
-  include/log4cplus/helpers/socketbuffer.h
-  include/log4cplus/helpers/stringhelper.h
-  include/log4cplus/helpers/syncprims.h
-  include/log4cplus/helpers/thread-config.h
-  include/log4cplus/helpers/threads.h
-  include/log4cplus/helpers/timehelper.h
-  include/log4cplus/hierarchy.h
-  include/log4cplus/hierarchylocker.h
-  include/log4cplus/layout.h
-  include/log4cplus/logger.h
-  include/log4cplus/loggingmacros.h
-  include/log4cplus/loglevel.h
-  include/log4cplus/ndc.h
-  include/log4cplus/nteventlogappender.h
-  include/log4cplus/nullappender.h
-  include/log4cplus/socketappender.h
-  include/log4cplus/spi/appenderattachable.h
-  include/log4cplus/spi/factory.h
-  include/log4cplus/spi/filter.h
-  include/log4cplus/spi/loggerfactory.h
-  include/log4cplus/spi/loggerimpl.h
-  include/log4cplus/spi/loggingevent.h
-  include/log4cplus/spi/objectregistry.h
-  include/log4cplus/spi/rootlogger.h
-  include/log4cplus/streams.h
-  include/log4cplus/syslogappender.h
-  include/log4cplus/tstring.h
-  include/log4cplus/version.h
-  include/log4cplus/win32debugappender.h
-  include/log4cplus/win32consoleappender.h)
-
-
-set (log4cplus_sources
-  src/appender.cxx
-  src/appenderattachableimpl.cxx
-  src/configurator.cxx
-  src/consoleappender.cxx
-  src/factory.cxx
-  src/fileappender.cxx
-  src/filter.cxx
-  src/global-init.cxx
-  src/hierarchy.cxx
-  src/hierarchylocker.cxx
-  src/layout.cxx
-  src/logger.cxx
-  src/loggerimpl.cxx
-  src/loggingevent.cxx
-  src/loglevel.cxx
-  src/loglog.cxx
-  src/logloguser.cxx
-  src/ndc.cxx
-  src/nullappender.cxx
-  src/objectregistry.cxx
-  src/patternlayout.cxx
-  src/pointer.cxx
-  src/property.cxx
-  src/rootlogger.cxx
-  src/sleep.cxx
-  src/socket.cxx
-  src/socketappender.cxx
-  src/socketbuffer.cxx
-  src/stringhelper.cxx
-  src/syncprims.cxx
-  src/syslogappender.cxx
-  src/threads.cxx
-  src/timehelper.cxx
-  src/version.cxx)
-
-#message (STATUS "Type: ${UNIX}|${CYGWIN}|${WIN32}")
-
-# Uncomment the following line to get locale aware string conversions.
-#add_definitions (-DLOG4CPLUS_WORKING_LOCALE)
-
-if ("${UNIX}" OR "${CYGWIN}")
-  set (log4cplus_sources ${log4cplus_sources}
-    src/socket-unix.cxx)
-  set (log4cplus_headers ${log4cplus_headers}
-    include/log4cplus/config/defines.hxx
-    include/log4cplus/helpers/syncprims-pthreads.h)
-elseif (WIN32)
-  set (log4cplus_sources ${log4cplus_sources}
-    src/socket-win32.cxx
-    src/win32debugappender.cxx
-    src/nteventlogappender.cxx
-    src/win32consoleappender.cxx)
-  set (log4cplus_headers ${log4cplus_headers}
-    include/log4cplus/helpers/syncprims-win32.h)
-
-  # Comment out the following lines if you want non-Unicode version.
-  add_definitions (-DUNICODE -D_UNICODE -UMBCS -U_MBCS)
-  set (log4cplus_postfix "${log4cplus_postfix}U")
-  
-  #add_definitions (-DLOG4CPLUS_STATIC)
-  #set (log4cplus_postfix "${log4cplus_postfix}S")
+if (APPLE)
+  set (log4cplus_macho_current_version 12.0.0)
+  set (log4cplus_macho_compatibility_version 11.0.0)
 endif ()
 
-message (STATUS "Headers: ${log4cplus_headers}")
-message (STATUS "Sources: ${log4cplus_sources}")
+if (IOS)
+  set (LOG4CPLUS_BUILD_TESTING_DEFAULT OFF)
+  set (LOG4CPLUS_BUILD_LOGGINGSERVER_DEFAULT OFF)
+  set (LOG4CPLUS_BUILD_SHARED_LIBS_DEFAULT OFF)
+elseif (ANDROID)
+  set (LOG4CPLUS_BUILD_TESTING_DEFAULT ON)
+  set (LOG4CPLUS_BUILD_LOGGINGSERVER_DEFAULT OFF)
+  set (LOG4CPLUS_BUILD_SHARED_LIBS_DEFAULT ON)
+else ()
+  set (LOG4CPLUS_BUILD_TESTING_DEFAULT ON)
+  set (LOG4CPLUS_BUILD_LOGGINGSERVER_DEFAULT ON)
+  set (LOG4CPLUS_BUILD_SHARED_LIBS_DEFAULT ON)
+endif ()
 
-include_directories ("include")
-set (log4cplus_all_sources ${log4cplus_sources} ${log4cplus_headers})
+option(LOG4CPLUS_BUILD_TESTING "Build the test suite."
+  ${LOG4CPLUS_BUILD_TESTING_DEFAULT})
+option(LOG4CPLUS_BUILD_LOGGINGSERVER "Build the logging server."
+  ${LOG4CPLUS_BUILD_LOGGINGSERVER_DEFAULT})
 
-#add_library (log4cplus STATIC ${log4cplus_all_sources})
-add_library (log4cplus SHARED ${log4cplus_all_sources})
-target_link_libraries (log4cplus ${CMAKE_THREAD_LIBS_INIT})
+option(LOG4CPLUS_REQUIRE_EXPLICIT_INITIALIZATION "Require explicit initialization (see log4cplus::Initializer)" OFF)
+if (LOG4CPLUS_REQUIRE_EXPLICIT_INITIALIZATION)
+  add_compile_definitions (LOG4CPLUS_REQUIRE_EXPLICIT_INITIALIZATION=1)
+endif(LOG4CPLUS_REQUIRE_EXPLICIT_INITIALIZATION)
 
-set_target_properties (log4cplus PROPERTIES
-  VERSION "${log4cplus_version_major}.${log4cplus_version_minor}"
-  SOVERSION "${log4cplus_soversion}"
-  COMPILE_FLAGS "-DINSIDE_LOG4CPLUS")
+option(LOG4CPLUS_ENABLE_THREAD_POOL "Instantiate internal thread pool for when AsyncAppend=true" ON)
+if (LOG4CPLUS_ENABLE_THREAD_POOL)
+  add_compile_definitions (LOG4CPLUS_ENABLE_THREAD_POOL=1)
+endif()
+
+if(NOT LOG4CPLUS_SINGLE_THREADED)
+  find_package (Threads REQUIRED)
+  message (STATUS "Threads: ${CMAKE_THREAD_LIBS_INIT}")
+endif(NOT LOG4CPLUS_SINGLE_THREADED)
+
+if(LOG4CPLUS_SINGLE_THREADED AND LOG4CPLUS_BUILD_LOGGINGSERVER)
+  message (FATAL_ERROR "The logging server requires the multi-thread capability.")
+endif(LOG4CPLUS_SINGLE_THREADED AND LOG4CPLUS_BUILD_LOGGINGSERVER)
+
+set(BUILD_SHARED_LIBS ${LOG4CPLUS_BUILD_SHARED_LIBS_DEFAULT} CACHE BOOL
+  "If TRUE, log4cplus is built as a shared library, otherwise as a static library")
+
 if (WIN32)
-  set_target_properties (log4cplus PROPERTIES
-    DEBUG_POSTFIX "${log4cplus_postfix}D"
-    RELEASE_POSTFIX "${log4cplus_postfix}"
-    MINSIZEREL_POSTFIX "${log4cplus_postfix}"
-    RELWITHDEBINFO_POSTFIX "${log4cplus_postfix}")
-  target_link_libraries (log4cplus ws2_32 advapi32)
+  set (UNICODE_DEFAULT ON)
+else (WIN32)
+  set (UNICODE_DEFAULT OFF)
+endif (WIN32)
+
+if (MSVC)
+  set (LOG4CPLUS_WORKING_LOCALE_DEFAULT ON)
+else (MSVC)
+  set (LOG4CPLUS_WORKING_LOCALE_DEFAULT OFF)
+endif (MSVC)
+
+option(LOG4CPLUS_WORKING_LOCALE "Define for compilers/standard libraries that support more than just the C locale."
+  ${LOG4CPLUS_WORKING_LOCALE_DEFAULT})
+
+option(LOG4CPLUS_WORKING_C_LOCALE
+  "Define for compilers/standard libraries that have working C locale."
+  OFF)
+
+option(LOG4CPLUS_SINGLE_THREADED
+  "Define if you want to build single-threaded version of the library."
+  OFF)
+if (LOG4CPLUS_SINGLE_THREADED)
+  add_compile_definitions (LOG4CPLUS_SINGLE_THREADED=1)
+endif (LOG4CPLUS_SINGLE_THREADED)
+
+option (LOG4CPLUS_QT4 "Build with Qt4DebugAppender" OFF)
+option (LOG4CPLUS_QT5 "Build with Qt5DebugAppender" OFF)
+
+option(UNICODE "Build with tchar = wchar_t" ${UNICODE_DEFAULT})
+
+option(WITH_ICONV "Use iconv() for char->wchar_t conversion."
+  OFF)
+
+option(ENABLE_SYMBOLS_VISIBILITY
+  "Enable compiler and platform specific options for symbols visibility"
+  ON)
+
+if (MINGW)
+  option(LOG4CPLUS_MINGW_STATIC_RUNTIME "Enable MinGW static runtime" OFF)
+endif()
+
+option(WITH_UNIT_TESTS "Enable unit tests" ON)
+if (WITH_UNIT_TESTS)
+  set (LOG4CPLUS_WITH_UNIT_TESTS 1)
+  add_compile_definitions (CATCH_CONFIG_PREFIX_ALL=1)
+  if (WIN32)
+    add_compile_definitions (LOG4CPLUS_WITH_UNIT_TESTS=1)
+  endif (WIN32)
+endif (WITH_UNIT_TESTS)
+
+set(_WIN32_WINNT 0x0600 CACHE STRING "Define Windows API version to use.")
+
+option(LOG4CPLUS_ENABLE_DECORATED_LIBRARY_NAME
+  "Turns on resulting file name decoration for static and UNICODE builds." ON)
+if (LOG4CPLUS_ENABLE_DECORATED_LIBRARY_NAME)
+  if (NOT ${BUILD_SHARED_LIBS})
+    # set S-prefix for static build
+    set (log4cplus_postfix "${log4cplus_postfix}S")
+  endif ()
+
+  if (UNICODE)
+    set (log4cplus_postfix "${log4cplus_postfix}U")
+  endif (UNICODE)
+endif (LOG4CPLUS_ENABLE_DECORATED_LIBRARY_NAME)
+
+set (log4cplus "log4cplus${log4cplus_postfix}")
+
+if (WITH_ICONV)
+  set(LOG4CPLUS_WITH_ICONV 1)
 endif ()
 
-add_subdirectory (loggingserver)
-add_subdirectory (tests)
+if(LOG4CPLUS_CONFIGURE_CHECKS_PATH)
+  get_filename_component(LOG4CPLUS_CONFIGURE_CHECKS_PATH "${LOG4CPLUS_CONFIGURE_CHECKS_PATH}" ABSOLUTE)
+endif()
+
+if(LOG4CPLUS_CONFIGURE_CHECKS_PATH AND EXISTS ${LOG4CPLUS_CONFIGURE_CHECKS_PATH})
+  message(STATUS "Custom ConfigureChecks script found: ${LOG4CPLUS_CONFIGURE_CHECKS_PATH}")
+else()
+  set(LOG4CPLUS_CONFIGURE_CHECKS_PATH "ConfigureChecks.cmake")
+endif()
+
+include(${LOG4CPLUS_CONFIGURE_CHECKS_PATH})
+
+# Prepare defines.hxx.cmake from defines.hxx.in by doing a bit of
+# string manipulation.
+file(READ include/log4cplus/config/defines.hxx.in FILE_BUFFER)
+string(REGEX REPLACE "#undef[^a-zA-Z0-9_]+([a-zA-Z0-9_]+)"
+  "#cmakedefine \\1 @\\1@" FILE_BUFFER "${FILE_BUFFER}")
+set(DEFINES_HXX_CMAKE
+  ${log4cplus_BINARY_DIR}/include/log4cplus/config/defines.hxx.cmake)
+set(DEFINES_HXX ${log4cplus_BINARY_DIR}/include/log4cplus/config/defines.hxx)
+file(WRITE ${DEFINES_HXX_CMAKE} ${FILE_BUFFER})
+
+configure_file(${DEFINES_HXX_CMAKE} ${DEFINES_HXX} @ONLY)
+
+include_directories (${log4cplus_SOURCE_DIR}/include
+                     ${log4cplus_SOURCE_DIR}/threadpool
+                     ${log4cplus_SOURCE_DIR}/catch/single_include/catch2
+                     ${log4cplus_BINARY_DIR}/include
+                    )
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+
+if (LOG4CPLUS_BUILD_TESTING)
+  enable_testing()
+endif (LOG4CPLUS_BUILD_TESTING)
+
+add_subdirectory (src)
+
+# If the CMake version supports it, attach header directory information
+# to the targets for when we are part of a parent build (ie being pulled
+# in via add_subdirectory() rather than being a standalone build).
+if (DEFINED CMAKE_VERSION AND NOT "${CMAKE_VERSION}" VERSION_LESS "2.8.11")
+  target_include_directories(${log4cplus} INTERFACE
+    $<BUILD_INTERFACE:${log4cplus_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${log4cplus_BINARY_DIR}/include>)
+endif()
+
+if (LOG4CPLUS_BUILD_LOGGINGSERVER)
+  add_subdirectory (simpleserver)
+endif (LOG4CPLUS_BUILD_LOGGINGSERVER)
+
+if (LOG4CPLUS_BUILD_TESTING)
+  add_subdirectory (tests)
+endif (LOG4CPLUS_BUILD_TESTING)
+if (LOG4CPLUS_QT4)
+  add_subdirectory (qt4debugappender)
+endif (LOG4CPLUS_QT4)
+if (LOG4CPLUS_QT5)
+  add_subdirectory (qt5debugappender)
+endif (LOG4CPLUS_QT5)
+
+include(Log4CPlusCPack.cmake)
+
+message (STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
+message (STATUS "${CMAKE_CXX_COMPILER_ID} version ${CMAKE_CXX_COMPILER_VERSION}")
+message (STATUS "Compiler flags: ${CMAKE_CXX_FLAGS}")
+message (STATUS "System name: ${CMAKE_SYSTEM_NAME}")
+message (STATUS "System version: ${CMAKE_SYSTEM_VERSION}")
+
+# generate pkgconfig file.
+set(prefix "${CMAKE_INSTALL_PREFIX}")
+set(exec_prefix "\${prefix}")
+set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+set(VERSION "${log4cplus_version_major}.${log4cplus_version_minor}.${log4cplus_version_patch}")
+set(LOG4CPLUS_PC_LIBNAME "$<TARGET_LINKER_FILE_BASE_NAME:${log4cplus}>")
+set(log4cplus_pc "${CMAKE_CURRENT_BINARY_DIR}/lib/pkgconfig/$<CONFIG>/log4cplus.pc")
+configure_file(log4cplus.pc.in
+  "${CMAKE_CURRENT_BINARY_DIR}/lib/pkgconfig/log4cplus.pc.in" @ONLY)
+file(GENERATE OUTPUT "${log4cplus_pc}"
+  INPUT "${CMAKE_CURRENT_BINARY_DIR}/lib/pkgconfig/log4cplus.pc.in")
+
+# Per-configuration files can have matching timestamps. Compare contents
+# before installation so switching configurations updates the library name.
+if (IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+  set(log4cplus_pc_install_dir "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+else ()
+  set(log4cplus_pc_install_dir "\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+endif ()
+install(CODE "configure_file(\"${log4cplus_pc}\"
+  \"\$ENV{DESTDIR}${log4cplus_pc_install_dir}/log4cplus.pc\" COPYONLY)")
+install(FILES "${log4cplus_pc}" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")

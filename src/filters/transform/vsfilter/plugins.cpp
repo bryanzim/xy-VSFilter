@@ -984,8 +984,16 @@ public:
 
         extern "C" __declspec(dllexport) void __cdecl VirtualdubFilterModuleDeinit(VDXFilterModule* fm, const VDXFilterFunctions* ff)
         {
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+            // VirtualDub2 still calls removeFilter from module teardown.
             ff->removeFilter(fd_textsub);
             ff->removeFilter(fd_vobsub);
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
         }
     }
 #endif

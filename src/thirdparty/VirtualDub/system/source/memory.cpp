@@ -1,27 +1,12 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2016 Anton Shekhovtsov
+// Copyright (C) 2024-2026 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #include "stdafx.h"
 #include <malloc.h>
@@ -31,28 +16,21 @@
 #include <vd2/system/seh.h>
 #include <vd2/system/cpuaccel.h>
 
-void *VDAlignedMalloc(size_t n, unsigned alignment) {
+void* VDAlignedMalloc(size_t n, size_t alignment)
+{
 #ifdef VD_COMPILER_MSVC
 	return _aligned_malloc(n, alignment);
 #else
-	void *p = malloc(n + sizeof(void *) + alignment - 1);
-
-	if (p) {
-		void *alignedp = (void *)(((uintptr)p + sizeof(void *) + alignment - 1) & ~((uintptr)alignment - 1));
-
-		((void **)alignedp)[-1] = p;
-		p = alignedp;
-	}
-
-	return p;
+	return std::aligned_alloc(n, alignment);
 #endif
 }
 
-void VDAlignedFree(void *p) {
+void VDAlignedFree(void *p)
+{
 #ifdef VD_COMPILER_MSVC
 	_aligned_free(p);
 #else
-	free(((void **)p)[-1]);
+	std::free(p);
 #endif
 }
 
@@ -132,7 +110,7 @@ void VDInvertMemory(void *p, unsigned bytes) {
 	if (!bytes)
 		return;
 
-	while((int)dst & 3) {
+	while((size_t)dst & 3) {
 		*dst = ~*dst;
 		++dst;
 
@@ -380,11 +358,19 @@ void VDMemset32Rect(void *dst, ptrdiff_t pitch, uint32 value, size_t w, size_t h
 	}
 }
 
+void VDMemset64Rect(void *dst, ptrdiff_t pitch, uint64 value, size_t w, size_t h) {
+	if (w>0 && h>0) {
+		do {
+			VDMemset64(dst, value, w);
+			dst = (char *)dst + pitch;
+		} while(--h);
+	}
+}
+
 #if defined(_WIN32) && defined(VD_CPU_X86) && defined(VD_COMPILER_MSVC)
 	extern "C" void __cdecl VDFastMemcpyPartialScalarAligned8(void *dst, const void *src, size_t bytes);
 	extern "C" void __cdecl VDFastMemcpyPartialMMX(void *dst, const void *src, size_t bytes);
 	extern "C" void __cdecl VDFastMemcpyPartialMMX2(void *dst, const void *src, size_t bytes);
-	extern "C" void __cdecl VDFastMemcpyPartialSSE2(void *dst, const void *src, size_t bytes); //MPC custom code
 
 	void VDFastMemcpyPartialScalar(void *dst, const void *src, size_t bytes) {
 		if (!(((int)dst | (int)src | bytes) & 7))

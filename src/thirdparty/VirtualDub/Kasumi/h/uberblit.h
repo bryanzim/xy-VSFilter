@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2015-2019 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_UBERBLIT_H
 #define f_VD2_KASUMI_UBERBLIT_H
 
@@ -7,6 +16,7 @@
 #include <vd2/Kasumi/blitter.h>
 
 struct VDPixmap;
+struct FilterModPixmapInfo;
 
 enum VDPixmapFormatToken {
 	kVDPixType_1			= 0x00000001,
@@ -19,7 +29,7 @@ enum VDPixmapFormatToken {
 	kVDPixType_888			= 0x00000008,
 	kVDPixType_8888			= 0x00000009,
 	kVDPixType_16F_LE		= 0x0000000A,
-	kVDPixType_16Fx4_LE		= 0x0000000B,
+//	kVDPixType_16Fx4_LE		= 0x0000000B,
 	kVDPixType_16F_16F_16F_LE	= 0x0000000C,
 	kVDPixType_32F_LE		= 0x0000000D,
 	kVDPixType_32Fx4_LE		= 0x0000000E,
@@ -30,6 +40,21 @@ enum VDPixmapFormatToken {
 	kVDPixType_V210			= 0x00000013,		// v210 (4:2:2 10 bit)
 	kVDPixType_8_B8R8		= 0x00000014,		// NV12
 	kVDPixType_B8R8			= 0x00000015,
+	kVDPixType_16_LE		= 0x00000016,
+	kVDPixType_16x4_LE		= 0x00000017,
+	kVDPixType_16_16_16_LE	= 0x00000018,
+	kVDPixType_V410			= 0x00000019,		// v410 (4:4:4 10 bit left-justified)
+	kVDPixType_Y410			= 0x00000020,		// Y410 (4:4:4 10 bit)
+	kVDPixType_R210			= 0x00000021,
+	kVDPixType_R10K			= 0x00000022,
+	kVDPixType_16_16x2_LE	= 0x00000023,
+	kVDPixType_16x2_LE		= 0x00000024,
+	kVDPixType_8_8_8_8		= 0x00000025,
+	kVDPixType_16_16_16_16_LE	= 0x00000026,
+	kVDPixType_V308			= 0x00000027,		// v308 (4:4:4 8 bit)
+	kVDPixType_YU64			= 0x00000028,		// YU64 (YUYV 16 bit)
+	kVDPixType_32F_32F_32F_32F_LE	= 0x00000029,
+	kVDPixType_B48R			= 0x00000030,
 	kVDPixType_Mask			= 0x0000003F,
 
 	kVDPixSamp_444			= 0x00000040,
@@ -40,7 +65,7 @@ enum VDPixmapFormatToken {
 	kVDPixSamp_420_MPEG2INT1= 0x00000180,		// MPEG-2 interlaced, top field
 	kVDPixSamp_420_MPEG2INT2= 0x000001C0,		// MPEG-2 interlaced, bottom field
 	kVDPixSamp_420_MPEG1	= 0x00000200,
-	kVDPixSamp_420_DVPAL	= 0x00000240,
+//	kVDPixSamp_420_DVPAL	= 0x00000240,
 	kVDPixSamp_411			= 0x00000280,
 	kVDPixSamp_410			= 0x000002C0,
 	kVDPixSamp_Mask			= 0x00000FC0,
@@ -49,7 +74,7 @@ enum VDPixmapFormatToken {
 	kVDPixSpace_Pal			= 0x00001000,
 //	kVDPixSpace_RGB			= 0x00002000,
 	kVDPixSpace_BGR			= 0x00003000,
-	kVDPixSpace_BGR_Studio	= 0x00004000,
+//	kVDPixSpace_BGR_Studio	= 0x00004000,
 	kVDPixSpace_Y_601		= 0x00005000,
 	kVDPixSpace_Y_709		= 0x00006000,
 	kVDPixSpace_Y_601_FR	= 0x00007000,
@@ -90,6 +115,9 @@ public:
 	virtual uint32 GetType(uint32 output) const = 0;
 	virtual const void *GetRow(sint32 y, uint32 output) = 0;
 	virtual void ProcessRow(void *dst, sint32 y) = 0;
+	virtual void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) = 0;
+	virtual const char* dump_name() = 0;
+	virtual IVDPixmapGen* dump_src(int index) = 0;
 };
 
 #endif

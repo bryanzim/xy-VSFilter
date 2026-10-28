@@ -1,20 +1,18 @@
+// VirtualDub - Video processing and capture application
+// System library component
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2023-2025 v0lt
+//
+// SPDX-License-Identifier: Zlib
+//
+
 #include "stdafx.h"
 #include <windows.h>
 #include <vd2/system/filesys.h>
 #include <vd2/system/filewatcher.h>
 #include <vd2/system/thunk.h>
 #include <vd2/system/w32assist.h>
-
-VDFileWatcher::VDFileWatcher()
-	: mChangeHandle(INVALID_HANDLE_VALUE)
-	, mLastWriteTime(0)
-	, mbWatchDir(false)
-	, mbRepeatRequested(false)
-	, mbThunksInited(false)
-	, mpThunk(NULL)
-	, mTimerId(0)
-{
-}
 
 VDFileWatcher::~VDFileWatcher() {
 	Shutdown();
@@ -34,13 +32,10 @@ void VDFileWatcher::Init(const wchar_t *file, IVDFileWatcherCallback *callback) 
 	if (basePath.empty())
 		basePath = L".";
 
-	if (VDIsWindowsNT())
-		mChangeHandle = FindFirstChangeNotificationW(basePath.c_str(), FALSE, FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_LAST_WRITE);
-	else
-		mChangeHandle = FindFirstChangeNotificationA(VDTextWToA(basePath).c_str(), FALSE, FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_LAST_WRITE);
+	mChangeHandle = FindFirstChangeNotificationW(basePath.c_str(), FALSE, FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_LAST_WRITE);
 
 	if (mChangeHandle == INVALID_HANDLE_VALUE)
-		throw MyError("Unable to monitor file: %ls", file);
+		throw MyError(L"Unable to monitor file: %s", file);
 
 	mPath = file;
 	mLastWriteTime = VDFileGetLastWriteTime(mPath.c_str());
@@ -71,13 +66,11 @@ void VDFileWatcher::InitDir(const wchar_t *path, bool subdirs, IVDFileWatcherCal
 		| FILE_NOTIFY_CHANGE_LAST_WRITE
 		| FILE_NOTIFY_CHANGE_FILE_NAME
 		| FILE_NOTIFY_CHANGE_CREATION;
-	if (VDIsWindowsNT())
-		mChangeHandle = FindFirstChangeNotificationW(path, subdirs, flags);
-	else
-		mChangeHandle = FindFirstChangeNotificationA(VDTextWToA(path).c_str(), subdirs, flags);
+
+	mChangeHandle = FindFirstChangeNotificationW(path, subdirs, flags);
 
 	if (mChangeHandle == INVALID_HANDLE_VALUE)
-		throw MyError("Unable to monitor path: %ls", path);
+		throw MyError(L"Unable to monitor path: %s", path);
 
 	mPath = path;
 	mpCB = callback;

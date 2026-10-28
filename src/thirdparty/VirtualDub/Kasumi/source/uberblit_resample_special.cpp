@@ -1,20 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	Graphics support library
-//	Copyright (C) 1998-2009 Avery Lee
+// VirtualDub - Video processing and capture application
+// Graphics support library
 //
-//	This program is free software; you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation; either version 2 of the License, or
-//	(at your option) any later version.
+// Copyright (C) 1998-2009 Avery Lee
+// Copyright (C) 2016 Anton Shekhovtsov
 //
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
+// SPDX-License-Identifier: GPL-2.0-or-later
 //
-//	You should have received a copy of the GNU General Public License
-//	along with this program; if not, write to the Free Software
-//	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <stdafx.h>
 #include "uberblit_resample_special.h"
@@ -78,6 +69,26 @@ void VDPixmapGenResampleRow_x2_p0_lin_u8::Compute(void *dst0, sint32 y) {
 	const uint8 *src = (const uint8 *)mpSrc->GetRow(y, mSrcIndex);
 
 	nsVDPixmapSpanUtils::horiz_expand2x_coaligned((uint8 *)dst0, src, mWidth);
+}
+
+//---------------------------------------------------------------------
+
+void VDPixmapGenResampleRow_x2_p0_lin_u16::Init(IVDPixmapGen *src, uint32 srcIndex) {
+	InitSource(src, srcIndex);
+	src->AddWindowRequest(0, 0);
+
+	mWidth = mSrcWidth * 2;
+}
+
+void VDPixmapGenResampleRow_x2_p0_lin_u16::Start() {
+	mpSrc->Start();
+	StartWindow(mWidth*2);
+}
+
+void VDPixmapGenResampleRow_x2_p0_lin_u16::Compute(void *dst0, sint32 y) {
+	const uint16 *src = (const uint16 *)mpSrc->GetRow(y, mSrcIndex);
+
+	nsVDPixmapSpanUtils::horiz_expand2x_coaligned_u16((uint16 *)dst0, src, mWidth);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,6 +189,31 @@ void VDPixmapGenResampleCol_d2_pnqrtr_lin_u8::Compute(void *dst0, sint32 y) {
 	};
 
 	nsVDPixmapSpanUtils::vert_expand2x_centered((uint8 *)dst0, src, mWidth, ~y << 7);
+}
+
+//---------------------------------------------------------------------
+
+
+void VDPixmapGenResampleCol_d2_pnqrtr_lin_u16::Init(IVDPixmapGen *src, uint32 srcIndex) {
+	InitSource(src, srcIndex);
+	src->AddWindowRequest(-1, 1);
+
+	mHeight = mSrcHeight * 2;
+}
+
+void VDPixmapGenResampleCol_d2_pnqrtr_lin_u16::Start() {
+	mpSrc->Start();
+	StartWindow(mWidth*2);
+}
+
+void VDPixmapGenResampleCol_d2_pnqrtr_lin_u16::Compute(void *dst0, sint32 y) {
+	sint32 y2 = (y - 1) >> 1;
+	const uint16 *src[2] = {
+		(const uint16 *)mpSrc->GetRow(y2, mSrcIndex),
+		(const uint16 *)mpSrc->GetRow(y2+1, mSrcIndex),
+	};
+
+	nsVDPixmapSpanUtils::vert_expand2x_centered_u16((uint16 *)dst0, src, mWidth, ~y << 7);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

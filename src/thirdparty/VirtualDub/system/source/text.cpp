@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #include "stdafx.h"
 #include <vector>
@@ -280,6 +264,47 @@ bad_sequence_exit:
 	return w;
 }
 
+VDStringW VDTextLinesU8orAToW(const char* s, int length)
+{
+	if (length < 0) {
+		const char* t = s;
+		VDASSERT(length == -1);
+		do {
+			++length;
+		} while (*t++);
+	}
+
+	VDStringW wstr;
+	const char* pos = s;
+	const char* const end = s + length;
+
+	while (pos < end) {
+		const char* q = strchr(pos, '\n');
+		if (q) {
+			q++;
+		} else {
+			q = end;
+		}
+
+		const char* line = pos;
+		int line_size = (int)(q - pos);
+		UINT codePage = CP_UTF8;
+		int count = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, line, line_size, nullptr, 0);
+		if (count == 0) {
+			codePage = CP_ACP;
+			count = MultiByteToWideChar(CP_ACP, 0, line, line_size, nullptr, 0);
+		}
+
+		auto size = wstr.length();
+		wstr.resize(size + count);
+		MultiByteToWideChar(codePage, 0, line, line_size, &wstr[size], count);
+
+		pos = q;
+	}
+
+	return wstr;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 //	VirtualDub's very own printf() functions.
@@ -436,18 +461,18 @@ VDStringW VDaswprintf(const wchar_t *format, int args, const void *const *argv) 
 					*pxf++ = 'h';
 					*pxf++ = format[-1];
 					*pxf = 0;
-					pbuf += vdswprintf(pbuf, sizeof buf / sizeof buf[0], xf, *(const short *)*argv++);
+					pbuf += swprintf(pbuf, std::size(buf), xf, *(const short *)*argv++);
 					break;
 				case kDefault:
 					*pxf++ = format[-1];
 					*pxf = 0;
-					pbuf += vdswprintf(pbuf, sizeof buf / sizeof buf[0], xf, *(const int *)*argv++);
+					pbuf += swprintf(pbuf, std::size(buf), xf, *(const int *)*argv++);
 					break;
 				case kLong:
 					*pxf++ = 'l';
 					*pxf++ = format[-1];
 					*pxf = 0;
-					pbuf += vdswprintf(pbuf, sizeof buf / sizeof buf[0], xf, *(const long *)*argv++);
+					pbuf += swprintf(pbuf, std::size(buf), xf, *(const long *)*argv++);
 					break;
 				case kLongLong:
 #if defined(_MSC_VER)
@@ -462,7 +487,7 @@ VDStringW VDaswprintf(const wchar_t *format, int args, const void *const *argv) 
 #endif
 					*pxf++ = format[-1];
 					*pxf = 0;
-					pbuf += vdswprintf(pbuf, sizeof buf / sizeof buf[0], xf, *(const int64 *)*argv++);
+					pbuf += swprintf(pbuf, std::size(buf), xf, *(const int64 *)*argv++);
 					break;
 				default:
 					VDNEVERHERE;
@@ -532,9 +557,9 @@ VDStringW VDaswprintf(const wchar_t *format, int args, const void *const *argv) 
 					*pxf = 0;
 
 					if (precision >= 0)
-						pbuf += vdswprintf(pbuf, 256, xf, precision, *(const double *)*argv++);
+						pbuf += swprintf(pbuf, 256, xf, precision, *(const double *)*argv++);
 					else
-						pbuf += vdswprintf(pbuf, 256, xf, *(const double *)*argv++);
+						pbuf += swprintf(pbuf, 256, xf, *(const double *)*argv++);
 				}
 				break;
 
@@ -542,7 +567,7 @@ VDStringW VDaswprintf(const wchar_t *format, int args, const void *const *argv) 
 				*(int *)(*argv++) = out.size();
 				continue;
 			case L'p':	// no flags honored; precision ignored
-				pbuf += vdswprintf(pbuf, sizeof buf / sizeof buf[0], L"%p", *(void *const *)*argv++);
+				pbuf += swprintf(pbuf, std::size(buf), L"%p", *(void *const *)*argv++);
 				break;
 
 			case L'z':
@@ -568,16 +593,21 @@ VDStringW VDaswprintf(const wchar_t *format, int args, const void *const *argv) 
 						else if (flags.bPositiveBlank)
 							*pbuf++ = L' ';
 
-						if (value < (VD64(10) << 10))
-							pbuf += vdswprintf(pbuf, (buf + sizeof(buf) / sizeof(buf[0])) - pbuf, L"%d bytes", (int)value);
-						else if (value < (VD64(10) << 20))
-							pbuf += vdswprintf(pbuf, (buf + sizeof(buf) / sizeof(buf[0])) - pbuf, L"%d KB", (int)((sint32)value >> 10));
-						else if (value < (VD64(10) << 30))
-							pbuf += vdswprintf(pbuf, (buf + sizeof(buf) / sizeof(buf[0])) - pbuf, L"%d MB", (int)((sint32)value >> 20));
-						else if (value < (VD64(10) << 40))
-							pbuf += vdswprintf(pbuf, (buf + sizeof(buf) / sizeof(buf[0])) - pbuf, L"%d GB", (int)(value >> 30));
-						else
-							pbuf += vdswprintf(pbuf, (buf + sizeof(buf) / sizeof(buf[0])) - pbuf, L"%d TB", (int)(value >> 40));
+						if (value < (VD64(10) << 10)) {
+							pbuf += swprintf(pbuf, (buf + std::size(buf)) - pbuf, L"%d bytes", (int)value);
+						}
+						else if (value < (VD64(10) << 20)) {
+							pbuf += swprintf(pbuf, (buf + std::size(buf)) - pbuf, L"%d KB", (int)((sint32)value >> 10));
+						}
+						else if (value < (VD64(10) << 30)) {
+							pbuf += swprintf(pbuf, (buf + std::size(buf)) - pbuf, L"%d MB", (int)((sint32)value >> 20));
+						}
+						else if (value < (VD64(10) << 40)) {
+							pbuf += swprintf(pbuf, (buf + std::size(buf)) - pbuf, L"%d GB", (int)(value >> 30));
+						}
+						else {
+							pbuf += swprintf(pbuf, (buf + std::size(buf)) - pbuf, L"%d TB", (int)(value >> 40));
+						}
 					}
 
 					break;
@@ -650,4 +680,62 @@ VDStringW VDswprintf(const wchar_t *format, int args, ...) {
 	va_end(val);
 
 	return r;
+}
+
+////////////////////////////////////////////////
+
+bool VDStartsWithNoCase(const VDStringW& str, const wchar_t* prefix, int pos)
+{
+	return _wcsnicmp(str.c_str() + pos, prefix, std::char_traits<wchar_t>::length(prefix)) == 0;
+}
+
+bool EndsWithNoCase(const VDStringW& str, const wchar_t* suffix)
+{
+	const size_t len = std::char_traits<wchar_t>::length(suffix);
+	const int pos = str.length() - (int)len;
+	if (pos >= 0) {
+		return _wcsnicmp(str.c_str() + pos, suffix, len) == 0;
+	}
+	return false;
+}
+
+////////////////////////////////////////////////
+
+VDStringA VDEncodeString(const VDStringSpanA& sa)
+{
+	VDStringA out;
+
+	for (VDStringA::const_iterator it(sa.begin()), itEnd(sa.end()); it != itEnd; ++it) {
+		char c = *it;
+
+		switch (c) {
+		case '\\': out += "\\\\";  break;
+		case '\"': out += "\\\"";  break;
+		case '\r': out += "\\r";   break;
+		case '\n': out += "\\n";   break;
+		case '\t': out += "\\t";   break;
+		case '\v': out += "\\v";   break;
+		case '\b': out += "\\b";   break;
+		case '\f': out += "\\f";   break;
+		case '\a': out += "\\a";   break;
+		default: out += c;
+		}
+	}
+
+	return out;
+}
+
+VDStringA VDEncodeString(const VDStringW& sw)
+{
+	return VDEncodeString(VDTextWToU8(sw));
+}
+
+VDStringA VDEncodeString(const char* sa)
+{
+	return VDEncodeString(VDStringSpanA(sa));
+}
+
+VDStringA VDEncodeString(const wchar_t* sw)
+{
+	return VDEncodeString(VDTextWToU8(sw));
 }

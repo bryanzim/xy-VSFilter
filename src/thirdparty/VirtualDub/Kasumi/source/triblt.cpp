@@ -1,20 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	Graphics support library
-//	Copyright (C) 1998-2009 Avery Lee
+// VirtualDub - Video processing and capture application
+// Graphics support library
 //
-//	This program is free software; you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation; either version 2 of the License, or
-//	(at your option) any later version.
+// Copyright (C) 1998-2009 Avery Lee
+// Copyright (C) 2017-2018 Anton Shekhovtsov
 //
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
+// SPDX-License-Identifier: GPL-2.0-or-later
 //
-//	You should have received a copy of the GNU General Public License
-//	along with this program; if not, write to the Free Software
-//	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <stdafx.h>
 #include <math.h>
@@ -483,12 +474,18 @@ namespace {
 		setup.tmp2.a *= setup.tmp2.rhw;
 
 		// verify clipping
-		VDASSERT(setup.tmp0.x >= 0 && setup.tmp0.x <= dst.w);
-		VDASSERT(setup.tmp1.x >= 0 && setup.tmp1.x <= dst.w);
-		VDASSERT(setup.tmp2.x >= 0 && setup.tmp2.x <= dst.w);
-		VDASSERT(setup.tmp0.y >= 0 && setup.tmp0.y <= dst.h);
-		VDASSERT(setup.tmp1.y >= 0 && setup.tmp1.y <= dst.h);
-		VDASSERT(setup.tmp2.y >= 0 && setup.tmp2.y <= dst.h);
+		// some tolerance because clipping is inexact
+		// actually -0.5 is safe because +0.5 is added in rasterize
+		float pos_min = -0.01;
+		// actually dst+0.5 is still safe because of less-than rasterize rule
+		float pos_xmax = dst.w+0.01;
+		float pos_ymax = dst.h+0.01;
+		VDASSERT(setup.tmp0.x > pos_min && setup.tmp0.x < pos_xmax);
+		VDASSERT(setup.tmp1.x > pos_min && setup.tmp1.x < pos_xmax);
+		VDASSERT(setup.tmp2.x > pos_min && setup.tmp2.x < pos_xmax);
+		VDASSERT(setup.tmp0.y > pos_min && setup.tmp0.y < pos_ymax);
+		VDASSERT(setup.tmp1.y > pos_min && setup.tmp1.y < pos_ymax);
+		VDASSERT(setup.tmp2.y > pos_min && setup.tmp2.y < pos_ymax);
 
 		vx0 = &setup.tmp0;
 		vx1 = &setup.tmp1;
@@ -1187,6 +1184,49 @@ namespace {
 
 						w *= (2.0f - w*(float)rhw);
 					} while(++x1 < x2);
+				} else if (dst.format == nsVDPixmap::kPixFormat_XRGB64) {
+					uint16 *dstp = (uint16 *)(dstp0 + x1*8);
+
+					do {
+						float sr = (float)(r * w);
+						float sg = (float)(g * w);
+						float sb = (float)(b * w);
+						float sa = (float)(a * w);
+
+						uint16 ir = VDClampedRoundFixedToUint16Fast(sr);
+						uint16 ig = VDClampedRoundFixedToUint16Fast(sg);
+						uint16 ib = VDClampedRoundFixedToUint16Fast(sb);
+						uint16 ia = VDClampedRoundFixedToUint16Fast(sa);
+
+						dstp[0] = ib;
+						dstp[1] = ig;
+						dstp[2] = ir;
+						dstp[3] = ia;
+
+						r += drdx;
+						g += dgdx;
+						b += dbdx;
+						a += dadx;
+						rhw += drhwdx;
+						dstp += 4;
+
+						w *= (2.0f - w*(float)rhw);
+					} while(++x1 < x2);
+				} else if (dst.format == nsVDPixmap::kPixFormat_Y16) {
+					uint16 *dstp = (uint16 *)dstp0;
+
+					do {
+						float sg = (float)(g * w);
+
+						uint16 ig = VDClampedRoundFixedToUint16Fast(sg);
+
+						dstp[x1] = ig;
+
+						g += dgdx;
+						rhw += drhwdx;
+
+						w *= (2.0f - w*(float)rhw);
+					} while(++x1 < x2);
 				} else {
 					uint8 *dstp = (uint8 *)dstp0;
 
@@ -1432,6 +1472,7 @@ bool VDPixmapTriFill(VDPixmap& dst, const uint32 c, const VDTriBltVertex *pVerti
 
 bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVertices, const int *pIndices, int nIndices, const float pTransform[16], const float *chroma_yoffset) {
 	VDPixmap pxY;
+	VDPixmap pxA;
 	VDPixmap pxCb;
 	VDPixmap pxCr;
 	bool ycbcr = false;
@@ -1439,7 +1480,10 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 
 	switch(dst.format) {
 	case nsVDPixmap::kPixFormat_XRGB8888:
+	case nsVDPixmap::kPixFormat_XRGB64:
 	case nsVDPixmap::kPixFormat_Y8:
+	case nsVDPixmap::kPixFormat_Y8_FR:
+	case nsVDPixmap::kPixFormat_Y16:
 		break;
 	case nsVDPixmap::kPixFormat_YUV444_Planar:
 	case nsVDPixmap::kPixFormat_YUV444_Planar_FR:
@@ -1457,11 +1501,26 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 	case nsVDPixmap::kPixFormat_YUV410_Planar_FR:
 	case nsVDPixmap::kPixFormat_YUV410_Planar_709:
 	case nsVDPixmap::kPixFormat_YUV410_Planar_709_FR:
+	case nsVDPixmap::kPixFormat_YUV444_Planar16:
+	case nsVDPixmap::kPixFormat_YUV422_Planar16:
+	case nsVDPixmap::kPixFormat_YUV420_Planar16:
+	case nsVDPixmap::kPixFormat_YUV444_Alpha_Planar16:
+	case nsVDPixmap::kPixFormat_YUV422_Alpha_Planar16:
+	case nsVDPixmap::kPixFormat_YUV420_Alpha_Planar16:
+	case nsVDPixmap::kPixFormat_YUV444_Alpha_Planar:
+	case nsVDPixmap::kPixFormat_YUV422_Alpha_Planar:
+	case nsVDPixmap::kPixFormat_YUV420_Alpha_Planar:
 		pxY.format = nsVDPixmap::kPixFormat_Y8;
 		pxY.data = dst.data;
 		pxY.pitch = dst.pitch;
 		pxY.w = dst.w;
 		pxY.h = dst.h;
+
+		pxA.format = 0;
+		pxA.data = dst.data4;
+		pxA.pitch = dst.pitch4;
+		pxA.w = dst.w;
+		pxA.h = dst.h;
 
 		pxCb.format = nsVDPixmap::kPixFormat_Y8;
 		pxCb.data = dst.data2;
@@ -1474,6 +1533,32 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 		pxCr.pitch = dst.pitch3;
 		pxCr.w = dst.w;
 		pxCr.h = dst.h;
+
+		switch(dst.format) {
+		case nsVDPixmap::kPixFormat_YUV444_Planar16:
+		case nsVDPixmap::kPixFormat_YUV422_Planar16:
+		case nsVDPixmap::kPixFormat_YUV420_Planar16:
+		case nsVDPixmap::kPixFormat_YUV444_Alpha_Planar16:
+		case nsVDPixmap::kPixFormat_YUV422_Alpha_Planar16:
+		case nsVDPixmap::kPixFormat_YUV420_Alpha_Planar16:
+			pxY.format = nsVDPixmap::kPixFormat_Y16;
+			pxCb.format = nsVDPixmap::kPixFormat_Y16;
+			pxCr.format = nsVDPixmap::kPixFormat_Y16;
+			break;
+		}
+
+		switch(dst.format) {
+		case nsVDPixmap::kPixFormat_YUV444_Alpha_Planar16:
+		case nsVDPixmap::kPixFormat_YUV422_Alpha_Planar16:
+		case nsVDPixmap::kPixFormat_YUV420_Alpha_Planar16:
+			pxA.format = nsVDPixmap::kPixFormat_Y16;
+			break;
+		case nsVDPixmap::kPixFormat_YUV444_Alpha_Planar:
+		case nsVDPixmap::kPixFormat_YUV422_Alpha_Planar:
+		case nsVDPixmap::kPixFormat_YUV420_Alpha_Planar:
+			pxA.format = nsVDPixmap::kPixFormat_Y8;
+			break;
+		}
 
 		switch(dst.format) {
 			case nsVDPixmap::kPixFormat_YUV410_Planar:
@@ -1489,6 +1574,9 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 			case nsVDPixmap::kPixFormat_YUV420_Planar_FR:
 			case nsVDPixmap::kPixFormat_YUV420_Planar_709:
 			case nsVDPixmap::kPixFormat_YUV420_Planar_709_FR:
+			case nsVDPixmap::kPixFormat_YUV420_Planar16:
+			case nsVDPixmap::kPixFormat_YUV420_Alpha_Planar16:
+			case nsVDPixmap::kPixFormat_YUV420_Alpha_Planar:
 				pxCr.w = pxCb.w = dst.w >> 1;
 				pxCr.h = pxCb.h = dst.h >> 1;
 				ycbcr_xoffset = 0.5f / (float)pxCr.w;
@@ -1498,6 +1586,9 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 			case nsVDPixmap::kPixFormat_YUV422_Planar_FR:
 			case nsVDPixmap::kPixFormat_YUV422_Planar_709:
 			case nsVDPixmap::kPixFormat_YUV422_Planar_709_FR:
+			case nsVDPixmap::kPixFormat_YUV422_Planar16:
+			case nsVDPixmap::kPixFormat_YUV422_Alpha_Planar16:
+			case nsVDPixmap::kPixFormat_YUV422_Alpha_Planar:
 				pxCr.w = pxCb.w = dst.w >> 1;
 				ycbcr_xoffset = 0.5f / (float)pxCr.w;
 				break;
@@ -1506,6 +1597,9 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 			case nsVDPixmap::kPixFormat_YUV444_Planar_FR:
 			case nsVDPixmap::kPixFormat_YUV444_Planar_709:
 			case nsVDPixmap::kPixFormat_YUV444_Planar_709_FR:
+			case nsVDPixmap::kPixFormat_YUV444_Planar16:
+			case nsVDPixmap::kPixFormat_YUV444_Alpha_Planar16:
+			case nsVDPixmap::kPixFormat_YUV444_Alpha_Planar:
 				pxCr.w = pxCb.w = dst.w;
 				ycbcr_xoffset = 0.0f;
 				break;
@@ -1532,11 +1626,25 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 	if (!pTransform)
 		pTransform = xf_ident;
 
-	VDTriClipWorkspace clipws;
-	for(int plane=0; plane<(ycbcr?3:1); ++plane) {
-		VDPixmap& pxPlane = ycbcr ? plane == 0 ? pxY : plane == 1 ? pxCb : pxCr : dst;
+	VDPixmap* planes[4] = {&dst,0,0,0};
+	if (ycbcr) {
+		planes[0] = &pxY;
+		planes[1] = &pxCb;
+		planes[2] = &pxCr;
+		if (pxA.format) planes[3] = &pxA;
+	}
 
-		if (ycbcr && plane) {
+	VDTriClipWorkspace clipws;
+	for(int plane=0; plane<4; ++plane) {
+		VDPixmap* pxPlane = planes[plane];
+		if (!pxPlane) break;
+
+		if (plane==3) {
+			TransformVerts(xsrc, pVertices, nVertices, pTransform);
+			for(int i=0; i<nVertices; ++i)
+				xsrc[i].g = xsrc[i].a;
+
+		} else if (ycbcr && plane!=0) {
 			float xf_ycbcr[16];
 			memcpy(xf_ycbcr, pTransform, sizeof(float) * 16);
 
@@ -1556,14 +1664,18 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 
 			TransformVerts(xsrc, pVertices, nVertices, xf_ycbcr);
 
+			float bias = 0;
+			if (pxPlane->format==nsVDPixmap::kPixFormat_Y16)
+				bias = float(0x8000)/0xFFFF - 128.0f / 255.0f;
+
 			switch(plane) {
 				case 1:
 					for(int i=0; i<nVertices; ++i)
-						xsrc[i].g = xsrc[i].b;
+						xsrc[i].g = xsrc[i].b + bias;
 					break;
 				case 2:
 					for(int i=0; i<nVertices; ++i)
-						xsrc[i].g = xsrc[i].r;
+						xsrc[i].g = xsrc[i].r + bias;
 					break;
 			}
 		} else {
@@ -1592,12 +1704,12 @@ bool VDPixmapTriFill(VDPixmap& dst, const VDTriColorVertex *pVertices, int nVert
 
 						// fan out triangles
 						while(src[1]) {
-							FillTriGrad(pxPlane, src0, src[0], src[1]);
+							FillTriGrad(*pxPlane, src0, src[0], src[1]);
 							++src;
 						}
 					}
 				} else {
-					FillTriGrad(pxPlane, xv0, xv1, xv2);
+					FillTriGrad(*pxPlane, xv0, xv1, xv2);
 				}
 			}
 

@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2016 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_RESAMPLE_STAGES_REFERENCE_H
 #define f_VD2_KASUMI_RESAMPLE_STAGES_REFERENCE_H
 
@@ -17,6 +26,12 @@ public:
 };
 
 class VDResamplerRowStageSeparablePoint16 : public IVDResamplerSeparableRowStage {
+public:
+	int GetWindowSize() const;
+	void Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx);
+};
+
+class VDResamplerRowStageSeparablePoint16x4 : public IVDResamplerSeparableRowStage {
 public:
 	int GetWindowSize() const;
 	void Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx);
@@ -81,6 +96,30 @@ protected:
 	vdblock<sint32, vdaligned_alloc<sint32> >	mFilterBank;
 };
 
+class VDResamplerRowStageSeparableTable16 : public IVDResamplerSeparableRowStage {
+public:
+	VDResamplerRowStageSeparableTable16(const IVDResamplerFilter& filter);
+
+	int GetWindowSize() const;
+
+	void Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx);
+
+protected:
+	vdblock<float, vdaligned_alloc<float> >	mFilterBank;
+};
+
+class VDResamplerRowStageSeparableTable16x4 : public IVDResamplerSeparableRowStage {
+public:
+	VDResamplerRowStageSeparableTable16x4(const IVDResamplerFilter& filter);
+
+	int GetWindowSize() const;
+
+	void Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx);
+
+protected:
+	vdblock<float, vdaligned_alloc<float> >	mFilterBank;
+};
+
 class VDResamplerRowStageSeparableTable32F : public IVDResamplerSeparableRowStage {
 public:
 	VDResamplerRowStageSeparableTable32F(const IVDResamplerFilter& filter);
@@ -127,6 +166,30 @@ public:
 
 protected:
 	vdblock<sint32, vdaligned_alloc<sint32> >	mFilterBank;
+};
+
+class VDResamplerColStageSeparableTable16 : public IVDResamplerSeparableColStage {
+public:
+	VDResamplerColStageSeparableTable16(const IVDResamplerFilter& filter);
+
+	int GetWindowSize() const;
+
+	void Process(void *dst0, const void *const *src0, uint32 w, sint32 phase);
+
+protected:
+	vdblock<float, vdaligned_alloc<float> >	mFilterBank;
+};
+
+class VDResamplerColStageSeparableTable16x4 : public IVDResamplerSeparableColStage {
+public:
+	VDResamplerColStageSeparableTable16x4(const IVDResamplerFilter& filter);
+
+	int GetWindowSize() const;
+
+	void Process(void *dst0, const void *const *src0, uint32 w, sint32 phase);
+
+protected:
+	vdblock<float, vdaligned_alloc<float> >	mFilterBank;
 };
 
 class VDResamplerColStageSeparableTable32F : public IVDResamplerSeparableColStage {

@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_ZIP_H
 #define f_ZIP_H
@@ -37,7 +21,7 @@
 
 class VDDeflateBitReader {
 public:
-	VDDeflateBitReader() : mpSrc(0), mBufferPt(0), accum(0), bits(0) {}
+	VDDeflateBitReader() = default;
 
 	void init(IVDStream *pSrc, uint64 limit) {
 		mpSrc = pSrc;
@@ -115,13 +99,13 @@ protected:
 	enum { kBigAvailThreshold = 16777216 };
 	enum { kBufferSize = 256 };
 
-	unsigned long accum;
-	unsigned	bits;
-	int			mBufferPt;			// counts from -256 to 0
-	uint64		mBytesLeft;
-	unsigned	mBytesLeftLimited;
+	unsigned long accum      = 0;
+	unsigned      bits       = 0;
+	int           mBufferPt  = 0;      // counts from -256 to 0
+	uint64        mBytesLeft = 0;
+	unsigned      mBytesLeftLimited = 0;
 
-	IVDStream *mpSrc;
+	IVDStream* mpSrc = nullptr;
 	uint8	mBuffer[kBufferSize];
 };
 
@@ -131,7 +115,7 @@ public:
 		kCRC32		= 0xEDB88320		// CRC-32 used by PKZIP, PNG (x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 + x^10 + x^8 + x^7 + x^5 + x^4 + x^2 + x^1 + 1)
 	};
 
-	VDCRCChecker() {}
+	VDCRCChecker() = default;
 	VDCRCChecker(uint32 crc) { Init(crc); }
 
 	void Init(uint32 crc);
@@ -149,7 +133,7 @@ class VDZipStream : public IVDStream {
 public:
 	VDZipStream();
 	VDZipStream(IVDStream *pSrc, uint64 limit, bool bStored);
-	~VDZipStream();
+	~VDZipStream() = default;
 
 	void	Init(IVDStream *pSrc, uint64 limit, bool bStored);
 	void	EnableCRC(uint32 crc = VDCRCChecker::kCRC32) { mCRCChecker.Init(crc); mbCRCEnabled = true; }
@@ -192,15 +176,15 @@ protected:
 class VDZipArchive {
 public:
 	struct FileInfo {
-		VDString	mFileName;
+		VDStringA	mFileName;
 		uint32		mCompressedSize;
 		uint32		mUncompressedSize;
 		uint32		mCRC32;
 		bool		mbPacked;
 	};
 
-	VDZipArchive();
-	~VDZipArchive();
+	VDZipArchive() = default;
+	~VDZipArchive() = default;
 
 	void Init(IVDRandomAccessStream *pSrc);
 
@@ -219,9 +203,9 @@ protected:
 
 class VDGUnzipStream : public VDZipStream {
 public:
-	VDGUnzipStream();
+	VDGUnzipStream() = default;
 	VDGUnzipStream(IVDStream *pSrc, uint64 limit);
-	~VDGUnzipStream();
+	~VDGUnzipStream() = default;
 
 	void Init(IVDStream *pSrc, uint64 limit);
 

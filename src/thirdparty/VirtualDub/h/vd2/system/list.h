@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2024-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_LIST_H
 #define f_LIST_H
@@ -148,14 +132,14 @@ public:
 		ListNode2<T> *next;
 
 	public:
-		iterator() {}
-		iterator(const iterator& src) throw() : node(src.node), next(src.next) {}
+		iterator() = default;
+		iterator(const iterator& src) noexcept : node(src.node), next(src.next) {}
 
-		bool operator!() const throw() { return 0 == next; }
-		T *operator->() const throw() { return (T *)node; }
-		operator bool() const throw() { return 0 != next; }
-		operator T *() const throw() { return (T *)node; }
-		T& operator *() const throw() { return *(T *)node; }
+		bool operator!() const noexcept { return 0 == next; }
+		T *operator->() const noexcept { return (T *)node; }
+		operator bool() const noexcept { return 0 != next; }
+		operator T *() const noexcept { return (T *)node; }
+		T& operator *() const noexcept { return *(T *)node; }
 	};
 
 	// fwit: forward iterator (SAFE if node disappears)
@@ -163,28 +147,28 @@ public:
 
 	class fwit : public iterator {
 	public:
-		fwit() throw() {}
-		fwit(const fwit& src) throw() : iterator(src) {}
-		fwit(ListNode2<T> *start) throw() {
+		fwit() noexcept {}
+		fwit(const fwit& src) noexcept : iterator(src) {}
+		fwit(ListNode2<T> *start) noexcept {
 			this->node = start;
 			this->next = start->NextFromHead();
 		}
 
-		const fwit& operator=(ListNode2<T> *start) throw() {
+		const fwit& operator=(ListNode2<T> *start) noexcept {
 			this->node = start;
 			this->next = start->NextFromHead();
 
 			return *this;
 		}
 
-		fwit& operator++() throw() {
+		fwit& operator++() noexcept {
 			this->node = this->next;
 			this->next = this->node->NextFromHead();
 
 			return *this;
 		}
 
-		const fwit& operator+=(int v) throw() {
+		const fwit& operator+=(int v) noexcept {
 			while(this->next && v--) {
 				this->node = this->next;
 				this->next = this->node->NextFromHead();
@@ -193,7 +177,7 @@ public:
 			return *this;
 		}
 
-		fwit operator+(int v) const throw() {
+		fwit operator+(int v) const noexcept {
 			fwit t(*this);
 
 			t += v;
@@ -203,35 +187,35 @@ public:
 
 		// This one's for my sanity.
 
-		void operator++(int) throw() {
+		void operator++(int) noexcept {
 			++*this;
 		}
 	};
 
 	class rvit : public iterator {
 	public:
-		rvit() throw() {}
+		rvit() noexcept {}
 
-		rvit(ListNode2<T> *start) throw() {
+		rvit(ListNode2<T> *start) noexcept {
 			this->node = start;
 			this->next = start->NextFromTail();
 		}
 
-		const rvit& operator=(ListNode2<T> *start) throw() {
+		const rvit& operator=(ListNode2<T> *start) noexcept {
 			this->node = start;
 			this->next = start->NextFromTail();
 
 			return *this;
 		}
 
-		rvit& operator--() throw() {
+		rvit& operator--() noexcept {
 			this->node = this->next;
 			this->next = this->node->NextFromTail();
 
 			return *this;
 		}
 
-		const rvit& operator-=(int v) throw() {
+		const rvit& operator-=(int v) noexcept {
 			while(this->next && v--) {
 				this->node = this->next;
 				this->next = this->node->NextFromTail();
@@ -240,7 +224,7 @@ public:
 			return *this;
 		}
 
-		rvit operator-(int v) const throw() {
+		rvit operator-(int v) const noexcept {
 			rvit t(*this);
 
 			t -= v;
@@ -250,7 +234,7 @@ public:
 
 		// This one's for my sanity.
 
-		void operator--(int) throw() {
+		void operator--(int) noexcept {
 			--*this;
 		}
 	};

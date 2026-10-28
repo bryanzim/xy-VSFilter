@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2007 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2007 Avery Lee, All Rights Reserved.
+// Copyright (C) 2024-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef VD2_SYSTEM_VDSTL_H
 #define VD2_SYSTEM_VDSTL_H
@@ -32,7 +16,6 @@
 
 #include <limits.h>
 #include <stdexcept>
-#include <memory>
 #include <string.h>
 #include <vd2/system/vdtypes.h>
 #include <vd2/system/memory.h>
@@ -45,11 +28,7 @@
 
 template<class Iterator, class T>
 struct vdreverse_iterator {
-#if defined(VD_COMPILER_MSVC) && (VD_COMPILER_MSVC < 1310 || (defined(VD_COMPILER_MSVC_VC8_PSDK) || defined(VD_COMPILER_MSVC_VC8_DDK)))
-	typedef std::reverse_iterator<Iterator, T> type;
-#else
 	typedef std::reverse_iterator<Iterator> type;
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -127,12 +106,6 @@ T *vdmove_backward(T *src1, T *src2, T *dst) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-template<class T, size_t N> char (&VDCountOfHelper(const T(&)[N]))[N];
-
-#define vdcountof(array) (sizeof(VDCountOfHelper(array)))
-
-///////////////////////////////////////////////////////////////////////////
-
 class vdallocator_base {
 protected:
 	void VDNORETURN throw_oom(size_t n, size_t elsize);
@@ -170,14 +143,10 @@ public:
 		free(p);
 	}
 
-	size_type		max_size() const throw()			{ return ((~(size_type)0) >> 1) / sizeof(T); }
+	size_type		max_size() const noexcept			{ return ((~(size_type)0) >> 1) / sizeof(T); }
 
 	void			construct(pointer p, const T& val)	{ new((void *)p) T(val); }
 	void			destroy(pointer p)					{ ((T*)p)->~T(); }
-
-#if defined(_MSC_VER) && _MSC_VER < 1300
-	char *			_Charalloc(size_type n)				{ return rebind<char>::other::allocate(n); }
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -222,14 +191,10 @@ public:
 		VDAlignedFree(p1);
 	}
 
-	size_type		max_size() const throw()			{ return INT_MAX - 2*kDeadZone; }
+	size_type		max_size() const noexcept			{ return INT_MAX - 2*kDeadZone; }
 
 	void			construct(pointer p, const T& val)	{ new((void *)p) T(val); }
 	void			destroy(pointer p)					{ ((T*)p)->~T(); }
-
-#if defined(_MSC_VER) && _MSC_VER < 1300
-	char *			_Charalloc(size_type n)				{ return rebind<char>::other::allocate(n); }
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -257,14 +222,10 @@ public:
 
 	pointer			allocate(size_type n, void *p = 0)	{ return (pointer)VDAlignedMalloc(n*sizeof(T), kAlignment); }
 	void			deallocate(pointer p, size_type n)	{ VDAlignedFree(p); }
-	size_type		max_size() const throw()			{ return INT_MAX; }
+	size_type		max_size() const noexcept			{ return INT_MAX; }
 
 	void			construct(pointer p, const T& val)	{ new((void *)p) T(val); }
 	void			destroy(pointer p)					{ ((T*)p)->~T(); }
-
-#if defined(_MSC_VER) && _MSC_VER < 1300
-	char *			_Charalloc(size_type n)				{ return rebind<char>::other::allocate(n); }
-#endif
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -513,7 +474,7 @@ public:
 		return tmp;
 	}
 
-	vdlist_iterator& operator--(int) {
+	vdlist_iterator operator--(int) {
 		vdlist_iterator tmp(*this);
 		mp = mp->mListNodePrev;
 		return tmp;
@@ -1170,12 +1131,12 @@ public:
 	vdfastvector(const value_type *p, const value_type *q) {
 		m.eos = NULL;
 
-		assign(p, q);
+		this->assign(p, q);
 	}
 
 	vdfastvector& operator=(const vdfastvector& x) {
 		if (this != &x)
-			assign(x.mpBegin, x.mpEnd);
+			this->assign(x.mpBegin, x.mpEnd);
 
 		return *this;
 	}

@@ -26,7 +26,7 @@ SimpleSubpic::~SimpleSubpic()
     }
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubpic::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP SimpleSubpic::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPic)
@@ -219,7 +219,7 @@ SimpleSubpic::~SimpleSubpic()
                     DWORD V{((*((DWORD*)s2)&0x0000ff00)/bd)<<8};
                     DWORD R{(((*((DWORD*)s2)&0x00ff0000)>>8)/bd)<<16};
                     *d2 = B | V | R
-                        | (0xff000000-(*((DWORD*)s2)&0xff000000))&0xff000000;
+                        | ((0xff000000-(*((DWORD*)s2)&0xff000000))&0xff000000);
                 }
             }
         }

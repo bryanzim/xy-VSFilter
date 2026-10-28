@@ -122,8 +122,8 @@ public:
     {
     public:
         CNodeCache(INT iCacheSize) : m_iCacheSize(iCacheSize),
-                                     m_pHead(NULL),
-                                     m_iUsed(0)
+                                     m_iUsed(0),
+                                     m_pHead(NULL)
                                      {};
         ~CNodeCache() {
             CNode *pNode = m_pHead;

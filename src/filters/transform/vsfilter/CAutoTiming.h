@@ -20,6 +20,8 @@ public:
         : _szBlkName(szBlkName), _level(level)
     {
         _start = GetTickCount();
+        (void)_szBlkName;
+        (void)_level;
         DbgLog((LOG_TIMING, _level, TEXT("%s:start at %d ms"), _szBlkName, _start));
     }
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "xy_sub_filter.h"
 #include "SubtitleInputPin2.h"
 #include "../../../subtitles/hdmv_subtitle_provider.h"
@@ -16,14 +16,13 @@ public:
     [[nodiscard]] STDMETHODIMP EndOfStream(void);
 private:
     HdmvSubtitleProvider* m_pHdmvSubtitle;
-    const CMediaType& m_mt;
 };
 
 CHdmvInputPinHepler2::CHdmvInputPinHepler2( HdmvSubtitleProvider* pHdmvSubtitle, const CMediaType& mt )
     : CSubtitleInputPinHelperImpl(pHdmvSubtitle)
-    , m_pHdmvSubtitle(pHdmvSubtitle), m_mt(mt)
+    , m_pHdmvSubtitle(pHdmvSubtitle)
 {
-
+    (void)mt;
 }
 
 [[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
@@ -73,13 +72,10 @@ void SubtitleInputPin2::InvalidateSubtitle( const REFERENCE_TIME rtStart, ISubSt
     {
         XY_LOG_INFO("Create CHdmvInputPinHepler2");
         SUBTITLEINFO* psi{(SUBTITLEINFO*)mt.pbFormat};
-        DWORD			dwOffset{0};
         CString			name;
         LCID			lcid{0};
 
         if (psi != NULL) {
-            dwOffset = psi->dwOffset;
-
             name = ISO6392ToLanguage(psi->IsoLang);
             lcid = ISO6392ToLcid(psi->IsoLang);
 

@@ -50,23 +50,23 @@ COutputQueue::COutputQueue(
              LONG          lListSize,
              DWORD         dwPriority,
              bool          bFlushingOpt        // flushing optimization
-            ) : m_lBatchSize(lBatchSize),
-                m_bBatchExact(bBatchExact && (lBatchSize > 1)),
-                m_hThread(NULL),
-                m_hSem(NULL),
-                m_List(NULL),
-                m_pPin(pInputPin),
-                m_ppSamples(NULL),
-                m_lWaiting(0),
+            ) : m_pPin(pInputPin),
                 m_pInputPin(NULL),
-                m_bSendAnyway(FALSE),
+                m_bBatchExact(bBatchExact && (lBatchSize > 1)),
+                m_lBatchSize(lBatchSize),
+                m_List(NULL),
+                m_hSem(NULL),
+                m_hThread(NULL),
+                m_ppSamples(NULL),
                 m_nBatched(0),
+                m_lWaiting(0),
                 m_bFlushing(FALSE),
                 m_bFlushed(TRUE),
                 m_bFlushingOpt(bFlushingOpt),
                 m_bTerminate(FALSE),
-                m_hEventPop(NULL),
-                m_hr(S_OK)
+                m_bSendAnyway(FALSE),
+                m_hr(S_OK),
+                m_hEventPop(NULL)
 {
     ASSERT(m_lBatchSize > 0);
 
@@ -643,7 +643,7 @@ HRESULT COutputQueue::ReceiveMultiple (
                 m_ppSamples[m_nBatched++] = ppSamples[iDone++];
             }
             if (m_nBatched == m_lBatchSize ||
-                nSamples == 0 && (m_bSendAnyway || !m_bBatchExact)) {
+                (nSamples == 0 && (m_bSendAnyway || !m_bBatchExact))) {
                 LONG nDone;
                 DbgLog((LOG_TRACE, 4, TEXT("Batching %d samples"),
                        m_nBatched));
@@ -775,7 +775,7 @@ BOOL COutputQueue::IsIdle()
     //  AND
     //      there's nothing in the current batch (m_nBatched == 0)
 
-    if (IsQueued() && m_lWaiting == 0 || m_nBatched != 0) {
+    if ((IsQueued() && m_lWaiting == 0) || m_nBatched != 0) {
         return FALSE;
     } else {
 

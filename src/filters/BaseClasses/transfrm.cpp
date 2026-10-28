@@ -20,11 +20,11 @@ CTransformFilter::CTransformFilter(TCHAR     *pName,
                                    LPUNKNOWN pUnk,
                                    REFCLSID  clsid) :
     CBaseFilter(pName,pUnk,&m_csFilter, clsid),
-    m_pInput(NULL),
-    m_pOutput(NULL),
     m_bEOSDelivered(FALSE),
+    m_bSampleSkipped(FALSE),
     m_bQualityChanged(FALSE),
-    m_bSampleSkipped(FALSE)
+    m_pInput(NULL),
+    m_pOutput(NULL)
 {
 #ifdef PERF
     RegisterPerfId();
@@ -36,11 +36,11 @@ CTransformFilter::CTransformFilter(char     *pName,
                                    LPUNKNOWN pUnk,
                                    REFCLSID  clsid) :
     CBaseFilter(pName,pUnk,&m_csFilter, clsid),
-    m_pInput(NULL),
-    m_pOutput(NULL),
     m_bEOSDelivered(FALSE),
+    m_bSampleSkipped(FALSE),
     m_bQualityChanged(FALSE),
-    m_bSampleSkipped(FALSE)
+    m_pInput(NULL),
+    m_pOutput(NULL)
 {
 #ifdef PERF
     RegisterPerfId();

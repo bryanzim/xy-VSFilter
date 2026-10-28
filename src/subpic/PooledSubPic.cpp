@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "PooledSubPic.h"
 #include "../subtitles/xy_malloc.h"
 
@@ -72,9 +72,9 @@ void CPooledSubPicAllocator::OnItemDestruct( void* Item )
 
 CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE maxsize, int capacity, int type/*=-1*/ )
     :CSubPicExAllocatorImpl(maxsize, false, false)
+    , _type(type)
     , _alpha_blt_dst_type(alpha_blt_dst_type)
     , _maxsize(maxsize)
-    , _type(type)
 {
     TRACE_ALLOCATOR("");
     if(_type==-1)

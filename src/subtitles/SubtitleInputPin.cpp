@@ -126,7 +126,6 @@ public:
     [[nodiscard]] STDMETHODIMP EndOfStream(void);
 private:
     CRenderedHdmvSubtitle* m_pHdmvSubtitle;
-    const CMediaType& m_mt;
 };
 
 
@@ -343,7 +342,6 @@ CSSFInputPinHepler::CSSFInputPinHepler( ssf::CRenderer* pSSF, const CMediaType& 
 
     int len{pSample->GetActualDataLength()};
 
-    bool fInvalidate{false};
     if(m_mt.majortype == MEDIATYPE_Subtitle)
     {
         if(m_mt.subtype == MEDIASUBTYPE_SSF)
@@ -411,9 +409,9 @@ CVobsubInputPinHepler::CVobsubInputPinHepler( CVobSubStream* pVSS, const CMediaT
 
 CHdmvInputPinHepler::CHdmvInputPinHepler( CRenderedHdmvSubtitle* pHdmvSubtitle, const CMediaType& mt )
     : CSubtitleInputPinHelperImpl(pHdmvSubtitle)
-    , m_pHdmvSubtitle(pHdmvSubtitle), m_mt(mt)
+    , m_pHdmvSubtitle(pHdmvSubtitle)
 {
-
+    (void)mt;
 }
 
 [[nodiscard]] STDMETHODIMP CHdmvInputPinHepler::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
@@ -443,12 +441,12 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
 [[nodiscard]] HRESULT CSubtitleInputPin::CheckMediaType(const CMediaType* pmt)
 {
     XY_LOG_DEBUG(XY_LOG_VAR_2_STR(pmt));
-    return pmt->majortype == MEDIATYPE_Text && (pmt->subtype == MEDIASUBTYPE_NULL || pmt->subtype == FOURCCMap((DWORD)0))
-        || pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_UTF8
-        || pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_SSA || pmt->subtype == MEDIASUBTYPE_ASS || pmt->subtype == MEDIASUBTYPE_ASS2)
-        || pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_SSF
-        || pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_VOBSUB)
-        || pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_WEBVTT
+    return (pmt->majortype == MEDIATYPE_Text && (pmt->subtype == MEDIASUBTYPE_NULL || pmt->subtype == FOURCCMap((DWORD)0)))
+        || (pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_UTF8)
+        || (pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_SSA || pmt->subtype == MEDIASUBTYPE_ASS || pmt->subtype == MEDIASUBTYPE_ASS2))
+        || (pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_SSF)
+        || (pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_VOBSUB))
+        || (pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_WEBVTT)
         || IsHdmvSub(pmt)
         ? S_OK 
         : E_FAIL;

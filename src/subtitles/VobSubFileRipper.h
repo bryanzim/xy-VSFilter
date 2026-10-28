@@ -22,8 +22,8 @@
 #pragma once
 
 #include <atlcoll.h>
-#include "../DeCSS/VobFile.h"
-#include "../DSUtil/DSUtil.h"
+#include "../decss/VobFile.h"
+#include "../dsutil/DSUtil.h"
 #include "VobSubFile.h"
 
 #pragma pack(push, 1)

@@ -306,8 +306,8 @@ namespace ssf
 				t = modf(t, &n);
 
 				if(direction == L"bw" 
-				|| direction == L"fwbw" && ((int)n & 1)
-				|| direction == L"bwfw" && !((int)n & 1)) 
+				|| (direction == L"fwbw" && ((int)n & 1))
+				|| (direction == L"bwfw" && !((int)n & 1))) 
 					t = 1 - t;
 
 				float accel = 1;

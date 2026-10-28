@@ -19,8 +19,8 @@
  *
  */
 
-#include "StdAfx.h"
-#include "ccdecoder.h"
+#include "stdafx.h"
+#include "CCDecoder.h"
 
 CCDecoder::CCDecoder(CString fn, CString rawfn) : m_fn(fn), m_rawfn(rawfn)
 {
@@ -362,7 +362,6 @@ void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
             }
             else
             {
-                int iiii{0};
             }
 
             i++;

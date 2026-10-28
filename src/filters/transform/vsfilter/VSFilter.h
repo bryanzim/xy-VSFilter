@@ -33,11 +33,11 @@ public:
     [[nodiscard]] virtual UINT GetProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
     [[nodiscard]] virtual CString GetProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault = NULL);
 protected:
-	HINSTANCE LoadAppLangResourceDLL();
+	HINSTANCE LoadAppLangResourceDLL() override;
 
 public:
-	BOOL InitInstance();
-	BOOL ExitInstance();
+	BOOL InitInstance() override;
+	BOOL ExitInstance() override;
 
 	DECLARE_MESSAGE_MAP()
 };

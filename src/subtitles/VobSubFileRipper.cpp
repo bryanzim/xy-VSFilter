@@ -23,7 +23,7 @@
 #include <algorithm>
 #include "VobSubFile.h"
 #include "VobSubFileRipper.h"
-#include "../DeCSS/VobDec.h"
+#include "../decss/VobDec.h"
 #include "CCDecoder.h"
 
 //
@@ -46,7 +46,7 @@ CVobSubFileRipper::~CVobSubFileRipper()
     CAMThread::Close();
 }
 
-[[nodiscard]] STDMETHODIMP CVobSubFileRipper::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CVobSubFileRipper::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     return
         QI(IVSFRipper)

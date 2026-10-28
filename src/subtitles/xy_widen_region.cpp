@@ -34,7 +34,7 @@ static const int LOOKUP_TABLE_SIZE_RY{64};
 
 struct LinkArcItem
 {
-    explicit LinkArcItem():dead_line(0),arc_center(0){}
+    explicit LinkArcItem():arc_center(0), dead_line(0){}
 
     XY_POINT arc_center;
     int dead_line;
@@ -198,7 +198,6 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
     for ( ;it_src!=it_src_end; it_src++)
     {
         const XY_POINT &left{SPAN_PTR_LEFT(it_src)};
-        const XY_POINT &right{SPAN_PTR_RIGHT(it_src)};
         int line = XY_POINT_Y(left); //fix me
         if (line-ry>dst_line)
         {
@@ -273,7 +272,6 @@ void WidenRegionCreaterImpl::add_span(LinkSpan* spans, const Span& span )
 
 void WidenRegionCreaterImpl::add_left( LinkArc* arc, const XY_POINT center )
 {
-    int rx{m_ellipse->m_rx};
     int ry{m_ellipse->m_ry};
     ASSERT(arc);
     ASSERT(!arc->empty()&& m_ellipse->cross_left(arc->get_at(0).arc_center, center)>=-ry );
@@ -317,7 +315,6 @@ void WidenRegionCreaterImpl::add_left( LinkArc* arc, const XY_POINT center )
 
 void WidenRegionCreaterImpl::add_right( LinkArc* arc, const XY_POINT center )
 {
-    int rx{m_ellipse->m_rx};
     int ry{m_ellipse->m_ry};
     ASSERT(arc);
     ASSERT(!arc->empty());
@@ -351,7 +348,6 @@ void WidenRegionCreaterImpl::add_right( LinkArc* arc, const XY_POINT center )
         else if (y<MAX_CROSS_LINE)
         {
             ASSERT(y+line<=arc->get_at(0).dead_line);
-            XY_POINT& arc_center{arc->get_at(0).arc_center};
             arc->get_at(0).dead_line = y + line;
         }
     }
@@ -558,11 +554,11 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
 // 
 
 XyEllipse::XyEllipse()
-    : m_left_arc(NULL)
+    : m_rx(0), m_ry(0)
+    , m_left_arc(NULL)
     , m_left_arc_base(NULL)
     , m_cross_matrix(NULL)
     , m_cross_matrix_base(NULL)
-    , m_rx(0), m_ry(0)
 {
 
 }
@@ -648,7 +644,6 @@ XyEllipse::~XyEllipse()
     cross_x[-m_ry-1] = m_rx;
     for (int dy{-2*m_ry};dy<=-1;dy++)
     {
-        static bool first{true};
         int y{-m_ry};
         for ( ;y-dy<=m_ry;y++)
         {

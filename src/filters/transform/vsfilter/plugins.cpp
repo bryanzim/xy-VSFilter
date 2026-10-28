@@ -19,15 +19,15 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <afxdlgs.h>
 #include <atlpath.h>
 #include "resource.h"
-#include "../../../Subtitles/VobSubFile.h"
-#include "../../../Subtitles/RTS.h"
-#include "../../../Subtitles/SSF.h"
-#include "../../../SubPic/PooledSubPic.h"
-#include "../../../SubPic/SimpleSubPicProviderImpl.h"
+#include "../../../subtitles/VobSubFile.h"
+#include "../../../subtitles/RTS.h"
+#include "../../../subtitles/SSF.h"
+#include "../../../subpic/PooledSubPic.h"
+#include "../../../subpic/SimpleSubPicProviderImpl.h"
 #include "../../../subpic/color_conv_table.h"
 #include "../../../subpic/SimpleSubPicWrapper.h"
 #include "DirectVobSub.h"
@@ -100,7 +100,7 @@ public:
 	virtual ~CFilter() {CAMThread::CallWorker(0);}
 
     DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv)
     {
         CheckPointer(ppv, E_POINTER);
         
@@ -1344,7 +1344,7 @@ public:
                 return cachehints == CACHE_GET_MTMODE ? MT_SERIALIZED : 0;
             }
 
-            [[nodiscard]] PVideoFrame __stdcall GetFrame(const int n, IScriptEnvironment* env) {
+            [[nodiscard]] PVideoFrame __stdcall GetFrame(const int n, IScriptEnvironment* env) override {
                 PVideoFrame frame{child->GetFrame(n, env)};
 
                 const bool sse2{(env->GetCPUFlags() & CPUF_SSE2) != 0};
@@ -1466,8 +1466,6 @@ public:
 
                     // luma
                     int dstpitch{buffer->GetPitch()};
-                    int srcpitch{frame->GetPitch()};
-                    const BYTE* src{frame->GetReadPtr()};
                     conv422toYUY2(frame->GetReadPtr(PLANAR_Y), frame->GetReadPtr(PLANAR_U), frame->GetReadPtr(PLANAR_V),
                         buffer->GetWritePtr(),
                         frame->GetPitch(PLANAR_Y), frame->GetPitch(PLANAR_U), dstpitch,

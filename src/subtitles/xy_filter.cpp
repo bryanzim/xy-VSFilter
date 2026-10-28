@@ -385,7 +385,7 @@ struct Filter4<FILTER_LENGTH, START, 1>
     template<int TAIL>
     static __forceinline void cal_tail(__m128& src0_128, const float * src4, M128s<FILTER_LENGTH>& filter128s, __m128& sum);
     template<>
-    static __forceinline void cal_tail<1>(__m128& src0_128, const float * src4, M128s<FILTER_LENGTH>& filter128s, __m128& sum)
+    __forceinline void cal_tail<1>(__m128& src0_128, const float * src4, M128s<FILTER_LENGTH>& filter128s, __m128& sum)
     {
         { XY_FILTER_4_1(src0_128, filter128s.template GetAt<FILTER_LENGTH-1>(), sum); }
     }
@@ -418,7 +418,7 @@ struct FilterAllLeftMargin
         FilterAllLeftMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::template do_cal<0>(src, filter128s);
     }
     template<>
-    static __forceinline void do_cal<1>(float * src, M128s<FILTER_LENGTH>& filter128s)
+    __forceinline void do_cal<1>(float * src, M128s<FILTER_LENGTH>& filter128s)
     {
         //filter 4
         __m128 sum{_mm_setzero_ps()};
@@ -452,7 +452,7 @@ struct FilterAllRightMargin
         FilterAllRightMargin<FILTER_LENGTH,MARGIN_LENGTH-4>::template do_cal<0>(src+4, filter128s);
     }
     template<>
-    static __forceinline void do_cal<1>(float * src, M128s<FILTER_LENGTH>& filter128s)
+    __forceinline void do_cal<1>(float * src, M128s<FILTER_LENGTH>& filter128s)
     {
         //filter 4
         {
@@ -502,7 +502,6 @@ void xy_filter_sse_template(float *dst, const int width, const int height, const
     M128s<FILTER_LENGTH> filter128s;
     filter128s.Load(filter);
 
-    const float *filter_start{filter};
     BYTE* dst_byte{reinterpret_cast<BYTE*>(dst)};
     BYTE* end{dst_byte + height*stride};
     for( ; dst_byte<end; dst_byte+=stride )
@@ -555,6 +554,7 @@ void xy_3_tag_symmetric_filter_sse(float *dst, const int width, const int height
 {
     const int filter_width{4};
     ASSERT( stride>=4*(width+filter_width) );
+    (void)filter_width;
     ASSERT( ((stride|(4*width)|(4*filter_width)|reinterpret_cast<intptr_t>(dst)|reinterpret_cast<intptr_t>(filter))&15)==0 );
 
     ASSERT(filter_width==4 && filter[3U]==0 && filter[2U]==filter[0U]);
@@ -1191,6 +1191,7 @@ void xy_be_filter2_sse(const PUINT8 dst, const int width, const int height, cons
     const int VOLUME{(1<<VOLUME_BITS)};
     ASSERT(filter[0U]==filter[2U]);
     ASSERT(filter[0U]+filter[1U]+filter[2U]==VOLUME);
+    (void)VOLUME;
     ASSERT(width>=1);
     if (width<=0)
     {
@@ -1210,8 +1211,6 @@ void xy_be_filter2_sse(const PUINT8 dst, const int width, const int height, cons
     for( ; dst_byte<end; dst_byte+=stride )
     {
         PUINT8 dst2{dst_byte};
-
-        PUINT8 dst_end0{dst_byte + width - 4};
 
         __m128i old_pix1_128{_mm_setzero_si128()};
         __m128i old_pix2_128{_mm_cvtsi32_si128(dst2[0U])};

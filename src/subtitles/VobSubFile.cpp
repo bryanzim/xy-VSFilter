@@ -1290,7 +1290,7 @@ static unsigned int RARpos{0};
 
 //
 
-[[nodiscard]] STDMETHODIMP CVobSubFile::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CVobSubFile::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
     *ppv = nullptr;
@@ -2486,7 +2486,7 @@ void CVobSubStream::RemoveAll()
     m_img.iIdx = -1;
 }
 
-[[nodiscard]] STDMETHODIMP CVobSubStream::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CVobSubStream::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
     *ppv = nullptr;

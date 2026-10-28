@@ -65,8 +65,8 @@ int CClassFactory::m_cLocked = 0;
 
 CClassFactory::CClassFactory(const CFactoryTemplate *pTemplate)
 : CBaseObject(NAME("Class Factory"))
-, m_cRef(0)
 , m_pTemplate(pTemplate)
+, m_cRef(0)
 {
 }
 

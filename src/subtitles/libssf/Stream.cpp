@@ -26,9 +26,9 @@
 namespace ssf
 {
 	Stream::Stream()
-		: m_encoding(none)
-		, m_line(0)
+		: m_line(0)
 		, m_col(-1)
+		, m_encoding(none)
 	{
 		
 	}
@@ -51,7 +51,7 @@ namespace ssf
 
 	bool Stream::IsWhiteSpace(int c, LPCWSTR morechars)
 	{
-		return c != 0xa0 && iswspace(c) || morechars && wcschr(morechars, (WCHAR)c);
+		return (c != 0xa0 && iswspace(c)) || (morechars && wcschr(morechars, (WCHAR)c));
 	}
 
 	//
@@ -112,6 +112,9 @@ namespace ssf
 			cur = cur | (c << 8);
 			break;
 		case wchar:
+			break;
+		case none:
+		case unknown:
 			break;
 		}
 
@@ -274,6 +277,10 @@ namespace ssf
 			case utf16be:
 				PutChar(0xfeff);
 				break;
+			case none:
+			case unknown:
+			case wchar:
+				break;
 			}
 		}
 
@@ -310,6 +317,9 @@ namespace ssf
 			break;
 		case wchar:
 			NextByte(c);
+			break;
+		case none:
+		case unknown:
 			break;
 		}
 	}

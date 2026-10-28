@@ -1102,7 +1102,7 @@ DWORD WINAPI WaitDispatchingMessages(
                              hwnd == NULL ? QS_SENDMESSAGE :
                                             QS_SENDMESSAGE + QS_POSTMESSAGE);
         if (dwResult == WAIT_OBJECT_0 + nCount ||
-            dwResult == WAIT_TIMEOUT && dwTimeOut != dwWait) {
+            (dwResult == WAIT_TIMEOUT && dwTimeOut != dwWait)) {
             MSG msg;
             if (hwnd != NULL) {
                 while (PeekMessage(&msg, hwnd, uMsg, uMsg, PM_REMOVE)) {

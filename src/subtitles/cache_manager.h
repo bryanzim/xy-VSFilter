@@ -62,11 +62,11 @@ public:
         m_str_id = word.m_str.GetId();
     }
     PathDataCacheKey(const PathDataCacheKey& key)
-        :m_str_id(key.m_str_id)
+        :m_hash_value(key.m_hash_value)
         ,m_scalex(key.m_scalex)
         ,m_scaley(key.m_scaley)
-        ,m_style(key.m_style)
-        ,m_hash_value(key.m_hash_value){}
+        ,m_str_id(key.m_str_id)
+        ,m_style(key.m_style){}
     [[nodiscard]] bool operator==(const PathDataCacheKey& key)const
     {
         return m_str_id==key.m_str_id 
@@ -101,8 +101,8 @@ public:
     ScanLineData2CacheKey(const CWord& word, const POINT& org):PathDataCacheKey(word),m_org(org) { }
     ScanLineData2CacheKey(const ScanLineData2CacheKey& key)
         :PathDataCacheKey(key)
-        ,m_org(key.m_org)
-        ,m_hash_value(key.m_hash_value) { }
+        ,m_hash_value(key.m_hash_value)
+        ,m_org(key.m_org) { }
 
     [[nodiscard]] bool operator==(const ScanLineData2CacheKey& key)const;
 
@@ -121,7 +121,7 @@ class OverlayNoBlurKey: public ScanLineData2CacheKey
 {
 public:
     OverlayNoBlurKey(const CWord& word, const POINT& p, const POINT& org):ScanLineData2CacheKey(word,org),m_p(p) {}
-    OverlayNoBlurKey(const OverlayNoBlurKey& key):ScanLineData2CacheKey(key),m_p(key.m_p),m_hash_value(key.m_hash_value) {}
+    OverlayNoBlurKey(const OverlayNoBlurKey& key):ScanLineData2CacheKey(key),m_hash_value(key.m_hash_value),m_p(key.m_p) {}
 
     [[nodiscard]] bool operator==(const OverlayNoBlurKey& key)const;
 

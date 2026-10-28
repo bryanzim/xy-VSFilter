@@ -28,7 +28,7 @@
 
 #include "vsfilter_config.h"
 
-#include "../../../DSUtil/SharedInclude.h"
+#include "../../../dsutil/SharedInclude.h"
 #include "../../../../include/stdafx_common.h"
 #include "../../../../include/stdafx_common_afx.h"
 #include "../../../../include/stdafx_common_dshow.h"

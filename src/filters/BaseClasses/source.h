@@ -135,6 +135,7 @@ public:
     enum Command {CMD_INIT, CMD_PAUSE, CMD_RUN, CMD_STOP, CMD_EXIT};
     HRESULT Init(void) { return CallWorker(CMD_INIT); }
     HRESULT Exit(void) { return CallWorker(CMD_EXIT); }
+    using CBaseOutputPin::Run;
     HRESULT Run(void) { return CallWorker(CMD_RUN); }
     HRESULT Pause(void) { return CallWorker(CMD_PAUSE); }
     HRESULT Stop(void) { return CallWorker(CMD_STOP); }

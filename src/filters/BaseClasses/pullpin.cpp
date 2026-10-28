@@ -15,8 +15,8 @@
 
 CPullPin::CPullPin()
   : m_pReader(NULL),
-    m_pAlloc(NULL),
-    m_State(TM_Exit)
+    m_State(TM_Exit),
+    m_pAlloc(NULL)
 {
 }
 
@@ -517,6 +517,7 @@ CPullPin::CleanupCancelled(void)
 			    0,          // no wait
 			    &pSample,
 			    &dwUnused);
+	(void)hr;
 	if(pSample) {
 	    pSample->Release();
 	} else {

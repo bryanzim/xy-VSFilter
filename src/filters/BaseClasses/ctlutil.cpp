@@ -1092,8 +1092,8 @@ CSourceSeeking::CSourceSeeking(
     HRESULT* phr,
     CCritSec * pLock) :
         CUnknown(pName, pUnk),
-        m_pLock(pLock),
-        m_rtStart((long)0)
+        m_rtStart((long)0),
+        m_pLock(pLock)
 {
     m_rtStop = _I64_MAX / 2;
     m_rtDuration = m_rtStop;
@@ -1339,8 +1339,8 @@ CSourcePosition::CSourcePosition(const TCHAR * pName,
 				 HRESULT* phr,
 				 CCritSec * pLock) :
     CMediaPosition(pName, pUnk),
-    m_pLock(pLock),
-    m_Start(CRefTime((LONGLONG)0))
+    m_Start(CRefTime((LONGLONG)0)),
+    m_pLock(pLock)
 {
     m_Stop = _I64_MAX;
     m_Rate = 1.0;
@@ -1905,9 +1905,9 @@ CDeferredCommand::CDeferredCommand(
 	m_iid(iid),
 	m_dispidMethod(dispidMethod),
 	m_wFlags(wFlags),
-	m_DispParams(nArgs, pDispParams, phr),
 	m_pvarResult(pvarResult),
 	m_bStream(bStream),
+	m_DispParams(nArgs, pDispParams, phr),
 	m_hrResult(E_ABORT)
 
 {
@@ -2373,6 +2373,7 @@ CCmdQueue::SetTimeAdvise(void)
 		    &m_dwAdvise);
 
 	ASSERT(SUCCEEDED(hr));
+	(void)hr;
 	m_tCurrentAdvise = current;
     }
 }

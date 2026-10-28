@@ -87,16 +87,16 @@ HINSTANCE LoadOLEAut32()
 #pragma warning( disable : 4355 4100 )
 CUnknown::CUnknown(const TCHAR *pName, LPUNKNOWN pUnk)
 : CBaseObject(pName)
-/* Start the object with a reference count of zero - when the      */
-/* object is queried for it's first interface this may be          */
-/* incremented depending on whether or not this object is          */
-/* currently being aggregated upon                                 */
-, m_cRef(0)
 /* Set our pointer to our IUnknown interface.                      */
 /* If we have an outer, use its, otherwise use ours.               */
 /* This pointer effectivly points to the owner of                  */
 /* this object and can be accessed by the GetOwner() method.       */
 , m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
+/* Start the object with a reference count of zero - when the      */
+/* object is queried for it's first interface this may be          */
+/* incremented depending on whether or not this object is          */
+/* currently being aggregated upon                                 */
+, m_cRef(0)
  /* Why the double cast?  Well, the inner cast is a type-safe cast */
  /* to pointer to a type from which we inherit.  The second is     */
  /* type-unsafe but works because INonDelegatingUnknown "behaves   */
@@ -109,20 +109,22 @@ CUnknown::CUnknown(const TCHAR *pName, LPUNKNOWN pUnk)
 // use the previous constructor, this is just left for compatibility...
 CUnknown::CUnknown(TCHAR *pName, LPUNKNOWN pUnk,HRESULT *phr) :
     CBaseObject(pName),
-    m_cRef(0),
-    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
+    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) ),
+    m_cRef(0)
 {
 }
 
 #ifdef UNICODE
 CUnknown::CUnknown(const CHAR *pName, LPUNKNOWN pUnk)
-: CBaseObject(pName), m_cRef(0),
-    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
+: CBaseObject(pName),
+    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) ),
+    m_cRef(0)
 { }
 
 CUnknown::CUnknown(CHAR *pName, LPUNKNOWN pUnk,HRESULT *phr) :
-    CBaseObject(pName), m_cRef(0),
-    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) )
+    CBaseObject(pName),
+    m_pUnknown( pUnk != 0 ? pUnk : reinterpret_cast<LPUNKNOWN>( static_cast<PNDUNKNOWN>(this) ) ),
+    m_cRef(0)
 { }
 
 #endif
@@ -164,6 +166,7 @@ STDMETHODIMP_(ULONG) CUnknown::NonDelegatingAddRef()
 {
     LONG lRef = InterlockedIncrement( &m_cRef );
     ASSERT(lRef > 0);
+    (void)lRef;
     DbgLog((LOG_MEMORY,3,TEXT("    Obj %d ref++ = %d"),
            m_dwCookie, m_cRef));
     return ourmax(ULONG(m_cRef), 1ul);
@@ -251,6 +254,7 @@ BOOL WINAPI IsEqualObject(IUnknown *pFirst, IUnknown *pSecond)
 
     pUnknown1->Release();
     pUnknown2->Release();
+    (void)hr;
     return (pUnknown1 == pUnknown2);
 }
 

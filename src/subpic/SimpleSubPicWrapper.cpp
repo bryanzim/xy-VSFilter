@@ -20,7 +20,7 @@ SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPic* inner_obj )
     
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubPicWrapper::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP SimpleSubPicWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPic)

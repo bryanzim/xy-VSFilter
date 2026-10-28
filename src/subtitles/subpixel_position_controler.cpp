@@ -29,6 +29,8 @@ SubpixelPositionControler SubpixelPositionControler::s_subpixel_position_control
         case EIGHT_X_EIGHT_INTERPOLATE:
             _subpixel_mask = EIGHT_X_EIGHT_INTERPOLATE_MASK;
             break;
+        case MAX_COUNT:
+            break;
         }
         _subpixel_level = subpixel_level;
     }

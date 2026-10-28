@@ -58,7 +58,7 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 }
 
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
 	CheckPointer(ppv, E_POINTER);
 	*ppv = NULL;

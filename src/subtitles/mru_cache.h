@@ -461,17 +461,17 @@ XyAtlMap< K, V, KTraits, VTraits >::XyAtlMap(
     _In_ float fHiThreshold,
     _In_ UINT nBlockSize) throw() :
 m_ppBins( NULL ),
-    m_nBins( nBins ),
     m_nElements( 0 ),
-    m_nLockCount( 0 ),  // Start unlocked
+    m_nBins( nBins ),
     m_fOptimalLoad( fOptimalLoad ),
     m_fLoThreshold( fLoThreshold ),
     m_fHiThreshold( fHiThreshold ),
     m_nHiRehashThreshold( UINT_MAX ),
     m_nLoRehashThreshold( 0 ),
+    m_nLockCount( 0 ),  // Start unlocked
+    m_nBlockSize( nBlockSize ),
     m_pBlocks( NULL ),
-    m_pFree( NULL ),
-    m_nBlockSize( nBlockSize )
+    m_pFree( NULL )
 {
     ATLASSERT( nBins > 0 );
     ATLASSERT( nBlockSize > 0 );
@@ -790,7 +790,7 @@ bool XyAtlMap< K, V, KTraits, VTraits >::RemoveKey(/* _In_ */ KINARGTYPE key) th
 template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::RemoveNode(
     _In_ CNode* pNode,
-    _In_opt_ CNode* pPrev)
+    _In_opt_ CNode* pPrev) throw()
 {
     ATLENSURE( pNode != NULL );
 
@@ -810,7 +810,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveNode(
 }
 
 template< typename K, typename V, class KTraits, class VTraits >
-void XyAtlMap< K, V, KTraits, VTraits >::RemoveAtPos(_In_ POSITION pos)
+void XyAtlMap< K, V, KTraits, VTraits >::RemoveAtPos(_In_ POSITION pos) throw()
 {
     ATLENSURE( pos != NULL );
 

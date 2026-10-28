@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "..\SubPic\ISubPic.h"
+#include "..\subpic\ISubPic.h"
 #include ".\libssf\SubtitleFile.h"
 #include ".\libssf\Renderer.h"
 

@@ -554,10 +554,12 @@ IMediaSample * CTransInPlaceFilter::Copy(IMediaSample *pSource)
             long lDestSize = pDest->GetSize();
 
             ASSERT(lDestSize >= lSourceSize && lDestSize >= lDataLength);
+            (void)lSourceSize;
+            (void)lDestSize;
 
             pSource->GetPointer(&pSourceBuffer);
             pDest->GetPointer(&pDestBuffer);
-            ASSERT(lDestSize == 0 || pSourceBuffer != NULL && pDestBuffer != NULL);
+            ASSERT(lDestSize == 0 || (pSourceBuffer != NULL && pDestBuffer != NULL));
 
             CopyMemory( (PVOID) pDestBuffer, (PVOID) pSourceBuffer, lDataLength );
         }
@@ -660,8 +662,8 @@ CTransInPlaceInputPin::CTransInPlaceInputPin
                          pFilter,
                          phr,
                          pName)
-    , m_bReadOnly(FALSE)
     , m_pTIPFilter(pFilter)
+    , m_bReadOnly(FALSE)
 {
     DbgLog((LOG_TRACE, 2
            , TEXT("CTransInPlaceInputPin::CTransInPlaceInputPin")));

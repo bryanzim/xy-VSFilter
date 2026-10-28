@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "VSFilter.h"
 #include "auto_load_helper.h"
 #include "moreuuids.h"
@@ -107,7 +107,6 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
 [[nodiscard]] STDMETHODIMP XySubFilterAutoLoader::JoinFilterGraph( IFilterGraph* pGraph, const LPCWSTR pName )
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(this)<<"pGraph:"<<(void*)pGraph);
-    HRESULT hr{NOERROR};
     m_loaded = false;
     if(pGraph)
     {
@@ -152,8 +151,6 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
 {
     XY_LOG_INFO(_T("pGraph:")<<pGraph);
 
-    HRESULT hr{NOERROR};
-
     if(m_load_level < 0 || m_load_level >= DirectVobSubImpl::LOADLEVEL_COUNT || m_load_level==DirectVobSubImpl::LOADLEVEL_DISABLED) {
         XY_LOG_DEBUG("Disabled by load setting: "<<XY_LOG_VAR_2_STR(m_load_level));
         return false;
@@ -172,7 +169,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     {
         for (int i{0}, n=m_known_source_filters_guid.GetCount();i<n;i++)
         {
-            if (pBF = FindFilter(m_known_source_filters_guid[i], pGraph))
+            if ((pBF = FindFilter(m_known_source_filters_guid[i], pGraph)))
             {
                 break;
             }

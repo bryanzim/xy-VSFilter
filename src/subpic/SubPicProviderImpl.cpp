@@ -23,7 +23,7 @@
 
 #include "stdafx.h"
 #include "SubPicProviderImpl.h"
-#include "../DSUtil/DSUtil.h"
+#include "../dsutil/DSUtil.h"
 
 //
 // CSubPicProviderImpl
@@ -40,7 +40,7 @@ CSubPicProviderImpl::~CSubPicProviderImpl()
 {
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicProviderImpl::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CSubPicProviderImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     return
         QI(ISubPicProvider)

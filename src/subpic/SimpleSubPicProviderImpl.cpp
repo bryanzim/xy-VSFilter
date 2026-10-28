@@ -18,8 +18,8 @@ SimpleSubPicProvider::SimpleSubPicProvider( int alpha_blt_dst_type, SIZE spd_siz
     , m_alpha_blt_dst_type(alpha_blt_dst_type)
     , m_spd_size(spd_size)
     , m_video_rect(video_rect)
-    , m_rtNow(0)
     , m_fps(25.0)
+    , m_rtNow(0)
     , m_consumer(consumer)
 {
     if(phr) {
@@ -38,7 +38,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPicProvider)
@@ -318,8 +318,8 @@ SimpleSubPicProvider2::SimpleSubPicProvider2( int alpha_blt_dst_type, SIZE max_s
     , m_max_size(max_size)
     , m_cur_size(cur_size)
     , m_video_rect(video_rect)
-    , m_now(0)
     , m_fps(25.0)
+    , m_now(0)
     , m_consumer(consumer)
 {
     if (phr)
@@ -338,7 +338,7 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
     delete m_old_provider;
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP SimpleSubPicProvider2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPicProvider)

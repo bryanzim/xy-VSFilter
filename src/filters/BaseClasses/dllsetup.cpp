@@ -125,6 +125,7 @@ AMovieSetupRegisterServer( CLSID   clsServer
                               , szCLSID
                               , CHARS_IN_GUID );
   ASSERT( SUCCEEDED(hr) );
+  (void)hr;
 
   // create key
   //
@@ -234,6 +235,7 @@ AMovieSetupUnregisterServer( CLSID clsServer )
 
   hr = EliminateSubKey( HKEY_CLASSES_ROOT, achBuffer );
   ASSERT( SUCCEEDED(hr) );
+  (void)hr;
 
   // return
   //

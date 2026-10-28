@@ -19,11 +19,11 @@
  *
  */
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include <mmintrin.h>
 #include "BaseVideoFilter.h"
-#include "..\..\..\DSUtil\DSUtil.h"
-#include "..\..\..\DSUtil\MediaTypes.h"
+#include "..\..\..\dsutil\DSUtil.h"
+#include "..\..\..\dsutil\MediaTypes.h"
 
 #pragma warning(push) 
 #pragma warning(disable:4995) 
@@ -150,8 +150,8 @@ const OutputFormatBase OutputFmts[] =
 CBaseVideoFilter::CBaseVideoFilter(TCHAR* pName, LPUNKNOWN lpunk, HRESULT* phr, REFCLSID clsid, long cBuffers) 
 	: CTransformFilter(pName, lpunk, clsid)
 	, m_cBuffers(cBuffers)
-    , m_inputFmtCount(-1),m_outputFmtCount(-1)
     , m_donot_follow_upstream_preferred_order(false)
+    , m_inputFmtCount(-1),m_outputFmtCount(-1)
 {
 	if(phr)
 	{ 
@@ -343,6 +343,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 
 		hr = m_pOutput->GetConnected()->QueryAccept(&mt);
 		ASSERT(SUCCEEDED(hr)); // should better not fail, after all "mt" is the current media type, just with a different resolution
+		(void)hr;
 HRESULT hr1{0}, hr2 = 0;
 		CComPtr<IMediaSample> pOut;
 		if(SUCCEEDED(hr1 = m_pOutput->GetConnected()->ReceiveConnection(m_pOutput, &mt))
@@ -696,8 +697,6 @@ HRESULT hr1{0}, hr2 = 0;
 
 	BITMAPINFOHEADER bih;
 	ExtractBIH(&m_pOutput->CurrentMediaType(), &bih);
-
-	long cBuffers{m_pOutput->CurrentMediaType().formattype == FORMAT_VideoInfo ? 1 : m_cBuffers};
 
 	pProperties->cBuffers = m_cBuffers;
 	pProperties->cbBuffer = bih.biSizeImage;

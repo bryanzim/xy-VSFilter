@@ -33,20 +33,20 @@ CBaseRenderer::CBaseRenderer(REFCLSID RenderClass, // CLSID for this renderer
                              HRESULT *phr) :       // General OLE return code
 
     CBaseFilter(pName,pUnk,&m_InterfaceLock,RenderClass),
-    m_evComplete(TRUE),
-    m_bAbort(FALSE),
     m_pPosition(NULL),
     m_ThreadSignal(TRUE),
+    m_evComplete(TRUE),
+    m_bAbort(FALSE),
     m_bStreaming(FALSE),
+    m_dwAdvise(0),
+    m_pMediaSample(NULL),
     m_bEOS(FALSE),
     m_bEOSDelivered(FALSE),
-    m_pMediaSample(NULL),
-    m_dwAdvise(0),
-    m_pQSink(NULL),
     m_pInputPin(NULL),
+    m_pQSink(NULL),
     m_bRepaintStatus(TRUE),
-    m_SignalTime(0),
     m_bInReceive(FALSE),
+    m_SignalTime(0),
     m_EndOfStreamTimer(0)
 {
     Ready();
@@ -1747,8 +1747,10 @@ HRESULT CRendererInputPin::SetMediaType(const CMediaType *pmt)
 // draw late frames, this is currently done by having the following registry
 // key (actually an INI key) called DrawLateFrames set to 1 (default is 0)
 
+#ifdef PERF
 const TCHAR AMQUALITY[] = TEXT("ActiveMovie");
 const TCHAR DRAWLATEFRAMES[] = TEXT("DrawLateFrames");
+#endif
 
 CBaseVideoRenderer::CBaseVideoRenderer(
       REFCLSID RenderClass, // CLSID for this renderer
@@ -1757,9 +1759,9 @@ CBaseVideoRenderer::CBaseVideoRenderer(
       HRESULT *phr) :       // General OLE return code
 
     CBaseRenderer(RenderClass,pName,pUnk,phr),
+    m_bSupplierHandlingQuality(FALSE),
     m_cFramesDropped(0),
-    m_cFramesDrawn(0),
-    m_bSupplierHandlingQuality(FALSE)
+    m_cFramesDrawn(0)
 {
     ResetStreamingTimes();
 

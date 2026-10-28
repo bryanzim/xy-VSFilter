@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "xy_bitmap.h"
 #include "xy_malloc.h"
-#include "../SubPic/ISubPic.h"
+#include "../subpic/ISubPic.h"
 #include "../subpic/color_conv_table.h"
 
 #if ENABLE_XY_LOG_SUB_RENDER_FRAME
@@ -22,15 +22,6 @@ static inline void FlipAlphaValueSSE(BYTE *data, int w)
         _mm_storeu_si128(reinterpret_cast<__m128i*>(data_w+i), argb);
     }
     for (int i{w00};i<w;i++)
-    {
-        *(data_w+i) = *(data_w+i) ^ 0xFF000000;
-    }
-}
-static inline void FlipAlphaValueC(BYTE *data, const int w)
-
-{
-    DWORD *data_w{reinterpret_cast<DWORD*>(data)};
-    for (int i{0};i<w;i++)
     {
         *(data_w+i) = *(data_w+i) ^ 0xFF000000;
     }
@@ -280,7 +271,7 @@ XySubRenderFrame::~XySubRenderFrame()
 {
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP XySubRenderFrame::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)

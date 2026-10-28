@@ -17,10 +17,10 @@ CBaseStreamControl::CBaseStreamControl()
 , m_tStopTime(MAX_TIME)
 , m_dwStartCookie(0)
 , m_dwStopCookie(0)
-, m_pRefClock(NULL)
-, m_FilterState(State_Stopped)
 , m_bIsFlushing(FALSE)
 , m_bStopSendExtra(FALSE)
+, m_pRefClock(NULL)
+, m_FilterState(State_Stopped)
 {}
 
 CBaseStreamControl::~CBaseStreamControl()

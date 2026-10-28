@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "DSUtil.h"
 #include "DSMPropertyBag.h"
 
@@ -150,14 +150,14 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
 //
 
 CCritSec CDSMResource::m_csResources;
-CAtlMap<DWORD, CDSMResource*> CDSMResource::m_resources;
+CAtlMap<DWORD_PTR, CDSMResource*> CDSMResource::m_resources;
 
 CDSMResource::CDSMResource() 
-	: mime(_T("application/octet-stream"))
-	, tag(0)
+	: tag(0)
+	, mime(_T("application/octet-stream"))
 {
 	[[nodiscard]] CAutoLock cAutoLock(&m_csResources);
-	m_resources.SetAt((DWORD)this, this);
+	m_resources.SetAt((DWORD_PTR)this, this);
 }
 
 CDSMResource::CDSMResource(const CDSMResource& r)
@@ -165,7 +165,7 @@ CDSMResource::CDSMResource(const CDSMResource& r)
 	*this = r;
 
 	[[nodiscard]] CAutoLock cAutoLock(&m_csResources);
-	m_resources.SetAt((DWORD)this, this);
+	m_resources.SetAt((DWORD_PTR)this, this);
 }
 
 CDSMResource::CDSMResource(LPCWSTR name, LPCWSTR desc, LPCWSTR mime, BYTE* pData, int len, DWORD_PTR tag)
@@ -178,13 +178,13 @@ CDSMResource::CDSMResource(LPCWSTR name, LPCWSTR desc, LPCWSTR mime, BYTE* pData
 	this->tag = tag;
 
 	[[nodiscard]] CAutoLock cAutoLock(&m_csResources);
-	m_resources.SetAt((DWORD)this, this);
+	m_resources.SetAt((DWORD_PTR)this, this);
 }
 
 CDSMResource::~CDSMResource()
 {
 	[[nodiscard]] CAutoLock cAutoLock(&m_csResources);
-	m_resources.RemoveKey((DWORD)this);
+	m_resources.RemoveKey((DWORD_PTR)this);
 }
 
 void CDSMResource::operator = (const CDSMResource& r)
@@ -481,7 +481,7 @@ CDSMChapterBag::CDSMChapterBag(LPUNKNOWN pUnk, HRESULT* phr)
 {
 }
 
-[[nodiscard]] STDMETHODIMP CDSMChapterBag::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CDSMChapterBag::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 

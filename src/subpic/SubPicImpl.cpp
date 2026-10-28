@@ -24,8 +24,8 @@
 #include "stdafx.h"
 #include "SubPicImpl.h"
 #include "CRect2.h"
-#include "../DSUtil/DSUtil.h"
-#include "../DSUtil/xy_utils.h"
+#include "../dsutil/DSUtil.h"
+#include "../dsutil/xy_utils.h"
 
 //
 // CSubPicImplHelper
@@ -190,7 +190,7 @@ CSubPicImpl::CSubPicImpl()
 
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicImpl::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP CSubPicImpl::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISubPic)
@@ -207,7 +207,7 @@ CSubPicExImpl::CSubPicExImpl()
 
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicExImpl::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP CSubPicExImpl::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISubPicEx)
@@ -255,7 +255,6 @@ CSubPicExImpl::CSubPicExImpl()
         m_rectListDirty.RemoveAll();
         m_rcDirty.SetRectEmpty();
 
-        POSITION tagPos{NULL};
         POSITION pos{dirtyRectList->GetHeadPosition()};
         while(pos!=NULL)
         {
@@ -305,7 +304,7 @@ CSubPicAllocatorImpl::CSubPicAllocatorImpl(SIZE cursize, bool fDynamicWriteOnly,
     m_curvidrect = CRect(CPoint(0,0), m_cursize);
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicAllocatorImpl::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CSubPicAllocatorImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     return
         QI(ISubPicAllocator)
@@ -387,7 +386,7 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWrite
 
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicExAllocatorImpl::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CSubPicExAllocatorImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     return
         QI(ISubPicExAllocator)
@@ -507,7 +506,7 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWrite
 [[nodiscard]] STDMETHODIMP_(int) CSubPicExAllocatorImpl::SetSpdColorType( const int color_type )
 
 {
-    (color_type);
+    (void)color_type;
     return MSP_RGBA;
 }
 

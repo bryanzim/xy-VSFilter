@@ -201,7 +201,7 @@ CDX9SubPic::~CDX9SubPic()
 
 [[nodiscard]] STDMETHODIMP CDX9SubPic::Unlock(RECT* pDirtyRect)
 {
-	HRESULT hr{m_pSurface->UnlockRect()};
+	m_pSurface->UnlockRect();
 
 	if(pDirtyRect) {
 		m_rcDirty = *pDirtyRect;
@@ -219,7 +219,7 @@ CDX9SubPic::~CDX9SubPic()
 
 	CComPtr<IDirect3DTexture9> pTexture = (IDirect3DTexture9*)GetObject();
 	if (pTexture && !((CRect*)pDirtyRect)->IsRectEmpty()) {
-		hr = pTexture->AddDirtyRect(&m_rcDirty);
+		pTexture->AddDirtyRect(&m_rcDirty);
 	}
 	return S_OK;
 }

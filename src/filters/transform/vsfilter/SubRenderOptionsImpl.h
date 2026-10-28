@@ -27,7 +27,7 @@ public:
     };
 
 public:
-    SubRenderOptionsImpl(const OptionMap *optionMap, IXyOptions *impl) : _optionMap(optionMap), _impl(impl){};
+    SubRenderOptionsImpl(const OptionMap *optionMap, IXyOptions *impl) : _impl(impl), _optionMap(optionMap){};
     virtual ~SubRenderOptionsImpl(void) {};
 
     // ISubRenderOptions

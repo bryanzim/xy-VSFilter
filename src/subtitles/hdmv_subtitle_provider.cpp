@@ -264,7 +264,7 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
     delete m_pSub;
 }
 
-[[nodiscard]] STDMETHODIMP HdmvSubtitleProvider::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP HdmvSubtitleProvider::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     CheckPointer(ppv, E_POINTER);
     *ppv = NULL;
@@ -415,13 +415,6 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     return ret;
 }
 
-[[nodiscard]] static CString StripPath(CString path)
-{
-    CString p{path};
-    p.Replace('\\', '/');
-    p = p.Mid(p.ReverseFind('/')+1);
-    return (p.IsEmpty() ? path : p);
-}
 
 [[nodiscard]] bool SupFileSubtitleProvider::Open(CString fn, CString subName /*= _T("")*/)
 {
@@ -509,7 +502,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     return 0;
 }
 
-[[nodiscard]] STDMETHODIMP SupFileSubtitleProvider::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP SupFileSubtitleProvider::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
     *ppv = NULL;

@@ -26,7 +26,7 @@
 #include <ks.h>
 #include <ksmedia.h>
 #include "DeCSSInputPin.h"
-#include "..\DSUtil\DSUtil.h"
+#include "..\dsutil\DSUtil.h"
 #include "CSSauth.h"
 #include "CSSscramble.h"
 

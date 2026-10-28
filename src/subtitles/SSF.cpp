@@ -114,7 +114,7 @@ namespace ssf
 		}
 	}
 
-	[[nodiscard]] STDMETHODIMP CRenderer::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+	[[nodiscard]] STDMETHODIMP CRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 	{
 		CheckPointer(ppv, E_POINTER);
 		*ppv = NULL;

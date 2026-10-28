@@ -53,6 +53,7 @@ private:
 public:
 	explicit CTextFile(enc e = DEFAULT_ENCODING);
 
+	using CStdioFile64::Open;
 	[[nodiscard]] virtual bool Open(LPCTSTR lpszFileName);
 	[[nodiscard]] virtual bool Save(LPCTSTR lpszFileName, enc e /*= DEFAULT_ENCODING*/);
 

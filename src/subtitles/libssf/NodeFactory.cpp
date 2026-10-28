@@ -26,9 +26,9 @@
 namespace ssf
 {
 	NodeFactory::NodeFactory()
-		: m_counter(0)
-		, m_root(NULL)
+		: m_root(NULL)
 		, m_predefined(false)
+		, m_counter(0)
 	{
 	}
 

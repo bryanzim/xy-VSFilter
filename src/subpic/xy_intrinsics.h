@@ -73,27 +73,6 @@ inline unsigned char& xy_m128i_u8(__m128i& value, const int index)
     m128_1 = _mm_srli_epi16(m128_1, 8);\
     }
 
-static void average_4_pix_intrinsics_3_c(__m128i& m128i_1, __m128i& m128i_last) 
-
-{
-    int last{xy_m128i_u8(m128i_last, 1U)};
-    xy_m128i_u8(m128i_last, 0U) = xy_m128i_u8(m128i_1, 14U);
-    xy_m128i_u8(m128i_last, 1U) = xy_m128i_u8(m128i_1, 15U);
-    for (int i{2};i<16;i++)
-    {
-        xy_m128i_u8(m128i_last, i) = 0;
-    }
-    for (int i{0};i<8;i++)
-    {
-        int u0{xy_m128i_u8(m128i_1, 2U*i)};
-        int u1{xy_m128i_u8(m128i_1, 2U*i+1)};
-        last = (last + u1 + 1)/2;
-        u0 = (last + u0 + 1)/2;
-        last = u1;
-        xy_m128i_u8(m128i_1, 2U*i) = u0;
-        xy_m128i_u8(m128i_1, 2U*i+1) = 0;
-    }
-}
 
 //in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
 //out: m128_1 = 0
@@ -113,27 +92,6 @@ static void average_4_pix_intrinsics_3_c(__m128i& m128i_1, __m128i& m128i_last)
     m128_1 = _mm_slli_epi16(m128_1, 8);\
     }
 
-static void average_4_pix_intrinsics_4_c(__m128i& m128i_1, __m128i& m128i_last) 
-
-{
-    int last{xy_m128i_u8(m128i_last, 1U)};
-    xy_m128i_u8(m128i_last, 0U) = xy_m128i_u8(m128i_1, 14U);
-    xy_m128i_u8(m128i_last, 1U) = xy_m128i_u8(m128i_1, 15U);
-    for (int i{2};i<16;i++)
-    {
-        xy_m128i_u8(m128i_last, i) = 0;
-    }
-    for (int i{0};i<8;i++)
-    {
-        int u0{xy_m128i_u8(m128i_1, 2U*i)};
-        int u1{xy_m128i_u8(m128i_1, 2U*i+1)};
-        last = (last + u1 + 1)/2;
-        u0 = (last + u0 + 1)/2;
-        last = u1;
-        xy_m128i_u8(m128i_1, 2U*i+1) = u0;
-        xy_m128i_u8(m128i_1, 2U*i) = 0;
-    }
-}
 //in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
 //out: m128_1 = avg(U_last, u8[0], u8[1]) 
 //              avg(U_last, u8[0], u8[1]) 
@@ -154,42 +112,7 @@ static void average_4_pix_intrinsics_4_c(__m128i& m128i_1, __m128i& m128i_last)
     m128_1 = _mm_or_si128(m128_1, m128_2);\
     }
 
-static void average_4_pix_intrinsics_5_c(__m128i& m128i_1, __m128i& m128i_last) 
 
-{
-    int last{xy_m128i_u8(m128i_last, 1U)};
-    xy_m128i_u8(m128i_last, 0U) = xy_m128i_u8(m128i_1, 14U);
-    xy_m128i_u8(m128i_last, 1U) = xy_m128i_u8(m128i_1, 15U);
-    for (int i{2};i<16;i++)
-    {
-        xy_m128i_u8(m128i_last, i) = 0;
-    }
-    for (int i{0};i<8;i++)
-    {
-        int u0{xy_m128i_u8(m128i_1, 2U*i)};
-        int u1{xy_m128i_u8(m128i_1, 2U*i+1)};
-        last = (last + u1 + 1)/2;
-        u0 = (last + u0 + 1)/2;
-        last = u1;
-        xy_m128i_u8(m128i_1, 2U*i+1) = u0;
-        xy_m128i_u8(m128i_1, 2U*i) = u0;
-    }
-}
-
-static void subsample_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch)
-
-{
-    const BYTE* end{u + w};
-    for (;u<end;dst+=2,u+=2,v+=2)
-    {
-        dst[0U] = (u[0U] + u[0U+pitch] + 1)/2;
-        int tmp1{(u[1U] + u[1U+pitch] + 1)/2};
-        dst[0U] = (dst[0U] + tmp1 + 1)/2;                
-        dst[1U] = (v[0U] + v[0U+pitch] + 1)/2;
-        tmp1 = (v[1U] + v[1U+pitch] + 1)/2;
-        dst[1U] = (dst[1U] + tmp1 + 1)/2;
-    }
-}
 
 static __forceinline void subsample_and_interlace_2_line_sse2(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch)
 {
@@ -332,19 +255,6 @@ static __forceinline void mix_16_y_p010_P210_sse2(BYTE* dst, const BYTE* src, co
     _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_y );
 }
 
-//for test only
-static void mix_16_y_p010_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha)
-
-{
-    WORD* dst_word{reinterpret_cast<WORD*>(dst)};
-    for (int i{0};i<16;i++)
-    {
-        if (src_alpha[i]!=0xff)
-        {
-            dst_word[i] = ((dst_word[i] *src_alpha[i])>>8) + (src[i]<<8);
-        }
-    }
-}
 
 static __forceinline void pix_alpha_blend_yv12_chroma(byte* dst, const byte* src, const byte* alpha, const int src_pitch)
 
@@ -471,58 +381,7 @@ static __forceinline void mix_16_uv_p210_sse2(BYTE* dst, const BYTE* src, const 
     _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_y);
 }
 
-static void mix_16_uv_p010_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
 
-{
-    WORD* dst_word{reinterpret_cast<WORD*>(dst)};
-    for (int i{0};i<8;i++, src_alpha+=2, src+=2, dst_word+=2)
-    {
-        unsigned int ia = ( 
-            (src_alpha[0U]+src_alpha[0U+pitch]+1)/2+
-            (src_alpha[1U]+src_alpha[1U+pitch]+1)/2+1)/2;
-        if( ia!=0xFF )
-        {
-            int tmp = (((dst_word[0U])*ia)>>8) + (src[0U]<<8);
-            if(tmp>0xffff)
-            {
-                tmp = 0xffff;
-            }
-            dst_word[0U] = tmp;
-            tmp = (((dst_word[1U])*ia)>>8) + (src[1U]<<8);
-            if(tmp>0xffff)
-            {
-                tmp = 0xffff;
-            }
-            dst_word[1U] = tmp;
-        }
-    }
-}
-
-static void mix_16_uv_p210_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
-
-{
-    WORD* dst_word{reinterpret_cast<WORD*>(dst)};
-    for (int i{0}; i < 8; i++, src_alpha += 2, src += 2, dst_word += 2)
-    {
-        // only horizontal subsampling
-        unsigned int ia = (src_alpha[0U] + src_alpha[1U] + 1) / 2;
-        if (ia != 0xFF)
-        {
-            int tmp = (((dst_word[0U]) * ia) >> 8) + (src[0U] << 8);
-            if (tmp > 0xffff)
-            {
-                tmp = 0xffff;
-            }
-            dst_word[0U] = tmp;
-            tmp = (((dst_word[1U]) * ia) >> 8) + (src[1U] << 8);
-            if (tmp > 0xffff)
-            {
-                tmp = 0xffff;
-            }
-            dst_word[1U] = tmp;
-        }
-    }
-}
 
 static __forceinline void mix_16_uv_nvxx_sse2(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
 {
@@ -561,22 +420,6 @@ static __forceinline void mix_16_uv_nvxx_sse2(BYTE* dst, const BYTE* src, const 
     _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_lo128 );
 }
 
-//for test only
-static void mix_16_uv_nvxx_c(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
-
-{
-    for (int i{0};i<8;i++, src_alpha+=2, src+=2, dst+=2)
-    {
-        unsigned int ia = ( 
-            (src_alpha[0U]+src_alpha[0U+pitch]+1)/2+
-            (src_alpha[1U]+src_alpha[1U+pitch]+1)/2+1)/2;
-        if( ia!=0xFF )
-        {
-            dst[0U] = (((dst[0U])*ia)>>8) + src[0U];            
-            dst[1U] = (((dst[1U])*ia)>>8) + src[1U];
-        }
-    }
-}
 
 /******
  * hleft_vmid: 
@@ -713,7 +556,6 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, co
 
     int last_alpha{(am[last_src_id]+am[last_src_id+src_pitch]+1)/2};
     int last_sub{(src[last_src_id]+src[last_src_id+src_pitch]+1)/2};
-    const BYTE* end{src + w15};
 
     switch(w15)
     {
@@ -837,7 +679,6 @@ static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* s
 
     int last_alpha{am[last_src_id]};
     int last_sub{src[last_src_id]};
-    const BYTE* end{src + w15};
 
     switch (w15)
     {

@@ -23,8 +23,8 @@
 
 #include "STS.h"
 #include "Rasterizer.h"
-#include "../SubPic/SubPicProviderImpl.h"
-#include "../SubPic/ISimpleSubPic.h"
+#include "../subpic/SubPicProviderImpl.h"
+#include "../subpic/ISimpleSubPic.h"
 #include <atlcoll.h>
 #include <boost/flyweight/key_value.hpp>
 #include <boost/smart_ptr.hpp>

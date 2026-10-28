@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BaseVideoFilter/BaseVideoFilter.h"
+#include "../basevideofilter/BaseVideoFilter.h"
 #include "XyOptionsImpl.h"
 
 namespace DirectVobSubXyOptions

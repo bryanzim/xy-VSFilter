@@ -22,7 +22,7 @@
 // StyleEditorDialog.cpp : implementation file
 //
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <math.h>
 #include <afxdlgs.h>
 #include "StyleEditorDialog.h"

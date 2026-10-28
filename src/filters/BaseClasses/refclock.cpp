@@ -60,8 +60,8 @@ CBaseReferenceClock::CBaseReferenceClock( TCHAR *pName, LPUNKNOWN pUnk, HRESULT 
 , m_rtLastGotTime(0)
 , m_TimerResolution(0)
 , m_bAbort( FALSE )
-, m_pSchedule( pShed ? pShed : new CAMSchedule(CreateEvent(NULL, FALSE, FALSE, NULL)) )
 , m_hThread(0)
+, m_pSchedule( pShed ? pShed : new CAMSchedule(CreateEvent(NULL, FALSE, FALSE, NULL)) )
 {
 
 

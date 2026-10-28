@@ -19,10 +19,10 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "resource.h"
 #include "DirectVobSubFilter.h"
-#include "../../../DSUtil/DSUtil.h"
+#include "../../../dsutil/DSUtil.h"
 
 // hWnd == INVALID_HANDLE_VALUE - get name, hWnd != INVALID_HANDLE_VALUE - show ppage
 static TCHAR* CallPPage(IFilterGraph* pGraph, int idx, HWND hWnd);
@@ -324,7 +324,7 @@ void CSystrayWindow::OnDestroy()
 			int i;
 
 			TCHAR* str;
-			for(i = 0; str = CallPPage(m_tbid->graph, i, (HWND)INVALID_HANDLE_VALUE); i++)
+			for(i = 0; (str = CallPPage(m_tbid->graph, i, (HWND)INVALID_HANDLE_VALUE)); i++)
 			{
 				if(_tcsncmp(str, _T("DivX MPEG"), 9) || m_tbid->fRunOnce)
 				{ // divx3's ppage will crash if the graph hasn't been run at least once yet
@@ -473,7 +473,7 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 		}
 		else
 		{
-			if(ret = DEBUG_NEW TCHAR[wcslen(wstr)+1])
+			if((ret = DEBUG_NEW TCHAR[wcslen(wstr)+1]))
 			{
 				_tcscpy_s(ret, wcslen(wstr)+1, CString(wstr));
 			}

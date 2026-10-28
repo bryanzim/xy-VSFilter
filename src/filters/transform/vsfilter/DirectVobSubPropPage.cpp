@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <commdlg.h>
 #include <afxdlgs.h>
 #include "DirectVobSubFilter.h"
@@ -27,8 +27,8 @@
 #include "VSFilter.h"
 #include "StyleEditorDialog.h"
 
-#include "../../../DSUtil/DSUtil.h"
-#include "../../../DSUtil/MediaTypes.h"
+#include "../../../dsutil/DSUtil.h"
+#include "../../../dsutil/MediaTypes.h"
 
 BOOL WINAPI MyGetDialogSize(int iResourceID, DLGPROC pDlgProc, LPARAM lParam, SIZE* pResult)
 {
@@ -261,9 +261,9 @@ void EditStyle(const HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* defaul
 
 CDVSBasePPage::CDVSBasePPage(TCHAR* pName, LPUNKNOWN lpunk, int DialogId, int TitleId) 
     : CBasePropertyPage(pName, lpunk, DialogId, TitleId)
+    , m_fDisableInstantUpdate(false)
     , m_bIsInitialized(FALSE)
     , m_fAttached(false)
-    , m_fDisableInstantUpdate(false)
 {
 }
 
@@ -412,6 +412,7 @@ void CDVSBasePPage::AttachControls()
         {
             BOOL fRet{pControl->Attach(GetDlgItem(m_Dlg, id))};
             ASSERT(fRet);
+            (void)fRet;
         }
     }
 
@@ -1616,7 +1617,7 @@ CDVSPathsPPage::CDVSPathsPPage( LPUNKNOWN lpunk, HRESULT* phr
                             bi.iImage = 0; 
 
                             LPITEMIDLIST iil;
-                            if(iil = SHBrowseForFolder(&bi))
+                            if((iil = SHBrowseForFolder(&bi)))
                             {
                                 SHGetPathFromIDList(iil, pathbuff);
                                 m_path.SetWindowText(pathbuff);

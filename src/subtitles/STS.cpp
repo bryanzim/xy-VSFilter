@@ -1054,7 +1054,6 @@ static bool OpenSubRipper(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
         }
 
         WCHAR sep;
-        int num = 0; // This one isn't really used just assigned a new value
         int hh1, mm1, ss1, ms1, hh2, mm2, ss2, ms2;
         WCHAR msStr1[5] = {0}, msStr2[5] = {0};
         int c = swscanf_s(buff, L"%d%c%d%c%d%4[^-] --> %d%c%d%c%d%4s\n",
@@ -1062,7 +1061,6 @@ static bool OpenSubRipper(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
                           &hh2, &sep, 1, &mm2, &sep, 1, &ss2, msStr2, (unsigned int)_countof(msStr2));
 
         if (c == 1) { // numbering
-            num = hh1;
         } else if (c >= 11) { // time info
             // Parse ms if present
             if (2 != swscanf_s(msStr1, L"%c%d", &sep, 1, &ms1)) {
@@ -1091,7 +1089,6 @@ static bool OpenSubRipper(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
                 int num2;
                 WCHAR wc;
                 if (swscanf_s(tmp, L"%d%c", &num2, &wc, 1) == 1 && fFoundEmpty) {
-                    num = num2;
                     break;
                 }
 
@@ -1971,7 +1968,7 @@ static inline int NextInt(CStringW::PXSTR * buff, WCHAR sep = L',') //throw(...)
     CStringW::PXSTR strEnd;
 
     int ret;
-    if (str[0] == '&' && (str[1] == 'h' || str[1] == 'H') || str[0] == '0' && (str[1] == 'x' || str[1] == 'X')) {
+    if ((str[0] == '&' && (str[1] == 'h' || str[1] == 'H')) || (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))) {
         str += 2;
         ret = (int)wcstoul(str, &strEnd, 16);
     } else {
@@ -1985,24 +1982,6 @@ static inline int NextInt(CStringW::PXSTR * buff, WCHAR sep = L',') //throw(...)
     return(ret);
 }
 
-static inline double NextFloat(CStringW::PXSTR * buff, WCHAR sep = L',') //throw(...)
-{
-
-    if (sep == L'.') { // Parsing a float with '.' as separator doesn't make much sense...
-        ASSERT(FALSE);
-        return NextInt(buff, sep);
-    }
-
-    CStringW::PCXSTR str = TryNextStr(buff, sep);
-
-    float ret;
-    if(swscanf(str, L"%f", &ret) != 1)
-    {
-        throw 1;
-    }
-
-    return((double)ret);
-}
 
 static bool LoadFont(CString& font)
 {
@@ -2493,10 +2472,6 @@ if(sver <= 4)
 
 static bool OpenXombieSub(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
 {
-    float version = 0;
-
-//  CMapStringToPtr stylemap;
-
     CStringW buff;
     while(file->ReadString(buff))
     {
@@ -2514,7 +2489,7 @@ static bool OpenXombieSub(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
 
         if(entry == L"version")
         {
-            version = (float)GetFloat(buff);
+            // Accepted and ignored. The screen size entries carry the layout.
         }
         else if(entry == L"screenhorizontal")
         {
@@ -2767,18 +2742,18 @@ struct OpenFunctStruct {
 
 static OpenFunctStruct OpenFuncts[] =
 {
-    OpenSubStationAlpha, TIME, EXTSSA,
-    OpenSubRipper      , TIME, EXTSRT,
-    OpenOldSubRipper   , TIME, EXTSRT,
-    OpenSubViewer      , TIME, EXTSUB,
-    OpenMicroDVD       , FRAME, EXTSSA,
-    OpenSami           , TIME, EXTSMI,
-    OpenVTT            , TIME, EXTVTT,
-    OpenVPlayer        , TIME, EXTSRT,
-    OpenXombieSub      , TIME, EXTXSS,
-    OpenUSF            , TIME, EXTUSF,
-    OpenMPL2           , TIME, EXTSRT,
-    OpenRealText       , TIME, EXTRT,
+    {OpenSubStationAlpha, TIME, EXTSSA},
+    {OpenSubRipper      , TIME, EXTSRT},
+    {OpenOldSubRipper   , TIME, EXTSRT},
+    {OpenSubViewer      , TIME, EXTSUB},
+    {OpenMicroDVD       , FRAME, EXTSSA},
+    {OpenSami           , TIME, EXTSMI},
+    {OpenVTT            , TIME, EXTVTT},
+    {OpenVPlayer        , TIME, EXTSRT},
+    {OpenXombieSub      , TIME, EXTXSS},
+    {OpenUSF            , TIME, EXTUSF},
+    {OpenMPL2           , TIME, EXTSRT},
+    {OpenRealText       , TIME, EXTRT},
 };
 
 static int nOpenFuncts = countof(OpenFuncts);
@@ -3112,7 +3087,7 @@ void CSimpleTextSubtitle::ChangeUnknownStylesToDefault()
 
 void CSimpleTextSubtitle::AddStyle(CString name, STSStyle* style)
 {
-    int i, j;
+    int i;
 
     if(name.IsEmpty())
     {
@@ -3596,10 +3571,6 @@ void CSimpleTextSubtitle::Sort(bool fRestoreReadorder)
     CreateSegments();
 }
 
-static int intcomp(const void* i1, const void* i2)
-{
-    return(*((int*)i1) - *((int*)i2));
-}
 
 void CSimpleTextSubtitle::CreateSegments()
 {
@@ -3705,21 +3676,24 @@ bool CSimpleTextSubtitle::Open(CTextFile* f, int CharSet, CString name)
 
     ULONGLONG pos = f->GetPosition();
 
+#if ENABLE_XY_LOG
+    const TCHAR* func_name[]={
+        TEXT("OpenSubStationAlpha"),
+        TEXT("OpenSubRipper"),
+        TEXT("OpenOldSubRipper"),
+        TEXT("OpenSubViewer"),
+        TEXT("OpenMicroDVD"),
+        TEXT("OpenSami"),
+        TEXT("OpenVTT"),
+        TEXT("OpenVPlayer"),
+        TEXT("OpenXombieSub"),
+        TEXT("OpenUSF"),
+        TEXT("OpenMPL2"),
+        TEXT("OpenRealText")};
+#endif
+
     for(int i = 0; i < nOpenFuncts; i++)
     {
-         const TCHAR* func_name[]={
-             TEXT("OpenSubStationAlpha"),
-             TEXT("OpenSubRipper"),
-             TEXT("OpenOldSubRipper"),
-             TEXT("OpenSubViewer"),
-             TEXT("OpenMicroDVD"),
-             TEXT("OpenSami"),
-             TEXT("OpenVTT"),
-             TEXT("OpenVPlayer"),
-             TEXT("OpenXombieSub"),
-             TEXT("OpenUSF"),
-             TEXT("OpenMPL2"),
-             TEXT("OpenRealText")};
         XY_LOG_INFO("Open '"<<f->GetFilePath().GetString()<<"' with "<<func_name[i]<<" begin" );
         if(!OpenFuncts[i].open(f, *this, CharSet) /*|| !GetCount()*/)
         {

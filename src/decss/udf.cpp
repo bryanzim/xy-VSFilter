@@ -191,7 +191,7 @@ static void udf_GetName(const BYTE *data, const DWORD len, char *target)
 
 	if (data[0] & 0x10)
 	{	// ignore MSB of unicode16
-		p++;
+		++p;
 
 		while (p < len)
 			target[i++] = data[p += 2];

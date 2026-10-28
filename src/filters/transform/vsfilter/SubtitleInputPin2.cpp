@@ -11,9 +11,9 @@ class CHdmvInputPinHepler2: public CSubtitleInputPinHelperImpl
 public:
     CHdmvInputPinHepler2(HdmvSubtitleProvider* pHdmvSubtitle, const CMediaType& mt);
 
-    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
-    [[nodiscard]] STDMETHODIMP EndOfStream(void);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP EndOfStream(void);
 private:
     HdmvSubtitleProvider* m_pHdmvSubtitle;
 };
@@ -25,17 +25,17 @@ CHdmvInputPinHepler2::CHdmvInputPinHepler2( HdmvSubtitleProvider* pHdmvSubtitle,
     (void)mt;
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CHdmvInputPinHepler2::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
 {
     return m_pHdmvSubtitle->NewSegment (tStart, tStop, dRate);
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::Receive( IMediaSample* pSample )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CHdmvInputPinHepler2::Receive( IMediaSample* pSample )
 {
     return m_pHdmvSubtitle->ParseSample (pSample);
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler2::EndOfStream()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CHdmvInputPinHepler2::EndOfStream()
 {
     return m_pHdmvSubtitle->EndOfStream();
 }
@@ -66,7 +66,7 @@ void SubtitleInputPin2::InvalidateSubtitle( const REFERENCE_TIME rtStart, ISubSt
     xy_sub_filter->InvalidateSubtitle(rtStart, (DWORD_PTR)(ISubStream*)pSubStream);
 }
 
-[[nodiscard]] STDMETHODIMP_(CSubtitleInputPinHelper*) SubtitleInputPin2::CreateHelper( const CMediaType& mt, IPin* pReceivePin )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(CSubtitleInputPinHelper*) SubtitleInputPin2::CreateHelper( const CMediaType& mt, IPin* pReceivePin )
 {
     if (IsHdmvSub(&mt)) 
     {

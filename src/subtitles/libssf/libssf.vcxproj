@@ -65,9 +65,11 @@
     <ClCompile Include="NodeFactory.cpp" />
     <ClCompile Include="Rasterizer.cpp">
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput Condition="'$(PlatformToolset)'=='ClangCL'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput Condition="'$(PlatformToolset)'=='ClangCL'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="Split.cpp" />
     <ClCompile Include="stdafx.cpp">

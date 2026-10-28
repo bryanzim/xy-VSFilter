@@ -52,8 +52,14 @@ namespace ssf
 
 				switch(type)
 				{
-				case Min: s.Trim(); // fall through
-				case Def: if(s.IsEmpty()) break; // else fall through
+				case Min: s.Trim();
+#if defined(__clang__)
+				[[clang::fallthrough]];
+#endif
+				case Def: if(s.IsEmpty()) break;
+#if defined(__clang__)
+				[[clang::fallthrough]];
+#endif
 				case Max: Add(s); break;
 				}
 			}

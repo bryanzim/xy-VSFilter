@@ -125,7 +125,7 @@ HRESULT CSource::RemovePin(CSourceStream *pStream)
 //
 // Set *ppPin to the IPin* that has the id Id.
 // or to NULL if the Id cannot be matched.
-STDMETHODIMP CSource::FindPin(LPCWSTR Id, IPin **ppPin)
+DECLSPEC_NOTHROW STDMETHODIMP CSource::FindPin(LPCWSTR Id, IPin **ppPin)
 {
     CheckPointer(ppPin,E_POINTER);
     ValidateReadWritePtr(ppPin,sizeof(IPin *));
@@ -196,7 +196,7 @@ CBasePin *CSource::GetPin(int n) {
 
 //
 // Set Id to point to a CoTaskMemAlloc'd
-STDMETHODIMP CSourceStream::QueryId(LPWSTR *Id) {
+DECLSPEC_NOTHROW STDMETHODIMP CSourceStream::QueryId(LPWSTR *Id) {
     CheckPointer(Id,E_POINTER);
     ValidateReadWritePtr(Id,sizeof(LPWSTR));
 
@@ -424,6 +424,9 @@ DWORD CSourceStream::ThreadProc(void) {
 	    DbgLog((LOG_ERROR, 1, TEXT("CMD_RUN received before a CMD_PAUSE???")));
 	    // !!! fall through???
 	
+	#if defined(__clang__)
+	[[clang::fallthrough]];
+	#endif
 	case CMD_PAUSE:
 	    Reply(NOERROR);
 	    DoBufferProcessingLoop();

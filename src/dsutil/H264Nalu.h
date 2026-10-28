@@ -62,19 +62,19 @@ public:
         SetBuffer(NULL, 0, 0);
     }
 
-    [[nodiscard]] NALU_TYPE GetType() const { return nal_unit_type; };
-    [[nodiscard]] bool IsRefFrame() const { return (nal_reference_idc != 0); };
+    [[nodiscard]] NALU_TYPE GetType() const { return nal_unit_type; }
+    [[nodiscard]] bool IsRefFrame() const { return (nal_reference_idc != 0); }
 
-    [[nodiscard]] int GetDataLength() const { return m_nCurPos - m_nNALDataPos; };
-    [[nodiscard]] BYTE* GetDataBuffer() { return m_pBuffer + m_nNALDataPos; };
+    [[nodiscard]] int GetDataLength() const { return m_nCurPos - m_nNALDataPos; }
+    [[nodiscard]] BYTE* GetDataBuffer() { return m_pBuffer + m_nNALDataPos; }
     [[nodiscard]] int GetRoundedDataLength() const {
         int nSize{m_nCurPos - m_nNALDataPos};
         return nSize + 128 - (nSize % 128);
     }
 
-    [[nodiscard]] int GetLength() const { return m_nCurPos - m_nNALStartPos; };
-    [[nodiscard]] BYTE* GetNALBuffer() { return m_pBuffer + m_nNALStartPos; };
-    [[nodiscard]] bool IsEOF() const { return m_nCurPos >= m_nSize; };
+    [[nodiscard]] int GetLength() const { return m_nCurPos - m_nNALStartPos; }
+    [[nodiscard]] BYTE* GetNALBuffer() { return m_pBuffer + m_nNALStartPos; }
+    [[nodiscard]] bool IsEOF() const { return m_nCurPos >= m_nSize; }
 
     void SetBuffer(BYTE* pBuffer, int nSize, int nNALSize);
     [[nodiscard]] bool ReadNext();

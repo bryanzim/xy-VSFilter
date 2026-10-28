@@ -61,34 +61,34 @@ public:
                       int DialogId,  
                       int TitleId);
 #endif
-    virtual ~CBasePropertyPage() { };
+    virtual ~CBasePropertyPage() { }
     DECLARE_IUNKNOWN
 
     // Override these virtual methods
 
-    virtual HRESULT OnConnect(IUnknown *pUnknown) { return NOERROR; };
-    virtual HRESULT OnDisconnect() { return NOERROR; };
-    virtual HRESULT OnActivate() { return NOERROR; };
-    virtual HRESULT OnDeactivate() { return NOERROR; };
-    virtual HRESULT OnApplyChanges() { return NOERROR; };
+    virtual HRESULT OnConnect(IUnknown *pUnknown) { return NOERROR; }
+    virtual HRESULT OnDisconnect() { return NOERROR; }
+    virtual HRESULT OnActivate() { return NOERROR; }
+    virtual HRESULT OnDeactivate() { return NOERROR; }
+    virtual HRESULT OnApplyChanges() { return NOERROR; }
     virtual INT_PTR OnReceiveMessage(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 
     // These implement an IPropertyPage interface
 
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
-    STDMETHODIMP_(ULONG) NonDelegatingRelease();
-    STDMETHODIMP_(ULONG) NonDelegatingAddRef();
-    STDMETHODIMP SetPageSite(LPPROPERTYPAGESITE pPageSite);
-    STDMETHODIMP Activate(HWND hwndParent,LPCRECT prect,BOOL fModal);
-    STDMETHODIMP Deactivate(void);
-    STDMETHODIMP GetPageInfo(LPPROPPAGEINFO pPageInfo);
-    STDMETHODIMP SetObjects(ULONG cObjects, LPUNKNOWN *ppUnk);
-    STDMETHODIMP Show(UINT nCmdShow);
-    STDMETHODIMP Move(LPCRECT prect);
-    STDMETHODIMP IsPageDirty(void) { return m_bDirty ? S_OK : S_FALSE; }
-    STDMETHODIMP Apply(void);
-    STDMETHODIMP Help(LPCWSTR lpszHelpDir) { return E_NOTIMPL; }
-    STDMETHODIMP TranslateAccelerator(LPMSG lpMsg) { return E_NOTIMPL; }
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingRelease();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingAddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP SetPageSite(LPPROPERTYPAGESITE pPageSite);
+    DECLSPEC_NOTHROW STDMETHODIMP Activate(HWND hwndParent,LPCRECT prect,BOOL fModal);
+    DECLSPEC_NOTHROW STDMETHODIMP Deactivate(void);
+    DECLSPEC_NOTHROW STDMETHODIMP GetPageInfo(LPPROPPAGEINFO pPageInfo);
+    DECLSPEC_NOTHROW STDMETHODIMP SetObjects(ULONG cObjects, LPUNKNOWN *ppUnk);
+    DECLSPEC_NOTHROW STDMETHODIMP Show(UINT nCmdShow);
+    DECLSPEC_NOTHROW STDMETHODIMP Move(LPCRECT prect);
+    DECLSPEC_NOTHROW STDMETHODIMP IsPageDirty(void) { return m_bDirty ? S_OK : S_FALSE; }
+    DECLSPEC_NOTHROW STDMETHODIMP Apply(void);
+    DECLSPEC_NOTHROW STDMETHODIMP Help(LPCWSTR lpszHelpDir) { return E_NOTIMPL; }
+    DECLSPEC_NOTHROW STDMETHODIMP TranslateAccelerator(LPMSG lpMsg) { return E_NOTIMPL; }
 };
 
 #endif // __CPROP__

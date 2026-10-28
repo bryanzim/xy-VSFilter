@@ -20,25 +20,25 @@ SimpleSubpic::SimpleSubpic( IXySubRenderFrame*sub_render_frame, int alpha_blt_ds
 
 SimpleSubpic::~SimpleSubpic()
 {
-    for(unsigned i{0U};i<m_buffers.GetCount();i++)
+    for(unsigned i{0U};i<m_buffers.GetCount();++i)
     {
         xy_free(m_buffers.GetAt(i));
     }
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubpic::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubpic::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPic)
         __super::NonDelegatingQueryInterface(riid, ppv); 
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubpic::AlphaBlt( SubPicDesc* target )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubpic::AlphaBlt( SubPicDesc* target )
 {
     ASSERT(target!=NULL);
     HRESULT hr{S_FALSE};
     int count = m_bitmap.GetCount();
-    for(int i{0};i<count;i++)
+    for(int i{0};i<count;++i)
     {
         switch(target->type)
         {
@@ -461,7 +461,7 @@ SimpleSubpic::~SimpleSubpic()
     }
     m_bitmap.SetCount(count);
     m_buffers.SetCount(count);
-    for (int i{0};i<count;i++)
+    for (int i{0};i<count;++i)
     {
         m_buffers.GetAt(i) = NULL;//safe
 

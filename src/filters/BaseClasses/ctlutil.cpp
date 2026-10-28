@@ -32,7 +32,7 @@ CBaseDispatch::~CBaseDispatch()
 
 // return 1 if we support GetTypeInfo
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseDispatch::GetTypeInfoCount(UINT * pctinfo)
 {
     CheckPointer(pctinfo,E_POINTER);
@@ -54,7 +54,7 @@ typedef HRESULT (STDAPICALLTYPE *LPLOADREGTYPELIB)(REFGUID rguid,
 
 // attempt to find our type library
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseDispatch::GetTypeInfo(
   REFIID riid,
   UINT itinfo,
@@ -141,7 +141,7 @@ CBaseDispatch::GetTypeInfo(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseDispatch::GetIDsOfNames(
   REFIID riid,
   OLECHAR  ** rgszNames,
@@ -173,7 +173,7 @@ CMediaControl::CMediaControl(const TCHAR * name,LPUNKNOWN pUnk) :
 
 // expose our interfaces IMediaControl and IUnknown
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaControl::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -187,7 +187,7 @@ CMediaControl::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 
 // return 1 if we support GetTypeInfo
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaControl::GetTypeInfoCount(UINT * pctinfo)
 {
     return m_basedisp.GetTypeInfoCount(pctinfo);
@@ -196,7 +196,7 @@ CMediaControl::GetTypeInfoCount(UINT * pctinfo)
 
 // attempt to find our type library
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaControl::GetTypeInfo(
   UINT itinfo,
   LCID lcid,
@@ -210,7 +210,7 @@ CMediaControl::GetTypeInfo(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaControl::GetIDsOfNames(
   REFIID riid,
   OLECHAR  ** rgszNames,
@@ -227,7 +227,7 @@ CMediaControl::GetIDsOfNames(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaControl::Invoke(
   DISPID dispidMember,
   REFIID riid,
@@ -275,7 +275,7 @@ CMediaEvent::CMediaEvent(const TCHAR * name,LPUNKNOWN pUnk) :
 
 // expose our interfaces IMediaEvent and IUnknown
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaEvent::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -289,7 +289,7 @@ CMediaEvent::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 
 // return 1 if we support GetTypeInfo
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaEvent::GetTypeInfoCount(UINT * pctinfo)
 {
     return m_basedisp.GetTypeInfoCount(pctinfo);
@@ -298,7 +298,7 @@ CMediaEvent::GetTypeInfoCount(UINT * pctinfo)
 
 // attempt to find our type library
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaEvent::GetTypeInfo(
   UINT itinfo,
   LCID lcid,
@@ -312,7 +312,7 @@ CMediaEvent::GetTypeInfo(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaEvent::GetIDsOfNames(
   REFIID riid,
   OLECHAR  ** rgszNames,
@@ -329,7 +329,7 @@ CMediaEvent::GetIDsOfNames(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaEvent::Invoke(
   DISPID dispidMember,
   REFIID riid,
@@ -385,7 +385,7 @@ CMediaPosition::CMediaPosition(const TCHAR * name,
 
 // expose our interfaces IMediaPosition and IUnknown
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaPosition::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -399,7 +399,7 @@ CMediaPosition::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 
 // return 1 if we support GetTypeInfo
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaPosition::GetTypeInfoCount(UINT * pctinfo)
 {
     return m_basedisp.GetTypeInfoCount(pctinfo);
@@ -408,7 +408,7 @@ CMediaPosition::GetTypeInfoCount(UINT * pctinfo)
 
 // attempt to find our type library
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaPosition::GetTypeInfo(
   UINT itinfo,
   LCID lcid,
@@ -422,7 +422,7 @@ CMediaPosition::GetTypeInfo(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaPosition::GetIDsOfNames(
   REFIID riid,
   OLECHAR  ** rgszNames,
@@ -439,7 +439,7 @@ CMediaPosition::GetIDsOfNames(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaPosition::Invoke(
   DISPID dispidMember,
   REFIID riid,
@@ -495,7 +495,7 @@ CPosPassThru::CPosPassThru(const TCHAR *pName,
 
 // Expose our IMediaSeeking and IMediaPosition interfaces
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::NonDelegatingQueryInterface(REFIID riid,void **ppv)
 {
     CheckPointer(ppv,E_POINTER);
@@ -559,7 +559,7 @@ CPosPassThru::GetPeerSeeking(IMediaSeeking ** ppMS)
 // --- IMediaSeeking methods ----------
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetCapabilities(DWORD * pCaps)
 {
     IMediaSeeking* pMS;
@@ -573,7 +573,7 @@ CPosPassThru::GetCapabilities(DWORD * pCaps)
     return hr;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::CheckCapabilities(DWORD * pCaps)
 {
     IMediaSeeking* pMS;
@@ -587,7 +587,7 @@ CPosPassThru::CheckCapabilities(DWORD * pCaps)
     return hr;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::IsFormatSupported(const GUID * pFormat)
 {
     IMediaSeeking* pMS;
@@ -602,7 +602,7 @@ CPosPassThru::IsFormatSupported(const GUID * pFormat)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::QueryPreferredFormat(GUID *pFormat)
 {
     IMediaSeeking* pMS;
@@ -617,7 +617,7 @@ CPosPassThru::QueryPreferredFormat(GUID *pFormat)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::SetTimeFormat(const GUID * pFormat)
 {
     IMediaSeeking* pMS;
@@ -632,7 +632,7 @@ CPosPassThru::SetTimeFormat(const GUID * pFormat)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetTimeFormat(GUID *pFormat)
 {
     IMediaSeeking* pMS;
@@ -647,7 +647,7 @@ CPosPassThru::GetTimeFormat(GUID *pFormat)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::IsUsingTimeFormat(const GUID * pFormat)
 {
     IMediaSeeking* pMS;
@@ -662,7 +662,7 @@ CPosPassThru::IsUsingTimeFormat(const GUID * pFormat)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::ConvertTimeFormat(LONGLONG * pTarget, const GUID * pTargetFormat,
 				LONGLONG    Source, const GUID * pSourceFormat )
 {
@@ -678,7 +678,7 @@ CPosPassThru::ConvertTimeFormat(LONGLONG * pTarget, const GUID * pTargetFormat,
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::SetPositions( LONGLONG * pCurrent, DWORD CurrentFlags
 			  , LONGLONG * pStop, DWORD StopFlags )
 {
@@ -693,7 +693,7 @@ CPosPassThru::SetPositions( LONGLONG * pCurrent, DWORD CurrentFlags
     return hr;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetPositions(LONGLONG *pCurrent, LONGLONG * pStop)
 {
     IMediaSeeking* pMS;
@@ -725,7 +725,7 @@ CPosPassThru::GetSeekingLongLong
 
 // If we don't have a current position then ask upstream
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetCurrentPosition(LONGLONG *pCurrent)
 {
     // Can we report the current position
@@ -736,27 +736,27 @@ CPosPassThru::GetCurrentPosition(LONGLONG *pCurrent)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetStopPosition(LONGLONG *pStop)
 {
     return GetSeekingLongLong( &IMediaSeeking::GetStopPosition, pStop );;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetDuration(LONGLONG *pDuration)
 {
     return GetSeekingLongLong( &IMediaSeeking::GetDuration, pDuration );;
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetPreroll(LONGLONG *pllPreroll)
 {
     return GetSeekingLongLong( &IMediaSeeking::GetPreroll, pllPreroll );;
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetAvailable( LONGLONG *pEarliest, LONGLONG *pLatest )
 {
     IMediaSeeking* pMS;
@@ -771,7 +771,7 @@ CPosPassThru::GetAvailable( LONGLONG *pEarliest, LONGLONG *pLatest )
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::GetRate(double * pdRate)
 {
     IMediaSeeking* pMS;
@@ -785,7 +785,7 @@ CPosPassThru::GetRate(double * pdRate)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::SetRate(double dRate)
 {
     if (0.0 == dRate) {
@@ -808,7 +808,7 @@ CPosPassThru::SetRate(double dRate)
 // --- IMediaPosition methods ----------
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::get_Duration(REFTIME * plength)
 {
     IMediaPosition* pMP;
@@ -823,7 +823,7 @@ CPosPassThru::get_Duration(REFTIME * plength)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::get_CurrentPosition(REFTIME * pllTime)
 {
     IMediaPosition* pMP;
@@ -837,7 +837,7 @@ CPosPassThru::get_CurrentPosition(REFTIME * pllTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::put_CurrentPosition(REFTIME llTime)
 {
     IMediaPosition* pMP;
@@ -851,7 +851,7 @@ CPosPassThru::put_CurrentPosition(REFTIME llTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::get_StopTime(REFTIME * pllTime)
 {
     IMediaPosition* pMP;
@@ -865,7 +865,7 @@ CPosPassThru::get_StopTime(REFTIME * pllTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::put_StopTime(REFTIME llTime)
 {
     IMediaPosition* pMP;
@@ -879,7 +879,7 @@ CPosPassThru::put_StopTime(REFTIME llTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::get_PrerollTime(REFTIME * pllTime)
 {
     IMediaPosition* pMP;
@@ -893,7 +893,7 @@ CPosPassThru::get_PrerollTime(REFTIME * pllTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::put_PrerollTime(REFTIME llTime)
 {
     IMediaPosition* pMP;
@@ -907,7 +907,7 @@ CPosPassThru::put_PrerollTime(REFTIME llTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::get_Rate(double * pdRate)
 {
     IMediaPosition* pMP;
@@ -921,7 +921,7 @@ CPosPassThru::get_Rate(double * pdRate)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::put_Rate(double dRate)
 {
     if (0.0 == dRate) {
@@ -939,7 +939,7 @@ CPosPassThru::put_Rate(double dRate)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::CanSeekForward(LONG *pCanSeekForward)
 {
     IMediaPosition* pMP;
@@ -953,7 +953,7 @@ CPosPassThru::CanSeekForward(LONG *pCanSeekForward)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CPosPassThru::CanSeekBackward(LONG *pCanSeekBackward)
 {
     IMediaPosition* pMP;
@@ -1347,7 +1347,7 @@ CSourcePosition::CSourcePosition(const TCHAR * pName,
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::get_Duration(REFTIME * plength)
 {
     CheckPointer(plength,E_POINTER);
@@ -1359,7 +1359,7 @@ CSourcePosition::get_Duration(REFTIME * plength)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::put_CurrentPosition(REFTIME llTime)
 {
     m_pLock->Lock();
@@ -1370,7 +1370,7 @@ CSourcePosition::put_CurrentPosition(REFTIME llTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::get_StopTime(REFTIME * pllTime)
 {
     CheckPointer(pllTime,E_POINTER);
@@ -1382,7 +1382,7 @@ CSourcePosition::get_StopTime(REFTIME * pllTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::put_StopTime(REFTIME llTime)
 {
     m_pLock->Lock();
@@ -1393,7 +1393,7 @@ CSourcePosition::put_StopTime(REFTIME llTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::get_PrerollTime(REFTIME * pllTime)
 {
     CheckPointer(pllTime,E_POINTER);
@@ -1402,14 +1402,14 @@ CSourcePosition::get_PrerollTime(REFTIME * pllTime)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::put_PrerollTime(REFTIME llTime)
 {
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::get_Rate(double * pdRate)
 {
     CheckPointer(pdRate,E_POINTER);
@@ -1421,7 +1421,7 @@ CSourcePosition::get_Rate(double * pdRate)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::put_Rate(double dRate)
 {
     m_pLock->Lock();
@@ -1434,7 +1434,7 @@ CSourcePosition::put_Rate(double dRate)
 
 // By default we can seek forwards
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::CanSeekForward(LONG *pCanSeekForward)
 {
     CheckPointer(pCanSeekForward,E_POINTER);
@@ -1445,7 +1445,7 @@ CSourcePosition::CanSeekForward(LONG *pCanSeekForward)
 
 // By default we can seek backwards
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSourcePosition::CanSeekBackward(LONG *pCanSeekBackward)
 {
     CheckPointer(pCanSeekBackward,E_POINTER);
@@ -1464,7 +1464,7 @@ CBasicAudio::CBasicAudio(const TCHAR * pName,LPUNKNOWN punk) :
 
 // overriden to publicise our interfaces
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasicAudio::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -1476,14 +1476,14 @@ CBasicAudio::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasicAudio::GetTypeInfoCount(UINT * pctinfo)
 {
     return m_basedisp.GetTypeInfoCount(pctinfo);
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasicAudio::GetTypeInfo(
   UINT itinfo,
   LCID lcid,
@@ -1497,7 +1497,7 @@ CBasicAudio::GetTypeInfo(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasicAudio::GetIDsOfNames(
   REFIID riid,
   OLECHAR  ** rgszNames,
@@ -1514,7 +1514,7 @@ CBasicAudio::GetIDsOfNames(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasicAudio::Invoke(
   DISPID dispidMember,
   REFIID riid,
@@ -1561,7 +1561,7 @@ CBaseVideoWindow::CBaseVideoWindow(const TCHAR * pName,LPUNKNOWN punk) :
 
 // overriden to publicise our interfaces
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseVideoWindow::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -1573,14 +1573,14 @@ CBaseVideoWindow::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseVideoWindow::GetTypeInfoCount(UINT * pctinfo)
 {
     return m_basedisp.GetTypeInfoCount(pctinfo);
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseVideoWindow::GetTypeInfo(
   UINT itinfo,
   LCID lcid,
@@ -1594,7 +1594,7 @@ CBaseVideoWindow::GetTypeInfo(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseVideoWindow::GetIDsOfNames(
   REFIID riid,
   OLECHAR  ** rgszNames,
@@ -1611,7 +1611,7 @@ CBaseVideoWindow::GetIDsOfNames(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseVideoWindow::Invoke(
   DISPID dispidMember,
   REFIID riid,
@@ -1659,7 +1659,7 @@ CBaseBasicVideo::CBaseBasicVideo(const TCHAR * pName,LPUNKNOWN punk) :
 
 // overriden to publicise our interfaces
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseBasicVideo::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -1671,14 +1671,14 @@ CBaseBasicVideo::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseBasicVideo::GetTypeInfoCount(UINT * pctinfo)
 {
     return m_basedisp.GetTypeInfoCount(pctinfo);
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseBasicVideo::GetTypeInfo(
   UINT itinfo,
   LCID lcid,
@@ -1692,7 +1692,7 @@ CBaseBasicVideo::GetTypeInfo(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseBasicVideo::GetIDsOfNames(
   REFIID riid,
   OLECHAR  ** rgszNames,
@@ -1709,7 +1709,7 @@ CBaseBasicVideo::GetIDsOfNames(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseBasicVideo::Invoke(
   DISPID dispidMember,
   REFIID riid,
@@ -1980,7 +1980,7 @@ CDeferredCommand::~CDeferredCommand()
 
 // overriden to publicise our interfaces
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CDeferredCommand::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -1996,7 +1996,7 @@ CDeferredCommand::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 // holds a count) but can't make us go away since he must have a
 // refcount in order to call this method.
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CDeferredCommand::Cancel()
 {
     if (m_pQueue == NULL) {
@@ -2013,14 +2013,14 @@ CDeferredCommand::Cancel()
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CDeferredCommand::Confidence(LONG* pConfidence)
 {
     return E_NOTIMPL;
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CDeferredCommand::GetHResult(HRESULT * phrResult)
 {
     CheckPointer(phrResult,E_POINTER);
@@ -2037,7 +2037,7 @@ CDeferredCommand::GetHResult(HRESULT * phrResult)
 // set the time to be a new time (checking that it is valid) and
 // then requeue
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CDeferredCommand::Postpone(REFTIME newtime)
 {
 

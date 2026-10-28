@@ -130,7 +130,7 @@ extern HINSTANCE g_hInst;
 /* On DLL load remember which platform we are running on */
 
 extern DWORD g_amPlatform;
-extern OSVERSIONINFO g_osInfo;     // Filled in by GetVersionEx
+extern OSVERSIONINFO g_osInfo;     // Windows NT; this binary does not run on Win9x
 
 /* Version of IUnknown that is renamed to allow a class to support both
    non delegating and delegating IUnknowns in the same COM object */
@@ -189,7 +189,7 @@ public:
 
     static LONG ObjectsActive() {
         return m_cObjects;
-    };
+    }
 };
 
 
@@ -209,7 +209,7 @@ protected:                      /* So we can override NonDelegatingRelease() */
 public:
 
     CUnknown(const TCHAR *pName, LPUNKNOWN pUnk);
-    virtual ~CUnknown() {};
+    virtual ~CUnknown() {}
 
     // This is redundant, just use the other constructor
     //   as we never touch the HRESULT in this anyway
@@ -223,7 +223,7 @@ public:
 
     LPUNKNOWN GetOwner() const {
         return m_pUnknown;
-    };
+    }
 
     /* Called from the class factory to create a new instance, it is
        pure virtual so it must be overriden in your derived class */
@@ -232,9 +232,9 @@ public:
 
     /* Non delegating unknown implementation */
 
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID, void **);
-    STDMETHODIMP_(ULONG) NonDelegatingAddRef();
-    STDMETHODIMP_(ULONG) NonDelegatingRelease();
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID, void **);
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingAddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingRelease();
 };
 
 #if (_MSC_VER <= 1200)
@@ -283,12 +283,12 @@ public:
 
     BOOL IsClassID(REFCLSID rclsid) const {
         return (IsEqualCLSID(*m_ClsID,rclsid));
-    };
+    }
 
     CUnknown *CreateInstance(LPUNKNOWN pUnk, HRESULT *phr) const {
         CheckPointer(phr,NULL);
         return m_lpfnNew(pUnk, phr);
-    };
+    }
 };
 
 
@@ -297,15 +297,15 @@ public:
    class supports (the default implementation only supports IUnknown) */
 
 #define DECLARE_IUNKNOWN                                        \
-    STDMETHODIMP QueryInterface(REFIID riid, void **ppv) {      \
+    DECLSPEC_NOTHROW STDMETHODIMP QueryInterface(REFIID riid, void **ppv) {      \
         return GetOwner()->QueryInterface(riid,ppv);            \
-    };                                                          \
-    STDMETHODIMP_(ULONG) AddRef() {                             \
+    }                                                           \
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) AddRef() {                             \
         return GetOwner()->AddRef();                            \
-    };                                                          \
-    STDMETHODIMP_(ULONG) Release() {                            \
+    }                                                           \
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) Release() {                            \
         return GetOwner()->Release();                           \
-    };
+    }
 
 
 

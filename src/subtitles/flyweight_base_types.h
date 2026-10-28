@@ -65,7 +65,7 @@ public:
         POSITION pos{cacher->AddHeadIfNotExists(_v, INVALID_ID, &new_item_added)};
         if ( !new_item_added )
         {
-            cacher->UpdateCache(pos);
+            (void)cacher->UpdateCache(pos);
             _v = cacher->GetKeyAt(pos);
             _id = cacher->GetAt(pos);
         }
@@ -90,7 +90,7 @@ template<typename V, int DEFAULT_CACHE_SIZE, class VTraits>
 inline
 typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::Cacher* XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::GetCacher()
 {
-    [[nodiscard]] static Cacher cacher(DEFAULT_CACHE_SIZE);
+    static Cacher cacher(DEFAULT_CACHE_SIZE);
     return &cacher;
 }
 

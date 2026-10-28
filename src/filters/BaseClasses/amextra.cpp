@@ -44,7 +44,7 @@ CRenderedInputPin::CRenderedInputPin(CHAR *pObjectName,
 // Flush end of stream condition - caller should do any
 // necessary stream level locking before calling this
 
-STDMETHODIMP CRenderedInputPin::EndOfStream()
+DECLSPEC_NOTHROW STDMETHODIMP CRenderedInputPin::EndOfStream()
 {
     HRESULT hr = CheckStreaming();
 
@@ -63,7 +63,7 @@ STDMETHODIMP CRenderedInputPin::EndOfStream()
 
 // Called to complete the flush
 
-STDMETHODIMP CRenderedInputPin::EndFlush()
+DECLSPEC_NOTHROW STDMETHODIMP CRenderedInputPin::EndFlush()
 {
     CAutoLock lck(m_pLock);
 

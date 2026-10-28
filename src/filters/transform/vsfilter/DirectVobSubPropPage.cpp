@@ -74,11 +74,11 @@ void EditStyle(HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* default_styl
         XY_LOG_FATAL("Overflow");
         return NULL;
     }
-    for (int i{0};i<count;i++)
+    for (int i{0};i<count;++i)
     {
         ret[i].style = NULL;
     }
-    for (int i{0};i<count;i++)
+    for (int i{0};i<count;++i)
     {
         ret[i].style = DEBUG_NEW STSStyle{};
         if (ret[i].style==NULL)
@@ -98,7 +98,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
     {
         return;
     }
-    for (int i{0}; i<count; i++)
+    for (int i{0}; i<count; ++i)
     {
         delete static_cast<STSStyle*>(style[i].style);
     }
@@ -141,7 +141,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
     }
     (*pages)[0U].init(_T("Global Default"), &default_style);
     dlg.AddPage(*pages);
-    for (int i{0};i<count;i++)
+    for (int i{0};i<count;++i)
     {
         ASSERT(sub_styles);
         CString title{sub_styles[i].name};
@@ -175,7 +175,7 @@ void EditStyle(const HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* defaul
         *default_style = pages[0U].m_stss;
         if (style_count>0)
         {
-            for (int i{0};i<style_count;i++)
+            for (int i{0};i<style_count;++i)
             {
                 *static_cast<STSStyle*>(styles[i].style) = pages[i+1].m_stss;
             }
@@ -190,7 +190,7 @@ void EditStyle(const HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* defaul
 
 /************************************************************************/
 
-[[nodiscard]] STDMETHODIMP CDVSBasePPage::GetPageInfo(const LPPROPPAGEINFO pPageInfo)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CDVSBasePPage::GetPageInfo(const LPPROPPAGEINFO pPageInfo)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -230,7 +230,7 @@ void EditStyle(const HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* defaul
     return NOERROR;
 }
 
-[[nodiscard]] STDMETHODIMP CDVSBasePPage::Activate(const HWND hwndParent, const LPCRECT pRect, const BOOL fModal)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CDVSBasePPage::Activate(const HWND hwndParent, const LPCRECT pRect, const BOOL fModal)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -387,10 +387,10 @@ CDVSBasePPage::CDVSBasePPage(TCHAR* pName, LPUNKNOWN lpunk, int DialogId, int Ti
 
     if(m_bIsInitialized)
     {
-        OnDeactivate();
+        (void)OnDeactivate();
         UpdateObjectData(true);
         m_pDirectVobSub->UpdateRegistry(); // *
-        OnActivate();
+        (void)OnActivate();
     }
 
     return NOERROR;
@@ -476,7 +476,7 @@ void CDVSMainPPage::FreeLangs()
 {
     if(m_nLangs > 0 && m_ppLangs) 
     {
-        for(int i{0}; i < m_nLangs; i++)
+        for(int i{0}; i < m_nLangs; ++i)
         {
             CoTaskMemFree(m_ppLangs[i]);
         }
@@ -548,7 +548,7 @@ void CDVSMainPPage::UpdateObjectData(const bool fSave)
             hr = m_pDirectVobSub->get_LanguageCount(&nLangs);
             CHECK_N_LOG(hr, "Failed to get option");
             AllocLangs(nLangs);
-            for(int i{0}; i < m_nLangs; i++) {
+            for(int i{0}; i < m_nLangs; ++i) {
                 hr = m_pDirectVobSub->get_LanguageName(i, &m_ppLangs[i]);
                 CHECK_N_LOG(hr, "Failed to get option");
             }
@@ -577,7 +577,7 @@ void CDVSMainPPage::UpdateObjectData(const bool fSave)
         hr = m_pDirectVobSub->get_LanguageCount(&nLangs); 
         CHECK_N_LOG(hr, "Failed to get option");
         AllocLangs(nLangs);
-        for(int i{0}; i < m_nLangs; i++) {
+        for(int i{0}; i < m_nLangs; ++i) {
             hr = m_pDirectVobSub->get_LanguageName(i, &m_ppLangs[i]);
             CHECK_N_LOG(hr, "Failed to get option");
         }
@@ -636,7 +636,7 @@ void CDVSMainPPage::UpdateControlData(const bool fSave)
         m_forcedsubs.SetCheck(m_fOnlyShowForcedVobSubs);
         m_langs.ResetContent();
         m_langs.EnableWindow(m_nLangs > 0);
-        for(int i{0}; i < m_nLangs; i++)
+        for(int i{0}; i < m_nLangs; ++i)
         {
             m_langs.AddString(CString(m_ppLangs[i]));
         }
@@ -1404,7 +1404,7 @@ CDVSColorPPage::CDVSColorPPage(LPUNKNOWN pUnk, HRESULT* phr
                                 int iPos{static_cast<int>(m_outputFmtList.GetItemData(sel))};
                                 BOOL checked{m_outputFmtList.GetCheck(sel)};
                                 m_outputFmtList.DeleteItem(sel);
-                                sel--;
+                                --sel;
                                 m_outputFmtList.InsertItem(sel, str);
                                 m_outputFmtList.SetItemData(sel, iPos);
                                 m_outputFmtList.SetItemState(sel, LVIS_SELECTED,LVIS_SELECTED);
@@ -1426,7 +1426,7 @@ CDVSColorPPage::CDVSColorPPage(LPUNKNOWN pUnk, HRESULT* phr
                                 int iPos{static_cast<int>(m_outputFmtList.GetItemData(sel))};
                                 BOOL checked{m_outputFmtList.GetCheck(sel)};
                                 m_outputFmtList.DeleteItem(sel);
-                                sel++;
+                                ++sel;
                                 m_outputFmtList.InsertItem(sel, str);
                                 m_outputFmtList.SetItemData(sel, iPos);
                                 m_outputFmtList.SetItemState(sel, LVIS_SELECTED,LVIS_SELECTED);
@@ -1488,7 +1488,7 @@ void CDVSColorPPage::UpdateControlData(const bool fSave)
     {
         if(m_outputFmtList.GetItemCount() == m_outputColorSpaceCount)
         {
-            for(int i{0}; i < m_outputColorSpaceCount; i++)
+            for(int i{0}; i < m_outputColorSpaceCount; ++i)
             {
                 m_outputColorSpace[i].color_space = static_cast<ColorSpaceId>(m_outputFmtList.GetItemData(i));
                 m_outputColorSpace[i].selected = (m_outputFmtList.GetCheck(i)==TRUE);
@@ -1500,7 +1500,7 @@ void CDVSColorPPage::UpdateControlData(const bool fSave)
         }
         if(m_inputFmtList.GetItemCount() == m_inputColorSpaceCount)
         {
-            for(int i{0}; i < m_inputColorSpaceCount; i++)
+            for(int i{0}; i < m_inputColorSpaceCount; ++i)
             {
                 m_inputColorSpace[i].color_space = static_cast<ColorSpaceId>(m_inputFmtList.GetItemData(i));
                 m_inputColorSpace[i].selected = (m_inputFmtList.GetCheck(i)==TRUE);
@@ -1524,7 +1524,7 @@ void CDVSColorPPage::UpdateControlData(const bool fSave)
         m_outputFmtList.DeleteColumn(0);
         m_outputFmtList.SetExtendedStyle( (m_outputFmtList.GetStyle()|LVS_EX_CHECKBOXES) & ~LVS_EX_GRIDLINES );
         m_outputFmtList.InsertColumn(0, _T("output"), LVCFMT_LEFT, 148);
-        for(int i{0}; i < static_cast<int>(m_outputColorSpaceCount); i++)
+        for(int i{0}; i < static_cast<int>(m_outputColorSpaceCount); ++i)
         {
             m_outputFmtList.InsertItem(i, GetColorSpaceName(m_outputColorSpace[i].color_space,OUTPUT_COLOR_SPACE));
             m_outputFmtList.SetItemData(i, m_outputColorSpace[i].color_space);
@@ -1536,7 +1536,7 @@ void CDVSColorPPage::UpdateControlData(const bool fSave)
         m_inputFmtList.DeleteColumn(0);
         m_inputFmtList.SetExtendedStyle(m_inputFmtList.GetStyle()|LVS_EX_CHECKBOXES);
         m_inputFmtList.InsertColumn(0, _T("input"), LVCFMT_LEFT, 150);		
-        for(int i{0}; i < static_cast<int>(m_inputColorSpaceCount); i++)
+        for(int i{0}; i < static_cast<int>(m_inputColorSpaceCount); ++i)
         {
             m_inputFmtList.InsertItem(i, GetColorSpaceName(m_inputColorSpace[i].color_space,INPUT_COLOR_SPACE));
             m_inputFmtList.SetItemData(i, m_inputColorSpace[i].color_space);
@@ -1685,7 +1685,7 @@ void CDVSPathsPPage::UpdateObjectData(const bool fSave)
         }
         while(path != chk);
 
-        for(i = 0; i < m_paths.GetSize(); i++)
+        for(i = 0; i < m_paths.GetSize(); ++i)
         {
             tmp.Format(ResStr(IDS_RP_PATH), i);
             theApp.WriteProfileString(ResStr(IDS_R_DEFTEXTPATHES), tmp, m_paths[i]);
@@ -1713,7 +1713,7 @@ void CDVSPathsPPage::UpdateControlData(const bool fSave)
     if(fSave)
     {
         m_paths.RemoveAll();
-        for(int i{0}; i < m_pathlist.GetCount(); i++) 
+        for(int i{0}; i < m_pathlist.GetCount(); ++i) 
         {
             CString path;
             m_pathlist.GetText(i, path);
@@ -1723,7 +1723,7 @@ void CDVSPathsPPage::UpdateControlData(const bool fSave)
     else
     {
         m_pathlist.ResetContent();
-        for(int i{0}; i < m_paths.GetSize(); i++)
+        for(int i{0}; i < m_paths.GetSize(); ++i)
         { 
             m_pathlist.AddString(m_paths[i]);
         }
@@ -1766,7 +1766,7 @@ void CXySubFilterMainPPage::FreeLangs()
 {
     if(m_nLangs > 0 && m_ppLangs) 
     {
-        for(int i{0}; i < m_nLangs; i++)
+        for(int i{0}; i < m_nLangs; ++i)
         {
             CoTaskMemFree(m_ppLangs[i]);
         }
@@ -1850,7 +1850,7 @@ void CXySubFilterMainPPage::UpdateObjectData(const bool fSave)
             hr = m_pDirectVobSub->get_LanguageCount(&nLangs);
             CHECK_N_LOG(hr, "Failed to get option");
             AllocLangs(nLangs);
-            for(int i{0}; i < m_nLangs; i++) {
+            for(int i{0}; i < m_nLangs; ++i) {
                 hr = m_pDirectVobSub->get_LanguageName(i, &m_ppLangs[i]);
                 CHECK_N_LOG(hr, "Failed to get option");
             }
@@ -1883,7 +1883,7 @@ void CXySubFilterMainPPage::UpdateObjectData(const bool fSave)
         hr = m_pDirectVobSub->get_LanguageCount(&nLangs); 
         CHECK_N_LOG(hr, "Failed to get option");
         AllocLangs(nLangs);
-        for(int i{0}; i < m_nLangs; i++) {
+        for(int i{0}; i < m_nLangs; ++i) {
             hr = m_pDirectVobSub->get_LanguageName(i, &m_ppLangs[i]);
             CHECK_N_LOG(hr, "Failed to get option");
         }
@@ -1948,7 +1948,7 @@ void CXySubFilterMainPPage::UpdateControlData(const bool fSave)
         m_forcedsubs.SetCheck(m_fOnlyShowForcedVobSubs);
         m_langs.ResetContent();
         m_langs.EnableWindow(m_nLangs > 0);
-        for(int i{0}; i < m_nLangs; i++)
+        for(int i{0}; i < m_nLangs; ++i)
         {
             m_langs.AddString(CString(m_ppLangs[i]));
         }

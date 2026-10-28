@@ -57,11 +57,11 @@ class CPersistStream : public IPersistStream {
 
         // IPersistStream methods
 
-        STDMETHODIMP IsDirty()
+        DECLSPEC_NOTHROW STDMETHODIMP IsDirty()
             {return (mPS_fDirty ? S_OK : S_FALSE);}  // note FALSE means clean
-        STDMETHODIMP Load(LPSTREAM pStm);
-        STDMETHODIMP Save(LPSTREAM pStm, BOOL fClearDirty);
-        STDMETHODIMP GetSizeMax(ULARGE_INTEGER * pcbSize)
+        DECLSPEC_NOTHROW STDMETHODIMP Load(LPSTREAM pStm);
+        DECLSPEC_NOTHROW STDMETHODIMP Save(LPSTREAM pStm, BOOL fClearDirty);
+        DECLSPEC_NOTHROW STDMETHODIMP GetSizeMax(ULARGE_INTEGER * pcbSize)
                          // Allow 24 bytes for version.
                          { pcbSize->QuadPart = 12*sizeof(WCHAR)+SizeMax(); return NOERROR; }
 
@@ -75,12 +75,12 @@ class CPersistStream : public IPersistStream {
 
 
         // override to reveal IPersist & IPersistStream
-        // STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+        // DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
         // --- IPersist ---
 
         // You must override this to provide your own class id
-        STDMETHODIMP GetClassID(CLSID *pClsid) PURE;
+        DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID *pClsid) PURE;
 
         // overrideable if you want
         // file version number.  Override it if you ever change format

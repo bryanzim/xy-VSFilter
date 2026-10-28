@@ -33,7 +33,7 @@ OSVERSIONINFO g_osInfo;
 // it uses the CFactoryTemplate object it is given to support the
 // IClassFactory interface
 
-class CClassFactory : public IClassFactory, public CBaseObject
+class CClassFactory final : public IClassFactory, public CBaseObject
 {
 
 private:
@@ -46,18 +46,18 @@ public:
     CClassFactory(const CFactoryTemplate *);
 
     // IUnknown
-    STDMETHODIMP QueryInterface(REFIID riid, void ** ppv);
-    STDMETHODIMP_(ULONG)AddRef();
-    STDMETHODIMP_(ULONG)Release();
+    DECLSPEC_NOTHROW STDMETHODIMP QueryInterface(REFIID riid, void ** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)AddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)Release();
 
     // IClassFactory
-    STDMETHODIMP CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void **pv);
-    STDMETHODIMP LockServer(BOOL fLock);
+    DECLSPEC_NOTHROW STDMETHODIMP CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void **pv);
+    DECLSPEC_NOTHROW STDMETHODIMP LockServer(BOOL fLock);
 
     // allow DLLGetClassObject to know about global server lock status
     static BOOL IsLocked() {
         return (m_cLocked > 0);
-    };
+    }
 };
 
 // process-wide dll locked state
@@ -71,7 +71,7 @@ CClassFactory::CClassFactory(const CFactoryTemplate *pTemplate)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CClassFactory::QueryInterface(REFIID riid,void **ppv)
 {
     CheckPointer(ppv,E_POINTER)
@@ -90,13 +90,13 @@ CClassFactory::QueryInterface(REFIID riid,void **ppv)
 }
 
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CClassFactory::AddRef()
 {
     return ++m_cRef;
 }
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CClassFactory::Release()
 {
     if (--m_cRef == 0) {
@@ -107,7 +107,7 @@ CClassFactory::Release()
     }
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CClassFactory::CreateInstance(
     LPUNKNOWN pUnkOuter,
     REFIID riid,
@@ -165,7 +165,7 @@ CClassFactory::CreateInstance(
     return hr;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CClassFactory::LockServer(BOOL fLock)
 {
     if (fLock) {
@@ -272,17 +272,11 @@ DllEntryPoint(HINSTANCE hInstance, ULONG ulReason, LPVOID pv)
         DbgInitialise(hInstance);
 
     	{
-    	    // The platform identifier is used to work out whether
-    	    // full unicode support is available or not.  Hence the
-    	    // default will be the lowest common denominator - i.e. N/A
-                g_amPlatform = VER_PLATFORM_WIN32_WINDOWS; // win95 assumed in case GetVersionEx fails
-    
+    	    // g_amPlatform selects LoadStringW. This binary only runs on
+    	    // Windows NT, which has full Unicode support.
                 g_osInfo.dwOSVersionInfoSize = sizeof(g_osInfo);
-                if (GetVersionEx(&g_osInfo)) {
-            	g_amPlatform = g_osInfo.dwPlatformId;
-    	    } else {
-    		DbgLog((LOG_ERROR, 1, TEXT("Failed to get the OS platform, assuming Win95")));
-    	    }
+                g_osInfo.dwPlatformId = VER_PLATFORM_WIN32_NT;
+                g_amPlatform = VER_PLATFORM_WIN32_NT;
     	}
 
         g_hInst = hInstance;

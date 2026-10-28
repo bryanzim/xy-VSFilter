@@ -196,7 +196,7 @@ ConvMatrix::~ConvMatrix()
 
 {
     int * *p_matrix{(int **)m_matrix};
-    for(int i{0};i<LEVEL_COUNT*COLOR_COUNT*LEVEL_COUNT*COLOR_COUNT;i++)
+    for(int i{0};i<LEVEL_COUNT*COLOR_COUNT*LEVEL_COUNT*COLOR_COUNT;++i)
     {
         if (p_matrix[i])
         {
@@ -253,7 +253,7 @@ ConvMatrix::~ConvMatrix()
     //InitMatrix(LEVEL_TV, COLOR_YUV_709, LEVEL_TV, COLOR_RGB);
     //InitMatrix(LEVEL_TV, COLOR_YUV_2020, LEVEL_TV, COLOR_RGB);
     return true;
-};
+}
 
 void ConvMatrix::InitMatrix( const int in_level, const int in_type, const int out_level, const int out_type )
 {
@@ -271,7 +271,7 @@ void ConvMatrix::InitMatrix( const int in_level, const int in_type, const int ou
     MultiplyMatrix(p_matrix, MATRIX_TRANS[out_type]);
     MultiplyMatrix(p_matrix, MATRIX_INV_TRANS[in_type]);
     MultiplyMatrix(p_matrix, MATRIX_DE_QUAN[in_level][in_type]);
-    for (int i{0};i<3*4;i++)
+    for (int i{0};i<3*4;++i)
     {
         out_matrix[i] = p_matrix[i] * (1<<16) + 0.5f;
         ASSERT(out_matrix[i] < (1<<24));
@@ -286,7 +286,7 @@ void ConvMatrix::InitVSFilterCompactCorretionMatrix()
     float *p_matrix{&matrix[0U][0U]};
     std::memcpy(p_matrix, MATRIX_INV_TRANS[COLOR_YUV_709], 3*4*sizeof(float));
     MultiplyMatrix(p_matrix, MATRIX_TRANS[COLOR_YUV_601]);
-    for (int i{0};i<3*4;i++)
+    for (int i{0};i<3*4;++i)
     {
         out_matrix[i] = p_matrix[i] * (1<<16) + 0.5f;
         ASSERT(out_matrix[i] < (1<<24));
@@ -297,7 +297,7 @@ void ConvMatrix::InitVSFilterCompactCorretionMatrix()
     MultiplyMatrix(p_matrix, MATRIX_INV_TRANS[COLOR_YUV_709]);
     MultiplyMatrix(p_matrix, MATRIX_TRANS[COLOR_YUV_601]);
     MultiplyMatrix(p_matrix, MATRIX_DE_QUAN[LEVEL_PC][COLOR_RGB]);
-    for (int i{0};i<3*4;i++)
+    for (int i{0};i<3*4;++i)
     {
         out_matrix[i] = p_matrix[i] * (1<<16) + 0.5f;
         ASSERT(out_matrix[i] < (1<<24));
@@ -550,7 +550,7 @@ public:
     ConvMatrix    _conv_matrix;//for YUV to YUV or other complicated conversions
 };
 
-[[nodiscard]] ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
+ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
 
 [[nodiscard]] bool ConvFunc::InitConvFunc(const YuvMatrixType yuv_type, const YuvRangeType range)
 
@@ -640,7 +640,7 @@ public:
 
 ConvFunc::ConvFunc( YuvMatrixType yuv_type, YuvRangeType range )
 {
-    _conv_matrix.Init();
+    (void)_conv_matrix.Init();
 
     _conv_matrix.InitMatrix(
         ConvMatrix::LEVEL_TV, ConvMatrix::COLOR_YUV_601,
@@ -720,7 +720,7 @@ ConvFunc::ConvFunc( YuvMatrixType yuv_type, YuvRangeType range )
         ConvMatrix::LEVEL_PC, ConvMatrix::COLOR_YUV_2020,
         ConvMatrix::LEVEL_PC, ConvMatrix::COLOR_YUV_709);
 
-    InitConvFunc(yuv_type, range);
+    (void)InitConvFunc(yuv_type, range);
 }
 
 //
@@ -743,7 +743,7 @@ void ColorConvTable::SetDefaultConvType( const YuvMatrixType yuv_type, const Yuv
 {
     if( s_default_conv_set._yuv_type != yuv_type || s_default_conv_set._range_type != range )
     {
-        s_default_conv_set.InitConvFunc(yuv_type, range);
+        (void)s_default_conv_set.InitConvFunc(yuv_type, range);
     }
 }
 

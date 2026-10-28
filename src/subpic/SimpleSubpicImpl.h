@@ -10,10 +10,10 @@ public:
     SimpleSubpic(IXySubRenderFrame*sub_render_frame, int alpha_blt_dst_type);
     ~SimpleSubpic();
 public:
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    [[nodiscard]] STDMETHODIMP AlphaBlt(SubPicDesc* target);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AlphaBlt(SubPicDesc* target);
 private:
     struct Bitmap
     {

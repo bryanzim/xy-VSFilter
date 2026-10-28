@@ -83,35 +83,35 @@ public:
     DECLARE_IUNKNOWN
 
     // override this to say what interfaces we support where
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 
     //
     // --- IPersist method ---
     //
 
-    STDMETHODIMP GetClassID(CLSID *pClsID);
+    DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID *pClsID);
 
     // --- IMediaFilter methods ---
 
-    STDMETHODIMP GetState(DWORD dwMSecs, FILTER_STATE *State);
+    DECLSPEC_NOTHROW STDMETHODIMP GetState(DWORD dwMSecs, FILTER_STATE *State);
 
-    STDMETHODIMP SetSyncSource(IReferenceClock *pClock);
+    DECLSPEC_NOTHROW STDMETHODIMP SetSyncSource(IReferenceClock *pClock);
 
-    STDMETHODIMP GetSyncSource(IReferenceClock **pClock);
+    DECLSPEC_NOTHROW STDMETHODIMP GetSyncSource(IReferenceClock **pClock);
 
     // default implementation of Stop and Pause just record the
     // state. Override to activate or de-activate your filter.
     // Note that Run when called from Stopped state will call Pause
     // to ensure activation, so if you are a source or transform
     // you will probably not need to override Run.
-    STDMETHODIMP Stop();
-    STDMETHODIMP Pause();
+    DECLSPEC_NOTHROW STDMETHODIMP Stop();
+    DECLSPEC_NOTHROW STDMETHODIMP Pause();
 
 
     // the start parameter is the difference to be added to the
     // sample's stream time to get the reference time for
     // its presentation
-    STDMETHODIMP Run(REFERENCE_TIME tStart);
+    DECLSPEC_NOTHROW STDMETHODIMP Run(REFERENCE_TIME tStart);
 
     // --- helper methods ---
 
@@ -123,7 +123,7 @@ public:
     BOOL IsActive() {
         CAutoLock cObjectLock(m_pLock);
         return ((m_State == State_Paused) || (m_State == State_Running));
-    };
+    }
 };
 
 //=====================================================================
@@ -198,37 +198,37 @@ public:
     DECLARE_IUNKNOWN
 
     // override this to say what interfaces we support where
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 #ifdef DEBUG
-    STDMETHODIMP_(ULONG) NonDelegatingRelease();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingRelease();
 #endif
 
     //
     // --- IPersist method ---
     //
 
-    STDMETHODIMP GetClassID(CLSID *pClsID);
+    DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID *pClsID);
 
     // --- IMediaFilter methods ---
 
-    STDMETHODIMP GetState(DWORD dwMSecs, FILTER_STATE *State);
+    DECLSPEC_NOTHROW STDMETHODIMP GetState(DWORD dwMSecs, FILTER_STATE *State);
 
-    STDMETHODIMP SetSyncSource(IReferenceClock *pClock);
+    DECLSPEC_NOTHROW STDMETHODIMP SetSyncSource(IReferenceClock *pClock);
 
-    STDMETHODIMP GetSyncSource(IReferenceClock **pClock);
+    DECLSPEC_NOTHROW STDMETHODIMP GetSyncSource(IReferenceClock **pClock);
 
 
     // override Stop and Pause so we can activate the pins.
     // Note that Run will call Pause first if activation needed.
     // Override these if you want to activate your filter rather than
     // your pins.
-    STDMETHODIMP Stop();
-    STDMETHODIMP Pause();
+    DECLSPEC_NOTHROW STDMETHODIMP Stop();
+    DECLSPEC_NOTHROW STDMETHODIMP Pause();
 
     // the start parameter is the difference to be added to the
     // sample's stream time to get the reference time for
     // its presentation
-    STDMETHODIMP Run(REFERENCE_TIME tStart);
+    DECLSPEC_NOTHROW STDMETHODIMP Run(REFERENCE_TIME tStart);
 
     // --- helper methods ---
 
@@ -240,39 +240,39 @@ public:
     BOOL IsActive() {
         CAutoLock cObjectLock(m_pLock);
         return ((m_State == State_Paused) || (m_State == State_Running));
-    };
+    }
 
     // Is this filter stopped (without locking)
     BOOL IsStopped() {
         return (m_State == State_Stopped);
-    };
+    }
 
     //
     // --- IBaseFilter methods ---
     //
 
     // pin enumerator
-    STDMETHODIMP EnumPins(
+    DECLSPEC_NOTHROW STDMETHODIMP EnumPins(
                     IEnumPins ** ppEnum);
 
 
     // default behaviour of FindPin assumes pin ids are their names
-    STDMETHODIMP FindPin(
+    DECLSPEC_NOTHROW STDMETHODIMP FindPin(
         LPCWSTR Id,
         IPin ** ppPin
     );
 
-    STDMETHODIMP QueryFilterInfo(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryFilterInfo(
                     FILTER_INFO * pInfo);
 
-    STDMETHODIMP JoinFilterGraph(
+    DECLSPEC_NOTHROW STDMETHODIMP JoinFilterGraph(
                     IFilterGraph * pGraph,
                     LPCWSTR pName);
 
     // return a Vendor information string. Optional - may return E_NOTIMPL.
     // memory returned should be freed using CoTaskMemFree
     // default implementation returns E_NOTIMPL
-    STDMETHODIMP QueryVendorInfo(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryVendorInfo(
                     LPWSTR* pVendorInfo
             );
 
@@ -308,8 +308,8 @@ public:
 
     // --- IAMovieSetup methods ---
 
-    STDMETHODIMP Register();    // ask filter to register itself
-    STDMETHODIMP Unregister();  // and unregister itself
+    DECLSPEC_NOTHROW STDMETHODIMP Register();    // ask filter to register itself
+    DECLSPEC_NOTHROW STDMETHODIMP Unregister();  // and unregister itself
 
     // --- setup helper methods ---
     // (override to return filters setup data)
@@ -359,8 +359,8 @@ protected:
     void DisplayPinInfo(IPin *pReceivePin);
     void DisplayTypeInfo(IPin *pPin, const CMediaType *pmt);
 #else
-    void DisplayPinInfo(IPin *pReceivePin) {};
-    void DisplayTypeInfo(IPin *pPin, const CMediaType *pmt) {};
+    void DisplayPinInfo(IPin *pReceivePin) {}
+    void DisplayTypeInfo(IPin *pPin, const CMediaType *pmt) {}
 #endif
 
     // used to agree a media type for a pin connection
@@ -410,51 +410,51 @@ public:
 
     DECLARE_IUNKNOWN
 
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
-    STDMETHODIMP_(ULONG) NonDelegatingRelease();
-    STDMETHODIMP_(ULONG) NonDelegatingAddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingRelease();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingAddRef();
 
     // --- IPin methods ---
 
     // take lead role in establishing a connection. Media type pointer
     // may be null, or may point to partially-specified mediatype
     // (subtype or format type may be GUID_NULL).
-    STDMETHODIMP Connect(
+    DECLSPEC_NOTHROW STDMETHODIMP Connect(
         IPin * pReceivePin,
         const AM_MEDIA_TYPE *pmt   // optional media type
     );
 
     // (passive) accept a connection from another pin
-    STDMETHODIMP ReceiveConnection(
+    DECLSPEC_NOTHROW STDMETHODIMP ReceiveConnection(
         IPin * pConnector,      // this is the initiating connecting pin
         const AM_MEDIA_TYPE *pmt   // this is the media type we will exchange
     );
 
-    STDMETHODIMP Disconnect();
+    DECLSPEC_NOTHROW STDMETHODIMP Disconnect();
 
-    STDMETHODIMP ConnectedTo(IPin **pPin);
+    DECLSPEC_NOTHROW STDMETHODIMP ConnectedTo(IPin **pPin);
 
-    STDMETHODIMP ConnectionMediaType(AM_MEDIA_TYPE *pmt);
+    DECLSPEC_NOTHROW STDMETHODIMP ConnectionMediaType(AM_MEDIA_TYPE *pmt);
 
-    STDMETHODIMP QueryPinInfo(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryPinInfo(
         PIN_INFO * pInfo
     );
 
-    STDMETHODIMP QueryDirection(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryDirection(
     	PIN_DIRECTION * pPinDir
     );
 
-    STDMETHODIMP QueryId(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryId(
         LPWSTR * Id
     );
 
     // does the pin support this media type
-    STDMETHODIMP QueryAccept(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryAccept(
         const AM_MEDIA_TYPE *pmt
     );
 
     // return an enumerator for this pins preferred media types
-    STDMETHODIMP EnumMediaTypes(
+    DECLSPEC_NOTHROW STDMETHODIMP EnumMediaTypes(
         IEnumMediaTypes **ppEnum
     );
 
@@ -465,14 +465,14 @@ public:
     // The filter graph will interpret NOT_IMPL as any input pin connects to
     // all visible output pins and vice versa.
     // apPin can be NULL if nPin==0 (not otherwise).
-    STDMETHODIMP QueryInternalConnections(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryInternalConnections(
         IPin* *apPin,     // array of IPin*
         ULONG *nPin       // on input, the number of slots
                           // on output  the number of pins
     ) { return E_NOTIMPL; }
 
     // Called when no more data will be sent
-    STDMETHODIMP EndOfStream(void);
+    DECLSPEC_NOTHROW STDMETHODIMP EndOfStream(void);
 
     // Begin/EndFlush still PURE
 
@@ -480,7 +480,7 @@ public:
     // about to be received. Default implementation records data and
     // returns S_OK.
     // Override this to pass downstream.
-    STDMETHODIMP NewSegment(
+    DECLSPEC_NOTHROW STDMETHODIMP NewSegment(
                     REFERENCE_TIME tStart,
                     REFERENCE_TIME tStop,
                     double dRate);
@@ -489,21 +489,21 @@ public:
     // IQualityControl methods
     //================================================================================
 
-    STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
+    DECLSPEC_NOTHROW STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
 
-    STDMETHODIMP SetSink(IQualityControl * piqc);
+    DECLSPEC_NOTHROW STDMETHODIMP SetSink(IQualityControl * piqc);
 
     // --- helper methods ---
 
     // Returns true if the pin is connected. false otherwise.
-    BOOL IsConnected(void) {return (m_Connected != NULL); };
+    BOOL IsConnected(void) {return (m_Connected != NULL); }
     // Return the pin this is connected to (if any)
-    IPin * GetConnected() { return m_Connected; };
+    IPin * GetConnected() { return m_Connected; }
 
     // Check if our filter is currently stopped
     BOOL IsStopped() {
         return (m_pFilter->m_State == State_Stopped);
-    };
+    }
 
     // find out the current type version (used by enumerators)
     virtual LONG GetMediaTypeVersion();
@@ -548,7 +548,7 @@ public:
     }
 
     //  Access name
-    LPWSTR Name() { return m_pName; };
+    LPWSTR Name() { return m_pName; }
 
     //  Can reconnectwhen active?
     void SetReconnectWhenActive(bool bCanReconnect)
@@ -562,7 +562,7 @@ public:
     }
 
 protected:
-    STDMETHODIMP DisconnectInternal();
+    DECLSPEC_NOTHROW STDMETHODIMP DisconnectInternal();
 };
 
 
@@ -606,12 +606,12 @@ class CEnumPins : public IEnumPins      // The interface we support
 
     BOOL AreWeOutOfSync() {
         return (m_pFilter->GetPinVersion() == m_Version ? FALSE : TRUE);
-    };
+    }
 
     /* This method performs the same operations as Reset, except is does not clear
        the cache of pins already enumerated. */
 
-    STDMETHODIMP Refresh();
+    DECLSPEC_NOTHROW STDMETHODIMP Refresh();
 
 public:
 
@@ -622,20 +622,20 @@ public:
     virtual ~CEnumPins();
 
     // IUnknown
-    STDMETHODIMP QueryInterface(REFIID riid, void **ppv);
-    STDMETHODIMP_(ULONG) AddRef();
-    STDMETHODIMP_(ULONG) Release();
+    DECLSPEC_NOTHROW STDMETHODIMP QueryInterface(REFIID riid, void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) AddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) Release();
 
     // IEnumPins
-    STDMETHODIMP Next(
+    DECLSPEC_NOTHROW STDMETHODIMP Next(
         ULONG cPins,         // place this many pins...
         IPin ** ppPins,      // ...in this array of IPin*
         ULONG * pcFetched    // actual count passed returned here
     );
 
-    STDMETHODIMP Skip(ULONG cPins);
-    STDMETHODIMP Reset();
-    STDMETHODIMP Clone(IEnumPins **ppEnum);
+    DECLSPEC_NOTHROW STDMETHODIMP Skip(ULONG cPins);
+    DECLSPEC_NOTHROW STDMETHODIMP Reset();
+    DECLSPEC_NOTHROW STDMETHODIMP Clone(IEnumPins **ppEnum);
 
 
 };
@@ -667,7 +667,7 @@ class CEnumMediaTypes : public IEnumMediaTypes    // The interface we support
 
     BOOL AreWeOutOfSync() {
         return (m_pPin->GetMediaTypeVersion() == m_Version ? FALSE : TRUE);
-    };
+    }
 
 public:
 
@@ -678,20 +678,20 @@ public:
     virtual ~CEnumMediaTypes();
 
     // IUnknown
-    STDMETHODIMP QueryInterface(REFIID riid, void **ppv);
-    STDMETHODIMP_(ULONG) AddRef();
-    STDMETHODIMP_(ULONG) Release();
+    DECLSPEC_NOTHROW STDMETHODIMP QueryInterface(REFIID riid, void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) AddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) Release();
 
     // IEnumMediaTypes
-    STDMETHODIMP Next(
+    DECLSPEC_NOTHROW STDMETHODIMP Next(
         ULONG cMediaTypes,          // place this many pins...
         AM_MEDIA_TYPE ** ppMediaTypes,  // ...in this array
         ULONG * pcFetched           // actual count passed
     );
 
-    STDMETHODIMP Skip(ULONG cMediaTypes);
-    STDMETHODIMP Reset();
-    STDMETHODIMP Clone(IEnumMediaTypes **ppEnum);
+    DECLSPEC_NOTHROW STDMETHODIMP Skip(ULONG cMediaTypes);
+    DECLSPEC_NOTHROW STDMETHODIMP Reset();
+    DECLSPEC_NOTHROW STDMETHODIMP Clone(IEnumMediaTypes **ppEnum);
 };
 
 
@@ -774,7 +774,7 @@ public:
 
     // we have a default handling of EndOfStream which is to return
     // an error, since this should be called on input pins only
-    STDMETHODIMP EndOfStream(void);
+    DECLSPEC_NOTHROW STDMETHODIMP EndOfStream(void);
 
     // called from elsewhere in our filter to pass EOS downstream to
     // our connected input pin
@@ -783,8 +783,8 @@ public:
     // same for Begin/EndFlush - we handle Begin/EndFlush since it
     // is an error on an output pin, and we have Deliver methods to
     // call the methods on the connected pin
-    STDMETHODIMP BeginFlush(void);
-    STDMETHODIMP EndFlush(void);
+    DECLSPEC_NOTHROW STDMETHODIMP BeginFlush(void);
+    DECLSPEC_NOTHROW STDMETHODIMP EndFlush(void);
     virtual HRESULT DeliverBeginFlush(void);
     virtual HRESULT DeliverEndFlush(void);
 
@@ -800,8 +800,8 @@ public:
     //================================================================================
 
     // All inherited from CBasePin and not overridden here.
-    // STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
-    // STDMETHODIMP SetSink(IQualityControl * piqc);
+    // DECLSPEC_NOTHROW STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
+    // DECLSPEC_NOTHROW STDMETHODIMP SetSink(IQualityControl * piqc);
 };
 
 
@@ -857,48 +857,48 @@ public:
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
     // return the allocator interface that this input pin
     // would like the output pin to use
-    STDMETHODIMP GetAllocator(IMemAllocator ** ppAllocator);
+    DECLSPEC_NOTHROW STDMETHODIMP GetAllocator(IMemAllocator ** ppAllocator);
 
     // tell the input pin which allocator the output pin is actually
     // going to use.
-    STDMETHODIMP NotifyAllocator(
+    DECLSPEC_NOTHROW STDMETHODIMP NotifyAllocator(
                     IMemAllocator * pAllocator,
                     BOOL bReadOnly);
 
     // do something with this media sample
-    STDMETHODIMP Receive(IMediaSample *pSample);
+    DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample *pSample);
 
     // do something with these media samples
-    STDMETHODIMP ReceiveMultiple (
+    DECLSPEC_NOTHROW STDMETHODIMP ReceiveMultiple (
         IMediaSample **pSamples,
         long nSamples,
         long *nSamplesProcessed);
 
     // See if Receive() blocks
-    STDMETHODIMP ReceiveCanBlock();
+    DECLSPEC_NOTHROW STDMETHODIMP ReceiveCanBlock();
 
     // Default handling for BeginFlush - call at the beginning
     // of your implementation (makes sure that all Receive calls
     // fail). After calling this, you need to free any queued data
     // and then call downstream.
-    STDMETHODIMP BeginFlush(void);
+    DECLSPEC_NOTHROW STDMETHODIMP BeginFlush(void);
 
     // default handling for EndFlush - call at end of your implementation
     // - before calling this, ensure that there is no queued data and no thread
     // pushing any more without a further receive, then call downstream,
     // then call this method to clear the m_bFlushing flag and re-enable
     // receives
-    STDMETHODIMP EndFlush(void);
+    DECLSPEC_NOTHROW STDMETHODIMP EndFlush(void);
 
     // this method is optional (can return E_NOTIMPL).
     // default implementation returns E_NOTIMPL. Override if you have
     // specific alignment or prefix needs, but could use an upstream
     // allocator
-    STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES*pProps);
+    DECLSPEC_NOTHROW STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES*pProps);
 
     // Release the pin's allocator.
     HRESULT BreakConnect();
@@ -906,12 +906,12 @@ public:
     // helper method to check the read-only flag
     BOOL IsReadOnly() {
         return m_bReadOnly;
-    };
+    }
 
     // helper method to see if we are flushing
     BOOL IsFlushing() {
         return m_bFlushing;
-    };
+    }
 
     //  Override this for checking whether it's OK to process samples
     //  Also call this from EndOfStream.
@@ -925,10 +925,10 @@ public:
     // IQualityControl methods (from CBasePin)
     //================================================================================
 
-    STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
+    DECLSPEC_NOTHROW STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
 
     // no need to override:
-    // STDMETHODIMP SetSink(IQualityControl * piqc);
+    // DECLSPEC_NOTHROW STDMETHODIMP SetSink(IQualityControl * piqc);
 
 
     // switch the pin to inactive state - may already be inactive
@@ -970,13 +970,13 @@ public:
 
     // IUnknown Methods
     DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
     // IPin Methods
-    STDMETHODIMP Disconnect(void);
+    DECLSPEC_NOTHROW STDMETHODIMP Disconnect(void);
 
     // IPinFlowControl Methods
-    STDMETHODIMP Block(DWORD dwBlockFlags, HANDLE hEvent);
+    DECLSPEC_NOTHROW STDMETHODIMP Block(DWORD dwBlockFlags, HANDLE hEvent);
 
     //  Set graph config info
     void SetConfigInfo(IGraphConfig *pGraphConfig, HANDLE hStopEvent);
@@ -1249,9 +1249,9 @@ public:
 
     /* Note the media sample does not delegate to its owner */
 
-    STDMETHODIMP QueryInterface(REFIID riid, void **ppv);
-    STDMETHODIMP_(ULONG) AddRef();
-    STDMETHODIMP_(ULONG) Release();
+    DECLSPEC_NOTHROW STDMETHODIMP QueryInterface(REFIID riid, void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) AddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) Release();
 
     // set the buffer pointer and length. Used by allocators that
     // want variable sized pointers or pointers into already-read data.
@@ -1260,61 +1260,61 @@ public:
     HRESULT SetPointer(BYTE * ptr, LONG cBytes);
 
     // Get me a read/write pointer to this buffer's memory.
-    STDMETHODIMP GetPointer(BYTE ** ppBuffer);
+    DECLSPEC_NOTHROW STDMETHODIMP GetPointer(BYTE ** ppBuffer);
 
-    STDMETHODIMP_(LONG) GetSize(void);
+    DECLSPEC_NOTHROW STDMETHODIMP_(LONG) GetSize(void);
 
     // get the stream time at which this sample should start and finish.
-    STDMETHODIMP GetTime(
+    DECLSPEC_NOTHROW STDMETHODIMP GetTime(
         REFERENCE_TIME * pTimeStart,     // put time here
         REFERENCE_TIME * pTimeEnd
     );
 
     // Set the stream time at which this sample should start and finish.
-    STDMETHODIMP SetTime(
+    DECLSPEC_NOTHROW STDMETHODIMP SetTime(
         REFERENCE_TIME * pTimeStart,     // put time here
         REFERENCE_TIME * pTimeEnd
     );
-    STDMETHODIMP IsSyncPoint(void);
-    STDMETHODIMP SetSyncPoint(BOOL bIsSyncPoint);
-    STDMETHODIMP IsPreroll(void);
-    STDMETHODIMP SetPreroll(BOOL bIsPreroll);
+    DECLSPEC_NOTHROW STDMETHODIMP IsSyncPoint(void);
+    DECLSPEC_NOTHROW STDMETHODIMP SetSyncPoint(BOOL bIsSyncPoint);
+    DECLSPEC_NOTHROW STDMETHODIMP IsPreroll(void);
+    DECLSPEC_NOTHROW STDMETHODIMP SetPreroll(BOOL bIsPreroll);
 
-    STDMETHODIMP_(LONG) GetActualDataLength(void);
-    STDMETHODIMP SetActualDataLength(LONG lActual);
+    DECLSPEC_NOTHROW STDMETHODIMP_(LONG) GetActualDataLength(void);
+    DECLSPEC_NOTHROW STDMETHODIMP SetActualDataLength(LONG lActual);
 
     // these allow for limited format changes in band
 
-    STDMETHODIMP GetMediaType(AM_MEDIA_TYPE **ppMediaType);
-    STDMETHODIMP SetMediaType(AM_MEDIA_TYPE *pMediaType);
+    DECLSPEC_NOTHROW STDMETHODIMP GetMediaType(AM_MEDIA_TYPE **ppMediaType);
+    DECLSPEC_NOTHROW STDMETHODIMP SetMediaType(AM_MEDIA_TYPE *pMediaType);
 
     // returns S_OK if there is a discontinuity in the data (this same is
     // not a continuation of the previous stream of data
     // - there has been a seek).
-    STDMETHODIMP IsDiscontinuity(void);
+    DECLSPEC_NOTHROW STDMETHODIMP IsDiscontinuity(void);
     // set the discontinuity property - TRUE if this sample is not a
     // continuation, but a new sample after a seek.
-    STDMETHODIMP SetDiscontinuity(BOOL bDiscontinuity);
+    DECLSPEC_NOTHROW STDMETHODIMP SetDiscontinuity(BOOL bDiscontinuity);
 
     // get the media times for this sample
-    STDMETHODIMP GetMediaTime(
+    DECLSPEC_NOTHROW STDMETHODIMP GetMediaTime(
     	LONGLONG * pTimeStart,
 	LONGLONG * pTimeEnd
     );
 
     // Set the media times for this sample
-    STDMETHODIMP SetMediaTime(
+    DECLSPEC_NOTHROW STDMETHODIMP SetMediaTime(
     	LONGLONG * pTimeStart,
 	LONGLONG * pTimeEnd
     );
 
     // Set and get properties (IMediaSample2)
-    STDMETHODIMP GetProperties(
+    DECLSPEC_NOTHROW STDMETHODIMP GetProperties(
         DWORD cbProperties,
         BYTE * pbProperties
     );
 
-    STDMETHODIMP SetProperties(
+    DECLSPEC_NOTHROW STDMETHODIMP SetProperties(
         DWORD cbProperties,
         const BYTE * pbProperties
     );
@@ -1347,29 +1347,29 @@ class AM_NOVTABLE CBaseAllocator : public CUnknown,// A non delegating IUnknown
     static CMediaSample * &NextSample(CMediaSample *pSample)
     {
         return pSample->m_pNext;
-    };
+    }
 
     /*  Mini list class for the free list */
     class CSampleList
     {
     public:
-        CSampleList() : m_List(NULL), m_nOnList(0) {};
+        CSampleList() : m_List(NULL), m_nOnList(0) {}
 #ifdef DEBUG
         ~CSampleList()
         {
             ASSERT(m_nOnList == 0);
         };
 #endif
-        CMediaSample *Head() const { return m_List; };
-        CMediaSample *Next(CMediaSample *pSample) const { return CBaseAllocator::NextSample(pSample); };
-        int GetCount() const { return m_nOnList; };
+        CMediaSample *Head() const { return m_List; }
+        CMediaSample *Next(CMediaSample *pSample) const { return CBaseAllocator::NextSample(pSample); }
+        int GetCount() const { return m_nOnList; }
         void Add(CMediaSample *pSample)
         {
             ASSERT(pSample != NULL);
             CBaseAllocator::NextSample(pSample) = m_List;
             m_List = pSample;
             m_nOnList++;
-        };
+        }
         CMediaSample *RemoveHead()
         {
             CMediaSample *pSample = m_List;
@@ -1378,7 +1378,7 @@ class AM_NOVTABLE CBaseAllocator : public CUnknown,// A non delegating IUnknown
                 m_nOnList--;
             }
             return pSample;
-        };
+        }
         void Remove(CMediaSample *pSample);
 
     public:
@@ -1467,23 +1467,23 @@ public:
     DECLARE_IUNKNOWN
 
     // override this to publicise our interfaces
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
-    STDMETHODIMP SetProperties(
+    DECLSPEC_NOTHROW STDMETHODIMP SetProperties(
 		    ALLOCATOR_PROPERTIES* pRequest,
 		    ALLOCATOR_PROPERTIES* pActual);
 
     // return the properties actually being used on this allocator
-    STDMETHODIMP GetProperties(
+    DECLSPEC_NOTHROW STDMETHODIMP GetProperties(
 		    ALLOCATOR_PROPERTIES* pProps);
 
     // override Commit to allocate memory. We handle the GetBuffer
     //state changes
-    STDMETHODIMP Commit();
+    DECLSPEC_NOTHROW STDMETHODIMP Commit();
 
     // override this to handle the memory freeing. We handle any outstanding
     // GetBuffer calls
-    STDMETHODIMP Decommit();
+    DECLSPEC_NOTHROW STDMETHODIMP Decommit();
 
     // get container for a sample. Blocking, synchronous call to get the
     // next free buffer (as represented by an IMediaSample interface).
@@ -1494,24 +1494,24 @@ public:
     // bPrevFramesSkipped is not used (used only by the video renderer's
     // allocator where it affects quality management in direct draw).
 
-    STDMETHODIMP GetBuffer(IMediaSample **ppBuffer,
+    DECLSPEC_NOTHROW STDMETHODIMP GetBuffer(IMediaSample **ppBuffer,
                            REFERENCE_TIME * pStartTime,
                            REFERENCE_TIME * pEndTime,
                            DWORD dwFlags);
 
     // final release of a CMediaSample will call this
-    STDMETHODIMP ReleaseBuffer(IMediaSample *pBuffer);
+    DECLSPEC_NOTHROW STDMETHODIMP ReleaseBuffer(IMediaSample *pBuffer);
     // obsolete:: virtual void PutOnFreeList(CMediaSample * pSample);
 
-    STDMETHODIMP SetNotify(IMemAllocatorNotifyCallbackTemp *pNotify);
+    DECLSPEC_NOTHROW STDMETHODIMP SetNotify(IMemAllocatorNotifyCallbackTemp *pNotify);
 
-    STDMETHODIMP GetFreeCount(LONG *plBuffersFree);
+    DECLSPEC_NOTHROW STDMETHODIMP GetFreeCount(LONG *plBuffersFree);
 
     // Notify that a sample is available
     void NotifySample();
 
     // Notify that we're waiting for a sample
-    void SetWaiting() { m_lWaiting++; };
+    void SetWaiting() { m_lWaiting++; }
 };
 
 
@@ -1556,7 +1556,7 @@ public:
     /* This goes in the factory template table to create new instances */
     static CUnknown *CreateInstance(LPUNKNOWN, HRESULT *);
 
-    STDMETHODIMP SetProperties(
+    DECLSPEC_NOTHROW STDMETHODIMP SetProperties(
 		    ALLOCATOR_PROPERTIES* pRequest,
 		    ALLOCATOR_PROPERTIES* pActual);
 

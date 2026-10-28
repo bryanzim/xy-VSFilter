@@ -325,8 +325,7 @@ public:
     [[nodiscard]] CRect AllocRect(CSubtitle* s, int segment, int entry, int layer, int collisions);
 };
 
-[uuid("537DCACA-2812-4a4f-B2C6-1A34C17ADEB0")]
-class CRenderedTextSubtitle : public CSubPicProviderImpl, public ISubStream, public ISubPicProviderEx2, public CSimpleTextSubtitle
+class __declspec(uuid("537DCACA-2812-4a4f-B2C6-1A34C17ADEB0")) CRenderedTextSubtitle : public CSubPicProviderImpl, public ISubStream, public ISubPicProviderEx2, public CSimpleTextSubtitle
 {
 public:
     enum AssCmdType
@@ -470,25 +469,25 @@ public:
     void Deinit();
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProviderEx2
-    STDMETHODIMP Lock();
-    STDMETHODIMP Unlock();
-    [[nodiscard]] STDMETHODIMP RenderEx(IXySubRenderFrame**subRenderFrame, int spd_type, 
+    DECLSPEC_NOTHROW STDMETHODIMP Lock();
+    DECLSPEC_NOTHROW STDMETHODIMP Unlock();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RenderEx(IXySubRenderFrame**subRenderFrame, int spd_type, 
         const RECT& video_rect, const RECT& subtitle_target_rect,
         const SIZE& original_video_size,
         REFERENCE_TIME rt, double fps);
 
     // ISubPicProviderEx && ISubPicProviderEx2
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-    [[nodiscard]] STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop);
-    [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECTCoor2& bbox);
-    [[nodiscard]] STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRectCoor2>& rectList);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+    DECLSPEC_NOTHROW STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECTCoor2& bbox);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRectCoor2>& rectList);
     [[nodiscard]] HRESULT ParseScript(REFERENCE_TIME rt, double fps, CSubtitle2List *outputSub2List );
     static void DoRender( const SIZECoor2& output_size, 
         const POINTCoor2& video_org, const RECTCoor2& margin_rect, 
@@ -498,17 +497,17 @@ public:
         const POINTCoor2& video_org, const RECTCoor2& margin_rect, 
         const CSubtitle2& sub2, 
         CompositeDrawItemList* compDrawItemList /*output*/);
-    [[nodiscard]] STDMETHODIMP_(bool) IsColorTypeSupported(int type);
-    [[nodiscard]] STDMETHODIMP_(bool) IsMovable();
-    [[nodiscard]] STDMETHODIMP_(bool) IsSimple();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsColorTypeSupported(int type);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsMovable();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsSimple();
 
     // IPersist
-    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
-    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    [[nodiscard]] STDMETHODIMP_(int) GetStream();
-    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
-    STDMETHODIMP Reload();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+    DECLSPEC_NOTHROW STDMETHODIMP Reload();
 };

@@ -134,7 +134,7 @@ CUnknown::CUnknown(CHAR *pName, LPUNKNOWN pUnk,HRESULT *phr) :
 
 /* QueryInterface */
 
-STDMETHODIMP CUnknown::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
+DECLSPEC_NOTHROW STDMETHODIMP CUnknown::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
     CheckPointer(ppv,E_POINTER);
     ValidateReadWritePtr(ppv,sizeof(PVOID));
@@ -162,7 +162,7 @@ template<class T> inline static T ourmax( const T & a, const T & b )
 
 /* AddRef */
 
-STDMETHODIMP_(ULONG) CUnknown::NonDelegatingAddRef()
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) CUnknown::NonDelegatingAddRef()
 {
     LONG lRef = InterlockedIncrement( &m_cRef );
     ASSERT(lRef > 0);
@@ -175,7 +175,7 @@ STDMETHODIMP_(ULONG) CUnknown::NonDelegatingAddRef()
 
 /* Release */
 
-STDMETHODIMP_(ULONG) CUnknown::NonDelegatingRelease()
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) CUnknown::NonDelegatingRelease()
 {
     /* If the reference count drops to zero delete ourselves */
 

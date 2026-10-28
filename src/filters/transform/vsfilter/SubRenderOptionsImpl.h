@@ -27,27 +27,27 @@ public:
     };
 
 public:
-    SubRenderOptionsImpl(const OptionMap *optionMap, IXyOptions *impl) : _impl(impl), _optionMap(optionMap){};
-    virtual ~SubRenderOptionsImpl(void) {};
+    SubRenderOptionsImpl(const OptionMap *optionMap, IXyOptions *impl) : _impl(impl), _optionMap(optionMap){}
+    virtual ~SubRenderOptionsImpl(void) {}
 
     // ISubRenderOptions
-    [[nodiscard]] STDMETHODIMP GetBool     (LPCSTR field, bool      *value);
-    [[nodiscard]] STDMETHODIMP GetInt      (LPCSTR field, int       *value);
-    [[nodiscard]] STDMETHODIMP GetSize     (LPCSTR field, SIZE      *value);
-    [[nodiscard]] STDMETHODIMP GetRect     (LPCSTR field, RECT      *value);
-    [[nodiscard]] STDMETHODIMP GetUlonglong(LPCSTR field, ULONGLONG *value);
-    [[nodiscard]] STDMETHODIMP GetDouble   (LPCSTR field, double    *value);
-    [[nodiscard]] STDMETHODIMP GetString   (LPCSTR field, LPWSTR    *value, int *chars);
-    [[nodiscard]] STDMETHODIMP GetBin      (LPCSTR field, LPVOID    *value, int *size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBool     (LPCSTR field, bool      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetInt      (LPCSTR field, int       *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetSize     (LPCSTR field, SIZE      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetRect     (LPCSTR field, RECT      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetUlonglong(LPCSTR field, ULONGLONG *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDouble   (LPCSTR field, double    *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetString   (LPCSTR field, LPWSTR    *value, int *chars);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBin      (LPCSTR field, LPVOID    *value, int *size );
 
-    [[nodiscard]] STDMETHODIMP SetBool     (LPCSTR field, bool      value);
-    [[nodiscard]] STDMETHODIMP SetInt      (LPCSTR field, int       value);
-    [[nodiscard]] STDMETHODIMP SetSize     (LPCSTR field, SIZE      value);
-    [[nodiscard]] STDMETHODIMP SetRect     (LPCSTR field, RECT      value);
-    [[nodiscard]] STDMETHODIMP SetUlonglong(LPCSTR field, ULONGLONG value);
-    [[nodiscard]] STDMETHODIMP SetDouble   (LPCSTR field, double    value);
-    [[nodiscard]] STDMETHODIMP SetString   (LPCSTR field, LPWSTR    value, int chars);
-    [[nodiscard]] STDMETHODIMP SetBin      (LPCSTR field, LPVOID    value, int size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetBool     (LPCSTR field, bool      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetInt      (LPCSTR field, int       value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetSize     (LPCSTR field, SIZE      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetRect     (LPCSTR field, RECT      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetUlonglong(LPCSTR field, ULONGLONG value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetDouble   (LPCSTR field, double    value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetString   (LPCSTR field, LPWSTR    value, int chars);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetBin      (LPCSTR field, LPVOID    value, int size );
 private:
     int GetIFiled(LPCSTR field, OptionType type);
 
@@ -56,20 +56,20 @@ private:
 };
 
 #define DECLARE_ISUBRENDEROPTIONS                                                                                                         \
-    STDMETHODIMP GetBool     (LPCSTR field, bool      *value) { return SubRenderOptionsImpl::GetBool(field, value); }                      \
-    STDMETHODIMP GetInt      (LPCSTR field, int       *value) { return SubRenderOptionsImpl::GetInt(field, value); }                       \
-    STDMETHODIMP GetSize     (LPCSTR field, SIZE      *value) { return SubRenderOptionsImpl::GetSize(field, value); }                      \
-    STDMETHODIMP GetRect     (LPCSTR field, RECT      *value) { return SubRenderOptionsImpl::GetRect(field, value); }                      \
-    STDMETHODIMP GetUlonglong(LPCSTR field, ULONGLONG *value) { return SubRenderOptionsImpl::GetUlonglong(field, value); }                 \
-    STDMETHODIMP GetDouble   (LPCSTR field, double    *value) { return SubRenderOptionsImpl::GetDouble(field, value); }                    \
-    STDMETHODIMP GetString   (LPCSTR field, LPWSTR    *value, int *chars) { return SubRenderOptionsImpl::GetString(field, value, chars); } \
-    STDMETHODIMP GetBin      (LPCSTR field, LPVOID    *value, int *size ) { return SubRenderOptionsImpl::GetBin(field, value, size); }     \
+    DECLSPEC_NOTHROW STDMETHODIMP GetBool     (LPCSTR field, bool      *value) { return SubRenderOptionsImpl::GetBool(field, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP GetInt      (LPCSTR field, int       *value) { return SubRenderOptionsImpl::GetInt(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP GetSize     (LPCSTR field, SIZE      *value) { return SubRenderOptionsImpl::GetSize(field, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP GetRect     (LPCSTR field, RECT      *value) { return SubRenderOptionsImpl::GetRect(field, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP GetUlonglong(LPCSTR field, ULONGLONG *value) { return SubRenderOptionsImpl::GetUlonglong(field, value); }                 \
+    DECLSPEC_NOTHROW STDMETHODIMP GetDouble   (LPCSTR field, double    *value) { return SubRenderOptionsImpl::GetDouble(field, value); }                    \
+    DECLSPEC_NOTHROW STDMETHODIMP GetString   (LPCSTR field, LPWSTR    *value, int *chars) { return SubRenderOptionsImpl::GetString(field, value, chars); } \
+    DECLSPEC_NOTHROW STDMETHODIMP GetBin      (LPCSTR field, LPVOID    *value, int *size ) { return SubRenderOptionsImpl::GetBin(field, value, size); }     \
     \
-    STDMETHODIMP SetBool     (LPCSTR field, bool      value) { return SubRenderOptionsImpl::SetBool(field, value); }                       \
-    STDMETHODIMP SetInt      (LPCSTR field, int       value) { return SubRenderOptionsImpl::SetInt(field, value); }                        \
-    STDMETHODIMP SetSize     (LPCSTR field, SIZE      value) { return SubRenderOptionsImpl::SetSize(field, value); }                       \
-    STDMETHODIMP SetRect     (LPCSTR field, RECT      value) { return SubRenderOptionsImpl::SetRect(field, value); }                       \
-    STDMETHODIMP SetUlonglong(LPCSTR field, ULONGLONG value) { return SubRenderOptionsImpl::SetUlonglong(field, value); }                  \
-    STDMETHODIMP SetDouble   (LPCSTR field, double    value) { return SubRenderOptionsImpl::SetDouble(field, value); }                     \
-    STDMETHODIMP SetString   (LPCSTR field, LPWSTR    value, int chars) { return SubRenderOptionsImpl::SetString(field, value, chars); }   \
-    STDMETHODIMP SetBin      (LPCSTR field, LPVOID    value, int size ) { return SubRenderOptionsImpl::SetBin(field, value, size); }
+    DECLSPEC_NOTHROW STDMETHODIMP SetBool     (LPCSTR field, bool      value) { return SubRenderOptionsImpl::SetBool(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP SetInt      (LPCSTR field, int       value) { return SubRenderOptionsImpl::SetInt(field, value); }                        \
+    DECLSPEC_NOTHROW STDMETHODIMP SetSize     (LPCSTR field, SIZE      value) { return SubRenderOptionsImpl::SetSize(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP SetRect     (LPCSTR field, RECT      value) { return SubRenderOptionsImpl::SetRect(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP SetUlonglong(LPCSTR field, ULONGLONG value) { return SubRenderOptionsImpl::SetUlonglong(field, value); }                  \
+    DECLSPEC_NOTHROW STDMETHODIMP SetDouble   (LPCSTR field, double    value) { return SubRenderOptionsImpl::SetDouble(field, value); }                     \
+    DECLSPEC_NOTHROW STDMETHODIMP SetString   (LPCSTR field, LPWSTR    value, int chars) { return SubRenderOptionsImpl::SetString(field, value, chars); }   \
+    DECLSPEC_NOTHROW STDMETHODIMP SetBin      (LPCSTR field, LPVOID    value, int size ) { return SubRenderOptionsImpl::SetBin(field, value, size); }

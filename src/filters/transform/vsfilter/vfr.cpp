@@ -54,7 +54,7 @@ public:
 	virtual double TimeStampFromFrameNumber(int n)
 	{
 		// Find correct section
-		for (std::size_t i{0U}; i < sections.size(); i++) {
+		for (std::size_t i{0U}; i < sections.size(); ++i) {
 			FrameRateSection &sect{sections[i]};
 			if (n >= sect.start_frame && n <= sect.end_frame) {
 				return sect.start_time + (n - sect.start_frame) * sect.spf;

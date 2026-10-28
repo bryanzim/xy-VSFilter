@@ -189,13 +189,13 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
     SpanBuffer::const_iterator it_src_end{src.end()};
     
     LinkSpan &sentinel{link_span_list.GetAt(link_span_list.AddTail())};
-    sentinel.left.init(2*ry+2);
-    sentinel.right.init(2*ry+2);
+    (void)sentinel.left.init(2*ry+2);
+    (void)sentinel.right.init(2*ry+2);
     LinkArcItem& item{sentinel.left.inc_1_at_tail()};
     XY_POINT_SET(item.arc_center, MAX_X, 0);
     item.dead_line = MAX_CROSS_LINE;
 
-    for ( ;it_src!=it_src_end; it_src++)
+    for ( ;it_src!=it_src_end; ++it_src)
     {
         const XY_POINT &left{SPAN_PTR_LEFT(it_src)};
         int line = XY_POINT_Y(left); //fix me
@@ -227,13 +227,13 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
             else
             {
                 LinkSpan &new_span{link_span_list.GetAt(link_span_list.InsertBefore(pos, LinkSpan()))};
-                new_span.left.init(2*ry+2);
+                (void)new_span.left.init(2*ry+2);
                 LinkArcItem& item{new_span.left.inc_1_at_tail()};
 
                 item.arc_center = SPAN_PTR_LEFT(it_src);
                 item.dead_line = line+ry+1;
 
-                new_span.right.init(2*ry+2);
+                (void)new_span.right.init(2*ry+2);
                 LinkArcItem& item2{new_span.right.inc_1_at_tail()};
                 item2.arc_center = SPAN_PTR_RIGHT(it_src);
                 item2.dead_line = line+ry+1;
@@ -278,7 +278,7 @@ void WidenRegionCreaterImpl::add_left( LinkArc* arc, const XY_POINT center )
     int y{0};
     int i{0};
     int line = XY_POINT_Y(center);
-    for (i=arc->size()-1;i>=1;i--)
+    for (i=arc->size()-1;i>=1;--i)
     {
         y = m_ellipse->cross_left( arc->get_at(i).arc_center, center );
         if( y>ry )//not cross
@@ -321,7 +321,7 @@ void WidenRegionCreaterImpl::add_right( LinkArc* arc, const XY_POINT center )
     int y{0};
     int i{0};
     int line = XY_POINT_Y(center);
-    for (i=arc->size()-1;i>=1;i--)
+    for (i=arc->size()-1;i>=1;--i)
     {
         y = m_ellipse->cross_right( arc->get_at(i).arc_center, center );
         if( y>ry )//not cross
@@ -362,7 +362,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
 
     Span dst_span{0,0};
 
-    for( ;cur_dst_line<dead_line;cur_dst_line++)
+    for( ;cur_dst_line<dead_line;++cur_dst_line)
     {
         POSITION pos_cur{spans.GetHeadPosition()};
         POSITION pos_next{pos_cur};
@@ -460,7 +460,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
     int *left_arc2{left_arc + ry};
     if (rx==0)
     {
-        for (int y{-ry};y<=ry;y++)
+        for (int y{-ry};y<=ry;++y)
         {
             left_arc2[y] = 0;
         }
@@ -490,13 +490,13 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
         left_arc2[y] = -x;
         left_arc2[-y] = -x;
 
-        y++;
+        ++y;
         stopy += a2;
         err += dy;
         dy += a2;
         if ( 2*err + dx > 0 )
         {
-            x--;
+            --x;
             stopx -= b2;
             err += dx;
             dx += b2;
@@ -516,13 +516,13 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
         left_arc2[y] = -x;
         left_arc2[-y] = -x;
 
-        x++;
+        ++x;
         stopx += b2;
         err += dx;
         dx += b2;
         if (2*err+dy > 0) 
         {
-            y--;            
+            --y;            
             stopy -= a2;
             err += dy;
             dy += a2;
@@ -534,7 +534,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
     ASSERT(y>=-ry && y<=ry);
     while(y>last_y_stop)
     {
-        y--;
+        --y;
         left_arc2[y] = left_arc2[y+1];
         left_arc2[-y] = left_arc2[y+1];
         if (y<=last_y_stop)
@@ -543,7 +543,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
         }
         left_arc2[last_y_stop] = left_arc[last_y_stop-1];
         left_arc2[-last_y_stop] = left_arc[last_y_stop-1];
-        last_y_stop++;
+        ++last_y_stop;
     }
     //ASSERT(y<last_y_stop);
     return 0;
@@ -584,7 +584,7 @@ XyEllipse::~XyEllipse()
     {
         return -1;
     }
-    gen_left_arc(m_left_arc_base, rx, ry);
+    (void)gen_left_arc(m_left_arc_base, rx, ry);
     m_left_arc = m_left_arc_base + ry;
     m_rx = rx;
     m_ry = ry;
@@ -592,7 +592,7 @@ XyEllipse::~XyEllipse()
     m_f_ry = ry;
     m_f_half_inv_rx = rx > 0 ? 0.5f / m_f_rx : 0;
     m_f_half_inv_ry = /*ry > 0*/ 0.5f / m_f_ry;
-    init_cross_point();
+    (void)init_cross_point();
     return 0;
 }
 
@@ -642,10 +642,10 @@ XyEllipse::~XyEllipse()
     std::vector<int> cross_x_base(2*m_ry+1+1);
     int *cross_x{&cross_x_base[0U] + m_ry + 1};
     cross_x[-m_ry-1] = m_rx;
-    for (int dy{-2*m_ry};dy<=-1;dy++)
+    for (int dy{-2*m_ry};dy<=-1;++dy)
     {
         int y{-m_ry};
-        for ( ;y-dy<=m_ry;y++)
+        for ( ;y-dy<=m_ry;++y)
         {
             //f_cross_x = rx_divide_ry * ( sqrt(ry_2-(y-dy)*(y-dy))-sqrt(ry_2-y*y) )
             // But we have to do it this way because ry_2 may < y*y due to float rounding error
@@ -668,23 +668,23 @@ XyEllipse::~XyEllipse()
 
         int *cross_matrix{m_cross_matrix + dy*(2*m_rx+1)};
 
-        y--;
+        --y;
         //[ -m_rx, cross_x[y] )
-        for (int j{-m_rx};j<cross_x[y];j++)
+        for (int j{-m_rx};j<cross_x[y];++j)
         {
             cross_matrix[j] = MAX_CROSS_LINE;
         }
-        for ( ;y>-m_ry;y-- )
+        for ( ;y>-m_ry;--y )
         {
             //[ cross_x[y], cross_x[y-1] )
-            for (int j{cross_x[y]};j<cross_x[y-1];j++)
+            for (int j{cross_x[y]};j<cross_x[y-1];++j)
             {
                 cross_matrix[j] = y;
             }
         }
         cross_matrix[cross_x[y]] = y;
         //[ cross_x[y], m_rx ]
-        for (int j{cross_x[y]};j<=m_rx;j++)
+        for (int j{cross_x[y]};j<=m_rx;++j)
         {
             cross_matrix[j] = MIN_CROSS_LINE;
         }

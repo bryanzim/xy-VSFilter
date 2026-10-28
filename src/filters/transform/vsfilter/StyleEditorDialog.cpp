@@ -29,8 +29,15 @@
 
 IMPLEMENT_DYNAMIC(CColorStatic, CStatic)
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-local-typedef"
+#endif
 BEGIN_MESSAGE_MAP(CColorStatic, CStatic)
 END_MESSAGE_MAP()
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 
 // CStyleEditorPPage Property Page
@@ -156,7 +163,7 @@ void CStyleEditorPPage::UpdateControlData(const bool fSave)
 		m_stss.scrAlignment = m_screenalignment+1;
 		m_stss.marginRect = m_margin;
 
-		for(int i{0}; i < 4; i++)
+		for(int i{0}; i < 4; ++i)
 		{
 		    m_stss.alpha[i] = 255-m_alpha[i];
 		}
@@ -168,7 +175,7 @@ void CStyleEditorPPage::UpdateControlData(const bool fSave)
         if (m_charset.GetCount()==0)
         {
             m_iCharset = -1;
-            for(int i{0}; i < CharSetLen; i++)
+            for(int i{0}; i < CharSetLen; ++i)
             {
                 CString str;
                 str.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
@@ -208,7 +215,7 @@ void CStyleEditorPPage::UpdateControlData(const bool fSave)
 		m_margintopspin.SetRange32(-10000, 10000);
 		m_marginbottomspin.SetRange32(-10000, 10000);
 
-		for(int i{0}; i < 4; i++)
+		for(int i{0}; i < 4; ++i)
 		{
 			m_color[i].SetColorPtr(&m_stss.colors[i]);
 			m_alpha[i] = 255-m_stss.alpha[i];
@@ -266,7 +273,7 @@ void CStyleEditorPPage::OnBnClickedButton1()
 	LOGFONT lf;
 	lf <<= m_stss;
 
-	[[nodiscard]] CFontDialog dlg(&lf, CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT|CF_FORCEFONTEXIST|CF_SCALABLEONLY|CF_EFFECTS);
+	CFontDialog dlg(&lf, CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT|CF_FORCEFONTEXIST|CF_SCALABLEONLY|CF_EFFECTS);
 	if(dlg.DoModal() == IDOK)
 	{
 		CString str{lf.lfFaceName};
@@ -276,7 +283,7 @@ void CStyleEditorPPage::OnBnClickedButton1()
 		}
 		m_font.SetWindowText(str);
 
-		for(int i{0}, j = m_charset.GetCount(); i < j; i++)
+		for(int i{0}, j = m_charset.GetCount(); i < j; ++i)
 		{
 			if(m_charset.GetItemData(i) == lf.lfCharSet)
 			{
@@ -314,12 +321,12 @@ void CStyleEditorPPage::OnBnClickedCheck1()
 	UpdateData();
 
 	int avg{0};
-	for(int i{0}; i < 4; i++)
+	for(int i{0}; i < 4; ++i)
 	{
 	    avg += m_alphasliders[i].GetPos();
 	}
 	avg /= 4;
-	for(int i{0}; i < 4; i++)
+	for(int i{0}; i < 4; ++i)
 	{
 	    m_alphasliders[i].SetPos(avg);
 	}
@@ -330,7 +337,7 @@ void CStyleEditorPPage::OnHScroll(const UINT nSBCode, const UINT nPos, CScrollBa
 	if(m_linkalphasliders && pScrollBar)
 	{
 		int pos{((CSliderCtrl*)pScrollBar)->GetPos()};
-		for(int i{0}; i < 4; i++)
+		for(int i{0}; i < 4; ++i)
 		{
 		    m_alphasliders[i].SetPos(pos);
 		}

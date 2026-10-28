@@ -36,10 +36,10 @@ public:
 
     HRESULT DoSetWindowStyle(long Style,long WindowLong);
     HRESULT DoGetWindowStyle(long *pStyle,long WindowLong);
-    BOOL IsAutoShowEnabled() { return m_bAutoShow; };
-    COLORREF GetBorderColour() { return m_BorderColour; };
-    HWND GetOwnerWindow() { return m_hwndOwner; };
-    BOOL IsCursorHidden() { return m_bCursorHidden; };
+    BOOL IsAutoShowEnabled() { return m_bAutoShow; }
+    COLORREF GetBorderColour() { return m_BorderColour; }
+    HWND GetOwnerWindow() { return m_hwndOwner; }
+    BOOL IsCursorHidden() { return m_bCursorHidden; }
 
     inline BOOL PossiblyEatMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -66,48 +66,48 @@ public:
 
     // These are the properties we support
 
-    STDMETHODIMP put_Caption(BSTR strCaption);
-    STDMETHODIMP get_Caption(BSTR *pstrCaption);
-    STDMETHODIMP put_AutoShow(long AutoShow);
-    STDMETHODIMP get_AutoShow(long *AutoShow);
-    STDMETHODIMP put_WindowStyle(long WindowStyle);
-    STDMETHODIMP get_WindowStyle(long *pWindowStyle);
-    STDMETHODIMP put_WindowStyleEx(long WindowStyleEx);
-    STDMETHODIMP get_WindowStyleEx(long *pWindowStyleEx);
-    STDMETHODIMP put_WindowState(long WindowState);
-    STDMETHODIMP get_WindowState(long *pWindowState);
-    STDMETHODIMP put_BackgroundPalette(long BackgroundPalette);
-    STDMETHODIMP get_BackgroundPalette(long *pBackgroundPalette);
-    STDMETHODIMP put_Visible(long Visible);
-    STDMETHODIMP get_Visible(long *pVisible);
-    STDMETHODIMP put_Left(long Left);
-    STDMETHODIMP get_Left(long *pLeft);
-    STDMETHODIMP put_Width(long Width);
-    STDMETHODIMP get_Width(long *pWidth);
-    STDMETHODIMP put_Top(long Top);
-    STDMETHODIMP get_Top(long *pTop);
-    STDMETHODIMP put_Height(long Height);
-    STDMETHODIMP get_Height(long *pHeight);
-    STDMETHODIMP put_Owner(OAHWND Owner);
-    STDMETHODIMP get_Owner(OAHWND *Owner);
-    STDMETHODIMP put_MessageDrain(OAHWND Drain);
-    STDMETHODIMP get_MessageDrain(OAHWND *Drain);
-    STDMETHODIMP get_BorderColor(long *Color);
-    STDMETHODIMP put_BorderColor(long Color);
-    STDMETHODIMP get_FullScreenMode(long *FullScreenMode);
-    STDMETHODIMP put_FullScreenMode(long FullScreenMode);
+    DECLSPEC_NOTHROW STDMETHODIMP put_Caption(BSTR strCaption);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Caption(BSTR *pstrCaption);
+    DECLSPEC_NOTHROW STDMETHODIMP put_AutoShow(long AutoShow);
+    DECLSPEC_NOTHROW STDMETHODIMP get_AutoShow(long *AutoShow);
+    DECLSPEC_NOTHROW STDMETHODIMP put_WindowStyle(long WindowStyle);
+    DECLSPEC_NOTHROW STDMETHODIMP get_WindowStyle(long *pWindowStyle);
+    DECLSPEC_NOTHROW STDMETHODIMP put_WindowStyleEx(long WindowStyleEx);
+    DECLSPEC_NOTHROW STDMETHODIMP get_WindowStyleEx(long *pWindowStyleEx);
+    DECLSPEC_NOTHROW STDMETHODIMP put_WindowState(long WindowState);
+    DECLSPEC_NOTHROW STDMETHODIMP get_WindowState(long *pWindowState);
+    DECLSPEC_NOTHROW STDMETHODIMP put_BackgroundPalette(long BackgroundPalette);
+    DECLSPEC_NOTHROW STDMETHODIMP get_BackgroundPalette(long *pBackgroundPalette);
+    DECLSPEC_NOTHROW STDMETHODIMP put_Visible(long Visible);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Visible(long *pVisible);
+    DECLSPEC_NOTHROW STDMETHODIMP put_Left(long Left);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Left(long *pLeft);
+    DECLSPEC_NOTHROW STDMETHODIMP put_Width(long Width);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Width(long *pWidth);
+    DECLSPEC_NOTHROW STDMETHODIMP put_Top(long Top);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Top(long *pTop);
+    DECLSPEC_NOTHROW STDMETHODIMP put_Height(long Height);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Height(long *pHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP put_Owner(OAHWND Owner);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Owner(OAHWND *Owner);
+    DECLSPEC_NOTHROW STDMETHODIMP put_MessageDrain(OAHWND Drain);
+    DECLSPEC_NOTHROW STDMETHODIMP get_MessageDrain(OAHWND *Drain);
+    DECLSPEC_NOTHROW STDMETHODIMP get_BorderColor(long *Color);
+    DECLSPEC_NOTHROW STDMETHODIMP put_BorderColor(long Color);
+    DECLSPEC_NOTHROW STDMETHODIMP get_FullScreenMode(long *FullScreenMode);
+    DECLSPEC_NOTHROW STDMETHODIMP put_FullScreenMode(long FullScreenMode);
 
     // And these are the methods
 
-    STDMETHODIMP SetWindowForeground(long Focus);
-    STDMETHODIMP NotifyOwnerMessage(OAHWND hwnd,long uMsg,LONG_PTR wParam,LONG_PTR lParam);
-    STDMETHODIMP GetMinIdealImageSize(long *pWidth,long *pHeight);
-    STDMETHODIMP GetMaxIdealImageSize(long *pWidth,long *pHeight);
-    STDMETHODIMP SetWindowPosition(long Left,long Top,long Width,long Height);
-    STDMETHODIMP GetWindowPosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
-    STDMETHODIMP GetRestorePosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
-	STDMETHODIMP HideCursor(long HideCursor);
-    STDMETHODIMP IsCursorHidden(long *CursorHidden);
+    DECLSPEC_NOTHROW STDMETHODIMP SetWindowForeground(long Focus);
+    DECLSPEC_NOTHROW STDMETHODIMP NotifyOwnerMessage(OAHWND hwnd,long uMsg,LONG_PTR wParam,LONG_PTR lParam);
+    DECLSPEC_NOTHROW STDMETHODIMP GetMinIdealImageSize(long *pWidth,long *pHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP GetMaxIdealImageSize(long *pWidth,long *pHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP SetWindowPosition(long Left,long Top,long Width,long Height);
+    DECLSPEC_NOTHROW STDMETHODIMP GetWindowPosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP GetRestorePosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
+	DECLSPEC_NOTHROW STDMETHODIMP HideCursor(long HideCursor);
+    DECLSPEC_NOTHROW STDMETHODIMP IsCursorHidden(long *CursorHidden);
 };
 
 // This class implements the IBasicVideo interface
@@ -156,7 +156,7 @@ public:
                       RECT *pSourceRect);
 
     // Override this if you want notifying when the rectangles change
-    virtual HRESULT OnUpdateRectangles() { return NOERROR; };
+    virtual HRESULT OnUpdateRectangles() { return NOERROR; }
     virtual HRESULT OnVideoSizeChange();
 
     // Derived classes must call this to set the pin the filter is using
@@ -183,41 +183,41 @@ public:
 
     // These are the properties we support
 
-    STDMETHODIMP get_AvgTimePerFrame(REFTIME *pAvgTimePerFrame);
-    STDMETHODIMP get_BitRate(long *pBitRate);
-    STDMETHODIMP get_BitErrorRate(long *pBitErrorRate);
-    STDMETHODIMP get_VideoWidth(long *pVideoWidth);
-    STDMETHODIMP get_VideoHeight(long *pVideoHeight);
-    STDMETHODIMP put_SourceLeft(long SourceLeft);
-    STDMETHODIMP get_SourceLeft(long *pSourceLeft);
-    STDMETHODIMP put_SourceWidth(long SourceWidth);
-    STDMETHODIMP get_SourceWidth(long *pSourceWidth);
-    STDMETHODIMP put_SourceTop(long SourceTop);
-    STDMETHODIMP get_SourceTop(long *pSourceTop);
-    STDMETHODIMP put_SourceHeight(long SourceHeight);
-    STDMETHODIMP get_SourceHeight(long *pSourceHeight);
-    STDMETHODIMP put_DestinationLeft(long DestinationLeft);
-    STDMETHODIMP get_DestinationLeft(long *pDestinationLeft);
-    STDMETHODIMP put_DestinationWidth(long DestinationWidth);
-    STDMETHODIMP get_DestinationWidth(long *pDestinationWidth);
-    STDMETHODIMP put_DestinationTop(long DestinationTop);
-    STDMETHODIMP get_DestinationTop(long *pDestinationTop);
-    STDMETHODIMP put_DestinationHeight(long DestinationHeight);
-    STDMETHODIMP get_DestinationHeight(long *pDestinationHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP get_AvgTimePerFrame(REFTIME *pAvgTimePerFrame);
+    DECLSPEC_NOTHROW STDMETHODIMP get_BitRate(long *pBitRate);
+    DECLSPEC_NOTHROW STDMETHODIMP get_BitErrorRate(long *pBitErrorRate);
+    DECLSPEC_NOTHROW STDMETHODIMP get_VideoWidth(long *pVideoWidth);
+    DECLSPEC_NOTHROW STDMETHODIMP get_VideoHeight(long *pVideoHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP put_SourceLeft(long SourceLeft);
+    DECLSPEC_NOTHROW STDMETHODIMP get_SourceLeft(long *pSourceLeft);
+    DECLSPEC_NOTHROW STDMETHODIMP put_SourceWidth(long SourceWidth);
+    DECLSPEC_NOTHROW STDMETHODIMP get_SourceWidth(long *pSourceWidth);
+    DECLSPEC_NOTHROW STDMETHODIMP put_SourceTop(long SourceTop);
+    DECLSPEC_NOTHROW STDMETHODIMP get_SourceTop(long *pSourceTop);
+    DECLSPEC_NOTHROW STDMETHODIMP put_SourceHeight(long SourceHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP get_SourceHeight(long *pSourceHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP put_DestinationLeft(long DestinationLeft);
+    DECLSPEC_NOTHROW STDMETHODIMP get_DestinationLeft(long *pDestinationLeft);
+    DECLSPEC_NOTHROW STDMETHODIMP put_DestinationWidth(long DestinationWidth);
+    DECLSPEC_NOTHROW STDMETHODIMP get_DestinationWidth(long *pDestinationWidth);
+    DECLSPEC_NOTHROW STDMETHODIMP put_DestinationTop(long DestinationTop);
+    DECLSPEC_NOTHROW STDMETHODIMP get_DestinationTop(long *pDestinationTop);
+    DECLSPEC_NOTHROW STDMETHODIMP put_DestinationHeight(long DestinationHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP get_DestinationHeight(long *pDestinationHeight);
 
     // And these are the methods
 
-    STDMETHODIMP GetVideoSize(long *pWidth,long *pHeight);
-    STDMETHODIMP SetSourcePosition(long Left,long Top,long Width,long Height);
-    STDMETHODIMP GetSourcePosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
-    STDMETHODIMP GetVideoPaletteEntries(long StartIndex,long Entries,long *pRetrieved,long *pPalette);
-    STDMETHODIMP SetDefaultSourcePosition();
-    STDMETHODIMP IsUsingDefaultSource();
-    STDMETHODIMP SetDestinationPosition(long Left,long Top,long Width,long Height);
-    STDMETHODIMP GetDestinationPosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
-    STDMETHODIMP SetDefaultDestinationPosition();
-    STDMETHODIMP IsUsingDefaultDestination();
-    STDMETHODIMP GetCurrentImage(long *pBufferSize,long *pVideoImage);
+    DECLSPEC_NOTHROW STDMETHODIMP GetVideoSize(long *pWidth,long *pHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP SetSourcePosition(long Left,long Top,long Width,long Height);
+    DECLSPEC_NOTHROW STDMETHODIMP GetSourcePosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP GetVideoPaletteEntries(long StartIndex,long Entries,long *pRetrieved,long *pPalette);
+    DECLSPEC_NOTHROW STDMETHODIMP SetDefaultSourcePosition();
+    DECLSPEC_NOTHROW STDMETHODIMP IsUsingDefaultSource();
+    DECLSPEC_NOTHROW STDMETHODIMP SetDestinationPosition(long Left,long Top,long Width,long Height);
+    DECLSPEC_NOTHROW STDMETHODIMP GetDestinationPosition(long *pLeft,long *pTop,long *pWidth,long *pHeight);
+    DECLSPEC_NOTHROW STDMETHODIMP SetDefaultDestinationPosition();
+    DECLSPEC_NOTHROW STDMETHODIMP IsUsingDefaultDestination();
+    DECLSPEC_NOTHROW STDMETHODIMP GetCurrentImage(long *pBufferSize,long *pVideoImage);
 };
 
 #endif // __WINCTRL__

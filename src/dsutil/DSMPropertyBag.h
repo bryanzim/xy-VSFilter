@@ -4,8 +4,7 @@
 
 // IDSMPropertyBag
 
-[uuid("232FD5D2-4954-41E7-BF9B-09E1257B1A95")]
-interface IDSMPropertyBag : public IPropertyBag2
+interface __declspec(uuid("232FD5D2-4954-41E7-BF9B-09E1257B1A95")) IDSMPropertyBag : public IPropertyBag2
 {
 	STDMETHOD(SetProperty) (LPCWSTR key, LPCWSTR value) = 0;
 	STDMETHOD(SetProperty) (LPCWSTR key, VARIANT* var) = 0;
@@ -25,30 +24,29 @@ public:
 
 	// IPropertyBag
 
-    [[nodiscard]] STDMETHODIMP Read(LPCOLESTR pszPropName, VARIANT* pVar, IErrorLog* pErrorLog);
-    [[nodiscard]] STDMETHODIMP Write(LPCOLESTR pszPropName, VARIANT* pVar);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Read(LPCOLESTR pszPropName, VARIANT* pVar, IErrorLog* pErrorLog);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Write(LPCOLESTR pszPropName, VARIANT* pVar);
 
 	// IPropertyBag2
 
-	[[nodiscard]] STDMETHODIMP Read(ULONG cProperties, PROPBAG2* pPropBag, IErrorLog* pErrLog, VARIANT* pvarValue, HRESULT* phrError);
-	[[nodiscard]] STDMETHODIMP Write(ULONG cProperties, PROPBAG2* pPropBag, VARIANT* pvarValue);
-	[[nodiscard]] STDMETHODIMP CountProperties(ULONG* pcProperties);
-	[[nodiscard]] STDMETHODIMP GetPropertyInfo(ULONG iProperty, ULONG cProperties, PROPBAG2* pPropBag, ULONG* pcProperties);
-	[[nodiscard]] STDMETHODIMP LoadObject(LPCOLESTR pstrName, DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Read(ULONG cProperties, PROPBAG2* pPropBag, IErrorLog* pErrLog, VARIANT* pvarValue, HRESULT* phrError);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Write(ULONG cProperties, PROPBAG2* pPropBag, VARIANT* pvarValue);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CountProperties(ULONG* pcProperties);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetPropertyInfo(ULONG iProperty, ULONG cProperties, PROPBAG2* pPropBag, ULONG* pcProperties);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP LoadObject(LPCOLESTR pstrName, DWORD dwHint, IUnknown* pUnkObject, IErrorLog* pErrLog);
 
 	// IDSMPropertyBag
 
-	[[nodiscard]] STDMETHODIMP SetProperty(LPCWSTR key, LPCWSTR value);
-	[[nodiscard]] STDMETHODIMP SetProperty(LPCWSTR key, VARIANT* var);
-	[[nodiscard]] STDMETHODIMP GetProperty(LPCWSTR key, BSTR* value);
-	STDMETHODIMP DelAllProperties();
-	[[nodiscard]] STDMETHODIMP DelProperty(LPCWSTR key);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetProperty(LPCWSTR key, LPCWSTR value);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetProperty(LPCWSTR key, VARIANT* var);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetProperty(LPCWSTR key, BSTR* value);
+	DECLSPEC_NOTHROW STDMETHODIMP DelAllProperties();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DelProperty(LPCWSTR key);
 };
 
 // IDSMResourceBag
 
-[uuid("EBAFBCBE-BDE0-489A-9789-05D5692E3A93")]
-interface IDSMResourceBag : public IUnknown
+interface __declspec(uuid("EBAFBCBE-BDE0-489A-9789-05D5692E3A93")) IDSMResourceBag : public IUnknown
 {
 	STDMETHOD_(DWORD, ResGetCount) () = 0;
 	STDMETHOD(ResGet) (DWORD iIndex, BSTR* ppName, BSTR* ppDesc, BSTR* ppMime, BYTE** ppData, DWORD* pDataLen, DWORD_PTR* pTag) = 0;
@@ -87,18 +85,17 @@ public:
 
 	// IDSMResourceBag
 
-	[[nodiscard]] STDMETHODIMP_(DWORD) ResGetCount();
-	[[nodiscard]] STDMETHODIMP ResGet(DWORD iIndex, BSTR* ppName, BSTR* ppDesc, BSTR* ppMime, BYTE** ppData, DWORD* pDataLen, DWORD_PTR* pTag = NULL);
-	[[nodiscard]] STDMETHODIMP ResSet(DWORD iIndex, LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
-	[[nodiscard]] STDMETHODIMP ResAppend(LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
-	[[nodiscard]] STDMETHODIMP ResRemoveAt(DWORD iIndex);
-	[[nodiscard]] STDMETHODIMP ResRemoveAll(DWORD_PTR tag = 0);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(DWORD) ResGetCount();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResGet(DWORD iIndex, BSTR* ppName, BSTR* ppDesc, BSTR* ppMime, BYTE** ppData, DWORD* pDataLen, DWORD_PTR* pTag = NULL);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResSet(DWORD iIndex, LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResAppend(LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResRemoveAt(DWORD iIndex);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResRemoveAll(DWORD_PTR tag = 0);
 };
 
 // IDSMChapterBag
 
-[uuid("2D0EBE73-BA82-4E90-859B-C7C48ED3650F")]
-interface IDSMChapterBag : public IUnknown
+interface __declspec(uuid("2D0EBE73-BA82-4E90-859B-C7C48ED3650F")) IDSMChapterBag : public IUnknown
 {
 	STDMETHOD_(DWORD, ChapGetCount) () = 0;
 	STDMETHOD(ChapGet) (DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName) = 0;
@@ -120,6 +117,7 @@ public:
 	CStringW name;
 	explicit CDSMChapter();
 	CDSMChapter(REFERENCE_TIME rt, LPCWSTR name);
+	CDSMChapter(const CDSMChapter&) = default;
 	void operator = (const CDSMChapter& c);
 	[[nodiscard]] static int Compare(const void* a, const void* b);
 };
@@ -137,14 +135,14 @@ public:
 
 	// IDSMChapterBag
 
-	[[nodiscard]] STDMETHODIMP_(DWORD) ChapGetCount();
-	[[nodiscard]] STDMETHODIMP ChapGet(DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName = NULL);
-	[[nodiscard]] STDMETHODIMP ChapSet(DWORD iIndex, REFERENCE_TIME rt, LPCWSTR pName);
-	[[nodiscard]] STDMETHODIMP ChapAppend(REFERENCE_TIME rt, LPCWSTR pName);
-	[[nodiscard]] STDMETHODIMP ChapRemoveAt(DWORD iIndex);
-	STDMETHODIMP ChapRemoveAll();
-	[[nodiscard]] STDMETHODIMP_(long) ChapLookup(REFERENCE_TIME* prt, BSTR* ppName = NULL);
-	STDMETHODIMP ChapSort();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(DWORD) ChapGetCount();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapGet(DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName = NULL);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapSet(DWORD iIndex, REFERENCE_TIME rt, LPCWSTR pName);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapAppend(REFERENCE_TIME rt, LPCWSTR pName);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapRemoveAt(DWORD iIndex);
+	DECLSPEC_NOTHROW STDMETHODIMP ChapRemoveAll();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(long) ChapLookup(REFERENCE_TIME* prt, BSTR* ppName = NULL);
+	DECLSPEC_NOTHROW STDMETHODIMP ChapSort();
 };
 
 class CDSMChapterBag : public CUnknown, public IDSMChapterBagImpl
@@ -152,8 +150,8 @@ class CDSMChapterBag : public CUnknown, public IDSMChapterBagImpl
 public:
 	CDSMChapterBag(LPUNKNOWN pUnk, HRESULT* phr);
 
-	DECLARE_IUNKNOWN;
-	[[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+	DECLARE_IUNKNOWN
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 };
 
 template<class T>
@@ -171,11 +169,11 @@ template<class T>
 		if(rt == midrt) {ret = mid; break;}
 		else if(rt < midrt) {ret = -1; if(j == mid)
 		{
-		    mid--;
+		    --mid;
 		} j = mid;}
 		else if(rt > midrt) {ret = mid; if(i == mid)
 		{
-		    mid++;
+		    ++mid;
 		} i = mid;}
 	}
 	return ret;

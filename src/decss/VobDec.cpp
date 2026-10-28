@@ -25,11 +25,11 @@ CVobDec::CVobDec()
 {
 	m_fFoundKey = false;
 
-	for(DWORD loop0 = 0; loop0 < 0x100; loop0++)
+	for(DWORD loop0 = 0; loop0 < 0x100; ++loop0)
 	{
 		BYTE value = 0;
 
-		for(DWORD loop1 = 0; loop1 < 8; loop1++)
+		for(DWORD loop1 = 0; loop1 < 8; ++loop1)
 		{
 			value |= ((loop0 >> loop1) & 1) << (7 - loop1);
 		}
@@ -75,19 +75,19 @@ int CVobDec::FindLfsr(const BYTE *crypt, int offset, const BYTE *plain)
 {
 	int loop0, loop1, lfsr0, lfsr1, carry, count;
 
-	for(loop0 = count = 0; loop0 != (1 << 18); loop0++)
+	for(loop0 = count = 0; loop0 != (1 << 18); ++loop0)
 	{
 		lfsr0 = loop0 >> 1;
 		carry = loop0 & 0x01;
 
-		for(loop1 = lfsr1 = 0; loop1 != 4; loop1++)
+		for(loop1 = lfsr1 = 0; loop1 != 4; ++loop1)
 		{
 			ClockLfsr0Forward(lfsr0);
 			carry = (table[crypt[offset + loop1]] ^ plain[loop1]) - ((lfsr0 >> 9) ^ 0xFF) - carry;
 			lfsr1 = (lfsr1 >> 8) | ((carry & 0xFF) << 17);
 			carry = (carry >> 8) & 0x01;
 		}
-		for( ; loop1 != 7; loop1++)
+		for( ; loop1 != 7; ++loop1)
 		{
 			ClockLfsr0Forward(lfsr0);
 			ClockLfsr1Forward(lfsr1);
@@ -100,14 +100,14 @@ int CVobDec::FindLfsr(const BYTE *crypt, int offset, const BYTE *plain)
 		}
 		if(loop1 == 7)
 		{
-			for(loop1 = 0; loop1 != 6; loop1++)
+			for(loop1 = 0; loop1 != 6; ++loop1)
 			{
 				ClockBackward(lfsr0, lfsr1);
 			}
 			carry = ((lfsr0 >> 9) ^ 0xFF) + (lfsr1 >> 17) + (loop0 & 0x01);
 			if((carry & 0xFF) == (table[crypt[offset]] ^ plain[0]))
 			{
-				for(loop1 = 0; loop1 != offset + 1; loop1++)
+				for(loop1 = 0; loop1 != offset + 1; ++loop1)
 				{
 					ClockBackward(lfsr0, lfsr1);
 				}
@@ -115,7 +115,7 @@ int CVobDec::FindLfsr(const BYTE *crypt, int offset, const BYTE *plain)
 				{
 					m_lfsr0 = lfsr0;
 					m_lfsr1 = lfsr1;
-					count++;
+					++count;
 				}
 			}
 		}

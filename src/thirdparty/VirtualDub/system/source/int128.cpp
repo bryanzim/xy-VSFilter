@@ -28,7 +28,7 @@
 
 #include <vd2/system/int128.h>
 
-#if defined(VD_CPU_X86) && defined(VD_COMPILER_MSVC)
+#if defined(VD_CPU_X86) && defined(VD_COMPILER_MSVC) && !defined(__clang__)
 	void __declspec(naked) __cdecl vdasm_uint128_add(uint64 dst[2], const uint64 x[2], const uint64 y[2]) {
 		__asm {
 			push	ebx

@@ -49,28 +49,28 @@ public:
 	CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype=NULL, int prefered_colortype_num=0);
 	virtual ~CSubPicQueueImpl();
 
-	DECLARE_IUNKNOWN;
-	[[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+	DECLARE_IUNKNOWN
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
 	// ISubPicQueue
 
-	[[nodiscard]] STDMETHODIMP SetSubPicProvider(ISubPicProvider* pSubPicProvider);
-	[[nodiscard]] STDMETHODIMP GetSubPicProvider(ISubPicProvider** pSubPicProvider);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetSubPicProvider(ISubPicProvider* pSubPicProvider);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetSubPicProvider(ISubPicProvider** pSubPicProvider);
 
-	[[nodiscard]] STDMETHODIMP SetFPS(double fps);
-	[[nodiscard]] STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetFPS(double fps);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
 
     // ISimpleSubPicProvider
 
-    [[nodiscard]] STDMETHODIMP SetSubPicProvider(IUnknown* subpic_provider);
-    [[nodiscard]] STDMETHODIMP GetSubPicProvider(IUnknown** subpic_provider);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetSubPicProvider(IUnknown* subpic_provider);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetSubPicProvider(IUnknown** subpic_provider);
 
-	[[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1) = 0;
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1) = 0;
 /*
-	STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic) = 0;
+	DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic) = 0;
 
-	STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop) = 0;
-	STDMETHODIMP GetStats(int nSubPics, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop) = 0;
+	DECLSPEC_NOTHROW STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop) = 0;
+	DECLSPEC_NOTHROW STDMETHODIMP GetStats(int nSubPics, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop) = 0;
 */
 };
 
@@ -105,17 +105,17 @@ public:
 
 	// ISubPicQueue
 
-	[[nodiscard]] STDMETHODIMP SetFPS(double fps);
-	[[nodiscard]] STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetFPS(double fps);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
 
-	[[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
-	[[nodiscard]] STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic);
 
-	[[nodiscard]] STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
-	[[nodiscard]] STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
 
     // ISimpleSubPicProvider
-    [[nodiscard]] STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
 };
 
 class CSubPicQueueNoThread : public CSubPicQueueImpl
@@ -131,13 +131,13 @@ public:
 	virtual ~CSubPicQueueNoThread();
 
 	// ISubPicQueue
-	[[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
-	[[nodiscard]] STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME rtNow, ISubPic** ppSubPic);
     
-	[[nodiscard]] STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
-	[[nodiscard]] STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
 
     // ISimpleSubPicProvider
-    [[nodiscard]] STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
 };
 

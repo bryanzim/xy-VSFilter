@@ -9,7 +9,8 @@
 
 
 #include <streams.h>
-#include <process.h> //MPC-HC patch 
+#include <process.h> //MPC-HC patch
+#include <VersionHelpers.h> 
 //
 //  Declare function from largeint.h we need so that PPC can build
 //
@@ -1219,20 +1220,6 @@ MMRESULT CompatibleTimeSetEvent( UINT uDelay, UINT uResolution, LPTIMECALLBACK l
 
 bool TimeKillSynchronousFlagAvailable( void )
 {
-    OSVERSIONINFO osverinfo;
-
-    osverinfo.dwOSVersionInfoSize = sizeof(osverinfo);
-
-    if( GetVersionEx( &osverinfo ) ) {
-        
-        // Windows XP's major version is 5 and its' minor version is 1.
-        // timeSetEvent() started supporting the TIME_KILL_SYNCHRONOUS flag
-        // in Windows XP.
-        if( (osverinfo.dwMajorVersion > 5) || 
-            ( (osverinfo.dwMajorVersion == 5) && (osverinfo.dwMinorVersion >= 1) ) ) {
-            return true;
-        }
-    }
-
-    return false;
+    // timeSetEvent() started supporting TIME_KILL_SYNCHRONOUS in Windows XP.
+    return IsWindowsXPOrGreater();
 }

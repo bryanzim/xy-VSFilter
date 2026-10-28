@@ -48,7 +48,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 {
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_FileName(WCHAR* fn)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_FileName(WCHAR* fn)
 {
     WCHAR *tmp{NULL};
     HRESULT hr{XyGetString(STRING_FILE_NAME, &tmp, NULL)};
@@ -60,17 +60,17 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_FileName(WCHAR* fn)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_FileName(WCHAR* fn)
 {
     return XySetString(STRING_FILE_NAME, fn, wcslen(fn));
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_LanguageCount(int* nLangs)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_LanguageCount(int* nLangs)
 {
     return XyGetInt(DirectVobSubXyOptions::INT_LANGUAGE_COUNT, nLangs);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_LanguageName(const int iLanguage, WCHAR** ppName)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_LanguageName(const int iLanguage, WCHAR** ppName)
 {
     if (!TestOption(DirectVobSubXyOptions::void_LanguageName))
     {
@@ -79,38 +79,38 @@ DirectVobSubImpl::~DirectVobSubImpl()
 	return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SelectedLanguage(int* iSelected)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_SelectedLanguage(int* iSelected)
 {
     return XyGetInt(DirectVobSubXyOptions::INT_SELECTED_LANGUAGE, iSelected);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SelectedLanguage(const int iSelected)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_SelectedLanguage(const int iSelected)
 {
     return XySetInt(DirectVobSubXyOptions::INT_SELECTED_LANGUAGE, iSelected);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_HideSubtitles(bool* fHideSubtitles)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_HideSubtitles(bool* fHideSubtitles)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_HIDE_SUBTITLES, fHideSubtitles);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_HideSubtitles(const bool fHideSubtitles)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_HideSubtitles(const bool fHideSubtitles)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_HIDE_SUBTITLES, fHideSubtitles);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_PreBuffering(bool* fDoPreBuffering)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_PreBuffering(bool* fDoPreBuffering)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_PRE_BUFFERING, fDoPreBuffering);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_PreBuffering(const bool fDoPreBuffering)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_PreBuffering(const bool fDoPreBuffering)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_PRE_BUFFERING, fDoPreBuffering);
 }
 
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_Placement(bool* fOverridePlacement, int* xperc, int* yperc)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_Placement(bool* fOverridePlacement, int* xperc, int* yperc)
 {
     HRESULT hr{XyGetBool(DirectVobSubXyOptions::BOOL_OVERRIDE_PLACEMENT, fOverridePlacement)};
     if (FAILED(hr))
@@ -137,7 +137,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_Placement(const bool fOverridePlacement, const int xperc, const int yperc)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_Placement(const bool fOverridePlacement, const int xperc, const int yperc)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_OVERRIDE_PLACEMENT, OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::SIZE_PLACEMENT_PERC, OPTION_TYPE_SIZE, OPTION_MODE_WRITE))
@@ -160,7 +160,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_VobSubSettings(bool* fBuffer, bool* fOnlyShowForcedSubs, bool* fPolygonize)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_VobSubSettings(bool* fBuffer, bool* fOnlyShowForcedSubs, bool* fPolygonize)
 {
     HRESULT hr{XyGetBool(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_BUFFER, fBuffer)};
     if (FAILED(hr))
@@ -183,7 +183,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_VobSubSettings(const bool fBuffer, const bool fOnlyShowForcedSubs, const bool fPolygonize)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_VobSubSettings(const bool fBuffer, const bool fOnlyShowForcedSubs, const bool fPolygonize)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_BUFFER, OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::BOOL_VOBSUBSETTINGS_ONLY_SHOW_FORCED_SUBS, OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
@@ -212,7 +212,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return (hr1==S_FALSE&&hr2==S_FALSE&&hr3==S_FALSE) ? S_FALSE : S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_TextSettings(void* lf, const int lflen, COLORREF* color, bool* fShadow, bool* fOutline, bool* fAdvancedRenderer)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_TextSettings(void* lf, const int lflen, COLORREF* color, bool* fShadow, bool* fOutline, bool* fAdvancedRenderer)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS, OPTION_TYPE_BIN2, OPTION_MODE_READ))
     {
@@ -262,7 +262,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_TextSettings(void* lf, const int lflen, const COLORREF color, const bool fShadow, const bool fOutline, const bool fAdvancedRenderer)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_TextSettings(void* lf, const int lflen, const COLORREF color, const bool fShadow, const bool fOutline, const bool fAdvancedRenderer)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS, OPTION_TYPE_BIN2, OPTION_MODE_WRITE))
     {
@@ -316,7 +316,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     }
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_Flip(bool* fPicture, bool* fSubtitles)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_Flip(bool* fPicture, bool* fSubtitles)
 {
     HRESULT hr{XyGetBool(DirectVobSubXyOptions::BOOL_FLIP_PICTURE, fPicture)};
     if (FAILED(hr))
@@ -334,7 +334,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_Flip(const bool fPicture, const bool fSubtitles)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_Flip(const bool fPicture, const bool fSubtitles)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_FLIP_PICTURE,OPTION_TYPE_BOOL,OPTION_MODE_WRITE) || 
         !TestOption(DirectVobSubXyOptions::BOOL_FLIP_SUBTITLE,OPTION_TYPE_BOOL,OPTION_MODE_WRITE))
@@ -356,27 +356,27 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_OSD(bool* fOSD)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_OSD(bool* fOSD)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_OSD, fOSD);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_OSD(const bool fOSD)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_OSD(const bool fOSD)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_OSD, fOSD);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SaveFullPath(bool* fSaveFullPath)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_SaveFullPath(bool* fSaveFullPath)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_SAVE_FULL_PATH, fSaveFullPath);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SaveFullPath(const bool fSaveFullPath)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_SaveFullPath(const bool fSaveFullPath)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_SAVE_FULL_PATH, fSaveFullPath);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv)
 
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_SUBTITLE_TIMING, OPTION_TYPE_BIN2, OPTION_MODE_READ))
@@ -401,7 +401,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SubtitleTiming(const int delay, const int speedmul, const int speeddiv)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_SubtitleTiming(const int delay, const int speedmul, const int speeddiv)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_SUBTITLE_TIMING, OPTION_TYPE_BIN2, OPTION_MODE_WRITE))
     {
@@ -428,19 +428,19 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return OnOptionChanged(BIN2_SUBTITLE_TIMING);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_MediaFPS(bool* fEnabled, double* fps)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_MediaFPS(bool* fEnabled, double* fps)
 
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_MediaFPS(const bool fEnabled, const double fps)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_MediaFPS(const bool fEnabled, const double fps)
 
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_ZoomRect(NORMALIZEDRECT* rect)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_ZoomRect(NORMALIZEDRECT* rect)
 
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_ZOOM_RECT,OPTION_TYPE_BIN2, OPTION_MODE_READ))
@@ -460,7 +460,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_ZoomRect(NORMALIZEDRECT* rect)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_ZoomRect(NORMALIZEDRECT* rect)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_ZOOM_RECT, OPTION_TYPE_BIN2, OPTION_MODE_WRITE))
     {
@@ -484,17 +484,17 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return OnOptionChanged(BIN2_ZOOM_RECT);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_CachesInfo(CachesInfo* caches_info)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_CachesInfo(CachesInfo* caches_info)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::HasConfigDialog(const int iSelected)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::HasConfigDialog(const int iSelected)
 {
     if (!TestOption(DirectVobSubXyOptions::void_HasConfigDialog))
     {
@@ -503,7 +503,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 	return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::ShowConfigDialog(const int iSelected, const HWND hWndParent)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::ShowConfigDialog(const int iSelected, const HWND hWndParent)
 {
     if (!TestOption(DirectVobSubXyOptions::void_ShowConfigDialog))
     {
@@ -512,12 +512,12 @@ DirectVobSubImpl::~DirectVobSubImpl()
 	return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::IsSubtitleReloaderLocked(bool* fLocked)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::IsSubtitleReloaderLocked(bool* fLocked)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_LOCK, fLocked);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::LockSubtitleReloader(const bool fLock)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::LockSubtitleReloader(const bool fLock)
 {
     if (!TestOption(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_LOCK, OPTION_TYPE_BOOL, OPTION_MODE_WRITE))
     {
@@ -527,11 +527,11 @@ DirectVobSubImpl::~DirectVobSubImpl()
 
     if(fLock)
     {
-        m_nReloaderDisableCount++;
+        ++m_nReloaderDisableCount;
     }
     else
     {
-        m_nReloaderDisableCount--;
+        --m_nReloaderDisableCount;
     }
 
     ASSERT(m_nReloaderDisableCount >= 0);
@@ -543,17 +543,17 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return OnOptionChanged(BOOL_SUBTITLE_RELOADER_LOCK);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_SubtitleReloader(bool* fDisabled)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_SubtitleReloader(bool* fDisabled)
 {
     return XyGetBool(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_DISABLED, fDisabled);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_SubtitleReloader(const bool fDisable)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_SubtitleReloader(const bool fDisable)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_SUBTITLE_RELOADER_DISABLED, fDisable);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh)
 {
     HRESULT hr{XyGetInt(DirectVobSubXyOptions::INT_EXTEND_PICTURE_HORIZONTAL, horizontal)};
     if (FAILED(hr))
@@ -592,7 +592,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_ExtendPicture(const int horizontal, const int vertical, const int resx2, const int resx2minw, const int resx2minh)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_ExtendPicture(const int horizontal, const int vertical, const int resx2, const int resx2minw, const int resx2minh)
 {
     if (!TestOption(DirectVobSubXyOptions::INT_EXTEND_PICTURE_HORIZONTAL, OPTION_TYPE_INT , OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::INT_EXTEND_PICTURE_VERTICAL  , OPTION_TYPE_INT , OPTION_MODE_WRITE) ||
@@ -630,7 +630,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return (hr1==hr2&&hr2==hr3&&hr3==hr4&&hr4==S_FALSE)? S_FALSE : S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad)
 {
     HRESULT hr{XyGetInt(DirectVobSubXyOptions::INT_LOAD_SETTINGS_LEVEL, level)};
     if (FAILED(hr))
@@ -659,7 +659,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_LoadSettings(const int level, const bool fExternalLoad, const bool fWebLoad, const bool fEmbeddedLoad)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_LoadSettings(const int level, const bool fExternalLoad, const bool fWebLoad, const bool fEmbeddedLoad)
 {
     if (!TestOption(DirectVobSubXyOptions::INT_LOAD_SETTINGS_LEVEL    , OPTION_TYPE_INT , OPTION_MODE_WRITE) ||
         !TestOption(DirectVobSubXyOptions::BOOL_LOAD_SETTINGS_EXTENAL , OPTION_TYPE_BOOL, OPTION_MODE_WRITE) ||
@@ -697,7 +697,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 
 // IDirectVobSub2
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::AdviseSubClock(ISubClock* pSubClock)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::AdviseSubClock(ISubClock* pSubClock)
 
 {
     if (!TestOption(DirectVobSubXyOptions::void_AdviseSubClock))
@@ -708,7 +708,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 	return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) DirectVobSubImpl::get_Forced()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) DirectVobSubImpl::get_Forced()
 {
     bool forced{false};
     if (FAILED(XyGetBool(DirectVobSubXyOptions::BOOL_FORCED_LOAD, &forced)))
@@ -719,12 +719,12 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return forced;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_Forced(const bool fForced)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_Forced(const bool fForced)
 {
     return XySetBool(DirectVobSubXyOptions::BOOL_FORCED_LOAD, fForced);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_TextSettings(STSStyle* pDefStyle)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_TextSettings(STSStyle* pDefStyle)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS))
     {
@@ -739,7 +739,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 	return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_TextSettings(STSStyle* pDefStyle)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_TextSettings(STSStyle* pDefStyle)
 {
     if (!TestOption(DirectVobSubXyOptions::BIN2_TEXT_SETTINGS))
     {
@@ -763,12 +763,12 @@ DirectVobSubImpl::~DirectVobSubImpl()
     return OnOptionChanged(BIN2_TEXT_SETTINGS);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
 {
     return XyGetInt(DirectVobSubXyOptions::INT_ASPECT_RATIO_SETTINGS, (int*)ePARCompensationType);
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
 {
     CheckPointer(ePARCompensationType, E_POINTER);
     return XySetInt(DirectVobSubXyOptions::INT_ASPECT_RATIO_SETTINGS, *ePARCompensationType);
@@ -776,7 +776,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 
 // IFilterVersion
 
-[[nodiscard]] STDMETHODIMP_(DWORD) DirectVobSubImpl::GetFilterVersion()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(DWORD) DirectVobSubImpl::GetFilterVersion()
 
 {
 	return 0x0234;
@@ -864,7 +864,7 @@ void DirectVobSubImpl::LoadKnownSourceFilters( CAtlArray<CStringW> *filter_guid,
         {
             filter_name->SetCount(number);
         }
-        for (int i{0};i<number;i++)
+        for (int i{0};i<number;++i)
         {
             if (filter_guid)
             {
@@ -887,7 +887,7 @@ void DirectVobSubImpl::LoadKnownSourceFilters( CAtlArray<CStringW> *filter_guid,
             filter_name->SetCount(number);
         }
         CString tmp;
-        for (int i{0};i<number;i++)
+        for (int i{0};i<number;++i)
         {
             if (filter_guid) {
                 tmp.Format(ResStr(IDS_RK_GUID), i+1);
@@ -908,7 +908,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
     int number = filter_guid.GetCount();
     CString tmp;
     theApp.WriteProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER), ResStr(IDS_RK_TOTAL_NUMBER), number);
-    for (int i{0};i<number;i++)
+    for (int i{0};i<number;++i)
     {
         tmp.Format(ResStr(IDS_RK_GUID), i+1);
         theApp.WriteProfileString(ResStr(IDS_R_KNOWN_SOURCE_FILTER), tmp, filter_guid[i]);
@@ -1004,7 +1004,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
 
 // IXyOptions
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::XyGetBin      (const unsigned field, LPVOID    *value, int *size )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::XyGetBin      (const unsigned field, LPVOID    *value, int *size )
 {
     if (!TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN, XyOptionsImpl::OPTION_MODE_READ))
     {
@@ -1050,7 +1050,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::XyGetBin2( const unsigned field, void *value, const int size )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::XyGetBin2( const unsigned field, void *value, const int size )
 {
     if (!TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN2, XyOptionsImpl::OPTION_MODE_READ))
     {
@@ -1105,7 +1105,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP DirectVobSubImpl::XySetBin( const unsigned field, const LPVOID value, const int size )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::XySetBin( const unsigned field, const LPVOID value, const int size )
 {
     if (!TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN, XyOptionsImpl::OPTION_MODE_WRITE) &&
         !TestOption(field, XyOptionsImpl::OPTION_TYPE_BIN2, XyOptionsImpl::OPTION_MODE_WRITE))
@@ -1342,7 +1342,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     if(theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_OUTPUT_COLORFORMATS), &pData, &nSize)
         && pData && nSize == 2*GetOutputColorSpaceNumber())
     {
-        for (unsigned i{0U};i<nSize/2;i++)
+        for (unsigned i{0U};i<nSize/2;++i)
         {
             m_outputColorSpace[i].color_space = static_cast<ColorSpaceId>(pData[2U*i]);
             m_outputColorSpace[i].selected = !!pData[2U*i+1];
@@ -1350,7 +1350,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     }
     else
     {
-        for (unsigned i{0U};i<GetOutputColorSpaceNumber();i++)
+        for (unsigned i{0U};i<GetOutputColorSpaceNumber();++i)
         {
             m_outputColorSpace[i].color_space = static_cast<ColorSpaceId>(i);
             m_outputColorSpace[i].selected = true;
@@ -1366,7 +1366,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     if(theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INPUT_COLORFORMATS), &pData, &nSize)
         && pData && nSize == 2*GetInputColorSpaceNumber())
     {
-        for (unsigned i{0U};i<nSize/2;i++)
+        for (unsigned i{0U};i<nSize/2;++i)
         {
             m_inputColorSpace[i].color_space = static_cast<ColorSpaceId>(pData[2U*i]);
             m_inputColorSpace[i].selected = !!pData[2U*i+1];
@@ -1374,7 +1374,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     }
     else
     {
-        for (unsigned i{0U};i<GetOutputColorSpaceNumber();i++)
+        for (unsigned i{0U};i<GetOutputColorSpaceNumber();++i)
         {
             m_inputColorSpace[i].color_space = static_cast<ColorSpaceId>(i);
             m_inputColorSpace[i].selected = true;
@@ -1422,7 +1422,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 
     CStringA version{XY_ABOUT_VERSION_STR};
     m_xy_str_opt[STRING_VERSION] = "";
-    for (int i{0};i<version.GetLength();i++)
+    for (int i{0};i<version.GetLength();++i)
     {
         m_xy_str_opt[STRING_VERSION] += version[i];
     }
@@ -1460,7 +1460,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 
 }
 
-[[nodiscard]] STDMETHODIMP CDirectVobSub::UpdateRegistry()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CDirectVobSub::UpdateRegistry()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -1549,7 +1549,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     {
         int count = GetOutputColorSpaceNumber();
         BYTE* pData{DEBUG_NEW BYTE[2U*count]};
-        for(int i{0}; i < count; i++)
+        for(int i{0}; i < count; ++i)
         {
             pData[2U*i] = static_cast<BYTE>(m_outputColorSpace[i].color_space);
             pData[2U*i+1] = static_cast<BYTE>(m_outputColorSpace[i].selected);
@@ -1563,7 +1563,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     {
         int count = GetInputColorSpaceNumber();
         BYTE* pData{DEBUG_NEW BYTE[2U*count]};
-        for(int i{0}; i < count; i++)
+        for(int i{0}; i < count; ++i)
         {
             pData[2U*i] = static_cast<BYTE>(m_inputColorSpace[i].color_space);
             pData[2U*i+1] = static_cast<BYTE>(m_inputColorSpace[i].selected);
@@ -1825,7 +1825,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
 
     CStringA version{XY_ABOUT_VERSION_STR};
     m_xy_str_opt[STRING_VERSION] = "";
-    for (int i{0};i<version.GetLength();i++)
+    for (int i{0};i<version.GetLength();++i)
     {
         m_xy_str_opt[STRING_VERSION] += version[i];
     }
@@ -1880,7 +1880,7 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     LoadKnownSourceFilters(&m_known_source_filters_guid, &m_known_source_filters_name);
 }
 
-[[nodiscard]] STDMETHODIMP CDVS4XySubFilter::UpdateRegistry()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CDVS4XySubFilter::UpdateRegistry()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 

@@ -54,15 +54,18 @@ public:
                     void * tmp{reinterpret_cast<void**>(m_indx)[0U]};
                     delete[] reinterpret_cast<T***>(m_indx);
                     m_indx = tmp;
-                    m_cur_level--;
+                    --m_cur_level;
                 }
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 1:
                 if (preserve_key_number<=IND0_SIZE)
                 {
                     void * tmp{reinterpret_cast<void**>(m_indx)[0U]};
                     delete[] reinterpret_cast<T**>(m_indx);
                     m_indx = tmp;
-                    m_cur_level--;
+                    --m_cur_level;
                 }
                 ASSERT(preserve_key_number>0);
             }
@@ -80,12 +83,18 @@ public:
                 data = reinterpret_cast<T***>(data)[i/(IND0_SIZE*IND1_SIZE)];
                 i %= IND0_SIZE*IND1_SIZE;
             }
+        #if defined(__clang__)
+        [[clang::fallthrough]];
+        #endif
         case 1:
             if (data && i<IND0_SIZE*IND1_SIZE)
             {
                 data = reinterpret_cast<T**>(data)[i/IND0_SIZE];
                 i %= IND0_SIZE;
             }
+        #if defined(__clang__)
+        [[clang::fallthrough]];
+        #endif
         case 0:
             if (data && i<IND0_SIZE)
             {
@@ -111,8 +120,11 @@ public:
                 std::memset(ind1, 0, sizeof(T*)*IND1_SIZE);
                 ind1[0U] = reinterpret_cast<T*>(m_indx);
                 m_indx = ind1;
-                m_cur_level++;
+                ++m_cur_level;
             }
+        #if defined(__clang__)
+        [[clang::fallthrough]];
+        #endif
         case 1:
             if (i>=IND0_SIZE*IND1_SIZE)
             {
@@ -124,7 +136,7 @@ public:
                 std::memset(ind2, 0, sizeof(T**)*IND2_SIZE);
                 ind2[0U] = reinterpret_cast<T**>(m_indx);
                 m_indx = ind2;
-                m_cur_level++;
+                ++m_cur_level;
             }
         }
 
@@ -145,6 +157,9 @@ public:
                 std::memset(*ind1, 0, sizeof(T*)*IND1_SIZE);
             }
             i %= IND0_SIZE*IND1_SIZE;
+        #if defined(__clang__)
+        [[clang::fallthrough]];
+        #endif
         case 1:
             ind0 = &((*ind1)[i/IND0_SIZE]);
             if (!*ind0)
@@ -157,6 +172,9 @@ public:
                 std::memset(*ind0, 0, sizeof(T)*IND0_SIZE);
             }
             i %= IND0_SIZE;
+        #if defined(__clang__)
+        [[clang::fallthrough]];
+        #endif
         case 0:
             if (!*ind0)
             {
@@ -176,7 +194,7 @@ private:
     void ReleaseLevel2Data(T*** p, std::uint32_t preserve)
     {
         int i = preserve/(IND0_SIZE*IND1_SIZE) + 1;
-        for (;i<IND2_SIZE;i++)
+        for (;i<IND2_SIZE;++i)
         {
             ReleaseLevel1Data(p[i], 0);
             p[i] = NULL;
@@ -200,7 +218,7 @@ private:
             return;
         }
         int i = preserve/IND0_SIZE + 1;
-        for (;i<IND1_SIZE;i++)
+        for (;i<IND1_SIZE;++i)
         {
             delete[] p[i];
             p[i] = NULL;
@@ -228,7 +246,7 @@ private:
         }
         else
         {
-            for (int i = preserve;i<IND0_SIZE;i++)
+            for (int i = preserve;i<IND0_SIZE;++i)
             {
                 p[i] = 0;
             }

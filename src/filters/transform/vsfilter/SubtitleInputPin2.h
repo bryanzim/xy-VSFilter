@@ -14,7 +14,7 @@ protected:
     virtual void RemoveSubStream(ISubStream* pSubStream);
     virtual void InvalidateSubtitle(REFERENCE_TIME rtStart, ISubStream* pSubStream);
 
-    [[nodiscard]] STDMETHODIMP_(CSubtitleInputPinHelper*) CreateHelper( const CMediaType& mt, IPin* pReceivePin );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(CSubtitleInputPinHelper*) CreateHelper( const CMediaType& mt, IPin* pReceivePin );
 
     [[nodiscard]] HRESULT CheckMediaType(const CMediaType* pmt);
 protected:

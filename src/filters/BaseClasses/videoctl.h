@@ -17,11 +17,11 @@
 // resource ID of a dialog box and returns the size of it in screen pixels
 
 #define STR_MAX_LENGTH 256
-TCHAR * WINAPI StringFromResource(TCHAR *pBuffer, int iResourceID);
+const TCHAR * WINAPI StringFromResource(TCHAR *pBuffer, int iResourceID);
 
 #ifdef UNICODE
 #define WideStringFromResource StringFromResource
-char* WINAPI StringFromResource(char*pBuffer, int iResourceID);
+const char* WINAPI StringFromResource(char* pBuffer, int iResourceID);
 #else
 WCHAR * WINAPI WideStringFromResource(WCHAR *pBuffer, int iResourceID);
 #endif
@@ -43,15 +43,15 @@ protected:
 public:
 
     DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
 
     // Constructor and destructor
 
     CAggDirectDraw(TCHAR *pName,LPUNKNOWN pUnk) :
         CUnknown(pName,pUnk),
-        m_pDirectDraw(NULL) { };
+        m_pDirectDraw(NULL) { }
 
-    virtual CAggDirectDraw::~CAggDirectDraw() { };
+    virtual ~CAggDirectDraw() { }
 
     // Set the object we should be aggregating
     void SetDirectDraw(LPDIRECTDRAW pDirectDraw) {
@@ -60,26 +60,26 @@ public:
 
     // IDirectDraw methods
 
-    STDMETHODIMP Compact();
-    STDMETHODIMP CreateClipper(DWORD dwFlags,LPDIRECTDRAWCLIPPER *lplpDDClipper,IUnknown *pUnkOuter);
-    STDMETHODIMP CreatePalette(DWORD dwFlags,LPPALETTEENTRY lpColorTable,LPDIRECTDRAWPALETTE *lplpDDPalette,IUnknown *pUnkOuter);
-    STDMETHODIMP CreateSurface(LPDDSURFACEDESC lpDDSurfaceDesc,LPDIRECTDRAWSURFACE *lplpDDSurface,IUnknown *pUnkOuter);
-    STDMETHODIMP DuplicateSurface(LPDIRECTDRAWSURFACE lpDDSurface,LPDIRECTDRAWSURFACE *lplpDupDDSurface);
-    STDMETHODIMP EnumDisplayModes(DWORD dwSurfaceDescCount,LPDDSURFACEDESC lplpDDSurfaceDescList,LPVOID lpContext,LPDDENUMMODESCALLBACK lpEnumCallback);
-    STDMETHODIMP EnumSurfaces(DWORD dwFlags,LPDDSURFACEDESC lpDDSD,LPVOID lpContext,LPDDENUMSURFACESCALLBACK lpEnumCallback);
-    STDMETHODIMP FlipToGDISurface();
-    STDMETHODIMP GetCaps(LPDDCAPS lpDDDriverCaps,LPDDCAPS lpDDHELCaps);
-    STDMETHODIMP GetDisplayMode(LPDDSURFACEDESC lpDDSurfaceDesc);
-    STDMETHODIMP GetFourCCCodes(LPDWORD lpNumCodes,LPDWORD lpCodes);
-    STDMETHODIMP GetGDISurface(LPDIRECTDRAWSURFACE *lplpGDIDDSurface);
-    STDMETHODIMP GetMonitorFrequency(LPDWORD lpdwFrequency);
-    STDMETHODIMP GetScanLine(LPDWORD lpdwScanLine);
-    STDMETHODIMP GetVerticalBlankStatus(LPBOOL lpblsInVB);
-    STDMETHODIMP Initialize(GUID *lpGUID);
-    STDMETHODIMP RestoreDisplayMode();
-    STDMETHODIMP SetCooperativeLevel(HWND hWnd,DWORD dwFlags);
-    STDMETHODIMP SetDisplayMode(DWORD dwWidth,DWORD dwHeight,DWORD dwBpp);
-    STDMETHODIMP WaitForVerticalBlank(DWORD dwFlags,HANDLE hEvent);
+    DECLSPEC_NOTHROW STDMETHODIMP Compact();
+    DECLSPEC_NOTHROW STDMETHODIMP CreateClipper(DWORD dwFlags,LPDIRECTDRAWCLIPPER *lplpDDClipper,IUnknown *pUnkOuter);
+    DECLSPEC_NOTHROW STDMETHODIMP CreatePalette(DWORD dwFlags,LPPALETTEENTRY lpColorTable,LPDIRECTDRAWPALETTE *lplpDDPalette,IUnknown *pUnkOuter);
+    DECLSPEC_NOTHROW STDMETHODIMP CreateSurface(LPDDSURFACEDESC lpDDSurfaceDesc,LPDIRECTDRAWSURFACE *lplpDDSurface,IUnknown *pUnkOuter);
+    DECLSPEC_NOTHROW STDMETHODIMP DuplicateSurface(LPDIRECTDRAWSURFACE lpDDSurface,LPDIRECTDRAWSURFACE *lplpDupDDSurface);
+    DECLSPEC_NOTHROW STDMETHODIMP EnumDisplayModes(DWORD dwSurfaceDescCount,LPDDSURFACEDESC lplpDDSurfaceDescList,LPVOID lpContext,LPDDENUMMODESCALLBACK lpEnumCallback);
+    DECLSPEC_NOTHROW STDMETHODIMP EnumSurfaces(DWORD dwFlags,LPDDSURFACEDESC lpDDSD,LPVOID lpContext,LPDDENUMSURFACESCALLBACK lpEnumCallback);
+    DECLSPEC_NOTHROW STDMETHODIMP FlipToGDISurface();
+    DECLSPEC_NOTHROW STDMETHODIMP GetCaps(LPDDCAPS lpDDDriverCaps,LPDDCAPS lpDDHELCaps);
+    DECLSPEC_NOTHROW STDMETHODIMP GetDisplayMode(LPDDSURFACEDESC lpDDSurfaceDesc);
+    DECLSPEC_NOTHROW STDMETHODIMP GetFourCCCodes(LPDWORD lpNumCodes,LPDWORD lpCodes);
+    DECLSPEC_NOTHROW STDMETHODIMP GetGDISurface(LPDIRECTDRAWSURFACE *lplpGDIDDSurface);
+    DECLSPEC_NOTHROW STDMETHODIMP GetMonitorFrequency(LPDWORD lpdwFrequency);
+    DECLSPEC_NOTHROW STDMETHODIMP GetScanLine(LPDWORD lpdwScanLine);
+    DECLSPEC_NOTHROW STDMETHODIMP GetVerticalBlankStatus(LPBOOL lpblsInVB);
+    DECLSPEC_NOTHROW STDMETHODIMP Initialize(GUID *lpGUID);
+    DECLSPEC_NOTHROW STDMETHODIMP RestoreDisplayMode();
+    DECLSPEC_NOTHROW STDMETHODIMP SetCooperativeLevel(HWND hWnd,DWORD dwFlags);
+    DECLSPEC_NOTHROW STDMETHODIMP SetDisplayMode(DWORD dwWidth,DWORD dwHeight,DWORD dwBpp);
+    DECLSPEC_NOTHROW STDMETHODIMP WaitForVerticalBlank(DWORD dwFlags,HANDLE hEvent);
 };
 
 
@@ -94,15 +94,15 @@ protected:
 public:
 
     DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void **ppv);
 
     // Constructor and destructor
 
     CAggDrawSurface(TCHAR *pName,LPUNKNOWN pUnk) :
         CUnknown(pName,pUnk),
-        m_pDirectDrawSurface(NULL) { };
+        m_pDirectDrawSurface(NULL) { }
 
-    virtual ~CAggDrawSurface() { };
+    virtual ~CAggDrawSurface() { }
 
     // Set the object we should be aggregating
     void SetDirectDrawSurface(LPDIRECTDRAWSURFACE pDirectDrawSurface) {
@@ -111,39 +111,39 @@ public:
 
     // IDirectDrawSurface methods
 
-    STDMETHODIMP AddAttachedSurface(LPDIRECTDRAWSURFACE lpDDSAttachedSurface);
-    STDMETHODIMP AddOverlayDirtyRect(LPRECT lpRect);
-    STDMETHODIMP Blt(LPRECT lpDestRect,LPDIRECTDRAWSURFACE lpDDSrcSurface,LPRECT lpSrcRect,DWORD dwFlags,LPDDBLTFX lpDDBltFx);
-    STDMETHODIMP BltBatch(LPDDBLTBATCH lpDDBltBatch,DWORD dwCount,DWORD dwFlags);
-    STDMETHODIMP BltFast(DWORD dwX,DWORD dwY,LPDIRECTDRAWSURFACE lpDDSrcSurface,LPRECT lpSrcRect,DWORD dwTrans);
-    STDMETHODIMP DeleteAttachedSurface(DWORD dwFlags,LPDIRECTDRAWSURFACE lpDDSAttachedSurface);
-    STDMETHODIMP EnumAttachedSurfaces(LPVOID lpContext,LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback);
-    STDMETHODIMP EnumOverlayZOrders(DWORD dwFlags,LPVOID lpContext,LPDDENUMSURFACESCALLBACK lpfnCallback);
-    STDMETHODIMP Flip(LPDIRECTDRAWSURFACE lpDDSurfaceTargetOverride,DWORD dwFlags);
-    STDMETHODIMP GetAttachedSurface(LPDDSCAPS lpDDSCaps,LPDIRECTDRAWSURFACE *lplpDDAttachedSurface);
-    STDMETHODIMP GetBltStatus(DWORD dwFlags);
-    STDMETHODIMP GetCaps(LPDDSCAPS lpDDSCaps);
-    STDMETHODIMP GetClipper(LPDIRECTDRAWCLIPPER *lplpDDClipper);
-    STDMETHODIMP GetColorKey(DWORD dwFlags,LPDDCOLORKEY lpDDColorKey);
-    STDMETHODIMP GetDC(HDC *lphDC);
-    STDMETHODIMP GetFlipStatus(DWORD dwFlags);
-    STDMETHODIMP GetOverlayPosition(LPLONG lpdwX,LPLONG lpdwY);
-    STDMETHODIMP GetPalette(LPDIRECTDRAWPALETTE *lplpDDPalette);
-    STDMETHODIMP GetPixelFormat(LPDDPIXELFORMAT lpDDPixelFormat);
-    STDMETHODIMP GetSurfaceDesc(LPDDSURFACEDESC lpDDSurfaceDesc);
-    STDMETHODIMP Initialize(LPDIRECTDRAW lpDD,LPDDSURFACEDESC lpDDSurfaceDesc);
-    STDMETHODIMP IsLost();
-    STDMETHODIMP Lock(LPRECT lpDestRect,LPDDSURFACEDESC lpDDSurfaceDesc,DWORD dwFlags,HANDLE hEvent);
-    STDMETHODIMP ReleaseDC(HDC hDC);
-    STDMETHODIMP Restore();
-    STDMETHODIMP SetClipper(LPDIRECTDRAWCLIPPER lpDDClipper);
-    STDMETHODIMP SetColorKey(DWORD dwFlags,LPDDCOLORKEY lpDDColorKey);
-    STDMETHODIMP SetOverlayPosition(LONG dwX,LONG dwY);
-    STDMETHODIMP SetPalette(LPDIRECTDRAWPALETTE lpDDPalette);
-    STDMETHODIMP Unlock(LPVOID lpSurfaceData);
-    STDMETHODIMP UpdateOverlay(LPRECT lpSrcRect,LPDIRECTDRAWSURFACE lpDDDestSurface,LPRECT lpDestRect,DWORD dwFlags,LPDDOVERLAYFX lpDDOverlayFX);
-    STDMETHODIMP UpdateOverlayDisplay(DWORD dwFlags);
-    STDMETHODIMP UpdateOverlayZOrder(DWORD dwFlags,LPDIRECTDRAWSURFACE lpDDSReference);
+    DECLSPEC_NOTHROW STDMETHODIMP AddAttachedSurface(LPDIRECTDRAWSURFACE lpDDSAttachedSurface);
+    DECLSPEC_NOTHROW STDMETHODIMP AddOverlayDirtyRect(LPRECT lpRect);
+    DECLSPEC_NOTHROW STDMETHODIMP Blt(LPRECT lpDestRect,LPDIRECTDRAWSURFACE lpDDSrcSurface,LPRECT lpSrcRect,DWORD dwFlags,LPDDBLTFX lpDDBltFx);
+    DECLSPEC_NOTHROW STDMETHODIMP BltBatch(LPDDBLTBATCH lpDDBltBatch,DWORD dwCount,DWORD dwFlags);
+    DECLSPEC_NOTHROW STDMETHODIMP BltFast(DWORD dwX,DWORD dwY,LPDIRECTDRAWSURFACE lpDDSrcSurface,LPRECT lpSrcRect,DWORD dwTrans);
+    DECLSPEC_NOTHROW STDMETHODIMP DeleteAttachedSurface(DWORD dwFlags,LPDIRECTDRAWSURFACE lpDDSAttachedSurface);
+    DECLSPEC_NOTHROW STDMETHODIMP EnumAttachedSurfaces(LPVOID lpContext,LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback);
+    DECLSPEC_NOTHROW STDMETHODIMP EnumOverlayZOrders(DWORD dwFlags,LPVOID lpContext,LPDDENUMSURFACESCALLBACK lpfnCallback);
+    DECLSPEC_NOTHROW STDMETHODIMP Flip(LPDIRECTDRAWSURFACE lpDDSurfaceTargetOverride,DWORD dwFlags);
+    DECLSPEC_NOTHROW STDMETHODIMP GetAttachedSurface(LPDDSCAPS lpDDSCaps,LPDIRECTDRAWSURFACE *lplpDDAttachedSurface);
+    DECLSPEC_NOTHROW STDMETHODIMP GetBltStatus(DWORD dwFlags);
+    DECLSPEC_NOTHROW STDMETHODIMP GetCaps(LPDDSCAPS lpDDSCaps);
+    DECLSPEC_NOTHROW STDMETHODIMP GetClipper(LPDIRECTDRAWCLIPPER *lplpDDClipper);
+    DECLSPEC_NOTHROW STDMETHODIMP GetColorKey(DWORD dwFlags,LPDDCOLORKEY lpDDColorKey);
+    DECLSPEC_NOTHROW STDMETHODIMP GetDC(HDC *lphDC);
+    DECLSPEC_NOTHROW STDMETHODIMP GetFlipStatus(DWORD dwFlags);
+    DECLSPEC_NOTHROW STDMETHODIMP GetOverlayPosition(LPLONG lpdwX,LPLONG lpdwY);
+    DECLSPEC_NOTHROW STDMETHODIMP GetPalette(LPDIRECTDRAWPALETTE *lplpDDPalette);
+    DECLSPEC_NOTHROW STDMETHODIMP GetPixelFormat(LPDDPIXELFORMAT lpDDPixelFormat);
+    DECLSPEC_NOTHROW STDMETHODIMP GetSurfaceDesc(LPDDSURFACEDESC lpDDSurfaceDesc);
+    DECLSPEC_NOTHROW STDMETHODIMP Initialize(LPDIRECTDRAW lpDD,LPDDSURFACEDESC lpDDSurfaceDesc);
+    DECLSPEC_NOTHROW STDMETHODIMP IsLost();
+    DECLSPEC_NOTHROW STDMETHODIMP Lock(LPRECT lpDestRect,LPDDSURFACEDESC lpDDSurfaceDesc,DWORD dwFlags,HANDLE hEvent);
+    DECLSPEC_NOTHROW STDMETHODIMP ReleaseDC(HDC hDC);
+    DECLSPEC_NOTHROW STDMETHODIMP Restore();
+    DECLSPEC_NOTHROW STDMETHODIMP SetClipper(LPDIRECTDRAWCLIPPER lpDDClipper);
+    DECLSPEC_NOTHROW STDMETHODIMP SetColorKey(DWORD dwFlags,LPDDCOLORKEY lpDDColorKey);
+    DECLSPEC_NOTHROW STDMETHODIMP SetOverlayPosition(LONG dwX,LONG dwY);
+    DECLSPEC_NOTHROW STDMETHODIMP SetPalette(LPDIRECTDRAWPALETTE lpDDPalette);
+    DECLSPEC_NOTHROW STDMETHODIMP Unlock(LPVOID lpSurfaceData);
+    DECLSPEC_NOTHROW STDMETHODIMP UpdateOverlay(LPRECT lpSrcRect,LPDIRECTDRAWSURFACE lpDDDestSurface,LPRECT lpDestRect,DWORD dwFlags,LPDDOVERLAYFX lpDDOverlayFX);
+    DECLSPEC_NOTHROW STDMETHODIMP UpdateOverlayDisplay(DWORD dwFlags);
+    DECLSPEC_NOTHROW STDMETHODIMP UpdateOverlayZOrder(DWORD dwFlags,LPDIRECTDRAWSURFACE lpDDSReference);
 };
 
 

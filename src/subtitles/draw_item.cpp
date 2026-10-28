@@ -214,7 +214,7 @@ void CompositeDrawItem::Draw( XySubRenderFrame**output, CompositeDrawItemListLis
     grouped_draw_items.SetCount(grouped_rect_exs.GetCount());
 
     POSITION pos{grouped_rect_exs.GetHeadPosition()};
-    for(int rect_id{0};pos;rect_id++)
+    for(int rect_id{0};pos;++rect_id)
     {
         XyRectEx& item{grouped_rect_exs.GetNext(pos)};
         grouped_draw_items.GetAt(rect_id).clip_rect = item;
@@ -228,10 +228,10 @@ void CompositeDrawItem::Draw( XySubRenderFrame**output, CompositeDrawItemListLis
             }
         }
     }
-    for (unsigned i{0U};i<draw_item_ex_tree.GetCount();i++)
+    for (unsigned i{0U};i<draw_item_ex_tree.GetCount();++i)
     {
         CompositeDrawItemExVec &draw_item_ex_vec{draw_item_ex_tree[i]};
-        for (unsigned j{0U};j<draw_item_ex_vec.GetCount();j++)
+        for (unsigned j{0U};j<draw_item_ex_vec.GetCount();++j)
         {
             CompositeDrawItemEx &draw_item_ex{draw_item_ex_vec[j]};
             if (draw_item_ex.item->shadow)
@@ -245,7 +245,7 @@ void CompositeDrawItem::Draw( XySubRenderFrame**output, CompositeDrawItemListLis
                 }
             }
         }
-        for (unsigned j{0U};j<draw_item_ex_vec.GetCount();j++)
+        for (unsigned j{0U};j<draw_item_ex_vec.GetCount();++j)
         {
             CompositeDrawItemEx &draw_item_ex{draw_item_ex_vec[j]};
             if (draw_item_ex.item->outline)
@@ -259,7 +259,7 @@ void CompositeDrawItem::Draw( XySubRenderFrame**output, CompositeDrawItemListLis
                 }
             }
         }
-        for (unsigned j{0U};j<draw_item_ex_vec.GetCount();j++)
+        for (unsigned j{0U};j<draw_item_ex_vec.GetCount();++j)
         {
             CompositeDrawItemEx &draw_item_ex{draw_item_ex_vec[j]};
             if (draw_item_ex.item->body)
@@ -280,7 +280,7 @@ void CompositeDrawItem::Draw( XySubRenderFrame**output, CompositeDrawItemListLis
     *output = render_frame_creater->NewXySubRenderFrame(grouped_draw_items.GetCount());
     XySubRenderFrame& sub_render_frame{**output};
 
-    for (unsigned i{0U};i<grouped_draw_items.GetCount();i++)
+    for (unsigned i{0U};i<grouped_draw_items.GetCount();++i)
     {
         grouped_draw_items[i].Draw(&(sub_render_frame.m_bitmaps.GetAt(i)), &(sub_render_frame.m_bitmap_ids.GetAt(i)));
     }
@@ -295,14 +295,14 @@ void CreateDrawItemExTree( CompositeDrawItemListList& input,
     int list_count = input.GetCount();
     out_draw_item_ex_tree->SetCount(list_count);
     POSITION list_pos{input.GetHeadPosition()};
-    for (int list_id{0};list_id<list_count;list_id++)
+    for (int list_id{0};list_id<list_count;++list_id)
     {
         CompositeDrawItemList& compDrawItemList{input.GetNext(list_pos)};
         int count = compDrawItemList.GetCount();
         CompositeDrawItemExVec& out_draw_item_exs{out_draw_item_ex_tree->GetAt(list_id)};
         out_draw_item_exs.SetCount(count);
         POSITION item_pos{compDrawItemList.GetHeadPosition()};
-        for (int item_id{0}; item_id<count; item_id++ )
+        for (int item_id{0}; item_id<count; ++item_id )
         {
             CompositeDrawItem& comp_draw_item{compDrawItemList.GetNext(item_pos)};
             CompositeDrawItemEx& comp_draw_item_ex{out_draw_item_exs.GetAt(item_id)};
@@ -339,10 +339,10 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
     };
 
     std::vector<int> vertical_breakpoints(2*input_count);
-    [[nodiscard]] std::vector<BreakPoint> horizon_breakpoints(input_count);
+    std::vector<BreakPoint> horizon_breakpoints(input_count);
 
     POSITION pos{input.GetHeadPosition()};
-    for(int i{0}; i<input_count; i++)
+    for(int i{0}; i<input_count; ++i)
     {
         const XyRectEx& rect{input.GetNext(pos)};
         vertical_breakpoints[2U*i]=rect.top;
@@ -358,7 +358,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
     CAtlArray<Segment> tempSegments;
     tempSegments.SetCount(vertical_breakpoints.size()-1);
     int prev{vertical_breakpoints[0U]}, count = 0;
-    for(unsigned ptr{1U}; ptr<vertical_breakpoints.size(); ptr++)
+    for(unsigned ptr{1U}; ptr<vertical_breakpoints.size(); ++ptr)
     {
         if(vertical_breakpoints[ptr] != prev)
         {
@@ -368,11 +368,11 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
             seg.GetTail().item_ex_list.reset(DEBUG_NEW PCompositeDrawItemExList());
 
             prev = vertical_breakpoints[ptr];
-            count++;
+            ++count;
         }
     }
 
-    for(int i{0}; i<input_count; i++)
+    for(int i{0}; i<input_count; ++i)
     {
         const XyRectEx& rect{*horizon_breakpoints[i].rect};
 
@@ -390,7 +390,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
                 end = mid;
             }
         }
-        for(; start < count; start++)
+        for(; start < count; ++start)
         {
             CAtlList<XyRectEx>& cur_line = tempSegments[start];
             XyRectEx & item{cur_line.GetTail()};
@@ -417,7 +417,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
         }
     }
 
-    for (int i{count-1};i>0;i--)
+    for (int i{count-1};i>0;--i)
     {
         CAtlList<XyRectEx>& cur_line = tempSegments[i];
         CAtlList<XyRectEx>& upper_line = tempSegments[i-1];
@@ -497,7 +497,7 @@ void DecideDrawMethod( CompositeDrawItemListList& compDrawItemListList, XyRectEx
             while(pos)
             {
                 XyRectEx &rect_ex2{rect_ex_list.GetNext(pos)};
-                not_lowest2++;
+                ++not_lowest2;
                 if (!*not_lowest2)
                 {
                     if (!(rect_ex.left  >= rect_ex2.right || 
@@ -529,7 +529,7 @@ void DecideDrawMethod( CompositeDrawItemListList& compDrawItemListList, XyRectEx
                     }
                 }
             }
-            not_lowest1++;
+            ++not_lowest1;
         }
     }
 }
@@ -556,7 +556,7 @@ void GroupedDrawItems::Draw( SharedPtrXyBitmap *bitmap, int *bitmap_identity_num
         while(pos)
         {
             DrawItem& item{*draw_item_list.GetNext(pos)};
-            DrawItem::Draw(tmp, item, clip_rect);
+            (void)DrawItem::Draw(tmp, item, clip_rect);
         }
         XyColorSpace color_space;
         HRESULT hr{XySubRenderFrameCreater::GetDefaultCreater()->GetColorSpace(&color_space)};
@@ -576,7 +576,7 @@ void GroupedDrawItems::Draw( SharedPtrXyBitmap *bitmap, int *bitmap_identity_num
                 BYTE *pixel{(BYTE *)tmp->bits};
                 memsetd(pixel, color, tmp->w*4);
                 int i{1};
-                for (;i<tmp->h-1;i++)
+                for (;i<tmp->h-1;++i)
                 {
                     pixel += tmp->pitch;
                     *(DWORD*)pixel = color;
@@ -591,12 +591,12 @@ void GroupedDrawItems::Draw( SharedPtrXyBitmap *bitmap, int *bitmap_identity_num
 
         }
 #endif
-        bitmap_cache->UpdateCache(key_id, *bitmap);
+        (void)bitmap_cache->UpdateCache(key_id, *bitmap);
     }
     else
     {
         *bitmap = bitmap_cache->GetAt(pos);
-        bitmap_cache->UpdateCache(pos);
+        (void)bitmap_cache->UpdateCache(pos);
     }
     *bitmap_identity_num  = key_id;
 }
@@ -610,7 +610,7 @@ void GroupedDrawItems::CreateHashKey(GroupedDrawItemsHashKey *key)
     key->m_key.reset(inner_key);
     inner_key->SetCount(draw_item_list.GetCount());
     POSITION pos{draw_item_list.GetHeadPosition()};
-    for (unsigned i{0U};i<inner_key->GetCount();i++)
+    for (unsigned i{0U};i<inner_key->GetCount();++i)
     {
         inner_key->GetAt(i) = draw_item_list.GetNext(pos)->GetHashKey();
     }

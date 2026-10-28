@@ -130,7 +130,7 @@ public:
     [[nodiscard]] inline reference inc_1_at_tail()
 
     {
-        _tail++;
+        ++_tail;
         _tail += _CAPACITY;
         _tail %= _CAPACITY;
         return _elements[(_CAPACITY +_tail -1) % _CAPACITY];

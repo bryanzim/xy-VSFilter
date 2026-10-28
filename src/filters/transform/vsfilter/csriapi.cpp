@@ -56,7 +56,7 @@ CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, str
 	{
 		return 0;
 	}
-	namesize++;
+	++namesize;
 	namebuf = new wchar_t[namesize];
 	MultiByteToWideChar(CP_UTF8, 0, filename, -1, namebuf, namesize);
 
@@ -160,7 +160,7 @@ CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, const double
 	}
 	spd.vidrect = inst->video_rect;
 
-	inst->rts->Render(spd, (REFERENCE_TIME)(time*10000000), arbitrary_framerate, inst->video_rect);
+	(void)inst->rts->Render(spd, (REFERENCE_TIME)(time*10000000), arbitrary_framerate, inst->video_rect);
 }
 
 

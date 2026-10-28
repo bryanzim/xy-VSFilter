@@ -106,7 +106,7 @@ class CBaseVideoInputAllocator : public CMemAllocator
 public:
 	explicit CBaseVideoInputAllocator(HRESULT* phr);
 	void SetMediaType(const CMediaType& mt);
-	[[nodiscard]] STDMETHODIMP GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, DWORD dwFlags);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, DWORD dwFlags);
 };
 
 class CBaseVideoInputPin : public CTransformInputPin
@@ -117,8 +117,8 @@ public:
 	CBaseVideoInputPin(TCHAR* pObjectName, CBaseVideoFilter* pFilter, HRESULT* phr, LPCWSTR pName);
 	~CBaseVideoInputPin();
 
-	[[nodiscard]] STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
-	[[nodiscard]] STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetAllocator(IMemAllocator** ppAllocator);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
 };
 
 class CBaseVideoOutputPin : public CTransformOutputPin
@@ -127,7 +127,7 @@ public:
 	CBaseVideoOutputPin(TCHAR* pObjectName, CBaseVideoFilter* pFilter, HRESULT* phr, LPCWSTR pName);
 
     [[nodiscard]] HRESULT CheckMediaType(const CMediaType* mtOut);
-    //STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
+    //DECLSPEC_NOTHROW STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
 
     [[nodiscard]] HRESULT CompleteConnect(IPin *pReceivePin);
 protected:

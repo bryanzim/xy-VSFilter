@@ -53,7 +53,7 @@ public:
         LPCWSTR pName);
 #endif
 
-    STDMETHODIMP QueryId(LPWSTR * Id)
+    DECLSPEC_NOTHROW STDMETHODIMP QueryId(LPWSTR * Id)
     {
         return AMGetWideString(L"In", Id);
     }
@@ -75,19 +75,19 @@ public:
     // here's the next block of data from the stream.
     // AddRef it yourself if you need to hold it beyond the end
     // of this call.
-    STDMETHODIMP Receive(IMediaSample * pSample);
+    DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample * pSample);
 
     // provide EndOfStream that passes straight downstream
     // (there is no queued data)
-    STDMETHODIMP EndOfStream(void);
+    DECLSPEC_NOTHROW STDMETHODIMP EndOfStream(void);
 
     // passes it to CTransformFilter::BeginFlush
-    STDMETHODIMP BeginFlush(void);
+    DECLSPEC_NOTHROW STDMETHODIMP BeginFlush(void);
 
     // passes it to CTransformFilter::EndFlush
-    STDMETHODIMP EndFlush(void);
+    DECLSPEC_NOTHROW STDMETHODIMP EndFlush(void);
 
-    STDMETHODIMP NewSegment(
+    DECLSPEC_NOTHROW STDMETHODIMP NewSegment(
                         REFERENCE_TIME tStart,
                         REFERENCE_TIME tStop,
                         double dRate);
@@ -97,7 +97,7 @@ public:
 
     // Media type
 public:
-    CMediaType& CurrentMediaType() { return m_mt; };
+    CMediaType& CurrentMediaType() { return m_mt; }
 
 };
 
@@ -132,11 +132,11 @@ public:
     ~CTransformOutputPin();
 
     // override to expose IMediaPosition
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
     // --- CBaseOutputPin ------------
 
-    STDMETHODIMP QueryId(LPWSTR * Id)
+    DECLSPEC_NOTHROW STDMETHODIMP QueryId(LPWSTR * Id)
     {
         return AMGetWideString(L"Out", Id);
     }
@@ -163,11 +163,11 @@ public:
     HRESULT GetMediaType(int iPosition,CMediaType *pMediaType);
 
     // inherited from IQualityControl via CBasePin
-    STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
+    DECLSPEC_NOTHROW STDMETHODIMP Notify(IBaseFilter * pSender, Quality q);
 
     // Media type
 public:
-    CMediaType& CurrentMediaType() { return m_mt; };
+    CMediaType& CurrentMediaType() { return m_mt; }
 };
 
 
@@ -181,12 +181,12 @@ public:
 
     virtual int GetPinCount();
     virtual CBasePin * GetPin(int n);
-    STDMETHODIMP FindPin(LPCWSTR Id, IPin **ppPin);
+    DECLSPEC_NOTHROW STDMETHODIMP FindPin(LPCWSTR Id, IPin **ppPin);
 
     // override state changes to allow derived transform filter
     // to control streaming start/stop
-    STDMETHODIMP Stop();
-    STDMETHODIMP Pause();
+    DECLSPEC_NOTHROW STDMETHODIMP Stop();
+    DECLSPEC_NOTHROW STDMETHODIMP Pause();
 
 public:
 

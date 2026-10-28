@@ -737,6 +737,9 @@ DailyRollingFileAppender::calculateNextRolloverTime(const Time& t) const
             LOG4CPLUS_TEXT (" invalid schedule value"));
         // Fall through.
 
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case DAILY:
         return (t + Time(24 * 60 * 60));
 
@@ -773,6 +776,9 @@ DailyRollingFileAppender::getFilename(const Time& t) const
             LOG4CPLUS_TEXT (" invalid schedule value"));
         // Fall through.
 
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case DAILY:
         pattern = LOG4CPLUS_TEXT("%Y-%m-%d");
         break;

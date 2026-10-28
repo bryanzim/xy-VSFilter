@@ -39,7 +39,7 @@ class CScopeLock
 	void *m_pLock;
 	FLock *m_pUnlockFunc;
 public:
-	explicit CScopeLock() {}; // let's make cppcheck happy
+	explicit CScopeLock() {} // let's make cppcheck happy
 	template <typename t_Lock>
 	class TCLocker
 	{
@@ -64,7 +64,7 @@ class CDX9SubPic : public CSubPicImpl
 	CComPtr<IDirect3DSurface9> m_pSurface;
 
 protected:
-	STDMETHODIMP_(void*) GetObject() const; // returns IDirect3DTexture9*
+	DECLSPEC_NOTHROW STDMETHODIMP_(void*) GetObject() const; // returns IDirect3DTexture9*
 
 public:
 	CDX9SubPicAllocator *m_pAllocator;
@@ -73,12 +73,12 @@ public:
 	~CDX9SubPic();
 
 	// ISubPic
-	[[nodiscard]] STDMETHODIMP GetDesc(SubPicDesc& spd) const;
-	[[nodiscard]] STDMETHODIMP CopyTo(ISubPic* pSubPic);
-	[[nodiscard]] STDMETHODIMP ClearDirtyRect(DWORD color);
-	[[nodiscard]] STDMETHODIMP Lock(SubPicDesc& spd);
-	[[nodiscard]] STDMETHODIMP Unlock(RECT* pDirtyRect);
-	[[nodiscard]] STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDesc(SubPicDesc& spd) const;
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CopyTo(ISubPic* pSubPic);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ClearDirtyRect(DWORD color);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Lock(SubPicDesc& spd);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Unlock(RECT* pDirtyRect);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
 };
 
 // CDX9SubPicAllocator
@@ -101,7 +101,7 @@ public:
 	void ClearCache();
 
 	// ISubPicAllocator
-	[[nodiscard]] STDMETHODIMP ChangeDevice(IUnknown* pDev);
-	[[nodiscard]] STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChangeDevice(IUnknown* pDev);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize);
 };
 

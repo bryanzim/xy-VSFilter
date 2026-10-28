@@ -60,7 +60,7 @@
 //
 // CSubtitleInputPinHelperImpl
 //
-STDMETHODIMP CSubtitleInputPinHelperImpl::NewSegment( REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate )
+DECLSPEC_NOTHROW STDMETHODIMP CSubtitleInputPinHelperImpl::NewSegment( REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate )
 {
     m_tStart = tStart;
     m_tStop = tStop;
@@ -76,8 +76,8 @@ class CTextSubtitleInputPinHepler: public CSubtitleInputPinHelperImpl
 public:
     CTextSubtitleInputPinHepler(CRenderedTextSubtitle *pRTS, const CMediaType& mt);
 
-    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample* pSample);
 private:
     CRenderedTextSubtitle * m_pRTS;
     const CMediaType& m_mt;
@@ -91,8 +91,8 @@ class CSSFInputPinHepler: public CSubtitleInputPinHelperImpl
 public:
     CSSFInputPinHepler(ssf::CRenderer* pSSF, const CMediaType& mt);
 
-    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample* pSample);
 private:
     ssf::CRenderer* m_pSSF;
     const CMediaType& m_mt;
@@ -106,8 +106,8 @@ class CVobsubInputPinHepler: public CSubtitleInputPinHelperImpl
 public:
     CVobsubInputPinHepler(CVobSubStream* pVSS, const CMediaType& mt);
 
-    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample* pSample);
 private:
     CVobSubStream* m_pVSS;
     const CMediaType& m_mt;
@@ -121,9 +121,9 @@ class CHdmvInputPinHepler: public CSubtitleInputPinHelperImpl
 public:
     CHdmvInputPinHepler(CRenderedHdmvSubtitle* pHdmvSubtitle, const CMediaType& mt);
 
-    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
-    [[nodiscard]] STDMETHODIMP EndOfStream(void);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP EndOfStream(void);
 private:
     CRenderedHdmvSubtitle* m_pHdmvSubtitle;
 };
@@ -141,7 +141,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler( CRenderedTextSubtitle 
 
 }
 
-[[nodiscard]] STDMETHODIMP CTextSubtitleInputPinHepler::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CTextSubtitleInputPinHepler::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
 {
     if (m_mt.subtype != MEDIASUBTYPE_WEBVTT) {
       // WebVTT can be read as one big blob of data during pin connection, instead of as samples during playback.
@@ -153,7 +153,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler( CRenderedTextSubtitle 
     return __super::NewSegment(tStart,tStop,dRate);
 }
 
-[[nodiscard]] STDMETHODIMP CTextSubtitleInputPinHepler::Receive( IMediaSample* pSample )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CTextSubtitleInputPinHepler::Receive( IMediaSample* pSample )
 {
     REFERENCE_TIME tStart, tStop;
     pSample->GetTime(&tStart, &tStop);
@@ -217,7 +217,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler( CRenderedTextSubtitle 
                 }
                 else if(tag == __GAB1_RAWTEXTSUBTITLE__)
                 {
-                    m_pRTS->Open((BYTE*)ptr, size, DEFAULT_CHARSET, m_pRTS->m_name);
+                    (void)m_pRTS->Open((BYTE*)ptr, size, DEFAULT_CHARSET, m_pRTS->m_name);
                 }
 
                 ptr += size;
@@ -225,7 +225,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler( CRenderedTextSubtitle 
         }
         else if(pData != 0 && len > 1 && *pData != 0)
         {
-            [[nodiscard]] CStringA str((char*)pData, len);
+            CStringA str((char*)pData, len);
 
             str.Replace("\r\n", "\n");
             str.Trim();
@@ -321,12 +321,12 @@ CSSFInputPinHepler::CSSFInputPinHepler( ssf::CRenderer* pSSF, const CMediaType& 
     // LAME, implement RemoveSubtitles
     DWORD dwOffset{((SUBTITLEINFO*)m_mt.pbFormat)->dwOffset};
     ssf::MemoryInputStream stream(m_mt.pbFormat + dwOffset, m_mt.cbFormat - dwOffset, false, false);
-    m_pSSF->Open(stream, _T(""));
+    (void)m_pSSF->Open(stream, _T(""));
     // pSSF->RemoveSubtitles();
     return __super::NewSegment(tStart,tStop,dRate);
 }
 
-[[nodiscard]] STDMETHODIMP CSSFInputPinHepler::Receive( IMediaSample* pSample )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSSFInputPinHepler::Receive( IMediaSample* pSample )
 {
     REFERENCE_TIME tStart, tStop;
     pSample->GetTime(&tStart, &tStop);
@@ -371,13 +371,13 @@ CVobsubInputPinHepler::CVobsubInputPinHepler( CVobSubStream* pVSS, const CMediaT
 
 }
 
-[[nodiscard]] STDMETHODIMP CVobsubInputPinHepler::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CVobsubInputPinHepler::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
 {
     m_pVSS->RemoveAll();
     return __super::NewSegment(tStart,tStop,dRate);
 }
 
-[[nodiscard]] STDMETHODIMP CVobsubInputPinHepler::Receive( IMediaSample* pSample )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CVobsubInputPinHepler::Receive( IMediaSample* pSample )
 {
     REFERENCE_TIME tStart, tStop;
     pSample->GetTime(&tStart, &tStop);
@@ -414,17 +414,17 @@ CHdmvInputPinHepler::CHdmvInputPinHepler( CRenderedHdmvSubtitle* pHdmvSubtitle, 
     (void)mt;
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CHdmvInputPinHepler::NewSegment( const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate )
 {
     return m_pHdmvSubtitle->NewSegment (tStart, tStop, dRate);
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler::Receive( IMediaSample* pSample )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CHdmvInputPinHepler::Receive( IMediaSample* pSample )
 {
     return m_pHdmvSubtitle->ParseSample (pSample);
 }
 
-[[nodiscard]] STDMETHODIMP CHdmvInputPinHepler::EndOfStream()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CHdmvInputPinHepler::EndOfStream()
 {
     m_pHdmvSubtitle->EndOfStream();
     return S_OK;
@@ -468,7 +468,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
     return __super::CompleteConnect(pReceivePin);
 }
 
-[[nodiscard]] STDMETHODIMP_(CSubtitleInputPinHelper*) CSubtitleInputPin::CreateHelper( const CMediaType& mt, IPin* pReceivePin )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(CSubtitleInputPinHelper*) CSubtitleInputPin::CreateHelper( const CMediaType& mt, IPin* pReceivePin )
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(pReceivePin));
     CSubtitleInputPinHelper *ret{NULL};
@@ -493,7 +493,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
             name = ISO6392ToLanguage(psi->IsoLang);
             lcid = ISO6392ToLcid(psi->IsoLang);
 
-            [[nodiscard]] CString trackName(psi->TrackName);
+            CString trackName(psi->TrackName);
             trackName.Trim();
             if (!trackName.IsEmpty()) {
                 if (!name.IsEmpty()) {
@@ -543,7 +543,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
                     mt1.pbFormat[dwOffset+2] = 0xbf;
                 }
 
-                pRTS->Open(mt1.pbFormat + dwOffset, mt1.cbFormat - dwOffset, DEFAULT_CHARSET, pRTS->m_name);
+                (void)pRTS->Open(mt1.pbFormat + dwOffset, mt1.cbFormat - dwOffset, DEFAULT_CHARSET, pRTS->m_name);
             }
             ret = DEBUG_NEW CTextSubtitleInputPinHepler{pRTS, m_mt};
         }
@@ -552,7 +552,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
             XY_LOG_INFO("Create CSSFInputPinHepler");
             ssf::CRenderer* pSSF{DEBUG_NEW ssf::CRenderer(m_pSubLock)};
             ssf::MemoryInputStream stream(mt.pbFormat + dwOffset, mt.cbFormat - dwOffset, false, false);
-            pSSF->Open(stream, name);
+            (void)pSSF->Open(stream, name);
             ret = DEBUG_NEW CSSFInputPinHepler{pSSF, m_mt};
         }
         else if(mt.subtype == MEDIASUBTYPE_VOBSUB)
@@ -587,7 +587,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
     return __super::BreakConnect();
 }
 
-[[nodiscard]] STDMETHODIMP CSubtitleInputPin::ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubtitleInputPin::ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt)
 {
     CAutoLock cAutoLock{m_pSubLock};
     XY_LOG_DEBUG(XY_LOG_VAR_2_STR(pConnector)<<XY_LOG_VAR_2_STR(pmt));
@@ -603,7 +603,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
 	return __super::ReceiveConnection(pConnector, pmt);
 }
 
-[[nodiscard]] STDMETHODIMP CSubtitleInputPin::NewSegment(const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubtitleInputPin::NewSegment(const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate)
 {
     TRACE_SAMPLE_TIMING(XY_LOG_VAR_2_STR(tStart)<<XY_LOG_VAR_2_STR(tStop)<<XY_LOG_VAR_2_STR(dRate));
     CAutoLock cAutoLock{m_pSubLock};
@@ -625,7 +625,7 @@ public IUnknown {
 	STDMETHOD(toto)() = NULL;
 };
 
-[[nodiscard]] STDMETHODIMP CSubtitleInputPin::Receive(IMediaSample* pSample)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubtitleInputPin::Receive(IMediaSample* pSample)
 {
     TRACE_SAMPLE_TIMING(__FUNCTIONW__);
     HRESULT hr;
@@ -648,7 +648,7 @@ public IUnknown {
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP CSubtitleInputPin::EndOfStream()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubtitleInputPin::EndOfStream()
 {
     HRESULT hr{__super::EndOfStream()};
 

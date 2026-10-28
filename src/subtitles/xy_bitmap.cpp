@@ -21,7 +21,7 @@ static inline void FlipAlphaValueSSE(BYTE *data, int w)
         argb = _mm_xor_si128(argb, mask);
         _mm_storeu_si128(reinterpret_cast<__m128i*>(data_w+i), argb);
     }
-    for (int i{w00};i<w;i++)
+    for (int i{w00};i<w;++i)
     {
         *(data_w+i) = *(data_w+i) ^ 0xFF000000;
     }
@@ -171,7 +171,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
     const BYTE*  src_A1{src_A};
     for (int i{0};i<h;i++, src_A += pitch, dst_A += spd.pitch)
     {
-        for (int j{0};j<w;j++)
+        for (int j{0};j<w;++j)
         {
             dst_A[j] = (dst_A[j]*(src_A[j]+1))>>8;
         }
@@ -180,7 +180,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
     src_A = src_A1;
     for (int i{0};i<h;i++, src_A += pitch, src_Y += pitch, dst_Y += spd.pitch)
     {
-        for (int j{0};j<w;j++)
+        for (int j{0};j<w;++j)
         {
             dst_Y[j] = ((dst_Y[j]*(src_A[j]+1))>>8) + src_Y[j];
         }
@@ -188,7 +188,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
     src_A = src_A1;
     for (int i{0};i<h;i++, src_A += pitch, src_U += pitch, dst_U += spd.pitch)
     {
-        for (int j{0};j<w;j++)
+        for (int j{0};j<w;++j)
         {
             dst_U[j] = ((dst_U[j]*(src_A[j]+1))>>8) + src_U[j];
         }
@@ -196,7 +196,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
     src_A = src_A1;
     for (int i{0};i<h;i++, src_A += pitch, src_V += pitch, dst_V += spd.pitch)
     {
-        for (int j{0};j<w;j++)
+        for (int j{0};j<w;++j)
         {
             dst_V[j] = ((dst_V[j]*(src_A[j]+1))>>8) + src_V[j];
         }
@@ -271,14 +271,14 @@ XySubRenderFrame::~XySubRenderFrame()
 {
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::GetOutputRect( RECT *outputRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetOutputRect( RECT *outputRect )
 {
     TRACE_SUB_RENDER_FRAME(outputRect<<" "<<m_output_rect);
     if (!outputRect)
@@ -289,7 +289,7 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::GetClipRect( RECT *clipRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetClipRect( RECT *clipRect )
 {
     TRACE_SUB_RENDER_FRAME(clipRect<<" "<<m_clip_rect);
     if (!clipRect)
@@ -300,7 +300,7 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::GetXyColorSpace( int *xyColorSpace )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetXyColorSpace( int *xyColorSpace )
 {
     TRACE_SUB_RENDER_FRAME(xyColorSpace<<" "<<m_xy_color_space);
     if (!xyColorSpace)
@@ -311,7 +311,7 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::GetBitmapCount( int *count )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmapCount( int *count )
 {
     TRACE_SUB_RENDER_FRAME(count<<" "<<m_bitmaps.GetCount());
     if (!count)
@@ -322,7 +322,7 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch )
 {
     if (index<0 || index>=(int)m_bitmaps.GetCount())
     {
@@ -358,7 +358,7 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrame::GetBitmapExtra( const int index, const LPVOID extra_info )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmapExtra( const int index, const LPVOID extra_info )
 {
     if (index<0 || index>=(int)m_bitmaps.GetCount())
     {

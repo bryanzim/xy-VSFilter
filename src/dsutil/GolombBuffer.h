@@ -31,20 +31,20 @@ public:
     INT64 SExpGolombRead();
     void BitByteAlign();
 
-    [[nodiscard]] inline BYTE ReadByte() { return (BYTE)BitRead(8); };
-    [[nodiscard]] inline short ReadShort() { return (short)BitRead(16); };
-    [[nodiscard]] inline DWORD ReadDword() { return (DWORD)BitRead(32); };
+    [[nodiscard]] inline BYTE ReadByte() { return (BYTE)BitRead(8); }
+    [[nodiscard]] inline short ReadShort() { return (short)BitRead(16); }
+    [[nodiscard]] inline DWORD ReadDword() { return (DWORD)BitRead(32); }
     void ReadBuffer(BYTE* pDest, int nSize);
 
     void Reset();
     void Reset(BYTE* pNewBuffer, int nNewSize);
 
-    void SetSize(const int nValue) { m_nSize = nValue; };
-    [[nodiscard]] int GetSize() const { return m_nSize; };
-    [[nodiscard]] int RemainingSize() const { return m_nSize - m_nBitPos; };
-    [[nodiscard]] bool IsEOF() const { return m_nBitPos >= m_nSize; };
+    void SetSize(const int nValue) { m_nSize = nValue; }
+    [[nodiscard]] int GetSize() const { return m_nSize; }
+    [[nodiscard]] int RemainingSize() const { return m_nSize - m_nBitPos; }
+    [[nodiscard]] bool IsEOF() const { return m_nBitPos >= m_nSize; }
     [[nodiscard]] int GetPos();
-    [[nodiscard]] BYTE* GetBufferPos() { return m_pBuffer + m_nBitPos; };
+    [[nodiscard]] BYTE* GetBufferPos() { return m_pBuffer + m_nBitPos; }
 
     void SkipBytes(int nCount);
 

@@ -29,8 +29,7 @@
 
 namespace ssf
 {
-    [uuid("E0593632-0AB7-47CA-8BE1-E9D2A6A4825E")]
-    class CRenderer : public CSubPicProviderImpl, public ISubStream
+    class __declspec(uuid("E0593632-0AB7-47CA-8BE1-E9D2A6A4825E")) CRenderer : public CSubPicProviderImpl, public ISubStream
     {
         CString m_fn, m_name;
         CAutoPtr<SubtitleFile> m_file;
@@ -46,25 +45,25 @@ namespace ssf
         void Append(REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, LPCWSTR str);
 
         [[nodiscard]] DECLARE_IUNKNOWN
-        STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+        DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
         // ISubPicProvider
-        [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-        [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-        [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-        [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-        [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-        [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
 
         // IPersist
-        [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
         // ISubStream
-        [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
-        [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-        [[nodiscard]] STDMETHODIMP_(int) GetStream();
-        [[nodiscard]] STDMETHODIMP SetStream(int iStream);
-        STDMETHODIMP Reload();
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+        DECLSPEC_NOTHROW STDMETHODIMP Reload();
     };
 
 }

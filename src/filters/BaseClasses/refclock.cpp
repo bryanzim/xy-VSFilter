@@ -16,7 +16,7 @@
 #pragma warning(disable:4355)
 
 
-STDMETHODIMP CBaseReferenceClock::NonDelegatingQueryInterface(
+DECLSPEC_NOTHROW STDMETHODIMP CBaseReferenceClock::NonDelegatingQueryInterface(
     REFIID riid,
     void ** ppv)
 {
@@ -112,7 +112,7 @@ CBaseReferenceClock::CBaseReferenceClock( TCHAR *pName, LPUNKNOWN pUnk, HRESULT 
     }
 }
 
-STDMETHODIMP CBaseReferenceClock::GetTime(REFERENCE_TIME *pTime)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseReferenceClock::GetTime(REFERENCE_TIME *pTime)
 {
     HRESULT hr;
     if (pTime)
@@ -140,7 +140,7 @@ STDMETHODIMP CBaseReferenceClock::GetTime(REFERENCE_TIME *pTime)
 
 /* Ask for an async notification that a time has elapsed */
 
-STDMETHODIMP CBaseReferenceClock::AdviseTime(
+DECLSPEC_NOTHROW STDMETHODIMP CBaseReferenceClock::AdviseTime(
     REFERENCE_TIME baseTime,         // base reference time
     REFERENCE_TIME streamTime,       // stream offset time
     HEVENT hEvent,                  // advise via this event
@@ -170,7 +170,7 @@ STDMETHODIMP CBaseReferenceClock::AdviseTime(
 
 /* Ask for an asynchronous periodic notification that a time has elapsed */
 
-STDMETHODIMP CBaseReferenceClock::AdvisePeriodic(
+DECLSPEC_NOTHROW STDMETHODIMP CBaseReferenceClock::AdvisePeriodic(
     REFERENCE_TIME StartTime,         // starting at this time
     REFERENCE_TIME PeriodTime,        // time between notifications
     HSEMAPHORE hSemaphore,           // advise via a semaphore
@@ -191,7 +191,7 @@ STDMETHODIMP CBaseReferenceClock::AdvisePeriodic(
 }
 
 
-STDMETHODIMP CBaseReferenceClock::Unadvise(DWORD_PTR dwAdviseCookie)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseReferenceClock::Unadvise(DWORD_PTR dwAdviseCookie)
 {
     return m_pSchedule->Unadvise(dwAdviseCookie);
 }
@@ -229,7 +229,7 @@ REFERENCE_TIME CBaseReferenceClock::GetPrivateTime()
    to the current time rather than having to set an explicit time.
 */
 
-STDMETHODIMP CBaseReferenceClock::SetTimeDelta(const REFERENCE_TIME & TimeDelta)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseReferenceClock::SetTimeDelta(const REFERENCE_TIME & TimeDelta)
 {
 #ifdef DEBUG
 

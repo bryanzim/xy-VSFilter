@@ -8,14 +8,12 @@
 class CDirectVobSubFilter;
 
 // Expose this interface if you do NOT want to work with XySubFilter in a graph
-[uuid("8871ac83-89c8-44e9-913f-a9a2a322440a")]
-interface IXySubFilterGraphMutex : public IUnknown
+interface __declspec(uuid("8871ac83-89c8-44e9-913f-a9a2a322440a")) IXySubFilterGraphMutex : public IUnknown
 {
 
 };
 
-[uuid("2dfcb782-ec20-4a7c-b530-4577adb33f21")]
-class XySubFilter
+class __declspec(uuid("2dfcb782-ec20-4a7c-b530-4577adb33f21")) XySubFilter
     : public CBaseFilter
     , public CDVS4XySubFilter
     , public ISpecifyPropertyPages
@@ -31,53 +29,53 @@ public:
     XySubFilter(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(XySubFilter));
     virtual ~XySubFilter();
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    DECLARE_ISUBRENDEROPTIONS;
+    DECLARE_ISUBRENDEROPTIONS
 
     //CBaseFilter
     [[nodiscard]] CBasePin* GetPin(int n);
     [[nodiscard]] int GetPinCount();
-    [[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
 
-    [[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
-    STDMETHODIMP Pause();
+    DECLSPEC_NOTHROW STDMETHODIMP Pause();
 
     // XyOptionsImpl
     [[nodiscard]] virtual HRESULT OnOptionChanged(unsigned field);
     [[nodiscard]] virtual HRESULT DoGetField(unsigned field, void *value);
 
     // IXyOptions
-    [[nodiscard]] STDMETHODIMP XyGetString   (unsigned field, LPWSTR   *value, int *chars);
-    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetString   (unsigned field, LPWSTR   *value, int *chars);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBool     (unsigned field, bool      value);
 
     // DirectVobSubImpl
     [[nodiscard]] HRESULT GetCurStyles(SubStyle sub_style[], int count);
     [[nodiscard]] HRESULT SetCurStyles(const SubStyle sub_style[], int count);
 
     // IDirectVobSub
-    [[nodiscard]] STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
 
-    [[nodiscard]] STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
-    [[nodiscard]] STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
 
     // IDirectVobSub2
-    [[nodiscard]] STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
-    [[nodiscard]] STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
 
     // ISpecifyPropertyPages
-    [[nodiscard]] STDMETHODIMP GetPages(CAUUID* pPages);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetPages(CAUUID* pPages);
 
     // IAMStreamSelect
-    [[nodiscard]] STDMETHODIMP Count(DWORD* pcStreams); 
-    [[nodiscard]] STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
-    [[nodiscard]] STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Count(DWORD* pcStreams); 
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);
 
     //ISubRenderProvider
-    [[nodiscard]] STDMETHODIMP RequestFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context);
-    [[nodiscard]] STDMETHODIMP Disconnect(void);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RequestFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Disconnect(void);
 private:
     void SetYuvMatrix();
     void SetRgbOutputLevel();

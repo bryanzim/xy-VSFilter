@@ -67,7 +67,7 @@ public:
     void RemoveAll(void);
 
     /* Return the cache size which is set during construction */
-    INT GetCacheSize(void) const {return m_iCacheSize;};
+    INT GetCacheSize(void) const {return m_iCacheSize;}
 };
 
 #endif /* __CACHE__ */

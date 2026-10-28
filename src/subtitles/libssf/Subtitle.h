@@ -135,4 +135,4 @@ namespace ssf
 
 		bool Parse(Definition* pDef, float start, float stop, float at);
 	};
-};
+}

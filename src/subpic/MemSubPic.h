@@ -72,15 +72,15 @@ public:
     virtual ~CMemSubPic();
 
     // ISubPic
-    [[nodiscard]] STDMETHODIMP GetDesc(SubPicDesc& spd) const;
-    [[nodiscard]] STDMETHODIMP ClearDirtyRect(DWORD color);
-    [[nodiscard]] STDMETHODIMP Lock(SubPicDesc& spd);
-    [[nodiscard]] STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDesc(SubPicDesc& spd) const;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ClearDirtyRect(DWORD color);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Lock(SubPicDesc& spd);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
 
     // ISubPicEx
-    [[nodiscard]] STDMETHODIMP CopyTo(ISubPicEx* pSubPic);
-    [[nodiscard]] STDMETHODIMP UnlockEx(CAtlList<CRect>* dirtyRectList);
-    [[nodiscard]] STDMETHODIMP SetDirtyRectEx(CAtlList<CRect>* dirtyRectList);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CopyTo(ISubPicEx* pSubPic);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP UnlockEx(CAtlList<CRect>* dirtyRectList);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetDirtyRectEx(CAtlList<CRect>* dirtyRectList);
 
     //
     [[nodiscard]] HRESULT FlipAlphaValue(const CRect& dirtyRect);
@@ -93,7 +93,7 @@ protected:
     SubPicDesc m_spd;
 
 protected:
-	STDMETHODIMP_(void*) GetObject() const; // returns SubPicDesc*
+	DECLSPEC_NOTHROW STDMETHODIMP_(void*) GetObject() const; // returns SubPicDesc*
     
     [[nodiscard]] HRESULT AlphaBltAxyuAxyv_P010(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
     [[nodiscard]] HRESULT AlphaBltAxyuAxyv_P210(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);

@@ -16,8 +16,8 @@ public:
     SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IXyOptions *consumer, HRESULT* phr=NULL);
     virtual ~SimpleSubPicProvider();
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     [[nodiscard]] bool LookupSubPicEx(REFERENCE_TIME rtNow, IXySubRenderFrame** sub_render_frame);
     [[nodiscard]] HRESULT GetSubPicProviderEx(ISubPicProviderEx2** pSubPicProviderEx);
@@ -26,17 +26,17 @@ public:
 public:
     // ISimpleSubPicProvider
 
-    STDMETHODIMP SetSubPicProvider(IUnknown* subpic_provider);
-    [[nodiscard]] STDMETHODIMP GetSubPicProvider(IUnknown** subpic_provider);
+    DECLSPEC_NOTHROW STDMETHODIMP SetSubPicProvider(IUnknown* subpic_provider);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetSubPicProvider(IUnknown** subpic_provider);
 
-    [[nodiscard]] STDMETHODIMP SetFPS(double fps);
-    [[nodiscard]] STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetFPS(double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
 
-    [[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
-    [[nodiscard]] STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
 
-    [[nodiscard]] STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
-    [[nodiscard]] STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
 private:
     CCritSec m_csSubPicProvider;
     CComPtr<ISubPicProviderEx2> m_pSubPicProviderEx;
@@ -71,25 +71,25 @@ public:
         IXyOptions *consumer, HRESULT* phr=NULL);
     virtual ~SimpleSubPicProvider2();
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 public:
     SimpleSubPicProvider2(const SimpleSubPicProvider2&);
     void operator=(const SimpleSubPicProvider2&)const;
 
     // ISimpleSubPicProvider
 
-    [[nodiscard]] STDMETHODIMP SetSubPicProvider(IUnknown* subpic_provider);
-    [[nodiscard]] STDMETHODIMP GetSubPicProvider(IUnknown** subpic_provider);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetSubPicProvider(IUnknown* subpic_provider);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetSubPicProvider(IUnknown** subpic_provider);
 
-    [[nodiscard]] STDMETHODIMP SetFPS(double fps);
-    [[nodiscard]] STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetFPS(double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
 
-    [[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
-    [[nodiscard]] STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
 
-    [[nodiscard]] STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
-    [[nodiscard]] STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
 
 protected:
     int m_alpha_blt_dst_type;

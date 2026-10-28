@@ -67,6 +67,7 @@ public:
         ,m_scaley(key.m_scaley)
         ,m_str_id(key.m_str_id)
         ,m_style(key.m_style){}
+    PathDataCacheKey& operator=(const PathDataCacheKey&) = default;
     [[nodiscard]] bool operator==(const PathDataCacheKey& key)const
     {
         return m_str_id==key.m_str_id 
@@ -103,6 +104,7 @@ public:
         :PathDataCacheKey(key)
         ,m_hash_value(key.m_hash_value)
         ,m_org(key.m_org) { }
+    ScanLineData2CacheKey& operator=(const ScanLineData2CacheKey&) = default;
 
     [[nodiscard]] bool operator==(const ScanLineData2CacheKey& key)const;
 
@@ -122,6 +124,7 @@ class OverlayNoBlurKey: public ScanLineData2CacheKey
 public:
     OverlayNoBlurKey(const CWord& word, const POINT& p, const POINT& org):ScanLineData2CacheKey(word,org),m_p(p) {}
     OverlayNoBlurKey(const OverlayNoBlurKey& key):ScanLineData2CacheKey(key),m_hash_value(key.m_hash_value),m_p(key.m_p) {}
+    OverlayNoBlurKey& operator=(const OverlayNoBlurKey&) = default;
 
     [[nodiscard]] bool operator==(const OverlayNoBlurKey& key)const;
 

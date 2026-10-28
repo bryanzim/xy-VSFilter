@@ -133,7 +133,7 @@ const OutputFormatBase OutputFmts[] =
 {
     ColorSpaceId i = startId;
     int num = GetOutputColorSpaceNumber();
-    for(i=startId;i<num;i++)
+    for(i=startId;i<num;++i)
     {
         if (*(OutputFmts[i].subtype)==subtype)
         {
@@ -241,7 +241,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 	AM_MEDIA_TYPE* pmt;
 	if(SUCCEEDED(pIn->GetMediaType(&pmt)) && pmt)
 	{
-		[[nodiscard]] CMediaType mt(*pmt);
+		CMediaType mt(*pmt);
 		m_pInput->SetMediaType(&mt);
 		DeleteMediaType(pmt);
 	}
@@ -393,7 +393,7 @@ HRESULT hr1{0}, hr2 = 0;
 [[nodiscard]] HRESULT CBaseVideoFilter::CopyBuffer(BYTE* pOut, BYTE** ppIn, const int w, int h, int pitchIn, const GUID& subtype, const bool fInterlaced)
 {
 	BITMAPINFOHEADER bihOut;
-	ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
+	(void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
 
 	int pitchOut{0};
 
@@ -465,14 +465,14 @@ HRESULT hr1{0}, hr2 = 0;
 		if(bihOut.biCompression == '2YUY')
 		{
             if (!fInterlaced) {
-                BitBltFromI420ToYUY2(w, h, pOut, bihOut.biWidth*2, pIn, pInU, pInV, pitchIn);
+                (void)BitBltFromI420ToYUY2(w, h, pOut, bihOut.biWidth*2, pIn, pInU, pInV, pitchIn);
             } else {
-                BitBltFromI420ToYUY2Interlaced(w, h, pOut, bihOut.biWidth*2, pIn, pInU, pInV, pitchIn);
+                (void)BitBltFromI420ToYUY2Interlaced(w, h, pOut, bihOut.biWidth*2, pIn, pInU, pInV, pitchIn);
             }
 		}
 		else if(bihOut.biCompression == '024I' || bihOut.biCompression == 'VUYI' || bihOut.biCompression == '21VY')
 		{
-			BitBltFromI420ToI420(w, h, pOut, pOutU, pOutV, bihOut.biWidth, pIn, pInU, pInV, pitchIn);
+			(void)BitBltFromI420ToI420(w, h, pOut, pOutU, pOutV, bihOut.biWidth, pIn, pInU, pInV, pitchIn);
 		}
 		else if(bihOut.biCompression == BI_RGB || bihOut.biCompression == BI_BITFIELDS)
 		{
@@ -491,7 +491,7 @@ HRESULT hr1{0}, hr2 = 0;
         {
             return VFW_E_TYPE_NOT_ACCEPTED;
         }
-        BitBltFromP010ToP010(w, h, pOut, bihOut.biWidth*2, ppIn[0U], pitchIn);
+        (void)BitBltFromP010ToP010(w, h, pOut, bihOut.biWidth*2, ppIn[0U], pitchIn);
     }
     else if (subtype == MEDIASUBTYPE_P210 || subtype == MEDIASUBTYPE_P216)
     {
@@ -499,7 +499,7 @@ HRESULT hr1{0}, hr2 = 0;
         {
             return VFW_E_TYPE_NOT_ACCEPTED;
         }
-        BitBltFromP210ToP210(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn);
+        (void)BitBltFromP210ToP210(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn);
     }
     else if(subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21)
     {
@@ -507,13 +507,13 @@ HRESULT hr1{0}, hr2 = 0;
         {
             return VFW_E_TYPE_NOT_ACCEPTED;
         }
-        BitBltFromNV12ToNV12(w, h, pOut, bihOut.biWidth, ppIn[0U], pitchIn);
+        (void)BitBltFromNV12ToNV12(w, h, pOut, bihOut.biWidth, ppIn[0U], pitchIn);
     }
     else if(subtype == MEDIASUBTYPE_YUY2)
     {
         if(bihOut.biCompression == '2YUY')
         {
-            BitBltFromYUY2ToYUY2(w, h, pOut, bihOut.biWidth*2, ppIn[0U], pitchIn);
+            (void)BitBltFromYUY2ToYUY2(w, h, pOut, bihOut.biWidth*2, ppIn[0U], pitchIn);
         }
         else if(bihOut.biCompression == BI_RGB || bihOut.biCompression == BI_BITFIELDS)
         {
@@ -561,7 +561,7 @@ HRESULT hr1{0}, hr2 = 0;
 [[nodiscard]] HRESULT CBaseVideoFilter::CheckInputType(const CMediaType* mtIn)
 {
 	BITMAPINFOHEADER bih;
-	ExtractBIH(mtIn, &bih);
+	(void)ExtractBIH(mtIn, &bih);
 
 	return mtIn->majortype == MEDIATYPE_Video 
 		&& GetInputSubtypePosition(mtIn->subtype)!=-1        
@@ -696,7 +696,7 @@ HRESULT hr1{0}, hr2 = 0;
 	}
 
 	BITMAPINFOHEADER bih;
-	ExtractBIH(&m_pOutput->CurrentMediaType(), &bih);
+	(void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bih);
 
 	pProperties->cBuffers = m_cBuffers;
 	pProperties->cbBuffer = bih.biSizeImage;
@@ -812,7 +812,7 @@ HRESULT hr1{0}, hr2 = 0;
     }
 
     int i{0};
-    for (i=0;i<m_inputFmtCount;i++)
+    for (i=0;i<m_inputFmtCount;++i)
     {
         if (*m_inputFmt[i]==subtype)
         {
@@ -829,7 +829,7 @@ HRESULT hr1{0}, hr2 = 0;
         InitOutputColorSpaces();
     }
     int i{startPos};
-    for(i=startPos;i<m_outputFmtCount;i++)
+    for(i=startPos;i<m_outputFmtCount;++i)
     {
         if (*(m_outputFmt[i]->subtype)==subtype)
         {
@@ -844,7 +844,7 @@ HRESULT hr1{0}, hr2 = 0;
 	if(dir == PINDIR_INPUT)
 	{
 		m_w = m_h = m_arx = m_ary = 0;
-		ExtractDim(pmt, m_w, m_h, m_arx, m_ary);
+		(void)ExtractDim(pmt, m_w, m_h, m_arx, m_ary);
 		m_win = m_w;
 		m_hin = m_h;
 		m_arxin = m_arx;
@@ -861,7 +861,7 @@ HRESULT hr1{0}, hr2 = 0;
 	else if(dir == PINDIR_OUTPUT)
 	{
 		int wout{0}, hout = 0, arxout = 0, aryout = 0;
-		ExtractDim(pmt, wout, hout, arxout, aryout);
+		(void)ExtractDim(pmt, wout, hout, arxout, aryout);
 		if(m_w == wout && m_h == hout && m_arx == arxout && m_ary == aryout)
 		{
 			m_wout = wout;
@@ -880,7 +880,7 @@ void CBaseVideoFilter::InitInputColorSpaces()
     UINT count{0};
     GetInputColorspaces(preferredOrder, &count);
     m_inputFmtCount = count;
-    for (UINT i{0};i<count;i++)
+    for (UINT i{0};i<count;++i)
     {
         m_inputFmt[i] = InputFmts[preferredOrder[i]];
     }
@@ -897,7 +897,7 @@ void CBaseVideoFilter::InitOutputColorSpaces()
     }
     m_outputFmtCount = count;
     XY_LOG_DEBUG(XY_LOG_VAR_2_STR(m_outputFmtCount));
-    for (UINT i{0};i<count;i++)
+    for (UINT i{0};i<count;++i)
     {
         m_outputFmt[i] = OutputFmts + preferredOrder[i];
         XY_LOG_DEBUG(i<<" "<<CStringA(OutputFmt2String(*m_outputFmt[i])));
@@ -907,7 +907,7 @@ void CBaseVideoFilter::InitOutputColorSpaces()
 void CBaseVideoFilter::GetInputColorspaces( ColorSpaceId *preferredOrder, UINT *count )
 {
     *count = GetInputColorSpaceNumber();
-    for (UINT i{0};i<*count;i++)
+    for (UINT i{0};i<*count;++i)
     {
         preferredOrder[i] = i;
     }    
@@ -916,7 +916,7 @@ void CBaseVideoFilter::GetInputColorspaces( ColorSpaceId *preferredOrder, UINT *
 void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT *count )
 {
     *count = GetOutputColorSpaceNumber();
-    for (UINT i{0};i<*count;i++)
+    for (UINT i{0};i<*count;++i)
     {
         preferredOrder[i] = i;
     }
@@ -971,7 +971,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
         while(pos>=0 && pos<count)
         {
             priorities[pos] = priority;
-            priority--;
+            --priority;
             pos = Subtype2OutputColorSpaceId(pMediaType->subtype, pos+1);
         }
 
@@ -991,14 +991,14 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
     }
     if (!m_donot_follow_upstream_preferred_order)
     {
-        for (UINT i{0};i<*count;i++)
+        for (UINT i{0};i<*count;++i)
         {
             int c{preferredOrder[i]};
             priorities1[c] = (priorities1[c]<<16) + c;
         }
         std::sort(priorities1, priorities1+total_count);
         int i = total_count - 1;
-        for (;i>=0;i--)
+        for (;i>=0;--i)
         {
             if( priorities1[i]>=(1<<16) )//enabled 
             {
@@ -1014,7 +1014,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
     else
     {
         int j{0};
-        for (UINT i{0};i<*count;i++)
+        for (UINT i{0};i<*count;++i)
         {
             int c{preferredOrder[i]};
             if (priorities1[c] > 0) {
@@ -1044,7 +1044,7 @@ void CBaseVideoInputAllocator::SetMediaType(const CMediaType& mt)
 	m_mt = mt;
 }
 
-[[nodiscard]] STDMETHODIMP CBaseVideoInputAllocator::GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, const DWORD dwFlags)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoInputAllocator::GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, const DWORD dwFlags)
 {
 	if(!m_bCommitted)
 	{
@@ -1078,7 +1078,7 @@ CBaseVideoInputPin::~CBaseVideoInputPin()
 	delete m_pAllocator;
 }
 
-[[nodiscard]] STDMETHODIMP CBaseVideoInputPin::GetAllocator(IMemAllocator** ppAllocator)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoInputPin::GetAllocator(IMemAllocator** ppAllocator)
 {
     CheckPointer(ppAllocator, E_POINTER);
 
@@ -1094,13 +1094,13 @@ CBaseVideoInputPin::~CBaseVideoInputPin()
     return S_OK;
 } 
 
-[[nodiscard]] STDMETHODIMP CBaseVideoInputPin::ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoInputPin::ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt)
 {
 	CAutoLock cObjectLock{m_pLock};
 
 	if(m_Connected)
 	{
-		[[nodiscard]] CMediaType mt(*pmt);
+		CMediaType mt(*pmt);
 
 		if(FAILED(CheckMediaType(&mt)))
 		{
@@ -1198,7 +1198,7 @@ CBaseVideoOutputPin::CBaseVideoOutputPin(TCHAR* pObjectName, CBaseVideoFilter* p
 
 //// EnumMediaTypes
 //// - pass through to our upstream filter
-//STDMETHODIMP CBaseVideoOutputPin::EnumMediaTypes( IEnumMediaTypes **ppEnum )
+//DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoOutputPin::EnumMediaTypes( IEnumMediaTypes **ppEnum )
 //{
 //    // Can only pass through if connected.
 //    if( ! reinterpret_cast<CBaseVideoFilter*>(m_pFilter)->m_pInput->IsConnected() )

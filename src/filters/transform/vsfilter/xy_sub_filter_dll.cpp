@@ -45,16 +45,19 @@ const AMOVIESETUP_MEDIATYPE sudPinTypesIn[] =
     {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_DVB_SUBTITLES}
 };
 
+static WCHAR sudNameIn[] = L"Input";
+
 const AMOVIESETUP_PIN sudpPins[] =
 {
-    {L"Input", TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, NULL, countof(sudPinTypesIn), sudPinTypesIn}
+    {sudNameIn, TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, NULL, countof(sudPinTypesIn), sudPinTypesIn}
 };
 
 
 const AMOVIESETUP_MEDIATYPE sudPinTypeIn2[] = {
     {&GUID_NULL, &GUID_NULL}
 };
-const AMOVIESETUP_PIN sudpPin2 = {L"Input", FALSE, FALSE, TRUE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypeIn2), sudPinTypeIn2};
+static WCHAR sudNameIn2[] = L"Input";
+const AMOVIESETUP_PIN sudpPin2 = {sudNameIn2, FALSE, FALSE, TRUE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypeIn2), sudPinTypeIn2};
 
 /*const*/ AMOVIESETUP_FILTER sudFilter[] =
 {

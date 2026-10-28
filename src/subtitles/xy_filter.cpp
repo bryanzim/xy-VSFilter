@@ -72,7 +72,7 @@ __forceinline void xy_filter_one_line_c(float *dst, const int width, const float
         *dst2 = sum;
     }
     ASSERT(filter_start==filter);
-    for (;dst2<dst_end0;dst2++)
+    for (;dst2<dst_end0;++dst2)
     {
         const float *src{dst2};
 
@@ -621,7 +621,7 @@ void xy_filter_sse(float *dst, const int width, const int height, const int stri
         // Skip tail zero, but we cannot (and don't have to) support more than 3 tail zeros currently.
         while( AlmostEqual(filter[tmp-1],0.0f) && filter_width-tmp<3 )
         {
-            tmp--;
+            --tmp;
         }
         if (tmp==3&&filter[0U]==filter[2U])
         {
@@ -661,7 +661,7 @@ void xy_byte_2_float_c(float *dst, const int dst_width, const int dst_stride,
             *dst2 = *src2;
         }
         float *dst2_end{reinterpret_cast<float*>(dst_byte)+dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2=0;
         }
@@ -710,7 +710,7 @@ void xy_byte_2_float_sse(float *dst, const int dst_width, const int dst_stride,
             *dst2 = *src2;
         }
         float *dst2_end{reinterpret_cast<float*>(dst_byte)+dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2=0;
         }
@@ -739,7 +739,7 @@ void xy_float_2_float_transpose_c(float *dst, const int dst_width, const int dst
             *dst2 = *reinterpret_cast<const float*>(src2);
         }
         float *dst2_end{reinterpret_cast<float*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -780,7 +780,7 @@ void xy_float_2_float_transpose_sse(float *dst, const int dst_width, const int d
             *dst2 = *reinterpret_cast<SrcT*>(src2);
         }
         float *dst2_end{reinterpret_cast<DstT*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -809,7 +809,7 @@ void xy_float_2_byte_transpose_c(UINT8 *dst, const int dst_width, const int dst_
             *dst2 = static_cast<UINT8>(*reinterpret_cast<const float*>(src2)+0.5);
         }
         UINT8 *dst2_end{reinterpret_cast<UINT8*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -872,7 +872,7 @@ void xy_float_2_byte_transpose_sse(UINT8 *dst, const int dst_width, const int ds
             *dst2 = static_cast<DstT>(*reinterpret_cast<SrcT*>(src2)+0.5);
         }
         DstT *dst2_end{reinterpret_cast<DstT*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -1061,13 +1061,13 @@ void xy_be_filter_c(const PUINT8 dst, const int width, const int height, const i
     }
     PUINT8 dst2{NULL};
     XyRounding<ROUNDING_POLICY, 2> xy_rounding;
-    for (int y{0};y<height;y++)
+    for (int y{0};y<height;++y)
     {
         dst2 = dst + y*stride;
         int old_sum{dst2[0U]};
         int tmp{0};
         int x{0};
-        for (x=0;x<width-1;x++)
+        for (x=0;x<width-1;++x)
         {
             int new_sum{dst2[x]+dst2[x+1]};
             tmp = old_sum + new_sum;//old_sum == src2[x-1]+src2[x];
@@ -1107,13 +1107,13 @@ void xy_be_filter2_c(const PUINT8 dst, const int width, const int height, const 
 
     PUINT8 dst2{NULL};
     XyRounding<ROUNDING_POLICY, VOLUME_BITS> xy_rounding;
-    for (int y{0};y<height;y++)
+    for (int y{0};y<height;++y)
     {
         dst2 = dst + y*stride;
         int old_pix{0};
         int tmp{0};
         int x{0};
-        for (x=0;x<width-1;x++)
+        for (x=0;x<width-1;++x)
         {
             tmp = (old_pix + dst2[x+1]) * filter[0U] + dst2[x] * filter[1U];
             old_pix = dst2[x];
@@ -1139,7 +1139,7 @@ void xy_be_filter_sse(const PUINT8 dst, const int width, const int height, const
     int width_mod8{((width-1)&~7)};
     XyRounding<ROUNDING_POLICY, 2> xy_rounding;
     xy_rounding.init_sse();
-    for (int y{0}; y < height; y++) {
+    for (int y{0}; y < height; ++y) {
         PUINT8 dst2{dst+y*stride};
 
         __m128i old_pix_128{_mm_cvtsi32_si128(dst2[0U])};
@@ -1169,7 +1169,7 @@ void xy_be_filter_sse(const PUINT8 dst, const int width, const int height, const
         int old_sum{_mm_cvtsi128_si32(old_sum_128)};
         old_sum &= 0xffff;
         int tmp{0};
-        for ( ; x < width-1; x++) {
+        for ( ; x < width-1; ++x) {
             int new_sum{dst2[x] + dst2[x+1]};
             tmp = old_sum + new_sum;
             dst2[x] = (xy_rounding.round(tmp)>>2);
@@ -1242,7 +1242,7 @@ void xy_be_filter2_sse(const PUINT8 dst, const int width, const int height, cons
         int old_pix1{_mm_cvtsi128_si32(old_pix1_128)};
         old_pix1 &= 0xff;
         int tmp{0};
-        for ( ; x < width-1; x++) {
+        for ( ; x < width-1; ++x) {
             tmp = (old_pix1 + dst2[x+1]) * filter[0U] + dst2[x] * filter[1U];
             old_pix1 = dst2[x];
 
@@ -1317,7 +1317,7 @@ void xy_byte_2_byte_transpose_c(UINT8 *dst, const int dst_width, const int dst_s
             *dst2 = *src2;
         }
         UINT8 *dst2_end{reinterpret_cast<UINT8*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -1362,7 +1362,7 @@ void xy_be_blur(PUINT8 src, int width, int height, int stride, float pass_x, flo
     ASSERT(tmp);
     // horizontal pass
     int pass_x_int{static_cast<int>(pass_x)};
-    for (int i{0}; i<pass_x_int; i++)
+    for (int i{0}; i<pass_x_int; ++i)
     {
         filter(src, width, height, stride);
     }
@@ -1378,7 +1378,7 @@ void xy_be_blur(PUINT8 src, int width, int height, int stride, float pass_x, flo
 
     // vertical pass
     int pass_y_int{static_cast<int>(pass_y)};
-    for (int i{0};i<pass_y_int;i++)
+    for (int i{0};i<pass_y_int;++i)
     {
         filter(tmp, height, width, stride_ver);
     }

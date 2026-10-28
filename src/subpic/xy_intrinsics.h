@@ -583,16 +583,34 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, co
     }src += 2, am += 2, dst++
 
         { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 12:
         { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 10:
         { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 8:
         { _hleft_vmid_mix_uv_yv12_c2_mix_2 ; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 6:
         { _hleft_vmid_mix_uv_yv12_c2_mix_2 ; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 4:
         { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 2:
         { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
     }
@@ -706,16 +724,34 @@ static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* s
     }src += 2, am += 2, dst++
 
     { _mix_uv_yv16_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 12:
     { _mix_uv_yv16_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 10:
     { _mix_uv_yv16_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 8:
     { _mix_uv_yv16_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 6:
     { _mix_uv_yv16_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 4:
     { _mix_uv_yv16_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 2:
     { _mix_uv_yv16_c2_mix_2; }
     }
@@ -825,16 +861,34 @@ static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, co
     } src+=2, am+=2, dst_word+=2
 
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 12:
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 10:
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 8:
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 6:
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 4:
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 2:
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
     }
@@ -946,16 +1000,34 @@ static __forceinline void hleft_vmid_mix_uv_nv12_c2(BYTE* dst, const int w15, co
     src+=2, am+=2, dst+=2
 
         { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 12:
         { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 10:
         { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 8:
         { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 6:
         { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 4:
         { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 2:
         { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
     }
@@ -1074,16 +1146,34 @@ static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* s
     } src+=2, am+=2, dst_word+=2
 
     { mix_uv_p210_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 12:
     { mix_uv_p210_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 10:
     { mix_uv_p210_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 8:
     { mix_uv_p210_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 6:
     { mix_uv_p210_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 4:
     { mix_uv_p210_c2_mix_2; }
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case 2:
     { mix_uv_p210_c2_mix_2; }
     }

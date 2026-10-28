@@ -11,9 +11,9 @@ public:
     explicit HdmvSubtitleProviderImpl (CBaseSub* pSub);
     ~HdmvSubtitleProviderImpl(void);
 
-    [[nodiscard]] STDMETHODIMP Connect     (IXyOptions *consumer);
-    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    [[nodiscard]] STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect     (IXyOptions *consumer);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
 private:
     HRESULT ResetAllocator();
     [[nodiscard]] HRESULT Render(REFERENCE_TIME now, POSITION pos);
@@ -37,22 +37,22 @@ public:
     ~HdmvSubtitleProvider(void);
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IXySubRenderProvider
-    [[nodiscard]] STDMETHODIMP Connect     (IXyOptions *consumer);
-    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    [[nodiscard]] STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect     (IXyOptions *consumer);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
 
     // IPersist
-    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
-    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    [[nodiscard]] STDMETHODIMP_(int) GetStream();
-    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
-    STDMETHODIMP Reload();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+    DECLSPEC_NOTHROW STDMETHODIMP Reload();
 
     //fix me: add to an interface
     [[nodiscard]] HRESULT ParseSample(IMediaSample* pSample);
@@ -81,22 +81,22 @@ public:
     [[nodiscard]] bool Open(CString fn, CString subName = _T(""));
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IXySubRenderProvider
-    [[nodiscard]] STDMETHODIMP Connect     (IXyOptions *consumer);
-    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    [[nodiscard]] STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect     (IXyOptions *consumer);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate  (REFERENCE_TIME rtInvalidate = -1);
 
     // IPersist
-    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
-    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    [[nodiscard]] STDMETHODIMP_(int) GetStream();
-    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
-    STDMETHODIMP Reload();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+    DECLSPEC_NOTHROW STDMETHODIMP Reload();
 
     [[nodiscard]] HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
 protected:

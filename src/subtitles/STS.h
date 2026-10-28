@@ -85,7 +85,7 @@ public:
 	[[nodiscard]] bool operator == (const STSStyle& s)const;
     [[nodiscard]] bool operator != (const STSStyle& s) const {
         return !(*this == s);
-    };
+    }
 	[[nodiscard]] bool IsFontStyleEqual(const STSStyle& s) const;
 
     void operator = (const LOGFONT& lf);
@@ -296,7 +296,7 @@ private:
 };
 
 extern BYTE   CharSetList[];
-extern TCHAR* CharSetNames[];
+extern const TCHAR* CharSetNames[];
 extern int    CharSetLen;
 
 class CHtmlColorMap : public CAtlMap<CString, DWORD, CStringElementTraits<CString> > {public: explicit CHtmlColorMap();};

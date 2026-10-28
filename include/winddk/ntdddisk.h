@@ -1,3 +1,8 @@
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextern-c-compat"
+#endif
+
 /*++
 
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -21,6 +26,12 @@ Revision History:
 #ifndef _NTDDDISK_H_
 #define _NTDDDISK_H_
 
+#include <winapifamily.h>
+
+
+#pragma region Desktop Family or OneCore Family
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 // end_winioctl
 
 #if _MSC_VER > 1000
@@ -31,7 +42,7 @@ Revision History:
 #include <diskguid.h>
 #endif
 
-#ifdef __cplusplus
+#if defined __cplusplus && !defined __ALT_GENERATOR__
 extern "C" {
 #endif
 
@@ -42,6 +53,7 @@ extern "C" {
 #pragma warning(push)
 #pragma warning(disable:4201) // nonstandard extension used : nameless struct/union
 #pragma warning(disable:4214) // nonstandard extension used : bitfield other than int
+#pragma warning(disable:4820) // padding added after data member
 #endif
 #endif
 
@@ -99,6 +111,9 @@ extern "C" {
 #define SMART_GET_VERSION               CTL_CODE(IOCTL_DISK_BASE, 0x0020, METHOD_BUFFERED, FILE_READ_ACCESS)
 #define SMART_SEND_DRIVE_COMMAND        CTL_CODE(IOCTL_DISK_BASE, 0x0021, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 #define SMART_RCV_DRIVE_DATA            CTL_CODE(IOCTL_DISK_BASE, 0x0022, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+#if(NTDDI_VERSION >= NTDDI_WIN10_CO)
+#define SMART_RCV_DRIVE_DATA_EX         CTL_CODE(IOCTL_DISK_BASE, 0x0023, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#endif /* NTDDI_VERSION >= NTDDI_WIN10_CO */
 
 #endif /* _WIN32_WINNT >= 0x0400 */
 
@@ -134,7 +149,7 @@ extern "C" {
 
 #define IOCTL_DISK_GET_CACHE_INFORMATION    CTL_CODE(IOCTL_DISK_BASE, 0x0035, METHOD_BUFFERED, FILE_READ_ACCESS)
 #define IOCTL_DISK_SET_CACHE_INFORMATION    CTL_CODE(IOCTL_DISK_BASE, 0x0036, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-#if (NTDDI_VERSION < NTDDI_WIN2003)
+#if (NTDDI_VERSION < NTDDI_WS03)
 #define IOCTL_DISK_GET_WRITE_CACHE_STATE    CTL_CODE(IOCTL_DISK_BASE, 0x0037, METHOD_BUFFERED, FILE_READ_ACCESS)
 #else
 #define OBSOLETE_DISK_GET_WRITE_CACHE_STATE CTL_CODE(IOCTL_DISK_BASE, 0x0037, METHOD_BUFFERED, FILE_READ_ACCESS)
@@ -274,7 +289,7 @@ typedef struct _DISK_COPY_DATA_PARAMETERS {
 // The following file contains the IOCTL_STORAGE class ioctls
 //
 
-#include <ntddstor.h>
+#include "ntddstor.h"
 
 // begin_winioctl
 //
@@ -294,9 +309,22 @@ typedef struct _DISK_COPY_DATA_PARAMETERS {
 #define PARTITION_FAT32_XINT13          0x0C      // FAT32 using extended int13 services
 #define PARTITION_XINT13                0x0E      // Win95 partition using extended int13 services
 #define PARTITION_XINT13_EXTENDED       0x0F      // Same as type 5 but uses extended int13 services
+#define PARTITION_MSFT_RECOVERY         0x27      // Microsoft recovery partition
+#define PARTITION_MAIN_OS               0x28      // Main OS partition
+#define PARTIITON_OS_DATA               0x29      // OS data partition
+#define PARTITION_PRE_INSTALLED         0x2a      // PreInstalled partition
+#define PARTITION_BSP                   0x2b      // BSP partition
+#define PARTITION_DPP                   0x2c      // DPP partition
+#define PARTITION_WINDOWS_SYSTEM        0x2d      // Windows system partition
 #define PARTITION_PREP                  0x41      // PowerPC Reference Platform (PReP) Boot Partition
 #define PARTITION_LDM                   0x42      // Logical Disk Manager partition
+#define PARTITION_DM                    0x54      // OnTrack Disk Manager partition
+#define PARTITION_EZDRIVE               0x55      // EZ-Drive partition
 #define PARTITION_UNIX                  0x63      // Unix
+#define PARTITION_SPACES_DATA           0xD7      // Storage Spaces protective partition
+#define PARTITION_SPACES                0xE7      // Storage Spaces protective partition
+#define PARTITION_GPT                   0xEE      // Gpt protective partition
+#define PARTITION_SYSTEM                0xEF      // System partition
 
 #define VALID_NTFT                      0xC0      // NTFT uses high order bits
 
@@ -334,7 +362,7 @@ typedef struct _DISK_COPY_DATA_PARAMETERS {
 //     otherwise FALSE is returned.
 //
 //--
-#if (NTDDK_VERSION < NTDDI_VISTA)
+#if (NTDDI_VERSION < NTDDI_VISTA)
 #define IsRecognizedPartition( PartitionType ) (    \
     ((PartitionType & PARTITION_NTFT) && (((PartitionType & ~0xC0) == PARTITION_HUGE)           ||  \
                                           ((PartitionType & ~0xC0) == PARTITION_IFS)            ||  \
@@ -348,13 +376,21 @@ typedef struct _DISK_COPY_DATA_PARAMETERS {
     ((PartitionType) == PARTITION_FAT32_XINT13) ||  \
     ((PartitionType) == PARTITION_XINT13) )
 #else
-#define IsRecognizedPartition( PartitionType ) (    \
-    ((PartitionType) == PARTITION_FAT_12)       ||  \
-    ((PartitionType) == PARTITION_FAT_16)       ||  \
-    ((PartitionType) == PARTITION_HUGE)         ||  \
-    ((PartitionType) == PARTITION_IFS)          ||  \
-    ((PartitionType) == PARTITION_FAT32)        ||  \
-    ((PartitionType) == PARTITION_FAT32_XINT13) ||  \
+#define IsRecognizedPartition( PartitionType ) (      \
+    ((PartitionType) == PARTITION_BSP)            ||  \
+    ((PartitionType) == PARTITION_DPP)            ||  \
+    ((PartitionType) == PARTITION_FAT_12)         ||  \
+    ((PartitionType) == PARTITION_FAT_16)         ||  \
+    ((PartitionType) == PARTITION_FAT32)          ||  \
+    ((PartitionType) == PARTITION_FAT32_XINT13)   ||  \
+    ((PartitionType) == PARTITION_HUGE)           ||  \
+    ((PartitionType) == PARTITION_IFS)            ||  \
+    ((PartitionType) == PARTITION_MAIN_OS)        ||  \
+    ((PartitionType) == PARTITION_MSFT_RECOVERY)  ||  \
+    ((PartitionType) == PARTIITON_OS_DATA)        ||  \
+    ((PartitionType) == PARTITION_PRE_INSTALLED)  ||  \
+    ((PartitionType) == PARTITION_SYSTEM)         ||  \
+    ((PartitionType) == PARTITION_WINDOWS_SYSTEM) ||  \
     ((PartitionType) == PARTITION_XINT13) )
 #endif
 
@@ -492,11 +528,17 @@ typedef struct _FORMAT_EX_PARAMETERS {
 //
 
 typedef struct _DISK_GEOMETRY {
+
     LARGE_INTEGER Cylinders;
+
     MEDIA_TYPE MediaType;
+
     ULONG TracksPerCylinder;
+
     ULONG SectorsPerTrack;
+
     ULONG BytesPerSector;
+
 } DISK_GEOMETRY, *PDISK_GEOMETRY;
 
 
@@ -572,13 +614,13 @@ typedef struct _REASSIGN_BLOCKS {
 // request.
 //
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _REASSIGN_BLOCKS_EX {
     USHORT Reserved;
     USHORT Count;
     LARGE_INTEGER BlockNumber[1];
 } REASSIGN_BLOCKS_EX, *PREASSIGN_BLOCKS_EX;
-#include <poppack.h>
+#pragma pack(pop)
 
 
 #if(_WIN32_WINNT >= 0x500)
@@ -608,10 +650,15 @@ typedef enum _PARTITION_STYLE {
 //
 
 typedef struct _PARTITION_INFORMATION_GPT {
+
     GUID PartitionType;                 // Partition type. See table 16-3.
+
     GUID PartitionId;                   // Unique GUID for this partition.
+
     ULONG64 Attributes;                 // See table 16-4.
+
     WCHAR Name [36];                    // Partition Name in Unicode.
+
 } PARTITION_INFORMATION_GPT, *PPARTITION_INFORMATION_GPT;
 
 //
@@ -620,6 +667,8 @@ typedef struct _PARTITION_INFORMATION_GPT {
 //
 
 #define GPT_ATTRIBUTE_PLATFORM_REQUIRED             (0x0000000000000001)
+#define GPT_ATTRIBUTE_NO_BLOCK_IO_PROTOCOL          (0x0000000000000002)
+#define GPT_ATTRIBUTE_LEGACY_BIOS_BOOTABLE          (0x0000000000000004)
 
 //
 // The following are GPT partition attributes applicable when the
@@ -630,6 +679,16 @@ typedef struct _PARTITION_INFORMATION_GPT {
 #define GPT_BASIC_DATA_ATTRIBUTE_HIDDEN             (0x4000000000000000)
 #define GPT_BASIC_DATA_ATTRIBUTE_SHADOW_COPY        (0x2000000000000000)
 #define GPT_BASIC_DATA_ATTRIBUTE_READ_ONLY          (0x1000000000000000)
+#define GPT_BASIC_DATA_ATTRIBUTE_OFFLINE            (0x0800000000000000)
+#define GPT_BASIC_DATA_ATTRIBUTE_DAX                (0x0400000000000000)
+#define GPT_BASIC_DATA_ATTRIBUTE_SERVICE            (0x0200000000000000)
+
+//
+// The following are GPT partition attributes applicable when the
+// PartitionType is PARTITION_SPACES_GUID.
+//
+
+#define GPT_SPACES_ATTRIBUTE_NO_METADATA            (0x8000000000000000)
 
 //
 // The following structure defines information in an MBR partition that is not
@@ -637,10 +696,19 @@ typedef struct _PARTITION_INFORMATION_GPT {
 //
 
 typedef struct _PARTITION_INFORMATION_MBR {
+
     UCHAR PartitionType;
+
     BOOLEAN BootIndicator;
+
     BOOLEAN RecognizedPartition;
+
     ULONG HiddenSectors;
+
+#if (NTDDI_VERSION >= NTDDI_WINBLUE)    /* ABRACADABRA_THRESHOLD */
+    GUID PartitionId;
+#endif
+
 } PARTITION_INFORMATION_MBR, *PPARTITION_INFORMATION_MBR;
 
 
@@ -667,7 +735,7 @@ typedef struct _SET_PARTITION_INFORMATION_EX {
 
 //
 // The structure CREATE_DISK_GPT with the ioctl IOCTL_DISK_CREATE_DISK
-// to initialize an virgin disk with an empty GPT partition table.
+// to initialize a disk with an empty GPT partition table.
 //
 
 typedef struct _CREATE_DISK_GPT {
@@ -677,7 +745,7 @@ typedef struct _CREATE_DISK_GPT {
 
 //
 // The structure CREATE_DISK_MBR with the ioctl IOCTL_DISK_CREATE_DISK
-// to initialize an virgin disk with an empty MBR partition table.
+// to initialize a disk with an empty MBR partition table.
 //
 
 typedef struct _CREATE_DISK_MBR {
@@ -707,20 +775,41 @@ typedef struct _GET_LENGTH_INFORMATION {
 //
 // The PARTITION_INFORMATION_EX structure is used with the
 // IOCTL_DISK_GET_DRIVE_LAYOUT_EX, IOCTL_DISK_SET_DRIVE_LAYOUT_EX,
-// IOCTL_DISK_GET_PARTITION_INFO_EX and IOCTL_DISK_GET_PARTITION_INFO_EX calls.
+// IOCTL_DISK_GET_PARTITION_INFO_EX and IOCTL_DISK_SET_PARTITION_INFO_EX calls.
 //
 
 typedef struct _PARTITION_INFORMATION_EX {
+
     PARTITION_STYLE PartitionStyle;
+
+#if (NTDDI_VERSION >= NTDDI_WIN11_DT)
+    USHORT PartitionOrdinal;
+#endif
+
     LARGE_INTEGER StartingOffset;
+
     LARGE_INTEGER PartitionLength;
+
     ULONG PartitionNumber;
+
     BOOLEAN RewritePartition;
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS3)  /* ABRACADABRA_WIN10_RS3 */
+    BOOLEAN IsServicePartition;
+#endif
+
     union {
+
         PARTITION_INFORMATION_MBR Mbr;
+
         PARTITION_INFORMATION_GPT Gpt;
+
     } DUMMYUNIONNAME;
+
 } PARTITION_INFORMATION_EX, *PPARTITION_INFORMATION_EX;
+// end_winioctl
+C_ASSERT(sizeof(PARTITION_INFORMATION_EX) == 0x90);
+// begin_winioctl
 
 
 //
@@ -728,10 +817,15 @@ typedef struct _PARTITION_INFORMATION_EX {
 //
 
 typedef struct _DRIVE_LAYOUT_INFORMATION_GPT {
+
     GUID DiskId;
+
     LARGE_INTEGER StartingUsableOffset;
+
     LARGE_INTEGER UsableLength;
+
     ULONG MaxPartitionCount;
+
 } DRIVE_LAYOUT_INFORMATION_GPT, *PDRIVE_LAYOUT_INFORMATION_GPT;
 
 
@@ -740,7 +834,13 @@ typedef struct _DRIVE_LAYOUT_INFORMATION_GPT {
 //
 
 typedef struct _DRIVE_LAYOUT_INFORMATION_MBR {
+
     ULONG Signature;
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS1)  /* ABRACADABRA_WIN10_RS1 */
+    ULONG CheckSum;
+#endif
+
 } DRIVE_LAYOUT_INFORMATION_MBR, *PDRIVE_LAYOUT_INFORMATION_MBR;
 
 //
@@ -749,13 +849,21 @@ typedef struct _DRIVE_LAYOUT_INFORMATION_MBR {
 //
 
 typedef struct _DRIVE_LAYOUT_INFORMATION_EX {
+
     ULONG PartitionStyle;
+
     ULONG PartitionCount;
+
     union {
+
         DRIVE_LAYOUT_INFORMATION_MBR Mbr;
+
         DRIVE_LAYOUT_INFORMATION_GPT Gpt;
+
     } DUMMYUNIONNAME;
+
     PARTITION_INFORMATION_EX PartitionEntry[1];
+
 } DRIVE_LAYOUT_INFORMATION_EX, *PDRIVE_LAYOUT_INFORMATION_EX;
 
 
@@ -847,7 +955,7 @@ typedef struct _DISK_PARTITION_INFO {
 // followed by a DISK_DETECTION_DATA structure.
 //
 
-#if (NTDDI_VERSION < NTDDI_WIN2003)
+#if (NTDDI_VERSION < NTDDI_WS03)
 #define DiskGeometryGetPartition(Geometry)\
                         ((PDISK_PARTITION_INFO)((Geometry)+1))
 
@@ -991,6 +1099,7 @@ typedef struct _DISK_CACHE_INFORMATION {
     } DUMMYUNIONNAME;
 
 } DISK_CACHE_INFORMATION, *PDISK_CACHE_INFORMATION;
+
 
 //
 // IOCTL_DISK_GROW_PARTITION will update the size of a partition
@@ -1193,7 +1302,7 @@ typedef struct _BIN_RESULTS {
 // Get Driver Version function.
 //
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _GETVERSIONINPARAMS {
         UCHAR    bVersion;               // Binary driver version.
         UCHAR    bRevision;              // Binary driver revision.
@@ -1202,7 +1311,7 @@ typedef struct _GETVERSIONINPARAMS {
         ULONG   fCapabilities;          // Bit mask of driver capabilities.
         ULONG   dwReserved[4];          // For future use.
 } GETVERSIONINPARAMS, *PGETVERSIONINPARAMS, *LPGETVERSIONINPARAMS;
-#include <poppack.h>
+#pragma pack(pop)
 
 //
 // Bits returned in the fCapabilities member of GETVERSIONINPARAMS
@@ -1216,7 +1325,7 @@ typedef struct _GETVERSIONINPARAMS {
 // IDE registers
 //
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _IDEREGS {
         UCHAR    bFeaturesReg;           // Used for specifying SMART "commands".
         UCHAR    bSectorCountReg;        // IDE sector count register
@@ -1227,7 +1336,7 @@ typedef struct _IDEREGS {
         UCHAR    bCommandReg;            // Actual IDE command.
         UCHAR    bReserved;                      // reserved for future use.  Must be zero.
 } IDEREGS, *PIDEREGS, *LPIDEREGS;
-#include <poppack.h>
+#pragma pack(pop)
 
 //
 // Valid values for the bCommandReg member of IDEREGS.
@@ -1252,7 +1361,7 @@ typedef struct _IDEREGS {
 // Send Command to Drive function.
 //
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _SENDCMDINPARAMS {
         ULONG   cBufferSize;            // Buffer size in bytes
         IDEREGS irDriveRegs;            // Structure with drive register values.
@@ -1262,13 +1371,13 @@ typedef struct _SENDCMDINPARAMS {
         ULONG   dwReserved[4];          // For future use.
         UCHAR    bBuffer[1];                     // Input buffer.
 } SENDCMDINPARAMS, *PSENDCMDINPARAMS, *LPSENDCMDINPARAMS;
-#include <poppack.h>
+#pragma pack(pop)
 
 //
 // Status returned from driver
 //
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _DRIVERSTATUS {
         UCHAR    bDriverError;           // Error code from driver,
                                                                 // or 0 if no error.
@@ -1278,7 +1387,7 @@ typedef struct _DRIVERSTATUS {
         UCHAR    bReserved[2];           // Reserved for future expansion.
         ULONG   dwReserved[2];          // Reserved for future expansion.
 } DRIVERSTATUS, *PDRIVERSTATUS, *LPDRIVERSTATUS;
-#include <poppack.h>
+#pragma pack(pop)
 
 //
 // bDriverError values
@@ -1307,13 +1416,13 @@ typedef struct _DRIVERSTATUS {
 #define SMART_EXTENDED_SELFTEST_CAPTIVE     130
 
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _SENDCMDOUTPARAMS {
         ULONG                   cBufferSize;            // Size of bBuffer in bytes
         DRIVERSTATUS            DriverStatus;           // Driver status structure.
         UCHAR                   bBuffer[1];             // Buffer of arbitrary length in which to store the data read from the                                                                                  // drive.
 } SENDCMDOUTPARAMS, *PSENDCMDOUTPARAMS, *LPSENDCMDOUTPARAMS;
-#include <poppack.h>
+#pragma pack(pop)
 
 
 #define READ_ATTRIBUTE_BUFFER_SIZE  512
@@ -1427,6 +1536,7 @@ typedef struct _SET_PARTITION_ATTRIBUTES {
 } SET_PARTITION_ATTRIBUTES, *PSET_PARTITION_ATTRIBUTES;
 
 
+// begin_winioctl
 //
 // IOCTLs to query and modify attributes
 // associated with the given disk. These
@@ -1438,7 +1548,15 @@ typedef struct _SET_PARTITION_ATTRIBUTES {
 
 #define DISK_ATTRIBUTE_OFFLINE              0x0000000000000001
 #define DISK_ATTRIBUTE_READ_ONLY            0x0000000000000002
+// end_winioctl
+#define DISK_ATTRIBUTE_HIDDEN               0x0000000000000004
+#define DISK_ATTRIBUTE_MAINTENANCE          0x0000000000000008
+#define DISK_ATTRIBUTE_SPACES_BYPASS        0x0000000000000010
+#define DISK_ATTRIBUTE_IGNORE_CONFLICTS     0x0000000000000020
+#define DISK_ATTRIBUTE_PASSTHROUGH          0x0000000000000040
+#define DISK_ATTRIBUTE_SUPERFLOPPY          0x0000000000000080
 
+// begin_winioctl
 //
 // IOCTL_DISK_GET_DISK_ATTRIBUTES
 //
@@ -1458,7 +1576,7 @@ typedef struct _GET_DISK_ATTRIBUTES {
     ULONG Version;
 
     //
-    // For alignment purposes.
+    // Reserved. Must ignore.
     //
     ULONG Reserved1;
 
@@ -1494,6 +1612,7 @@ typedef struct _SET_DISK_ATTRIBUTES {
     // or not.
     //
     BOOLEAN Persist;
+// end_winioctl
 
     //
     // Indicates whether the ownership
@@ -1506,6 +1625,19 @@ typedef struct _SET_DISK_ATTRIBUTES {
     //
     BOOLEAN Reserved1[2];
 
+    /*
+        The following field obfuscates
+        the above two for winioctl.h
+// begin_winioctl
+
+    //
+    // Reserved. Must set to zero.
+    //
+    UCHAR Reserved1[3];
+// end_winioctl
+    */
+// begin_winioctl
+
     //
     // Specifies the new attributes.
     //
@@ -1516,6 +1648,7 @@ typedef struct _SET_DISK_ATTRIBUTES {
     // that are being modified.
     //
     ULONGLONG AttributesMask;
+// end_winioctl
 
     //
     // Specifies an identifier to be
@@ -1525,7 +1658,21 @@ typedef struct _SET_DISK_ATTRIBUTES {
     //
     GUID Owner;
 
+    /*
+        The following field obfuscates
+        the GUID above for winioctl.h
+// begin_winioctl
+
+    //
+    // Reserved. Must set to zero.
+    //
+    ULONG Reserved2[4];
+// end_winioctl
+    */
+// begin_winioctl
+
 } SET_DISK_ATTRIBUTES, *PSET_DISK_ATTRIBUTES;
+// end_winioctl
 
 
 //
@@ -1581,6 +1728,9 @@ typedef enum _DISK_SAN_POLICY {
     DiskSanPolicyOnline,
     DiskSanPolicyOfflineShared,
     DiskSanPolicyOffline,
+    DiskSanPolicyOfflineInternal,
+    DiskSanPolicyPassthrough,
+    DiskSanPolicySuperfloppy,
     DiskSanPolicyMax
 
 } DISK_SAN_POLICY, *PDISK_SAN_POLICY;
@@ -1718,6 +1868,155 @@ typedef struct _DISK_SNAPSHOT_INFO {
 #endif  // NTDDI_VERSION >= NTDDI_VISTA
 
 
+#if (NTDDI_VERSION >= NTDDI_WIN8)
+
+
+//
+// IOCTLs to query and modify the context
+// associated with clustered disks.
+//
+
+#define IOCTL_DISK_GET_CLUSTER_INFO         CTL_CODE(IOCTL_DISK_BASE, 0x0085, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_DISK_SET_CLUSTER_INFO         CTL_CODE(IOCTL_DISK_BASE, 0x0086, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+//
+// IOCTL_DISK_GET_CLUSTER_INFO
+//
+// Input Buffer:
+//     None
+//
+// Output Buffer:
+//     Structure of type DISK_CLUSTER_INFO
+//
+
+//
+// IOCTL_DISK_SET_CLUSTER_INFO
+//
+// Input Buffer:
+//     Structure of type DISK_CLUSTER_INFO
+//
+// Output Buffer:
+//     None
+//
+
+#define DISK_CLUSTER_FLAG_ENABLED              0x0000000000000001
+#define DISK_CLUSTER_FLAG_CSV                  0x0000000000000002
+#define DISK_CLUSTER_FLAG_IN_MAINTENANCE       0x0000000000000004
+#define DISK_CLUSTER_FLAG_PNP_ARRIVAL_COMPLETE 0x0000000000000008
+
+typedef struct _DISK_CLUSTER_INFO {
+
+    //
+    // Size of this structure serves
+    // as the version
+    //
+    ULONG Version;
+
+    //
+    // Specifies whether or not this
+    // disk  is clustered, csv,  etc
+    //
+    ULONGLONG Flags;
+
+    //
+    // Specifies  the flags that are
+    // being modified
+    //
+    ULONGLONG FlagsMask;
+
+    //
+    // Indicates  whether  or  not a
+    // layout change notification is
+    // to be sent
+    //
+    BOOLEAN Notify;
+
+} DISK_CLUSTER_INFO, *PDISK_CLUSTER_INFO;
+
+
+//
+// IOCTLs to determine when all of the
+// volumes on a disk are ready for use
+//
+
+#define IOCTL_DISK_ARE_VOLUMES_READY    CTL_CODE(IOCTL_DISK_BASE, 0x0087, METHOD_BUFFERED, FILE_READ_ACCESS)
+#define IOCTL_DISK_VOLUMES_ARE_READY    CTL_CODE(IOCTL_DISK_BASE, 0x0088, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+//
+// IOCTL_DISK_ARE_VOLUMES_READY
+//
+// Input Buffer:
+//     None
+//
+// Output Buffer:
+//     None
+//
+
+//
+// IOCTL_DISK_VOLUMES_ARE_READY
+//
+// Input Buffer:
+//     Structure of type ULONG
+//
+// Output Buffer:
+//     None
+//
+
+
+//
+// IOCTL to query disk performance counters.
+// Similar to IOCTL_DISK_PERFORMANCE with support
+// for flushes and non-low priority I/Os.
+//
+
+#define IOCTL_DISK_GET_PERFORMANCE_INFO     CTL_CODE(IOCTL_DISK_BASE, 0x0089, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+//
+// IOCTL_DISK_GET_PERFORMANCE_INFO
+//
+// Input Buffer:
+//     Structure of type DISK_PERFORMANCE_PARAMETERS
+//
+// Output Buffer:
+//     Structure of type DISK_PERFORMANCE_INFO
+//
+
+typedef enum _DISK_PERFORMANCE_TYPE {
+
+    DiskPerformanceTypeAllPriority,
+    DiskPerformanceTypeNonLowPriority,
+    DiskPerformanceTypeMax
+
+} DISK_PERFORMANCE_TYPE, *PDISK_PERFORMANCE_TYPE;
+
+typedef struct _DISK_PERFORMANCE_PARAMETERS {
+
+    ULONG Version;
+    DISK_PERFORMANCE_TYPE Type;
+
+} DISK_PERFORMANCE_PARAMETERS, *PDISK_PERFORMANCE_PARAMETERS;
+
+typedef struct _DISK_PERFORMANCE_INFO {
+
+    ULONG Version;
+    DISK_PERFORMANCE_TYPE Type;
+    LARGE_INTEGER QueryTime;
+    LARGE_INTEGER BytesRead;
+    LARGE_INTEGER BytesWritten;
+    LARGE_INTEGER ReadTime;
+    LARGE_INTEGER WriteTime;
+    LARGE_INTEGER FlushTime;
+    LARGE_INTEGER IdleTime;
+    ULONG ReadCount;
+    ULONG WriteCount;
+    ULONG FlushCount;
+    ULONG QueueDepth;
+    ULONG SplitCount;
+
+} DISK_PERFORMANCE_INFO, *PDISK_PERFORMANCE_INFO;
+
+#endif  // NTDDI_VERSION >= NTDDI_WIN8
+
 //
 // The following device control code is for the SIMBAD simulated bad
 // sector facility. See SIMBAD.H in this directory for related structures.
@@ -1747,13 +2046,19 @@ typedef struct _MAPPED_ADDRESS {
 
 // end_winioctl
 
-#ifdef __cplusplus
+#if defined __cplusplus && !defined __ALT_GENERATOR__
 }
 #endif
 
 // begin_winioctl
 
+#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM) */
+#pragma endregion
+
 #endif // _NTDDDISK_H_
 
 // end_winioctl
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif

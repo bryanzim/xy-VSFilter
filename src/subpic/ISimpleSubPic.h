@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ISubPic.h"
-#include "XySubRenderIntf.h"
+#include "../filters/transform/vsfilter/XySubRenderIntf.h"
 
 //
 // ISimpleSubPic

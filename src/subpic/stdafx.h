@@ -35,7 +35,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
-#include <cstring>>
+#include <cstring>
 #include <afxwin.h>         // MFC core and standard components
 
 #include "../../include/stdafx_common_dshow.h"
@@ -48,7 +48,7 @@
 #endif
 
 #include "xy_logger.h"
-#include "XySubRenderIntf.h"
+#include "../filters/transform/vsfilter/XySubRenderIntf.h"
 #include "ISubPic.h"
 #include "MemSubPic.h"
 #include "IDirectVobSubXy.h"

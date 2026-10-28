@@ -146,11 +146,11 @@ private:
             //    volume += this->g[i];
             //  }
             ASSERT(volume>0);
-            for (int i{0};i<this->g_w;i++)
+            for (int i{0};i<this->g_w;++i)
             {
                 this->g_f[i] /= volume;
             }
-            for (int i{this->g_w};i<this->g_w_ex;i++)
+            for (int i{this->g_w};i<this->g_w_ex;++i)
             {
                 this->g_f[i] = 0;
             }
@@ -200,7 +200,7 @@ ass_synth_priv::ass_synth_priv(const double sigma)
     gt2 = NULL;
 
     this->sigma = 0;
-    generate_tables(sigma);
+    (void)generate_tables(sigma);
 }
 
 ass_synth_priv::ass_synth_priv(const ass_synth_priv& priv):g_r(priv.g_r),g_w(priv.g_w),sigma(priv.sigma)
@@ -356,11 +356,11 @@ ass_synth_priv::~ass_synth_priv()
         }
 
         // gauss table:
-        for (int mx{0}; mx < this->g_w; mx++) {
+        for (int mx{0}; mx < this->g_w; ++mx) {
             int last_mul{0};
             unsigned *p_gt2{this->gt2 + mx};
             *p_gt2 = 0;
-            for (int i{1}; i < 256; i++) {
+            for (int i{1}; i < 256; ++i) {
                 last_mul = last_mul+this->g[mx];
                 p_gt2 += this->g_w;
                 *p_gt2 = last_mul;
@@ -386,7 +386,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
 
     unsigned char *s{buffer};
     unsigned *t{tmp2 + 1};
-    for (y = 0; y < height; y++) {
+    for (y = 0; y < height; ++y) {
         std::memset(t - 1, 0, (width + 1) * sizeof(*t));
         x = 0;
         if(x < g_r_x)//in case that r < 0
@@ -397,45 +397,45 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
                 int mx;
                 const unsigned *m3{g_t_x + src * g_width_x};
                 unsigned sum{0U};
-                for (mx = g_width_x-1; mx >= g_r_x - x ; mx--) {
+                for (mx = g_width_x-1; mx >= g_r_x - x ; --mx) {
                     sum += m3[mx];
                     dstp[mx] += sum;
                 }
             }
         }
 
-        for (x = 1; x < g_r_x; x++) {
+        for (x = 1; x < g_r_x; ++x) {
             const int src{s[x]};
             if (src) {
                 unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const unsigned *m3{g_t_x + src * g_width_x};
-                for (mx = g_r_x - x; mx < g_width_x; mx++) {
+                for (mx = g_r_x - x; mx < g_width_x; ++mx) {
                     dstp[mx] += m3[mx];
                 }
             }
         }
 
-        for (; x < width - g_r_x; x++) {
+        for (; x < width - g_r_x; ++x) {
             const int src{s[x]};
             if (src) {
                 unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const unsigned *m3{g_t_x + src * g_width_x};
-                for (mx = 0; mx < g_width_x; mx++) {
+                for (mx = 0; mx < g_width_x; ++mx) {
                     dstp[mx] += m3[mx];
                 }
             }
         }
 
-        for (; x < width-1; x++) {
+        for (; x < width-1; ++x) {
             const int src{s[x]};
             if (src) {
                 unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const int x2{g_r_x + width - x};
                 const unsigned *m3{g_t_x + src * g_width_x};
-                for (mx = 0; mx < x2; mx++) {
+                for (mx = 0; mx < x2; ++mx) {
                     dstp[mx] += m3[mx];
                 }
             }
@@ -449,7 +449,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
                 const int x2{g_r_x + width - x};
                 const unsigned *m3{g_t_x + src * g_width_x};
                 unsigned sum{0U};
-                for (mx = 0; mx < x2; mx++) {
+                for (mx = 0; mx < x2; ++mx) {
                     sum += m3[mx];
                     dstp[mx] += sum;
                 }
@@ -461,7 +461,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
     }
 
     t = tmp2;
-    for (x = 0; x < width; x++) {
+    for (x = 0; x < width; ++x) {
         y = 0;
         if(y < g_r_y)//in case that r<0
         {            
@@ -474,14 +474,14 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
                 unsigned sum{0U};
                 int mx;
                 *srcp = (1<<(ass_synth_priv::VOLUME_BITS-1));
-                for (mx = g_width_y-1; mx >=g_r_y - y ; mx--) {
+                for (mx = g_width_y-1; mx >=g_r_y - y ; --mx) {
                     sum += m3[mx];
                     *dstp += sum;
                     dstp -= width + 1;
                 }
             }
         }
-        for (y = 1; y < g_r_y; y++) {
+        for (y = 1; y < g_r_y; ++y) {
             unsigned *srcp{t + y * (width + 1) + 1};
             int src = *srcp;
             if (src) {
@@ -491,13 +491,13 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
 
                 int mx;
                 *srcp = (1<<(ass_synth_priv::VOLUME_BITS-1));
-                for (mx = g_r_y - y; mx < g_width_y; mx++) {
+                for (mx = g_r_y - y; mx < g_width_y; ++mx) {
                     *dstp += m3[mx];
                     dstp += width + 1;
                 }
             }
         }
-        for (; y < height - g_r_y; y++) {
+        for (; y < height - g_r_y; ++y) {
             unsigned *srcp{t + y * (width + 1) + 1};
             int src = *srcp;
             if (src) {
@@ -507,13 +507,13 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
 
                 int mx;
                 *srcp = (1<<(ass_synth_priv::VOLUME_BITS-1));
-                for (mx = 0; mx < g_width_y; mx++) {
+                for (mx = 0; mx < g_width_y; ++mx) {
                     *dstp += m3[mx];
                     dstp += width + 1;
                 }
             }
         }
-        for (; y < height-1; y++) {
+        for (; y < height-1; ++y) {
             unsigned *srcp{t + y * (width + 1) + 1};
             int src = *srcp;
             if (src) {
@@ -524,7 +524,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
 
                 int mx;
                 *srcp = (1<<(ass_synth_priv::VOLUME_BITS-1));
-                for (mx = 0; mx < y2; mx++) {
+                for (mx = 0; mx < y2; ++mx) {
                     *dstp += m3[mx];
                     dstp += width + 1;
                 }
@@ -542,20 +542,20 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
                 unsigned sum{0U};
                 int mx;
                 *srcp = (1<<(ass_synth_priv::VOLUME_BITS-1));
-                for (mx = 0; mx < y2; mx++) {
+                for (mx = 0; mx < y2; ++mx) {
                     sum += m3[mx];
                     *dstp += sum;
                     dstp += width + 1;
                 }
             }
         }
-        t++;
+        ++t;
     }
 
     t = tmp2;
     s = buffer;
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
+    for (y = 0; y < height; ++y) {
+        for (x = 0; x < width; ++x) {
             s[x] = t[x] >> ass_synth_priv::VOLUME_BITS;
         }
         s += stride;
@@ -593,7 +593,7 @@ static void be_blur(unsigned char *buf, unsigned *tmp_base, const int w, const i
         int x{2};
         int old_pix{src[x-1]};
         int old_sum{old_pix + src[x-2]};
-        for ( ; x < w; x++) {
+        for ( ; x < w; ++x) {
             int temp1{src[x]};
             int temp2{old_pix + temp1};
             old_pix = temp1;
@@ -610,7 +610,7 @@ static void be_blur(unsigned char *buf, unsigned *tmp_base, const int w, const i
         int x{2};
         int old_pix{src[x-1]};
         int old_sum{old_pix + src[x-2]};
-        for ( ; x < w; x++) {
+        for ( ; x < w; ++x) {
             int temp1{src[x]};
             int temp2{old_pix + temp1};
             old_pix = temp1;
@@ -625,7 +625,7 @@ static void be_blur(unsigned char *buf, unsigned *tmp_base, const int w, const i
     }
 
     //__m128i round = _mm_set1_epi16(8);
-    for (int y{2}; y < h; y++) {
+    for (int y{2}; y < h; ++y) {
         unsigned char *src{buf+y*stride};
         unsigned char *dst{buf+(y-1)*stride};
 
@@ -660,7 +660,7 @@ static void be_blur(unsigned char *buf, unsigned *tmp_base, const int w, const i
         }
         int old_pix{src[x-1]};
         int old_sum{old_pix + src[x-2]};
-        for ( ; x < w; x++) {
+        for ( ; x < w; ++x) {
             int temp1{src[x]};
             int temp2{old_pix + temp1};
             old_pix = temp1;
@@ -692,12 +692,12 @@ static void Bilinear(unsigned char *buf, const int w, const int h, const int str
     }
     std::memset(col_pix_buf_base, 0, w*sizeof(WORD));
 
-    for (int y{0}; y < h; y++){
+    for (int y{0}; y < h; ++y){
         unsigned char *src{buf+y*stride};
 
         WORD *col_pix_buf{col_pix_buf_base};
         int last{0};
-        for(int x{0}; x < w; x++)
+        for(int x{0}; x < w; ++x)
         {
             int temp1{src[x]};
             int temp2{temp1*x_factor};
@@ -778,7 +778,7 @@ extern "C" void* memsetSSE2(void* dest, int c, std::size_t count);
 
     // Are we doing a border?
     const tSpanBuffer* pOutline[2U] = {&(scan_line_data.mOutline), &(scan_line_data2.mWideOutline)};
-    for(int i{countof(pOutline)-1}; i >= 0; i--)
+    for(int i{countof(pOutline)-1}; i >= 0; --i)
     {
         tSpanBuffer::const_iterator it{pOutline[i]->begin()};
         tSpanBuffer::const_iterator itEnd{pOutline[i]->end()};
@@ -920,7 +920,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     }
 
     //copy buffer
-    for(int i{1}; i >= 0; i--)
+    for(int i{1}; i >= 0; --i)
     {
         byte* plan_selected{i==0 ? body : border};
         const byte* plan_input{i==0 ? input_overlay.mBody.get() : input_overlay.mBorder.get()};
@@ -928,7 +928,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         plan_selected += (bluradjust_x>>3) + (bluradjust_y>>3)*output_overlay->mOverlayPitch;
         if ( plan_selected!=NULL && plan_input!=NULL )
         {
-            for (int j{0};j<input_overlay.mOverlayHeight;j++)
+            for (int j{0};j<input_overlay.mOverlayHeight;++j)
             {
                 std::memcpy(plan_selected, plan_input, input_overlay.mOverlayPitch);
                 plan_selected += output_overlay->mOverlayPitch;
@@ -964,7 +964,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     int pitch{output_overlay->mOverlayPitch};
     byte* blur_plan{output_overlay->mfWideOutlineEmpty ? body : border};
 
-    for (int pass{0}; pass < pass_num; pass++)
+    for (int pass{0}; pass < pass_num; ++pass)
     {
         if(output_overlay->mOverlayWidth >= 3 && output_overlay->mOverlayHeight >= 3)
         {
@@ -1002,7 +1002,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     {
         if (be_strength)//this insane thing should NEVER happen
         {
-            [[nodiscard]] SharedPtrOverlay tmp(DEBUG_NEW Overlay());
+            SharedPtrOverlay tmp(DEBUG_NEW Overlay());
 
             bool rv{GaussianBlur(input_overlay, gaussian_blur_strength, target_scale_x, target_scale_y, tmp)};
             ASSERT(rv);
@@ -1099,7 +1099,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         body += (bluradjust_y>>3)*output_overlay->mOverlayPitch;
         plan_input = input_overlay.mBody.get();
         ASSERT(plan_input);
-        for (int j{0};j<input_overlay.mOverlayHeight;j++)
+        for (int j{0};j<input_overlay.mOverlayHeight;++j)
         {
             std::memset(body, 0, (bluradjust_x>>3));
             std::memcpy(body+(bluradjust_x>>3), plan_input, input_overlay.mOverlayWidth);
@@ -1154,7 +1154,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     }
 
     //copy buffer
-    for(int i{1}; i >= 0; i--)
+    for(int i{1}; i >= 0; --i)
     {
         byte* plan_selected{i==0 ? body : border};
         const byte* plan_input{i==0 ? input_overlay.mBody.get() : input_overlay.mBorder.get()};
@@ -1162,7 +1162,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         plan_selected += (bluradjust_x>>3) + (bluradjust_y>>3)*output_overlay->mOverlayPitch;
         if ( plan_selected!=NULL && plan_input!=NULL )
         {
-            for (int j{0};j<input_overlay.mOverlayHeight;j++)
+            for (int j{0};j<input_overlay.mOverlayHeight;++j)
             {
                 std::memcpy(plan_selected, plan_input, input_overlay.mOverlayWidth*sizeof(plan_input[0U]));
                 plan_selected += output_overlay->mOverlayPitch;
@@ -1180,7 +1180,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     int pitch{output_overlay->mOverlayPitch};
     byte* blur_plan{output_overlay->mfWideOutlineEmpty ? body : border};
     ::boost::shared_array<unsigned> tmp_buf( DEBUG_NEW unsigned[max((output_overlay->mOverlayPitch+1)*(output_overlay->mOverlayHeight+1),0)] );
-    for (int pass{0}; pass < pass_num; pass++)
+    for (int pass{0}; pass < pass_num; ++pass)
     {
         if(output_overlay->mOverlayWidth >= 3 && output_overlay->mOverlayHeight >= 3)
         {
@@ -1569,7 +1569,7 @@ void AlphaBlt8bppSingleAlphaC(byte* pY,
         BYTE* dy{pY};
         const BYTE* dy_end{pY + w};
 
-        for(;dy < dy_end; dy++)
+        for(;dy < dy_end; ++dy)
         {
             *dy = (*dy * dstAlpha + yPremul)>>8;
         }
@@ -1599,7 +1599,7 @@ void AlphaBlt8bppSingleAlphaSse2(byte* pY,
             const BYTE* dy_end_mod16{reinterpret_cast<BYTE*>(reinterpret_cast<intptr_t>(pY+w)&~15)};
             const BYTE* dy_end{pY + w};   
 
-            for(;dy < dy_first_mod16; dy++)
+            for(;dy < dy_first_mod16; ++dy)
             {
                 *dy = (*dy * dstAlpha + yPremul)>>8;
             }
@@ -1622,7 +1622,7 @@ void AlphaBlt8bppSingleAlphaSse2(byte* pY,
                 
                 _mm_store_si128(reinterpret_cast<__m128i*>(dy), dl);
             }
-            for(;dy < dy_end; dy++)
+            for(;dy < dy_end; ++dy)
             {
                 *dy = (*dy * dstAlpha + yPremul)>>8;
             }
@@ -2032,7 +2032,7 @@ void Rasterizer::FillSolidRect(SubPicDesc& spd, const int x, const int y, const 
     case 0*DM::AYUV_PLANAR :
     {
         BYTE *dst{((BYTE*)spd.bits + spd.pitch * y) + x*4};
-        for (int wy{y}; wy<y+nHeight; wy++) {
+        for (int wy{y}; wy<y+nHeight; ++wy) {
             packed_pix_mix_sse2(dst, argb>>24, nWidth, argb);
             dst += spd.pitch;
         }
@@ -2203,7 +2203,7 @@ void Rasterizer::AdditionDraw(XyBitmap         *bitmap   ,
         new_switchpts[0U] = switchpts[0U];
         new_switchpts[1U] = 0;
         int i{1};
-        for (;i<MAX_COLOR_NUM;i++)
+        for (;i<MAX_COLOR_NUM;++i)
         {
             new_switchpts[2U*i] = switchpts[2U*i];
             new_switchpts[2U*i+1] = switchpts[2U*i+1] > xo ? switchpts[2U*i+1] - xo : 0;
@@ -2248,7 +2248,7 @@ void FillAlphaMashBody_c(BYTE* dst, const BYTE* src, const int color_alpha, cons
     while(h--)
     {
         int j{0};
-        for( ; j<w; j++ )
+        for( ; j<w; ++j )
         {
             dst[j] = ((src[j] * color_alpha)+32)>>6;
         }
@@ -2276,7 +2276,7 @@ void FillAlphaMashBody_sse2(BYTE* dst, const BYTE* src, const int color_alpha, c
     while(h--)
     {
         int j{0};
-        for( ; j<x0; j++ )
+        for( ; j<x0; ++j )
         {
             dst[j] = ((src[j] * color_alpha)+ROUDN_ERR)>>6;
         }
@@ -2318,7 +2318,7 @@ void FillAlphaMashBody_sse2(BYTE* dst, const BYTE* src, const int color_alpha, c
             src1 = _mm_packs_pu16(src1,src1);
             *reinterpret_cast<int*>(dst+j) = _mm_cvtsi64_si32(src1);
         }
-        for( ;j<x_end;j++)
+        for( ;j<x_end;++j)
         {
             dst[j] = ((src[j] * color_alpha)+ROUDN_ERR)>>6;
         }
@@ -2337,7 +2337,7 @@ void FillAlphaMashBorder_c(BYTE* dst, const BYTE* border, const BYTE* body, cons
     while(h--)
     {
         int j{0};
-        for( ;j<w;j++)
+        for( ;j<w;++j)
         {
             int temp{border[j]-body[j]};
             temp = temp<0 ? 0 : temp;
@@ -2368,7 +2368,7 @@ void FillAlphaMashBorder_sse2( BYTE* dst, const BYTE* border, const BYTE* body, 
     while(h--)
     {
         int j{0};
-        for( ; j<x0; j++ )
+        for( ; j<x0; ++j )
         {
             int temp{border[j]-body[j]};
             temp = temp<0 ? 0 : temp;
@@ -2418,7 +2418,7 @@ void FillAlphaMashBorder_sse2( BYTE* dst, const BYTE* border, const BYTE* body, 
             border1 = _mm_packs_pu16(border1,border1);
             *reinterpret_cast<int*>(dst+j) = _mm_cvtsi64_si32(border1);
         }
-        for( ;j<x_end;j++)
+        for( ;j<x_end;++j)
         {
             int temp{border[j]-body[j]};
             temp = temp<0 ? 0 : temp;
@@ -2448,7 +2448,7 @@ void FillAlphaMashBodyMasked_c(       BYTE* dst        ,
     while(h--)
     {
         int j{0};
-        for( ; j<w; j++ )
+        for( ; j<w; ++j )
         {
             dst[j] = ((src[j] * am[j] * color_alpha)+ROUND_ERR)>>12;
         }
@@ -2484,7 +2484,7 @@ void FillAlphaMashBodyMasked_sse2(       BYTE* dst        ,
     while(h--)
     {
         int j{0};
-        for( ; j<x0; j++ )
+        for( ; j<x0; ++j )
         {
             dst[j] = ((src[j] * am[j] * color_alpha)+ROUND_ERR)>>12;
         }
@@ -2540,7 +2540,7 @@ void FillAlphaMashBodyMasked_sse2(       BYTE* dst        ,
             src1 = _mm_packs_pu16(src1,src1);
             *reinterpret_cast<int*>(dst+j) = _mm_cvtsi64_si32(src1);
         }
-        for( ;j<x_end;j++)
+        for( ;j<x_end;++j)
         {
             dst[j] = ((src[j] * am[j] * color_alpha)+ROUND_ERR)>>12;
         }
@@ -2569,7 +2569,7 @@ void FillAlphaMashBorderMasked_c(       BYTE* dst        ,
     while(h--)
     {
         int j{0};
-        for( ; j<w; j++ )
+        for( ; j<w; ++j )
         {
             int temp{border[j]-body[j]};
             temp = temp<0 ? 0 : temp;
@@ -2609,7 +2609,7 @@ void FillAlphaMashBorderMasked_sse2(       BYTE* dst        ,
     while(h--)
     {
         int j{0};
-        for( ; j<x0; j++ )
+        for( ; j<x0; ++j )
         {
             int temp{border[j]-body[j]};
             temp = temp<0 ? 0 : temp;
@@ -2674,7 +2674,7 @@ void FillAlphaMashBorderMasked_sse2(       BYTE* dst        ,
             border1 = _mm_packs_pu16  (border1, border1       );
             *reinterpret_cast<int*>(dst+j) = _mm_cvtsi64_si32(border1);
         }
-        for( ;j<x_end;j++)
+        for( ;j<x_end;++j)
         {
             int temp{border[j]-body[j]};
             temp = temp<0 ? 0 : temp;
@@ -2802,7 +2802,7 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
     {
         byte* dst{body};
         const byte* src{mBody.get()};
-        for (int i{0};i<mOverlayHeight;i++)
+        for (int i{0};i<mOverlayHeight;++i)
         {
             std::memcpy(dst, src, mOverlayWidth);
             dst += overlay->mOverlayPitch;
@@ -2813,7 +2813,7 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
             ASSERT(border && mBorder);
             dst = border;
             src = mBorder.get();
-            for (int i{0};i<mOverlayHeight;i++)
+            for (int i{0};i<mOverlayHeight;++i)
             {
                 std::memcpy(dst, src, mOverlayWidth);
                 dst += overlay->mOverlayPitch;
@@ -3307,7 +3307,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
         // winding number, it doesn't matter which way the outlines go!
         std::vector<int>::iterator itX1{heap.begin()};
         std::vector<int>::iterator itX2{heap.end()}; // begin() + heap.size();
-        int x1, x2;
+        int x1{0}, x2{0};
         for(; itX1 != itX2; ++itX1)
         {
             int x{*itX1};

@@ -288,13 +288,13 @@ typedef struct tag_ObjectDesc {
     //  Returns the name defined in uuids.h as a string
 
     typedef struct {
-        CHAR   *szName;
+        const CHAR *szName;
         GUID    guid;
     } GUID_STRING_ENTRY;
 
     class CGuidNameList {
     public:
-        CHAR *operator [] (const GUID& guid);
+        const CHAR *operator [] (const GUID& guid);
     };
 
     extern CGuidNameList GuidNames;
@@ -323,7 +323,7 @@ typedef struct tag_ObjectDesc {
 class CDispBasic
 {
 public:
-    CDispBasic() { m_pString = m_String; };
+    CDispBasic() { m_pString = m_String; }
     ~CDispBasic();
 protected:
     PTCHAR m_pString;  // normally points to m_String... unless too much data
@@ -348,7 +348,7 @@ public:
     operator LPCTSTR()
     {
         return (LPCTSTR)m_pString;
-    };
+    }
 };
 
  

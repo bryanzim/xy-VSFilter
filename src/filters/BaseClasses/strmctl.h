@@ -129,12 +129,12 @@ public:
     // Class adds default values suitable for immediate
     // muting and unmuting of the stream.
 
-    STDMETHODIMP StopAt( const REFERENCE_TIME * ptStop = NULL,
+    DECLSPEC_NOTHROW STDMETHODIMP StopAt( const REFERENCE_TIME * ptStop = NULL,
 			 BOOL bSendExtra = FALSE,
 			 DWORD dwCookie = 0 );
-    STDMETHODIMP StartAt( const REFERENCE_TIME * ptStart = NULL,
+    DECLSPEC_NOTHROW STDMETHODIMP StartAt( const REFERENCE_TIME * ptStart = NULL,
 		    	  DWORD dwCookie = 0 );
-    STDMETHODIMP GetInfo( AM_STREAM_INFO *pInfo);
+    DECLSPEC_NOTHROW STDMETHODIMP GetInfo( AM_STREAM_INFO *pInfo);
 
     // Helper function for pin's receive method.  Call this with
     // the sample and we'll tell you what to do with it.  We'll do a

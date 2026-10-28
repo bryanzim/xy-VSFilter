@@ -55,10 +55,13 @@ const AMOVIESETUP_MEDIATYPE sudPinTypesOut[] =
     {&MEDIATYPE_Video, &MEDIASUBTYPE_None},
 };
 
+static WCHAR sudNameIn[] = L"Input";
+static WCHAR sudNameOut[] = L"Output";
+
 const AMOVIESETUP_PIN sudpPins[] =
 {
-    {L"Input", FALSE, FALSE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesIn), sudPinTypesIn},
-    {L"Output", FALSE, TRUE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesOut), sudPinTypesOut},
+    {sudNameIn, FALSE, FALSE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesIn), sudPinTypesIn},
+    {sudNameOut, FALSE, TRUE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesOut), sudPinTypesOut},
 };
 
 /*const*/ AMOVIESETUP_FILTER sudFilter[] =

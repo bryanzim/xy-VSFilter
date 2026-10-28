@@ -81,7 +81,7 @@ CTextFile::CTextFile(enc e)
 	}
 
 	if (m_offset == 0) { // No BOM detected, ensure the file is read from the beginning
-		Seek(0, begin);
+		(void)Seek(0, begin);
 	}
 
 	return true;
@@ -186,7 +186,7 @@ void CTextFile::WriteString(const LPCWSTR lpsz/*CStringW str*/)
 	else if(m_encoding == UTF8)
 	{
 		str.Replace(L"\n", L"\r\n");
-		[[nodiscard]] CW2AEX<1024> utf8(str, CP_UTF8);
+		CW2AEX<1024> utf8(str, CP_UTF8);
 		Write(utf8, std::strlen(utf8));
 	}
 	else if(m_encoding == LE16)
@@ -197,7 +197,7 @@ void CTextFile::WriteString(const LPCWSTR lpsz/*CStringW str*/)
 	else if(m_encoding == BE16)
 	{
 		str.Replace(L"\n", L"\r\n");
-		for (unsigned int i{0}, l = str.GetLength(); i < l; i++) {
+		for (unsigned int i{0}, l = str.GetLength(); i < l; ++i) {
 			str.SetAt(i, ((str[i] >> 8) & 0x00ff) | ((str[i] << 8) & 0xff00));
 		}
 		Write((LPCWSTR)str, str.GetLength() * 2);
@@ -259,7 +259,7 @@ void CTextFile::WriteString(const LPCWSTR lpsz/*CStringW str*/)
 				// Switch to DEFAULT_ENCODING and read the line again
 				m_encoding = DEFAULT_ENCODING;
 				m_convertedBuffer.clear();
-				Seek(startPos, begin);
+				(void)Seek(startPos, begin);
 				continue;
 			}
 		}

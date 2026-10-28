@@ -110,7 +110,7 @@ public:
     void UnlockPaletteLock();
 
     virtual BOOL PossiblyEatMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
-	    { return FALSE; };
+	    { return FALSE; }
 
     // Access our window information
 
@@ -214,13 +214,13 @@ public:
 
     void NotifyStartDraw() {
         MSR_START(m_perfidRenderTime);
-    };
+    }
 
     // Called when we complete an image rendering
 
     void NotifyEndDraw() {
         MSR_STOP(m_perfidRenderTime);
-    };
+    }
 };
 
 
@@ -291,7 +291,7 @@ protected:
     // Manage the shared DIBSECTION and DCI/DirectDraw buffers
 
     HRESULT CreateDIB(LONG InSize,DIBDATA &DibData);
-    STDMETHODIMP CheckSizes(ALLOCATOR_PROPERTIES *pRequest);
+    DECLSPEC_NOTHROW STDMETHODIMP CheckSizes(ALLOCATOR_PROPERTIES *pRequest);
     virtual CImageSample *CreateImageSample(LPBYTE pData,LONG Length);
 
 public:
@@ -303,13 +303,13 @@ public:
     ~CImageAllocator();
 #endif
 
-    STDMETHODIMP_(ULONG) NonDelegatingAddRef();
-    STDMETHODIMP_(ULONG) NonDelegatingRelease();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingAddRef();
+    DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) NonDelegatingRelease();
     void NotifyMediaType(CMediaType *pMediaType);
 
     // Agree the number of buffers to be used and their size
 
-    STDMETHODIMP SetProperties(
+    DECLSPEC_NOTHROW STDMETHODIMP SetProperties(
         ALLOCATOR_PROPERTIES *pRequest,
         ALLOCATOR_PROPERTIES *pActual);
 };

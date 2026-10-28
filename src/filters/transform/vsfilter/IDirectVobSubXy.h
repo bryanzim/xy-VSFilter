@@ -434,4 +434,4 @@ namespace DirectVobSubXyOptions
 
         {XyOptionsImpl::OPTION_TYPE_END_FLAG}
     };
-};
+}

@@ -39,6 +39,11 @@ public:
 
 class CLBAFile : private CFile
 {
+	using CFile::Open;
+	using CFile::GetLength;
+	using CFile::GetPosition;
+	using CFile::Seek;
+	using CFile::Read;
 public:
 	CLBAFile();
 	virtual ~CLBAFile();

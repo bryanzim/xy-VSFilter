@@ -48,10 +48,10 @@ public:
     CMsgThread()
         : m_ThreadId(0),
         m_hThread(NULL),
-        m_lWaiting(0),
-        m_hSem(NULL),
         // make a list with a cache of 5 items
-        m_ThreadQueue(NAME("MsgThread list"), 5)
+        m_ThreadQueue(NAME("MsgThread list"), 5),
+        m_hSem(NULL),
+        m_lWaiting(0)
         {
         }
 

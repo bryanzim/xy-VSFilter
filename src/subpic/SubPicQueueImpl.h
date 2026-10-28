@@ -84,14 +84,10 @@ class CSubPicQueue : public CSubPicQueueImpl, private CAMThread
 	CCritSec m_csQueueLock; // for protecting CInterfaceList<ISubPic>
 
 
-	POSITION m_subPos;//use to pass to the SubPic provider to produce the next SubPic
-
 	REFERENCE_TIME UpdateQueue();
 	void AppendQueue(ISubPic* pSubPic);
 	[[nodiscard]] int GetQueueCount();
 
-	REFERENCE_TIME m_rtQueueMin;
-	REFERENCE_TIME m_rtQueueMax;
 	REFERENCE_TIME m_rtQueueStart, m_rtInvalidate;
 
 	// CAMThread

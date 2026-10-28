@@ -5,7 +5,7 @@
 
 #include "stdafx.h"
 #include "SubPicProviderExWrapper.h"
-#include "../DSUtil/DSUtil.h"
+#include "../dsutil/DSUtil.h"
 
 CSubPicProviderExWrapper* CSubPicProviderExWrapper::GetSubPicProviderExWrapper(ISubPicProvider* const inner_provider)
 {
@@ -26,7 +26,7 @@ CSubPicProviderExWrapper::~CSubPicProviderExWrapper()
 
 // ISubPicProvider
 
-[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP CSubPicProviderExWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISubPicProvider)
@@ -107,6 +107,6 @@ CSubPicProviderExWrapper::~CSubPicProviderExWrapper()
 [[nodiscard]] STDMETHODIMP_(int) CSubPicProviderExWrapper::SetOutputColorType( const int type )
 
 {
-    (type);
+    (void)type;
     return MSP_RGBA;
 }

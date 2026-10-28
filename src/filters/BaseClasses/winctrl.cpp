@@ -89,13 +89,13 @@ CBaseControlWindow::CBaseControlWindow(
                         HRESULT *phr) :              // OLE return code
 
     CBaseVideoWindow(pName,pUnk),
+    m_pFilter(pFilter),
+    m_pPin(NULL),
     m_pInterfaceLock(pInterfaceLock),
+    m_bAutoShow(TRUE),
     m_hwndOwner(NULL),
     m_hwndDrain(NULL),
-    m_bAutoShow(TRUE),
-    m_pFilter(pFilter),
-    m_bCursorHidden(FALSE),
-    m_pPin(NULL)
+    m_bCursorHidden(FALSE)
 {
     ASSERT(m_pFilter);
     ASSERT(m_pInterfaceLock);
@@ -1097,8 +1097,8 @@ CBaseControlVideo::CBaseControlVideo(
 
     CBaseBasicVideo(pName,pUnk),
     m_pFilter(pFilter),
-    m_pInterfaceLock(pInterfaceLock),
-    m_pPin(NULL)
+    m_pPin(NULL),
+    m_pInterfaceLock(pInterfaceLock)
 {
     ASSERT(m_pFilter);
     ASSERT(m_pInterfaceLock);

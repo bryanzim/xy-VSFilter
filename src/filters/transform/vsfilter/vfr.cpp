@@ -187,6 +187,7 @@ public:
 	FILE *f{NULL};
     int rv{fopen_s(&f, vfrfile, "r")};
     ASSERT(rv==0 && f);
+    (void)rv;
 	VFRTranslator *res{0};
 	if (fgets(buf, 32, f) && buf[0U] == '#') {
 		// So do some really shoddy parsing here, assume the file is good

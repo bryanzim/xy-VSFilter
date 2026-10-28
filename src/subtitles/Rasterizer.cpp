@@ -75,8 +75,8 @@ public:
         init(sigma);
     }
     GaussianCoefficients(const GaussianCoefficients& priv)
-        :g_r(priv.g_r),g_w(priv.g_w),sigma(priv.sigma),g_f(NULL)
-        ,g_w_ex(priv.g_w_ex)
+        :g_r(priv.g_r),g_w(priv.g_w),g_w_ex(priv.g_w_ex),g_f(NULL)
+        ,sigma(priv.sigma)
     {
         if (this->g_w_ex > 0 && this != &priv) {
             this->g_f = reinterpret_cast<float*>(xy_malloc(this->g_w_ex * sizeof(float)));
@@ -190,9 +190,6 @@ struct GaussianFilterKey
         return x.sigma;
     }
 };
-
-static const unsigned int maxcolor{255};
-static const unsigned base{256U};
 
 ass_synth_priv::ass_synth_priv(const double sigma)
 {
@@ -396,7 +393,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
         {            
             const int src{s[x]};
             if (src) {
-                register unsigned *dstp{t + x - g_r_x};
+                unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const unsigned *m3{g_t_x + src * g_width_x};
                 unsigned sum{0U};
@@ -410,7 +407,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
         for (x = 1; x < g_r_x; x++) {
             const int src{s[x]};
             if (src) {
-                register unsigned *dstp{t + x - g_r_x};
+                unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const unsigned *m3{g_t_x + src * g_width_x};
                 for (mx = g_r_x - x; mx < g_width_x; mx++) {
@@ -422,7 +419,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
         for (; x < width - g_r_x; x++) {
             const int src{s[x]};
             if (src) {
-                register unsigned *dstp{t + x - g_r_x};
+                unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const unsigned *m3{g_t_x + src * g_width_x};
                 for (mx = 0; mx < g_width_x; mx++) {
@@ -434,7 +431,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
         for (; x < width-1; x++) {
             const int src{s[x]};
             if (src) {
-                register unsigned *dstp{t + x - g_r_x};
+                unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const int x2{g_r_x + width - x};
                 const unsigned *m3{g_t_x + src * g_width_x};
@@ -447,7 +444,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
         {
             const int src{s[x]};
             if (src) {
-                register unsigned *dstp{t + x - g_r_x};
+                unsigned *dstp{t + x - g_r_x};
                 int mx;
                 const int x2{g_r_x + width - x};
                 const unsigned *m3{g_t_x + src * g_width_x};
@@ -471,7 +468,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
             unsigned *srcp{t + y * (width + 1) + 1};
             int src = *srcp;
             if (src) {
-                register unsigned *dstp{srcp - 1 + (g_width_y -g_r_y +y)*(width + 1)};
+                unsigned *dstp{srcp - 1 + (g_width_y -g_r_y +y)*(width + 1)};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
                 const unsigned *m3{g_t_y + src2 * g_width_y};
                 unsigned sum{0U};
@@ -488,7 +485,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
             unsigned *srcp{t + y * (width + 1) + 1};
             int src = *srcp;
             if (src) {
-                register unsigned *dstp{srcp - 1 + width + 1};
+                unsigned *dstp{srcp - 1 + width + 1};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
                 const unsigned *m3{g_t_y + src2 * g_width_y};
 
@@ -504,7 +501,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
             unsigned *srcp{t + y * (width + 1) + 1};
             int src = *srcp;
             if (src) {
-                register unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
+                unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
                 const unsigned *m3{g_t_y + src2 * g_width_y};
 
@@ -521,7 +518,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
             int src = *srcp;
             if (src) {
                 const int y2{g_r_y + height - y};
-                register unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
+                unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
                 const unsigned *m3{g_t_y + src2 * g_width_y};
 
@@ -539,7 +536,7 @@ static void ass_gauss_blur(unsigned char *buffer, unsigned *tmp2,
             int src = *srcp;
             if (src) {
                 const int y2{g_r_y + height - y};
-                register unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
+                unsigned *dstp{srcp - 1 - g_r_y * (width + 1)};
                 const int src2{(src + (1<<(ass_synth_priv::VOLUME_BITS-1))) >> ass_synth_priv::VOLUME_BITS};
                 const unsigned *m3{g_t_y + src2 * g_width_y};
                 unsigned sum{0U};
@@ -684,81 +681,6 @@ static void be_blur(unsigned char *buf, unsigned *tmp_base, const int w, const i
 /**
  * see @be_blur
  */
-static void be_blur_c(unsigned char *buf, unsigned *tmp_base, const int w, const int h, const int stride)
-{   
-    WORD *col_pix_buf_base{reinterpret_cast<WORD*>(xy_malloc(w*sizeof(WORD)))};
-    WORD *col_sum_buf_base{reinterpret_cast<WORD*>(xy_malloc(w*sizeof(WORD)))};
-    if(!col_sum_buf_base || !col_pix_buf_base)
-    {
-        //ToDo: error handling
-        return;
-    }
-    std::memset(col_pix_buf_base, 0, w*sizeof(WORD));
-    std::memset(col_sum_buf_base, 0, w*sizeof(WORD));
-    WORD *col_pix_buf{col_pix_buf_base-2};//for aligment;
-    WORD *col_sum_buf{col_sum_buf_base-2};//for aligment;
-    {
-        int y{0};
-        unsigned char *src{buf+y*stride};
-
-        int x{2};
-        int old_pix{src[x-1]};
-        int old_sum{old_pix + src[x-2]};
-        for ( ; x < w; x++) {
-            int temp1{src[x]};
-            int temp2{old_pix + temp1};
-            old_pix = temp1;
-            temp1 = old_sum + temp2;
-            old_sum = temp2;
-            col_pix_buf[x] = temp1;
-        }
-    }
-    {
-        int y{1};
-        unsigned char *src{buf+y*stride};
-
-
-        int x{2};
-        int old_pix{src[x-1]};
-        int old_sum{old_pix + src[x-2]};
-        for ( ; x < w; x++) {
-            int temp1{src[x]};
-            int temp2{old_pix + temp1};
-            old_pix = temp1;
-            temp1 = old_sum + temp2;
-            old_sum = temp2;
-
-            temp2 = col_pix_buf[x] + temp1;
-            col_pix_buf[x] = temp1;
-            //dst[x-1] = (col_sum_buf[x] + temp2) >> 4;
-            col_sum_buf[x] = temp2;
-        }
-    }
-
-    for (int y{2}; y < h; y++) {
-        unsigned char *src{buf+y*stride};
-        unsigned char *dst{buf+(y-1)*stride};
-
-        int x{2};
-        int old_pix{src[x-1]};
-        int old_sum{old_pix + src[x-2]};
-        for ( ; x < w; x++) {
-            int temp1{src[x]};
-            int temp2{old_pix + temp1};
-            old_pix = temp1;
-            temp1 = old_sum + temp2;
-            old_sum = temp2;
-
-            temp2 = col_pix_buf[x] + temp1;
-            col_pix_buf[x] = temp1;
-            dst[x-1] = (col_sum_buf[x] + temp2) >> 4;
-            col_sum_buf[x] = temp2;
-        }
-    }
-
-    xy_free(col_sum_buf_base);
-    xy_free(col_pix_buf_base);
-}
 
 static void Bilinear(unsigned char *buf, const int w, const int h, const int stride, const int x_factor, const int y_factor)
 {   
@@ -1084,19 +1006,23 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 
             bool rv{GaussianBlur(input_overlay, gaussian_blur_strength, target_scale_x, target_scale_y, tmp)};
             ASSERT(rv);
+            (void)rv;
             rv = BeBlur(*tmp, be_strength, target_scale_x, target_scale_y, output_overlay);
             ASSERT(rv);
+            (void)rv;
         }
         else
         {
             bool rv{GaussianBlur(input_overlay, gaussian_blur_strength, target_scale_x, target_scale_y, output_overlay)};
             ASSERT(rv);
+            (void)rv;
         }
     }
     else if (be_strength)
     {
         bool rv{BeBlur(input_overlay, be_strength, target_scale_x, target_scale_y, output_overlay)};
         ASSERT(rv);
+        (void)rv;
     }
     return true;
 }
@@ -1272,20 +1198,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 
 ///////////////////////////////////////////////////////////////////////////
 
-static __forceinline void   pixmix_c   (DWORD *dst, DWORD color, DWORD alpha);
 static __forceinline void   pixmix_sse2(DWORD *dst, DWORD color, DWORD alpha);
-
-static __forceinline void pixmix_c(DWORD *dst, const DWORD color, const DWORD alpha)
-
-{
-    int a = alpha;
-    // Make sure both a and ia are in range 1..256 for the >>8 operations below to be correct
-    int ia{256-a};
-    a+=1;
-    *dst = ((((*dst&0x00ff00ff)*ia + (color&0x00ff00ff)*a)&0xff00ff00)>>8)
-           | ((((*dst&0x0000ff00)*ia + (color&0x0000ff00)*a)&0x00ff0000)>>8)
-           | ((((*dst>>8)&0x00ff0000)*ia)&0xff000000);
-}
 
 static __forceinline void pixmix_sse2(DWORD* dst, DWORD color, DWORD alpha)
 {
@@ -1305,49 +1218,14 @@ static __forceinline void pixmix_sse2(DWORD* dst, DWORD color, DWORD alpha)
 
 ///////////////////////////////////////////////////////////////////////////
 
-static __forceinline void pixmix2(DWORD *dst, const DWORD color, const DWORD shapealpha, const DWORD clipalpha)
-
-{
-    int a{(((shapealpha)*(clipalpha)*(color>>24))>>12)&0xff};
-    int ia{256-a};
-    a+=1;
-    *dst = ((((*dst&0x00ff00ff)*ia + (color&0x00ff00ff)*a)&0xff00ff00)>>8)
-           | ((((*dst&0x0000ff00)*ia + (color&0x0000ff00)*a)&0x00ff0000)>>8)
-           | ((((*dst>>8)&0x00ff0000)*ia)&0xff000000);
-}
 
 #include <xmmintrin.h>
 #include <emmintrin.h>
 
-static __forceinline void pixmix2_sse2(DWORD* dst, DWORD color, DWORD shapealpha, DWORD clipalpha)
-{
-    int alpha{(((shapealpha)*(clipalpha)*(color>>24))>>12)&0xff};
-    color &= 0xffffff;
-    __m128i zero{_mm_setzero_si128()};
-    __m128i a{_mm_set1_epi32(((alpha+1) << 16) | (0x100 - alpha))};
-    __m128i d{_mm_unpacklo_epi8(_mm_cvtsi32_si128(*dst), zero)};
-    __m128i s{_mm_unpacklo_epi8(_mm_cvtsi32_si128(color), zero)};
-    __m128i r{_mm_unpacklo_epi16(d, s)};
-    r = _mm_madd_epi16(r, a);
-    r = _mm_srli_epi32(r, 8);
-    r = _mm_packs_epi32(r, r);
-    r = _mm_packus_epi16(r, r);
-    *dst = (DWORD)_mm_cvtsi128_si32(r);
-}
 ///////////////////////////////////////////////////////////////////////////
 
-static __forceinline void  packed_pix_mix_c   (BYTE* dst, const BYTE* alpha, int w, DWORD color);
 static __forceinline void  packed_pix_mix_sse2(BYTE* dst, const BYTE* alpha, int w, DWORD color);
 
-static __forceinline void packed_pix_mix_c(BYTE* dst, const BYTE* alpha, const int w, const DWORD color)
-
-{
-    DWORD * dst_w{(DWORD *)dst};
-    for(int wt{0}; wt<w; ++wt)
-    {
-        pixmix_c(&dst_w[wt], color, alpha[wt]);
-    }
-}
 
 [[nodiscard]] static __forceinline __m128i packed_pix_mix_sse2(const __m128i& dst, 
     const __m128i& c_r, const __m128i& c_g, const __m128i& c_b, const __m128i& a)
@@ -1441,18 +1319,8 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE* alpha, cons
     }
 }
 
-static __forceinline void  packed_pix_mix_c              (BYTE* dst, BYTE alpha, int w, DWORD color);
 static __forceinline void  packed_pix_mix_sse2           (BYTE* dst, BYTE alpha, int w, DWORD color);
 
-static __forceinline void  packed_pix_mix_c              (BYTE* dst, const BYTE alpha, const int w, const DWORD color)
-
-{
-    const BYTE *dst_end{dst + 4*w};
-    for ( ; dst<dst_end; dst+=4 )
-    {
-        pixmix_c(reinterpret_cast<DWORD*>(dst), color, alpha);
-    }
-}
 
 static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE alpha, const int w, const DWORD color)
 {
@@ -1460,10 +1328,6 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE alpha, const
     __m128i c_g{_mm_set1_epi32( (color & 0xFF00)<<8 )};
     __m128i c_b{_mm_set1_epi32( (color & 0xFF)<<16 )};
     __m128i a{_mm_set1_epi32(((alpha+1) << 16) | (0x100 - alpha))};
-
-    __m128i zero{_mm_setzero_si128()};
-
-    __m128i ones{_mm_set1_epi16(0x1)};
 
     const BYTE *dst_end0{dst + ((4*w)&~63)};
     const BYTE *dst_end{dst + 4*w};
@@ -1495,50 +1359,9 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE alpha, const
 #include <mmintrin.h>
 
 // Calculate a - b clamping to 0 instead of underflowing
-static __forceinline DWORD safe_subtract(DWORD a, DWORD b)
-{
-#ifndef _WIN64
-    __m64 ap{_mm_cvtsi32_si64(a)};
-    __m64 bp{_mm_cvtsi32_si64(b)};
-    __m64 rp{_mm_subs_pu16(ap, bp)};
-    DWORD r{(DWORD)_mm_cvtsi64_si32(rp)};
-    _mm_empty();
-    return r;
-#else
-    return (b > a) ? 0 : a - b;
-#endif
-}
 
 ///////////////////////////////////////////////////////////////////////////
 
-static __forceinline void packed_pix_add_c(BYTE* dst, const BYTE* alpha, const int w, const DWORD color)
-
-{
-    DWORD c_r{(color&0x00ff0000)};
-    DWORD c_g{(color&0x0000ff00)};
-    DWORD c_b{(color&0x000000ff)};
-    const BYTE *alpha_end{alpha + w};
-    DWORD * dst_w{reinterpret_cast<DWORD*>(dst)};
-    for ( ; alpha<alpha_end; alpha++, dst_w++ )
-    {
-        DWORD d_a{((*dst_w&0xff000000)>>24)};
-        DWORD d_r{(*dst_w&0x00ff0000)};
-        DWORD d_g{(*dst_w&0x0000ff00)};
-        DWORD d_b{(*dst_w&0x000000ff)};
-
-        DWORD a{*alpha};
-        d_a = d_a >= a ? d_a - a : 0;
-        a++;
-        d_r += ((c_r*a>>8)&0x00ff0000);
-        d_g += ((c_g*a>>8)&0x0000ff00);
-        d_b += ((c_b*a>>8)&0x000000ff);
-        d_r = d_r<=0x00ff0000 ? d_r:0x00ff0000;
-        d_g = d_g<=0x0000ff00 ? d_g:0x0000ff00;
-        d_b = d_b<=0x000000ff ? d_b:0x000000ff;
-
-        *dst_w = (d_a<<24) | d_r | d_g | d_b;
-    }
-}
 
 [[nodiscard]] static __forceinline __m128i packed_pix_add_sse2(const __m128i& dst_argbargbargbargb, 
     const __m128i& _r_b_r_b_r_b_r_b, const __m128i& _a_g_a_g_a_g_a_g, const __m128i& _a_a_a_a_a_a_a_a,
@@ -1929,7 +1752,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
     //fix me: check and log error
     SharedPtrByte result;
     *outputDirtyRect = CRect(0, 0, 0, 0);
-    if (!switchpts || !fBody && !fBorder)
+    if (!switchpts || (!fBody && !fBorder))
     {
         return result;
     }
@@ -2066,7 +1889,7 @@ void DrawMultiColorPackPix(     DWORD *dst,
 void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CRect& clipRect, byte* s_base, 
     const int xsub, const int ysub, const DWORD* switchpts, const bool fBody, const bool fBorder)
 {
-    if (!switchpts || !fBody && !fBorder)
+    if (!switchpts || (!fBody && !fBorder))
     {
         return;
     }
@@ -2301,7 +2124,7 @@ void Rasterizer::AdditionDraw(XyBitmap         *bitmap   ,
                               const bool              fBody    , 
                               const bool              fBorder)
 {
-    if (!switchpts || !fBody && !fBorder)
+    if (!switchpts || (!fBody && !fBorder))
     {
         return;
     }

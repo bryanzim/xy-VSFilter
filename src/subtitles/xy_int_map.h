@@ -19,8 +19,6 @@ public:
     {
         if (m_indx)
         {
-            int preserve_key_number2 = preserve_key_number;
-            void *data{m_indx};
             switch(m_cur_level)
             {
             case 2:

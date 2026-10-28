@@ -1,5 +1,5 @@
-#include "StdAfx.h"
-#include ".\fontinstaller.h"
+#include "stdafx.h"
+#include ".\FontInstaller.h"
 
 CFontInstaller::CFontInstaller()
 {

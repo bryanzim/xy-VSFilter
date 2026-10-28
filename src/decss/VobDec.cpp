@@ -1,5 +1,5 @@
-#include "StdAfx.h"
-#include "vobdec.h"
+#include "stdafx.h"
+#include "VobDec.h"
 
 static BYTE reverse[0x100], table[0x100] =
 {

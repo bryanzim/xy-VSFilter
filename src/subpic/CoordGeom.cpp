@@ -406,7 +406,7 @@ void XForm::Initalize(const Ray& r, const Vector& s, const bool isWorldToLocal)
 {
 	Initalize();
 
-	if(m_isWorldToLocal = isWorldToLocal)
+	if((m_isWorldToLocal = isWorldToLocal))
 	{
 		*this -= r.p;
 		*this >>= r.d;

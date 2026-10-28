@@ -74,7 +74,6 @@ static int g_hDC_refcnt{0};
 {
     CStringW::PCXSTR psz{str.GetString()};
     CStringW::PCXSTR pszLast{psz + str.GetLength() - 1};
-    bool first_white{false};
     while( iswspace( *pszLast ) )
     {
         pszLast--;
@@ -144,10 +143,11 @@ CMyFont::CMyFont(const STSStyleBase& style)
 CWord::CWord( const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend
     , double target_scale_x/*=1.0*/, double target_scale_y/*=1.0*/
     , bool round_to_whole_pixel_after_scale_to_target/*=false*/)
-    : m_style(style), m_str(DEBUG_NEW CStringW(str))
-    , m_width(0), m_ascent(0), m_descent(0)
+    : m_str(DEBUG_NEW CStringW(str))
+    , m_fWhiteSpaceChar(false), m_fLineBreak(false)
+    , m_style(style)
     , m_ktype(ktype), m_kstart(kstart), m_kend(kend)
-    , m_fLineBreak(false), m_fWhiteSpaceChar(false)
+    , m_width(0), m_ascent(0), m_descent(0)
     , m_target_scale_x(target_scale_x), m_target_scale_y(target_scale_y)
     , m_round_to_whole_pixel_after_scale_to_target(round_to_whole_pixel_after_scale_to_target)
     //, m_pOpaqueBox(NULL)
@@ -441,41 +441,32 @@ void CWord::Transform(PathData* path_data, const CPointCoor2 &org )
     const double say{std::sin((M_PI/180.0)*style.fontAngleY)};
 
     double xxx[3U][3U];
-    /******************
-          targetScaleX            0    0
-     S0 =            0 targetScaleY    0
-                     0            0    1
-    /******************
-          20000     0    0
-     A0 =     0 20000    0
-              0     0    1
-    /******************
-          cay    0  say
-     A1 =   0    1    0
-          say    0 -cay
-    /******************
-            1    0    0
-     A2 =   0  cax  sax
-            0  sax -cax
-    /******************
-          caz  saz    0
-     A3 =-saz  caz    0
-            0    0    1
-    /******************
-          scalex            scalex*fontShiftX -org.x/targetScaleX
-     A4 = scaley*fontShiftY scaley            -org.y/targetScaleY
-          0                 0                  0
-    /******************
-              0     0      0
-     B0 =     0     0      0
-              0     0  20000
-    /******************
-     Formula:
-       (x,y,z)' = (S0*A0*A1*A2*A3*A4 + B0) * (x y 1)'
-       z = max(1000,z)
-       x = x/z + org.x
-       y = y/z + org.y
-    *******************/
+    // targetScaleX            0    0
+    // S0 =            0 targetScaleY    0
+    //                 0            0    1
+    //      20000     0    0
+    // A0 =     0 20000    0
+    //          0     0    1
+    //      cay    0  say
+    // A1 =   0    1    0
+    //      say    0 -cay
+    //        1    0    0
+    // A2 =   0  cax  sax
+    //        0  sax -cax
+    //      caz  saz    0
+    // A3 =-saz  caz    0
+    //        0    0    1
+    //      scalex            scalex*fontShiftX -org.x/targetScaleX
+    // A4 = scaley*fontShiftY scaley            -org.y/targetScaleY
+    //      0                 0                  0
+    //          0     0      0
+    // B0 =     0     0      0
+    //          0     0  20000
+    // Formula:
+    //   (x,y,z)' = (S0*A0*A1*A2*A3*A4 + B0) * (x y 1)'
+    //   z = max(1000,z)
+    //   x = x/z + org.x
+    //   y = y/z + org.y
 
     //A3*A4
     ASSERT(m_target_scale_x!=0 && m_target_scale_y!=0);
@@ -714,7 +705,6 @@ void CText::GetTextInfo(TextInfo *output, const FwSTSStyle& style, const CString
     HFONT hOldFont{SelectFont(g_hDC, font.get())};
     if(style.get().fontSpacing || (long)GetVersion() < 0)
     {
-        bool bFirstPath{true};
         for(LPCWSTR s{str}; *s; s++)
         {
             CSize extent;
@@ -1667,7 +1657,6 @@ void CSubtitle::CreateClippers( CSize size1, const CSizeCoor2& size_scale_to )
     }
     else if(m_effects[EF_SCROLL] && m_effects[EF_SCROLL]->param[4U])
     {
-        int height{m_effects[EF_SCROLL]->param[4U]};
         int w{size1.cx}, h = size1.cy;
         if(!m_pClipper)
         {
@@ -2233,7 +2222,6 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
     {
         return(false);
     }
-    int nTags{0}, nUnrecognizedTags = 0;
     for(int i{0}, j; (j = str.Find(L'\\', i)) >= 0; i = j)
     {
         POSITION pos{assTags->AddTail()};
@@ -2401,13 +2389,10 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
             break;
         case CMD_COUNT:
-            nUnrecognizedTags++;
             break;
         }
 
         assTag.cmdType = cmd_type;
-        
-        nTags++;
     }
     return(true);
 }
@@ -2443,9 +2428,9 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                     /*cmd_type==CMD_4c ?*/ 3};
                 DWORD c = wcstol(p, NULL, 16);
                 style.colors[i] = !p.IsEmpty()
-                    ? (((int)CalcAnimation(c&0x0000ff, style.colors[i]&0x0000ff, fAnimate))&0x0000ff
-                      |((int)CalcAnimation(c&0x00ff00, style.colors[i]&0x00ff00, fAnimate))&0x00ff00
-                      |((int)CalcAnimation(c&0xff0000, style.colors[i]&0xff0000, fAnimate))&0xff0000)
+                    ? ((((int)CalcAnimation(c&0x0000ff, style.colors[i]&0x0000ff, fAnimate))&0x0000ff)
+                      |(((int)CalcAnimation(c&0x00ff00, style.colors[i]&0x00ff00, fAnimate))&0x00ff00)
+                      |(((int)CalcAnimation(c&0xff0000, style.colors[i]&0xff0000, fAnimate))&0xff0000))
                     : org.colors[i];
                 break;
             }
@@ -2566,9 +2551,9 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             {
                 DWORD c = wcstol(p, NULL, 16);
                 style.colors[0U] = !p.IsEmpty()
-                                  ? (((int)CalcAnimation(c&0x0000ff, style.colors[0U]&0x0000ff, fAnimate))&0x0000ff
-                                    |((int)CalcAnimation(c&0x00ff00, style.colors[0U]&0x00ff00, fAnimate))&0x00ff00
-                                    |((int)CalcAnimation(c&0xff0000, style.colors[0U]&0xff0000, fAnimate))&0xff0000)
+                                  ? ((((int)CalcAnimation(c&0x0000ff, style.colors[0U]&0x0000ff, fAnimate))&0x0000ff)
+                                    |(((int)CalcAnimation(c&0x00ff00, style.colors[0U]&0x00ff00, fAnimate))&0x00ff00)
+                                    |(((int)CalcAnimation(c&0xff0000, style.colors[0U]&0xff0000, fAnimate))&0xff0000))
                                   : org.colors[0U];
                 break;
             }
@@ -3176,6 +3161,8 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         case EPCTAccurateSize:
             stss.fontScaleX *= m_dPARCompensation;
             break;
+        case EPCTDisabled:
+            break;
         }
     }
     orgstss = stss;
@@ -3335,7 +3322,7 @@ void CRenderedTextSubtitle::ShrinkCache()
 
 //
 
-[[nodiscard]] STDMETHODIMP CRenderedTextSubtitle::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CRenderedTextSubtitle::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
     *ppv = NULL;
@@ -3360,34 +3347,34 @@ void CRenderedTextSubtitle::ShrinkCache()
         TRACE_PARSER("No subtitle at "<<XY_LOG_VAR_2_STR(RT2MS(rt)));
         return NULL;
     }
-    return (POSITION)(iSegment + 1);
+    return reinterpret_cast<POSITION>(static_cast<INT_PTR>(iSegment + 1));
 }
 
 [[nodiscard]] STDMETHODIMP_(POSITION) CRenderedTextSubtitle::GetNext(POSITION pos)
 {
-    int iSegment{(int)pos};
+    int iSegment{static_cast<int>(reinterpret_cast<INT_PTR>(pos))};
     const STSSegment *stss{GetSegment(iSegment)};
     while(stss && stss->subs.GetCount() == 0) {
         iSegment++;
         stss = GetSegment(iSegment);
     }
-    return(stss ? (POSITION)(iSegment+1) : NULL);
+    return(stss ? reinterpret_cast<POSITION>(static_cast<INT_PTR>(iSegment + 1)) : NULL);
 }
 
 [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedTextSubtitle::GetStart(POSITION pos, const double fps)
 {
-    return TranslateSegmentStart((int)pos - 1, fps);
+    return TranslateSegmentStart(static_cast<int>(reinterpret_cast<INT_PTR>(pos)) - 1, fps);
 }
 
 [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedTextSubtitle::GetStop(POSITION pos, const double fps)
 {
-    return TranslateSegmentEnd((int)pos - 1, fps);
+    return TranslateSegmentEnd(static_cast<int>(reinterpret_cast<INT_PTR>(pos)) - 1, fps);
 }
 
 //@start, @stop: -1 if segment not found; @stop may < @start if subIndex exceed uppper bound
 [[nodiscard]] STDMETHODIMP_(VOID) CRenderedTextSubtitle::GetStartStop(POSITION pos, const double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop)
 {
-    int iSegment{(int)pos-1};
+    int iSegment{static_cast<int>(reinterpret_cast<INT_PTR>(pos)) - 1};
     REFERENCE_TIME tempStart, tempEnd;
     TranslateSegmentStartEnd(iSegment, fps, tempStart, tempEnd);
     start = tempStart;
@@ -3396,7 +3383,7 @@ void CRenderedTextSubtitle::ShrinkCache()
 
 [[nodiscard]] STDMETHODIMP_(bool) CRenderedTextSubtitle::IsAnimated(POSITION pos)
 {
-    unsigned int iSegment = (int)pos-1;
+    unsigned int iSegment{static_cast<unsigned int>(static_cast<int>(reinterpret_cast<INT_PTR>(pos)) - 1)};
     if(iSegment<m_segments.GetCount())
     {
         return m_segments[iSegment].animated;
@@ -3617,7 +3604,7 @@ struct LSub {int idx, layer, readorder;};
         clipRect_coor2.right  = clipRect.right  * m_target_scale_x;
         clipRect_coor2.top    = clipRect.top    * m_target_scale_y;
         clipRect_coor2.bottom = clipRect.bottom * m_target_scale_y;
-        CSubtitle2& sub2{outputSub2List->GetAt(outputSub2List->AddTail( CSubtitle2(s, clipRect_coor2, org, org2, p2, alpha, m_time) ))};
+        outputSub2List->AddTail(CSubtitle2(s, clipRect_coor2, org, org2, p2, alpha, m_time));
     }
 
     return (subs.GetCount()) ? S_OK : S_FALSE;

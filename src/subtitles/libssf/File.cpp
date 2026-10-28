@@ -177,10 +177,10 @@ namespace ssf
 
 		for(int c = s.SkipWhiteSpace(); iswxdigit(c) || wcschr(L"+-.x:", c); c = s.PeekChar())
 		{
-			if((c == '+' || c == '-') && !v.IsEmpty()
+			if(((c == '+' || c == '-') && !v.IsEmpty())
 			|| (c == '.' && (v.IsEmpty() || v.Find('.') >= 0 || v.Find('x') >= 0))
 			|| (c == 'x' && v != '0')
-			|| (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F') && v.Find(L"0x") != 0
+			|| (((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) && v.Find(L"0x") != 0)
 			|| (c == ':' && v.IsEmpty()))
 			{
 				s.ThrowError(_T("unexpected character '%c' in number"), (TCHAR)c);

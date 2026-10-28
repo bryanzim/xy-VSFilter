@@ -25,11 +25,11 @@
 
 #include "vsfilter_config.h"
 
-#include "../../../DSUtil/SharedInclude.h"
+#include "../../../dsutil/SharedInclude.h"
 #include "../../../../include/stdafx_common.h"
 #include "../../../../include/stdafx_common_afx2.h"
 #include "../../../../include/stdafx_common_dshow.h"
-#include "../../../DSUtil/DSUtil.h"
+#include "../../../dsutil/DSUtil.h"
 #include "../../../subtitles/flyweight_base_types.h"
 #include "../../../subtitles/RTS.h"
 #include "../../../subtitles/cache_manager.h"

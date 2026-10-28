@@ -98,10 +98,10 @@ CBaseMediaFilter::CBaseMediaFilter(const TCHAR  *pName,
                    CCritSec *pLock,
                    REFCLSID clsid) :
     CUnknown(pName, pUnk),
-    m_pLock(pLock),
-    m_clsid(clsid),
     m_State(State_Stopped),
-    m_pClock(NULL)
+    m_pClock(NULL),
+    m_clsid(clsid),
+    m_pLock(pLock)
 {
 }
 
@@ -328,13 +328,13 @@ CBaseFilter::CBaseFilter(const TCHAR    *pName,
              CCritSec   *pLock,
              REFCLSID   clsid) :
     CUnknown( pName, pUnk ),
-    m_pLock(pLock),
-    m_clsid(clsid),
     m_State(State_Stopped),
     m_pClock(NULL),
+    m_clsid(clsid),
+    m_pLock(pLock),
+    m_pName(NULL),
     m_pGraph(NULL),
     m_pSink(NULL),
-    m_pName(NULL),
     m_PinVersion(1)
 {
 
@@ -349,13 +349,13 @@ CBaseFilter::CBaseFilter(TCHAR     *pName,
                          REFCLSID   clsid,
                          HRESULT   *phr) :
     CUnknown( pName, pUnk ),
-    m_pLock(pLock),
-    m_clsid(clsid),
     m_State(State_Stopped),
     m_pClock(NULL),
+    m_clsid(clsid),
+    m_pLock(pLock),
+    m_pName(NULL),
     m_pGraph(NULL),
     m_pSink(NULL),
-    m_pName(NULL),
     m_PinVersion(1)
 {
 
@@ -369,13 +369,13 @@ CBaseFilter::CBaseFilter(const CHAR *pName,
              CCritSec   *pLock,
              REFCLSID   clsid) :
     CUnknown( pName, pUnk ),
-    m_pLock(pLock),
-    m_clsid(clsid),
     m_State(State_Stopped),
     m_pClock(NULL),
+    m_clsid(clsid),
+    m_pLock(pLock),
+    m_pName(NULL),
     m_pGraph(NULL),
     m_pSink(NULL),
-    m_pName(NULL),
     m_PinVersion(1)
 {
 
@@ -387,13 +387,13 @@ CBaseFilter::CBaseFilter(CHAR     *pName,
                          REFCLSID   clsid,
                          HRESULT   *phr) :
     CUnknown( pName, pUnk ),
-    m_pLock(pLock),
-    m_clsid(clsid),
     m_State(State_Stopped),
     m_pClock(NULL),
+    m_clsid(clsid),
+    m_pLock(pLock),
+    m_pName(NULL),
     m_pGraph(NULL),
     m_pSink(NULL),
-    m_pName(NULL),
     m_PinVersion(1)
 {
 
@@ -1451,18 +1451,18 @@ CBasePin::CBasePin(TCHAR *pObjectName,
            LPCWSTR pName,
            PIN_DIRECTION dir) :
     CUnknown( pObjectName, NULL ),
-    m_pFilter(pFilter),
-    m_pLock(pLock),
     m_pName(NULL),
     m_Connected(NULL),
     m_dir(dir),
+    m_pLock(pLock),
     m_bRunTimeError(FALSE),
+    m_bCanReconnectWhenActive(false),
+    m_bTryMyTypesFirst(false),
+    m_pFilter(pFilter),
     m_pQSink(NULL),
     m_TypeVersion(1),
     m_tStart(),
     m_tStop(MAX_TIME),
-    m_bCanReconnectWhenActive(false),
-    m_bTryMyTypesFirst(false),
     m_dRate(1.0)
 {
     /*  WARNING - pFilter is often not a properly constituted object at
@@ -1497,18 +1497,18 @@ CBasePin::CBasePin(CHAR *pObjectName,
            LPCWSTR pName,
            PIN_DIRECTION dir) :
     CUnknown( pObjectName, NULL ),
-    m_pFilter(pFilter),
-    m_pLock(pLock),
     m_pName(NULL),
     m_Connected(NULL),
     m_dir(dir),
+    m_pLock(pLock),
     m_bRunTimeError(FALSE),
+    m_bCanReconnectWhenActive(false),
+    m_bTryMyTypesFirst(false),
+    m_pFilter(pFilter),
     m_pQSink(NULL),
     m_TypeVersion(1),
     m_tStart(),
     m_tStop(MAX_TIME),
-    m_bCanReconnectWhenActive(false),
-    m_bTryMyTypesFirst(false),
     m_dRate(1.0)
 {
     /*  WARNING - pFilter is often not a properly constituted object at
@@ -3171,15 +3171,15 @@ CMediaSample::CMediaSample(TCHAR *pName,
                HRESULT *phr,
                LPBYTE pBuffer,
                LONG length) :
-    m_pBuffer(pBuffer),             // Initialise the buffer
-    m_cbBuffer(length),             // And it's length
-    m_lActual(length),              // By default, actual = length
-    m_pMediaType(NULL),             // No media type change
     m_dwFlags(0),                   // Nothing set
-    m_cRef(0),                      // 0 ref count
     m_dwTypeSpecificFlags(0),       // Type specific flags
+    m_pBuffer(pBuffer),             // Initialise the buffer
+    m_lActual(length),              // By default, actual = length
+    m_cbBuffer(length),             // And it's length
+    m_pAllocator(pAllocator),       // Allocator
+    m_pMediaType(NULL),             // No media type change
     m_dwStreamId(AM_STREAM_MEDIA),  // Stream id
-    m_pAllocator(pAllocator)        // Allocator
+    m_cRef(0)                       // 0 ref count
 {
 
     /* We must have an owner and it must also be derived from class
@@ -3194,15 +3194,15 @@ CMediaSample::CMediaSample(CHAR *pName,
                HRESULT *phr,
                LPBYTE pBuffer,
                LONG length) :
-    m_pBuffer(pBuffer),             // Initialise the buffer
-    m_cbBuffer(length),             // And it's length
-    m_lActual(length),              // By default, actual = length
-    m_pMediaType(NULL),             // No media type change
     m_dwFlags(0),                   // Nothing set
-    m_cRef(0),                      // 0 ref count
     m_dwTypeSpecificFlags(0),       // Type specific flags
+    m_pBuffer(pBuffer),             // Initialise the buffer
+    m_lActual(length),              // By default, actual = length
+    m_cbBuffer(length),             // And it's length
+    m_pAllocator(pAllocator),       // Allocator
+    m_pMediaType(NULL),             // No media type change
     m_dwStreamId(AM_STREAM_MEDIA),  // Stream id
-    m_pAllocator(pAllocator)        // Allocator
+    m_cRef(0)                       // 0 ref count
 {
 
     /* We must have an owner and it must also be derived from class
@@ -3779,14 +3779,14 @@ CDynamicOutputPin::CDynamicOutputPin(
     HRESULT *phr,
     LPCWSTR pName) :
         CBaseOutputPin(pObjectName, pFilter, pLock, phr, pName),
-        m_hStopEvent(NULL),
-        m_pGraphConfig(NULL),
-        m_bPinUsesReadOnlyAllocator(FALSE),
-        m_BlockState(NOT_BLOCKED),
         m_hUnblockOutputPinEvent(NULL),
         m_hNotifyCallerPinBlockedEvent(NULL),
+        m_BlockState(NOT_BLOCKED),
         m_dwBlockCallerThreadID(0),
-        m_dwNumOutstandingOutputPinUsers(0)
+        m_dwNumOutstandingOutputPinUsers(0),
+        m_hStopEvent(NULL),
+        m_pGraphConfig(NULL),
+        m_bPinUsesReadOnlyAllocator(FALSE)
 {
     HRESULT hr = Initialize();
     if( FAILED( hr ) ) {
@@ -3803,14 +3803,14 @@ CDynamicOutputPin::CDynamicOutputPin(
     HRESULT *phr,
     LPCWSTR pName) :
         CBaseOutputPin(pObjectName, pFilter, pLock, phr, pName),
-        m_hStopEvent(NULL),
-        m_pGraphConfig(NULL),
-        m_bPinUsesReadOnlyAllocator(FALSE),
-        m_BlockState(NOT_BLOCKED),
         m_hUnblockOutputPinEvent(NULL),
         m_hNotifyCallerPinBlockedEvent(NULL),
+        m_BlockState(NOT_BLOCKED),
         m_dwBlockCallerThreadID(0),
-        m_dwNumOutstandingOutputPinUsers(0)
+        m_dwNumOutstandingOutputPinUsers(0),
+        m_hStopEvent(NULL),
+        m_pGraphConfig(NULL),
+        m_bPinUsesReadOnlyAllocator(FALSE)
 {
     HRESULT hr = Initialize();
     if( FAILED( hr ) ) {
@@ -4445,18 +4445,18 @@ CBaseAllocator::CBaseAllocator(TCHAR *pName,
                                BOOL fEnableReleaseCallback
                                ) :
     CUnknown(pName, pUnk),
+    m_hSem(NULL),
+    m_lWaiting(0),
+    m_lCount(0),
     m_lAllocated(0),
+    m_lSize(0),
+    m_lAlignment(0),
+    m_lPrefix(0),
     m_bChanged(FALSE),
     m_bCommitted(FALSE),
     m_bDecommitInProgress(FALSE),
-    m_lSize(0),
-    m_lCount(0),
-    m_lAlignment(0),
-    m_lPrefix(0),
-    m_hSem(NULL),
-    m_lWaiting(0),
-    m_fEnableReleaseCallback(fEnableReleaseCallback),
-    m_pNotify(NULL)
+    m_pNotify(NULL),
+    m_fEnableReleaseCallback(fEnableReleaseCallback)
 {
 
     if (bEvent) {
@@ -4475,18 +4475,18 @@ CBaseAllocator::CBaseAllocator(CHAR *pName,
                                BOOL bEvent,
                                BOOL fEnableReleaseCallback) :
     CUnknown(pName, pUnk),
+    m_hSem(NULL),
+    m_lWaiting(0),
+    m_lCount(0),
     m_lAllocated(0),
+    m_lSize(0),
+    m_lAlignment(0),
+    m_lPrefix(0),
     m_bChanged(FALSE),
     m_bCommitted(FALSE),
     m_bDecommitInProgress(FALSE),
-    m_lSize(0),
-    m_lCount(0),
-    m_lAlignment(0),
-    m_lPrefix(0),
-    m_hSem(NULL),
-    m_lWaiting(0),
-    m_fEnableReleaseCallback(fEnableReleaseCallback),
-    m_pNotify(NULL)
+    m_pNotify(NULL),
+    m_fEnableReleaseCallback(fEnableReleaseCallback)
 {
 
     if (bEvent) {
@@ -4526,7 +4526,7 @@ CBaseAllocator::NonDelegatingQueryInterface(REFIID riid, void **ppv)
     /* Do we know about this interface */
 
     if (riid == IID_IMemAllocator ||
-        riid == IID_IMemAllocatorCallbackTemp && m_fEnableReleaseCallback) {
+        (riid == IID_IMemAllocatorCallbackTemp && m_fEnableReleaseCallback)) {
         return GetInterface((IMemAllocatorCallbackTemp *) this, ppv);
     } else {
         return CUnknown::NonDelegatingQueryInterface(riid, ppv);

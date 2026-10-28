@@ -162,7 +162,7 @@ void CTextFile::SetEncoding(const enc e)
 	switch(nFrom)
 	{
 	default:
-	case begin: lOff = lOff; break;
+	case begin: break;
 	case current: lOff = pos + lOff; break;
 	case end: lOff = len - lOff; break;
 	}

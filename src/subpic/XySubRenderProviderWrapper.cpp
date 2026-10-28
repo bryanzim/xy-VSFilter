@@ -12,8 +12,8 @@
 XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provider
     , HRESULT* phr/*=NULL*/ )
     : CUnknown(NAME("XySubRenderProviderWrapper"), NULL, phr)
-    , m_provider(provider)
     , m_consumer(NULL)
+    , m_provider(provider)
     , m_use_dst_alpha(false)
 {
     HRESULT hr{NOERROR};
@@ -28,7 +28,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderProvider)
@@ -251,13 +251,13 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
 XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *provider
     , HRESULT* phr/*=NULL*/ )
     : CUnknown(NAME("XySubRenderProviderWrapper2"), NULL, phr)
-    , m_provider(provider)
     , m_consumer(NULL)
+    , m_provider(provider)
     , m_start(0), m_stop(0)
-    , m_fps(0)
-    , m_max_bitmap_count2(0)
     , m_use_dst_alpha(0)
     , m_render_to_original_video_size(0)
+    , m_fps(0)
+    , m_max_bitmap_count2(0)
 {
     HRESULT hr{NOERROR};
     if (!provider)
@@ -271,7 +271,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper2::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderProvider)
@@ -311,7 +311,6 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     CRect output_rect, subtitle_target_rect;
     CSize original_video_size;
     bool use_dst_alpha{false};
-    bool combine_bitmap{false};
     bool render_to_original_video_size{false};
 
     ASSERT(m_consumer);

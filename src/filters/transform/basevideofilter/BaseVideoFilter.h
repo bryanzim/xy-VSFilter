@@ -69,6 +69,7 @@ protected:
 	[[nodiscard]] HRESULT CopyBuffer(BYTE* pOut, BYTE** ppIn, int w, int h, int pitchIn, const GUID& subtype, bool fInterlaced = false);
 
 	virtual void GetOutputSize(int& w, int& h, int& arx, int& ary) {}
+	using CTransformFilter::Transform;
 	[[nodiscard]] virtual HRESULT Transform(IMediaSample* pIn) = 0;
 	[[nodiscard]] virtual HRESULT IsVideoInterlaced() {return false;}
 

@@ -2,7 +2,7 @@
 /* author: xy                                                           */
 /* date: 20110926                                                       */
 /************************************************************************/
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "cache_manager.h"
 #include "draw_item.h"
 #include "xy_overlay_paint_machine.h"
@@ -27,7 +27,7 @@ inline void AddFuncCalls(const int func)
 #else
 inline void AddFuncCalls(int func)
 {
-    func;
+    (void)func;
 }
 #endif
 

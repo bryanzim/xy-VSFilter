@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../../Subtitles/STS.h"
+#include "../../../subtitles/STS.h"
 
 interface __declspec(uuid("EBE1FB08-3957-47ca-AF13-5827E5442E56"))
 IDirectVobSub :
@@ -292,6 +292,9 @@ public IDirectVobSub {
     STDMETHOD(put_Forced) (THIS_
         bool fForced
         ) PURE;
+
+    using IDirectVobSub::get_TextSettings;
+    using IDirectVobSub::put_TextSettings;
 
     STDMETHOD(get_TextSettings) (THIS_
         STSStyle* pDefStyle

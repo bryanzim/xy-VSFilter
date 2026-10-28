@@ -349,7 +349,7 @@ namespace ssf
 					if(abs(width) >= minwidth)
 					{
 						if(g->style.linebreak == _T("char")
-						|| g->style.linebreak == _T("word") && g->c == Text::SP)
+						|| (g->style.linebreak == _T("word") && g->c == Text::SP))
 						{
 							brpos = gpos;
 						}
@@ -386,7 +386,7 @@ namespace ssf
 			{
 				Glyph* g = r->GetNext(gpos);
 
-				if(!glypsh2fill.IsEmpty() && fill_id && (g->style.fill.id != fill_id || !pos && !gpos))
+				if(!glypsh2fill.IsEmpty() && fill_id && (g->style.fill.id != fill_id || (!pos && !gpos)))
 				{
 					int w = (int)(g->style.fill.width * fill_width + 0.5);
 
@@ -644,8 +644,8 @@ namespace ssf
 			{
 				bbox |= g->ras.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, g->style.font.color.a < 255 ? 2 : 1);
 			}
-			else if(g->style.background.type == L"enlarge" && g->style.background.size > 0
-			|| g->style.background.type == L"box" && g->style.background.size >= 0)
+			else if((g->style.background.type == L"enlarge" && g->style.background.size > 0)
+			|| (g->style.background.type == L"box" && g->style.background.size >= 0))
 			{
 				bbox |= g->ras_bkg.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, 0);
 			}

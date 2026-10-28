@@ -28,11 +28,11 @@ CBaseWindow::CBaseWindow(BOOL bDoGetDC, bool bDoPostToDestroy) :
     m_ShowStageTop(0),
     m_MemoryDC(NULL),
     m_hPalette(NULL),
+    m_bNoRealize(FALSE),
     m_bBackground(FALSE),
 #ifdef DEBUG
     m_bRealizing(FALSE),
 #endif
-    m_bNoRealize(FALSE),
     m_bDoPostToDestroy(bDoPostToDestroy)
 {
     m_bDoGetDC = bDoGetDC;
@@ -441,8 +441,8 @@ LRESULT CALLBACK WndProc(HWND hwnd,         // Window handle
 #ifdef DEBUG
         SetLastError(0);  // because of the way SetWindowLong works
 #endif
-        LONG_PTR rc = SetWindowLongPtr(hwnd, (DWORD) 0, (LONG_PTR) pBaseWindow);
 #ifdef DEBUG
+        LONG_PTR rc = SetWindowLongPtr(hwnd, (DWORD) 0, (LONG_PTR) pBaseWindow);
         if (0 == rc) {
             // SetWindowLong MIGHT have failed.  (Read the docs which admit
             // that it is awkward to work out if you have had an error.)
@@ -451,6 +451,8 @@ LRESULT CALLBACK WndProc(HWND hwnd,         // Window handle
             // If this is not the case we have not set the pBaseWindow pointer
             // into the window structure and we will blow up.
         }
+#else
+        SetWindowLongPtr(hwnd, (DWORD) 0, (LONG_PTR) pBaseWindow);
 #endif
 
     }
@@ -907,8 +909,8 @@ CDrawImage::CDrawImage(CBaseWindow *pBaseWindow) :
     m_hdc(NULL),
     m_MemoryDC(NULL),
     m_bStretch(FALSE),
-    m_pMediaType(NULL),
-    m_bUsingImageAllocator(FALSE)
+    m_bUsingImageAllocator(FALSE),
+    m_pMediaType(NULL)
 {
     ASSERT(pBaseWindow);
     ResetPaletteVersion();
@@ -987,6 +989,7 @@ void CDrawImage::UpdateColourTable(HDC hdc,BITMAPINFOHEADER *pbmi)
 
     // Should always succeed but check in debug builds
     ASSERT(uiReturn == pbmi->biClrUsed);
+    (void)uiReturn;
 }
 
 
@@ -2430,7 +2433,6 @@ HRESULT CImageDisplay::UpdateFormat(VIDEOINFO *pVideoInfo)
 {
     ASSERT(pVideoInfo);
 
-    BITMAPINFOHEADER *pbmi = HEADER(pVideoInfo);
     SetRectEmpty(&pVideoInfo->rcSource);
     SetRectEmpty(&pVideoInfo->rcTarget);
 
@@ -2657,7 +2659,6 @@ BOOL CImageDisplay::GetColourMask(DWORD *pMaskRed,
 STDAPI ConvertVideoInfoToVideoInfo2(AM_MEDIA_TYPE *pmt)
 {
     ASSERT(pmt->formattype == FORMAT_VideoInfo);
-    VIDEOINFO *pVideoInfo = (VIDEOINFO *)pmt->pbFormat;
     PVOID pvNew = CoTaskMemAlloc(pmt->cbFormat + sizeof(VIDEOINFOHEADER2) -
                                  sizeof(VIDEOINFOHEADER));
     if (pvNew == NULL) {

@@ -2,7 +2,7 @@
 /* author: xy                                                           */
 /* date: 20110512                                                       */
 /************************************************************************/
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "xy_logger.h"
 #include <fstream>
 #include <moreuuids.h>

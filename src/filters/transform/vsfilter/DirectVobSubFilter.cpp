@@ -19,17 +19,17 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <math.h>
 #include <time.h>
 #include "DirectVobSubFilter.h"
 #include "TextInputPin.h"
 #include "DirectVobSubPropPage.h"
 #include "VSFilter.h"
-#include "systray.h"
-#include "../../../DSUtil/MediaTypes.h"
-#include "../../../SubPic/SimpleSubPicProviderImpl.h"
-#include "../../../SubPic/PooledSubPic.h"
+#include "Systray.h"
+#include "../../../dsutil/MediaTypes.h"
+#include "../../../subpic/SimpleSubPicProviderImpl.h"
+#include "../../../subpic/PooledSubPic.h"
 #include "../../../subpic/SimpleSubPicWrapper.h"
 
 #include <initguid.h>
@@ -63,11 +63,11 @@ using namespace DirectVobSubXyOptions;
 //
 
 CDirectVobSubFilter::CDirectVobSubFilter(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid)
-    : CDirectVobSub(DirectVobFilterOptions, &m_csSubLock)
-    , CBaseVideoFilter(NAME("CDirectVobSubFilter"), punk, phr, clsid)
-    , m_nSubtitleId(-1)
-    , m_fMSMpeg4Fix(false)
+    : CBaseVideoFilter(NAME("CDirectVobSubFilter"), punk, phr, clsid)
+    , CDirectVobSub(DirectVobFilterOptions, &m_csSubLock)
     , m_fps(25)
+    , m_fMSMpeg4Fix(false)
+    , m_nSubtitleId(-1)
 {
     m_xy_str_opt[STRING_NAME] = L"DirectVobSubFilter";
 
@@ -142,7 +142,7 @@ CDirectVobSubFilter::~CDirectVobSubFilter()
     XY_LOG_INFO("Deconstructed");
 }
 
-[[nodiscard]] STDMETHODIMP CDirectVobSubFilter::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CDirectVobSubFilter::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 
@@ -460,7 +460,6 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
 			{
 				DWORD dwVersion{GetVersion()};
 				DWORD dwWindowsMajorVersion{(DWORD)(LOBYTE(LOWORD(dwVersion)))};
-				DWORD dwWindowsMinorVersion{(DWORD)(HIBYTE(LOWORD(dwVersion)))};
 
 				if(dwVersion < 0x80000000 && dwWindowsMajorVersion >= 5)
 				{
@@ -496,7 +495,7 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
 	}
 
 	wcscpy(pInfo->achName, L"DirectVobSub (forced auto-loading version)");
-	if(pInfo->pGraph = m_pGraph)
+	if((pInfo->pGraph = m_pGraph))
 	{
 	    m_pGraph->AddRef();
 	}
@@ -568,11 +567,11 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
         CComPtr<IBaseFilter> pFilter;
 
         // needed when we have a decoder with a version number of 3.x
-        if(SUCCEEDED(m_pGraph->FindFilterByName(L"DivX MPEG-4 DVD Video Decompressor ", &pFilter))
-            && (GetFileVersion(_T("divx_c32.ax")) >> 48) <= 4
+        if((SUCCEEDED(m_pGraph->FindFilterByName(L"DivX MPEG-4 DVD Video Decompressor ", &pFilter))
+            && (GetFileVersion(_T("divx_c32.ax")) >> 48) <= 4)
             || SUCCEEDED(m_pGraph->FindFilterByName(L"Microcrap MPEG-4 Video Decompressor", &pFilter))
-            || SUCCEEDED(m_pGraph->FindFilterByName(L"Microsoft MPEG-4 Video Decompressor", &pFilter))
-            && (GetFileVersion(_T("mpg4ds32.ax")) >> 48) <= 3)
+            || (SUCCEEDED(m_pGraph->FindFilterByName(L"Microsoft MPEG-4 Video Decompressor", &pFilter))
+            && (GetFileVersion(_T("mpg4ds32.ax")) >> 48) <= 3))
         {
             m_fMSMpeg4Fix = true;
         }
@@ -715,7 +714,6 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
      * CFGManager class.
      */
 
-    HRESULT hr{NOERROR};
     m_fLoading = false;
 
     InitSubPicQueue();
@@ -1165,11 +1163,11 @@ void CDirectVobSubFilter::UpdatePreferedLanguages(CString l)
 	{
 		*pdwFlags = 0;
 
-		if(i == -1 && !m_xy_bool_opt[BOOL_HIDE_SUBTITLES]
-		|| i >= 0 && i < nLangs && i == m_xy_int_opt[INT_SELECTED_LANGUAGE]
-		|| i == nLangs && m_xy_bool_opt[BOOL_HIDE_SUBTITLES]
-		|| i == nLangs+1 && !m_xy_bool_opt[BOOL_FLIP_PICTURE]
-		|| i == nLangs+2 && m_xy_bool_opt[BOOL_FLIP_PICTURE])
+		if((i == -1 && !m_xy_bool_opt[BOOL_HIDE_SUBTITLES])
+		|| (i >= 0 && i < nLangs && i == m_xy_int_opt[INT_SELECTED_LANGUAGE])
+		|| (i == nLangs && m_xy_bool_opt[BOOL_HIDE_SUBTITLES])
+		|| (i == nLangs+1 && !m_xy_bool_opt[BOOL_FLIP_PICTURE])
+		|| (i == nLangs+2 && m_xy_bool_opt[BOOL_FLIP_PICTURE]))
 		{
 			*pdwFlags |= AMSTREAMSELECTINFO_ENABLED;
 		}
@@ -1542,8 +1540,8 @@ CDirectVobSubFilter2::CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const G
 				}
 
 				CComPtr<IPin> pPin;
-				if(pInPin && SUCCEEDED(pInPin->ConnectedTo(&pPin))
-				|| pOutPin && SUCCEEDED(pOutPin->ConnectedTo(&pPin)))
+				if((pInPin && SUCCEEDED(pInPin->ConnectedTo(&pPin)))
+				|| (pOutPin && SUCCEEDED(pOutPin->ConnectedTo(&pPin))))
 				{
 					continue;
 				}
@@ -1691,7 +1689,7 @@ CDirectVobSubFilter2::CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const G
 		CComPtr<IBaseFilter> pBF;
         for (int i{0}, n=m_known_source_filters_guid.GetCount();i<n;i++)
         {
-            if (pBF = FindFilter(m_known_source_filters_guid[i], pGraph))
+            if ((pBF = FindFilter(m_known_source_filters_guid[i], pGraph)))
             {
                 break;
             }
@@ -1738,7 +1736,7 @@ CDirectVobSubFilter2::CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const G
 	if((m_fExternalLoad || m_fWebLoad) && (m_fWebLoad || !(wcsstr(fn, L"http://") || wcsstr(fn, L"mms://"))))
 	{
 		bool fTemp{m_xy_bool_opt[BOOL_HIDE_SUBTITLES]};
-		fRet = !fn.IsEmpty() && SUCCEEDED(put_FileName((LPWSTR)(LPCWSTR)fn))
+		fRet = (!fn.IsEmpty() && SUCCEEDED(put_FileName((LPWSTR)(LPCWSTR)fn)))
 			|| SUCCEEDED(put_FileName(L"c:\\tmp.srt"))
 			|| fRet;
 		if(fTemp)
@@ -1923,7 +1921,6 @@ void CDirectVobSubFilter::UpdateSubtitle(const bool fApplyDefStyle)
 void CDirectVobSubFilter::SetSubtitle(ISubStream* pSubStream, const bool fApplyDefStyle)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(pSubStream)<<XY_LOG_VAR_2_STR(fApplyDefStyle));
-    HRESULT hr{NOERROR};
     [[nodiscard]] CAutoLock cAutolock(&m_csSubLock);
 
     CSize playres{0,0};
@@ -2815,7 +2812,7 @@ void CDirectVobSubFilter::InitObj4OSD()
         RGBQUAD biColors[256U];
     } b = {
         {sizeof(BITMAPINFOHEADER), m_w, -(int)m_h, 1, 8, BI_RGB, 0, 0, 0, 0, 0},
-        {0}
+        {{0}}
     };
     for (int i{0};i<256;i++)
     {

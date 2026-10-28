@@ -107,6 +107,7 @@ public IUnknown {
 interface __declspec(uuid("728B3CDC-B0B2-4DA8-8426-AEDE9C90674E"))
 ISubPicEx :
 public ISubPic {
+    using ISubPic::CopyTo;
     STDMETHOD (CopyTo) (ISubPicEx* pSubPicEx /*[in]*/) PURE;
 
     STDMETHOD (GetDirtyRects) (CAtlList<const CRect>& dirtyRectList /*[out]*/) const PURE;

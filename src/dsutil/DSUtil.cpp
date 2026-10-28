@@ -164,7 +164,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 	}
 	EndEnumPins
 
-	return{nIn+nOut};
+	return nIn + nOut;
 }
 
 [[nodiscard]] bool IsSplitter(IBaseFilter* pBF, const bool fCountConnectedOnly)
@@ -1008,7 +1008,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 					for(int kf{0}; ; kf++)
 					{
 						kf = pavi->FindSample(kf, FIND_KEY|FIND_NEXT);
-						if(kf < 0 || kfs.GetCount() > 0 && kfs[kfs.GetCount()-1] >= kf)
+						if(kf < 0 || (kfs.GetCount() > 0 && kfs[kfs.GetCount()-1] >= kf))
 						{
 						    break;
 						}
@@ -1463,7 +1463,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	ULONG chEaten;
 	if(S_OK != MkParseDisplayName(pBindCtx, CComBSTR(DisplayName), &chEaten, &pMoniker))
 	{
-		return(false);
+		return CStringW();
 	}
 
 	CComPtr<IPropertyBag> pPB;
@@ -1486,7 +1486,7 @@ typedef struct
 
 static CAtlList<ExternalObject> s_extobjs;
 
-[[nodiscard]] HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, const REFIID iid, void** ppv)
+[[nodiscard]] HRESULT LoadExternalObject(LPCTSTR path, REFCLSID clsid, REFIID iid, void** ppv)
 {
 	CheckPointer(ppv, E_POINTER);
 
@@ -1542,12 +1542,12 @@ static CAtlList<ExternalObject> s_extobjs;
 	return hr;
 }
 
-[[nodiscard]] HRESULT LoadExternalFilter(const LPCTSTR path, const REFCLSID clsid, IBaseFilter** ppBF)
+[[nodiscard]] HRESULT LoadExternalFilter(const LPCTSTR path, REFCLSID clsid, IBaseFilter** ppBF)
 {
 	return LoadExternalObject(path, clsid, __uuidof(IBaseFilter), (void**)ppBF);
 }
 
-[[nodiscard]] HRESULT LoadExternalPropertyPage(IPersist* pP, const REFCLSID clsid, IPropertyPage** ppPP)
+[[nodiscard]] HRESULT LoadExternalPropertyPage(IPersist* pP, REFCLSID clsid, IPropertyPage** ppPP)
 {
 	CLSID clsid2{GUID_NULL};
 	if(FAILED(pP->GetClassID(&clsid2)))
@@ -1641,6 +1641,7 @@ void UnloadExternalObjects()
 	GUID guid{GUID_NULL};
 	HRESULT hr{CLSIDFromString(CComBSTR(str), &guid)};
 	ASSERT(SUCCEEDED(hr));
+	(void)hr;
 	return guid;
 }
 

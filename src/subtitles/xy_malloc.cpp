@@ -9,7 +9,7 @@
 #include <malloc.h>
 #include <string.h>
 
-extern std::size_t g_xy_malloc_used_size{0U};
+std::size_t g_xy_malloc_used_size{0U};
 
 //gathered from x264
 /****************************************************************************

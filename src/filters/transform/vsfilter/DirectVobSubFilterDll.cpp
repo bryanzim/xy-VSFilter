@@ -19,11 +19,11 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "DirectVobSubFilter.h"
 #include "DirectVobSubPropPage.h"
 #include "VSFilter.h"
-#include "..\..\..\DSUtil\MediaTypes.h"
+#include "..\..\..\dsutil\MediaTypes.h"
 
 #include <initguid.h>
 #include "..\..\..\..\include\moreuuids.h"

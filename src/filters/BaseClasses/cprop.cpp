@@ -21,13 +21,13 @@ CBasePropertyPage::CBasePropertyPage(TCHAR *pName,      // Debug only name
                                      int DialogId,      // Resource ID
                                      int TitleId) :     // To get tital
     CUnknown(pName,pUnk),
-    m_DialogId(DialogId),
-    m_TitleId(TitleId),
+    m_pPageSite(NULL),
     m_hwnd(NULL),
     m_Dlg(NULL),
-    m_pPageSite(NULL),
-    m_bObjectSet(FALSE),
-    m_bDirty(FALSE)
+    m_bDirty(FALSE),
+    m_TitleId(TitleId),
+    m_DialogId(DialogId),
+    m_bObjectSet(FALSE)
 {
 }
 
@@ -37,13 +37,13 @@ CBasePropertyPage::CBasePropertyPage(CHAR *pName,      // Debug only name
                                      int DialogId,      // Resource ID
                                      int TitleId) :     // To get tital
     CUnknown(pName,pUnk),
-    m_DialogId(DialogId),
-    m_TitleId(TitleId),
+    m_pPageSite(NULL),
     m_hwnd(NULL),
     m_Dlg(NULL),
-    m_pPageSite(NULL),
-    m_bObjectSet(FALSE),
-    m_bDirty(FALSE)
+    m_bDirty(FALSE),
+    m_TitleId(TitleId),
+    m_DialogId(DialogId),
+    m_bObjectSet(FALSE)
 {
 }
 #endif
@@ -54,6 +54,7 @@ STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingAddRef()
 {
     LONG lRef = InterlockedIncrement(&m_cRef);
     ASSERT(lRef > 0);
+    (void)lRef;
     return max(ULONG(m_cRef),1ul);
 }
 

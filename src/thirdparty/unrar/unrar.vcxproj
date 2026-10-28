@@ -42,6 +42,7 @@
       <PreprocessorDefinitions>_LIB;RARDLL;SILENT;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <EnablePREfast>false</EnablePREfast>
+      <AdditionalOptions Condition="'$(PlatformToolset)'=='ClangCL'">%(AdditionalOptions) /clang:-Wno-parentheses /clang:-Wno-bitwise-op-parentheses /clang:-Wno-switch /clang:-Wno-unused-const-variable /clang:-Wno-braced-scalar-init /clang:-Wno-bool-conversion /clang:-Wno-constant-conversion /clang:-Wno-unused-but-set-variable /clang:-Wno-unused-value /clang:-Wno-pointer-to-int-cast /clang:-Wno-int-to-pointer-cast /clang:-Wno-duplicate-decl-specifier /clang:-Wno-deprecated-register /clang:-Wno-self-assign /clang:-Wno-extern-initializer /clang:-Wno-ignored-reference-qualifiers /clang:-Wno-reserved-user-defined-literal /clang:-Wno-microsoft-enum-forward-reference /clang:-Wno-typename-missing /clang:-Wno-nonportable-include-path /clang:-Wno-reorder-ctor /clang:-Wno-unused-variable /clang:-Wno-missing-braces /clang:-Wno-unused-function /clang:-Wno-overloaded-virtual /clang:-Wno-unused-private-field /clang:-Wno-inconsistent-missing-override /clang:-Wno-missing-exception-spec /clang:-Wno-comment /clang:-Wno-pragma-pack /clang:-Wno-explicit-specialization-storage-class</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">

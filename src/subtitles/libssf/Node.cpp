@@ -31,11 +31,11 @@ namespace ssf
 {
 	Node::Node(NodeFactory* pnf, CStringW name)
 		: m_pnf(pnf)
+		, m_parent(NULL)
 		, m_type('?')
 		, m_name(name)
 		, m_priority(PNormal)
 		, m_predefined(false)
-		, m_parent(NULL)
 	{
 		ASSERT(m_pnf);
 	}

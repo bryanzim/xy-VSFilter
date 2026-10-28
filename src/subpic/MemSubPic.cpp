@@ -195,7 +195,7 @@ void AlphaBlt_YUY2_C(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitc
 //
 
 CMemSubPic::CMemSubPic(SubPicDesc& spd, int alpha_blt_dst_type)
-    : m_spd(spd), m_alpha_blt_dst_type(alpha_blt_dst_type)
+    : m_alpha_blt_dst_type(alpha_blt_dst_type), m_spd(spd)
 {
     m_maxsize.SetSize(spd.w, spd.h);
     //	m_rcDirty.SetRect(0, 0, spd.w, spd.h);
@@ -705,7 +705,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
                     DWORD V{((*((DWORD*)s2)&0x0000ff00)/bd)<<8};
                     DWORD R{(((*((DWORD*)s2)&0x00ff0000)>>8)/bd)<<16};
                     *d2 = B | V | R
-                        | (0xff000000-(*((DWORD*)s2)&0xff000000))&0xff000000;
+                        | ((0xff000000-(*((DWORD*)s2)&0xff000000))&0xff000000);
                 }
             }
         }
@@ -1001,7 +1001,6 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     s = static_cast<BYTE*>(src.bits) + src.pitch*rs.top + ((rs.left*src.bpp)>>3);
 
     d = ddUV;
-    int pitch{src.pitch};
     for(int j{0}; j < h2; j++, s += 2 *src.pitch, d += dst.pitchUV )
     {        
         BYTE* s2{s};
@@ -1098,7 +1097,6 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     s = static_cast<BYTE*>(src.bits) + src.pitch * rs.top + ((rs.left * src.bpp) >> 3);
 
     d = ddUV;
-    int pitch{src.pitch};
     for (int j{0}; j < h2; j++, s += src.pitch, d += dst.pitchUV)
     {
         BYTE* s2{s};
@@ -1744,7 +1742,6 @@ void CMemSubPic::AlphaBltYv12Chroma(byte* dst_uv, const int dst_pitch,
         int tail{(w-head) & 15};
         int w00{w - head - tail};
 
-        int pitch{src_pitch};
         for(int j{0}; j < chroma_h; j++, src_uv += src_pitch*2, src_a += src_pitch*2, dst_uv += dst_pitch)
         {
             hleft_vmid_mix_uv_yv12_c2(dst_uv, head, src_uv, src_a, src_pitch);
@@ -1782,7 +1779,6 @@ void CMemSubPic::AlphaBltYv16Chroma(byte* dst_uv, const int dst_pitch,
         int tail{(w - head) & 15};
         int w00{w - head - tail};
 
-        int pitch{src_pitch};
         for (int j{0}; j < chroma_h; j++, src_uv += src_pitch, src_a += src_pitch, dst_uv += dst_pitch)
         {
             mix_uv_yv16_c2(dst_uv, head, src_uv, src_a, src_pitch);
@@ -1824,7 +1820,6 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             const BYTE* sa2{sa};
             const BYTE* s2{src_y};
             const BYTE* s2end_mod16{s2 + (w&~15)};
-            BYTE* d2{dst_y};
             WORD* d_w{reinterpret_cast<WORD*>(dst_y)};
 
             switch( head )//important: it is safe since w > 16 
@@ -1972,7 +1967,6 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             const BYTE* sa2{sa};
             const BYTE* s2{src_y};
             const BYTE* s2end_mod16{s2 + (w & ~15)};
-            BYTE* d2{dst_y};
             WORD* d_w{reinterpret_cast<WORD*>(dst_y)};
 
             switch (head)//important: it is safe since w > 16 
@@ -2294,9 +2288,9 @@ void CMemSubPic::AlphaBlt_YUY2(const int w, const int h, BYTE* d, const int dstp
 
 CMemSubPicAllocator::CMemSubPicAllocator(int alpha_blt_dst_type, SIZE maxsize, int type/*=-1*/)
     : CSubPicExAllocatorImpl(maxsize, false, false)
+    , m_type(type)
     , m_alpha_blt_dst_type(alpha_blt_dst_type)
     , m_maxsize(maxsize)
-    , m_type(type)
 {
     if(m_type==-1)
     {

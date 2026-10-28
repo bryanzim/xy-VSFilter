@@ -35,7 +35,7 @@
 #  if defined (LOG4CPLUS_HAVE_WIN32_CONSOLE)
 #    include <log4cplus/win32consoleappender.h>
 #  endif
-#  include <log4cplus/Win32DebugAppender.h>
+#  include <log4cplus/win32debugappender.h>
 #endif
 
 

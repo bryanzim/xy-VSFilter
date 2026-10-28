@@ -829,7 +829,7 @@ CAutoPtrList<COutline>* CVobSubImage::GetOutlineList(CPoint& topleft)
     double mincf, maxcf;
     if (MinMaxCosfi(o, mincf, maxcf)) {
         if (maxcf - mincf > 0.8
-                || maxcf - mincf > 0.6 && (maxcf >= 0.4 || mincf <= -0.4)) {
+                || (maxcf - mincf > 0.6 && (maxcf >= 0.4 || mincf <= -0.4))) {
             return false;
         }
     }

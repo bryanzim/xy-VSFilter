@@ -14,10 +14,10 @@
 CVideoTransformFilter::CVideoTransformFilter
     ( TCHAR *pName, LPUNKNOWN pUnk, REFCLSID clsid)
     : CTransformFilter(pName, pUnk, clsid)
-    , m_itrLate(0)
     , m_nKeyFramePeriod(0)      // No QM until we see at least 2 key frames
     , m_nFramesSinceKeyFrame(0)
     , m_bSkipping(FALSE)
+    , m_itrLate(0)
     , m_tDecodeStart(0)
     , m_itrAvgDecode(300000)    // 30mSec - probably allows skipping
     , m_bQualityChanged(FALSE)

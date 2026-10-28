@@ -5,7 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include "xy_overlay_paint_machine.h"
 #include "xy_clipper_paint_machine.h"
-#include "../SubPic/ISubPic.h"
+#include "../subpic/ISubPic.h"
 #include "xy_bitmap.h"
 
 #if ENABLE_XY_LOG_TRACE_DRAW
@@ -23,7 +23,7 @@ using namespace std;
 [[nodiscard]] CRectCoor2 DrawItem::GetDirtyRect()
 {
     CRectCoor2 r;
-    if(!switchpts || !fBody && !fBorder)
+    if(!fBody && !fBorder)
     {
         return(r);
     }
@@ -480,7 +480,6 @@ void DecideDrawMethod( CompositeDrawItemListList& compDrawItemListList, XyRectEx
     bool not_lowest[128U];
     std::memset(not_lowest, 0, sizeof(not_lowest));
 
-    int list_count = compDrawItemListList.GetCount();
     POSITION list_pos{compDrawItemListList.GetHeadPosition()};
     POSITION rect_pos{rect_ex_list.GetHeadPosition()};
     bool *not_lowest1{not_lowest};
@@ -562,6 +561,7 @@ void GroupedDrawItems::Draw( SharedPtrXyBitmap *bitmap, int *bitmap_identity_num
         XyColorSpace color_space;
         HRESULT hr{XySubRenderFrameCreater::GetDefaultCreater()->GetColorSpace(&color_space)};
         ASSERT(SUCCEEDED(hr));
+        (void)hr;
         if (color_space==XY_CS_ARGB_F)
         {
             XyBitmap::FlipAlphaValue(tmp->bits, tmp->w, tmp->h, tmp->pitch);

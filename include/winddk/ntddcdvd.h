@@ -116,7 +116,7 @@ typedef enum {
 
 typedef __typefix(LONG) __range(-1,3) ULONG DVD_SESSION_ID, *PDVD_SESSION_ID;
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _DVD_COPY_PROTECT_KEY {
     ULONG KeyLength;
     DVD_SESSION_ID SessionId;
@@ -128,7 +128,7 @@ typedef struct _DVD_COPY_PROTECT_KEY {
     } Parameters;
     UCHAR KeyData[0];
 } DVD_COPY_PROTECT_KEY, *PDVD_COPY_PROTECT_KEY;
-#include <poppack.h>
+#pragma pack(pop)
 
 //
 // Predefined (Mt. Fuji) key sizes
@@ -188,12 +188,12 @@ Output:
 
 --*/
 
-#include <pshpack1.h>
+#pragma pack(push, 1)
 typedef struct _STORAGE_SET_READ_AHEAD {
     LARGE_INTEGER TriggerAddress;
     LARGE_INTEGER TargetAddress;
 } STORAGE_SET_READ_AHEAD, *PSTORAGE_SET_READ_AHEAD;
-#include <poppack.h>
+#pragma pack(pop)
 
 /*++
 
@@ -222,7 +222,7 @@ typedef enum DVD_STRUCTURE_FORMAT {
 
 /////////////////////////////////////////////////////////////
 // ALL THE FOLLOWING STRUCTURES ARE BYTE-PACKED:
-#include <pshpack1.h>
+#pragma pack(push, 1)
 
 typedef struct DVD_READ_STRUCTURE {
     LARGE_INTEGER BlockByteOffset;
@@ -672,7 +672,7 @@ C_ASSERT(sizeof(DVD_REGION) == 4);
 
 // ALL THE ABOVE STRUCTURES ARE BYTE-PACKED:
 /////////////////////////////////////////////////////////////
-#include <poppack.h>
+#pragma pack(pop)
 
 
 #ifdef __cplusplus

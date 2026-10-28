@@ -21,7 +21,7 @@
 
 #include "stdafx.h"
 #include "SubPicQueueImpl.h"
-#include "../DSUtil/DSUtil.h"
+#include "../dsutil/DSUtil.h"
 #include "CRect2.h"
 
 #include "SubPicProviderExWrapper.h"
@@ -37,10 +37,10 @@
 
 CSubPicQueueImpl::CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype/*=NULL*/, int prefered_colortype_num/*=0*/)
 	: CUnknown(NAME("CSubPicQueueImpl"), NULL)
-	, m_pAllocator(pAllocator)
+	, m_fps(25.0)
 	, m_rtNow(0)
 	, m_rtNowLast(0)
-	, m_fps(25.0)
+	, m_pAllocator(pAllocator)
 {
 	if(phr) {
 		*phr = S_OK;
@@ -70,7 +70,7 @@ CSubPicQueueImpl::~CSubPicQueueImpl()
 {
 }
 
-[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP CSubPicQueueImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
 	return
 		QI(ISubPicQueue)
@@ -383,8 +383,7 @@ CSubPicQueue::~CSubPicQueue()
 
 [[nodiscard]] STDMETHODIMP_(bool) CSubPicQueue::LookupSubPic(const REFERENCE_TIME rtNow, ISubPic** ppSubPic)
 {
-    CComPtr<ISubPicProvider> pSubPicProvider;	
-    double fps{m_fps};
+    CComPtr<ISubPicProvider> pSubPicProvider;
     *ppSubPic = NULL;
     //if(SUCCEEDED(GetSubPicProvider(&pSubPicProvider)) && pSubPicProvider)
     {
@@ -610,6 +609,7 @@ void CSubPicQueue::AppendQueue(ISubPic* pSubPic)
 				{
 					reachEnd = false;
 					ASSERT(m_Queue.GetCount() < (std::size_t)nMaxSubPic);
+					(void)nMaxSubPic;
 
 					//DbgLog((LOG_TRACE, 3, "CSubPicQueue::ThreadProc => GetStartStop"));
 					pSubPicProviderEx->GetStartStop(pos, fps, rtStart, rtStop);

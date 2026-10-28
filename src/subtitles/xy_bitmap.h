@@ -90,8 +90,8 @@ public:
     [[nodiscard]] XyBitmap* CreateBitmap(const RECT& target_rect);
     [[nodiscard]] DWORD TransColor(DWORD argb);
 
-    explicit XySubRenderFrameCreater():m_xy_color_space(XY_CS_ARGB), m_bitmap_layout(XyBitmap::PACK)
-        , m_vsfilter_compact_rgb_correction(false), m_rgb_output_tv_level(false){}
+    explicit XySubRenderFrameCreater():m_xy_color_space(XY_CS_ARGB)
+        , m_vsfilter_compact_rgb_correction(false), m_rgb_output_tv_level(false), m_bitmap_layout(XyBitmap::PACK){}
 private:
     CRect m_output_rect;
     CRect m_clip_rect;

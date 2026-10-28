@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <afxdlgs.h>
 #include <atlpath.h>
 #include "resource.h"
@@ -30,6 +30,9 @@
 #define CSRIAPI extern "C" __declspec(dllexport)
 #define CSRI_OWN_HANDLES
 typedef const char *csri_rend;
+struct csri_vsfilter_inst;
+typedef struct csri_vsfilter_inst csri_inst;
+#include "csri.h"
 extern "C" struct csri_vsfilter_inst {
 	CRenderedTextSubtitle *rts;
 	CCritSec *cs;
@@ -39,8 +42,6 @@ extern "C" struct csri_vsfilter_inst {
 	enum csri_pixfmt pixfmt;
 	std::size_t readorder;
 };
-typedef struct csri_vsfilter_inst csri_inst;
-#include "csri.h"
 static csri_rend csri_vsfilter{"vsfilter"};
 
 

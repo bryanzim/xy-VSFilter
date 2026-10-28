@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "XyOptionsImpl.h"
 
 
@@ -315,7 +315,7 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
         }
         break;
     case OPTION_TYPE_ULONGLONG:
-        if (m_xy_ulonglong_opt[field] = *(ULONGLONG*)value)
+        if (m_xy_ulonglong_opt[field] != *(ULONGLONG*)value)
         {
             m_xy_ulonglong_opt[field] = *(ULONGLONG*)value;
             hr = OnOptionChanged(field);

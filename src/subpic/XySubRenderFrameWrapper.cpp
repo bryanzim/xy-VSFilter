@@ -22,7 +22,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)
@@ -166,6 +166,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     int count{0};
     HRESULT hr{inner_obj->GetBitmapCount(&count)};
     ASSERT(SUCCEEDED(hr) && count>=0);
+    (void)hr;
     if (count>0)
     {
         m_ids.SetCount(count);
@@ -179,7 +180,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::NonDelegatingQueryInterface( const REFIID riid, void** ppv )
+[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)

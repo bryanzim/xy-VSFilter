@@ -42,7 +42,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 protected:
-	virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
+	void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) override
 	{
 		CRect r;
 		GetClientRect(r);
@@ -74,9 +74,9 @@ public:
 	STSStyle m_stss;
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	virtual BOOL OnSetActive();
-	virtual void OnOK();
+	void DoDataExchange(CDataExchange* pDX) override;
+	BOOL OnSetActive() override;
+	void OnOK() override;
 
 	DECLARE_MESSAGE_MAP()
 

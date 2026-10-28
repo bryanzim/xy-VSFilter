@@ -19,8 +19,8 @@
  *
  */
 
-#include "StdAfx.h"
-#include "usfsubtitles.h"
+#include "stdafx.h"
+#include "USFSubtitles.h"
 #include <msxml.h>
 
 #define DeclareNameAndValue(pNode, name, val) \
@@ -124,21 +124,6 @@
 	return(time);
 }
 
-[[nodiscard]] static DWORD StringToDWORD(CStringW str)
-{
-	if(str.IsEmpty())
-	{
-	    return(0);
-	}
-	if(str[0U] == '#')
-	{
-	    return((DWORD)wcstol(str, NULL, 16));
-	}
-	else
-	{
-	    return((DWORD)wcstol(str, NULL, 10));
-	}	
-}
 
 [[nodiscard]] static DWORD ColorToDWORD(CStringW str)
 {
@@ -635,7 +620,7 @@ CUSFSubtitles::~CUSFSubtitles()
 		}
 		EndEnumChildren
 
-		return{true};
+		return true;
 	}
 
 	BeginEnumChildren(pNode, pChild)
@@ -647,7 +632,7 @@ CUSFSubtitles::~CUSFSubtitles()
 	}
 	EndEnumChildren
 
-	return{false};
+	return false;
 }
 
 void CUSFSubtitles::ParseMetadata(const CComPtr<IXMLDOMNode> pNode, metadata_t& m)

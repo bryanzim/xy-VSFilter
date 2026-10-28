@@ -23,7 +23,7 @@
 
 #include <boost/smart_ptr.hpp>
 #include <vector>
-#include "../SubPic/ISubPic.h"
+#include "../subpic/ISubPic.h"
 #include "xy_malloc.h"
 
 #ifdef _OPENMP

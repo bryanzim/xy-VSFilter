@@ -20,7 +20,7 @@
 
 #include "stdafx.h"
 #include "CompositionObject.h"
-#include "../DSUtil/GolombBuffer.h"
+#include "../dsutil/GolombBuffer.h"
 #include "../subpic/color_conv_table.h"
 
 bool CompositionObject::m_output_tv_range_rgb = false;

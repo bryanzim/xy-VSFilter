@@ -193,6 +193,7 @@ public:
     // ----- You MUST override these -----------------------------------
     // =================================================================
 
+    using CTransformFilter::Transform;
     virtual HRESULT Transform(IMediaSample *pSample) PURE;
 
     // this goes in the factory template table to create new instances

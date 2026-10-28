@@ -140,8 +140,6 @@ public:
 class CDVSTimingPPage : public CDVSBasePPage
 {
 	int m_SubtitleSpeedMul, m_SubtitleSpeedDiv, m_SubtitleDelay;
-	bool m_fMediaFPSEnabled;
-	double m_MediaFPS;
 
 	CSpinButtonCtrl m_subdelay, m_subspeedmul, m_subspeeddiv;    
 

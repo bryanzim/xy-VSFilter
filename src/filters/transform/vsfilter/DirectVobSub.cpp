@@ -19,7 +19,7 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "DirectVobSub.h"
 #include "VSFilter.h"
 #include <numeric>
@@ -1731,8 +1731,14 @@ CDVS4XySubFilter::CDVS4XySubFilter( const Option *options, CCritSec * pLock )
     GlobalMemoryStatusEx (&statex);
     m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] = (statex.ullTotalPhys < statex.ullTotalVirtual ?
                                                 statex.ullTotalPhys : statex.ullTotalVirtual)>>22;
-    m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] = m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] < (SIZE_MAX>>23) ? 
-                                               m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] : (SIZE_MAX>>23);
+    const unsigned long long phys_cap{static_cast<unsigned long long>(SIZE_MAX) >> 23};
+    const unsigned long long int_cap{static_cast<unsigned long long>(INT_MAX)};
+    const int cache_cap{static_cast<int>(phys_cap < int_cap ? phys_cap : int_cap)};
+    if (m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] < 0
+        || static_cast<unsigned long long>(m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB]) > static_cast<unsigned long long>(cache_cap))
+    {
+        m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] = cache_cap;
+    }
 
     m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL] = theApp.GetProfileInt(ResStr(IDS_R_PERFORMANCE), ResStr(IDS_RP_SUBPIXEL_POS_LEVEL), SubpixelPositionControler::EIGHT_X_EIGHT);
     if(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]<0)

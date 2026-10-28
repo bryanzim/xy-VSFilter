@@ -112,7 +112,7 @@ public:
     /***
      *  @return: 0 if succeeded, -1 if failed
      **/
-    [[nodiscard]] inline int push_back(const const_reference value)
+    [[nodiscard]] inline int push_back(const_reference value)
 
     {
         if(size() == (_CAPACITY -1))

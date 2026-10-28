@@ -19,15 +19,15 @@
  *
  */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <math.h>
 #include <time.h>
 #include "xy_sub_filter_consumer.h"
 #include "DirectVobSubPropPage.h"
 #include "VSFilter.h"
-#include "../../../DSUtil/MediaTypes.h"
-#include "../../../SubPic/SimpleSubPicProviderImpl.h"
-#include "../../../SubPic/PooledSubPic.h"
+#include "../../../dsutil/MediaTypes.h"
+#include "../../../subpic/SimpleSubPicProviderImpl.h"
+#include "../../../subpic/PooledSubPic.h"
 #include "../../../subpic/SimpleSubPicWrapper.h"
 
 #include <initguid.h>
@@ -121,7 +121,7 @@ XySubFilterConsumer::~XySubFilterConsumer()
     XY_LOG_INFO("Deconstructed");
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP XySubFilterConsumer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 

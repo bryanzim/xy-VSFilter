@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "xy_sub_filter.h"
 #include "DirectVobSubFilter.h"
 #include "VSFilter.h"
@@ -6,7 +6,7 @@
 #include "SubtitleInputPin2.h"
 #include "../../../subtitles/xy_bitmap.h"
 #include "../../../subtitles/hdmv_subtitle_provider.h"
-#include "../../../SubPic/SimpleSubPicProviderImpl.h"
+#include "../../../subpic/SimpleSubPicProviderImpl.h"
 #include "../../../subpic/SimpleSubPicWrapper.h"
 #include "../../../subpic/color_conv_table.h"
 
@@ -158,7 +158,7 @@ XySubFilter::~XySubFilter()
     _ASSERTE(_CrtCheckMemory());
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilter::NonDelegatingQueryInterface(const REFIID riid, void** ppv)
+[[nodiscard]] STDMETHODIMP XySubFilter::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 
@@ -249,7 +249,7 @@ XySubFilter::~XySubFilter()
             {
                 for (int i{0}, n=m_known_source_filters_guid.GetCount();i<n;i++)
                 {
-                    if (pBF = FindFilter(m_known_source_filters_guid[i], pGraph))
+                    if ((pBF = FindFilter(m_known_source_filters_guid[i], pGraph)))
                     {
                         break;
                     }
@@ -979,11 +979,11 @@ XySubFilter::~XySubFilter()
     {
         *pdwFlags = 0;
 
-        if(i == -1 && !m_xy_bool_opt[BOOL_HIDE_SUBTITLES]
-            || i >= 0 && i < nLangs && i == m_xy_int_opt[INT_SELECTED_LANGUAGE]
-            || i == nLangs && m_xy_bool_opt[BOOL_HIDE_SUBTITLES]
-            || i == nLangs+1 && !m_xy_bool_opt[BOOL_FLIP_PICTURE]
-            || i == nLangs+2 && m_xy_bool_opt[BOOL_FLIP_PICTURE])
+        if((i == -1 && !m_xy_bool_opt[BOOL_HIDE_SUBTITLES])
+            || (i >= 0 && i < nLangs && i == m_xy_int_opt[INT_SELECTED_LANGUAGE])
+            || (i == nLangs && m_xy_bool_opt[BOOL_HIDE_SUBTITLES])
+            || (i == nLangs+1 && !m_xy_bool_opt[BOOL_FLIP_PICTURE])
+            || (i == nLangs+2 && m_xy_bool_opt[BOOL_FLIP_PICTURE]))
         {
             *pdwFlags |= AMSTREAMSELECTINFO_ENABLED;
         }
@@ -1783,7 +1783,6 @@ void XySubFilter::UpdateSubtitle(const bool fApplyDefStyle/*= true*/)
 
 void XySubFilter::SetSubtitle( ISubStream* pSubStream, const bool fApplyDefStyle /*= true*/ )
 {
-    HRESULT hr{NOERROR};
     XY_LOG_INFO(XY_LOG_VAR_2_STR(pSubStream)<<XY_LOG_VAR_2_STR(fApplyDefStyle));
     [[nodiscard]] CAutoLock cAutolock(&m_csFilter);
 
@@ -2014,7 +2013,7 @@ void XySubFilter::InvalidateSubtitle( const REFERENCE_TIME rtInvalidate /*= -1*/
     hr = func(param, ret_addr);\
     if (FAILED(hr))\
     {\
-        XY_LOG_ERROR("Failed to get "param" from consumer.");\
+        XY_LOG_ERROR("Failed to get " param " from consumer.");\
         return E_UNEXPECTED;\
     }
 
@@ -2422,7 +2421,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
     if((load_external || load_web) && (load_web || !(wcsstr(fn, L"http://") || wcsstr(fn, L"mms://"))))
     {
         bool fTemp{m_xy_bool_opt[BOOL_HIDE_SUBTITLES]};
-        fRet = !fn.IsEmpty() && SUCCEEDED(put_FileName((LPWSTR)(LPCWSTR)fn))
+        fRet = (!fn.IsEmpty() && SUCCEEDED(put_FileName((LPWSTR)(LPCWSTR)fn)))
             || SUCCEEDED(put_FileName(L"c:\\tmp.srt"));
         if(fTemp)
         {
@@ -2564,7 +2563,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 					if(evrservices)
 					{
 						ISubRenderConsumer * tmpCI{NULL};
-						HRESULT hrevr{evrservices->GetService(MR_VIDEO_RENDER_SERVICE, __uuidof(ISubRenderConsumer), (LPVOID*)&tmpCI)};
+						evrservices->GetService(MR_VIDEO_RENDER_SERVICE, __uuidof(ISubRenderConsumer), (LPVOID*)&tmpCI);
 						if(tmpCI)
 						{
 							[[nodiscard]] CComQIPtr<ISubRenderConsumer> tmpconsumer(tmpCI);

@@ -564,7 +564,7 @@ namespace ssf
 		int pitch = w*4;
 		BYTE* q0 = new BYTE[w*h];
 
-		for(int pass = 0, limit = (int)(n + 0.5); pass < n; pass++)
+		for(int pass = 0; pass < n; pass++)
 		{
 			BYTE* p = mpOverlayBuffer + plane;
 			BYTE* q = q0;
@@ -607,14 +607,6 @@ namespace ssf
 
 	///////////////////////////////////////////////////////////////////////////
 
-	static __forceinline void pixmix_c(DWORD* dst, DWORD color, DWORD alpha)
-	{
-		int a = ((alpha * (color>>24)) >> 6) & 0xff;
-		int ia = 0xff - a;
-
-		*dst = ((((*dst & 0x00ff00ff)*ia + (color & 0x00ff00ff)*a) & 0xff00ff00) >> 8)
-			| ((((*dst>>8) & 0x00ff00ff)*ia + ((color>>8) & 0x000000ff)*a) & 0xff00ff00);
-	}
 
 	static __forceinline void pixmix_sse2(DWORD* dst, DWORD color, DWORD alpha)
 	{

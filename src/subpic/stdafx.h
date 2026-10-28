@@ -23,7 +23,7 @@
 
 #include "vsfilter_config.h"
 
-#include "../DSUtil/SharedInclude.h"
+#include "../dsutil/SharedInclude.h"
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
 
@@ -39,7 +39,7 @@
 #include <afxwin.h>         // MFC core and standard components
 
 #include "../../include/stdafx_common_dshow.h"
-#include "../DSUtil/DSUtil.h"
+#include "../dsutil/DSUtil.h"
 
 #ifdef LINUX
 #include <pmmintrin.h>

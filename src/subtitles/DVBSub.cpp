@@ -21,12 +21,12 @@
 
 #include "stdafx.h"
 #include "DVBSub.h"
-#include "../DSUtil/GolombBuffer.h"
+#include "../dsutil/GolombBuffer.h"
 
 #if ENABLE_XY_LOG_DVB
 #define TRACE_DVB(_x_)		{CString tmp;tmp.Format _x_; XY_LOG_TRACE( tmp.GetString() );}
 #else
-#define TRACE_DVB __noop
+#define TRACE_DVB(_x_) do {} while (0)
 #endif
 
 #define BUFFER_CHUNK_GROW 0x1000
@@ -190,7 +190,7 @@ CDVBSub::~CDVBSub()
 
         if (fpts) {
             BYTE b{(BYTE)gb.BitRead(4)};
-            if (!(fdts && b == 3 || !fdts && b == 2)) {
+            if (!((fdts && b == 3) || (!fdts && b == 2))) {
                 ASSERT(0);
                 return E_FAIL;
             }
@@ -227,11 +227,10 @@ CDVBSub::~CDVBSub()
             if (gb.ReadByte() == 0x0F) {
                 TRACE_DVB((_T("DVB - ParseSample\n")));
 
-                WORD wPageId;
                 WORD wSegLength;
 
                 nCurSegment = (DVB_SEGMENT_TYPE) gb.ReadByte();
-                wPageId = gb.ReadShort();
+                (void)gb.ReadShort();
                 wSegLength = gb.ReadShort();
 
                 if (gb.RemainingSize() < wSegLength) {

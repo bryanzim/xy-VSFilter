@@ -79,7 +79,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 	    return CP_UTF7;
 	}
 	CHARSETINFO cs={0};
-	::TranslateCharsetInfo((DWORD *)dwCharSet, &cs, TCI_SRCCHARSET);
+	::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<UINT_PTR>(dwCharSet)), &cs, TCI_SRCCHARSET);
 	return cs.ciACP;
 }
 
@@ -149,8 +149,8 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 		CHAR s12 = (s1 < e-2) ? (__isascii(s1[2U]) && isupper(s1[2U]) ? tolower(s1[2U]) : s1[2U]) : 0;
 
 		if(*s1 == '%' && s1 < e-2
-		&& (s1[1U] >= '0' && s1[1U] <= '9' || s11 >= 'a' && s11 <= 'f')
-		&& (s1[2U] >= '0' && s1[2U] <= '9' || s12 >= 'a' && s12 <= 'f'))
+		&& ((s1[1U] >= '0' && s1[1U] <= '9') || (s11 >= 'a' && s11 <= 'f'))
+		&& ((s1[2U] >= '0' && s1[2U] <= '9') || (s12 >= 'a' && s12 <= 'f')))
 		{
 			s1[1U] = s11;
 			s1[2U] = s12;

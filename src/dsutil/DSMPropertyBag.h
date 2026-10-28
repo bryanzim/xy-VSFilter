@@ -86,7 +86,7 @@ public:
 	// IDSMResourceBag
 
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(DWORD) ResGetCount();
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResGet(DWORD iIndex, BSTR* ppName, BSTR* ppDesc, BSTR* ppMime, BYTE** ppData, DWORD* pDataLen, DWORD_PTR* pTag = NULL);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResGet(DWORD iIndex, BSTR* ppName, BSTR* ppDesc, BSTR* ppMime, BYTE** ppData, DWORD* pDataLen, DWORD_PTR* pTag = nullptr);
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResSet(DWORD iIndex, LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResAppend(LPCWSTR pName, LPCWSTR pDesc, LPCWSTR pMime, BYTE* pData, DWORD len, DWORD_PTR tag = 0);
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ResRemoveAt(DWORD iIndex);
@@ -136,12 +136,12 @@ public:
 	// IDSMChapterBag
 
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(DWORD) ChapGetCount();
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapGet(DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName = NULL);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapGet(DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName = nullptr);
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapSet(DWORD iIndex, REFERENCE_TIME rt, LPCWSTR pName);
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapAppend(REFERENCE_TIME rt, LPCWSTR pName);
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChapRemoveAt(DWORD iIndex);
 	DECLSPEC_NOTHROW STDMETHODIMP ChapRemoveAll();
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(long) ChapLookup(REFERENCE_TIME* prt, BSTR* ppName = NULL);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(long) ChapLookup(REFERENCE_TIME* prt, BSTR* ppName = nullptr);
 	DECLSPEC_NOTHROW STDMETHODIMP ChapSort();
 };
 

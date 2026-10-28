@@ -140,7 +140,7 @@ public:
     {
         return E_NOTIMPL;
     }
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_SubPictToBuffer(const unsigned int uSubPictToBuffer)
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_SubPictToBuffer(unsigned int uSubPictToBuffer)
 
     {
         return E_NOTIMPL;
@@ -150,7 +150,7 @@ public:
     {
         return E_NOTIMPL;
     }
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_AnimWhenBuffering(const bool fAnimWhenBuffering)
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_AnimWhenBuffering(bool fAnimWhenBuffering)
 
     {
         return E_NOTIMPL;
@@ -174,7 +174,7 @@ public:
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ZoomRect(NORMALIZEDRECT* rect);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ZoomRect(NORMALIZEDRECT* rect);
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ColorFormat(int* iPosition) {return E_NOTIMPL;}
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ColorFormat(const int iPosition) {return E_NOTIMPL;}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ColorFormat(int iPosition) {return E_NOTIMPL;}
 
     STDMETHOD (get_CachesInfo)(CachesInfo* caches_info);
     STDMETHOD (get_XyFlyWeightInfo)(XyFlyWeightInfo* xy_fw_info);

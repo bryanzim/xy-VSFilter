@@ -10,7 +10,7 @@ class XySubRenderFrameWrapper : public CUnknown, public IXySubRenderFrame
 public:
     XySubRenderFrameWrapper(CMemSubPic * inner_obj, const CRect& output_rect, const CRect& clip_rect, 
         ULONGLONG id,
-        HRESULT *phr=NULL);
+        HRESULT *phr=nullptr);
     virtual ~XySubRenderFrameWrapper() {}
 
     DECLARE_IUNKNOWN

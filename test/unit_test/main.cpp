@@ -21,7 +21,7 @@ int wmain(int argc, wchar_t ** argv)
         return -1;
     }
     char namebuf[256U];
-    WideCharToMultiByte(CP_UTF8, 0, argv[1U], -1, namebuf, sizeof(namebuf)/sizeof(char), NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, argv[1U], -1, namebuf, sizeof(namebuf)/sizeof(char), nullptr, nullptr);
     OpenTestScript(namebuf);
 
     testing::InitGoogleTest(&argc, argv);

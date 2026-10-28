@@ -98,7 +98,7 @@ namespace ssf
 			c = s.SkipWhiteSpace(L":=");
 
 			if(c == '"' || c == '\'') ParseQuotedString(s, pDef);
-			else if(iswdigit(c) || c == '+' || c == '-') ParseNumber(s, pDef);
+			else if(iswdigit(static_cast<wint_t>(c)) || c == '+' || c == '-') ParseNumber(s, pDef);
 			else if(pDef->IsType(L"@")) ParseBlock(s, pDef);
 			else ParseRefs(s, pDef);
 		}
@@ -112,21 +112,21 @@ namespace ssf
 
 		CStringW str;
 
-		for(int c = s.SkipWhiteSpace(); iswcsym(c) || c == '.' || c == '@'; c = s.PeekChar())
+		for(int c = s.SkipWhiteSpace(); iswcsym(static_cast<wint_t>(c)) || c == '.' || c == '@'; c = s.PeekChar())
 		{
 			c = s.GetChar();
 
 			if(c == '.') 
 			{
 				if(str.IsEmpty()) s.ThrowError(_T("'type' cannot be an empty string"));
-				if(!iswcsym(s.PeekChar())) s.ThrowError(_T("unexpected dot after type '%s'"), str.GetString());
+				if(!iswcsym(static_cast<wint_t>(s.PeekChar()))) s.ThrowError(_T("unexpected dot after type '%s'"), str.GetString());
 
 				types.AddTail(str);
 				str.Empty();
 			}
 			else
 			{
-				if(str.IsEmpty() && iswdigit(c)) s.ThrowError(_T("'type' cannot start with a number"));
+				if(str.IsEmpty() && iswdigit(static_cast<wint_t>(c))) s.ThrowError(_T("'type' cannot start with a number"));
 				if((!str.IsEmpty() || !types.IsEmpty()) && c == '@') s.ThrowError(_T("unexpected @ in 'type'"));
 
 				str += (WCHAR)c;

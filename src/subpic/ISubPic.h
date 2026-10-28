@@ -61,8 +61,8 @@ struct SubPicDesc {
 	explicit SubPicDesc() {
 		type = 0;
 		w = h = bpp = pitch = pitchUV = 0;
-		bits = NULL;
-		bitsU = bitsV = NULL;
+		bits = nullptr;
+		bitsU = bitsV = nullptr;
 	}
 };
 #pragma pack(pop)
@@ -94,7 +94,7 @@ public IUnknown {
 	STDMETHOD (Lock) (SubPicDesc& spd /*[out]*/) PURE;
 	STDMETHOD (Unlock) (RECT* pDirtyRect /*[in]*/) PURE;
 
-	STDMETHOD (AlphaBlt) (const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget = NULL /*[in]*/) PURE;
+	STDMETHOD (AlphaBlt) (const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget = nullptr /*[in]*/) PURE;
 	STDMETHOD (GetSourceAndDest) (SIZE* pSize /*[in]*/, RECT* pRcSource /*[out]*/, RECT* pRcDest /*[out]*/) PURE;
 	STDMETHOD (SetVirtualTextureSize) (SIZE pSize, POINT pTopLeft) PURE;
 

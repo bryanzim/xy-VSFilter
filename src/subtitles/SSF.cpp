@@ -117,7 +117,7 @@ namespace ssf
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 	{
 		CheckPointer(ppv, E_POINTER);
-		*ppv = NULL;
+		*ppv = nullptr;
 
 		return 
 			QI(IPersist)
@@ -131,19 +131,19 @@ namespace ssf
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(const REFERENCE_TIME rt, const double fps)
 	{
 		std::size_t k;
-		return m_file && m_file->m_segments.Lookup((float)rt/10000000, k) ? (POSITION)(++k) : NULL;
+		return m_file && m_file->m_segments.Lookup((float)rt/10000000, k) ? (POSITION)(++k) : nullptr;
 	}
 
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
 	{
 		std::size_t k{(std::size_t)pos};
-		return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : NULL;
+		return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : nullptr;
 	}
 
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, const double fps)
 	{
 		std::size_t k{(std::size_t)pos-1};
-		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : NULL};
+		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : nullptr};
 		return s ? (REFERENCE_TIME)(s->m_start*10000000) : 0;
 	}
 
@@ -152,7 +152,7 @@ namespace ssf
 		CheckPointer(m_file, 0);
 
 		std::size_t k{(std::size_t)pos-1};
-		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : NULL};
+		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : nullptr};
 		return s ? (REFERENCE_TIME)(s->m_stop*10000000) : 0;
 	}
 

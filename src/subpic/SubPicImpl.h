@@ -118,11 +118,11 @@ public:
     {
         return CSubPicImplHelper::GetStop();
     }
-    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStart(const REFERENCE_TIME rtStart)
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetStart(rtStart);
     }
-    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStop(const REFERENCE_TIME rtStop)
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetStop(rtStop);
     }
@@ -174,11 +174,11 @@ public:
     {
         return CSubPicImplHelper::GetSegmentStop();
     }
-	DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStart(const REFERENCE_TIME rtStart)
+	DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetSegmentStart(rtStart);
     }
-	DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStop(const REFERENCE_TIME rtStop)
+	DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetSegmentStop(rtStop);
     }
@@ -205,11 +205,11 @@ public:
     {
         return CSubPicImplHelper::GetStop();
     }
-    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStart(const REFERENCE_TIME rtStart)
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStart(REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetStart(rtStart);
     }
-    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStop(const REFERENCE_TIME rtStop)
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetStop(REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetStop(rtStop);
     }
@@ -258,11 +258,11 @@ public:
     {
         return CSubPicImplHelper::GetSegmentStop();
     }
-    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStart(const REFERENCE_TIME rtStart)
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStart(REFERENCE_TIME rtStart)
     {
         return CSubPicImplHelper::SetSegmentStart(rtStart);
     }
-    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStop(const REFERENCE_TIME rtStop)
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSegmentStop(REFERENCE_TIME rtStop)
     {
         return CSubPicImplHelper::SetSegmentStop(rtStop);
     }

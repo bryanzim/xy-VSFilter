@@ -67,12 +67,12 @@ ULONG PathDataTraits::Hash( const PathData& key )
     hash += (hash<<5);
     hash += hash_value(key.m_polygon->m_scaley);
 
-    for (int i{0};i<sizeof(key.m_effect.param)/sizeof(key.m_effect.param[0U]);++i)
+    for (std::size_t i{0};i<sizeof(key.m_effect.param)/sizeof(key.m_effect.param[0U]);++i)
     {
         hash += (hash<<5);
         hash += key.m_effect.param[i];
     }
-    for (int i{0};i<sizeof(key.m_effect.t)/sizeof(key.m_effect.t[0U]);++i)
+    for (std::size_t i{0};i<sizeof(key.m_effect.t)/sizeof(key.m_effect.t[0U]);++i)
     {
         hash += (hash<<5);
         hash += key.m_effect.t[i];
@@ -298,7 +298,7 @@ ULONG PathDataTraits::Hash( const PathData& key )
     {
         result = true;
     }
-    else if ( m_clipper!=NULL && key.m_clipper!=NULL )
+    else if ( m_clipper!=nullptr && key.m_clipper!=nullptr )
     {
         const CClipper& lhs{*m_clipper};
         const CClipper& rhs{*key.m_clipper};
@@ -428,20 +428,20 @@ struct Caches
 public:
     explicit Caches()
     {
-        s_bitmap_cache = NULL;
-        s_clipper_alpha_mask_cache = NULL;
+        s_bitmap_cache = nullptr;
+        s_clipper_alpha_mask_cache = nullptr;
 
-        s_text_info_cache = NULL;
-        s_path_data_mru_cache = NULL;
-        s_scan_line_data_2_mru_cache = NULL;
-        s_overlay_no_blur_mru_cache = NULL;
-        s_overlay_mru_cache = NULL;
+        s_text_info_cache = nullptr;
+        s_path_data_mru_cache = nullptr;
+        s_scan_line_data_2_mru_cache = nullptr;
+        s_overlay_no_blur_mru_cache = nullptr;
+        s_overlay_mru_cache = nullptr;
 
-        s_scan_line_data_mru_cache = NULL;
-        s_overlay_no_offset_mru_cache = NULL;
+        s_scan_line_data_mru_cache = nullptr;
+        s_overlay_no_offset_mru_cache = nullptr;
 		
-        s_subpixel_variance_cache = NULL;
-        s_ass_tag_list_cache = NULL;
+        s_subpixel_variance_cache = nullptr;
+        s_ass_tag_list_cache = nullptr;
     }
     ~Caches()
 
@@ -482,7 +482,7 @@ static Caches s_caches;
 
 [[nodiscard]] OverlayMruCache* CacheManager::GetOverlayMruCache()
 {
-    if(s_caches.s_overlay_mru_cache==NULL)
+    if(s_caches.s_overlay_mru_cache==nullptr)
     {
         s_caches.s_overlay_mru_cache = DEBUG_NEW OverlayMruCache(OVERLAY_CACHE_ITEM_NUM);
     }
@@ -491,7 +491,7 @@ static Caches s_caches;
 
 [[nodiscard]] PathDataMruCache* CacheManager::GetPathDataMruCache()
 {
-    if (s_caches.s_path_data_mru_cache==NULL)
+    if (s_caches.s_path_data_mru_cache==nullptr)
     {
         s_caches.s_path_data_mru_cache = DEBUG_NEW PathDataMruCache(PATH_CACHE_ITEM_NUM);
     }
@@ -500,7 +500,7 @@ static Caches s_caches;
 
 [[nodiscard]] OverlayNoBlurMruCache* CacheManager::GetOverlayNoBlurMruCache()
 {
-    if(s_caches.s_overlay_no_blur_mru_cache==NULL)
+    if(s_caches.s_overlay_no_blur_mru_cache==nullptr)
     {
         s_caches.s_overlay_no_blur_mru_cache = DEBUG_NEW OverlayNoBlurMruCache(OVERLAY_NO_BLUR_CACHE_ITEM_NUM);
     }
@@ -509,7 +509,7 @@ static Caches s_caches;
 
 [[nodiscard]] ScanLineData2MruCache* CacheManager::GetScanLineData2MruCache()
 {
-    if(s_caches.s_scan_line_data_2_mru_cache==NULL)
+    if(s_caches.s_scan_line_data_2_mru_cache==nullptr)
     {
         s_caches.s_scan_line_data_2_mru_cache = DEBUG_NEW ScanLineData2MruCache(SCAN_LINE_DATA_CACHE_ITEM_NUM);
     }
@@ -518,7 +518,7 @@ static Caches s_caches;
 
 [[nodiscard]] OverlayMruCache* CacheManager::GetSubpixelVarianceCache()
 {
-    if(s_caches.s_subpixel_variance_cache==NULL)
+    if(s_caches.s_subpixel_variance_cache==nullptr)
     {
         s_caches.s_subpixel_variance_cache = DEBUG_NEW OverlayMruCache(SUBPIXEL_VARIANCE_CACHE_ITEM_NUM);
     }
@@ -527,7 +527,7 @@ static Caches s_caches;
 
 [[nodiscard]] ScanLineDataMruCache* CacheManager::GetScanLineDataMruCache()
 {
-    if(s_caches.s_scan_line_data_mru_cache==NULL)
+    if(s_caches.s_scan_line_data_mru_cache==nullptr)
     {
         s_caches.s_scan_line_data_mru_cache = DEBUG_NEW ScanLineDataMruCache(SCAN_LINE_DATA_CACHE_ITEM_NUM);
     }
@@ -536,7 +536,7 @@ static Caches s_caches;
 
 [[nodiscard]] OverlayNoOffsetMruCache* CacheManager::GetOverlayNoOffsetMruCache()
 {
-    if(s_caches.s_overlay_no_offset_mru_cache==NULL)
+    if(s_caches.s_overlay_no_offset_mru_cache==nullptr)
     {
         s_caches.s_overlay_no_offset_mru_cache = DEBUG_NEW OverlayNoOffsetMruCache(OVERLAY_NO_BLUR_CACHE_ITEM_NUM);
     }
@@ -545,7 +545,7 @@ static Caches s_caches;
 
 [[nodiscard]] AssTagListMruCache* CacheManager::GetAssTagListMruCache()
 {
-    if(s_caches.s_ass_tag_list_cache==NULL)
+    if(s_caches.s_ass_tag_list_cache==nullptr)
     {
         s_caches.s_ass_tag_list_cache = DEBUG_NEW AssTagListMruCache(ASS_TAG_LIST_CACHE_ITEM_NUM);
     }
@@ -554,7 +554,7 @@ static Caches s_caches;
 
 [[nodiscard]] TextInfoMruCache* CacheManager::GetTextInfoCache()
 {
-    if(s_caches.s_text_info_cache==NULL)
+    if(s_caches.s_text_info_cache==nullptr)
     {
         s_caches.s_text_info_cache = DEBUG_NEW TextInfoMruCache(TEXT_INFO_CACHE_ITEM_NUM);
     }
@@ -563,7 +563,7 @@ static Caches s_caches;
 
 [[nodiscard]] ClipperAlphaMaskMruCache* CacheManager::GetClipperAlphaMaskMruCache()
 {
-    if(s_caches.s_clipper_alpha_mask_cache==NULL)
+    if(s_caches.s_clipper_alpha_mask_cache==nullptr)
     {
         s_caches.s_clipper_alpha_mask_cache = DEBUG_NEW ClipperAlphaMaskMruCache(CLIPPER_MRU_CACHE_ITEM_NUM);
     }
@@ -572,7 +572,7 @@ static Caches s_caches;
 
 [[nodiscard]] BitmapMruCache* CacheManager::GetBitmapMruCache()
 {
-    if (s_caches.s_bitmap_cache==NULL)
+    if (s_caches.s_bitmap_cache==nullptr)
     {
         s_caches.s_bitmap_cache = DEBUG_NEW BitmapMruCache(BITMAP_MRU_CACHE_ITEM_NUM);
     }

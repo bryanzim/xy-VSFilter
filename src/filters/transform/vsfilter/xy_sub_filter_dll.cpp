@@ -49,7 +49,7 @@ static WCHAR sudNameIn[] = L"Input";
 
 const AMOVIESETUP_PIN sudpPins[] =
 {
-    {sudNameIn, TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, NULL, countof(sudPinTypesIn), sudPinTypesIn}
+    {sudNameIn, TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, nullptr, countof(sudPinTypesIn), sudPinTypesIn}
 };
 
 
@@ -57,7 +57,7 @@ const AMOVIESETUP_MEDIATYPE sudPinTypeIn2[] = {
     {&GUID_NULL, &GUID_NULL}
 };
 static WCHAR sudNameIn2[] = L"Input";
-const AMOVIESETUP_PIN sudpPin2 = {sudNameIn2, FALSE, FALSE, TRUE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypeIn2), sudPinTypeIn2};
+const AMOVIESETUP_PIN sudpPin2 = {sudNameIn2, FALSE, FALSE, TRUE, FALSE, &CLSID_NULL, nullptr, countof(sudPinTypeIn2), sudPinTypeIn2};
 
 /*const*/ AMOVIESETUP_FILTER sudFilter[] =
 {
@@ -68,13 +68,13 @@ const AMOVIESETUP_PIN sudpPin2 = {sudNameIn2, FALSE, FALSE, TRUE, FALSE, &CLSID_
 
 CFactoryTemplate g_Templates[] =
 {
-    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<XySubFilter>, NULL, &sudFilter[0U]},
-    {sudFilter[1U].strName, sudFilter[1U].clsID, CreateInstance<XySubFilterAutoLoader>, NULL, &sudFilter[1U]},
-    {L"XySubFilterMainPPage", &__uuidof(CXySubFilterMainPPage), CreateInstance<CXySubFilterMainPPage>},
-    {L"XySubFilterMorePPage", &__uuidof(CXySubFilterMorePPage), CreateInstance<CXySubFilterMorePPage>},
-    {L"XySubFilterTimingPPage", &__uuidof(CXySubFilterTimingPPage), CreateInstance<CXySubFilterTimingPPage>},
-    {L"XySubFilterPathsPPage", &__uuidof(CXySubFilterPathsPPage), CreateInstance<CXySubFilterPathsPPage>},
-    {L"XySubFilterAboutPPage", &__uuidof(CXySubFilterAboutPPage), CreateInstance<CXySubFilterAboutPPage>},
+    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<XySubFilter>, nullptr, &sudFilter[0U]},
+    {sudFilter[1U].strName, sudFilter[1U].clsID, CreateInstance<XySubFilterAutoLoader>, nullptr, &sudFilter[1U]},
+    {L"XySubFilterMainPPage", &__uuidof(CXySubFilterMainPPage), CreateInstance<CXySubFilterMainPPage>, nullptr, nullptr},
+    {L"XySubFilterMorePPage", &__uuidof(CXySubFilterMorePPage), CreateInstance<CXySubFilterMorePPage>, nullptr, nullptr},
+    {L"XySubFilterTimingPPage", &__uuidof(CXySubFilterTimingPPage), CreateInstance<CXySubFilterTimingPPage>, nullptr, nullptr},
+    {L"XySubFilterPathsPPage", &__uuidof(CXySubFilterPathsPPage), CreateInstance<CXySubFilterPathsPPage>, nullptr, nullptr},
+    {L"XySubFilterAboutPPage", &__uuidof(CXySubFilterAboutPPage), CreateInstance<CXySubFilterAboutPPage>, nullptr, nullptr},
 };
 
 int g_cTemplates{countof(g_Templates)};

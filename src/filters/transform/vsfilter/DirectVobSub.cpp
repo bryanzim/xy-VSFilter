@@ -50,8 +50,8 @@ DirectVobSubImpl::~DirectVobSubImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_FileName(WCHAR* fn)
 {
-    WCHAR *tmp{NULL};
-    HRESULT hr{XyGetString(STRING_FILE_NAME, &tmp, NULL)};
+    WCHAR *tmp{nullptr};
+    HRESULT hr{XyGetString(STRING_FILE_NAME, &tmp, nullptr)};
     if (SUCCEEDED(hr))
     {
         wcscpy_s(fn, wcslen(tmp)+1, tmp);
@@ -1017,7 +1017,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
     *size = 0;
     if (value)
     {
-        *value = NULL;
+        *value = nullptr;
     }
     CAutoLock cAutoLock{m_propsLock};
     switch(field)
@@ -1175,7 +1175,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-    BYTE* pData{NULL};
+    BYTE* pData{nullptr};
     UINT nSize{0};
 
     m_supported_filter_verion = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_SUPPORTED_VERSION), 0);
@@ -1337,7 +1337,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     if(pData)
     {
         delete [] pData;
-        pData = NULL;
+        pData = nullptr;
     }
     if(theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_OUTPUT_COLORFORMATS), &pData, &nSize)
         && pData && nSize == 2*GetOutputColorSpaceNumber())
@@ -1361,7 +1361,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     if(pData)
     {
         delete [] pData;
-        pData = NULL;
+        pData = nullptr;
     }
     if(theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INPUT_COLORFORMATS), &pData, &nSize)
         && pData && nSize == 2*GetInputColorSpaceNumber())
@@ -1455,7 +1455,7 @@ CDirectVobSub::CDirectVobSub( const Option *options, CCritSec * pLock )
     if(pData)
     {
         delete [] pData;
-        pData = NULL;
+        pData = nullptr;
     }
 
 }

@@ -77,9 +77,9 @@ static WCHAR sudNameIn2[] = L"Input2";
 
 const AMOVIESETUP_PIN sudpPins[] =
 {
-    {sudNameIn, FALSE, FALSE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesIn), sudPinTypesIn},
-    {sudNameOut, FALSE, TRUE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesOut), sudPinTypesOut},
-    {sudNameIn2, TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, NULL, countof(sudPinTypesIn2), sudPinTypesIn2}
+    {sudNameIn, FALSE, FALSE, FALSE, FALSE, &CLSID_NULL, nullptr, countof(sudPinTypesIn), sudPinTypesIn},
+    {sudNameOut, FALSE, TRUE, FALSE, FALSE, &CLSID_NULL, nullptr, countof(sudPinTypesOut), sudPinTypesOut},
+    {sudNameIn2, TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, nullptr, countof(sudPinTypesIn2), sudPinTypesIn2}
 };
 
 /*const*/ AMOVIESETUP_FILTER sudFilter[] =
@@ -90,17 +90,17 @@ const AMOVIESETUP_PIN sudpPins[] =
 
 CFactoryTemplate g_Templates[] =
 {
-    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<CDirectVobSubFilter>, NULL, &sudFilter[0U]},
-    {sudFilter[1U].strName, sudFilter[1U].clsID, CreateInstance<CDirectVobSubFilter2>, NULL, &sudFilter[1U]},
-    {L"DVSMainPPage", &__uuidof(CDVSMainPPage), CreateInstance<CDVSMainPPage>},
-    {L"DVSGeneralPPage", &__uuidof(CDVSGeneralPPage), CreateInstance<CDVSGeneralPPage>},
-    {L"DVSMiscPPage", &__uuidof(CDVSMiscPPage), CreateInstance<CDVSMiscPPage>},
-    {L"DVSMorePPage", &__uuidof(CDVSMorePPage), CreateInstance<CDVSMorePPage>},
-    {L"DVSTimingPPage", &__uuidof(CDVSTimingPPage), CreateInstance<CDVSTimingPPage>},
-    {L"DVSZoomPPage", &__uuidof(CDVSZoomPPage), CreateInstance<CDVSZoomPPage>},
-    {L"DVSColorPPage", &__uuidof(CDVSColorPPage), CreateInstance<CDVSColorPPage>},
-    {L"DVSPathsPPage", &__uuidof(CDVSPathsPPage), CreateInstance<CDVSPathsPPage>},
-    {L"DVSAboutPPage", &__uuidof(CDVSAboutPPage), CreateInstance<CDVSAboutPPage>},
+    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<CDirectVobSubFilter>, nullptr, &sudFilter[0U]},
+    {sudFilter[1U].strName, sudFilter[1U].clsID, CreateInstance<CDirectVobSubFilter2>, nullptr, &sudFilter[1U]},
+    {L"DVSMainPPage", &__uuidof(CDVSMainPPage), CreateInstance<CDVSMainPPage>, nullptr, nullptr},
+    {L"DVSGeneralPPage", &__uuidof(CDVSGeneralPPage), CreateInstance<CDVSGeneralPPage>, nullptr, nullptr},
+    {L"DVSMiscPPage", &__uuidof(CDVSMiscPPage), CreateInstance<CDVSMiscPPage>, nullptr, nullptr},
+    {L"DVSMorePPage", &__uuidof(CDVSMorePPage), CreateInstance<CDVSMorePPage>, nullptr, nullptr},
+    {L"DVSTimingPPage", &__uuidof(CDVSTimingPPage), CreateInstance<CDVSTimingPPage>, nullptr, nullptr},
+    {L"DVSZoomPPage", &__uuidof(CDVSZoomPPage), CreateInstance<CDVSZoomPPage>, nullptr, nullptr},
+    {L"DVSColorPPage", &__uuidof(CDVSColorPPage), CreateInstance<CDVSColorPPage>, nullptr, nullptr},
+    {L"DVSPathsPPage", &__uuidof(CDVSPathsPPage), CreateInstance<CDVSPathsPPage>, nullptr, nullptr},
+    {L"DVSAboutPPage", &__uuidof(CDVSAboutPPage), CreateInstance<CDVSAboutPPage>, nullptr, nullptr},
 };
 
 int g_cTemplates{countof(g_Templates)};

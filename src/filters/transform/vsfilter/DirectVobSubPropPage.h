@@ -84,7 +84,7 @@ class __declspec(uuid("60765CF5-01C2-4ee7-A44B-C791CF25FEA0")) CDVSMainPPage : p
 	CComboBox m_PARCombo;
     CButton m_hide_tray_icon;
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
 	virtual void UpdateControlData(bool fSave);
 	virtual void UpdateObjectData(bool fSave);
 
@@ -107,7 +107,7 @@ class __declspec(uuid("0180E49C-13BF-46db-9AFD-9F52292E1C22")) CDVSGeneralPPage 
 	CButton m_extload, m_webload, m_embload;
 
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
 	virtual void UpdateControlData(bool fSave);
 	virtual void UpdateObjectData(bool fSave);
 
@@ -125,7 +125,7 @@ class __declspec(uuid("A8B25C0E-0894-4531-B668-AB1599FAF7F6")) CDVSMiscPPage : p
     CComboBox m_colorSpaceDropList, m_yuvRangeDropList;
 
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
 	virtual void UpdateControlData(bool fSave);
 	virtual void UpdateObjectData(bool fSave);
 
@@ -159,7 +159,7 @@ class __declspec(uuid("69CE757B-E8C0-4B0A-9EA0-CEA284096F98")) CDVSMorePPage : p
     CSpinButtonCtrl m_layout_size_x, m_layout_size_y;
     CComboBox m_combo_subpixel_pos, m_combo_layout_size_opt;
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
     virtual void UpdateControlData(bool fSave);
     virtual void UpdateObjectData(bool fSave);
 
@@ -172,7 +172,7 @@ class __declspec(uuid("F544E0F5-CA3C-47ea-A64D-35FCF1602396")) CDVSAboutPPage : 
 public:
     CDVSAboutPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR* pName=NAME("About Property Page"));
     
-    [[nodiscard]] bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    [[nodiscard]] bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
 };
 
 class __declspec(uuid("525F116F-04AD-40a2-AE2F-A0C4E1AFEF98")) CDVSZoomPPage : public CDVSBasePPage
@@ -182,7 +182,7 @@ class __declspec(uuid("525F116F-04AD-40a2-AE2F-A0C4E1AFEF98")) CDVSZoomPPage : p
 	CSpinButtonCtrl m_posx, m_posy, m_scalex, m_scaley;
 
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
 	virtual void UpdateControlData(bool fSave);
 	virtual void UpdateObjectData(bool fSave);
 
@@ -206,7 +206,7 @@ class __declspec(uuid("C2D6D98F-09CA-4524-AF64-1049B5665C9C")) CDVSColorPPage : 
 
     bool m_fFollowUpstream;
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
 	virtual void UpdateControlData(bool fSave);
 	virtual void UpdateObjectData(bool fSave);
 
@@ -224,7 +224,7 @@ class __declspec(uuid("CE77C59C-CFD2-429f-868C-8B04D23F94CA")) CDVSPathsPPage : 
 	CButton m_browse, m_remove, m_add;
 
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
 	virtual void UpdateControlData(bool fSave);
 	virtual void UpdateObjectData(bool fSave);
 
@@ -261,7 +261,7 @@ class __declspec(uuid("4514EFD4-E09B-4995-9668-143F12994FE7")) CXySubFilterMainP
     CComboBox m_load;
     CButton m_extload, m_webload, m_embload;
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
     virtual void UpdateControlData(bool fSave);
     virtual void UpdateObjectData(bool fSave);
 
@@ -294,7 +294,7 @@ class __declspec(uuid("E7946C91-1083-4F0E-AC45-5CF6BE7DB4C7")) CXySubFilterMoreP
     CComboBox m_combo_yuv_matrix, m_combo_yuv_range, m_combo_rgb_level;
     CEdit m_edit_cache_size;
 protected:
-    virtual bool OnMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
     virtual void UpdateControlData(bool fSave);
     virtual void UpdateObjectData(bool fSave);
 

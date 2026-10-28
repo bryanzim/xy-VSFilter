@@ -54,7 +54,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 	{
 		for(int i{0}; i < cnt; ++i)
 		{
-			AM_MEDIA_TYPE* pmt{NULL};
+			AM_MEDIA_TYPE* pmt{nullptr};
 
 			VIDEO_STREAM_CONFIG_CAPS caps;
 			std::memset(&caps, 0, sizeof(caps));
@@ -293,14 +293,14 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 	}
 	EndEnumPins
 
-	return(NULL);
+	return(nullptr);
 }
 
 [[nodiscard]] IPin* GetFirstPin(IBaseFilter* pBF, const PIN_DIRECTION dir)
 {
 	if(!pBF)
 	{
-	    return(NULL);
+	    return(nullptr);
 	}
 
 	BeginEnumPins(pBF, pEP, pPin)
@@ -316,14 +316,14 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 	}
 	EndEnumPins
 
-	return(NULL);
+	return(nullptr);
 }
 
 [[nodiscard]] IPin* GetFirstDisconnectedPin(IBaseFilter* pBF, const PIN_DIRECTION dir)
 {
 	if(!pBF)
 	{
-	    return(NULL);
+	    return(nullptr);
 	}
 
 	BeginEnumPins(pBF, pEP, pPin)
@@ -340,7 +340,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 	}
 	EndEnumPins
 
-	return(NULL);
+	return(nullptr);
 }
 
 [[nodiscard]] IBaseFilter* FindFilter(const LPCWSTR clsid, IFilterGraph* pFG)
@@ -362,7 +362,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 	}
 	EndEnumFilters
 
-	return NULL;
+	return nullptr;
 }
 
 [[nodiscard]] CStringW GetFilterName(IBaseFilter* pBF)
@@ -391,9 +391,9 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 {
 	if(!pBF)
 	{
-	    return NULL;
+	    return nullptr;
 	}
-	IFilterGraph* pGraph{NULL};
+	IFilterGraph* pGraph{nullptr};
 	CFilterInfo fi;
 	if(pBF && SUCCEEDED(pBF->QueryFilterInfo(&fi)))
 	{
@@ -406,9 +406,9 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 {
 	if(!pPin)
 	{
-	    return NULL;
+	    return nullptr;
 	}
-	IBaseFilter* pBF{NULL};
+	IBaseFilter* pBF{nullptr};
 	CPinInfo pi;
 	if(pPin && SUCCEEDED(pPin->QueryPinInfo(&pi)))
 	{
@@ -460,7 +460,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 		}
 
 		CComVariant var;
-		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, nullptr)))
 		{
 			break;
 		}
@@ -490,7 +490,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 		}
 
 		HRESULT hr;
-		if(FAILED(hr = pGB->ConnectDirect(pPin, pPinTo, NULL)))
+		if(FAILED(hr = pGB->ConnectDirect(pPin, pPinTo, nullptr)))
 		{
 			hr = pGB->Connect(pPin, pPinTo);
 			pGB->RemoveFilter(pBF);
@@ -573,7 +573,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 		}
 
 		CComVariant var;
-		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, nullptr)))
 		{
 			break;
 		}
@@ -593,15 +593,15 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 		if(FAILED(pGB->Disconnect(pFrom)) || FAILED(pGB->Disconnect(pTo)))
 		{
 			pGB->RemoveFilter(pBF);
-			pGB->ConnectDirect(pFrom, pTo, NULL);
+			pGB->ConnectDirect(pFrom, pTo, nullptr);
 			break;
 		}
 
 		HRESULT hr;
-		if(FAILED(hr = pGB->ConnectDirect(pFrom, pFromTo, NULL)))
+		if(FAILED(hr = pGB->ConnectDirect(pFrom, pFromTo, nullptr)))
 		{
 			pGB->RemoveFilter(pBF);
-			pGB->ConnectDirect(pFrom, pTo, NULL);
+			pGB->ConnectDirect(pFrom, pTo, nullptr);
 			break;
 		}
 
@@ -609,14 +609,14 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 		if(!pToFrom)
 		{
 			pGB->RemoveFilter(pBF);
-			pGB->ConnectDirect(pFrom, pTo, NULL);
+			pGB->ConnectDirect(pFrom, pTo, nullptr);
 			break;
 		}
 
-		if(FAILED(pGB->ConnectDirect(pToFrom, pTo, NULL)))
+		if(FAILED(pGB->ConnectDirect(pToFrom, pTo, nullptr)))
 		{
 			pGB->RemoveFilter(pBF);
-			pGB->ConnectDirect(pFrom, pTo, NULL);
+			pGB->ConnectDirect(pFrom, pTo, nullptr);
 			break;
 		}
 
@@ -635,7 +635,7 @@ void ExtractMediaTypes(IPin* pPin, CAtlArray<GUID>& types)
 	{
 		bool fFound{false};
 
-		for(int i{0}; !fFound && i < types.GetCount(); i += 2)
+		for(int i{0}; !fFound && i < static_cast<int>(types.GetCount()); i += 2)
 		{
 			if(types[i] == pmt->majortype && types[i+1] == pmt->subtype)
 			{
@@ -745,16 +745,16 @@ void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
 	}
 
 	CAUUID caGUID;
-	caGUID.pElems = NULL;
+	caGUID.pElems = nullptr;
 	if(SUCCEEDED(pSPP->GetPages(&caGUID)))
 	{
-		IUnknown* lpUnk{NULL};
+		IUnknown* lpUnk{nullptr};
 		pSPP.QueryInterface(&lpUnk);
 		MyOleCreatePropertyFrame(
 			hParentWnd, 0, 0, CStringW(str), 
 			1, (IUnknown**)&lpUnk, 
 			caGUID.cElems, caGUID.pElems, 
-			0, 0, NULL);
+			0, 0, nullptr);
 		lpUnk->Release();
 
 		if(caGUID.pElems)
@@ -792,7 +792,7 @@ void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
 {
 	bool fRet{false};
 
-	LPOLESTR pStr{NULL};
+	LPOLESTR pStr{nullptr};
 	if(S_OK == StringFromCLSID(clsid, &pStr) && pStr)
 	{
 		fRet = IsCLSIDRegistered(CString(pStr));
@@ -918,13 +918,13 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 
 		// CDROM_Audio
 		{
-			HANDLE hDrive{CreateFile(CString(_T("\\\\.\\")) + path, GENERIC_READ, FILE_SHARE_READ, NULL, 
-				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL)};
+			HANDLE hDrive{CreateFile(CString(_T("\\\\.\\")) + path, GENERIC_READ, FILE_SHARE_READ, nullptr, 
+				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)nullptr)};
 			if(hDrive != INVALID_HANDLE_VALUE)
 			{
 				DWORD BytesReturned;
 				CDROM_TOC TOC;
-				if(DeviceIoControl(hDrive, IOCTL_CDROM_READ_TOC, NULL, 0, &TOC, sizeof(TOC), &BytesReturned, 0))
+				if(DeviceIoControl(hDrive, IOCTL_CDROM_READ_TOC, nullptr, 0, &TOC, sizeof(TOC), &BytesReturned, 0))
 				{
 					for(int i{TOC.FirstTrack}; i <= TOC.LastTrack; ++i)
 					{
@@ -1150,7 +1150,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 
 [[nodiscard]] bool ExtractBIH(IMediaSample* pMS, BITMAPINFOHEADER* bih)
 {
-	AM_MEDIA_TYPE* pmt{NULL};
+	AM_MEDIA_TYPE* pmt{nullptr};
 	pMS->GetMediaType(&pmt);
 	if(pmt)
 	{
@@ -1194,7 +1194,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 		ary = h;
 	}
 
-	BYTE* ptr{NULL};
+	BYTE* ptr{nullptr};
 	DWORD len{0};
 
 	if(pmt->formattype == FORMAT_MPEGVideo)
@@ -1255,7 +1255,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	    return false;
 	}
 
-	BYTE* seqhdr_ext{NULL};
+	BYTE* seqhdr_ext{nullptr};
 
 	BYTE* seqhdr_end{seqhdr + 11};
 	if(seqhdr_end - seqhdr > len)
@@ -1364,7 +1364,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	    return(false);
 	}
 
-	*ppBF = NULL;
+	*ppBF = nullptr;
 	FriendlyName.Empty();
 
 	CComPtr<IBindCtx> pBindCtx;
@@ -1385,7 +1385,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	CComPtr<IPropertyBag> pPB;
 	CComVariant var;
 	if(SUCCEEDED(pMoniker->BindToStorage(pBindCtx, 0, IID_IPropertyBag, (void**)&pPB))
-	&& SUCCEEDED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+	&& SUCCEEDED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, nullptr)))
 	{
 		FriendlyName = var.bstrVal;
 	}
@@ -1419,7 +1419,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 		}
 
 		CComVariant var;
-		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+		if(FAILED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, nullptr)))
 		{
 			break;
 		}
@@ -1443,7 +1443,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 				continue;
 			}
 
-			if(SUCCEEDED(pGB->ConnectDirect(pPin, pPinTo, NULL)))
+			if(SUCCEEDED(pGB->ConnectDirect(pPin, pPinTo, nullptr)))
 			{
 				return(pBF);
 			}
@@ -1454,7 +1454,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	}
 	while(false);
 
-	return(NULL);
+	return(nullptr);
 }
 
 [[nodiscard]] CStringW GetFriendlyName(CStringW DisplayName)
@@ -1474,7 +1474,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	CComPtr<IPropertyBag> pPB;
 	CComVariant var;
 	if(SUCCEEDED(pMoniker->BindToStorage(pBindCtx, 0, IID_IPropertyBag, (void**)&pPB))
-	&& SUCCEEDED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, NULL)))
+	&& SUCCEEDED(pPB->Read(CComBSTR(_T("FriendlyName")), &var, nullptr)))
 	{
 		FriendlyName = var.bstrVal;
 	}
@@ -1497,7 +1497,7 @@ static CAtlList<ExternalObject> s_extobjs;
 
 	CString fullpath{MakeFullPath(path)};
 
-	HINSTANCE hInst{NULL};
+	HINSTANCE hInst{nullptr};
 	bool fFound{false};
 
 	POSITION pos{s_extobjs.GetHeadPosition()};
@@ -1524,7 +1524,7 @@ static CAtlList<ExternalObject> s_extobjs;
 			CComPtr<IClassFactory> pCF;
 			if(SUCCEEDED(hr = p(clsid, __uuidof(IClassFactory), (void**)&pCF)))
 			{
-				hr = pCF->CreateInstance(NULL, iid, ppv);
+				hr = pCF->CreateInstance(nullptr, iid, ppv);
 			}
 		}
 	}
@@ -1666,7 +1666,7 @@ void UnloadExternalObjects()
 [[nodiscard]] CStringW UTF8To16(const LPCSTR utf8)
 {
 	CStringW str;
-	int n{MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0)-1};
+	int n{MultiByteToWideChar(CP_UTF8, 0, utf8, -1, nullptr, 0)-1};
 	if(n < 0)
 	{
 	    return str;
@@ -1678,12 +1678,12 @@ void UnloadExternalObjects()
 [[nodiscard]] CStringA UTF16To8(const LPCWSTR utf16)
 {
 	CStringA str;
-	int n{WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, NULL, NULL)-1};
+	int n{WideCharToMultiByte(CP_UTF8, 0, utf16, -1, nullptr, 0, nullptr, nullptr)-1};
 	if(n < 0)
 	{
 	    return str;
 	}
-	str.ReleaseBuffer(WideCharToMultiByte(CP_UTF8, 0, utf16, -1, str.GetBuffer(n), n+1, NULL, NULL)-1);
+	str.ReleaseBuffer(WideCharToMultiByte(CP_UTF8, 0, utf16, -1, str.GetBuffer(n), n+1, nullptr, nullptr)-1);
 	return str;
 }
 
@@ -1691,534 +1691,534 @@ static struct {
 	LPCSTR name, iso6392, iso6391;
 	LCID lcid;
 } s_isolangs[] = {	// TODO : fill LCID !!!
-	{"Abkhazian", "abk", "ab"},
-	{"Achinese", "ace", ""},
-	{"Acoli", "ach", ""},
-	{"Adangme", "ada", ""},
-	{"Afar", "aar", "aa"},
-	{"Afrihili", "afh", ""},
+	{"Abkhazian", "abk", "ab", 0},
+	{"Achinese", "ace", "", 0},
+	{"Acoli", "ach", "", 0},
+	{"Adangme", "ada", "", 0},
+	{"Afar", "aar", "aa", 0},
+	{"Afrihili", "afh", "", 0},
 	{"Afrikaans", "afr", "af",					MAKELCID( MAKELANGID(LANG_AFRIKAANS, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Afro-Asiatic (Other)", "afa", ""},
-	{"Akan", "aka", "ak"},
-	{"Akkadian", "akk", ""},
-	{"Albanian", "alb", "sq"},
+	{"Afro-Asiatic (Other)", "afa", "", 0},
+	{"Akan", "aka", "ak", 0},
+	{"Akkadian", "akk", "", 0},
+	{"Albanian", "alb", "sq", 0},
 	{"Albanian", "sqi", "sq",					MAKELCID( MAKELANGID(LANG_ALBANIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Aleut", "ale", ""},
-	{"Algonquian languages", "alg", ""},
-	{"Altaic (Other)", "tut", ""},
-	{"Amharic", "amh", "am"},
-	{"Apache languages", "apa", ""},
+	{"Aleut", "ale", "", 0},
+	{"Algonquian languages", "alg", "", 0},
+	{"Altaic (Other)", "tut", "", 0},
+	{"Amharic", "amh", "am", 0},
+	{"Apache languages", "apa", "", 0},
 	{"Arabic", "ara", "ar",						MAKELCID( MAKELANGID(LANG_ARABIC, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Aragonese", "arg", "an"},
-	{"Aramaic", "arc", ""},
-	{"Arapaho", "arp", ""},
-	{"Araucanian", "arn", ""},
-	{"Arawak", "arw", ""},
+	{"Aragonese", "arg", "an", 0},
+	{"Aramaic", "arc", "", 0},
+	{"Arapaho", "arp", "", 0},
+	{"Araucanian", "arn", "", 0},
+	{"Arawak", "arw", "", 0},
 	{"Armenian", "arm", "hy",					MAKELCID( MAKELANGID(LANG_ARMENIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Armenian", "hye", "hy",					MAKELCID( MAKELANGID(LANG_ARMENIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Artificial (Other)", "art", ""},
+	{"Artificial (Other)", "art", "", 0},
 	{"Assamese", "asm", "as",					MAKELCID( MAKELANGID(LANG_ASSAMESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Asturian; Bable", "ast", ""},
-	{"Athapascan languages", "ath", ""},
-	{"Australian languages", "aus", ""},
-	{"Austronesian (Other)", "map", ""},
-	{"Avaric", "ava", "av"},
-	{"Avestan", "ave", "ae"},
-	{"Awadhi", "awa", ""},
-	{"Aymara", "aym", "ay"},
+	{"Asturian; Bable", "ast", "", 0},
+	{"Athapascan languages", "ath", "", 0},
+	{"Australian languages", "aus", "", 0},
+	{"Austronesian (Other)", "map", "", 0},
+	{"Avaric", "ava", "av", 0},
+	{"Avestan", "ave", "ae", 0},
+	{"Awadhi", "awa", "", 0},
+	{"Aymara", "aym", "ay", 0},
 	{"Azerbaijani", "aze", "az",				MAKELCID( MAKELANGID(LANG_AZERI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Bable; Asturian", "ast", ""},
-	{"Balinese", "ban", ""},
-	{"Baltic (Other)", "bat", ""},
-	{"Baluchi", "bal", ""},
-	{"Bambara", "bam", "bm"},
-	{"Bamileke languages", "bai", ""},
-	{"Banda", "bad", ""},
-	{"Bantu (Other)", "bnt", ""},
-	{"Basa", "bas", ""},
+	{"Bable; Asturian", "ast", "", 0},
+	{"Balinese", "ban", "", 0},
+	{"Baltic (Other)", "bat", "", 0},
+	{"Baluchi", "bal", "", 0},
+	{"Bambara", "bam", "bm", 0},
+	{"Bamileke languages", "bai", "", 0},
+	{"Banda", "bad", "", 0},
+	{"Bantu (Other)", "bnt", "", 0},
+	{"Basa", "bas", "", 0},
 	{"Bashkir", "bak", "ba",					MAKELCID( MAKELANGID(LANG_BASHKIR, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Basque", "baq", "eu",						MAKELCID( MAKELANGID(LANG_BASQUE, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Basque", "eus", "eu",						MAKELCID( MAKELANGID(LANG_BASQUE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Batak (Indonesia)", "btk", ""},
-	{"Beja", "bej", ""},
+	{"Batak (Indonesia)", "btk", "", 0},
+	{"Beja", "bej", "", 0},
 	{"Belarusian", "bel", "be",					MAKELCID( MAKELANGID(LANG_BELARUSIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Bemba", "bem", ""},
+	{"Bemba", "bem", "", 0},
 	{"Bengali", "ben", "bn",					MAKELCID( MAKELANGID(LANG_BENGALI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Berber (Other)", "ber", ""},
-	{"Bhojpuri", "bho", ""},
-	{"Bihari", "bih", "bh"},
-	{"Bikol", "bik", ""},
-	{"Bini", "bin", ""},
-	{"Bislama", "bis", "bi"},
-	{"Bokm�l, Norwegian; Norwegian Bokm�l", "nob", "nb"},
-	{"Bosnian", "bos", "bs"},
-	{"Braj", "bra", ""},
+	{"Berber (Other)", "ber", "", 0},
+	{"Bhojpuri", "bho", "", 0},
+	{"Bihari", "bih", "bh", 0},
+	{"Bikol", "bik", "", 0},
+	{"Bini", "bin", "", 0},
+	{"Bislama", "bis", "bi", 0},
+	{"Bokm�l, Norwegian; Norwegian Bokm�l", "nob", "nb", 0},
+	{"Bosnian", "bos", "bs", 0},
+	{"Braj", "bra", "", 0},
 	{"Breton", "bre", "br",						MAKELCID( MAKELANGID(LANG_BRETON, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Buginese", "bug", ""},
+	{"Buginese", "bug", "", 0},
 	{"Bulgarian", "bul", "bg",					MAKELCID( MAKELANGID(LANG_BULGARIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Buriat", "bua", ""},
-	{"Burmese", "bur", "my"},
-	{"Burmese", "mya", "my"},
-	{"Caddo", "cad", ""},
-	{"Carib", "car", ""},
+	{"Buriat", "bua", "", 0},
+	{"Burmese", "bur", "my", 0},
+	{"Burmese", "mya", "my", 0},
+	{"Caddo", "cad", "", 0},
+	{"Carib", "car", "", 0},
 	{"Spanish; Castilian", "spa", "es",			MAKELCID( MAKELANGID(LANG_SPANISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Catalan", "cat", "ca",					MAKELCID( MAKELANGID(LANG_CATALAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Caucasian (Other)", "cau", ""},
-	{"Cebuano", "ceb", ""},
-	{"Celtic (Other)", "cel", ""},
-	{"Central American Indian (Other)", "cai", ""},
-	{"Chagatai", "chg", ""},
-	{"Chamic languages", "cmc", ""},
-	{"Chamorro", "cha", "ch"},
-	{"Chechen", "che", "ce"},
-	{"Cherokee", "chr", ""},
-	{"Chewa; Chichewa; Nyanja", "nya", "ny"},
-	{"Cheyenne", "chy", ""},
-	{"Chibcha", "chb", ""},
-	{"Chichewa; Chewa; Nyanja", "nya", "ny"},
+	{"Caucasian (Other)", "cau", "", 0},
+	{"Cebuano", "ceb", "", 0},
+	{"Celtic (Other)", "cel", "", 0},
+	{"Central American Indian (Other)", "cai", "", 0},
+	{"Chagatai", "chg", "", 0},
+	{"Chamic languages", "cmc", "", 0},
+	{"Chamorro", "cha", "ch", 0},
+	{"Chechen", "che", "ce", 0},
+	{"Cherokee", "chr", "", 0},
+	{"Chewa; Chichewa; Nyanja", "nya", "ny", 0},
+	{"Cheyenne", "chy", "", 0},
+	{"Chibcha", "chb", "", 0},
+	{"Chichewa; Chewa; Nyanja", "nya", "ny", 0},
 	{"Chinese", "chi", "zh",					MAKELCID( MAKELANGID(LANG_CHINESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Chinese", "zho", "zh"},
-	{"Chinook jargon", "chn", ""},
-	{"Chipewyan", "chp", ""},
-	{"Choctaw", "cho", ""},
-	{"Chuang; Zhuang", "zha", "za"},
-	{"Church Slavic; Old Church Slavonic", "chu", "cu"},
-	{"Old Church Slavonic; Old Slavonic; ", "chu", "cu"},
-	{"Church Slavonic; Old Bulgarian; Church Slavic;", "chu", "cu"},
-	{"Old Slavonic; Church Slavonic; Old Bulgarian;", "chu", "cu"},
-	{"Church Slavic; Old Church Slavonic", "chu", "cu"},
-	{"Chuukese", "chk", ""},
-	{"Chuvash", "chv", "cv"},
-	{"Coptic", "cop", ""},
-	{"Cornish", "cor", "kw"},
+	{"Chinese", "zho", "zh", 0},
+	{"Chinook jargon", "chn", "", 0},
+	{"Chipewyan", "chp", "", 0},
+	{"Choctaw", "cho", "", 0},
+	{"Chuang; Zhuang", "zha", "za", 0},
+	{"Church Slavic; Old Church Slavonic", "chu", "cu", 0},
+	{"Old Church Slavonic; Old Slavonic; ", "chu", "cu", 0},
+	{"Church Slavonic; Old Bulgarian; Church Slavic;", "chu", "cu", 0},
+	{"Old Slavonic; Church Slavonic; Old Bulgarian;", "chu", "cu", 0},
+	{"Church Slavic; Old Church Slavonic", "chu", "cu", 0},
+	{"Chuukese", "chk", "", 0},
+	{"Chuvash", "chv", "cv", 0},
+	{"Coptic", "cop", "", 0},
+	{"Cornish", "cor", "kw", 0},
 	{"Corsican", "cos", "co",					MAKELCID( MAKELANGID(LANG_CORSICAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Cree", "cre", "cr"},
-	{"Creek", "mus", ""},
-	{"Creoles and pidgins (Other)", "crp", ""},
-	{"Creoles and pidgins,", "cpe", ""},
+	{"Cree", "cre", "cr", 0},
+	{"Creek", "mus", "", 0},
+	{"Creoles and pidgins (Other)", "crp", "", 0},
+	{"Creoles and pidgins,", "cpe", "", 0},
 	//   {"English-based (Other)", "", ""},
-	{"Creoles and pidgins,", "cpf", ""},
+	{"Creoles and pidgins,", "cpf", "", 0},
 	//   {"French-based (Other)", "", ""},
-	{"Creoles and pidgins,", "cpp", ""},
+	{"Creoles and pidgins,", "cpp", "", 0},
 	//   {"Portuguese-based (Other)", "", ""},
 	{"Croatian", "scr", "hr",					MAKELCID( MAKELANGID(LANG_CROATIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Croatian", "hrv", "hr",					MAKELCID( MAKELANGID(LANG_CROATIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Cushitic (Other)", "cus", ""},
+	{"Cushitic (Other)", "cus", "", 0},
 	{"Czech", "cze", "cs",						MAKELCID( MAKELANGID(LANG_CZECH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Czech", "ces", "cs",						MAKELCID( MAKELANGID(LANG_CZECH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Dakota", "dak", ""},
+	{"Dakota", "dak", "", 0},
 	{"Danish", "dan", "da",						MAKELCID( MAKELANGID(LANG_DANISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Dargwa", "dar", ""},
-	{"Dayak", "day", ""},
-	{"Delaware", "del", ""},
-	{"Dinka", "din", ""},
+	{"Dargwa", "dar", "", 0},
+	{"Dayak", "day", "", 0},
+	{"Delaware", "del", "", 0},
+	{"Dinka", "din", "", 0},
 	{"Divehi", "div", "dv",						MAKELCID( MAKELANGID(LANG_DIVEHI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Dogri", "doi", ""},
-	{"Dogrib", "dgr", ""},
-	{"Dravidian (Other)", "dra", ""},
-	{"Duala", "dua", ""},
+	{"Dogri", "doi", "", 0},
+	{"Dogrib", "dgr", "", 0},
+	{"Dravidian (Other)", "dra", "", 0},
+	{"Duala", "dua", "", 0},
 	{"Dutch; Flemish", "dut", "nl",				MAKELCID( MAKELANGID(LANG_DUTCH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Dutch; Flemish", "nld", "nl",				MAKELCID( MAKELANGID(LANG_DUTCH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Dutch, Middle (ca. 1050-1350)", "dum", ""},
-	{"Dyula", "dyu", ""},
-	{"Dzongkha", "dzo", "dz"},
-	{"Efik", "efi", ""},
-	{"Egyptian (Ancient)", "egy", ""},
-	{"Ekajuk", "eka", ""},
-	{"Elamite", "elx", ""},
+	{"Dutch, Middle (ca. 1050-1350)", "dum", "", 0},
+	{"Dyula", "dyu", "", 0},
+	{"Dzongkha", "dzo", "dz", 0},
+	{"Efik", "efi", "", 0},
+	{"Egyptian (Ancient)", "egy", "", 0},
+	{"Ekajuk", "eka", "", 0},
+	{"Elamite", "elx", "", 0},
 	{"English", "eng", "en",					MAKELCID( MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"English, Middle (1100-1500)", "enm", ""},
-	{"English, Old (ca.450-1100)", "ang", ""},
-	{"Esperanto", "epo", "eo"},
+	{"English, Middle (1100-1500)", "enm", "", 0},
+	{"English, Old (ca.450-1100)", "ang", "", 0},
+	{"Esperanto", "epo", "eo", 0},
 	{"Estonian", "est", "et",					MAKELCID( MAKELANGID(LANG_ESTONIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Ewe", "ewe", "ee"},
-	{"Ewondo", "ewo", ""},
-	{"Fang", "fan", ""},
-	{"Fanti", "fat", ""},
+	{"Ewe", "ewe", "ee", 0},
+	{"Ewondo", "ewo", "", 0},
+	{"Fang", "fan", "", 0},
+	{"Fanti", "fat", "", 0},
 	{"Faroese", "fao", "fo",					MAKELCID( MAKELANGID(LANG_FAEROESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Fijian", "fij", "fj"},
+	{"Fijian", "fij", "fj", 0},
 	{"Finnish", "fin", "fi",					MAKELCID( MAKELANGID(LANG_FINNISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Finno-Ugrian (Other)", "fiu", ""},
-	{"Flemish; Dutch", "dut", "nl"},
-	{"Flemish; Dutch", "nld", "nl"},
-	{"Fon", "fon", ""},
+	{"Finno-Ugrian (Other)", "fiu", "", 0},
+	{"Flemish; Dutch", "dut", "nl", 0},
+	{"Flemish; Dutch", "nld", "nl", 0},
+	{"Fon", "fon", "", 0},
 	{"French", "fre", "fr",						MAKELCID( MAKELANGID(LANG_FRENCH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"French", "fra*", "fr",					MAKELCID( MAKELANGID(LANG_FRENCH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"French", "fra", "fr",						MAKELCID( MAKELANGID(LANG_FRENCH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"French, Middle (ca.1400-1600)", "frm", ""},
-	{"French, Old (842-ca.1400)", "fro", ""},
+	{"French, Middle (ca.1400-1600)", "frm", "", 0},
+	{"French, Old (842-ca.1400)", "fro", "", 0},
 	{"Frisian", "fry", "fy",					MAKELCID( MAKELANGID(LANG_FRISIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Friulian", "fur", ""},
-	{"Fulah", "ful", "ff"},
-	{"Ga", "gaa", ""},
+	{"Friulian", "fur", "", 0},
+	{"Fulah", "ful", "ff", 0},
+	{"Ga", "gaa", "", 0},
 	{"Gaelic; Scottish Gaelic", "gla", "gd",	MAKELCID( MAKELANGID(LANG_GALICIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Gallegan", "glg", "gl"},
-	{"Ganda", "lug", "lg"},
-	{"Gayo", "gay", ""},
-	{"Gbaya", "gba", ""},
-	{"Geez", "gez", ""},
+	{"Gallegan", "glg", "gl", 0},
+	{"Ganda", "lug", "lg", 0},
+	{"Gayo", "gay", "", 0},
+	{"Gbaya", "gba", "", 0},
+	{"Geez", "gez", "", 0},
 	{"Georgian", "geo", "ka",					MAKELCID( MAKELANGID(LANG_GEORGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Georgian", "kat", "ka",					MAKELCID( MAKELANGID(LANG_GEORGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"German", "ger", "de",						MAKELCID( MAKELANGID(LANG_GERMAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"German", "deu", "de",						MAKELCID( MAKELANGID(LANG_GERMAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"German, Low; Saxon, Low; Low German; Low Saxon", "nds", ""},
-	{"German, Middle High (ca.1050-1500)", "gmh", ""},
-	{"German, Old High (ca.750-1050)", "goh", ""},
-	{"Germanic (Other)", "gem", ""},
-	{"Gikuyu; Kikuyu", "kik", "ki"},
-	{"Gilbertese", "gil", ""},
-	{"Gondi", "gon", ""},
-	{"Gorontalo", "gor", ""},
-	{"Gothic", "got", ""},
-	{"Grebo", "grb", ""},
+	{"German, Low; Saxon, Low; Low German; Low Saxon", "nds", "", 0},
+	{"German, Middle High (ca.1050-1500)", "gmh", "", 0},
+	{"German, Old High (ca.750-1050)", "goh", "", 0},
+	{"Germanic (Other)", "gem", "", 0},
+	{"Gikuyu; Kikuyu", "kik", "ki", 0},
+	{"Gilbertese", "gil", "", 0},
+	{"Gondi", "gon", "", 0},
+	{"Gorontalo", "gor", "", 0},
+	{"Gothic", "got", "", 0},
+	{"Grebo", "grb", "", 0},
 	{"Greek, Ancient (to 1453)", "grc", "",		MAKELCID( MAKELANGID(LANG_GREEK, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Greek, Modern (1453-)", "gre", "el",		MAKELCID( MAKELANGID(LANG_GREEK, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Greek, Modern (1453-)", "ell", "el",		MAKELCID( MAKELANGID(LANG_GREEK, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Greenlandic; Kalaallisut", "kal", "kl",	MAKELCID( MAKELANGID(LANG_GREENLANDIC, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Guarani", "grn", "gn"},
+	{"Guarani", "grn", "gn", 0},
 	{"Gujarati", "guj", "gu",					MAKELCID( MAKELANGID(LANG_GUJARATI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Gwich�in", "gwi", ""},
-	{"Haida", "hai", ""},
+	{"Gwich�in", "gwi", "", 0},
+	{"Haida", "hai", "", 0},
 	{"Hausa", "hau", "ha",						MAKELCID( MAKELANGID(LANG_HAUSA, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Hawaiian", "haw", ""},
+	{"Hawaiian", "haw", "", 0},
 	{"Hebrew", "heb", "he",						MAKELCID( MAKELANGID(LANG_HEBREW, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Herero", "her", "hz"},
-	{"Hiligaynon", "hil", ""},
-	{"Himachali", "him", ""},
+	{"Herero", "her", "hz", 0},
+	{"Hiligaynon", "hil", "", 0},
+	{"Himachali", "him", "", 0},
 	{"Hindi", "hin", "hi",						MAKELCID( MAKELANGID(LANG_HINDI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Hiri Motu", "hmo", "ho"},
-	{"Hittite", "hit", ""},
-	{"Hmong", "hmn", ""},
+	{"Hiri Motu", "hmo", "ho", 0},
+	{"Hittite", "hit", "", 0},
+	{"Hmong", "hmn", "", 0},
 	{"Hungarian", "hun", "hu",					MAKELCID( MAKELANGID(LANG_HUNGARIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Hupa", "hup", ""},
-	{"Iban", "iba", ""},
+	{"Hupa", "hup", "", 0},
+	{"Iban", "iba", "", 0},
 	{"Icelandic", "ice", "is",					MAKELCID( MAKELANGID(LANG_ICELANDIC, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Icelandic", "isl", "is",					MAKELCID( MAKELANGID(LANG_ICELANDIC, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Ido", "ido", "io"},
+	{"Ido", "ido", "io", 0},
 	{"Igbo", "ibo", "ig",						MAKELCID( MAKELANGID(LANG_IGBO, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Ijo", "ijo", ""},
-	{"Iloko", "ilo", ""},
-	{"Inari Sami", "smn", ""},
-	{"Indic (Other)", "inc", ""},
-	{"Indo-European (Other)", "ine", ""},
+	{"Ijo", "ijo", "", 0},
+	{"Iloko", "ilo", "", 0},
+	{"Inari Sami", "smn", "", 0},
+	{"Indic (Other)", "inc", "", 0},
+	{"Indo-European (Other)", "ine", "", 0},
 	{"Indonesian", "ind", "id",					MAKELCID( MAKELANGID(LANG_INDONESIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Ingush", "inh", ""},
-	{"Interlingua (International", "ina", "ia"},
+	{"Ingush", "inh", "", 0},
+	{"Interlingua (International", "ina", "ia", 0},
 	//   {"Auxiliary Language Association)", "", ""},
-	{"Interlingue", "ile", "ie"},
+	{"Interlingue", "ile", "ie", 0},
 	{"Inuktitut", "iku", "iu",					MAKELCID( MAKELANGID(LANG_INUKTITUT, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Inupiaq", "ipk", "ik"},
-	{"Iranian (Other)", "ira", ""},
+	{"Inupiaq", "ipk", "ik", 0},
+	{"Iranian (Other)", "ira", "", 0},
 	{"Irish", "gle", "ga",						MAKELCID( MAKELANGID(LANG_IRISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Irish, Middle (900-1200)", "mga", "",		MAKELCID( MAKELANGID(LANG_IRISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Irish, Old (to 900)", "sga", "",			MAKELCID( MAKELANGID(LANG_IRISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Iroquoian languages", "iro", ""},
+	{"Iroquoian languages", "iro", "", 0},
 	{"Italian", "ita", "it",					MAKELCID( MAKELANGID(LANG_ITALIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Japanese", "jpn", "ja",					MAKELCID( MAKELANGID(LANG_JAPANESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Javanese", "jav", "jv"},
-	{"Judeo-Arabic", "jrb", ""},
-	{"Judeo-Persian", "jpr", ""},
-	{"Kabardian", "kbd", ""},
-	{"Kabyle", "kab", ""},
-	{"Kachin", "kac", ""},
-	{"Kalaallisut; Greenlandic", "kal", "kl"},
-	{"Kamba", "kam", ""},
+	{"Javanese", "jav", "jv", 0},
+	{"Judeo-Arabic", "jrb", "", 0},
+	{"Judeo-Persian", "jpr", "", 0},
+	{"Kabardian", "kbd", "", 0},
+	{"Kabyle", "kab", "", 0},
+	{"Kachin", "kac", "", 0},
+	{"Kalaallisut; Greenlandic", "kal", "kl", 0},
+	{"Kamba", "kam", "", 0},
 	{"Kannada", "kan", "kn",					MAKELCID( MAKELANGID(LANG_KANNADA, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Kanuri", "kau", "kr"},
-	{"Kara-Kalpak", "kaa", ""},
-	{"Karen", "kar", ""},
+	{"Kanuri", "kau", "kr", 0},
+	{"Kara-Kalpak", "kaa", "", 0},
+	{"Karen", "kar", "", 0},
 	{"Kashmiri", "kas", "ks",					MAKELCID( MAKELANGID(LANG_KASHMIRI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Kawi", "kaw", ""},
+	{"Kawi", "kaw", "", 0},
 	{"Kazakh", "kaz", "kk",						MAKELCID( MAKELANGID(LANG_KAZAK, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Khasi", "kha", ""},
+	{"Khasi", "kha", "", 0},
 	{"Khmer", "khm", "km",						MAKELCID( MAKELANGID(LANG_KHMER, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Khoisan (Other)", "khi", ""},
-	{"Khotanese", "kho", ""},
-	{"Kikuyu; Gikuyu", "kik", "ki"},
-	{"Kimbundu", "kmb", ""},
+	{"Khoisan (Other)", "khi", "", 0},
+	{"Khotanese", "kho", "", 0},
+	{"Kikuyu; Gikuyu", "kik", "ki", 0},
+	{"Kimbundu", "kmb", "", 0},
 	{"Kinyarwanda", "kin", "rw",				MAKELCID( MAKELANGID(LANG_KINYARWANDA, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Kirghiz", "kir", "ky"},
-	{"Komi", "kom", "kv"},
-	{"Kongo", "kon", "kg"},
+	{"Kirghiz", "kir", "ky", 0},
+	{"Komi", "kom", "kv", 0},
+	{"Kongo", "kon", "kg", 0},
 	{"Konkani", "kok", "",						MAKELCID( MAKELANGID(LANG_KONKANI, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Korean", "kor", "ko",						MAKELCID( MAKELANGID(LANG_KOREAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Kosraean", "kos", ""},
-	{"Kpelle", "kpe", ""},
-	{"Kru", "kro", ""},
-	{"Kuanyama; Kwanyama", "kua", "kj"},
-	{"Kumyk", "kum", ""},
-	{"Kurdish", "kur", "ku"},
-	{"Kurukh", "kru", ""},
-	{"Kutenai", "kut", ""},
-	{"Kwanyama, Kuanyama", "kua", "kj"},
-	{"Ladino", "lad", ""},
-	{"Lahnda", "lah", ""},
-	{"Lamba", "lam", ""},
+	{"Kosraean", "kos", "", 0},
+	{"Kpelle", "kpe", "", 0},
+	{"Kru", "kro", "", 0},
+	{"Kuanyama; Kwanyama", "kua", "kj", 0},
+	{"Kumyk", "kum", "", 0},
+	{"Kurdish", "kur", "ku", 0},
+	{"Kurukh", "kru", "", 0},
+	{"Kutenai", "kut", "", 0},
+	{"Kwanyama, Kuanyama", "kua", "kj", 0},
+	{"Ladino", "lad", "", 0},
+	{"Lahnda", "lah", "", 0},
+	{"Lamba", "lam", "", 0},
 	{"Lao", "lao", "lo",						MAKELCID( MAKELANGID(LANG_LAO, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Latin", "lat", "la"},
+	{"Latin", "lat", "la", 0},
 	{"Latvian", "lav", "lv",					MAKELCID( MAKELANGID(LANG_LATVIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Letzeburgesch; Luxembourgish", "ltz", "lb"},
-	{"Lezghian", "lez", ""},
-	{"Limburgan; Limburger; Limburgish", "lim", "li"},
-	{"Limburger; Limburgan; Limburgish;", "lim", "li"},
-	{"Limburgish; Limburger; Limburgan", "lim", "li"},
-	{"Lingala", "lin", "ln"},
+	{"Letzeburgesch; Luxembourgish", "ltz", "lb", 0},
+	{"Lezghian", "lez", "", 0},
+	{"Limburgan; Limburger; Limburgish", "lim", "li", 0},
+	{"Limburger; Limburgan; Limburgish;", "lim", "li", 0},
+	{"Limburgish; Limburger; Limburgan", "lim", "li", 0},
+	{"Lingala", "lin", "ln", 0},
 	{"Lithuanian", "lit", "lt",					MAKELCID( MAKELANGID(LANG_LITHUANIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Low German; Low Saxon; German, Low; Saxon, Low", "nds", ""},
-	{"Low Saxon; Low German; Saxon, Low; German, Low", "nds", ""},
-	{"Lozi", "loz", ""},
-	{"Luba-Katanga", "lub", "lu"},
-	{"Luba-Lulua", "lua", ""},
-	{"Luiseno", "lui", ""},
-	{"Lule Sami", "smj", ""},
-	{"Lunda", "lun", ""},
-	{"Luo (Kenya and Tanzania)", "luo", ""},
-	{"Lushai", "lus", ""},
+	{"Low German; Low Saxon; German, Low; Saxon, Low", "nds", "", 0},
+	{"Low Saxon; Low German; Saxon, Low; German, Low", "nds", "", 0},
+	{"Lozi", "loz", "", 0},
+	{"Luba-Katanga", "lub", "lu", 0},
+	{"Luba-Lulua", "lua", "", 0},
+	{"Luiseno", "lui", "", 0},
+	{"Lule Sami", "smj", "", 0},
+	{"Lunda", "lun", "", 0},
+	{"Luo (Kenya and Tanzania)", "luo", "", 0},
+	{"Lushai", "lus", "", 0},
 	{"Luxembourgish; Letzeburgesch", "ltz", "lb",	MAKELCID( MAKELANGID(LANG_LUXEMBOURGISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Macedonian", "mac", "mk",					MAKELCID( MAKELANGID(LANG_MACEDONIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Macedonian", "mkd", "mk",					MAKELCID( MAKELANGID(LANG_MACEDONIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Madurese", "mad", ""},
-	{"Magahi", "mag", ""},
-	{"Maithili", "mai", ""},
-	{"Makasar", "mak", ""},
-	{"Malagasy", "mlg", "mg"},
+	{"Madurese", "mad", "", 0},
+	{"Magahi", "mag", "", 0},
+	{"Maithili", "mai", "", 0},
+	{"Makasar", "mak", "", 0},
+	{"Malagasy", "mlg", "mg", 0},
 	{"Malay", "may", "ms",						MAKELCID( MAKELANGID(LANG_MALAY, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Malay", "msa", "ms",						MAKELCID( MAKELANGID(LANG_MALAY, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Malayalam", "mal", "ml",					MAKELCID( MAKELANGID(LANG_MALAYALAM, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Maltese", "mlt", "mt",					MAKELCID( MAKELANGID(LANG_MALTESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Manchu", "mnc", ""},
-	{"Mandar", "mdr", ""},
-	{"Mandingo", "man", ""},
+	{"Manchu", "mnc", "", 0},
+	{"Mandar", "mdr", "", 0},
+	{"Mandingo", "man", "", 0},
 	{"Manipuri", "mni", "",						MAKELCID( MAKELANGID(LANG_MANIPURI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Manobo languages", "mno", ""},
-	{"Manx", "glv", "gv"},
+	{"Manobo languages", "mno", "", 0},
+	{"Manx", "glv", "gv", 0},
 	{"Maori", "mao", "mi",						MAKELCID( MAKELANGID(LANG_MAORI, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Maori", "mri", "mi",						MAKELCID( MAKELANGID(LANG_MAORI, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Marathi", "mar", "mr",					MAKELCID( MAKELANGID(LANG_MARATHI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Mari", "chm", ""},
-	{"Marshallese", "mah", "mh"},
-	{"Marwari", "mwr", ""},
-	{"Masai", "mas", ""},
-	{"Mayan languages", "myn", ""},
-	{"Mende", "men", ""},
-	{"Micmac", "mic", ""},
-	{"Minangkabau", "min", ""},
-	{"Miscellaneous languages", "mis", ""},
+	{"Mari", "chm", "", 0},
+	{"Marshallese", "mah", "mh", 0},
+	{"Marwari", "mwr", "", 0},
+	{"Masai", "mas", "", 0},
+	{"Mayan languages", "myn", "", 0},
+	{"Mende", "men", "", 0},
+	{"Micmac", "mic", "", 0},
+	{"Minangkabau", "min", "", 0},
+	{"Miscellaneous languages", "mis", "", 0},
 	{"Mohawk", "moh", "",						MAKELCID( MAKELANGID(LANG_MOHAWK, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Moldavian", "mol", "mo"},
-	{"Mon-Khmer (Other)", "mkh", ""},
-	{"Mongo", "lol", ""},
+	{"Moldavian", "mol", "mo", 0},
+	{"Mon-Khmer (Other)", "mkh", "", 0},
+	{"Mongo", "lol", "", 0},
 	{"Mongolian", "mon", "mn",					MAKELCID( MAKELANGID(LANG_MONGOLIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Mossi", "mos", ""},
-	{"Multiple languages", "mul", ""},
-	{"Munda languages", "mun", ""},
-	{"Nahuatl", "nah", ""},
-	{"Nauru", "nau", "na"},
-	{"Navaho, Navajo", "nav", "nv"},
-	{"Navajo; Navaho", "nav", "nv"},
-	{"Ndebele, North", "nde", "nd"},
-	{"Ndebele, South", "nbl", "nr"},
-	{"Ndonga", "ndo", "ng"},
-	{"Neapolitan", "nap", ""},
+	{"Mossi", "mos", "", 0},
+	{"Multiple languages", "mul", "", 0},
+	{"Munda languages", "mun", "", 0},
+	{"Nahuatl", "nah", "", 0},
+	{"Nauru", "nau", "na", 0},
+	{"Navaho, Navajo", "nav", "nv", 0},
+	{"Navajo; Navaho", "nav", "nv", 0},
+	{"Ndebele, North", "nde", "nd", 0},
+	{"Ndebele, South", "nbl", "nr", 0},
+	{"Ndonga", "ndo", "ng", 0},
+	{"Neapolitan", "nap", "", 0},
 	{"Nepali", "nep", "ne",						MAKELCID( MAKELANGID(LANG_NEPALI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Newari", "new", ""},
-	{"Nias", "nia", ""},
-	{"Niger-Kordofanian (Other)", "nic", ""},
-	{"Nilo-Saharan (Other)", "ssa", ""},
-	{"Niuean", "niu", ""},
-	{"Norse, Old", "non", ""},
-	{"North American Indian (Other)", "nai", ""},
-	{"Northern Sami", "sme", "se"},
-	{"North Ndebele", "nde", "nd"},
+	{"Newari", "new", "", 0},
+	{"Nias", "nia", "", 0},
+	{"Niger-Kordofanian (Other)", "nic", "", 0},
+	{"Nilo-Saharan (Other)", "ssa", "", 0},
+	{"Niuean", "niu", "", 0},
+	{"Norse, Old", "non", "", 0},
+	{"North American Indian (Other)", "nai", "", 0},
+	{"Northern Sami", "sme", "se", 0},
+	{"North Ndebele", "nde", "nd", 0},
 	{"Norwegian", "nor", "no",					MAKELCID( MAKELANGID(LANG_NORWEGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Norwegian Bokm�l; Bokm�l, Norwegian", "nob", "nb",	MAKELCID( MAKELANGID(LANG_NORWEGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Norwegian Nynorsk; Nynorsk, Norwegian", "nno", "nn",	MAKELCID( MAKELANGID(LANG_NORWEGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Nubian languages", "nub", ""},
-	{"Nyamwezi", "nym", ""},
-	{"Nyanja; Chichewa; Chewa", "nya", "ny"},
-	{"Nyankole", "nyn", ""},
-	{"Nynorsk, Norwegian; Norwegian Nynorsk", "nno", "nn"},
-	{"Nyoro", "nyo", ""},
-	{"Nzima", "nzi", ""},
+	{"Nubian languages", "nub", "", 0},
+	{"Nyamwezi", "nym", "", 0},
+	{"Nyanja; Chichewa; Chewa", "nya", "ny", 0},
+	{"Nyankole", "nyn", "", 0},
+	{"Nynorsk, Norwegian; Norwegian Nynorsk", "nno", "nn", 0},
+	{"Nyoro", "nyo", "", 0},
+	{"Nzima", "nzi", "", 0},
 	{"Occitan (post 1500},; Proven�al", "oci", "oc",		MAKELCID( MAKELANGID(LANG_OCCITAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Ojibwa", "oji", "oj"},
-	{"Old Bulgarian; Old Slavonic; Church Slavonic;", "chu", "cu"},
-	{"Oriya", "ori", "or"},
-	{"Oromo", "orm", "om"},
-	{"Osage", "osa", ""},
-	{"Ossetian; Ossetic", "oss", "os"},
-	{"Ossetic; Ossetian", "oss", "os"},
-	{"Otomian languages", "oto", ""},
-	{"Pahlavi", "pal", ""},
-	{"Palauan", "pau", ""},
-	{"Pali", "pli", "pi"},
-	{"Pampanga", "pam", ""},
-	{"Pangasinan", "pag", ""},
-	{"Panjabi", "pan", "pa"},
-	{"Papiamento", "pap", ""},
-	{"Papuan (Other)", "paa", ""},
+	{"Ojibwa", "oji", "oj", 0},
+	{"Old Bulgarian; Old Slavonic; Church Slavonic;", "chu", "cu", 0},
+	{"Oriya", "ori", "or", 0},
+	{"Oromo", "orm", "om", 0},
+	{"Osage", "osa", "", 0},
+	{"Ossetian; Ossetic", "oss", "os", 0},
+	{"Ossetic; Ossetian", "oss", "os", 0},
+	{"Otomian languages", "oto", "", 0},
+	{"Pahlavi", "pal", "", 0},
+	{"Palauan", "pau", "", 0},
+	{"Pali", "pli", "pi", 0},
+	{"Pampanga", "pam", "", 0},
+	{"Pangasinan", "pag", "", 0},
+	{"Panjabi", "pan", "pa", 0},
+	{"Papiamento", "pap", "", 0},
+	{"Papuan (Other)", "paa", "", 0},
 	{"Persian", "per", "fa",				MAKELCID( MAKELANGID(LANG_PERSIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Persian", "fas", "fa",				MAKELCID( MAKELANGID(LANG_PERSIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Persian, Old (ca.600-400 B.C.)", "peo", ""},
-	{"Philippine (Other)", "phi", ""},
-	{"Phoenician", "phn", ""},
-	{"Pohnpeian", "pon", ""},
+	{"Persian, Old (ca.600-400 B.C.)", "peo", "", 0},
+	{"Philippine (Other)", "phi", "", 0},
+	{"Phoenician", "phn", "", 0},
+	{"Pohnpeian", "pon", "", 0},
 	{"Polish", "pol", "pl",					MAKELCID( MAKELANGID(LANG_POLISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Portuguese", "por", "pt",				MAKELCID( MAKELANGID(LANG_PORTUGUESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Prakrit languages", "pra", ""},
-	{"Proven�al; Occitan (post 1500)", "oci", "oc"},
-	{"Proven�al, Old (to 1500)", "pro", ""},
-	{"Pushto", "pus", "ps"},
+	{"Prakrit languages", "pra", "", 0},
+	{"Proven�al; Occitan (post 1500)", "oci", "oc", 0},
+	{"Proven�al, Old (to 1500)", "pro", "", 0},
+	{"Pushto", "pus", "ps", 0},
 	{"Quechua", "que", "qu",				MAKELCID( MAKELANGID(LANG_QUECHUA, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Raeto-Romance", "roh", "rm"},
-	{"Rajasthani", "raj", ""},
-	{"Rapanui", "rap", ""},
-	{"Rarotongan", "rar", ""},
-	{"Reserved for local use", "qaa-qtz", ""},
-	{"Romance (Other)", "roa", ""},
+	{"Raeto-Romance", "roh", "rm", 0},
+	{"Rajasthani", "raj", "", 0},
+	{"Rapanui", "rap", "", 0},
+	{"Rarotongan", "rar", "", 0},
+	{"Reserved for local use", "qaa-qtz", "", 0},
+	{"Romance (Other)", "roa", "", 0},
 	{"Romanian", "rum", "ro",				MAKELCID( MAKELANGID(LANG_ROMANIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Romanian", "ron", "ro",				MAKELCID( MAKELANGID(LANG_ROMANIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Romany", "rom", ""},
-	{"Rundi", "run", "rn"},
+	{"Romany", "rom", "", 0},
+	{"Rundi", "run", "rn", 0},
 	{"Russian", "rus", "ru",				MAKELCID( MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Salishan languages", "sal", ""},
-	{"Samaritan Aramaic", "sam", ""},
-	{"Sami languages (Other)", "smi", ""},
-	{"Samoan", "smo", "sm"},
-	{"Sandawe", "sad", ""},
-	{"Sango", "sag", "sg"},
+	{"Salishan languages", "sal", "", 0},
+	{"Samaritan Aramaic", "sam", "", 0},
+	{"Sami languages (Other)", "smi", "", 0},
+	{"Samoan", "smo", "sm", 0},
+	{"Sandawe", "sad", "", 0},
+	{"Sango", "sag", "sg", 0},
 	{"Sanskrit", "san", "sa",				MAKELCID( MAKELANGID(LANG_SANSKRIT, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Santali", "sat", ""},
-	{"Sardinian", "srd", "sc"},
-	{"Sasak", "sas", ""},
-	{"Saxon, Low; German, Low; Low Saxon; Low German", "nds", ""},
-	{"Scots", "sco", ""},
-	{"Scottish Gaelic; Gaelic", "gla", "gd"},
-	{"Selkup", "sel", ""},
-	{"Semitic (Other)", "sem", ""},
+	{"Santali", "sat", "", 0},
+	{"Sardinian", "srd", "sc", 0},
+	{"Sasak", "sas", "", 0},
+	{"Saxon, Low; German, Low; Low Saxon; Low German", "nds", "", 0},
+	{"Scots", "sco", "", 0},
+	{"Scottish Gaelic; Gaelic", "gla", "gd", 0},
+	{"Selkup", "sel", "", 0},
+	{"Semitic (Other)", "sem", "", 0},
 	{"Serbian", "scc", "sr",				MAKELCID( MAKELANGID(LANG_SERBIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Serbian", "srp", "sr",				MAKELCID( MAKELANGID(LANG_SERBIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Serer", "srr", ""},
-	{"Shan", "shn", ""},
-	{"Shona", "sna", "sn"},
-	{"Sichuan Yi", "iii", "ii"},
-	{"Sidamo", "sid", ""},
-	{"Sign languages", "sgn", ""},
-	{"Siksika", "bla", ""},
+	{"Serer", "srr", "", 0},
+	{"Shan", "shn", "", 0},
+	{"Shona", "sna", "sn", 0},
+	{"Sichuan Yi", "iii", "ii", 0},
+	{"Sidamo", "sid", "", 0},
+	{"Sign languages", "sgn", "", 0},
+	{"Siksika", "bla", "", 0},
 	{"Sindhi", "snd", "sd",					MAKELCID( MAKELANGID(LANG_SINDHI, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Sinhalese", "sin", "si",				MAKELCID( MAKELANGID(LANG_SINHALESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Sino-Tibetan (Other)", "sit", ""},
-	{"Siouan languages", "sio", ""},
-	{"Skolt Sami", "sms", ""},
-	{"Slave (Athapascan)", "den", ""},
-	{"Slavic (Other)", "sla", ""},
+	{"Sino-Tibetan (Other)", "sit", "", 0},
+	{"Siouan languages", "sio", "", 0},
+	{"Skolt Sami", "sms", "", 0},
+	{"Slave (Athapascan)", "den", "", 0},
+	{"Slavic (Other)", "sla", "", 0},
 	{"Slovak", "slo", "sk",					MAKELCID( MAKELANGID(LANG_SLOVAK, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Slovak", "slk", "sk",					MAKELCID( MAKELANGID(LANG_SLOVAK, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Slovenian", "slv", "sl",				MAKELCID( MAKELANGID(LANG_SLOVENIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Sogdian", "sog", ""},
-	{"Somali", "som", "so"},
-	{"Songhai", "son", ""},
-	{"Soninke", "snk", ""},
-	{"Sorbian languages", "wen", ""},
+	{"Sogdian", "sog", "", 0},
+	{"Somali", "som", "so", 0},
+	{"Songhai", "son", "", 0},
+	{"Soninke", "snk", "", 0},
+	{"Sorbian languages", "wen", "", 0},
 	{"Sotho, Northern", "nso", "",			MAKELCID( MAKELANGID(LANG_SOTHO, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Sotho, Southern", "sot", "st",		MAKELCID( MAKELANGID(LANG_SOTHO, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"South American Indian (Other)", "sai", ""},
-	{"Southern Sami", "sma", ""},
-	{"South Ndebele", "nbl", "nr"},
+	{"South American Indian (Other)", "sai", "", 0},
+	{"Southern Sami", "sma", "", 0},
+	{"South Ndebele", "nbl", "nr", 0},
 	{"Spanish; Castilian", "spa", "es",		MAKELCID( MAKELANGID(LANG_SPANISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Sukuma", "suk", ""},
-	{"Sumerian", "sux", ""},
-	{"Sundanese", "sun", "su"},
-	{"Susu", "sus", ""},
+	{"Sukuma", "suk", "", 0},
+	{"Sumerian", "sux", "", 0},
+	{"Sundanese", "sun", "su", 0},
+	{"Susu", "sus", "", 0},
 	{"Swahili", "swa", "sw",				MAKELCID( MAKELANGID(LANG_SWAHILI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Swati", "ssw", "ss"},
+	{"Swati", "ssw", "ss", 0},
 	{"Swedish", "swe", "sv",				MAKELCID( MAKELANGID(LANG_SWEDISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Syriac", "syr", "",					MAKELCID( MAKELANGID(LANG_SYRIAC, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Tagalog", "tgl", "tl"},
-	{"Tahitian", "tah", "ty"},
-	{"Tai (Other)", "tai", ""},
+	{"Tagalog", "tgl", "tl", 0},
+	{"Tahitian", "tah", "ty", 0},
+	{"Tai (Other)", "tai", "", 0},
 	{"Tajik", "tgk", "tg",					MAKELCID( MAKELANGID(LANG_TAJIK, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Tamashek", "tmh", ""},
+	{"Tamashek", "tmh", "", 0},
 	{"Tamil", "tam", "ta",					MAKELCID( MAKELANGID(LANG_TAMIL, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Tatar", "tat", "tt",					MAKELCID( MAKELANGID(LANG_TATAR, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Telugu", "tel", "te",					MAKELCID( MAKELANGID(LANG_TELUGU, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Tereno", "ter", ""},
-	{"Tetum", "tet", ""},
+	{"Tereno", "ter", "", 0},
+	{"Tetum", "tet", "", 0},
 	{"Thai", "tha", "th",					MAKELCID( MAKELANGID(LANG_THAI, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Tibetan", "tib", "bo",				MAKELCID( MAKELANGID(LANG_TIBETAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Tibetan", "bod", "bo",				MAKELCID( MAKELANGID(LANG_TIBETAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Tigre", "tig", ""},
+	{"Tigre", "tig", "", 0},
 	{"Tigrinya", "tir", "ti",				MAKELCID( MAKELANGID(LANG_TIGRIGNA, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Timne", "tem", ""},
-	{"Tiv", "tiv", ""},
-	{"Tlingit", "tli", ""},
-	{"Tok Pisin", "tpi", ""},
-	{"Tokelau", "tkl", ""},
-	{"Tonga (Nyasa)", "tog", ""},
-	{"Tonga (Tonga Islands)", "ton", "to"},
-	{"Tsimshian", "tsi", ""},
-	{"Tsonga", "tso", "ts"},
+	{"Timne", "tem", "", 0},
+	{"Tiv", "tiv", "", 0},
+	{"Tlingit", "tli", "", 0},
+	{"Tok Pisin", "tpi", "", 0},
+	{"Tokelau", "tkl", "", 0},
+	{"Tonga (Nyasa)", "tog", "", 0},
+	{"Tonga (Tonga Islands)", "ton", "to", 0},
+	{"Tsimshian", "tsi", "", 0},
+	{"Tsonga", "tso", "ts", 0},
 	{"Tswana", "tsn", "tn",					MAKELCID( MAKELANGID(LANG_TSWANA, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Tumbuka", "tum", ""},
-	{"Tupi languages", "tup", ""},
+	{"Tumbuka", "tum", "", 0},
+	{"Tupi languages", "tup", "", 0},
 	{"Turkish", "tur", "tr",				MAKELCID( MAKELANGID(LANG_TURKISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Turkish, Ottoman (1500-1928)", "ota", "",	MAKELCID( MAKELANGID(LANG_TURKISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Turkmen", "tuk", "tk",				MAKELCID( MAKELANGID(LANG_TURKMEN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Tuvalu", "tvl", ""},
-	{"Tuvinian", "tyv", ""},
-	{"Twi", "twi", "tw"},
-	{"Ugaritic", "uga", ""},
+	{"Tuvalu", "tvl", "", 0},
+	{"Tuvinian", "tyv", "", 0},
+	{"Twi", "twi", "tw", 0},
+	{"Ugaritic", "uga", "", 0},
 	{"Uighur", "uig", "ug",					MAKELCID( MAKELANGID(LANG_UIGHUR, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Ukrainian", "ukr", "uk",				MAKELCID( MAKELANGID(LANG_UKRAINIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Umbundu", "umb", ""},
-	{"Undetermined", "und", ""},
+	{"Umbundu", "umb", "", 0},
+	{"Undetermined", "und", "", 0},
 	{"Urdu", "urd", "ur",					MAKELCID( MAKELANGID(LANG_URDU, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Uzbek", "uzb", "uz",					MAKELCID( MAKELANGID(LANG_UZBEK, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Vai", "vai", ""},
-	{"Venda", "ven", "ve"},
+	{"Vai", "vai", "", 0},
+	{"Venda", "ven", "ve", 0},
 	{"Vietnamese", "vie", "vi",				MAKELCID( MAKELANGID(LANG_VIETNAMESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Volapuk", "vol", "vo"},
-	{"Votic", "vot", ""},
-	{"Wakashan languages", "wak", ""},
-	{"Walamo", "wal", ""},
-	{"Walloon", "wln", "wa"},
-	{"Waray", "war", ""},
-	{"Washo", "was", ""},
+	{"Volapuk", "vol", "vo", 0},
+	{"Votic", "vot", "", 0},
+	{"Wakashan languages", "wak", "", 0},
+	{"Walamo", "wal", "", 0},
+	{"Walloon", "wln", "wa", 0},
+	{"Waray", "war", "", 0},
+	{"Washo", "was", "", 0},
 	{"Welsh", "wel", "cy",					MAKELCID( MAKELANGID(LANG_WELSH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Welsh", "cym", "cy",					MAKELCID( MAKELANGID(LANG_WELSH, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Wolof", "wol", "wo",					MAKELCID( MAKELANGID(LANG_WOLOF, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Xhosa", "xho", "xh",					MAKELCID( MAKELANGID(LANG_XHOSA, SUBLANG_DEFAULT), SORT_DEFAULT)},
 	{"Yakut", "sah", "",					MAKELCID( MAKELANGID(LANG_YAKUT, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Yao", "yao", ""},
-	{"Yapese", "yap", ""},
-	{"Yiddish", "yid", "yi"},
+	{"Yao", "yao", "", 0},
+	{"Yapese", "yap", "", 0},
+	{"Yiddish", "yid", "yi", 0},
 	{"Yoruba", "yor", "yo",					MAKELCID( MAKELANGID(LANG_YORUBA, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Yupik languages", "ypk", ""},
-	{"Zande", "znd", ""},
-	{"Zapotec", "zap", ""},
-	{"Zenaga", "zen", ""},
-	{"Zhuang; Chuang", "zha", "za"},
+	{"Yupik languages", "ypk", "", 0},
+	{"Zande", "znd", "", 0},
+	{"Zapotec", "zap", "", 0},
+	{"Zenaga", "zen", "", 0},
+	{"Zhuang; Chuang", "zha", "za", 0},
 	{"Zulu", "zul", "zu",					MAKELCID( MAKELANGID(LANG_ZULU, SUBLANG_DEFAULT), SORT_DEFAULT)},
-	{"Zuni", "zun", ""},
-	{"Classical Newari", "nwc", ""},
-	{"Klingon", "tlh", ""},
-	{"Blin", "byn", ""},
-	{"Lojban", "jbo", ""},
-	{"Lower Sorbian", "dsb", ""},
-	{"Upper Sorbian", "hsb", ""},
-	{"Kashubian", "csb", ""},
-	{"Crimean Turkish", "crh", ""},
-	{"Erzya", "myv", ""},
-	{"Moksha", "mdf", ""},
-	{"Karachay-Balkar", "krc", ""},
-	{"Adyghe", "ady", ""},
-	{"Udmurt", "udm", ""},
-	{"Dargwa", "dar", ""},
-	{"Ingush", "inh", ""},
-	{"Nogai", "nog", ""},
-	{"Haitian", "hat", "ht"},
-	{"Kalmyk", "xal", ""},
-	{"", "", ""},
+	{"Zuni", "zun", "", 0},
+	{"Classical Newari", "nwc", "", 0},
+	{"Klingon", "tlh", "", 0},
+	{"Blin", "byn", "", 0},
+	{"Lojban", "jbo", "", 0},
+	{"Lower Sorbian", "dsb", "", 0},
+	{"Upper Sorbian", "hsb", "", 0},
+	{"Kashubian", "csb", "", 0},
+	{"Crimean Turkish", "crh", "", 0},
+	{"Erzya", "myv", "", 0},
+	{"Moksha", "mdf", "", 0},
+	{"Karachay-Balkar", "krc", "", 0},
+	{"Adyghe", "ady", "", 0},
+	{"Udmurt", "udm", "", 0},
+	{"Dargwa", "dar", "", 0},
+	{"Ingush", "inh", "", 0},
+	{"Nogai", "nog", "", 0},
+	{"Haitian", "hat", "ht", 0},
+	{"Kalmyk", "xal", "", 0},
+	{"", "", "", 0},
 	{"No subtitles", "---", "", (LCID)LCID_NOSUBTITLES},
 };
 
@@ -2232,10 +2232,10 @@ static struct {
 		if(!std::strcmp(s_isolangs[i].iso6391, tmp))
 		{
 			CString ret{CString(CStringA(s_isolangs[i].name))};
-			int i{ret.Find(';')};
-			if(i > 0)
+			int semi{ret.Find(';')};
+			if(semi > 0)
 			{
-			    ret = ret.Left(i);
+			    ret = ret.Left(semi);
 			}
 			return ret;
 		}
@@ -2253,10 +2253,10 @@ static struct {
 		if(!std::strcmp(s_isolangs[i].iso6392, tmp))
 		{
 			CString ret{CString(CStringA(s_isolangs[i].name))};
-			int i{ret.Find(';')};
-			if(i > 0)
+			int semi{ret.Find(';')};
+			if(semi > 0)
 			{
-			    ret = ret.Left(i);
+			    ret = ret.Left(semi);
 			}
 			return ret;
 		}
@@ -2457,7 +2457,7 @@ static struct {
 		}
 
 		pData[2U] = 0x2B7>>3;
-		pData[3U] = (BYTE)((0x2B7<<5) | 5);
+		pData[3U] = static_cast<BYTE>(((0x2B7 << 5) | 5) & 0xFF);
 		pData[4U] = (1<<7) | (srate_idx<<3);
 
 		ret = 5;

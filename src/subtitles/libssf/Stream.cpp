@@ -46,7 +46,7 @@ namespace ssf
 		if(len > 0) _vstprintf_s(str.GetBufferSetLength(len), len, fmt, args);
 		va_end(args);
 
-		throw Exception(_T("Error (Ln %d Col %d): %s"), m_line+1, m_col+1, str);
+		throw Exception(_T("Error (Ln %d Col %d): %s"), m_line+1, m_col+1, str.GetString());
 	}
 
 	bool Stream::IsWhiteSpace(int c, LPCWSTR morechars)

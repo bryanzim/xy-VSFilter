@@ -280,10 +280,10 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
     OverlayNoOffsetKey overlay_no_offset_key{shared_ptr_path_data2, psub.x, psub.y, border_x, border_y};
     overlay_no_offset_key.UpdateHashValue();
     POSITION pos_key{overlay_key_cache->Lookup(overlay_no_offset_key)};
-    POSITION pos{NULL};
+    POSITION pos{nullptr};
         
     OverlayNoBlurMruCache* overlay_cache{CacheManager::GetOverlayNoBlurMruCache()};
-    if (pos_key!=NULL)
+    if (pos_key!=nullptr)
     {
         OverlayNoBlurKey overlay_key{overlay_key_cache->GetAt(pos_key)};
         pos = overlay_cache->Lookup(overlay_key);
@@ -303,7 +303,7 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
         ScanLineDataMruCache* scan_line_data_cache{CacheManager::GetScanLineDataMruCache()};
         pos = scan_line_data_cache->Lookup(overlay_no_offset_key);
         SharedPtrConstScanLineData scan_line_data;
-        if( pos != NULL )
+        if( pos != nullptr )
         {
             scan_line_data = scan_line_data_cache->GetAt(pos);
             (void)scan_line_data_cache->UpdateCache(pos);
@@ -333,7 +333,7 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
     }
     if (result)
     {
-        if (pos_key!=NULL)
+        if (pos_key!=nullptr)
         {
             (void)overlay_key_cache->UpdateCache(pos_key, key);
         }
@@ -365,7 +365,7 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
     OverlayNoBlurMruCache* overlay_no_blur_cache{CacheManager::GetOverlayNoBlurMruCache()};
     POSITION pos{overlay_no_blur_cache->Lookup(key)};
 
-    if(pos!=NULL)
+    if(pos!=nullptr)
     {
         SharedPtrOverlay raterize_result{overlay_no_blur_cache->GetAt(pos)};
         (void)overlay_no_blur_cache->UpdateCache( pos );
@@ -375,7 +375,7 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
     {
         ScanLineData2MruCache* scan_line_data_cache{CacheManager::GetScanLineData2MruCache()};
         pos = scan_line_data_cache->Lookup(key);
-        if(pos!=NULL)
+        if(pos!=nullptr)
         {
             SharedPtrConstScanLineData2 scan_line_data{scan_line_data_cache->GetAt(pos)};
             (void)scan_line_data_cache->UpdateCache( pos );
@@ -385,7 +385,7 @@ void CWord::PaintFromNoneBluredOverlay(const SharedPtrOverlay raterize_result, c
         {     
             PathDataMruCache* path_data_cache{CacheManager::GetPathDataMruCache()};
             POSITION pos_path{path_data_cache->Lookup(key)};
-            if(pos_path!=NULL)    
+            if(pos_path!=nullptr)    
             {
                 SharedPtrConstPathData path_data{path_data_cache->GetAt(pos_path)}; //important! copy not ref
                 (void)path_data_cache->UpdateCache( pos_path );
@@ -611,7 +611,7 @@ CText::CText( const FwSTSStyle& style, const CStringW& str, int ktype, int kstar
     text_info_key.UpdateHashValue();
     TextInfoMruCache* text_info_cache{CacheManager::GetTextInfoCache()};
     POSITION pos{text_info_cache->Lookup(text_info_key)};
-    if(pos==NULL)
+    if(pos==nullptr)
     {
         TextInfo* tmp{DEBUG_NEW TextInfo()};
         GetTextInfo(tmp, m_style, m_str.Get());
@@ -979,7 +979,7 @@ CClipper::~CClipper()
 
 [[nodiscard]] GrayImage2* CClipper::PaintSimpleClipper()
 {
-    GrayImage2* result{NULL};
+    GrayImage2* result{nullptr};
     if(m_size.cx < 0 || m_size.cy < 0)
     {
         return result;
@@ -1005,7 +1005,7 @@ CClipper::~CClipper()
 
 [[nodiscard]] GrayImage2* CClipper::PaintBaseClipper()
 {
-    GrayImage2* result{NULL};
+    GrayImage2* result{nullptr};
     //m_pAlphaMask = NULL;
     if (m_size.cx <= 0 || m_size.cy <= 0) {
         return result;
@@ -1054,7 +1054,7 @@ CClipper::~CClipper()
     if(!result_data)
     {
         delete result;
-        return NULL;
+        return nullptr;
     }
 
     std::memset(result_data, (m_inverse ? 0x40 : 0), alphaMaskSize);
@@ -1174,7 +1174,7 @@ CClipper::~CClipper()
 
 [[nodiscard]] GrayImage2* CClipper::Paint()
 {
-    GrayImage2* result{NULL};
+    GrayImage2* result{nullptr};
     switch(m_effectType)
     {
     case -1:
@@ -1327,9 +1327,9 @@ void CLine::Compact()
 
         SharedPtrOverlayPaintMachine shadow_pm, outline_pm, body_pm;
         CWordPaintMachine::CreatePaintMachines(w, shadowPos, outlinePos, bodyPos, org_coor2,
-            hasShadow  ? &shadow_pm  : NULL, 
-            hasOutline ? &outline_pm : NULL, 
-            hasBody    ? &body_pm    : NULL);
+            hasShadow  ? &shadow_pm  : nullptr, 
+            hasOutline ? &outline_pm : nullptr, 
+            hasBody    ? &body_pm    : nullptr);
 
         //shadow
         if(hasShadow)
@@ -1561,14 +1561,14 @@ void CSubtitle::Empty()
 
 [[nodiscard]] CLine* CSubtitle::GetNextLine(POSITION& pos, int maxwidth)
 {
-    if(pos == NULL)
+    if(pos == nullptr)
     {
-        return(NULL);
+        return(nullptr);
     }
     CLine* ret{DEBUG_NEW CLine()};
     if(!ret)
     {
-        return(NULL);
+        return(nullptr);
     }
     ret->m_width = ret->m_ascent = ret->m_descent = ret->m_borderX = ret->m_borderY = 0;
     maxwidth = GetWrapWidth(pos, maxwidth);
@@ -1680,7 +1680,7 @@ void CSubtitle::MakeLines(CSize size, CRect marginRect)
     CSize spaceNeeded{0, 0};
     bool fFirstLine{true};
     m_topborder = m_bottomborder = 0;
-    CLine* l{NULL};
+    CLine* l{nullptr};
     POSITION pos{m_words.GetHeadPosition()};
     while(pos)
     {
@@ -1827,7 +1827,7 @@ CRenderedTextSubtitle::CRenderedTextSubtitle(CCritSec* pLock)
     m_size = CSize(0, 0);
     if(g_hDC_refcnt == 0)
     {
-        g_hDC = CreateCompatibleDC(NULL);
+        g_hDC = CreateCompatibleDC(nullptr);
         SetBkMode(g_hDC, TRANSPARENT);
         SetTextColor(g_hDC, 0xffffff);
         SetMapMode(g_hDC, MM_TEXT);
@@ -1997,7 +1997,7 @@ void CRenderedTextSubtitle::OnChanged()
     {
         int i{m_subtitleCacheEntry.GetNext(pos)};
         delete m_subtitleCache.GetAt(i);
-        (void)m_subtitleCache.SetAt(i, NULL);
+        (void)m_subtitleCache.SetAt(i, nullptr);
     }
     m_subtitleCacheEntry.RemoveAll();
     m_subtitleCache.ReleaseMemory(m_entries.GetCount());
@@ -2429,7 +2429,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                       cmd_type==CMD_2c ? 1 :
                       cmd_type==CMD_3c ? 2 :
                     /*cmd_type==CMD_4c ?*/ 3};
-                DWORD c = wcstol(p, NULL, 16);
+                DWORD c = wcstol(p, nullptr, 16);
                 style.colors[i] = !p.IsEmpty()
                     ? ((((int)CalcAnimation(c&0x0000ff, style.colors[i]&0x0000ff, fAnimate))&0x0000ff)
                       |(((int)CalcAnimation(c&0x00ff00, style.colors[i]&0x00ff00, fAnimate))&0x00ff00)
@@ -2447,7 +2447,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                       cmd_type==CMD_3a ? 2 :
                     /*cmd_type==CMD_4a ?*/ 3};
                 style.alpha[i] = !p.IsEmpty()
-                    ? (BYTE)CalcAnimation(wcstol(p, NULL, 16), style.alpha[i], fAnimate)
+                    ? (BYTE)CalcAnimation(wcstol(p, nullptr, 16), style.alpha[i], fAnimate)
                     : org.alpha[i];
                 break;
             }
@@ -2456,14 +2456,14 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 for(int i{0}; i < 4; ++i)
                 {
                     style.alpha[i] = !p.IsEmpty()
-                                     ? (BYTE)CalcAnimation(wcstol(p, NULL, 16), style.alpha[i], fAnimate)
+                                     ? (BYTE)CalcAnimation(wcstol(p, nullptr, 16), style.alpha[i], fAnimate)
                                      : org.alpha[i];
                 }
                 break;
             }
         case CMD_an:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 if (sub->m_scrAlignment < 0)
                 {
                     sub->m_scrAlignment = (n > 0 && n < 10) ? n : org.scrAlignment;
@@ -2472,7 +2472,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_a:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 if (sub->m_scrAlignment < 0)
                 {
                     sub->m_scrAlignment = (n > 0 && n < 12) ? ((((n-1)&3)+1)+((n&4)?6:0)+((n&8)?3:0)) : org.scrAlignment;
@@ -2481,7 +2481,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_blur:
             {
-                double n{CalcAnimation(wcstod(p, NULL), style.fGaussianBlur, fAnimate)};
+                double n{CalcAnimation(wcstod(p, nullptr), style.fGaussianBlur, fAnimate)};
                 style.fGaussianBlur = !p.IsEmpty()
                                       ? (n < 0 ? 0 : n)
                                           : org.fGaussianBlur;
@@ -2489,7 +2489,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_bord:
             {
-                double dst{wcstod(p, NULL)};
+                double dst{wcstod(p, nullptr)};
                 double nx{CalcAnimation(dst, style.outlineWidthX, fAnimate)};
                 style.outlineWidthX = !p.IsEmpty()
                                       ? (nx < 0 ? 0 : nx)
@@ -2502,7 +2502,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_be:
             {
-                double d{CalcAnimation(wcstod(p, NULL), style.fBlur, fAnimate)};
+                double d{CalcAnimation(wcstod(p, nullptr), style.fBlur, fAnimate)};
                 style.fBlur = !p.IsEmpty()
                               ? d
                               : org.fBlur;
@@ -2510,7 +2510,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_b:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 style.fontWeight = !p.IsEmpty()
                                    ? (n == 0 ? FW_NORMAL : n == 1 ? FW_BOLD : n >= 100 ? n : org.fontWeight)
                                        : org.fontWeight;
@@ -2528,7 +2528,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 }
                 else if(params.GetCount() == 2 && !sub->m_pClipper)
                 {
-                    int scale{max(wcstol(p, NULL, 10), 1)};
+                    int scale{max(wcstol(p, nullptr, 10), 1)};
                     sub->m_pClipper.reset( DEBUG_NEW CClipper(params[1U],
                         CSize(m_video_rect.Width()>>3, m_video_rect.Height()>>3),
                         sub->m_scalex/(1<<(scale-1)), sub->m_scaley/(1<<(scale-1)), invert, m_target_scale_x, m_target_scale_y) );
@@ -2538,10 +2538,10 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                     CRect r;
                     sub->m_clipInverse = invert;
                     r.SetRect(
-                        wcstod(params[0U], NULL)+0.5,
-                        wcstod(params[1U], NULL)+0.5,
-                        wcstod(params[2U], NULL)+0.5,
-                        wcstod(params[3U], NULL)+0.5);
+                        wcstod(params[0U], nullptr)+0.5,
+                        wcstod(params[1U], nullptr)+0.5,
+                        wcstod(params[2U], nullptr)+0.5,
+                        wcstod(params[3U], nullptr)+0.5);
                     sub->m_clip.SetRect(
                         (int)CalcAnimation(sub->m_scalex*r.left  , sub->m_clip.left  , fAnimate),
                         (int)CalcAnimation(sub->m_scaley*r.top   , sub->m_clip.top   , fAnimate),
@@ -2552,7 +2552,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_c:
             {
-                DWORD c = wcstol(p, NULL, 16);
+                DWORD c = wcstol(p, nullptr, 16);
                 style.colors[0U] = !p.IsEmpty()
                                   ? ((((int)CalcAnimation(c&0x0000ff, style.colors[0U]&0x0000ff, fAnimate))&0x0000ff)
                                     |(((int)CalcAnimation(c&0x00ff00, style.colors[0U]&0x00ff00, fAnimate))&0x00ff00)
@@ -2570,11 +2570,11 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                     {
                         for(int i{0}; i < 3; ++i)
                         {
-                            e->param[i] = wcstol(params[i], NULL, 10);
+                            e->param[i] = wcstol(params[i], nullptr, 10);
                         }
                         for(int i{0}; i < 4; ++i)
                         {
-                            e->t[i] = wcstol(params[3U+i], NULL, 10);
+                            e->t[i] = wcstol(params[3U+i], nullptr, 10);
                         }
                         sub->m_effects[EF_FADE] = e;
                     }
@@ -2587,7 +2587,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                         e->param[1U] = 0x00;
                         for(int i{1}; i < 3; ++i)
                         {
-                            e->t[i] = wcstol(params[i-1], NULL, 10);
+                            e->t[i] = wcstol(params[i-1], nullptr, 10);
                         }
                         e->t[0U] = e->t[3U] = -1; // will be substituted with "start" and "end"
                         sub->m_effects[EF_FADE] = e;
@@ -2598,20 +2598,20 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         case CMD_fax:
             {
                 style.fontShiftX = !p.IsEmpty()
-                                   ? CalcAnimation(wcstod(p, NULL), style.fontShiftX, fAnimate)
+                                   ? CalcAnimation(wcstod(p, nullptr), style.fontShiftX, fAnimate)
                                    : org.fontShiftX;
                 break;
             }
         case CMD_fay:
             {
                 style.fontShiftY = !p.IsEmpty()
-                                   ? CalcAnimation(wcstod(p, NULL), style.fontShiftY, fAnimate)
+                                   ? CalcAnimation(wcstod(p, nullptr), style.fontShiftY, fAnimate)
                                    : org.fontShiftY;
                 break;
             }
         case CMD_fe:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 if (n < 0)
                 {
                     n = DEFAULT_CHARSET;
@@ -2636,14 +2636,14 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         case CMD_frx:
             {
                 style.fontAngleX = !p.IsEmpty()
-                                   ? CalcAnimation(wcstod(p, NULL), style.fontAngleX, fAnimate)
+                                   ? CalcAnimation(wcstod(p, nullptr), style.fontAngleX, fAnimate)
                                    : org.fontAngleX;
                 break;
             }
         case CMD_fry:
             {
                 style.fontAngleY = !p.IsEmpty()
-                                   ? CalcAnimation(wcstod(p, NULL), style.fontAngleY, fAnimate)
+                                   ? CalcAnimation(wcstod(p, nullptr), style.fontAngleY, fAnimate)
                                    : org.fontAngleY;
                 break;
             }
@@ -2651,13 +2651,13 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         case CMD_fr:
             {
                 style.fontAngleZ = !p.IsEmpty()
-                                   ? CalcAnimation(wcstod(p, NULL), style.fontAngleZ, fAnimate)
+                                   ? CalcAnimation(wcstod(p, nullptr), style.fontAngleZ, fAnimate)
                                    : org.fontAngleZ;
                 break;
             }
         case CMD_fscx:
             {
-                double n{CalcAnimation(wcstod(p, NULL), style.fontScaleX, fAnimate)};
+                double n{CalcAnimation(wcstod(p, nullptr), style.fontScaleX, fAnimate)};
                 style.fontScaleX = !p.IsEmpty()
                                    ? ((n < 0) ? 0 : n)
                                        : org.fontScaleX;
@@ -2665,7 +2665,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_fscy:
             {
-                double n{CalcAnimation(wcstod(p, NULL), style.fontScaleY, fAnimate)};
+                double n{CalcAnimation(wcstod(p, nullptr), style.fontScaleY, fAnimate)};
                 style.fontScaleY = !p.IsEmpty()
                                    ? ((n < 0) ? 0 : n)
                                        : org.fontScaleY;
@@ -2680,7 +2680,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         case CMD_fsp:
             {
                 style.fontSpacing = !p.IsEmpty()
-                                    ? CalcAnimation(wcstod(p, NULL), style.fontSpacing, fAnimate)
+                                    ? CalcAnimation(wcstod(p, nullptr), style.fontSpacing, fAnimate)
                                     : org.fontSpacing;
                 break;
             }
@@ -2690,12 +2690,12 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 {
                     if(p[0U] == L'-' || p[0U] == L'+')
                     {
-                        double n{CalcAnimation(style.fontSize + style.fontSize*wcstod(p, NULL)/10, style.fontSize, fAnimate)};
+                        double n{CalcAnimation(style.fontSize + style.fontSize*wcstod(p, nullptr)/10, style.fontSize, fAnimate)};
                         style.fontSize = (n > 0) ? n : org.fontSize;
                     }
                     else
                     {
-                        double n{CalcAnimation(wcstod(p, NULL), style.fontSize, fAnimate)};
+                        double n{CalcAnimation(wcstod(p, nullptr), style.fontSize, fAnimate)};
                         style.fontSize = (n > 0) ? n : org.fontSize;
                     }
                 }
@@ -2707,7 +2707,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_i:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 style.fItalic = !p.IsEmpty()
                                 ? (n == 0 ? false : n == 1 ? true : org.fItalic)
                                     : org.fItalic;
@@ -2716,7 +2716,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         case CMD_kt:
             {
                 m_kstart = !p.IsEmpty()
-                           ? wcstod(p, NULL)*10
+                           ? wcstod(p, nullptr)*10
                            : 0;
                 m_kend = m_kstart;
                 sub->m_fAnimated2 = true;//fix me: define m_fAnimated m_fAnimated2 strictly
@@ -2728,7 +2728,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 m_ktype = 1;
                 m_kstart = m_kend;
                 m_kend += !p.IsEmpty()
-                          ? wcstod(p, NULL)*10
+                          ? wcstod(p, nullptr)*10
                           : 1000;
                 sub->m_fAnimated2 = true;//fix me: define m_fAnimated m_fAnimated2 strictly
                 break;
@@ -2738,7 +2738,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 m_ktype = 2;
                 m_kstart = m_kend;
                 m_kend += !p.IsEmpty()
-                          ? wcstod(p, NULL)*10
+                          ? wcstod(p, nullptr)*10
                           : 1000;
                 sub->m_fAnimated2 = true;//fix me: define m_fAnimated m_fAnimated2 strictly
                 break;
@@ -2748,7 +2748,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 m_ktype = 0;
                 m_kstart = m_kend;
                 m_kend += !p.IsEmpty()
-                          ? wcstod(p, NULL)*10
+                          ? wcstod(p, nullptr)*10
                           : 1000;
                 sub->m_fAnimated2 = true;//fix me: define m_fAnimated m_fAnimated2 strictly
                 break;
@@ -2759,16 +2759,16 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 {
                     if(Effect* e = DEBUG_NEW Effect)
                     {
-                        e->param[0U] = (int)(sub->m_scalex*wcstod(params[0U], NULL)*MAX_SUB_PIXEL);
-                        e->param[1U] = (int)(sub->m_scaley*wcstod(params[1U], NULL)*MAX_SUB_PIXEL);
-                        e->param[2U] = (int)(sub->m_scalex*wcstod(params[2U], NULL)*MAX_SUB_PIXEL);
-                        e->param[3U] = (int)(sub->m_scaley*wcstod(params[3U], NULL)*MAX_SUB_PIXEL);
+                        e->param[0U] = (int)(sub->m_scalex*wcstod(params[0U], nullptr)*MAX_SUB_PIXEL);
+                        e->param[1U] = (int)(sub->m_scaley*wcstod(params[1U], nullptr)*MAX_SUB_PIXEL);
+                        e->param[2U] = (int)(sub->m_scalex*wcstod(params[2U], nullptr)*MAX_SUB_PIXEL);
+                        e->param[3U] = (int)(sub->m_scaley*wcstod(params[3U], nullptr)*MAX_SUB_PIXEL);
                         e->t[0U] = e->t[1U] = -1;
                         if(params.GetCount() == 6)
                         {
                             for(int i{0}; i < 2; ++i)
                             {
-                                e->t[i] = wcstol(params[4U+i], NULL, 10);
+                                e->t[i] = wcstol(params[4U+i], nullptr, 10);
                             }
                         }
                         sub->m_effects[EF_MOVE] = e;
@@ -2783,8 +2783,8 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 {
                     if(Effect* e = DEBUG_NEW Effect)
                     {
-                        e->param[0U] = (int)(sub->m_scalex*wcstod(params[0U], NULL)*MAX_SUB_PIXEL);
-                        e->param[1U] = (int)(sub->m_scaley*wcstod(params[1U], NULL)*MAX_SUB_PIXEL);
+                        e->param[0U] = (int)(sub->m_scalex*wcstod(params[0U], nullptr)*MAX_SUB_PIXEL);
+                        e->param[1U] = (int)(sub->m_scaley*wcstod(params[1U], nullptr)*MAX_SUB_PIXEL);
                         sub->m_effects[EF_ORG] = e;
                     }
                 }
@@ -2792,7 +2792,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_pbo:
             {
-                m_polygonBaselineOffset = wcstol(p, NULL, 10);
+                m_polygonBaselineOffset = wcstol(p, nullptr, 10);
                 break;
             }
         case CMD_pos:
@@ -2801,8 +2801,8 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 {
                     if(Effect* e = DEBUG_NEW Effect)
                     {
-                        e->param[0U] = e->param[2U] = (int)(sub->m_scalex*wcstod(params[0U], NULL)*MAX_SUB_PIXEL);
-                        e->param[1U] = e->param[3U] = (int)(sub->m_scaley*wcstod(params[1U], NULL)*MAX_SUB_PIXEL);
+                        e->param[0U] = e->param[2U] = (int)(sub->m_scalex*wcstod(params[0U], nullptr)*MAX_SUB_PIXEL);
+                        e->param[1U] = e->param[3U] = (int)(sub->m_scaley*wcstod(params[1U], nullptr)*MAX_SUB_PIXEL);
                         e->t[0U] = e->t[1U] = 0;
                         sub->m_effects[EF_MOVE] = e;
                     }
@@ -2811,13 +2811,13 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_p:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 m_nPolygon = (n <= 0 ? 0 : n);
                 break;
             }
         case CMD_q:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 sub->m_wrapStyle = !p.IsEmpty() && (0 <= n && n <= 3)
                                    ? n
                                    : m_defaultWrapStyle;
@@ -2831,7 +2831,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_shad:
             {
-                double dst{wcstod(p, NULL)};
+                double dst{wcstod(p, nullptr)};
                 double nx{CalcAnimation(dst, style.shadowDepthX, fAnimate)};
                 style.shadowDepthX = !p.IsEmpty()
                                      ? (nx < 0 ? 0 : nx)
@@ -2844,7 +2844,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_s:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 style.fStrikeOut = !p.IsEmpty()
                                    ? (n == 0 ? false : n == 1 ? true : org.fStrikeOut)
                                        : org.fStrikeOut;
@@ -2861,20 +2861,20 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 }
                 else if(params.GetCount() == 2)
                 {
-                    m_animAccel = wcstod(params[0U], NULL);
+                    m_animAccel = wcstod(params[0U], nullptr);
                     param = params[1U];
                 }
                 else if(params.GetCount() == 3)
                 {
-                    m_animStart = (int)wcstod(params[0U], NULL);
-                    m_animEnd = (int)wcstod(params[1U], NULL);
+                    m_animStart = (int)wcstod(params[0U], nullptr);
+                    m_animEnd = (int)wcstod(params[1U], nullptr);
                     param = params[2U];
                 }
                 else if(params.GetCount() == 4)
                 {
-                    m_animStart = wcstol(params[0U], NULL, 10);
-                    m_animEnd = wcstol(params[1U], NULL, 10);
-                    m_animAccel = wcstod(params[2U], NULL);
+                    m_animStart = wcstol(params[0U], nullptr, 10);
+                    m_animEnd = wcstol(params[1U], nullptr, 10);
+                    m_animAccel = wcstod(params[2U], nullptr);
                     param = params[3U];
                 }
                 (void)ParseSSATag(sub, assTag.embeded, style, org, true);
@@ -2884,7 +2884,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_u:
             {
-                int n{wcstol(p, NULL, 10)};
+                int n{wcstol(p, nullptr, 10)};
                 style.fUnderline = !p.IsEmpty()
                                    ? (n == 0 ? false : n == 1 ? true : org.fUnderline)
                                        : org.fUnderline;
@@ -2892,7 +2892,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_xbord:
             {
-                double dst{wcstod(p, NULL)};
+                double dst{wcstod(p, nullptr)};
                 double nx{CalcAnimation(dst, style.outlineWidthX, fAnimate)};
                 style.outlineWidthX = !p.IsEmpty()
                                       ? (nx < 0 ? 0 : nx)
@@ -2901,7 +2901,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_xshad:
             {
-                double dst{wcstod(p, NULL)};
+                double dst{wcstod(p, nullptr)};
                 double nx{CalcAnimation(dst, style.shadowDepthX, fAnimate)};
                 style.shadowDepthX = !p.IsEmpty()
                                      ? nx
@@ -2910,7 +2910,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_ybord:
             {
-                double dst{wcstod(p, NULL)};
+                double dst{wcstod(p, nullptr)};
                 double ny{CalcAnimation(dst, style.outlineWidthY, fAnimate)};
                 style.outlineWidthY = !p.IsEmpty()
                                       ? (ny < 0 ? 0 : ny)
@@ -2919,7 +2919,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
             }
         case CMD_yshad:
             {
-                double dst{wcstod(p, NULL)};
+                double dst{wcstod(p, nullptr)};
                 double ny{CalcAnimation(dst, style.shadowDepthY, fAnimate)};
                 style.shadowDepthY = !p.IsEmpty()
                                      ? ny
@@ -2943,7 +2943,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
     SharedPtrConstAssTagList assTags;
     AssTagListMruCache *ass_tag_cache{CacheManager::GetAssTagListMruCache()};
     POSITION pos{ass_tag_cache->Lookup(str)};
-    if (pos==NULL)
+    if (pos==nullptr)
     {
         AssTagList *tmp{DEBUG_NEW AssTagList()};
         (void)ParseSSATag(tmp, str);
@@ -3034,15 +3034,15 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 {
                     if(params[i][0U] == L'+')
                     {
-                        style.fontSize += wcstol(params[i], NULL, 10);
+                        style.fontSize += wcstol(params[i], nullptr, 10);
                     }
                     else if(params[i][0U] == L'-')
                     {
-                        style.fontSize -= wcstol(params[i], NULL, 10);
+                        style.fontSize -= wcstol(params[i], nullptr, 10);
                     }
                     else
                     {
-                        style.fontSize = wcstol(params[i], NULL, 10);
+                        style.fontSize = wcstol(params[i], nullptr, 10);
                     }
                 }
                 else if(attribs[i] == L"color")
@@ -3055,7 +3055,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 }
                 else if(attribs[i] == L"outline-level")
                 {
-                    style.outlineWidthX = style.outlineWidthY = wcstol(params[i], NULL, 10);
+                    style.outlineWidthX = style.outlineWidthY = wcstol(params[i], nullptr, 10);
                 }
                 else if(attribs[i] == L"shadow-color")
                 {
@@ -3063,7 +3063,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                 }
                 else if(attribs[i] == L"shadow-level")
                 {
-                    style.shadowDepthX = style.shadowDepthY = wcstol(params[i], NULL, 10);
+                    style.shadowDepthX = style.shadowDepthY = wcstol(params[i], nullptr, 10);
                 }
                 if(nColor >= 0 && nColor < 4)
                 {
@@ -3073,7 +3073,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
                     {
                         style.colors[nColor] = val;
                     }
-                    else if((style.colors[nColor] = _tcstol(key, NULL, 16)) == 0)
+                    else if((style.colors[nColor] = _tcstol(key, nullptr, 16)) == 0)
                     {
                         style.colors[nColor] = 0x00ffffff;
                     }  // default is white
@@ -3092,7 +3092,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
     {
         m_ktype = 1;
         m_kstart = m_kend;
-        m_kend += wcstol(params[0U], NULL, 10);
+        m_kend += wcstol(params[0U], nullptr, 10);
     }
     else
     {
@@ -3132,7 +3132,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
     sub = DEBUG_NEW CSubtitle{};
     if(!sub)
     {
-        return(NULL);
+        return(nullptr);
     }
     CStringW str{GetStrW(entry, true)};
     STSStyle stss, orgstss;
@@ -3289,7 +3289,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         {
             XY_LOG_FATAL("Out of Memory!");
             delete sub;
-            return NULL;
+            return nullptr;
         }
         m_subtitleCacheEntry.AddTail(entry);
     }
@@ -3328,7 +3328,7 @@ void CRenderedTextSubtitle::ShrinkCache()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedTextSubtitle::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
-    *ppv = NULL;
+    *ppv = nullptr;
     return
         QI(IPersist)
         QI(ISubStream)
@@ -3345,10 +3345,10 @@ void CRenderedTextSubtitle::ShrinkCache()
     m_fps = fps;
 
     int iSegment;
-    const STSSegment* stss{SearchSubs(rt, fps, &iSegment, NULL)};
-    if(stss==NULL) {
+    const STSSegment* stss{SearchSubs(rt, fps, &iSegment, nullptr)};
+    if(stss==nullptr) {
         TRACE_PARSER("No subtitle at "<<XY_LOG_VAR_2_STR(RT2MS(rt)));
-        return NULL;
+        return nullptr;
     }
     return reinterpret_cast<POSITION>(static_cast<INT_PTR>(iSegment + 1));
 }
@@ -3361,7 +3361,7 @@ void CRenderedTextSubtitle::ShrinkCache()
         ++iSegment;
         stss = GetSegment(iSegment);
     }
-    return(stss ? reinterpret_cast<POSITION>(static_cast<INT_PTR>(iSegment + 1)) : NULL);
+    return(stss ? reinterpret_cast<POSITION>(static_cast<INT_PTR>(iSegment + 1)) : nullptr);
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderedTextSubtitle::GetStart(POSITION pos, const double fps)
@@ -3434,7 +3434,7 @@ struct LSub {int idx, layer, readorder;};
             if(stse.end <= rt)
             {
                 delete m_subtitleCache.GetAt(key);
-                (void)m_subtitleCache.SetAt(key, NULL);
+                (void)m_subtitleCache.SetAt(key, nullptr);
                 m_subtitleCacheEntry.RemoveAt(pos_old);
             }
         }
@@ -3645,7 +3645,7 @@ struct LSub {int idx, layer, readorder;};
             SIZE size;
             LPCVOID pixels;
             int pitch;
-            hr = sub_render_frame->GetBitmap(i, NULL, &pos, &size, &pixels, &pitch );
+            hr = sub_render_frame->GetBitmap(i, nullptr, &pos, &size, &pixels, &pitch );
             if(FAILED(hr))
             {
                 return hr;
@@ -3680,7 +3680,7 @@ struct LSub {int idx, layer, readorder;};
     {
         return S_FALSE;
     }
-    *subRenderFrame = NULL;
+    *subRenderFrame = nullptr;
     CRect cvideo_rect{video_rect};
 
     cvideo_rect &= subtitle_target_rect;
@@ -3757,7 +3757,7 @@ struct LSub {int idx, layer, readorder;};
     {
         bool newMovable{true};
         POSITION pos{sub2List.GetHeadPosition()};
-        while ( pos!=NULL )
+        while ( pos!=nullptr )
         {
             const CSubtitle2& sub2{sub2List.GetNext(pos)};
             if (sub2.s->m_hard_position_level > POS_LVL_NONE)
@@ -3799,7 +3799,7 @@ void CRenderedTextSubtitle::DoRender( const SIZECoor2& output_size,
 {
     //check input and log error
     POSITION pos{sub2List.GetHeadPosition()};
-    while ( pos!=NULL )
+    while ( pos!=nullptr )
     {
         const CSubtitle2& sub2{sub2List.GetNext(pos)};
         CompositeDrawItemList& compDrawItemList{compDrawItemListList->GetAt(compDrawItemListList->AddTail())};
@@ -3910,7 +3910,7 @@ void CRenderedTextSubtitle::RenderOneSubtitle( const SIZECoor2& output_size,
     HRESULT result{RenderEx(spd, rt, fps, rectList)};
     POSITION pos{rectList.GetHeadPosition()};
     CRect bbox2{0,0,0,0};
-    while(pos!=NULL)
+    while(pos!=nullptr)
     {
         bbox2 |= rectList.GetNext(pos);
     }

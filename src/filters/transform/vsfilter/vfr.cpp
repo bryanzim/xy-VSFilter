@@ -184,7 +184,7 @@ public:
 {
 	char buf[32U];
 	buf[19U] = 0; // In "# timecode format v1" the version number is character index 19
-	FILE *f{NULL};
+	FILE *f{nullptr};
     int rv{fopen_s(&f, vfrfile, "r")};
     ASSERT(rv==0 && f);
     (void)rv;

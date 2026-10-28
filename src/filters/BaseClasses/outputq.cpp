@@ -204,8 +204,8 @@ DWORD COutputQueue::ThreadProc()
     while (TRUE) {
         BOOL          bWait = FALSE;
         IMediaSample *pSample;
-        LONG          lNumberToSend; // Local copy
-        NewSegmentPacket* ppacket;
+        LONG          lNumberToSend{0}; // Local copy
+        NewSegmentPacket* ppacket{nullptr};
 
         //
         //  Get a batch of samples and send it if possible

@@ -51,7 +51,7 @@ protected:
 
 	bool m_bDeviceResetRequested;
 	bool m_bPendingResetDevice;
-    void AlphaBltSubPic(CSize size, SubPicDesc* pTarget = NULL);
+    void AlphaBltSubPic(CSize size, SubPicDesc* pTarget = nullptr);
 
     XForm m_xform;
     void Transform(CRect r, Vector v[4U]);
@@ -93,10 +93,10 @@ public:
 		return false;
 	}
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetVideoAngle(Vector v, bool fRepaint = true);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader(const LPCSTR pSrcData, const LPCSTR pTarget) {
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader(LPCSTR pSrcData, LPCSTR pTarget) {
 		return E_NOTIMPL;
 	}
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader2(const LPCSTR pSrcData, const LPCSTR pTarget, const bool bScreenSpace) {
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader2(LPCSTR pSrcData, LPCSTR pTarget, bool bScreenSpace) {
 		if (!bScreenSpace) {
 			return SetPixelShader(pSrcData, pTarget);
 		}

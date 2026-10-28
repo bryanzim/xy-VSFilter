@@ -197,7 +197,7 @@ void CompositeDrawItem::Draw( XySubRenderFrame**output, CompositeDrawItemListLis
     {
         return;
     }
-    *output = NULL;
+    *output = nullptr;
 
     CompositeDrawItemExTree draw_item_ex_tree;
     XyRectExList rect_ex_list;
@@ -290,7 +290,7 @@ void CreateDrawItemExTree( CompositeDrawItemListList& input,
     CompositeDrawItemExTree *out_draw_item_ex_tree, 
     XyRectExList *out_rect_ex_list )
 {
-    ASSERT(out_draw_item_ex_tree!=NULL && out_rect_ex_list!=NULL);
+    ASSERT(out_draw_item_ex_tree!=nullptr && out_rect_ex_list!=nullptr);
 
     int list_count = input.GetCount();
     out_draw_item_ex_tree->SetCount(list_count);
@@ -320,7 +320,7 @@ void CreateDrawItemExTree( CompositeDrawItemListList& input,
 void MergeRects(const XyRectExList& input, XyRectExList* output)
 {
     int input_count = input.GetCount();
-    if(output==NULL || input_count==0)
+    if(output==nullptr || input_count==0)
     {
         return;
     }
@@ -547,7 +547,7 @@ void GroupedDrawItems::Draw( SharedPtrXyBitmap *bitmap, int *bitmap_identity_num
     CreateHashKey(key);
     XyFwGroupedDrawItemsHashKey::IdType key_id{XyFwGroupedDrawItemsHashKey(key).GetId()};
     POSITION pos{bitmap_cache->Lookup( key_id )};
-    if (pos==NULL)
+    if (pos==nullptr)
     {
         POSITION pos{draw_item_list.GetHeadPosition()};
         XyBitmap *tmp{XySubRenderFrameCreater::GetDefaultCreater()->CreateBitmap(clip_rect)};

@@ -278,7 +278,7 @@ enum CBaseStreamControl::StreamControlState CBaseStreamControl::CheckSampleTimes
 enum CBaseStreamControl::StreamControlState CBaseStreamControl::CheckStreamState( IMediaSample * pSample )
 {
 
-    REFERENCE_TIME rtBufferStart, rtBufferStop;
+    REFERENCE_TIME rtBufferStart{0}, rtBufferStop{0};
     const BOOL bNoBufferTimes =
               pSample == NULL ||
               FAILED(pSample->GetTime(&rtBufferStart, &rtBufferStop));

@@ -151,7 +151,7 @@ int CSystrayWindow::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //		g_hHook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookProc, AfxGetInstanceHandle(), 0);
 	}
 
-	SetTimer(1, 5000, NULL);
+	SetTimer(1, 5000, nullptr);
 
 	PostMessage(s_uTaskbarRestart);
 
@@ -209,7 +209,7 @@ void CSystrayWindow::OnDestroy()
 		tnid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP; 
 		tnid.uCallbackMessage = WM_NOTIFYICON;
         CComQIPtr<IXyOptions> dvs_xy{m_tbid->dvs};
-        LPWSTR name{NULL};
+        LPWSTR name{nullptr};
         int chars{0};
         dvs_xy->XyGetString(DirectVobSubXyOptions::STRING_NAME, &name, &chars);
         CStringW str_name{name, chars};
@@ -296,7 +296,7 @@ void CSystrayWindow::OnDestroy()
 				
 				for(UINT i{0}; i < cStreams; ++i)
 				{
-					WCHAR* pName{NULL};
+					WCHAR* pName{nullptr};
 
 					if(S_OK == pStreams[j]->Info(i, 0, &flags, 0, &group, &pName, 0, 0))
 					{
@@ -376,7 +376,7 @@ void CSystrayWindow::OnDestroy()
     SystrayIconData *tbid{(SystrayIconData*)pParam};
     ASSERT(tbid);
     CSystrayWindow wnd{tbid};
-    if(!wnd.CreateEx(0, AfxRegisterWndClass(0), _T("DVSWND"), WS_OVERLAPPED, CRect(0, 0, 0, 0), NULL, 0, NULL))
+    if(!wnd.CreateEx(0, AfxRegisterWndClass(0), _T("DVSWND"), WS_OVERLAPPED, CRect(0, 0, 0, 0), nullptr, 0, nullptr))
     {
         tbid->WndCreatedEvent.Set();
         XY_LOG_ERROR("Failed to create wnd.");
@@ -387,7 +387,7 @@ void CSystrayWindow::OnDestroy()
     XY_LOG_INFO("Systray wnd created. "<<wnd.m_hWnd);
 
 	MSG msg;
-	while(GetMessage(&msg, NULL/*wnd.m_hWnd*/, 0, 0))
+	while(GetMessage(&msg, nullptr/*wnd.m_hWnd*/, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -426,8 +426,8 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
             TerminateThread(*pSystrayThread, (DWORD)-1);
         }
     }
-    data->hSystrayWnd = NULL;
-    *pSystrayThread = NULL;
+    data->hSystrayWnd = nullptr;
+    *pSystrayThread = nullptr;
 }
 
 // TODO: replace this function
@@ -438,10 +438,10 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 	int i{0};
 	//bool fFound = false;
 
-	WCHAR* wstr{NULL};
+	WCHAR* wstr{nullptr};
 	CComPtr<IBaseFilter> pFilter;
 	CAUUID caGUID;
-	caGUID.pElems = NULL;
+	caGUID.pElems = nullptr;
 
 	BeginEnumFilters(pGraph, pEF, pBF)
 	{
@@ -463,7 +463,7 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 	}
 	EndEnumFilters
 
-	TCHAR* ret{NULL};
+	TCHAR* ret{nullptr};
 
 	if(pFilter)
 	{

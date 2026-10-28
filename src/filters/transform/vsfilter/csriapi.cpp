@@ -51,7 +51,7 @@ CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, str
 	int namesize;
 	wchar_t *namebuf;
 
-	namesize = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+	namesize = MultiByteToWideChar(CP_UTF8, 0, filename, -1, nullptr, 0);
 	if (!namesize)
 	{
 		return 0;
@@ -154,7 +154,7 @@ CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, const double
             ASSERT(0);
             CString msg;
             msg.Format(_T("Anything other then RGB32 is NOT supported!"));
-            MessageBox(NULL, msg, _T("Warning"), MB_OKCANCEL|MB_ICONWARNING);
+            MessageBox(nullptr, msg, _T("Warning"), MB_OKCANCEL|MB_ICONWARNING);
             int o{0}; o=o/o;
 			return;
 	}

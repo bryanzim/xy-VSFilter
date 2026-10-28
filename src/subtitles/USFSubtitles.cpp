@@ -32,17 +32,17 @@
 
 #define BeginEnumAttribs(pNode, pChild, name, value) \
 	{CComPtr<IXMLDOMNamedNodeMap> pAttribs; \
-	if(SUCCEEDED(pNode->get_attributes(&pAttribs)) && pAttribs != NULL) \
+	if(SUCCEEDED(pNode->get_attributes(&pAttribs)) && pAttribs != nullptr) \
     { \
 		CComPtr<IXMLDOMNode> pChild; \
-        for(pAttribs->nextNode(&pChild); pChild; pChild = NULL, pAttribs->nextNode(&pChild)) \
+        for(pAttribs->nextNode(&pChild); pChild; pChild = nullptr, pAttribs->nextNode(&pChild)) \
         { \
 
 #define EndEnumAttribs }}}
 
 #define BeginEnumChildren(pNode, pChild) \
 	{CComPtr<IXMLDOMNode> pChild, pNext; \
-	for(pNode->get_firstChild(&pChild); pChild; pNext = NULL, pChild->get_nextSibling(&pNext), pChild = pNext) \
+	for(pNode->get_firstChild(&pChild); pChild; pNext = nullptr, pChild->get_nextSibling(&pNext), pChild = pNext) \
     { \
 
 #define EndEnumChildren }}
@@ -112,7 +112,7 @@
 	for(i = 0; pos; ++i)
 	{
 		const WCHAR* s{sl.GetNext(pos)};
-		WCHAR* tmp{NULL};
+		WCHAR* tmp{nullptr};
 		int t{wcstol(s, &tmp, 10)};
 		if(s >= tmp)
 		{
@@ -136,7 +136,7 @@
 
 	if(str[0U] == '#')
 	{
-		ret = (DWORD)wcstol(str.TrimLeft('#'), NULL, 16);
+		ret = (DWORD)wcstol(str.TrimLeft('#'), nullptr, 16);
 	}
 	else
 	{
@@ -169,7 +169,7 @@
 
 	if(!margin.IsEmpty())
 	{
-		ret = wcstol(margin, NULL, 10);
+		ret = wcstol(margin, nullptr, 10);
 		if(margin.Find('%') >= 0)
 		{
 		    ret = wndsize * ret / 100;
@@ -382,17 +382,17 @@ CUSFSubtitles::~CUSFSubtitles()
 		stss->borderStyle = 0;
 		if(!s->fontstyle.outline.IsEmpty())
 		{
-		    stss->outlineWidthX = stss->outlineWidthY = wcstol(s->fontstyle.outline, NULL, 10);
+		    stss->outlineWidthX = stss->outlineWidthY = wcstol(s->fontstyle.outline, nullptr, 10);
 		}
 		if(!s->fontstyle.shadow.IsEmpty())
 		{
-		    stss->shadowDepthX = stss->shadowDepthY = wcstol(s->fontstyle.shadow, NULL, 10);
+		    stss->shadowDepthX = stss->shadowDepthY = wcstol(s->fontstyle.shadow, nullptr, 10);
 		}
 
 		for(int i{0}; i < 4; ++i)
 		{
 			DWORD color{ColorToDWORD(s->fontstyle.color[i])};
-			int alpha{(BYTE)wcstol(s->fontstyle.alpha, NULL, 10)};
+			int alpha{(BYTE)wcstol(s->fontstyle.alpha, nullptr, 10)};
 
 			stss->colors[i] = color & 0xffffff;
 			stss->alpha[i] = (BYTE)(color>>24);
@@ -406,7 +406,7 @@ CUSFSubtitles::~CUSFSubtitles()
 		}
 		if(!s->fontstyle.size.IsEmpty())
 		{
-		    stss->fontSize = wcstol(s->fontstyle.size, NULL, 10);
+		    stss->fontSize = wcstol(s->fontstyle.size, nullptr, 10);
 		}
 		if(!s->fontstyle.weight.IsEmpty())
 		{
@@ -415,7 +415,7 @@ CUSFSubtitles::~CUSFSubtitles()
 			!s->fontstyle.weight.CompareNoCase(L"bold") ? FW_BOLD :
 			!s->fontstyle.weight.CompareNoCase(L"lighter") ? FW_LIGHT :
 			!s->fontstyle.weight.CompareNoCase(L"bolder") ? FW_SEMIBOLD :
-			wcstol(s->fontstyle.weight, NULL, 10);
+			wcstol(s->fontstyle.weight, nullptr, 10);
 		}
 		if(stss->fontWeight == 0)
 		{
@@ -431,15 +431,15 @@ CUSFSubtitles::~CUSFSubtitles()
 		}
 		if(!s->pal.rotate[0U].IsEmpty())
 		{
-		    stss->fontAngleZ = wcstol(s->pal.rotate[0U], NULL, 10);
+		    stss->fontAngleZ = wcstol(s->pal.rotate[0U], nullptr, 10);
 		}
 		if(!s->pal.rotate[1U].IsEmpty())
 		{
-		    stss->fontAngleX = wcstol(s->pal.rotate[1U], NULL, 10);
+		    stss->fontAngleX = wcstol(s->pal.rotate[1U], nullptr, 10);
 		}
 		if(!s->pal.rotate[2U].IsEmpty())
 		{
-		    stss->fontAngleY = wcstol(s->pal.rotate[2U], NULL, 10);
+		    stss->fontAngleY = wcstol(s->pal.rotate[2U], nullptr, 10);
 		}
 
 		stss->charSet = charSet;
@@ -474,7 +474,7 @@ CUSFSubtitles::~CUSFSubtitles()
 		WCHAR rtags[3U][8U] = {L"{\\rz%d}", L"{\\rx%d}", L"{\\ry%d}"};
 		for(int i{0}; i < 3; ++i)
 		{
-			if(int angle = wcstol(t->pal.rotate[i], NULL, 10))
+			if(int angle = wcstol(t->pal.rotate[i], nullptr, 10))
 			{
 				CStringW str;
 				str.Format(rtags[i], angle);
@@ -876,7 +876,7 @@ void CUSFSubtitles::ParseText(const CComPtr<IXMLDOMNode> pNode, CStringW& str)
 	}
 	else if(name == L"k")
 	{
-		int t{wcstol(GetAttrib(L"t", pNode), NULL, 10)};
+		int t{wcstol(GetAttrib(L"t", pNode), nullptr, 10)};
 		CStringW s;
 		s.Format(L"{\\kf%d}", t / 10);
 		str += s;

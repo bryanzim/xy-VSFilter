@@ -36,7 +36,7 @@
 //
 
 CSubPicQueueImpl::CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype/*=NULL*/, int prefered_colortype_num/*=0*/)
-	: CUnknown(NAME("CSubPicQueueImpl"), NULL)
+	: CUnknown(NAME("CSubPicQueueImpl"), nullptr)
 	, m_fps(25.0)
 	, m_rtNow(0)
 	, m_rtNowLast(0)
@@ -82,13 +82,13 @@ CSubPicQueueImpl::~CSubPicQueueImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider(ISubPicProvider* pSubPicProvider)
 {
-    if (pSubPicProvider!=NULL)
+    if (pSubPicProvider!=nullptr)
     {
         return SetSubPicProviderEx( CSubPicProviderExWrapper::GetSubPicProviderExWrapper(pSubPicProvider) );
     }
     else
     {
-        return SetSubPicProviderEx( NULL );
+        return SetSubPicProviderEx( nullptr );
     }
 }
 
@@ -126,7 +126,7 @@ CSubPicQueueImpl::~CSubPicQueueImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicQueueImpl::SetSubPicProvider( IUnknown* subpic_provider )
 {
-    if (subpic_provider!=NULL)
+    if (subpic_provider!=nullptr)
     {
         CComQIPtr<ISubPicProviderEx> tmp{subpic_provider};
         if (tmp)
@@ -145,7 +145,7 @@ CSubPicQueueImpl::~CSubPicQueueImpl()
     }
     else
     {
-        return SetSubPicProviderEx(NULL);
+        return SetSubPicProviderEx(nullptr);
     }
 }
 
@@ -174,10 +174,10 @@ CSubPicQueueImpl::~CSubPicQueueImpl()
         CAutoLock cAutoLock(&m_csSubPicProvider);
         m_pSubPicProviderEx = pSubPicProviderEx;
 
-        if(m_pSubPicProviderEx!=NULL && m_pAllocator!=NULL)
+        if(m_pSubPicProviderEx!=nullptr && m_pAllocator!=nullptr)
         {
             POSITION pos{m_prefered_colortype.GetHeadPosition()};
-            while(pos!=NULL)
+            while(pos!=nullptr)
             {
                 int color_type{m_prefered_colortype.GetNext(pos)};
                 if( m_pSubPicProviderEx->IsColorTypeSupported( color_type ) &&
@@ -299,11 +299,11 @@ CSubPicQueue::CSubPicQueue(int nMaxSubPic, BOOL bDisableAnim, ISubPicExAllocator
 	m_fBreakBuffering = false;
 	for(int i{0}; i < EVENT_COUNT; ++i)
 	{
-		m_ThreadEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+		m_ThreadEvents[i] = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	}
 	for(int i{0};i<QueueEvents_COUNT; ++i)
 	{
-		m_QueueEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+		m_QueueEvents[i] = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	}
 	if(m_nMaxSubPic > 0)
 	{
@@ -384,7 +384,7 @@ CSubPicQueue::~CSubPicQueue()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CSubPicQueue::LookupSubPic(const REFERENCE_TIME rtNow, ISubPic** ppSubPic)
 {
     CComPtr<ISubPicProvider> pSubPicProvider;
-    *ppSubPic = NULL;
+    *ppSubPic = nullptr;
     //if(SUCCEEDED(GetSubPicProvider(&pSubPicProvider)) && pSubPicProvider)
     {
         //	if(pSubPicProvider->GetStartPosition(rtNow, fps))
@@ -605,7 +605,7 @@ void CSubPicQueue::AppendQueue(ISubPic* pSubPic)
 
 				//DbgLog((LOG_TRACE, 3, "pos:%x, m_fBreakBuffering:%d GetCount():%d nMaxSubPic:%d", pos, m_fBreakBuffering, GetCount(), nMaxSubPic));
 
-				if(pos!=NULL)//!m_fBreakBuffering
+				if(pos!=nullptr)//!m_fBreakBuffering
 				{
 					reachEnd = false;
 					ASSERT(m_Queue.GetCount() < (std::size_t)nMaxSubPic);
@@ -661,7 +661,7 @@ void CSubPicQueue::AppendQueue(ISubPic* pSubPic)
 					reachEnd = true;
 				}
 				pSubPicProviderEx->Unlock();
-				pSubPicProviderEx = NULL;
+				pSubPicProviderEx = nullptr;
 			}
 		}
 
@@ -735,14 +735,14 @@ CSubPicQueueNoThread::~CSubPicQueueNoThread()
     
     if( m_pSubPic && m_pSubPic->GetStop() >= rtInvalidate)
     {
-	    m_pSubPic = NULL;
+	    m_pSubPic = nullptr;
     }
 	return S_OK;
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic(const REFERENCE_TIME rtNow, ISubPic** ppSubPic)
 {
-    if(ppSubPic!=NULL)
+    if(ppSubPic!=nullptr)
     {
         ISubPicEx* temp;
         bool result{LookupSubPicEx(rtNow, &temp)};
@@ -751,13 +751,13 @@ CSubPicQueueNoThread::~CSubPicQueueNoThread()
     }
     else
     {
-        return LookupSubPicEx(rtNow, NULL);
+        return LookupSubPicEx(rtNow, nullptr);
     }
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CSubPicQueueNoThread::LookupSubPic( const REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/ )
 {    
-    if(output_subpic!=NULL)
+    if(output_subpic!=nullptr)
     {
         CComPtr<ISubPicEx> temp;
         bool result{LookupSubPicEx(now, &temp)};
@@ -766,7 +766,7 @@ CSubPicQueueNoThread::~CSubPicQueueNoThread()
     }
     else
     {
-        return LookupSubPicEx(now, NULL);
+        return LookupSubPicEx(now, nullptr);
     }
 }
 
@@ -778,7 +778,7 @@ CSubPicQueueNoThread::~CSubPicQueueNoThread()
         return(false);
     }
     
-    *ppSubPic = NULL;
+    *ppSubPic = nullptr;
 
     CComPtr<ISubPicEx> pSubPic;
 

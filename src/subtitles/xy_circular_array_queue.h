@@ -13,7 +13,7 @@ public:
      *  @brief  Default constructor creates no elements.
      **/
     explicit XYCircularArrayQueue()
-        :_elements(NULL),
+        :_elements(nullptr),
         _head(0),
         _tail(0),
         _CAPACITY(0)

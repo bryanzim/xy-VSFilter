@@ -26,7 +26,7 @@
 #include "../dsutil/DSUtil.h"
 
 CSubPicAllocatorPresenterImpl::CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT& hr, CString *_pError)
-	: CUnknown(NAME("CSubPicAllocatorPresenterImpl"), NULL)
+	: CUnknown(NAME("CSubPicAllocatorPresenterImpl"), nullptr)
 	, m_hWnd(hWnd)
 	, m_rtSubtitleDelay(0)
 	, m_NativeVideoSize(0, 0), m_AspectRatio(0, 0)

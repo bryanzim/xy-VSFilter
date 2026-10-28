@@ -7,14 +7,14 @@
 // 
 
 SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPicEx * inner_obj )
-    : CUnknown(NAME("SimpleSubPicWrapper"), NULL)
+    : CUnknown(NAME("SimpleSubPicWrapper"), nullptr)
     , m_inner_obj(inner_obj)
 {
 
 }
 
 SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPic* inner_obj )
-    : CUnknown(NAME("SimpleSubPicWrapper"), NULL)
+    : CUnknown(NAME("SimpleSubPicWrapper"), nullptr)
     , m_inner_obj2(inner_obj)
 {
     
@@ -35,7 +35,7 @@ SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPic* inner_obj )
         m_inner_obj->GetDirtyRects(rect_list);
 
         POSITION pos{rect_list.GetHeadPosition()};
-        while(pos!=NULL)
+        while(pos!=nullptr)
         {
             const CRect& rect{rect_list.GetNext(pos)};
             m_inner_obj->AlphaBlt(rect, rect, target);

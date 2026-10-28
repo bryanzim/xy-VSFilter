@@ -32,11 +32,11 @@
 CHdmvSub::CHdmvSub(void)
     : CBaseSub(ST_HDMV)
     , m_nCurSegment(NO_SEGMENT)
-    , m_pSegBuffer(NULL)
+    , m_pSegBuffer(nullptr)
     , m_nTotalSegBuffer(0)
     , m_nSegBufferPos(0)
     , m_nSegSize(0)
-    , m_pCurrentPresentationSegment(NULL)
+    , m_pCurrentPresentationSegment(nullptr)
 {
 }
 
@@ -98,7 +98,7 @@ void CHdmvSub::AllocSegment(const int nSize)
         }
         else if( rt < pPresentationSegment->rtStart )
         {
-            pos = NULL;
+            pos = nullptr;
             break;
         }
 
@@ -112,11 +112,11 @@ void CHdmvSub::AllocSegment(const int nSize)
     CheckPointer(pSample, E_POINTER);
     HRESULT hr;
     REFERENCE_TIME rtStart{INVALID_TIME}, rtStop = INVALID_TIME;
-    BYTE* pData{NULL};
+    BYTE* pData{nullptr};
     int lSampleLen;
 
     hr = pSample->GetPointer(&pData);
-    if (FAILED(hr) || pData == NULL) {
+    if (FAILED(hr) || pData == nullptr) {
         return hr;
     }
     lSampleLen = pSample->GetActualDataLength();
@@ -268,7 +268,7 @@ void CHdmvSub::EnqueuePresentationSegment(const REFERENCE_TIME rt)
             delete m_pCurrentPresentationSegment;
         }
 
-        m_pCurrentPresentationSegment = NULL;
+        m_pCurrentPresentationSegment = nullptr;
     }
 }
 
@@ -452,7 +452,7 @@ void CHdmvSub::Reset()
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 [[nodiscard]] CompositionObject* CHdmvSub::FindObject(HDMV_PRESENTATION_SEGMENT* pPresentationSegment, const short sObjectId)
@@ -467,5 +467,5 @@ void CHdmvSub::Reset()
         }
     }
 
-    return NULL;
+    return nullptr;
 }

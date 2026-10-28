@@ -34,7 +34,7 @@ class CColorStatic : public CStatic
 	COLORREF* m_pColor;
 
 public:
-	explicit CColorStatic(CWnd* pParent = NULL) : m_pColor(NULL) {}
+	explicit CColorStatic(CWnd* pParent = nullptr) : m_pColor(nullptr) {}
 	virtual ~CColorStatic() {}
 
 	void SetColorPtr(COLORREF* pColor) {m_pColor = pColor;}

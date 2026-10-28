@@ -200,7 +200,7 @@ inline V& XyAtlMap< K, V, KTraits, VTraits >::operator[](/* _In_ */ KINARGTYPE k
     CNode* pPrev;
 
     pNode = GetNode( key, iBin, nHash, pPrev );
-    if( pNode == NULL )
+    if( pNode == nullptr )
     {
         pNode = CreateNode( key, iBin, nHash );
     }
@@ -220,7 +220,7 @@ inline void XyAtlMap< K, V, KTraits, VTraits >::GetAt(
     _Out_ KOUTARGTYPE key,
     _Out_ VOUTARGTYPE value) const
 {
-    ATLENSURE( pos != NULL );
+    ATLENSURE( pos != nullptr );
 
     CNode* pNode{static_cast< CNode* >( pos )};
 
@@ -232,7 +232,7 @@ template< typename K, typename V, class KTraits, class VTraits >
 inline typename XyAtlMap< K, V, KTraits, VTraits >::CPair* XyAtlMap< K, V, KTraits, VTraits >::GetAt(
     _In_ POSITION pos) throw()
 {
-    ATLASSERT( pos != NULL );
+    ATLASSERT( pos != nullptr );
 
     return( static_cast< CPair* >( pos ) );
 }
@@ -241,7 +241,7 @@ template< typename K, typename V, class KTraits, class VTraits >
 inline const typename XyAtlMap< K, V, KTraits, VTraits >::CPair* XyAtlMap< K, V, KTraits, VTraits >::GetAt(
     _In_ POSITION pos) const throw()
 {
-    ATLASSERT( pos != NULL );
+    ATLASSERT( pos != nullptr );
 
     return( static_cast< const CPair* >( pos ) );
 }
@@ -249,7 +249,7 @@ inline const typename XyAtlMap< K, V, KTraits, VTraits >::CPair* XyAtlMap< K, V,
 template< typename K, typename V, class KTraits, class VTraits >
 inline const K& XyAtlMap< K, V, KTraits, VTraits >::GetKeyAt(_In_ POSITION pos) const
 {
-    ATLENSURE( pos != NULL );
+    ATLENSURE( pos != nullptr );
 
     CNode* pNode{(CNode*)pos};
 
@@ -259,7 +259,7 @@ inline const K& XyAtlMap< K, V, KTraits, VTraits >::GetKeyAt(_In_ POSITION pos) 
 template< typename K, typename V, class KTraits, class VTraits >
 inline const V& XyAtlMap< K, V, KTraits, VTraits >::GetValueAt(_In_ POSITION pos) const
 {
-    ATLENSURE( pos != NULL );
+    ATLENSURE( pos != nullptr );
 
     CNode* pNode{(CNode*)pos};
 
@@ -269,7 +269,7 @@ inline const V& XyAtlMap< K, V, KTraits, VTraits >::GetValueAt(_In_ POSITION pos
 template< typename K, typename V, class KTraits, class VTraits >
 inline V& XyAtlMap< K, V, KTraits, VTraits >::GetValueAt(_In_ POSITION pos)
 {
-    ATLENSURE( pos != NULL );
+    ATLENSURE( pos != nullptr );
 
     CNode* pNode{(CNode*)pos};
 
@@ -298,8 +298,8 @@ inline bool XyAtlMap< K, V, KTraits, VTraits >::IsLocked() const throw()
 template< typename K, typename V, class KTraits, class VTraits >
 UINT XyAtlMap< K, V, KTraits, VTraits >::PickSize(_In_ std::size_t nElements) const throw()
 {
-    // List of primes such that s_anPrimes[i] is the smallest prime greater than 2^(5+i/3)
-    static const UINT s_anPrimes[] =
+    // List of primes such that bin_primes[i] is the smallest prime greater than 2^(5+i/3)
+    static const UINT bin_primes[] =
     {
         17, 23, 29, 37, 41, 53, 67, 83, 103, 131, 163, 211, 257, 331, 409, 521, 647, 821,
         1031, 1291, 1627, 2053, 2591, 3251, 4099, 5167, 6521, 8209, 10331,
@@ -314,18 +314,18 @@ UINT XyAtlMap< K, V, KTraits, VTraits >::PickSize(_In_ std::size_t nElements) co
 
     // Find the smallest prime greater than our estimate
     int iPrime{0};
-    while( nBinsEstimate > s_anPrimes[iPrime] )
+    while( nBinsEstimate > bin_primes[iPrime] )
     {
         ++iPrime;
     }
 
-    if( s_anPrimes[iPrime] == UINT_MAX )
+    if( bin_primes[iPrime] == UINT_MAX )
     {
         return( nBinsEstimate );
     }
     else
     {
-        return( s_anPrimes[iPrime] );
+        return( bin_primes[iPrime] );
     }
 }
 
@@ -337,7 +337,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 {
     CNode* pNode;
 
-    if( m_ppBins == NULL )
+    if( m_ppBins == nullptr )
     {
         bool bSuccess;
 
@@ -358,19 +358,19 @@ POSITION XyAtlMap< K, V, KTraits, VTraits >::GetStartPosition() const throw()
 {
     if( IsEmpty() )
     {
-        return( NULL );
+        return( nullptr );
     }
 
     for( UINT iBin{0}; iBin < m_nBins; ++iBin )
     {
-        if( m_ppBins[iBin] != NULL )
+        if( m_ppBins[iBin] != nullptr )
         {
             return( POSITION( m_ppBins[iBin] ) );
         }
     }
     ATLASSERT( false );
 
-    return( NULL );
+    return( nullptr );
 }
 
 template< typename K, typename V, class KTraits, class VTraits >
@@ -388,7 +388,7 @@ POSITION XyAtlMap<K, V, KTraits, VTraits>::SetAtIfNotExists( /* _In_ */ KINARGTY
     }
 
     pNode = GetNode( key, iBin, nHash, pPrev );
-    if( pNode == NULL )
+    if( pNode == nullptr )
     {
         pNode = CreateNode( key, iBin, nHash );
         _ATLTRY
@@ -420,7 +420,7 @@ POSITION XyAtlMap< K, V, KTraits, VTraits >::SetAt(
     CNode* pPrev;
 
     pNode = GetNode( key, iBin, nHash, pPrev );
-    if( pNode == NULL )
+    if( pNode == nullptr )
     {
         pNode = CreateNode( key, iBin, nHash );
         _ATLTRY
@@ -446,7 +446,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::SetValueAt(
     _In_ POSITION pos,
     /* _In_ */ VINARGTYPE value)
 {
-    ATLASSUME( pos != NULL );
+    ATLASSUME( pos != nullptr );
 
     CNode* pNode{static_cast< CNode* >( pos )};
 
@@ -460,7 +460,7 @@ XyAtlMap< K, V, KTraits, VTraits >::XyAtlMap(
     _In_ float fLoThreshold,
     _In_ float fHiThreshold,
     _In_ UINT nBlockSize) throw() :
-m_ppBins( NULL ),
+m_ppBins( nullptr ),
     m_nElements( 0 ),
     m_nBins( nBins ),
     m_fOptimalLoad( fOptimalLoad ),
@@ -470,8 +470,8 @@ m_ppBins( NULL ),
     m_nLoRehashThreshold( 0 ),
     m_nLockCount( 0 ),  // Start unlocked
     m_nBlockSize( nBlockSize ),
-    m_pBlocks( NULL ),
-    m_pFree( NULL )
+    m_pBlocks( nullptr ),
+    m_pFree( nullptr )
 {
     ATLASSERT( nBins > 0 );
     ATLASSERT( nBlockSize > 0 );
@@ -520,16 +520,16 @@ bool XyAtlMap< K, V, KTraits, VTraits >::InitHashTable(_In_ UINT nBins, _In_ boo
     ATLASSUME( m_nElements == 0 );
     ATLASSERT( nBins > 0 );
 
-    if( m_ppBins != NULL )
+    if( m_ppBins != nullptr )
     {
         delete[] m_ppBins;
-        m_ppBins = NULL;
+        m_ppBins = nullptr;
     }
 
     if( bAllocNow )
     {
         ATLTRY( m_ppBins = new CNode*[nBins] );
-        if( m_ppBins == NULL )
+        if( m_ppBins == nullptr )
         {
             return false;
         }
@@ -548,14 +548,14 @@ template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::RemoveAll()
 {
     DisableAutoRehash();
-    if( m_ppBins != NULL )
+    if( m_ppBins != nullptr )
     {
         for( UINT iBin{0}; iBin < m_nBins; ++iBin )
         {
             CNode* pNext;
 
             pNext = m_ppBins[iBin];
-            while( pNext != NULL )
+            while( pNext != nullptr )
             {
                 CNode* pKill;
 
@@ -567,7 +567,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAll()
     }
 
     delete[] m_ppBins;
-    m_ppBins = NULL;
+    m_ppBins = nullptr;
     m_nElements = 0;
 
     if( !IsLocked() )
@@ -603,13 +603,13 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 {
     CNode* pNewNode;
 
-    if( m_pFree == NULL )
+    if( m_pFree == nullptr )
     {
         CAtlPlex* pPlex;
         CNode* pNode;
 
         pPlex = CAtlPlex::Create( m_pBlocks, m_nBlockSize, sizeof( CNode ) );
-        if( pPlex == NULL )
+        if( pPlex == nullptr )
         {
             AtlThrow( E_OUTOFMEMORY );
         }
@@ -622,7 +622,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
             --pNode;
         }
     }
-    ATLENSURE(m_pFree != NULL );
+    ATLENSURE(m_pFree != nullptr );
     pNewNode = m_pFree;
     m_pFree = pNewNode->m_pNext;
 
@@ -655,7 +655,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::FreeNode(_Inout_ CNode* pNode)
 {
-    ATLENSURE( pNode != NULL );
+    ATLENSURE( pNode != nullptr );
 
     pNode->~CNode();
     pNode->m_pNext = m_pFree;
@@ -678,11 +678,11 @@ void XyAtlMap< K, V, KTraits, VTraits >::FreeNode(_Inout_ CNode* pNode)
 template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::FreePlexes() throw()
 {
-    m_pFree = NULL;
-    if( m_pBlocks != NULL )
+    m_pFree = nullptr;
+    if( m_pBlocks != nullptr )
     {
         m_pBlocks->FreeDataChain();
-        m_pBlocks = NULL;
+        m_pBlocks = nullptr;
     }
 }
 
@@ -698,14 +698,14 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
     nHash = KTraits::Hash( key );
     iBin = nHash%m_nBins;
 
-    if( m_ppBins == NULL )
+    if( m_ppBins == nullptr )
     {
-        return( NULL );
+        return( nullptr );
     }
 
-    pFollow = NULL;
-    pPrev = NULL;
-    for( CNode* pNode{m_ppBins[iBin]}; pNode != NULL; pNode = pNode->m_pNext )
+    pFollow = nullptr;
+    pPrev = nullptr;
+    for( CNode* pNode{m_ppBins[iBin]}; pNode != nullptr; pNode = pNode->m_pNext )
     {
         if( (pNode->GetHash() == nHash) && KTraits::CompareElements( pNode->m_key, key ) )
         {
@@ -715,7 +715,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
         pFollow = pNode;
     }
 
-    return( NULL );
+    return( nullptr );
 }
 
 template< typename K, typename V, class KTraits, class VTraits >
@@ -729,7 +729,7 @@ bool XyAtlMap< K, V, KTraits, VTraits >::Lookup(
     CNode* pPrev;
 
     pNode = GetNode( key, iBin, nHash, pPrev );
-    if( pNode == NULL )
+    if( pNode == nullptr )
     {
         return( false );
     }
@@ -775,9 +775,9 @@ bool XyAtlMap< K, V, KTraits, VTraits >::RemoveKey(/* _In_ */ KINARGTYPE key) th
     UINT nHash;
     CNode* pPrev;
 
-    pPrev = NULL;
+    pPrev = nullptr;
     pNode = GetNode( key, iBin, nHash, pPrev );
-    if( pNode == NULL )
+    if( pNode == nullptr )
     {
         return( false );
     }
@@ -792,11 +792,11 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveNode(
     _In_ CNode* pNode,
     _In_opt_ CNode* pPrev) throw()
 {
-    ATLENSURE( pNode != NULL );
+    ATLENSURE( pNode != nullptr );
 
     UINT iBin{pNode->GetHash() % m_nBins};
 
-    if( pPrev == NULL )
+    if( pPrev == nullptr )
     {
         ATLASSUME( m_ppBins[iBin] == pNode );
         m_ppBins[iBin] = pNode->m_pNext;
@@ -812,16 +812,16 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveNode(
 template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::RemoveAtPos(_In_ POSITION pos) throw()
 {
-    ATLENSURE( pos != NULL );
+    ATLENSURE( pos != nullptr );
 
     CNode* pNode{static_cast< CNode* >( pos )};
-    CNode* pPrev{NULL};
+    CNode* pPrev{nullptr};
     UINT iBin{pNode->GetHash() % m_nBins};
 
-    ATLASSUME( m_ppBins[iBin] != NULL );
+    ATLASSUME( m_ppBins[iBin] != nullptr );
     if( pNode == m_ppBins[iBin] )
     {
-        pPrev = NULL;
+        pPrev = nullptr;
     }
     else
     {
@@ -829,7 +829,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAtPos(_In_ POSITION pos) throw()
         while( pPrev->m_pNext != pNode )
         {
             pPrev = pPrev->m_pNext;
-            ATLASSERT( pPrev != NULL );
+            ATLASSERT( pPrev != nullptr );
         }
     }
     RemoveNode( pNode, pPrev );
@@ -838,7 +838,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAtPos(_In_ POSITION pos) throw()
 template< typename K, typename V, class KTraits, class VTraits >
 void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
 {
-    CNode** ppBins{NULL};
+    CNode** ppBins{nullptr};
 
     if( nBins == 0 )
     {
@@ -852,7 +852,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
 
     ATLTRACE(atlTraceMap, 2, _T("Rehash: %u bins\n"), nBins );
 
-    if( m_ppBins == NULL )
+    if( m_ppBins == nullptr )
     {
         // Just set the new number of bins
         (void)InitHashTable( nBins, false );
@@ -860,7 +860,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
     }
 
     ATLTRY(ppBins = new CNode*[nBins]);
-    if (ppBins == NULL)
+    if (ppBins == nullptr)
     {
         AtlThrow( E_OUTOFMEMORY );
     }
@@ -875,7 +875,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
         CNode* pNode;
 
         pNode = m_ppBins[iSrcBin];
-        while( pNode != NULL )
+        while( pNode != nullptr )
         {
             CNode* pNext;
             UINT iDestBin;
@@ -905,8 +905,8 @@ void XyAtlMap< K, V, KTraits, VTraits >::GetNextAssoc(
     CNode* pNode;
     CNode* pNext;
 
-    ATLASSUME( m_ppBins != NULL );
-    ATLENSURE( pos != NULL );
+    ATLASSUME( m_ppBins != nullptr );
+    ATLENSURE( pos != nullptr );
 
     pNode = (CNode*)pos;
     pNext = FindNextNode( pNode );
@@ -923,8 +923,8 @@ const typename XyAtlMap< K, V, KTraits, VTraits >::CPair* XyAtlMap< K, V, KTrait
     CNode* pNode;
     CNode* pNext;
 
-    ATLASSUME( m_ppBins != NULL );
-    ATLASSERT( pos != NULL );
+    ATLASSUME( m_ppBins != nullptr );
+    ATLASSERT( pos != nullptr );
 
     pNode = (CNode*)pos;
     pNext = FindNextNode( pNode );
@@ -938,8 +938,8 @@ template< typename K, typename V, class KTraits, class VTraits >
 typename XyAtlMap< K, V, KTraits, VTraits >::CPair* XyAtlMap< K, V, KTraits, VTraits >::GetNext(
     _Inout_ POSITION& pos) throw()
 {
-    ATLASSUME( m_ppBins != NULL );
-    ATLASSERT( pos != NULL );
+    ATLASSUME( m_ppBins != nullptr );
+    ATLASSERT( pos != nullptr );
 
     CNode* pNode{static_cast< CNode* >( pos )};
     CNode* pNext{FindNextNode( pNode )};
@@ -956,8 +956,8 @@ const K& XyAtlMap< K, V, KTraits, VTraits >::GetNextKey(
     CNode* pNode;
     CNode* pNext;
 
-    ATLASSUME( m_ppBins != NULL );
-    ATLENSURE( pos != NULL );
+    ATLASSUME( m_ppBins != nullptr );
+    ATLENSURE( pos != nullptr );
 
     pNode = (CNode*)pos;
     pNext = FindNextNode( pNode );
@@ -974,8 +974,8 @@ const V& XyAtlMap< K, V, KTraits, VTraits >::GetNextValue(
     CNode* pNode;
     CNode* pNext;
 
-    ATLASSUME( m_ppBins != NULL );
-    ATLENSURE( pos != NULL );
+    ATLASSUME( m_ppBins != nullptr );
+    ATLENSURE( pos != nullptr );
 
     pNode = (CNode*)pos;
     pNext = FindNextNode( pNode );
@@ -992,8 +992,8 @@ V& XyAtlMap< K, V, KTraits, VTraits >::GetNextValue(
     CNode* pNode;
     CNode* pNext;
 
-    ATLASSUME( m_ppBins != NULL );
-    ATLENSURE( pos != NULL );
+    ATLASSUME( m_ppBins != nullptr );
+    ATLENSURE( pos != nullptr );
 
     pNode = (CNode*)pos;
     pNext = FindNextNode( pNode );
@@ -1009,13 +1009,13 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 {
     CNode* pNext;
 
-    if(pNode == NULL)
+    if(pNode == nullptr)
     {
         ATLASSERT(FALSE);
-        return NULL;
+        return nullptr;
     }
 
-    if( pNode->m_pNext != NULL )
+    if( pNode->m_pNext != nullptr )
     {
         pNext = pNode->m_pNext;
     }
@@ -1023,11 +1023,11 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
     {
         UINT iBin;
 
-        pNext = NULL;
+        pNext = nullptr;
         iBin = (pNode->GetHash()%m_nBins)+1;
-        while( (pNext == NULL) && (iBin < m_nBins) )
+        while( (pNext == nullptr) && (iBin < m_nBins) )
         {
-            if( m_ppBins[iBin] != NULL )
+            if( m_ppBins[iBin] != nullptr )
             {
                 pNext = m_ppBins[iBin];
             }
@@ -1045,7 +1045,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::AssertValid() const
 {
     ATLASSUME( m_nBins > 0 );
     // non-empty map should have hash table
-    ATLASSERT( IsEmpty() || (m_ppBins != NULL) );
+    ATLASSERT( IsEmpty() || (m_ppBins != nullptr) );
 }
 #endif
 
@@ -1078,9 +1078,9 @@ public:
     [[nodiscard]] inline POSITION UpdateCache(const K& key, const V& value)
     {
         POSITION pos;
-        POSITION pos_hash_value{NULL};
+        POSITION pos_hash_value{nullptr};
         bool new_item_added{false};
-        pos = _hash.SetAtIfNotExists(key, (POSITION)NULL, &new_item_added);
+        pos = _hash.SetAtIfNotExists(key, (POSITION)nullptr, &new_item_added);
         if (new_item_added)
         {
             pos_hash_value = _list.AddHead( ListItem(pos, value) );
@@ -1102,9 +1102,9 @@ public:
     [[nodiscard]] inline POSITION AddHeadIfNotExists(const K& key, const V& value, bool *new_item_added)
     {
         POSITION pos;
-        POSITION pos_hash_value{NULL};
+        POSITION pos_hash_value{nullptr};
         bool new_hash_item_added{false};
-        pos = _hash.SetAtIfNotExists(key, (POSITION)NULL, &new_hash_item_added);
+        pos = _hash.SetAtIfNotExists(key, (POSITION)nullptr, &new_hash_item_added);
         if (new_hash_item_added)
         {
             pos_hash_value = _list.AddHead( ListItem(pos, value) );
@@ -1151,7 +1151,7 @@ public:
         }
         else
         {
-            return NULL;
+            return nullptr;
         }
     }
     [[nodiscard]] inline V& GetAt(POSITION pos)
@@ -1219,7 +1219,7 @@ public:
     {
         ++_query_count;
         POSITION pos{__super::Lookup(key)};
-        _cache_hit += (pos!=NULL);
+        _cache_hit += (pos!=nullptr);
         return pos;
     }
     [[nodiscard]] inline POSITION AddHeadIfNotExists(const K& key, const V& value, bool *new_item_added)

@@ -231,9 +231,9 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
     {
         tmp.Format(_T("in: %dx%d %s\nout: %dx%d %s\n"), 
             m_w, m_h, 
-            Subtype2String(m_pInput->CurrentMediaType().subtype),
+            Subtype2String(m_pInput->CurrentMediaType().subtype).GetString(),
             bihOut.biWidth, bihOut.biHeight, 
-            Subtype2String(m_pOutput->CurrentMediaType().subtype));
+            Subtype2String(m_pOutput->CurrentMediaType().subtype).GetString());
         msg += tmp;
 
 		tmp.Format(_T("real fps: %.3f\nmedia time: %I64d, subtitle time: %I64d [ms]\nframe number: %I64d (calculated)\nrate: %.4f\n"), 

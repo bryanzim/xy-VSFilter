@@ -1339,7 +1339,7 @@ void xy_filter_sse_v7(float *dst, const int width, const int height, const int s
 {
     typedef void (*Filter)(float *dst, int width, int height, int stride, const float *filter);
     const Filter filters[] = { 
-        NULL,
+        nullptr,
         xy_filter_sse_template_v1<1>, xy_filter_sse_template_v1<4>, xy_filter_sse_template_v1<4>, xy_filter_sse_template_v1<4>, 
         xy_filter_sse_template_v1<5>, xy_filter_sse_template_v1<8>, xy_filter_sse_template_v1<8>, xy_filter_sse_template_v1<8>, 
         xy_filter_sse_template_v1<9>, xy_filter_sse_template_v1<12>, xy_filter_sse_template_v1<12>, xy_filter_sse_template_v1<12>, 
@@ -1440,7 +1440,7 @@ void xy_filter_sse_v8(float *dst, const int width, const int height, const int s
 {
     typedef void (*Filter)(float *dst, int width, int height, int stride, const float *filter);
     const Filter filters[] = { 
-        NULL,
+        nullptr,
         xy_filter_sse_template_v1<1>, xy_filter_sse_template_v1<4>, xy_filter_sse_template_v1<4>, xy_filter_sse_template_v1<4>, 
         xy_filter_sse_template_v1<5>, xy_filter_sse_template_v1<8>, xy_filter_sse_template_v1<8>, xy_filter_sse_template_v1<8>, 
         xy_filter_sse_template_v1<9>, xy_filter_sse_template_v1<12>, xy_filter_sse_template_v1<12>, xy_filter_sse_template_v1<12>, 
@@ -1770,7 +1770,7 @@ void xy_filter_sse_v9(float *dst, const int width, const int height, const int s
 {
     typedef void (*Filter)(float *dst, int width, int height, int stride, const float *filter);
     const Filter filters[] = { 
-        NULL,
+        nullptr,
         xy_filter_sse_template_v2<1>, xy_filter_sse_template_v2<4>, xy_filter_sse_template_v2<3>, xy_filter_sse_template_v2<4>, 
         xy_filter_sse_template_v2<5>, xy_filter_sse_template_v2<8>, xy_filter_sse_template_v2<7>, xy_filter_sse_template_v2<8>, 
         xy_filter_sse_template_v2<9>, xy_filter_sse_template_v2<12>, xy_filter_sse_template_v2<11>, xy_filter_sse_template_v2<12>, 
@@ -1820,7 +1820,7 @@ public:
     int filter_width;
     int ex_filter_width;
 
-    explicit XyFilterTest() :buff_base(NULL),filter_f(NULL),data(NULL)
+    explicit XyFilterTest() :buff_base(nullptr),filter_f(nullptr),data(nullptr)
     {
         buff_base = (float*)xy_malloc(MAX_BUFF_SIZE*sizeof(float));
         data = buff_base + MAX_FILTER_LENGTH;
@@ -1829,7 +1829,7 @@ public:
     ~XyFilterTest()
 
     {
-        xy_free(buff_base);buff_base=NULL;
+        xy_free(buff_base);buff_base=nullptr;
     }
 
     [[nodiscard]] const XyFilterTest& copy (const XyFilterTest& rhs)

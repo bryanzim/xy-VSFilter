@@ -178,7 +178,7 @@ CBaseVideoFilter::CBaseVideoFilter(TCHAR* pName, LPUNKNOWN lpunk, HRESULT* phr, 
     m_pOutput = new CBaseVideoOutputPin(NAME("CBaseVideoOutputPin"), this, &hr, L"Output");
 	if(!m_pOutput)
     {
-        delete m_pInput, m_pInput = NULL;
+        delete m_pInput, m_pInput = nullptr;
         if (phr)
         {
             *phr = E_OUTOFMEMORY;
@@ -187,7 +187,7 @@ CBaseVideoFilter::CBaseVideoFilter(TCHAR* pName, LPUNKNOWN lpunk, HRESULT* phr, 
     }
 	if(FAILED(hr))
     {
-        delete m_pInput, m_pInput = NULL;
+        delete m_pInput, m_pInput = nullptr;
         if (phr)
         {
             *phr = hr;
@@ -218,7 +218,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 	case 0: return m_pInput;
 	case 1: return m_pOutput;
 	}
-	return NULL;
+	return nullptr;
 }
 
 [[nodiscard]] HRESULT CBaseVideoFilter::Receive(IMediaSample* pIn)
@@ -265,7 +265,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 		return hr;
 	}
 
-	if(FAILED(hr = m_pOutput->GetDeliveryBuffer(ppOut, NULL, NULL, 0)))
+	if(FAILED(hr = m_pOutput->GetDeliveryBuffer(ppOut, nullptr, nullptr, 0)))
 	{
 		return hr;
 	}
@@ -316,7 +316,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 			return E_FAIL;
 		}
 
-		BITMAPINFOHEADER* bmi{NULL};
+		BITMAPINFOHEADER* bmi{nullptr};
 
 		if(mt.formattype == FORMAT_VideoInfo)
 		{
@@ -347,7 +347,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 HRESULT hr1{0}, hr2 = 0;
 		CComPtr<IMediaSample> pOut;
 		if(SUCCEEDED(hr1 = m_pOutput->GetConnected()->ReceiveConnection(m_pOutput, &mt))
-		&& SUCCEEDED(hr2 = m_pOutput->GetDeliveryBuffer(&pOut, NULL, NULL, 0)))
+		&& SUCCEEDED(hr2 = m_pOutput->GetDeliveryBuffer(&pOut, nullptr, nullptr, 0)))
 		{
 			AM_MEDIA_TYPE* pmt;
 			if(SUCCEEDED(pOut->GetMediaType(&pmt)) && pmt)
@@ -932,7 +932,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
     }
 
     int priority = count;
-    CComPtr<IEnumMediaTypes> pEnumMediaTypes = NULL;
+    CComPtr<IEnumMediaTypes> pEnumMediaTypes = nullptr;
     HRESULT hr;
     hr = m_pInput->GetConnected()->EnumMediaTypes( &pEnumMediaTypes );
     if (FAILED(hr)) {
@@ -944,7 +944,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
     if (FAILED(hr)) {
         return hr;
     }
-    CMediaType *pMediaType{NULL};
+    CMediaType *pMediaType{nullptr};
     ULONG ulMediaCount{0};
 
     // attempt to remember a specific error code if there is one
@@ -1031,7 +1031,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
 //
 	
 CBaseVideoInputAllocator::CBaseVideoInputAllocator(HRESULT* phr)
-	: CMemAllocator(NAME("CBaseVideoInputAllocator"), NULL, phr)
+	: CMemAllocator(NAME("CBaseVideoInputAllocator"), nullptr, phr)
 {
 	if(phr)
 	{
@@ -1068,7 +1068,7 @@ void CBaseVideoInputAllocator::SetMediaType(const CMediaType& mt)
 
 CBaseVideoInputPin::CBaseVideoInputPin(TCHAR* pObjectName, CBaseVideoFilter* pFilter, HRESULT* phr, LPCWSTR pName) 
 	: CTransformInputPin(pObjectName, pFilter, phr, pName)
-	, m_pAllocator(NULL)
+	, m_pAllocator(nullptr)
 {
 }
 
@@ -1082,7 +1082,7 @@ CBaseVideoInputPin::~CBaseVideoInputPin()
 {
     CheckPointer(ppAllocator, E_POINTER);
 
-    if(m_pAllocator == NULL)
+    if(m_pAllocator == nullptr)
 	{
 		HRESULT hr{S_OK};
         m_pAllocator = new CBaseVideoInputAllocator(&hr);
@@ -1165,7 +1165,7 @@ CBaseVideoOutputPin::CBaseVideoOutputPin(TCHAR* pObjectName, CBaseVideoFilter* p
         }
     }
 
-    ASSERT(m_pFilter->m_pInput != NULL);
+    ASSERT(m_pFilter->m_pInput != nullptr);
     if ((m_pFilter->m_pInput->IsConnected() == FALSE)) {
         return E_INVALIDARG;
     }

@@ -9,7 +9,7 @@
 
 XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const CRect& output_rect
     , const CRect& clip_rect, ULONGLONG id, HRESULT *phr/*=NULL*/ )
-    : CUnknown(NAME("XySubRenderFrameWrapper"), NULL, phr)
+    : CUnknown(NAME("XySubRenderFrameWrapper"), nullptr, phr)
     , m_inner_obj(inner_obj)
     , m_output_rect(output_rect)
     , m_clip_rect(clip_rect)
@@ -112,7 +112,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
         *pixels = (BYTE*)(m_inner_obj->m_spd.bits) + dirty_rect.top * m_inner_obj->m_spd.pitch 
             + dirty_rect.left * (32/8);
     }
-    TRACE_SUB_RENDER_FRAME(index<<" id: "<<m_id<<" "<<dirty_rect<<" pitch:"<<m_inner_obj->m_spd.pitch<<" pixels:"<<(pixels?*pixels:NULL)
+    TRACE_SUB_RENDER_FRAME(index<<" id: "<<m_id<<" "<<dirty_rect<<" pitch:"<<m_inner_obj->m_spd.pitch<<" pixels:"<<(pixels?*pixels:nullptr)
         <<XY_LOG_VAR_2_STR(m_inner_obj->m_spd.bits) );
     return S_OK;
 }
@@ -159,7 +159,7 @@ typedef XyFlyWeight<ContextedBitmapId, 1024, ContextedBitmapIdTraits> XyFwContex
 //
 
 XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj, ULONGLONG context_id)
-    : CUnknown(NAME("XySubRenderFrameWrapper"), NULL)
+    : CUnknown(NAME("XySubRenderFrameWrapper"), nullptr)
     , m_inner_obj(inner_obj)
 {
     ASSERT(inner_obj);
@@ -173,7 +173,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
         for (int i{0};i<count;++i)
         {
             ULONGLONG id;
-            hr = inner_obj->GetBitmap(i, &id, NULL, NULL, NULL, NULL);
+            hr = inner_obj->GetBitmap(i, &id, nullptr, nullptr, nullptr, nullptr);
             ASSERT(SUCCEEDED(hr));
             m_ids[i] = XyFwContextedBitmapId(DEBUG_NEW ContextedBitmapId(context_id, id)).GetId();
         }

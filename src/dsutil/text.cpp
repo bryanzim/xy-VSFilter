@@ -78,7 +78,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 	{
 	    return CP_UTF7;
 	}
-	CHARSETINFO cs={0};
+	CHARSETINFO cs{};
 	::TranslateCharsetInfo(reinterpret_cast<DWORD*>(static_cast<UINT_PTR>(dwCharSet)), &cs, TCI_SRCCHARSET);
 	return cs.ciACP;
 }
@@ -100,7 +100,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 		CharSetToCodePage(DstCharSet), 0, 
 		utf16, len, 
 		mbcs, str.GetLength()*6,
-		NULL, NULL);
+		nullptr, nullptr);
 
 	str = mbcs;
 

@@ -160,9 +160,9 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler( CRenderedTextSubtitle 
     tStart += m_tStart; 
     tStop += m_tStart;
 
-    BYTE* pData{NULL};
+    BYTE* pData{nullptr};
     HRESULT hr{pSample->GetPointer(&pData)};
-    if(FAILED(hr) || pData == NULL)
+    if(FAILED(hr) || pData == nullptr)
     {
         return hr;
     }
@@ -267,16 +267,16 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler( CRenderedTextSubtitle 
                 ExplodeNoTrim(str, sl, ',', fields);
                 if(sl.GetCount() == fields)
                 {
-                    stse.readorder = wcstol(sl.RemoveHead(), NULL, 10);
-                    stse.layer = wcstol(sl.RemoveHead(), NULL, 10);
+                    stse.readorder = wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.layer = wcstol(sl.RemoveHead(), nullptr, 10);
                     stse.style = sl.RemoveHead(); // no trim, its value is a lookup key
                     stse.actor = sl.RemoveHead().Trim();
-                    stse.marginRect.left = wcstol(sl.RemoveHead(), NULL, 10);
-                    stse.marginRect.right = wcstol(sl.RemoveHead(), NULL, 10);
-                    stse.marginRect.top = stse.marginRect.bottom = wcstol(sl.RemoveHead(), NULL, 10);
+                    stse.marginRect.left = wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.marginRect.right = wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.marginRect.top = stse.marginRect.bottom = wcstol(sl.RemoveHead(), nullptr, 10);
                     if(fields == 10)
                     {
-                        stse.marginRect.bottom = wcstol(sl.RemoveHead(), NULL, 10);
+                        stse.marginRect.bottom = wcstol(sl.RemoveHead(), nullptr, 10);
                     }
                     stse.effect = sl.RemoveHead().Trim();
                     stse.str = sl.RemoveHead().Trim();
@@ -333,9 +333,9 @@ CSSFInputPinHepler::CSSFInputPinHepler( ssf::CRenderer* pSSF, const CMediaType& 
     tStart += m_tStart; 
     tStop += m_tStart;
 
-    BYTE* pData{NULL};
+    BYTE* pData{nullptr};
     HRESULT hr{pSample->GetPointer(&pData)};
-    if(FAILED(hr) || pData == NULL)
+    if(FAILED(hr) || pData == nullptr)
     {
         return hr;
     }
@@ -384,9 +384,9 @@ CVobsubInputPinHepler::CVobsubInputPinHepler( CVobSubStream* pVSS, const CMediaT
     tStart += m_tStart; 
     tStop += m_tStart;
 
-    BYTE* pData{NULL};
+    BYTE* pData{nullptr};
     HRESULT hr{pSample->GetPointer(&pData)};
-    if(FAILED(hr) || pData == NULL)
+    if(FAILED(hr) || pData == nullptr)
     {
         return hr;
     }
@@ -433,7 +433,7 @@ CHdmvInputPinHepler::CHdmvInputPinHepler( CRenderedHdmvSubtitle* pHdmvSubtitle, 
 CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCritSec* pSubLock, HRESULT* phr)
     : CBaseInputPin(NAME("CSubtitleInputPin"), pFilter, pLock, phr, L"Input")
     , m_pSubLock(pSubLock)
-    , m_helper(NULL)
+    , m_helper(nullptr)
 {
     m_bCanReconnectWhenActive = TRUE;
 }
@@ -456,7 +456,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
 {
     CAutoLock cAutoLock{m_pSubLock};
     XY_LOG_DEBUG(XY_LOG_VAR_2_STR(pReceivePin));
-    delete m_helper; m_helper = NULL;
+    delete m_helper; m_helper = nullptr;
     m_helper = CreateHelper(m_mt, pReceivePin);
     if (!m_helper)
     {
@@ -471,7 +471,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(CSubtitleInputPinHelper*) CSubtitleInputPin::CreateHelper( const CMediaType& mt, IPin* pReceivePin )
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(pReceivePin));
-    CSubtitleInputPinHelper *ret{NULL};
+    CSubtitleInputPinHelper *ret{nullptr};
     if(mt.majortype == MEDIATYPE_Text)
     {
         XY_LOG_INFO("Create CTextSubtitleInputPinHepler");
@@ -487,7 +487,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
         CString       name;
         LCID          lcid{0};
 
-        if (psi != NULL) {
+        if (psi != nullptr) {
             dwOffset = psi->dwOffset;
 
             name = ISO6392ToLanguage(psi->IsoLang);
@@ -580,7 +580,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
     if (m_helper)
     {
         RemoveSubStream(m_helper->GetSubStream());
-        delete m_helper; m_helper = NULL;
+        delete m_helper; m_helper = nullptr;
     }
     ASSERT(IsStopped());
 
@@ -594,10 +594,10 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
 	if(m_Connected)
 	{
         RemoveSubStream(m_helper->GetSubStream());
-        delete m_helper; m_helper = NULL;
+        delete m_helper; m_helper = nullptr;
 
         m_Connected->Release();
-        m_Connected = NULL;
+        m_Connected = nullptr;
 	}
 
 	return __super::ReceiveConnection(pConnector, pmt);
@@ -621,8 +621,8 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
 interface __declspec(uuid("D3D92BC3-713B-451B-9122-320095D51EA5"))
 IMpeg2DemultiplexerTesting :
 public IUnknown {
-	STDMETHOD(GetMpeg2StreamType)(ULONG* plType) = NULL;
-	STDMETHOD(toto)() = NULL;
+	STDMETHOD(GetMpeg2StreamType)(ULONG* plType) = 0;
+	STDMETHOD(toto)() = 0;
 };
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubtitleInputPin::Receive(IMediaSample* pSample)
@@ -680,5 +680,5 @@ public IUnknown {
 [[nodiscard]] ISubStream* CSubtitleInputPin::GetSubStream()
 {
     CAutoLock cAutoLock{m_pSubLock};
-    return m_helper ? m_helper->GetSubStream() : NULL;
+    return m_helper ? m_helper->GetSubStream() : nullptr;
 }

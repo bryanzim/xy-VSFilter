@@ -77,7 +77,7 @@ CMediaTypeEx::CMediaTypeEx()
 			dim.Format(_T("%dx%d"), w, h);
 			if(w*ary != h*arx)
 			{
-			    dim.Format(_T("%s (%d:%d)"), CString(dim), arx, ary);
+			    dim.Format(_T("%s (%d:%d)"), CString(dim).GetString(), arx, ary);
 			}
 		}
 
@@ -90,7 +90,7 @@ CMediaTypeEx::CMediaTypeEx()
 			}
 			if(vih->dwBitRate)
 			{
-			    rate.Format(_T("%s%dKbps"), CString(rate), vih->dwBitRate/1000);
+			    rate.Format(_T("%s%dKbps"), CString(rate).GetString(), vih->dwBitRate/1000);
 			}
 		}
 		else if(formattype == FORMAT_VideoInfo2 || formattype == FORMAT_MPEG2_VIDEO || formattype == FORMAT_DiracVideoInfo)
@@ -102,7 +102,7 @@ CMediaTypeEx::CMediaTypeEx()
 			}
 			if(vih->dwBitRate)
 			{
-			    rate.Format(_T("%s%dKbps"), CString(rate), vih->dwBitRate/1000);
+			    rate.Format(_T("%s%dKbps"), CString(rate).GetString(), vih->dwBitRate/1000);
 			}
 		}
 
@@ -130,15 +130,15 @@ CMediaTypeEx::CMediaTypeEx()
 				dim.Format(_T("%dHz"), wfe->nSamplesPerSec);
 				if(wfe->nChannels == 1)
 				{
-				    dim.Format(_T("%s mono"), CString(dim));
+				    dim.Format(_T("%s mono"), CString(dim).GetString());
 				}
 				else if(wfe->nChannels == 2)
 				{
-				    dim.Format(_T("%s stereo"), CString(dim));
+				    dim.Format(_T("%s stereo"), CString(dim).GetString());
 				}
 				else
 				{
-				    dim.Format(_T("%s %dch"), CString(dim), wfe->nChannels);
+				    dim.Format(_T("%s %dch"), CString(dim).GetString(), wfe->nChannels);
 				}
 				if(wfe->nAvgBytesPerSec)
 				{
@@ -154,15 +154,15 @@ CMediaTypeEx::CMediaTypeEx()
 			dim.Format(_T("%dHz"), vf->nSamplesPerSec);
 			if(vf->nChannels == 1)
 			{
-			    dim.Format(_T("%s mono"), CString(dim));
+			    dim.Format(_T("%s mono"), CString(dim).GetString());
 			}
 			else if(vf->nChannels == 2)
 			{
-			    dim.Format(_T("%s stereo"), CString(dim));
+			    dim.Format(_T("%s stereo"), CString(dim).GetString());
 			}
 			else
 			{
-			    dim.Format(_T("%s %dch"), CString(dim), vf->nChannels);
+			    dim.Format(_T("%s %dch"), CString(dim).GetString(), vf->nChannels);
 			}
 			if(vf->nAvgBitsPerSec)
 			{
@@ -177,15 +177,15 @@ CMediaTypeEx::CMediaTypeEx()
 			dim.Format(_T("%dHz"), vf->SamplesPerSec);
 			if(vf->Channels == 1)
 			{
-			    dim.Format(_T("%s mono"), CString(dim));
+			    dim.Format(_T("%s mono"), CString(dim).GetString());
 			}
 			else if(vf->Channels == 2)
 			{
-			    dim.Format(_T("%s stereo"), CString(dim));
+			    dim.Format(_T("%s stereo"), CString(dim).GetString());
 			}
 			else
 			{
-			    dim.Format(_T("%s %dch"), CString(dim), vf->Channels);
+			    dim.Format(_T("%s %dch"), CString(dim).GetString(), vf->Channels);
 			}
 		}				
 	}
@@ -484,11 +484,11 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 	sl.AddTail(ToString() + _T("\n"));	
 
 	sl.AddTail(_T("AM_MEDIA_TYPE: "));
-	str.Format(_T("majortype: %s %s"), CString(GuidNames[majortype]), major);
+	str.Format(_T("majortype: %s %s"), CString(GuidNames[majortype]).GetString(), major.GetString());
 	sl.AddTail(str);
-	str.Format(_T("subtype: %s %s"), CString(GuidNames[subtype]), sub);
+	str.Format(_T("subtype: %s %s"), CString(GuidNames[subtype]).GetString(), sub.GetString());
 	sl.AddTail(str);
-	str.Format(_T("formattype: %s %s"), CString(GuidNames[formattype]), format);
+	str.Format(_T("formattype: %s %s"), CString(GuidNames[formattype]).GetString(), format.GetString());
 	sl.AddTail(str);
 	str.Format(_T("bFixedSizeSamples: %d"), bFixedSizeSamples);
 	sl.AddTail(str);
@@ -658,7 +658,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 				sl.AddTail(str);
 				str.Format(_T("dwChannelMask: 0x%08x"), wfe.dwChannelMask);
 				sl.AddTail(str);
-				str.Format(_T("SubFormat: %s"), CStringFromGUID(wfe.SubFormat));
+				str.Format(_T("SubFormat: %s"), CStringFromGUID(wfe.SubFormat).GetString());
 				sl.AddTail(str);
 
 				sl.AddTail(_T(""));
@@ -734,9 +734,9 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 		sl.AddTail(_T("SUBTITLEINFO:"));
 		str.Format(_T("dwOffset: %d"), si.dwOffset);
 		sl.AddTail(str);
-		str.Format(_T("IsoLang: %s"), CString(CStringA(si.IsoLang, sizeof(si.IsoLang)-1)));
+		str.Format(_T("IsoLang: %s"), CString(CStringA(si.IsoLang, sizeof(si.IsoLang)-1)).GetString());
 		sl.AddTail(str);
-		str.Format(_T("TrackName: %s"), CString(CStringW(si.TrackName, sizeof(si.TrackName)-1)));
+		str.Format(_T("TrackName: %s"), CString(CStringW(si.TrackName, sizeof(si.TrackName)-1)).GetString());
 		sl.AddTail(str);
 
 		sl.AddTail(_T(""));

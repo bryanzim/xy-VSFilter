@@ -59,7 +59,7 @@ public:
         forbidden_bit(0),
         nal_reference_idc(0),
         nal_unit_type() {
-        SetBuffer(NULL, 0, 0);
+        SetBuffer(nullptr, 0, 0);
     }
 
     [[nodiscard]] NALU_TYPE GetType() const { return nal_unit_type; }

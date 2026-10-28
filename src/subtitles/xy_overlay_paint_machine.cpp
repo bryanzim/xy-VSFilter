@@ -60,7 +60,7 @@ void CWordPaintMachine::Paint( const LAYER layer, SharedPtrOverlay* overlay )
 
 void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2& p, SharedPtrOverlay* overlay )
 {
-    if(!word->m_str.Get() || overlay==NULL)
+    if(!word->m_str.Get() || overlay==nullptr)
     {
         return;
     }
@@ -83,7 +83,7 @@ void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2
             OverlayMruCache* overlay_cache{CacheManager::GetSubpixelVarianceCache()};
 
             POSITION pos{overlay_cache->Lookup(sub_key)};
-            if(pos!=NULL) 
+            if(pos!=nullptr) 
             {
                 *overlay = overlay_cache->GetAt(pos);
                 (void)overlay_cache->UpdateCache( pos );
@@ -96,7 +96,7 @@ void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2
             overlay_key.UpdateHashValue();
             OverlayMruCache* overlay_cache{CacheManager::GetOverlayMruCache()};
             POSITION pos{overlay_cache->Lookup(overlay_key)};
-            if(pos==NULL)
+            if(pos==nullptr)
             {
                 if( !word->DoPaint(psub, trans_org2, overlay, overlay_key) )
                 {
@@ -145,15 +145,15 @@ void CWordPaintMachine::CreatePaintMachines( const SharedPtrCWord& word
 {
     SharedCWordPaintMachine machine(DEBUG_NEW CWordPaintMachine());
     machine->m_word = word;
-    if (shadow!=NULL)
+    if (shadow!=nullptr)
     {
         machine->m_trans_org = org - shadow_pos;
     }
-    else if (outline!=NULL)
+    else if (outline!=nullptr)
     {
         machine->m_trans_org = org - outline_pos;
     }
-    else if (body!=NULL)
+    else if (body!=nullptr)
     {
         machine->m_trans_org = org - body_pos;
     }
@@ -237,7 +237,7 @@ void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2
         }
     }
     ASSERT(0);
-    return NULL;
+    return nullptr;
 }
 
 [[nodiscard]] OverlayKey* CWordPaintMachine::CreateShadowOverlayHashKey( const SharedPtrCWord& word, const CPointCoor2& p )

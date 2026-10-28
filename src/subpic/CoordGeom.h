@@ -58,8 +58,8 @@ public:
 	Vector Abs() const;
 
 	[[nodiscard]] Vector Reflect(const Vector& n) const;
-	[[nodiscard]] Vector Refract(const Vector& n, float nFront, float nBack, float* nOut = NULL) const;
-	[[nodiscard]] Vector Refract2(const Vector& n, float nFrom, float nTo, float* nOut = NULL) const;
+	[[nodiscard]] Vector Refract(const Vector& n, float nFront, float nBack, float* nOut = nullptr) const;
+	[[nodiscard]] Vector Refract2(const Vector& n, float nFrom, float nTo, float* nOut = nullptr) const;
 
 	[[nodiscard]] Vector operator - () const;
 	float& operator [] (int i);

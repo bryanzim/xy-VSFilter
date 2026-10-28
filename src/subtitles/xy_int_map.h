@@ -12,7 +12,7 @@ public:
     static const int IND1_SIZE{1024};
     static const int IND2_SIZE{2048};
 public:
-    explicit XyIntMap() { m_indx=NULL; m_cur_level=0; }
+    explicit XyIntMap() { m_indx=nullptr; m_cur_level=0; }
     ~XyIntMap(){ ReleaseMemory(); }
 
     void ReleaseMemory(const std::uint32_t preserve_key_number=0U)
@@ -25,7 +25,7 @@ public:
                 ReleaseLevel2Data(reinterpret_cast<T***>(m_indx), preserve_key_number);
                 if (preserve_key_number==0)
                 {
-                    m_indx = NULL;
+                    m_indx = nullptr;
                     m_cur_level = 0;
                 }
                 break;
@@ -33,7 +33,7 @@ public:
                 ReleaseLevel1Data(reinterpret_cast<T** >(m_indx), preserve_key_number);
                 if (preserve_key_number==0)
                 {
-                    m_indx = NULL;
+                    m_indx = nullptr;
                     m_cur_level = 0;
                 }
                 break;
@@ -41,7 +41,7 @@ public:
                 ReleaseLevel0Data(reinterpret_cast<T*  >(m_indx), preserve_key_number);
                 if (preserve_key_number==0)
                 {
-                    m_indx = NULL;
+                    m_indx = nullptr;
                     m_cur_level = 0;
                 }
                 break;
@@ -197,12 +197,12 @@ private:
         for (;i<IND2_SIZE;++i)
         {
             ReleaseLevel1Data(p[i], 0);
-            p[i] = NULL;
+            p[i] = nullptr;
         }
         ReleaseLevel1Data(p[preserve/(IND0_SIZE*IND1_SIZE)], preserve%(IND0_SIZE*IND1_SIZE));
         if (!(preserve/(IND0_SIZE*IND1_SIZE)))
         {
-            p[preserve/(IND0_SIZE*IND1_SIZE)] = NULL;
+            p[preserve/(IND0_SIZE*IND1_SIZE)] = nullptr;
         }
         if (preserve==0)
         {
@@ -221,12 +221,12 @@ private:
         for (;i<IND1_SIZE;++i)
         {
             delete[] p[i];
-            p[i] = NULL;
+            p[i] = nullptr;
         }
         ReleaseLevel0Data(p[preserve/IND0_SIZE], preserve%IND0_SIZE);
         if (!(preserve/IND0_SIZE))
         {
-            p[preserve/IND0_SIZE] = NULL;
+            p[preserve/IND0_SIZE] = nullptr;
         }
         if (preserve==0)
         {

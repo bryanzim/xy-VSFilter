@@ -14,7 +14,7 @@
 
 SimpleSubPicProvider::SimpleSubPicProvider( int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IXyOptions *consumer
     , HRESULT* phr/*=NULL*/ )
-    : CUnknown(NAME("CSubPicQueueImpl"), NULL)
+    : CUnknown(NAME("CSubPicQueueImpl"), nullptr)
     , m_alpha_blt_dst_type(alpha_blt_dst_type)
     , m_spd_size(spd_size)
     , m_video_rect(video_rect)
@@ -47,7 +47,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubPicProvider::SetSubPicProvider( IUnknown* subpic_provider )
 {
-    if (subpic_provider!=NULL)
+    if (subpic_provider!=nullptr)
     {
         CComQIPtr<ISubPicProviderEx2> tmp{subpic_provider};
         if (tmp)
@@ -55,10 +55,10 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
             CAutoLock cAutoLock(&m_csSubPicProvider);
             m_pSubPicProviderEx = tmp;
 
-            if(m_pSubPicProviderEx!=NULL)
+            if(m_pSubPicProviderEx!=nullptr)
             {
                 POSITION pos{m_prefered_colortype.GetHeadPosition()};
-                while(pos!=NULL)
+                while(pos!=nullptr)
                 {
                     int color_type{m_prefered_colortype.GetNext(pos)};
                     if( m_pSubPicProviderEx->IsColorTypeSupported( color_type ) &&
@@ -116,17 +116,17 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 
     if( m_pSubPic && m_subpic_stop >= rtInvalidate)
     {
-        m_pSubPic = NULL;
+        m_pSubPic = nullptr;
     }
     return S_OK;
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) SimpleSubPicProvider::LookupSubPic( const REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/ )
 {    
-    if(output_subpic!=NULL)
+    if(output_subpic!=nullptr)
     {
-        *output_subpic = NULL;
-        CComPtr<IXySubRenderFrame> temp = NULL;
+        *output_subpic = nullptr;
+        CComPtr<IXySubRenderFrame> temp = nullptr;
         bool result{LookupSubPicEx(now, &temp)};
         if (result && temp)
         {
@@ -177,7 +177,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
         return(false);
     }
 
-    *sub_render_frame = NULL;
+    *sub_render_frame = nullptr;
 
     if(m_subpic_start <= rtNow && rtNow < m_subpic_stop && m_pSubPic)
     {
@@ -313,7 +313,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 
 SimpleSubPicProvider2::SimpleSubPicProvider2( int alpha_blt_dst_type, SIZE max_size, SIZE cur_size, RECT video_rect, 
     IXyOptions *consumer, HRESULT* phr/*=NULL*/)
-    : CUnknown(NAME("SimpleSubPicProvider2"), NULL)
+    : CUnknown(NAME("SimpleSubPicProvider2"), nullptr)
     , m_alpha_blt_dst_type(alpha_blt_dst_type)
     , m_max_size(max_size)
     , m_cur_size(cur_size)
@@ -326,9 +326,9 @@ SimpleSubPicProvider2::SimpleSubPicProvider2( int alpha_blt_dst_type, SIZE max_s
     {
         *phr= consumer ? S_OK : E_INVALIDARG;
     }
-    m_ex_provider = NULL;
-    m_old_provider = NULL;
-    m_cur_provider = NULL;
+    m_ex_provider = nullptr;
+    m_old_provider = nullptr;
+    m_cur_provider = nullptr;
 }
 
 SimpleSubPicProvider2::~SimpleSubPicProvider2()
@@ -349,33 +349,33 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
 {
     const int MAX_SUBPIC_QUEUE_LENGTH{1};
 
-    if (subpic_provider!=NULL)
+    if (subpic_provider!=nullptr)
     {
         HRESULT hr;
         CComQIPtr<ISubPicProviderEx2> tmp{subpic_provider};
         if (tmp)
         {
-            m_cur_provider = NULL;
+            m_cur_provider = nullptr;
             delete m_old_provider;
-            m_old_provider = NULL;
+            m_old_provider = nullptr;
             if (!m_ex_provider)
             {
                 m_ex_provider = DEBUG_NEW SimpleSubPicProvider(m_alpha_blt_dst_type, m_cur_size, m_video_rect, m_consumer, &hr);
                 (void)m_ex_provider->SetFPS(m_fps);
                 (void)m_ex_provider->SetTime(m_now);
             }
-            if (m_ex_provider==NULL)
+            if (m_ex_provider==nullptr)
             {
-                ASSERT(m_ex_provider!=NULL);
+                ASSERT(m_ex_provider!=nullptr);
                 return E_FAIL;
             }
             m_cur_provider = m_ex_provider;
         }
         else
         {
-            m_cur_provider = NULL;
+            m_cur_provider = nullptr;
             delete m_ex_provider;
-            m_ex_provider = NULL;
+            m_ex_provider = nullptr;
             if (!m_old_provider)
             {
                 CComPtr<ISubPicExAllocator> pSubPicAllocator = DEBUG_NEW CPooledSubPicAllocator(m_alpha_blt_dst_type, 
@@ -386,7 +386,7 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
                 m_old_provider = DEBUG_NEW CSubPicQueueNoThread(pSubPicAllocator, &hr);
                 (void)m_old_provider->SetFPS(m_fps);
                 (void)m_old_provider->SetTime(m_now);
-                if (FAILED(hr) || m_old_provider==NULL)
+                if (FAILED(hr) || m_old_provider==nullptr)
                 {
                     ASSERT(SUCCEEDED(hr));
                     return hr;
@@ -398,11 +398,11 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
     }
     else
     {
-        if (m_cur_provider!=NULL)
+        if (m_cur_provider!=nullptr)
         {
-            m_cur_provider->SetSubPicProvider(NULL);
+            m_cur_provider->SetSubPicProvider(nullptr);
         }
-        m_cur_provider = NULL;
+        m_cur_provider = nullptr;
     }
     return S_OK;
 }

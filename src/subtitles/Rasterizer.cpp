@@ -69,13 +69,13 @@ public:
         g_w = 0;
         g_w_ex = 0;
 
-        g_f = NULL;
+        g_f = nullptr;
 
         this->sigma = 0;
         init(sigma);
     }
     GaussianCoefficients(const GaussianCoefficients& priv)
-        :g_r(priv.g_r),g_w(priv.g_w),g_w_ex(priv.g_w_ex),g_f(NULL)
+        :g_r(priv.g_r),g_w(priv.g_w),g_w_ex(priv.g_w_ex),g_f(nullptr)
         ,sigma(priv.sigma)
     {
         if (this->g_w_ex > 0 && this != &priv) {
@@ -87,7 +87,7 @@ public:
 
     ~GaussianCoefficients()
     {
-        xy_free(g_f); g_f=NULL;
+        xy_free(g_f); g_f=nullptr;
     }
 
 private:
@@ -114,7 +114,7 @@ private:
         if (this->g_w_ex > 0) {
             xy_free(this->g_f);
             this->g_f = reinterpret_cast<float*>(xy_malloc(this->g_w_ex * sizeof(float)));
-            if (this->g_f == NULL) {
+            if (this->g_f == nullptr) {
                 return -1;
             }
         }
@@ -196,8 +196,8 @@ ass_synth_priv::ass_synth_priv(const double sigma)
     g_r = 0;
     g_w = 0;
 
-    g = NULL;
-    gt2 = NULL;
+    g = nullptr;
+    gt2 = nullptr;
 
     this->sigma = 0;
     (void)generate_tables(sigma);
@@ -218,8 +218,8 @@ ass_synth_priv::ass_synth_priv(const ass_synth_priv& priv):g_r(priv.g_r),g_w(pri
 
 ass_synth_priv::~ass_synth_priv()
 {
-    free(g); g=NULL;
-    free(gt2); gt2=NULL;
+    free(g); g=nullptr;
+    free(gt2); gt2=nullptr;
 }
 
 [[nodiscard]] int ass_synth_priv::generate_tables(double sigma)
@@ -249,7 +249,7 @@ ass_synth_priv::~ass_synth_priv()
     if (this->g_w > 0) {
         this->g = (unsigned*)realloc(this->g, this->g_w * sizeof(unsigned));
         this->gt2 = (unsigned*)realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));        
-        if (this->g == NULL || this->gt2 == NULL) {
+        if (this->g == nullptr || this->gt2 == nullptr) {
             return -1;
         }
     }
@@ -758,17 +758,17 @@ extern "C" void* memsetSSE2(void* dest, int c, std::size_t count);
     overlay->mOverlayPitch = (overlay->mOverlayWidth+15)&~15;
 
     BYTE* body{reinterpret_cast<BYTE*>(xy_malloc(overlay->mOverlayPitch * overlay->mOverlayHeight))};
-    if( body==NULL )
+    if( body==nullptr )
     {
         return false;
     }
     overlay->mBody.reset(body, xy_free);
     memsetSSE2(body, 0, overlay->mOverlayPitch * overlay->mOverlayHeight);
-    BYTE* border{NULL};
+    BYTE* border{nullptr};
     if (!overlay->mfWideOutlineEmpty)
     {
         border = reinterpret_cast<BYTE*>(xy_malloc(overlay->mOverlayPitch * overlay->mOverlayHeight));
-        if (border==NULL)
+        if (border==nullptr)
         {
             return false;
         }
@@ -901,17 +901,17 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     output_overlay->mOverlayPitch = (output_overlay->mOverlayWidth+15)&~15;
 
     BYTE* body{reinterpret_cast<BYTE*>(xy_malloc(output_overlay->mOverlayPitch * output_overlay->mOverlayHeight))};
-    if( body==NULL )
+    if( body==nullptr )
     {
         return false;
     }
     output_overlay->mBody.reset(body, xy_free);
     std::memset(body, 0, output_overlay->mOverlayPitch * output_overlay->mOverlayHeight);
-    BYTE* border{NULL};
+    BYTE* border{nullptr};
     if (!output_overlay->mfWideOutlineEmpty)
     {
         border = reinterpret_cast<BYTE*>(xy_malloc(output_overlay->mOverlayPitch * output_overlay->mOverlayHeight));
-        if (border==NULL)
+        if (border==nullptr)
         {
             return false;
         }
@@ -926,7 +926,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         const byte* plan_input{i==0 ? input_overlay.mBody.get() : input_overlay.mBorder.get()};
 
         plan_selected += (bluradjust_x>>3) + (bluradjust_y>>3)*output_overlay->mOverlayPitch;
-        if ( plan_selected!=NULL && plan_input!=NULL )
+        if ( plan_selected!=nullptr && plan_input!=nullptr )
         {
             for (int j{0};j<input_overlay.mOverlayHeight;++j)
             {
@@ -1090,7 +1090,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         output_overlay->mBorder.reset(blur_plan, xy_free);
 
         BYTE* body{reinterpret_cast<BYTE*>(xy_malloc(output_overlay->mOverlayPitch * output_overlay->mOverlayHeight))};
-        if( body==NULL )
+        if( body==nullptr )
         {
             return false;
         }        
@@ -1135,17 +1135,17 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     output_overlay->mOverlayPitch = (output_overlay->mOverlayWidth+15)&~15;
 
     BYTE* body{reinterpret_cast<BYTE*>(xy_malloc(output_overlay->mOverlayPitch * output_overlay->mOverlayHeight))};
-    if( body==NULL )
+    if( body==nullptr )
     {
         return false;
     }
     output_overlay->mBody.reset(body, xy_free);
     std::memset(body, 0, output_overlay->mOverlayPitch * output_overlay->mOverlayHeight);
-    BYTE* border{NULL};
+    BYTE* border{nullptr};
     if (!output_overlay->mfWideOutlineEmpty)
     {
         border = reinterpret_cast<BYTE*>(xy_malloc(output_overlay->mOverlayPitch * output_overlay->mOverlayHeight));
-        if (border==NULL)
+        if (border==nullptr)
         {
             return false;
         }
@@ -1160,7 +1160,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         const byte* plan_input{i==0 ? input_overlay.mBody.get() : input_overlay.mBorder.get()};
 
         plan_selected += (bluradjust_x>>3) + (bluradjust_y>>3)*output_overlay->mOverlayPitch;
-        if ( plan_selected!=NULL && plan_input!=NULL )
+        if ( plan_selected!=nullptr && plan_input!=nullptr )
         {
             for (int j{0};j<input_overlay.mOverlayHeight;++j)
             {
@@ -1762,7 +1762,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
     }
 
     CRect r{clipRect};
-    if (alpha_mask!=NULL)
+    if (alpha_mask!=nullptr)
     {
         r &= CRect(alpha_mask->left_top, alpha_mask->size);
     }
@@ -1798,9 +1798,9 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
     // Grab the first colour
     DWORD color{switchpts[0U]};
     byte* s_base{(byte*)xy_malloc(overlay->mOverlayPitch * overlay->mOverlayHeight)};
-    const byte* alpha_mask_data{alpha_mask != NULL ? alpha_mask->data.get() : NULL};
-    const int alpha_mask_pitch{alpha_mask != NULL ? alpha_mask->pitch : 0};
-    if(alpha_mask_data!=NULL )
+    const byte* alpha_mask_data{alpha_mask != nullptr ? alpha_mask->data.get() : nullptr};
+    const int alpha_mask_pitch{alpha_mask != nullptr ? alpha_mask->pitch : 0};
+    if(alpha_mask_data!=nullptr )
     {
         alpha_mask_data += alpha_mask->pitch * y + x - alpha_mask->left_top.y*alpha_mask->pitch - alpha_mask->left_top.x;
     }
@@ -1893,7 +1893,7 @@ void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CR
     {
         return;
     }
-    if (bitmap==NULL)
+    if (bitmap==nullptr)
     {
         ASSERT(0);
         return;
@@ -2128,7 +2128,7 @@ void Rasterizer::AdditionDraw(XyBitmap         *bitmap   ,
     {
         return;
     }
-    if (bitmap==NULL)
+    if (bitmap==nullptr)
     {
         ASSERT(0);
         return;
@@ -2695,31 +2695,31 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
 {
     const BYTE * body{mBody.get()};
     const BYTE * border{mBorder.get()};
-    body   = body  !=NULL ? body   + y*mOverlayPitch + x: NULL;
-    border = border!=NULL ? border + y*mOverlayPitch + x: NULL;
+    body   = body  !=nullptr ? body   + y*mOverlayPitch + x: nullptr;
+    border = border!=nullptr ? border + y*mOverlayPitch + x: nullptr;
     byte* dst{outputAlphaMask + y*mOverlayPitch + x};
 
-    if(!fBorder && fBody && pAlphaMask==NULL)
+    if(!fBorder && fBody && pAlphaMask==nullptr)
     {
         FillAlphaMashBody_sse2(dst, body, color_alpha, w, h, mOverlayPitch);
     }
-    else if(fBorder && fBody && pAlphaMask==NULL)
+    else if(fBorder && fBody && pAlphaMask==nullptr)
     {
         FillAlphaMashBody_sse2(dst, border, color_alpha, w, h, mOverlayPitch);
     }
-    else if(fBorder && !fBody && pAlphaMask==NULL)
+    else if(fBorder && !fBody && pAlphaMask==nullptr)
     {
         FillAlphaMashBorder_sse2(dst, border, body, color_alpha, w, h, mOverlayPitch);
     }
-    else if(!fBorder && fBody && pAlphaMask!=NULL)
+    else if(!fBorder && fBody && pAlphaMask!=nullptr)
     {
         FillAlphaMashBodyMasked_sse2(dst, body, color_alpha, w, h, mOverlayPitch, pAlphaMask, pitch);
     }
-    else if(fBorder && fBody && pAlphaMask!=NULL)
+    else if(fBorder && fBody && pAlphaMask!=nullptr)
     {
         FillAlphaMashBodyMasked_sse2(dst, border, color_alpha, w, h, mOverlayPitch, pAlphaMask, pitch);
     }
-    else if(fBorder && !fBody && pAlphaMask!=NULL)
+    else if(fBorder && !fBody && pAlphaMask!=nullptr)
     {
         FillAlphaMashBorderMasked_sse2(dst, border, body, color_alpha, w, h, mOverlayPitch, pAlphaMask, pitch);
     }
@@ -2736,7 +2736,7 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
     Overlay* overlay{DEBUG_NEW Overlay()};
     if(!overlay)
     {
-        return NULL;
+        return nullptr;
     }
     xshift &= 7;
     yshift &= 7;
@@ -2755,23 +2755,23 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
 
     if (overlay->mOverlayPitch * overlay->mOverlayHeight<=0)
     {
-        return NULL;
+        return nullptr;
     }
 
     BYTE* body{reinterpret_cast<BYTE*>(xy_malloc(overlay->mOverlayPitch * overlay->mOverlayHeight))};
-    if( body==NULL )
+    if( body==nullptr )
     {
-        return NULL;
+        return nullptr;
     }
     overlay->mBody.reset(body, xy_free);
     std::memset(body, 0, overlay->mOverlayPitch*overlay->mOverlayHeight);
-    BYTE* border{NULL};
+    BYTE* border{nullptr};
     if (!overlay->mfWideOutlineEmpty)
     {
         border = reinterpret_cast<BYTE*>(xy_malloc(overlay->mOverlayPitch * overlay->mOverlayHeight));
-        if (border==NULL)
+        if (border==nullptr)
         {
-            return NULL;
+            return nullptr;
         }
         overlay->mBorder.reset(border, xy_free);
         std::memset(border, 0, overlay->mOverlayPitch*overlay->mOverlayHeight);
@@ -2786,7 +2786,7 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
         }
         else if ( (!!body)!=(!!mBody)/*==NULL*/)
         {
-            return NULL;
+            return nullptr;
         }
         
         if (border && mBorder)
@@ -2795,7 +2795,7 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
         }
         else if ( (!!border)!=(!!mBorder)/*==NULL*/ )
         {
-            return NULL;
+            return nullptr;
         }
     }
     else
@@ -2835,11 +2835,11 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
 
 // PathData
 
-PathData::PathData():mpPathTypes(NULL), mpPathPoints(NULL), mPathPoints(0)
+PathData::PathData():mpPathTypes(nullptr), mpPathPoints(nullptr), mPathPoints(0)
 {
 }
 
-PathData::PathData( const PathData& src ):mpPathTypes(NULL), mpPathPoints(NULL), mPathPoints(src.mPathPoints)
+PathData::PathData( const PathData& src ):mpPathTypes(nullptr), mpPathPoints(nullptr), mPathPoints(src.mPathPoints)
 {
     //TODO: deal with the case that src.mPathPoints<0 
     if(mPathPoints>0)
@@ -2895,12 +2895,12 @@ void PathData::_TrashPath()
     if (mpPathTypes)
     {
         free(mpPathTypes);
-        mpPathTypes = NULL;
+        mpPathTypes = nullptr;
     }
     if (mpPathPoints)
     {
         free(mpPathPoints);
-        mpPathPoints = NULL;
+        mpPathPoints = nullptr;
     }
     mPathPoints = 0;
 }
@@ -2920,7 +2920,7 @@ void PathData::_TrashPath()
     ASSERT(succeeded);
     if(succeeded)
     {
-        mPathPoints = GetPath(hdc, NULL, NULL, 0);
+        mPathPoints = GetPath(hdc, nullptr, nullptr, 0);
         if(!mPathPoints)
         {
             return true;
@@ -2954,7 +2954,7 @@ void PathData::_TrashPath()
         int nPoints;
         BYTE* pNewTypes;
         POINT* pNewPoints;
-        nPoints = GetPath(hdc, NULL, NULL, 0);
+        nPoints = GetPath(hdc, nullptr, nullptr, 0);
         if(!nPoints)
         {
             return true;

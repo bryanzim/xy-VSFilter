@@ -46,7 +46,7 @@ CRenderedHdmvSubtitle::CRenderedHdmvSubtitle(CCritSec* pLock, SUBTITLE_TYPE nTyp
 			break;
 		default :
 			ASSERT (FALSE);
-			m_pSub = NULL;
+			m_pSub = nullptr;
 	}
 	m_rtStart = 0;
 }
@@ -61,7 +61,7 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
 	CheckPointer(ppv, E_POINTER);
-	*ppv = NULL;
+	*ppv = nullptr;
 
 	return
 		QI(IPersist)

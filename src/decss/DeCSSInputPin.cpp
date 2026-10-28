@@ -62,7 +62,7 @@ DECLSPEC_NOTHROW STDMETHODIMP CDeCSSInputPin::Receive(IMediaSample* pSample)
 {
 	long len = pSample->GetActualDataLength();
 	
-	BYTE* p = NULL;
+	BYTE* p = nullptr;
 	if(SUCCEEDED(pSample->GetPointer(&p)) && len > 0)
 	{
 		BYTE* base = p;

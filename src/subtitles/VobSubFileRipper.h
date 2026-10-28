@@ -107,9 +107,9 @@ protected:
     }
 
     // IVSFRipperCallback
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnMessage(const LPCTSTR msg) { return S_FALSE; }
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnProgress(const double progress /*0.0 -> 1.0*/) { return S_FALSE; }
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnFinished(const bool bSucceeded) { return S_FALSE; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnMessage(LPCTSTR msg) { return S_FALSE; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnProgress(double progress /*0.0 -> 1.0*/) { return S_FALSE; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnFinished(bool bSucceeded) { return S_FALSE; }
 
 public:
     explicit IVSFRipperCallbackImpl() : CUnknown(NAME("IVSFRipperCallbackImpl"), nullptr) {}

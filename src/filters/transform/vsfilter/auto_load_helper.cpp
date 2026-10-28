@@ -37,7 +37,7 @@ XySubFilterAutoLoader::XySubFilterAutoLoader( LPUNKNOWN punk, HRESULT* phr
     , const GUID& clsid /*= __uuidof(XySubFilterAutoLoader)*/ )
     : CBaseFilter(NAME("XySubFilterAutoLoader"), punk, &m_pLock, clsid)
 {
-    m_pin = DEBUG_NEW XyAutoLoaderDummyInputPin(this, &m_pLock, phr, NULL);
+    m_pin = DEBUG_NEW XyAutoLoaderDummyInputPin(this, &m_pLock, phr, nullptr);
 
     CString tmp;
     tmp.Format(ResStr(IDS_RP_PATH), 0);
@@ -81,7 +81,7 @@ XySubFilterAutoLoader::XySubFilterAutoLoader( LPUNKNOWN punk, HRESULT* phr
 
     m_loaded = false;
 
-    CDirectVobSub::LoadKnownSourceFilters(&m_known_source_filters_guid, NULL);
+    CDirectVobSub::LoadKnownSourceFilters(&m_known_source_filters_guid, nullptr);
 }
 
 XySubFilterAutoLoader::~XySubFilterAutoLoader()
@@ -96,7 +96,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     {
         return m_pin;
     }
-    return NULL;
+    return nullptr;
 }
 
 [[nodiscard]] int XySubFilterAutoLoader::GetPinCount()
@@ -208,8 +208,8 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         {
             if(CComQIPtr<IFileSourceFilter> pFSF{pBF})
             {
-                LPOLESTR fnw{NULL};
-                if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, NULL)) || !fnw)
+                LPOLESTR fnw{nullptr};
+                if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, nullptr)) || !fnw)
                 {
                     continue;
                 }

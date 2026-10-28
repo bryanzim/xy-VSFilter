@@ -13,7 +13,7 @@ interface IXyOptions;
 class SimpleSubPicProvider: public CUnknown, public ISimpleSubPicProvider
 {
 public:
-    SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IXyOptions *consumer, HRESULT* phr=NULL);
+    SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IXyOptions *consumer, HRESULT* phr=nullptr);
     virtual ~SimpleSubPicProvider();
 
     DECLARE_IUNKNOWN
@@ -68,7 +68,7 @@ class SimpleSubPicProvider2: public CUnknown, public ISimpleSubPicProvider
 {
 public:
     SimpleSubPicProvider2(int alpha_blt_dst_type, SIZE max_size, SIZE cur_size, RECT video_rect, 
-        IXyOptions *consumer, HRESULT* phr=NULL);
+        IXyOptions *consumer, HRESULT* phr=nullptr);
     virtual ~SimpleSubPicProvider2();
 
     DECLARE_IUNKNOWN

@@ -31,7 +31,7 @@ public:
 	CString m_AppName;
 
     [[nodiscard]] virtual UINT GetProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault);
-    [[nodiscard]] virtual CString GetProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault = NULL);
+    [[nodiscard]] virtual CString GetProfileString(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault = nullptr);
 protected:
 	HINSTANCE LoadAppLangResourceDLL() override;
 

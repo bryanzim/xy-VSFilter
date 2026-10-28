@@ -4,7 +4,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2001-2009 Tad E. Smith
+// Copyright 2001-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,29 +18,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <log4cplus/config.hxx>
 #include <log4cplus/ndc.h>
-#include <log4cplus/helpers/loglog.h>
-#include <log4cplus/helpers/pointer.h>
-#include <exception>
+#include <log4cplus/internal/internal.h>
 #include <utility>
-#include <vector>
+#include <algorithm>
 
-using namespace log4cplus;
-using namespace log4cplus::helpers;
+#if defined (LOG4CPLUS_WITH_UNIT_TESTS)
+#include <catch.hpp>
+#endif
 
 
-
-///////////////////////////////////////////////////////////////////////////////
-// public methods
-///////////////////////////////////////////////////////////////////////////////
-
-NDC& 
-log4cplus::getNDC()
+namespace log4cplus
 {
-    static NDC singleton;
-    return singleton;
-}
 
 
 
@@ -48,37 +37,110 @@ log4cplus::getNDC()
 // log4cplus::DiagnosticContext ctors
 ///////////////////////////////////////////////////////////////////////////////
 
-DiagnosticContext::DiagnosticContext(const log4cplus::tstring& message_, DiagnosticContext* parent)
- : message(message_),
-   fullMessage( (  (parent == NULL) 
-                 ? message 
-                 : parent->fullMessage + LOG4CPLUS_TEXT(" ") + message) )
+
+namespace
 {
+
+
+static
+void
+init_full_message (log4cplus::tstring & fullMessage,
+    log4cplus::tstring const & message, DiagnosticContext const * parent)
+{
+    if (parent)
+    {
+        fullMessage.reserve (parent->fullMessage.size () + 1
+            + message.size ());
+        fullMessage = parent->fullMessage;
+        fullMessage += LOG4CPLUS_TEXT(" ");
+        fullMessage += message;
+    }
+    else
+        fullMessage = message;
+}
+
+
+} // namespace
+
+
+DiagnosticContext::DiagnosticContext(const log4cplus::tstring& message_,
+                                     DiagnosticContext const * parent)
+    : message(message_)
+    , fullMessage()
+{
+    init_full_message (fullMessage, message, parent);
+}
+
+
+DiagnosticContext::DiagnosticContext(tchar const * message_,
+                                     DiagnosticContext const * parent)
+    : message(message_)
+    , fullMessage()
+{
+    init_full_message (fullMessage, message, parent);
 }
 
 
 DiagnosticContext::DiagnosticContext(const log4cplus::tstring& message_)
- : message(message_),
-   fullMessage(message)
+    : message(message_)
+    , fullMessage(message)
 {
 }
 
 
+DiagnosticContext::DiagnosticContext(tchar const * message_)
+    : message(message_)
+    , fullMessage(message)
+{
+}
+
+
+DiagnosticContext::DiagnosticContext (DiagnosticContext const & other)
+    : message (other.message)
+    , fullMessage (other.fullMessage)
+{ }
+
+
+DiagnosticContext & DiagnosticContext::operator = (
+    DiagnosticContext const & other)
+{
+    DiagnosticContext (other).swap (*this);
+    return *this;
+}
+
+
+DiagnosticContext::DiagnosticContext (DiagnosticContext && other)
+    : message (std::move (other.message))
+    , fullMessage (std::move (other.fullMessage))
+{ }
+
+
+DiagnosticContext &
+DiagnosticContext::operator = (DiagnosticContext && other)
+{
+    DiagnosticContext (std::move (other)).swap (*this);
+    return *this;
+}
+
+
+void
+DiagnosticContext::swap (DiagnosticContext & other)
+{
+    using std::swap;
+    swap (message, other.message);
+    swap (fullMessage, other.fullMessage);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // log4cplus::NDC ctor and dtor
 ///////////////////////////////////////////////////////////////////////////////
 
-NDC::NDC() 
- : threadLocal(LOG4CPLUS_THREAD_LOCAL_INIT (0))
-{
-}
+NDC::NDC()
+{ }
 
 
-NDC::~NDC() 
-{
-    LOG4CPLUS_THREAD_LOCAL_CLEANUP( threadLocal );
-}
+NDC::~NDC()
+{ }
 
 
 
@@ -89,227 +151,131 @@ NDC::~NDC()
 void
 NDC::clear()
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr != NULL) {
-            delete ptr;
-            LOG4CPLUS_SET_THREAD_LOCAL_VALUE( threadLocal, NULL );
-        }
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::clear()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::clear()- exception occured"));
-    }
+    DiagnosticContextStack* ptr = getPtr();
+    DiagnosticContextStack ().swap (*ptr);
+}
+
+
+void
+NDC::remove()
+{
+    clear();
 }
 
 
 DiagnosticContextStack
-NDC::cloneStack()
+NDC::cloneStack() const
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr != NULL) {
-            return DiagnosticContextStack(*ptr);
-        }
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::cloneStack()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::cloneStack()- exception occured"));
-    }
-
-    return DiagnosticContextStack();
+    DiagnosticContextStack* ptr = getPtr();
+    return DiagnosticContextStack(*ptr);
 }
 
 
-void 
+void
 NDC::inherit(const DiagnosticContextStack& stack)
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        delete ptr;
-
-        ptr = new DiagnosticContextStack(stack);
-        LOG4CPLUS_SET_THREAD_LOCAL_VALUE( threadLocal, ptr );
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::inherit()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::inherit()- exception occured"));
-    }
+    DiagnosticContextStack* ptr = getPtr();
+    DiagnosticContextStack (stack).swap (*ptr);
 }
 
 
-log4cplus::tstring 
-NDC::get()
+log4cplus::tstring const &
+NDC::get() const
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr != NULL && !ptr->empty()) {
-            return ptr->top().fullMessage;
-        }
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::get()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::get()- exception occured"));
-    }
-
-    return LOG4CPLUS_TEXT("");
+    DiagnosticContextStack* ptr = getPtr();
+    if(!ptr->empty())
+        return ptr->back().fullMessage;
+    else
+        return internal::empty_str;
 }
 
 
-size_t 
-NDC::getDepth()
+std::size_t
+NDC::getDepth() const
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr != NULL) {
-            return ptr->size();
-        }
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::getDepth()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::getDepth()- exception occured"));
-    }
-
-    return 0;
+    DiagnosticContextStack* ptr = getPtr();
+    return ptr->size();
 }
 
 
-log4cplus::tstring 
+log4cplus::tstring
 NDC::pop()
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr != NULL && !ptr->empty()) {
-            DiagnosticContext dc = ptr->top();
-            ptr->pop();
-            if(ptr->empty()) {
-                // If the NDC stack is empty we will delete it so that we can avoid
-                // most memory leaks if Threads don't call remove when exiting
-                delete ptr;
-                LOG4CPLUS_SET_THREAD_LOCAL_VALUE( threadLocal, NULL );
-            }
-            return dc.message;
-        }
+    DiagnosticContextStack* ptr = getPtr();
+    if(!ptr->empty())
+    {
+        tstring message;
+        message.swap (ptr->back ().message);
+        ptr->pop_back();
+        return message;
     }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::pop()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::pop()- exception occured"));
-    }
-
-    return LOG4CPLUS_TEXT("");
+    else
+        return log4cplus::tstring ();
 }
 
 
-log4cplus::tstring 
-NDC::peek()
+void
+NDC::pop_void ()
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr != NULL && !ptr->empty()) {
-            return ptr->top().message;
-        }
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::peek()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::peek()- exception occured"));
-    }
-
-    return LOG4CPLUS_TEXT("");
+    DiagnosticContextStack* ptr = getPtr ();
+    if (! ptr->empty ())
+        ptr->pop_back ();
 }
 
 
-void 
+log4cplus::tstring const &
+NDC::peek() const
+{
+    DiagnosticContextStack* ptr = getPtr();
+    if(!ptr->empty())
+        return ptr->back().message;
+    else
+        return internal::empty_str;
+}
+
+
+void
 NDC::push(const log4cplus::tstring& message)
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr == NULL) {
-            ptr = new DiagnosticContextStack();
-            LOG4CPLUS_SET_THREAD_LOCAL_VALUE( threadLocal, ptr );
-        }
+    push_worker (message);
+}
 
-        if(ptr->empty()) {
-            ptr->push( DiagnosticContext(message, NULL) );
-        }
-        else {
-            DiagnosticContext dc = ptr->top();
-            ptr->push( DiagnosticContext(message, &dc) );
-        }
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::push()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::push()- exception occured"));
+
+void
+NDC::push(tchar const * message)
+{
+    push_worker (message);
+}
+
+
+template <typename StringType>
+void
+NDC::push_worker (StringType const & message)
+{
+    DiagnosticContextStack* ptr = getPtr();
+    if (ptr->empty())
+        ptr->push_back( DiagnosticContext(message, nullptr) );
+    else
+    {
+        DiagnosticContext const & dc = ptr->back();
+        ptr->push_back( DiagnosticContext(message, &dc) );
     }
 }
 
 
-void 
-NDC::remove()
+void
+NDC::setMaxDepth(std::size_t maxDepth)
 {
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        delete ptr;
-        LOG4CPLUS_SET_THREAD_LOCAL_VALUE( threadLocal, NULL );
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::remove()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::remove()- exception occured"));
-    }
-}
-
-
-void 
-NDC::setMaxDepth(size_t maxDepth)
-{
-    try {
-        DiagnosticContextStack* ptr = getPtr();
-        if(ptr != NULL) {
-            while(maxDepth < ptr->size()) {
-                ptr->pop();
-            }
-        }
-    }
-    catch(std::exception& e) {
-        getLogLog().error(  LOG4CPLUS_TEXT("NDC::setMaxDepth()- exception occured: ") 
-                          + LOG4CPLUS_C_STR_TO_TSTRING(e.what()));
-    }
-    catch(...) {
-        getLogLog().error(LOG4CPLUS_TEXT("NDC::setMaxDepth()- exception occured"));
-    }
+    DiagnosticContextStack* ptr = getPtr();
+    while(maxDepth < ptr->size())
+        ptr->pop_back();
 }
 
 
 DiagnosticContextStack* NDC::getPtr()
-{ 
-    return static_cast<DiagnosticContextStack*>
-        (LOG4CPLUS_GET_THREAD_LOCAL_VALUE( threadLocal )); 
+{
+    internal::per_thread_data * ptd = internal::get_ptd ();
+    return &ptd->ndc_dcs;
 }
 
 
@@ -317,13 +283,78 @@ DiagnosticContextStack* NDC::getPtr()
 //
 //
 
-NDCContextCreator::NDCContextCreator(const log4cplus::tstring& msg) 
-{ 
-    getNDC().push(msg); 
+NDCContextCreator::NDCContextCreator(const log4cplus::tstring& msg)
+{
+    getNDC().push(msg);
 }
 
 
-NDCContextCreator::~NDCContextCreator() 
-{ 
-    getNDC().pop(); 
+NDCContextCreator::NDCContextCreator(tchar const * msg)
+{
+    getNDC().push(msg);
 }
+
+
+NDCContextCreator::~NDCContextCreator()
+{
+    getNDC().pop_void();
+}
+
+
+#if defined (LOG4CPLUS_WITH_UNIT_TESTS)
+CATCH_TEST_CASE ("NDC", "[NDC]")
+{
+    NDC & ndc = getNDC ();
+    ndc.clear ();
+    static tchar const CONTEXT1[] = LOG4CPLUS_TEXT ("c1");
+    static tchar const CONTEXT2[] = LOG4CPLUS_TEXT ("c2");
+    static tchar const CONTEXT3[] = LOG4CPLUS_TEXT ("c3");
+    static tstring const C1C2 = tstring (CONTEXT1)
+        + LOG4CPLUS_TEXT (' ')
+        + CONTEXT2;
+    static tstring const C1C2C3 = C1C2
+        + LOG4CPLUS_TEXT (' ')
+        + CONTEXT3;
+
+    CATCH_SECTION ("basic")
+    {
+        CATCH_REQUIRE (ndc.get ().empty ());
+        CATCH_REQUIRE (ndc.peek ().empty ());
+        CATCH_REQUIRE (ndc.getDepth () == 0);
+        NDCContextCreator c1 (CONTEXT1);
+        CATCH_REQUIRE (ndc.peek () == CONTEXT1);
+        CATCH_REQUIRE (ndc.get () == CONTEXT1);
+        CATCH_REQUIRE (ndc.getDepth () == 1);
+        {
+            NDCContextCreator c2 (LOG4CPLUS_C_STR_TO_TSTRING (CONTEXT2));
+            CATCH_REQUIRE (ndc.get () == C1C2);
+            CATCH_REQUIRE (ndc.getDepth () == 2);
+            CATCH_REQUIRE (ndc.peek () == CONTEXT2);
+
+            ndc.push (CONTEXT3);
+            CATCH_REQUIRE (ndc.get () == C1C2C3);
+            CATCH_REQUIRE (ndc.peek () == CONTEXT3);
+            CATCH_REQUIRE (ndc.pop () == CONTEXT3);
+        }
+        CATCH_REQUIRE (ndc.peek () == CONTEXT1);
+        CATCH_REQUIRE (ndc.get () == CONTEXT1);
+        CATCH_REQUIRE (ndc.getDepth () == 1);
+    }
+
+    CATCH_SECTION ("remove")
+    {
+        ndc.push (CONTEXT1);
+        CATCH_REQUIRE (ndc.peek () == CONTEXT1);
+        CATCH_REQUIRE (ndc.get () == CONTEXT1);
+        CATCH_REQUIRE (ndc.getDepth () == 1);
+
+        ndc.remove ();
+        CATCH_REQUIRE (ndc.get ().empty ());
+        CATCH_REQUIRE (ndc.peek ().empty ());
+        CATCH_REQUIRE (ndc.getDepth () == 0);
+    }
+}
+
+#endif
+
+} // namespace log4cplus

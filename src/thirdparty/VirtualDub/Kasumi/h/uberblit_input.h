@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2015-2018 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_UBERBLIT_INPUT_H
 #define f_VD2_KASUMI_UBERBLIT_INPUT_H
 
@@ -7,6 +16,7 @@
 class IVDPixmapGenSrc {
 public:
 	virtual void SetSource(const void *src, ptrdiff_t pitch, const uint32 *palette) = 0;
+	virtual void SetPlane(int i) = 0;
 };
 
 class VDPixmapGenSrc : public IVDPixmapGen, public IVDPixmapGenSrc {
@@ -16,11 +26,20 @@ public:
 		mHeight = height;
 		mType = type;
 		mBpr = bpr;
+		mPlane = -1;
 	}
 
 	void SetSource(const void *src, ptrdiff_t pitch, const uint32 *palette) {
 		mpSrc = src;
 		mPitch = pitch;
+	}
+
+	void SetPlane(int i) {
+		mPlane = i;
+	}
+
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		dst.copy_dynamic(src);
 	}
 
 	void AddWindowRequest(int minY, int maxY) {
@@ -57,6 +76,9 @@ public:
 		return mType;
 	}
 
+	virtual const char* dump_name(){ return "src"; }
+	virtual IVDPixmapGen* dump_src(int index){ return 0; }
+
 protected:
 	const void *mpSrc;
 	ptrdiff_t	mPitch;
@@ -64,6 +86,15 @@ protected:
 	sint32		mWidth;
 	sint32		mHeight;
 	uint32		mType;
+	int		mPlane;
+};
+
+class VDPixmapGenSrcAlpha: public VDPixmapGenSrc {
+public:
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		dst.copy_alpha(src);
+		dst.ref_a = src.ref_a;
+	}
 };
 
 #endif

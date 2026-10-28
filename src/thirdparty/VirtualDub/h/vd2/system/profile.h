@@ -1,27 +1,12 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2016-2018 Anton Shekhovtsov
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_PROFILE_H
 #define f_VD2_SYSTEM_PROFILE_H
@@ -71,7 +56,7 @@ public:
 
 public:
 	VDRTProfiler();
-	~VDRTProfiler();
+	~VDRTProfiler() = default;
 
 	void BeginCollection();
 	void EndCollection();
@@ -124,9 +109,9 @@ public:
 	Counters				mCounterArray;
 	Counters				mCounterArrayToPaint;
 	uint64					mPerfFreq;
-	uint64					mSnapshotTime;
+	uint64					mSnapshotTime = 0;
 
-	volatile bool			mbEnableCollection;
+	volatile bool			mbEnableCollection = false;
 };
 
 //
@@ -167,8 +152,15 @@ protected:
 
 class IVDEventProfiler {
 public:
-	virtual void BeginScope(const char *name, uintptr *cache, uint32 data) = 0;
-	virtual void BeginDynamicScope(const char *name, uintptr *cache, uint32 data) = 0;
+	enum {
+		sample_cpu = 0,
+		sample_count = 1,
+	};
+
+	virtual void InsertSample(int name, uint64 data) = 0;
+	virtual void BeginScope(const char *name, uintptr *cache, uint32 data, uint32 flags) = 0;
+	virtual void BeginDynamicScope(const char *name, uintptr *cache, uint32 data, uint32 flags) = 0;
+	virtual void SetComment(uintptr scopeId, const char* data) = 0;
 	virtual void EndScope() = 0;
 	virtual void ExitThread() = 0;
 };
@@ -185,12 +177,22 @@ public:
 
 struct VDProfileCachedEvent;
 
+enum {
+	vdprofiler_flag_wait=1,
+	vdprofiler_flag_loop=2,
+	vdprofiler_flag_profile=4,
+	vdprofiler_flag_mode=8,
+	vdprofiler_flag_event=16,
+};
+
 typedef uintptr VDProfileEventCache;
 
-#define VDPROFILEBEGINDYNAMIC(cache, dynLabel) if (true) { if (g_pVDEventProfiler) g_pVDEventProfiler->BeginDynamicScope((dynLabel), &(cache), 0); } else ((void)0)
-#define VDPROFILEBEGINDYNAMICEX(cache, dynLabel, data) if (true) { if (g_pVDEventProfiler) g_pVDEventProfiler->BeginDynamicScope((dynLabel), &(cache), data); } else ((void)0)
-#define VDPROFILEBEGIN(label) if (true) { static uintptr sCache = NULL; if (g_pVDEventProfiler) g_pVDEventProfiler->BeginScope((label), &sCache, 0); } else ((void)0)
-#define VDPROFILEBEGINEX(label, data) if (true) { static uintptr sCache = NULL; if (g_pVDEventProfiler) g_pVDEventProfiler->BeginScope((label), &sCache, data); } else ((void)0)
+#define VDPROFILEBEGINDYNAMIC(cache, dynLabel) if (true) { if (g_pVDEventProfiler) g_pVDEventProfiler->BeginDynamicScope((dynLabel), &(cache), 0, 0); } else ((void)0)
+#define VDPROFILEBEGINDYNAMICEX(cache, dynLabel, data) if (true) { if (g_pVDEventProfiler) g_pVDEventProfiler->BeginDynamicScope((dynLabel), &(cache), data, 0); } else ((void)0)
+#define VDPROFILEBEGIN(label) if (true) { static uintptr sCache = NULL; if (g_pVDEventProfiler) g_pVDEventProfiler->BeginScope((label), &sCache, 0, 0); } else ((void)0)
+#define VDPROFILEBEGINEX(label, data) if (true) { static uintptr sCache = NULL; if (g_pVDEventProfiler) g_pVDEventProfiler->BeginScope((label), &sCache, data, 0); } else ((void)0)
+#define VDPROFILEBEGINEX2(label, data, flags) if (true) { static uintptr sCache = NULL; if (g_pVDEventProfiler) g_pVDEventProfiler->BeginScope((label), &sCache, data, flags); } else ((void)0)
+#define VDPROFILEBEGINEX3(label, data, flags, comment) if (true) { static uintptr sCache = NULL; if (g_pVDEventProfiler){ g_pVDEventProfiler->BeginScope((label), &sCache, data, flags); if(comment) g_pVDEventProfiler->SetComment(sCache, comment); } } else ((void)0)
 #define VDPROFILEEND() if (g_pVDEventProfiler) g_pVDEventProfiler->EndScope(); else ((void)0)
 #define VDPROFILEAUTOEND() VDProfileEventAutoEndScope _autoEndScope
 #define VDPROFILESCOPE(label) VDPROFILEBEGIN(label); VDPROFILEAUTOEND()

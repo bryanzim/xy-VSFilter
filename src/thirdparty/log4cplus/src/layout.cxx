@@ -4,7 +4,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2001-2009 Tad E. Smith
+// Copyright 2001-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,34 +22,69 @@
 #include <log4cplus/helpers/stringhelper.h>
 #include <log4cplus/helpers/timehelper.h>
 #include <log4cplus/spi/loggingevent.h>
+#include <log4cplus/helpers/property.h>
+#include <log4cplus/internal/internal.h>
+#include <ostream>
 #include <iomanip>
 
 
 namespace log4cplus
 {
 
-
-extern helpers::Time TTCCLayout_time_base;
-
-
 void
-initializeLayout ()
+formatRelativeTimestamp (log4cplus::tostream & output,
+    log4cplus::spi::InternalLoggingEvent const & event)
 {
-    TTCCLayout_time_base = helpers::Time::gettimeofday ();
+    auto const duration
+        = event.getTimestamp () - getTTCCLayoutTimeBase ();
+    output << helpers::chrono::duration_cast<
+                  helpers::chrono::duration<long long, std::milli>>(
+                      duration).count ();
 }
+
+//
+//
+//
+
+
+Layout::Layout ()
+    : llmCache(getLogLevelManager())
+{ }
+
+
+Layout::Layout (const log4cplus::helpers::Properties&)
+    : llmCache(getLogLevelManager())
+{ }
+
+
+Layout::~Layout()
+{ }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // log4cplus::SimpleLayout public methods
 ///////////////////////////////////////////////////////////////////////////////
 
+SimpleLayout::SimpleLayout ()
+{ }
+
+
+SimpleLayout::SimpleLayout (const helpers::Properties& properties)
+    : Layout (properties)
+{ }
+
+
+SimpleLayout::~SimpleLayout()
+{ }
+
+
 void
-SimpleLayout::formatAndAppend(log4cplus::tostream& output, 
+SimpleLayout::formatAndAppend(log4cplus::tostream& output,
                               const log4cplus::spi::InternalLoggingEvent& event)
 {
-    output << llmCache.toString(event.getLogLevel()) 
+    output << llmCache.toString(event.getLogLevel())
            << LOG4CPLUS_TEXT(" - ")
-           << event.getMessage() 
+           << event.getMessage()
            << LOG4CPLUS_TEXT("\n");
 }
 
@@ -59,30 +94,31 @@ SimpleLayout::formatAndAppend(log4cplus::tostream& output,
 // log4cplus::TTCCLayout ctors and dtor
 ///////////////////////////////////////////////////////////////////////////////
 
-TTCCLayout::TTCCLayout(bool use_gmtime_)
-: dateFormat(),
-  use_gmtime(use_gmtime_)
+  TTCCLayout::TTCCLayout(bool use_gmtime_, bool thread_printing_,
+      bool category_prefixing_, bool context_printing_)
+    : dateFormat()
+    , use_gmtime(use_gmtime_)
+    , thread_printing (thread_printing_)
+    , category_prefixing (category_prefixing_)
+    , context_printing (context_printing_)
 {
 }
 
 
 TTCCLayout::TTCCLayout(const log4cplus::helpers::Properties& properties)
-: Layout(properties),
-  dateFormat(),
-  use_gmtime(false)
+    : Layout(properties)
+    , dateFormat(properties.getProperty (LOG4CPLUS_TEXT("DateFormat"),
+            internal::empty_str))
 {
-    if(properties.exists( LOG4CPLUS_TEXT("DateFormat") )) {
-        dateFormat = properties.getProperty( LOG4CPLUS_TEXT("DateFormat") );
-    }
-
-    tstring tmp = properties.getProperty( LOG4CPLUS_TEXT("Use_gmtime") );
-    use_gmtime = (helpers::toLower(tmp) == LOG4CPLUS_TEXT("true"));
+    properties.getBool (use_gmtime, LOG4CPLUS_TEXT("Use_gmtime"));
+    properties.getBool (thread_printing, LOG4CPLUS_TEXT("ThreadPrinting"));
+    properties.getBool (category_prefixing, LOG4CPLUS_TEXT("CategoryPrefixing"));
+    properties.getBool (context_printing, LOG4CPLUS_TEXT("ContextPrinting"));
 }
 
 
 TTCCLayout::~TTCCLayout()
-{
-}
+{ }
 
 
 
@@ -91,36 +127,79 @@ TTCCLayout::~TTCCLayout()
 ///////////////////////////////////////////////////////////////////////////////
 
 void
-TTCCLayout::formatAndAppend(log4cplus::tostream& output, 
+TTCCLayout::formatAndAppend(log4cplus::tostream& output,
                             const log4cplus::spi::InternalLoggingEvent& event)
 {
-    if (dateFormat.empty ())
-    {
-        helpers::Time const rel_time = event.getTimestamp () - TTCCLayout_time_base;
-        tchar const old_fill = output.fill ();
-        helpers::time_t const sec = rel_time.sec ();
+     if (dateFormat.empty ())
+         formatRelativeTimestamp (output, event);
+     else
+         output << helpers::getFormattedTime(dateFormat, event.getTimestamp(),
+             use_gmtime);
 
-        if (sec != 0)
-            output << sec << std::setfill (LOG4CPLUS_TEXT ('0'))
-                   << std::setw (3);
+     if (getThreadPrinting ())
+         output << LOG4CPLUS_TEXT(" [")
+                << event.getThread()
+                << LOG4CPLUS_TEXT("] ");
+     else
+         output << LOG4CPLUS_TEXT(' ');
 
-        output << rel_time.usec () / 1000;
-        output.fill (old_fill);
-    }
-    else
-        output << event.getTimestamp().getFormattedTime(dateFormat, use_gmtime);
+     output << llmCache.toString(event.getLogLevel())
+            << LOG4CPLUS_TEXT(' ');
 
-    output << LOG4CPLUS_TEXT(" [")
-           << event.getThread()
-           << LOG4CPLUS_TEXT("] ")
-           << llmCache.toString(event.getLogLevel()) 
-           << LOG4CPLUS_TEXT(" ")
-           << event.getLoggerName()
-           << LOG4CPLUS_TEXT(" <")
-           << event.getNDC() 
-           << LOG4CPLUS_TEXT("> - ")
-           << event.getMessage()
-           << LOG4CPLUS_TEXT("\n");
+     if (getCategoryPrefixing ())
+         output << event.getLoggerName()
+                << LOG4CPLUS_TEXT(' ');
+
+     if (getContextPrinting ())
+         output << LOG4CPLUS_TEXT("<")
+                << event.getNDC()
+                << LOG4CPLUS_TEXT("> ");
+
+     output << LOG4CPLUS_TEXT("- ")
+            << event.getMessage()
+            << LOG4CPLUS_TEXT("\n");
+}
+
+
+bool
+TTCCLayout::getThreadPrinting() const
+{
+    return thread_printing;
+}
+
+
+void
+TTCCLayout::setThreadPrinting(bool thread_printing_)
+{
+    thread_printing = thread_printing_;
+}
+
+
+bool
+TTCCLayout::getCategoryPrefixing() const
+{
+    return category_prefixing;
+}
+
+
+void
+TTCCLayout::setCategoryPrefixing(bool category_prefixing_)
+{
+    category_prefixing = category_prefixing_;
+}
+
+
+bool
+TTCCLayout::getContextPrinting() const
+{
+    return context_printing;
+}
+
+
+void
+TTCCLayout::setContextPrinting(bool context_printing_)
+{
+    context_printing = context_printing_;
 }
 
 

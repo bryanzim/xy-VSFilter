@@ -4,7 +4,7 @@
 // Author:  Eduardo Francos, Odalio SARL
 //
 //
-// Copyright 2003-2010 Odalio SARL
+// Copyright 2003-2017 Odalio SARL
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,36 +18,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-#include <log4cplus/win32debugappender.h>
-
-
+#include <log4cplus/config.hxx>
 #if defined (LOG4CPLUS_HAVE_OUTPUTDEBUGSTRING)
 
-using namespace std;
-using namespace log4cplus;
-using namespace log4cplus::helpers;
+#include <log4cplus/config/windowsh-inc.h>
+#include <log4cplus/win32debugappender.h>
+#include <log4cplus/internal/internal.h>
+#include <log4cplus/internal/cygwin-win32.h>
+#include <log4cplus/thread/syncprims-pub-impl.h>
 
+
+namespace log4cplus
+{
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// log4cplus::Win32DebugAppender ctors and dtor
+// Win32DebugAppender ctors and dtor
 ///////////////////////////////////////////////////////////////////////////////
 
-log4cplus::Win32DebugAppender::Win32DebugAppender()
+Win32DebugAppender::Win32DebugAppender()
 {
 }
 
 
-log4cplus::Win32DebugAppender::Win32DebugAppender(
-    const log4cplus::helpers::Properties& properties)
+Win32DebugAppender::Win32DebugAppender(
+    const helpers::Properties& properties)
     : Appender(properties)
 {
 }
 
 
 
-log4cplus::Win32DebugAppender::~Win32DebugAppender()
+Win32DebugAppender::~Win32DebugAppender()
 {
     destructorImpl();
 }
@@ -55,11 +57,11 @@ log4cplus::Win32DebugAppender::~Win32DebugAppender()
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// log4cplus::Win32DebugAppender public methods
+// Win32DebugAppender public methods
 ///////////////////////////////////////////////////////////////////////////////
 
 void
-log4cplus::Win32DebugAppender::close()
+Win32DebugAppender::close()
 {
     closed = true;
 }
@@ -67,20 +69,25 @@ log4cplus::Win32DebugAppender::close()
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// log4cplus::Win32DebugAppender protected methods
+// Win32DebugAppender protected methods
 ///////////////////////////////////////////////////////////////////////////////
 
 // This method does not need to be locked since it is called by
 // doAppend() which performs the locking
 void
-log4cplus::Win32DebugAppender::append(const spi::InternalLoggingEvent& event)
+Win32DebugAppender::append(const spi::InternalLoggingEvent& event)
 {
-    tostringstream buf;
-    layout->formatAndAppend(buf, event);
-    tstring sz = buf.str();
-    const tchar * s = sz.c_str();
+#if defined (__CYGWIN__)
+    cygwin::output_debug_stringW (
+        helpers::towstring (formatEvent (event)).c_str ());
+#else
+    const tchar * s = formatEvent (event).c_str();
     ::OutputDebugString(s);
+#endif
 }
+
+
+} // namespace log4cplus
 
 
 #endif // LOG4CPLUS_HAVE_OUTPUTDEBUGSTRING

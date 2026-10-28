@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2018 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_UBERBLIT_PAL_H
 #define f_VD2_KASUMI_UBERBLIT_PAL_H
 
@@ -12,18 +21,26 @@ public:
 
 	void Init(IVDPixmapGen *src, int srcIndex) {
 		InitSource(src, srcIndex);
+		mPlane = -1;
 	}
 
 	void SetSource(const void *src, ptrdiff_t pitch, const uint32 *palette) {
 		mpPal = palette;
 	}
 
+	void SetPlane(int i) {
+		mPlane = i;
+	}
+
 	uint32 GetType(uint32 output) const {
 		return (mpSrc->GetType(mSrcIndex) & ~kVDPixType_Mask) | kVDPixType_8888;
 	}
 
+	virtual const char* dump_name(){ return "Pal_To_X8R8G8B8"; }
+
 protected:
 	const uint32 *mpPal;
+	int		mPlane;
 };
 
 class VDPixmapGen_Pal1_To_X8R8G8B8 : public VDPixmapGenBase_Pal_To_X8R8G8B8 {

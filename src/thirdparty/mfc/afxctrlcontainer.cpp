@@ -12,9 +12,7 @@
 //
 
 #include "stdafx.h"
-#undef SubclassWindow
 #include "afxctrlcontainer.h"
-#if 0
 #include "afxtagmanager.h"
 #include "afxbutton.h"
 #include "afxcolorbutton.h"
@@ -27,15 +25,10 @@
 #include "afxshelllistctrl.h"
 #include "afxshelltreectrl.h"
 #include "afxvslistbox.h"
-#endif
 
 ////////////////////////////////////////////////////////////////////////////
 
-#if (_MSC_VER == 1700)
 void AfxDoRegisterMFCControlClass(LPCTSTR lpszClassName, LPCTSTR lpszBaseClassName)
-#else
-static void DoRegisterWindowClass(LPCTSTR lpszClassName, LPCTSTR lpszBaseClassName)
-#endif
 {
 	ASSERT(lpszClassName != NULL);
 	ASSERT(lpszBaseClassName != NULL);
@@ -43,11 +36,7 @@ static void DoRegisterWindowClass(LPCTSTR lpszClassName, LPCTSTR lpszBaseClassNa
 	WNDCLASS wnd = {0};
 
 	HINSTANCE hInst = AfxGetInstanceHandle();
-#if (_MSC_VER == 1700)
 	if (!GetClassInfo(hInst, lpszBaseClassName, &wnd))
-#else
-	if (!AfxCtxGetClassInfo(hInst, lpszBaseClassName, &wnd))
-#endif
 	{
 		wnd.style = CS_DBLCLKS;
 		wnd.hInstance = hInst;
@@ -57,23 +46,6 @@ static void DoRegisterWindowClass(LPCTSTR lpszClassName, LPCTSTR lpszBaseClassNa
 	wnd.lpszClassName = lpszClassName;
 	AfxRegisterClass(&wnd);
 }
-
-#if (_MSC_VER == 1600)
-void AfxRegisterMFCCtrlClasses()
-{
-	DoRegisterWindowClass(_T("MFCButton"), WC_BUTTON);
-	DoRegisterWindowClass(_T("MFCColorButton"), WC_BUTTON);
-	DoRegisterWindowClass(_T("MFCEditBrowse"), WC_EDIT);
-	DoRegisterWindowClass(_T("MFCFontComboBox"), WC_COMBOBOX);
-	DoRegisterWindowClass(_T("MFCLink"), WC_BUTTON);
-	DoRegisterWindowClass(_T("MFCMaskedEdit"), WC_EDIT);
-	DoRegisterWindowClass(_T("MFCMenuButton"), WC_BUTTON);
-	DoRegisterWindowClass(_T("MFCPropertyGrid"), WC_STATIC);
-	DoRegisterWindowClass(_T("MFCShellList"), WC_LISTVIEW);
-	DoRegisterWindowClass(_T("MFCShellTree"), WC_TREEVIEW);
-	DoRegisterWindowClass(_T("MFCVSListBox"), WC_STATIC);
-}
-#endif
 
 ////////////////////////////////////////////////////////////////////////////
 // CMFCControlContainer
@@ -88,41 +60,9 @@ CMFCControlContainer::~CMFCControlContainer()
 	ClearControlData();
 }
 
-#if (_MSC_VER == 1600)
-BOOL CMFCControlContainer::SubclassDlgControls()
-{
-	if (m_pWnd->GetSafeHwnd() != NULL)
-	{
-		// Subclass Feature Pack controls:
-		CWnd* pWndChild = m_pWnd->GetWindow(GW_CHILD);
-		while (pWndChild != NULL)
-		{
-			ASSERT_VALID(pWndChild);
-
-			TCHAR lpszClassName [MAX_CLASS_NAME + 1];
-
-			::GetClassName(pWndChild->GetSafeHwnd(), lpszClassName, MAX_CLASS_NAME);
-			CWnd* pWndSubclassedCtrl = CreateDlgControl(lpszClassName);
-
-			if (pWndSubclassedCtrl != NULL)
-			{
-				m_arSubclassedCtrls.Add((CObject*)pWndSubclassedCtrl);
-				pWndSubclassedCtrl->SubclassWindow(pWndChild->GetSafeHwnd());
-			}
-
-			pWndChild = pWndChild->GetNextWindow();
-		}
-
-		return TRUE;
-	}
-
-	return FALSE;
-}
-#endif
-
 void CMFCControlContainer::FreeSubclassedControls()
 {
-	// Free subclassed controls: 
+	// Free subclassed controls:
 	for (int i = 0; i < m_arSubclassedCtrls.GetCount(); i++)
 	{
 		if (m_arSubclassedCtrls [i] != NULL)
@@ -141,7 +81,7 @@ CWnd* CMFCControlContainer::CreateDlgControl(LPCTSTR lpszClassName)
 	{
 		CString strClass = lpszClassName;
 		CWnd* pWndSubclassedCtrl = NULL;
-#if 0
+
 		if (strClass == _T("MFCButton"))
 		{
 			pWndSubclassedCtrl = new CMFCButton;
@@ -186,7 +126,7 @@ CWnd* CMFCControlContainer::CreateDlgControl(LPCTSTR lpszClassName)
 		{
 			pWndSubclassedCtrl = new CVSListBox;
 		}
-#endif
+
 		return pWndSubclassedCtrl;
 	}
 
@@ -212,19 +152,6 @@ BOOL CMFCControlContainer::IsSubclassedFeaturePackControl(HWND hWndCtrl)
 	return FALSE;
 }
 
-#if (_MSC_VER == 1600)
-void CMFCControlContainer::PreUnsubclassControl(CWnd* pControl)
-{
-	UNREFERENCED_PARAMETER(pControl);
-
-//	CMFCShellListCtrl* pListCtrl = DYNAMIC_DOWNCAST(CMFCShellListCtrl, pControl);
-//	if (pListCtrl != NULL && pListCtrl->GetHeaderCtrl().GetSafeHwnd() != NULL)
-//	{
-//		pListCtrl->GetHeaderCtrl().UnsubclassWindow();
-//	}
-}
-#endif
-
 BOOL CMFCControlContainer::ReSubclassControl(HWND hWndCtrl, WORD nIDC, CWnd& control)
 {
 	if (hWndCtrl == NULL)
@@ -246,7 +173,7 @@ BOOL CMFCControlContainer::ReSubclassControl(HWND hWndCtrl, WORD nIDC, CWnd& con
 	if (nIndex != -1)
 	{
 		CWnd* pWnd = DYNAMIC_DOWNCAST(CWnd, m_arSubclassedCtrls [nIndex]);
-		
+
 		if (pWnd->GetSafeHwnd() != NULL)
 		{
 			ASSERT_VALID(pWnd);
@@ -322,70 +249,10 @@ void CMFCControlContainer::ClearControlData()
 	POSITION pos = m_mapControlData.GetStartPosition();
 	while (pos != NULL)
 	{
-		m_mapControlData.GetNextAssoc(pos, nIDC, pData); 
-		CByteArray* pArray = (CByteArray*)pData; 
+		m_mapControlData.GetNextAssoc(pos, nIDC, pData);
+		CByteArray* pArray = (CByteArray*)pData;
 		delete pArray;
 	}
 
 	m_mapControlData.RemoveAll();
 }
-
-#if (_MSC_VER == 1600)
-
-////////////////////////////////////////////////////////////////////////////
-// Accessing dialog DLGINIT helpers
-
-int __stdcall CMFCControlContainer::UTF8ToString(LPCSTR lpSrc, CString& strDst, int nLength)
-{
-	LPTSTR lpDst = NULL;
-	int count = ::MultiByteToWideChar(CP_UTF8, 0, lpSrc, nLength, NULL, 0);
-	if (count <= 0)
-	{
-		return 0;
-	}
-
-	LPWSTR lpWide = new WCHAR[count + 1];
-	memset(lpWide, 0, (count + 1) * sizeof(WCHAR));
-
-	::MultiByteToWideChar(CP_UTF8, 0, lpSrc, nLength, lpWide, count);
-
-#ifdef _UNICODE
-	lpDst = lpWide;
-#else
-	count = ::WideCharToMultiByte(::GetACP(), 0, lpWide, -1, NULL, 0, NULL, 0);
-
-	if (count > 0)
-	{
-		lpDst = new char[count + 1];
-		memset(lpDst, 0, count + 1);
-
-		::WideCharToMultiByte(::GetACP(), 0, lpWide, -1, lpDst, count, NULL, 0);
-	}
-
-	delete [] lpWide;
-#endif
-
-	strDst = lpDst;
-	delete[] lpDst;
-	return count;
-}
-
-BOOL __stdcall CMFCControlContainer::ReadBoolProp(CTagManager& /*tagManager*/, LPCTSTR lpszTag, BOOL& bMember)
-{
-	if (lpszTag == NULL)
-	{
-		return FALSE;
-	}
-
-	CString str;
-//	tagManager.ExcludeTag(lpszTag, str);
-
-	if (str.IsEmpty())
-	{
-		return FALSE;
-	}
-
-	bMember = (str.CompareNoCase(PS_True) == 0);
-	return TRUE;
-}
-#endif

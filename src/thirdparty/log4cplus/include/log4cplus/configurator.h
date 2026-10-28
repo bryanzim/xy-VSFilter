@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2003-2010 Tad E. Smith
+// Copyright 2003-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,14 +21,17 @@
 
 /** @file */
 
-#ifndef _CONFIGURATOR_HEADER_
-#define _CONFIGURATOR_HEADER_
+#ifndef LOG4CPLUS_CONFIGURATOR_HEADER_
+#define LOG4CPLUS_CONFIGURATOR_HEADER_
 
 #include <log4cplus/config.hxx>
+
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
+#endif
+
 #include <log4cplus/appender.h>
-#include <log4cplus/hierarchy.h>
 #include <log4cplus/logger.h>
-#include <log4cplus/helpers/logloguser.h>
 #include <log4cplus/helpers/pointer.h>
 #include <log4cplus/helpers/property.h>
 
@@ -37,34 +40,59 @@
 
 namespace log4cplus
 {
+    class Hierarchy;
+
 
     /**
      * Provides configuration from an external file.  See configure() for
      * the expected format.
-     * 
+     *
      * <em>All option values admit variable substitution.</em> For
      * example, if <code>userhome</code> environment property is set to
      * <code>/home/xyz</code> and the File option is set to the string
      * <code>${userhome}/test.log</code>, then File option will be
      * interpreted as the string <code>/home/xyz/test.log</code>.
-     * 
+     *
      * The syntax of variable substitution is similar to that of UNIX
      * shells. The string between an opening <b>&quot;${&quot;</b> and
      * closing <b>&quot;}&quot;</b> is interpreted as a key. Its value is
      * searched in the environment properties.  The corresponding value replaces
      * the ${variableName} sequence.
+     *
+     * Configuration files also recognize <code>include
+     * <i>file.properties</i></code> directive that allow composing
+     * configuration from multiple files. There is no cyclic includes
+     * detection mechanism to stop unbound recursion.
      */
     class LOG4CPLUS_EXPORT PropertyConfigurator
-        : protected log4cplus::helpers::LogLogUser
     {
     public:
         enum PCFlags
         {
-            fRecursiveExpansion = 0x0001,
-            fShadowEnvironment  = 0x0002,
-            fAllowEmptyVars     = 0x0004
+            fRecursiveExpansion   = (1 << 0)
+            , fShadowEnvironment  = (1 << 1)
+            , fAllowEmptyVars     = (1 << 2)
+
+            // These encoding related options occupy 2 bits of the flags
+            // and are mutually exclusive. These flags are synchronized with
+            // PFlags in Properties.
+
+            , fEncodingShift      = 3
+            , fEncodingMask       = 0x3
+            , fUnspecEncoding     = (0 << fEncodingShift)
+#if defined (LOG4CPLUS_HAVE_CODECVT_UTF8_FACET) && defined (UNICODE)
+            , fUTF8               = (1 << fEncodingShift)
+#endif
+#if (defined (LOG4CPLUS_HAVE_CODECVT_UTF16_FACET) || defined (_WIN32)) \
+    && defined (UNICODE)
+            , fUTF16              = (2 << fEncodingShift)
+#endif
+#if defined (LOG4CPLUS_HAVE_CODECVT_UTF32_FACET) && defined (UNICODE)
+            , fUTF32              = (3 << fEncodingShift)
+#endif
+            , fThrow              = (1 << 5)
         };
-        
+
         // ctor and dtor
         PropertyConfigurator(const log4cplus::tstring& propertyFile,
             Hierarchy& h = Logger::getDefaultHierarchy(), unsigned flags = 0);
@@ -170,6 +198,21 @@ namespace log4cplus
          * "log4cplus.disableOverride" to <code>true</code> or any value other
          * than false. As in <pre>log4cplus.disableOverride=true </pre>
          *
+         * <h3>Global configuration</h3>
+         *
+         * <ul>
+         * <li>Property <pre>log4cplus.threadPoolSize</pre> can be used to adjust
+         * size of log4cplus' internal thread pool.</li>
+         * <li>Property <pre>log4cplus.threadPoolBlockOnFull</pre> can be
+         * used to change behaviour of the thread pool when its queue is full.
+         * The default value is <pre>true</pre>, to block the thread until
+         * there is a space in the queue. Setting this property to
+         * <pre>false</pre> makes the thread pool not to block when it is full.
+         * The items that could not be inserted are dropped instead.</li>
+         * <li>Property <pre>log4cplus.threadPoolQueueSizeLimit</pre> can be used to
+         * set thread pool queue size limit.</li>
+         * </ul>
+         *
          * <h3>Example</h3>
          *
          * An example configuration is given below.
@@ -203,7 +246,7 @@ namespace log4cplus
          * log4cplus.appender.A2.MaxFileSize=10MB
          * log4cplus.appender.A2.MaxBackupIndex=1
          * log4cplus.appender.A2.layout=log4cplus::TTCCLayout
-         * log4cplus.appender.A2.layout.ContextPrinting=enabled
+         * log4cplus.appender.A2.layout.ContextPrinting=true
          * log4cplus.appender.A2.layout.DateFormat=ISO8601
          *
          * # Root logger set to DEBUG using the A2 appender defined above.
@@ -260,7 +303,7 @@ namespace log4cplus
         void configureLogger(log4cplus::Logger logger, const log4cplus::tstring& config);
         void configureAppenders();
         void configureAdditivity();
-        
+
         virtual Logger getLogger(const log4cplus::tstring& name);
         virtual void addAppender(Logger &logger, log4cplus::SharedAppenderPtr& appender);
 
@@ -270,10 +313,10 @@ namespace log4cplus
       // Data
         Hierarchy& h;
         log4cplus::tstring propertyFilename;
-        log4cplus::helpers::Properties properties; 
+        log4cplus::helpers::Properties properties;
         AppenderMap appenders;
         unsigned flags;
-        
+
     private:
       // Disable copy
         PropertyConfigurator(const PropertyConfigurator&);
@@ -287,12 +330,14 @@ namespace log4cplus
      * configuration see PropertyConfigurator. BasicConfigurator
      * automatically attaches ConsoleAppender to
      * <code>rootLogger</code>, with output going to standard output,
-     * using DEBUG LogLevel value.
+     * using DEBUG LogLevel value. The additional parameter
+     * logToStdErr may redirect the output to standard error.
      */
     class LOG4CPLUS_EXPORT BasicConfigurator : public PropertyConfigurator {
     public:
       // ctor and dtor
-        BasicConfigurator(Hierarchy& h = Logger::getDefaultHierarchy());
+        BasicConfigurator(Hierarchy& h = Logger::getDefaultHierarchy(),
+            bool logToStdErr = false);
         virtual ~BasicConfigurator();
 
         /**
@@ -304,20 +349,24 @@ namespace log4cplus
          * config.configure();
          * </pre></code>
          */
-        static void doConfigure(Hierarchy& h = Logger::getDefaultHierarchy());
-        
+        static void doConfigure(Hierarchy& h = Logger::getDefaultHierarchy(),
+            bool logToStdErr = false);
+
+        //! Property name for disable override.
+        static log4cplus::tstring const DISABLE_OVERRIDE_KEY;
+
     private:
       // Disable copy
         BasicConfigurator(const BasicConfigurator&);
         BasicConfigurator& operator=(BasicConfigurator&);
     };
-   
+
 
 #if !defined(LOG4CPLUS_SINGLE_THREADED)
     // Forward Declarations
     class ConfigurationWatchDogThread;
-    
-    
+
+
     class LOG4CPLUS_EXPORT ConfigureAndWatchThread {
     public:
       // ctor and dtor
@@ -329,7 +378,7 @@ namespace log4cplus
       // Disallow copying of instances of this class
        ConfigureAndWatchThread(const ConfigureAndWatchThread&);
        ConfigureAndWatchThread& operator=(const ConfigureAndWatchThread&);
-       
+
       // Data
        ConfigurationWatchDogThread * watchDogThread;
     };
@@ -337,5 +386,4 @@ namespace log4cplus
 
 } // end namespace log4cplus
 
-#endif // _CONFIGURATOR_HEADER_
-
+#endif // LOG4CPLUS_CONFIGURATOR_HEADER_

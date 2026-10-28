@@ -39,10 +39,10 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeaderFile>rar.hpp</PrecompiledHeaderFile>
-      <PreprocessorDefinitions>_LIB;RARDLL;SILENT;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_LIB;RARDLL;UNRAR;SILENT;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <EnablePREfast>false</EnablePREfast>
-      <AdditionalOptions Condition="'$(PlatformToolset)'=='ClangCL'">%(AdditionalOptions) /clang:-Wno-parentheses /clang:-Wno-bitwise-op-parentheses /clang:-Wno-switch /clang:-Wno-unused-const-variable /clang:-Wno-braced-scalar-init /clang:-Wno-bool-conversion /clang:-Wno-constant-conversion /clang:-Wno-unused-but-set-variable /clang:-Wno-unused-value /clang:-Wno-pointer-to-int-cast /clang:-Wno-int-to-pointer-cast /clang:-Wno-duplicate-decl-specifier /clang:-Wno-deprecated-register /clang:-Wno-self-assign /clang:-Wno-extern-initializer /clang:-Wno-ignored-reference-qualifiers /clang:-Wno-reserved-user-defined-literal /clang:-Wno-microsoft-enum-forward-reference /clang:-Wno-typename-missing /clang:-Wno-nonportable-include-path /clang:-Wno-reorder-ctor /clang:-Wno-unused-variable /clang:-Wno-missing-braces /clang:-Wno-unused-function /clang:-Wno-overloaded-virtual /clang:-Wno-unused-private-field /clang:-Wno-inconsistent-missing-override /clang:-Wno-missing-exception-spec /clang:-Wno-comment /clang:-Wno-pragma-pack /clang:-Wno-explicit-specialization-storage-class /clang:-Wno-microsoft-exception-spec /clang:-Wno-writable-strings /clang:-Wno-ignored-attributes /clang:-Wno-multichar /clang:-Wno-unused-result /clang:-Wno-deprecated-declarations /clang:-Wno-microsoft-include /clang:-Wno-microsoft-extra-qualification /clang:-Wno-unused-local-typedef /clang:-Wno-extra-tokens /clang:-Wno-extern-c-compat /clang:-Wno-macro-redefined /clang:-Wno-microsoft-template /clang:-Wno-mismatched-new-delete /clang:-Wno-delete-non-abstract-non-virtual-dtor /clang:-Wno-shadow /clang:-Wno-implicit-fallthrough /clang:-Wno-format /clang:-Wno-deprecated-copy /clang:-Wno-extra-semi /clang:-Wno-unreachable-code /clang:-Wno-move /clang:-Wno-range-loop-analysis /clang:-Wno-conditional-uninitialized /clang:-Wno-tautological-compare /clang:-Wno-for-loop-analysis /clang:-Wno-header-hygiene /clang:-Wno-microsoft-goto</AdditionalOptions>
+      <AdditionalOptions Condition="'$(PlatformToolset)'=='ClangCL'">%(AdditionalOptions) /clang:-Wno-parentheses /clang:-Wno-bitwise-op-parentheses /clang:-Wno-switch /clang:-Wno-unused-const-variable /clang:-Wno-braced-scalar-init /clang:-Wno-bool-conversion /clang:-Wno-constant-conversion /clang:-Wno-unused-but-set-variable /clang:-Wno-unused-value /clang:-Wno-pointer-to-int-cast /clang:-Wno-int-to-pointer-cast /clang:-Wno-duplicate-decl-specifier /clang:-Wno-deprecated-register /clang:-Wno-self-assign /clang:-Wno-extern-initializer /clang:-Wno-ignored-reference-qualifiers /clang:-Wno-reserved-user-defined-literal /clang:-Wno-microsoft-enum-forward-reference /clang:-Wno-typename-missing /clang:-Wno-nonportable-include-path /clang:-Wno-reorder-ctor /clang:-Wno-unused-variable /clang:-Wno-missing-braces /clang:-Wno-unused-function /clang:-Wno-overloaded-virtual /clang:-Wno-unused-private-field /clang:-Wno-inconsistent-missing-override /clang:-Wno-missing-exception-spec /clang:-Wno-comment /clang:-Wno-pragma-pack /clang:-Wno-explicit-specialization-storage-class /clang:-Wno-microsoft-exception-spec /clang:-Wno-writable-strings /clang:-Wno-ignored-attributes /clang:-Wno-multichar /clang:-Wno-unused-result /clang:-Wno-deprecated-declarations /clang:-Wno-microsoft-include /clang:-Wno-microsoft-extra-qualification /clang:-Wno-unused-local-typedef /clang:-Wno-extra-tokens /clang:-Wno-extern-c-compat /clang:-Wno-macro-redefined /clang:-Wno-microsoft-template /clang:-Wno-mismatched-new-delete /clang:-Wno-delete-non-abstract-non-virtual-dtor /clang:-Wno-shadow /clang:-Wno-implicit-fallthrough /clang:-Wno-format /clang:-Wno-deprecated-copy /clang:-Wno-extra-semi /clang:-Wno-unreachable-code /clang:-Wno-move /clang:-Wno-range-loop-analysis /clang:-Wno-conditional-uninitialized /clang:-Wno-tautological-compare /clang:-Wno-for-loop-analysis /clang:-Wno-header-hygiene /clang:-Wno-microsoft-goto /clang:-fgnuc-version=4.2.1</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -76,7 +76,10 @@
     <ClCompile Include="hash.cpp" />
     <ClCompile Include="headers.cpp" />
     <ClCompile Include="isnt.cpp" />
+    <ClCompile Include="largepage.cpp" />
+    <ClCompile Include="list.cpp" />
     <ClCompile Include="match.cpp" />
+    <ClCompile Include="motw.cpp" />
     <ClCompile Include="options.cpp" />
     <ClCompile Include="pathfn.cpp" />
     <ClCompile Include="qopen.cpp" />
@@ -87,7 +90,7 @@
     <ClCompile Include="rarvm.cpp" />
     <ClCompile Include="rawread.cpp" />
     <ClCompile Include="rdwrfn.cpp" />
-    <ClCompile Include="recvol.cpp" />
+    <ClCompile Include="resource.cpp" />
     <ClCompile Include="rijndael.cpp" />
     <ClCompile Include="rs.cpp" />
     <ClCompile Include="rs16.cpp" />
@@ -108,7 +111,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="archive.hpp" />
-    <ClInclude Include="array.hpp" />
     <ClInclude Include="blake2s.hpp" />
     <ClInclude Include="cmddata.hpp" />
     <ClInclude Include="coder.hpp" />
@@ -132,11 +134,13 @@
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="headers5.hpp" />
     <ClInclude Include="isnt.hpp" />
+    <ClInclude Include="largepage.hpp" />
     <ClInclude Include="list.hpp" />
     <ClInclude Include="loclang.hpp" />
     <ClInclude Include="log.hpp" />
     <ClInclude Include="match.hpp" />
     <ClInclude Include="model.hpp" />
+    <ClInclude Include="motw.hpp" />
     <ClInclude Include="options.hpp" />
     <ClInclude Include="os.hpp" />
     <ClInclude Include="pathfn.hpp" />
@@ -147,6 +151,7 @@
     <ClInclude Include="raros.hpp" />
     <ClInclude Include="rartypes.hpp" />
     <ClInclude Include="rarvm.hpp" />
+    <ClInclude Include="rawint.hpp" />
     <ClInclude Include="rawread.hpp" />
     <ClInclude Include="rdwrfn.hpp" />
     <ClInclude Include="recvol.hpp" />
@@ -154,7 +159,6 @@
     <ClInclude Include="rijndael.hpp" />
     <ClInclude Include="rs.hpp" />
     <ClInclude Include="rs16.hpp" />
-    <ClInclude Include="savepos.hpp" />
     <ClInclude Include="scantree.hpp" />
     <ClInclude Include="secpassword.hpp" />
     <ClInclude Include="sha1.hpp" />
@@ -167,7 +171,6 @@
     <ClInclude Include="threadpool.hpp" />
     <ClInclude Include="timefn.hpp" />
     <ClInclude Include="ui.hpp" />
-    <ClInclude Include="ulinks.hpp" />
     <ClInclude Include="unicode.hpp" />
     <ClInclude Include="unpack.hpp" />
     <ClInclude Include="version.hpp" />

@@ -9,8 +9,6 @@
 // Microsoft Foundation Classes product.
 
 #include "stdafx.h"
-//#include "afxmdichildwndex.h"
-//#include "afxmdiframewndex.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CMDIFrameWnd
@@ -82,11 +80,7 @@ BOOL CMDIFrameWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra,
 LRESULT CMDIFrameWnd::OnCommandHelp(WPARAM wParam, LPARAM lParam)
 {
 	if (lParam == 0 && IsTracking())
-#if (_MSC_VER == 1700)
 		lParam = HID_BASE_COMMAND + GetTrackingID();
-#else
-		lParam = HID_BASE_COMMAND+m_nIDTracking;
-#endif
 
 	CMDIChildWnd* pActiveChild = MDIGetActive();
 	if (pActiveChild != NULL && AfxCallWndProc(pActiveChild,
@@ -170,15 +164,9 @@ BOOL CMDIFrameWnd::CreateClient(LPCREATESTRUCT lpCreateStruct,
 	}
 
 	// Create MDICLIENT control with special IDC
-#if (_MSC_VER == 1700)
 	if ((m_hWndMDIClient = CreateWindowEx(dwExStyle, _T("mdiclient"), NULL,
 		dwStyle, 0, 0, 0, 0, m_hWnd, (HMENU)AFX_IDW_PANE_FIRST,
 		AfxGetInstanceHandle(), (LPVOID)&ccs)) == NULL)
-#else
-	if ((m_hWndMDIClient = ::AfxCtxCreateWindowEx(dwExStyle, _T("mdiclient"), NULL,
-		dwStyle, 0, 0, 0, 0, m_hWnd, (HMENU)AFX_IDW_PANE_FIRST,
-		AfxGetInstanceHandle(), (LPVOID)&ccs)) == NULL)
-#endif
 	{
 		TRACE(traceAppMsg, 0, _T("Warning: CMDIFrameWnd::OnCreateClient: failed to create MDICLIENT.")
 			_T(" GetLastError returns 0x%8.8X\n"), ::GetLastError());
@@ -205,11 +193,9 @@ BOOL CMDIFrameWnd::PreTranslateMessage(MSG* pMsg)
 	if (CWnd::PreTranslateMessage(pMsg))
 		return TRUE;
 
-#ifndef _AFX_NO_OLE_SUPPORT
 	// allow hook to consume message
 	if (m_pNotifyHook != NULL && m_pNotifyHook->OnPreTranslateMessage(pMsg))
 		return TRUE;
-#endif
 
 	CMDIChildWnd* pActiveChild = MDIGetActive();
 
@@ -644,8 +630,9 @@ BOOL CMDIChildWnd::UpdateClientEdge(LPRECT lpRect)
 	// Only adjust for regular MDI child windows, not tabbed windows.  Attempting to set WS_EX_CLIENTEDGE on the tabbed
 	// MDI client area window is subverted by CMDIClientAreaWnd::OnStyleChanging, so we always try to reset the style and
 	// always repaint, none of which is necessary since the tabbed MDI children never change from maximized to restored.
+	BOOL bIsTabbedMDIChild = pChild != NULL && pChild->IsTabbedMDIChild();
 
-	if ((pChild == NULL || pChild == this) /*&& !bIsTabbedMDIChild*/)
+	if ((pChild == NULL || pChild == this) && !bIsTabbedMDIChild)
 	{
 		// need to adjust the client edge style as max/restore happens
 		DWORD dwStyle = ::GetWindowLong(pFrameWnd->m_hWndMDIClient, GWL_EXSTYLE);
@@ -825,7 +812,6 @@ void CMDIChildWnd::SetHandles(HMENU hMenu, HACCEL hAccel)
 	m_hAccelTable = hAccel;
 }
 
-#if (_MSC_VER == 1700)
 UINT CMDIChildWnd::GetTrackingID()
 {
 	if (GetParentFrame() && GetParentFrame()->IsTracking())
@@ -835,7 +821,6 @@ UINT CMDIChildWnd::GetTrackingID()
 
 	return m_nIDTracking;
 }
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CMDIChildWnd Diagnostics
@@ -955,10 +940,10 @@ void CMDIChildWnd::OnUpdateFrameTitle(BOOL bAddToTitle)
 		{
 			TCHAR szWinNumber[16+1];
 			_stprintf_s(szWinNumber, _countof(szWinNumber), _T(":%d"), m_nWindow);
-			
+
 			if( _tcslen(szText) + _tcslen(szWinNumber) < _countof(szText) )
 			{
-				Checked::tcscat_s( szText, _countof(szText), szWinNumber ); 
+				Checked::tcscat_s( szText, _countof(szText), szWinNumber );
 			}
 		}
 
@@ -981,10 +966,8 @@ void CMDIChildWnd::OnMDIActivate(BOOL bActivate, CWnd* pActivateWnd, CWnd*)
 
 	// allow hook to short circuit normal activation
 	BOOL bHooked = FALSE;
-#ifndef _AFX_NO_OLE_SUPPORT
 	if (m_pNotifyHook != NULL && m_pNotifyHook->OnDocActivate(bActivate))
 		bHooked = TRUE;
-#endif
 
 	// update titles (don't AddToTitle if deactivate last)
 	if (!bHooked)
@@ -1075,11 +1058,9 @@ void CMDIFrameWnd::OnUpdateFrameTitle(BOOL bAddToTitle)
 	if ((GetStyle() & FWS_ADDTOTITLE) == 0)
 		return;     // leave it alone!
 
-#ifndef _AFX_NO_OLE_SUPPORT
 	// allow hook to set the title (used for OLE support)
 	if (m_pNotifyHook != NULL && m_pNotifyHook->OnUpdateFrameTitle())
 		return;
-#endif
 
 	CMDIChildWnd* pActiveChild = NULL;
 	CDocument* pDocument = GetActiveDocument();

@@ -1,27 +1,12 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2019 Anton Shekhovtsov
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_ERROR_H
 #define f_VD2_ERROR_H
@@ -50,29 +35,38 @@ private:
 	const MyError& operator=(const MyError&);		// protect against accidents
 
 protected:
-	char *buf;
+	wchar_t* mbuf = nullptr;
 
 public:
 	MyError();
 	MyError(const MyError& err);
-	MyError(const char *f, ...);
+	MyError(const wchar_t* f, ...);
+	MyError(const char* f, ...);
 	~MyError();
 	void clear();
 	void assign(const MyError& e);
-	void assign(const char *s);
-	void setf(const char *f, ...);
-	void vsetf(const char *f, va_list val);
-	void post(struct HWND__ *hWndParent, const char *title) const;
-	char *gets() const {
-		return buf;
+	void assign(const wchar_t* s);
+	void setf(const wchar_t* f, ...);
+	void setf(const char* f, ...);
+	void vsetf(const wchar_t* f, va_list val);
+	void vsetf(const char* f, va_list val);
+	void post(struct HWND__ *hWndParent, const wchar_t* title) const;
+	wchar_t* gets() const {
+		return mbuf;
 	}
-	char *c_str() const {
-		return buf;
+	wchar_t* c_str() const {
+		return mbuf;
 	}
-	bool empty() const { return !buf; }
+	bool empty() const { return !mbuf; }
 	void discard();
 	void swap(MyError& err);
 	void TransferFrom(MyError& err);
+};
+
+class MyTextError : public MyError {
+public:
+	int line;
+	int col;
 };
 
 class MyICError : public MyError {
@@ -99,7 +93,8 @@ public:
 
 class MyWin32Error : public MyError {
 public:
-	MyWin32Error(const char *format, uint32 err, ...);
+	MyWin32Error(const wchar_t* format, uint32 err, ...);
+	MyWin32Error(const char* format, uint32 err, ...);
 
 	uint32 GetWin32Error() const { return mWin32Error; }
 
@@ -119,7 +114,8 @@ public:
 
 class MyInternalError : public MyError {
 public:
-	MyInternalError(const char *format, ...);
+	MyInternalError(const wchar_t* format, ...);
+	MyInternalError(const char* format, ...);
 };
 
 #endif

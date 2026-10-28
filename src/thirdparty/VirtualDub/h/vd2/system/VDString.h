@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2024-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_VDSTRING_H
 #define f_VD2_SYSTEM_VDSTRING_H
@@ -230,8 +214,7 @@ class VDStringRefA : public VDStringSpanA {
 public:
 	typedef VDStringRefA this_type;
 
-	VDStringRefA()  {
-	}
+	VDStringRefA() = default;
 
 	explicit VDStringRefA(const value_type *s)
 		: VDStringSpanA(s)
@@ -657,7 +640,7 @@ inline VDStringA operator+(const VDStringA& str, char c) {
 
 namespace std {
 	template<>
-	struct less<VDStringA> : binary_function<VDStringA, VDStringA, bool> {
+	struct less<VDStringA> {
 		bool operator()(const VDStringA& x, const VDStringA& y) const {
 			return x.compare(y) < 0;
 		}
@@ -827,8 +810,7 @@ class VDStringRefW : public VDStringSpanW {
 public:
 	typedef VDStringRefW this_type;
 
-	VDStringRefW()  {
-	}
+	VDStringRefW() = default;
 
 	explicit VDStringRefW(const value_type *s)
 		: VDStringSpanW(s)
@@ -1242,8 +1224,6 @@ inline VDStringW operator+(const VDStringW& str, wchar_t c) {
 }
 
 ///////////////////////////////////////////////////////////////////////////
-
-typedef VDStringA				VDString;
 
 template<> VDStringA *vdmove_forward(VDStringA *src1, VDStringA *src2, VDStringA *dst);
 template<> VDStringW *vdmove_forward(VDStringW *src1, VDStringW *src2, VDStringW *dst);

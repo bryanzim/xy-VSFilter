@@ -1,33 +1,18 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2018 Anton Shekhovtsov
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_MATH_H
 #define f_VD2_SYSTEM_MATH_H
 
 #include <math.h>
 #include <vd2/system/vdtypes.h>
+#include <emmintrin.h>
 
 // Constants
 namespace nsVDMath {
@@ -236,6 +221,17 @@ inline sint16 VDClampedRoundFixedToInt16Fast(float x) {
 }
 
 /// Convert a value from [0..1] to [0..255] with clamping.
+#ifdef VD_CPU_SSE
+inline uint8 VDClampedRoundFixedToUint8Fast(float x) {
+	__m128 v = _mm_set_ss(x);
+	__m128 m0 = _mm_setzero_ps();
+	v = _mm_max_ss(v,m0);
+	__m128 m1 = _mm_set_ss(0xFF);
+	v = _mm_mul_ss(v,m1);
+	v = _mm_min_ss(v,m1);
+	return _mm_cvtss_si32(v);
+}
+#else
 inline uint8 VDClampedRoundFixedToUint8Fast(float x) {
 	union {
 		float f;
@@ -249,6 +245,34 @@ inline uint8 VDClampedRoundFixedToUint8Fast(float x) {
 
 	return (uint8)v;
 }
+#endif
+
+/// Convert a value from [0..1] to [0..65535] with clamping.
+#ifdef VD_CPU_SSE
+inline uint16 VDClampedRoundFixedToUint16Fast(float x) {
+	__m128 v = _mm_set_ss(x);
+	__m128 m0 = _mm_setzero_ps();
+	v = _mm_max_ss(v,m0);
+	__m128 m1 = _mm_set_ss(0xFFFF);
+	v = _mm_mul_ss(v,m1);
+	v = _mm_min_ss(v,m1);
+	return _mm_cvtss_si32(v);
+}
+#else
+inline uint16 VDClampedRoundFixedToUint16Fast(float x) {
+	union {
+		float f;
+		sint32 i;
+	} u = {x * 65535.0f + 12582912.0f};		// 2^22+2^23
+
+	sint32 v = (sint32)u.i - 0x4B400000;
+
+	if ((uint32)v >= 0x10000)
+		v = ~v >> 31;
+
+	return (uint16)v;
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 

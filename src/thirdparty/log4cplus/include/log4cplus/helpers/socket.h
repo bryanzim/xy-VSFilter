@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2003-2009 Tad E. Smith
+// Copyright 2003-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,11 +25,16 @@
 #define LOG4CPLUS_HELPERS_SOCKET_HEADER_
 
 #include <log4cplus/config.hxx>
+
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
+#endif
+
+#include <array>
+
 #include <log4cplus/tstring.h>
 #include <log4cplus/helpers/socketbuffer.h>
-#if defined(_WIN32)
-#include <winsock.h>
-#endif
+
 
 namespace log4cplus {
     namespace helpers {
@@ -38,38 +43,33 @@ namespace log4cplus {
                            not_opened,
                            bad_address,
                            connection_failed,
-                           broken_pipe, 
+                           broken_pipe,
                            invalid_access_mode,
-                           message_truncated
+                           message_truncated,
+                           accept_interrupted
                          };
 
-#if !defined(_WIN32)
-        typedef int SOCKET_TYPE;
-#define INVALID_SOCKET -1
-#else
-        typedef SOCKET SOCKET_TYPE;
-#endif
+        typedef std::ptrdiff_t SOCKET_TYPE;
+
+        extern LOG4CPLUS_EXPORT SOCKET_TYPE const INVALID_SOCKET_VALUE;
 
         class LOG4CPLUS_EXPORT AbstractSocket {
         public:
-          // ctor and dtor
             AbstractSocket();
             AbstractSocket(SOCKET_TYPE sock, SocketState state, int err);
-            AbstractSocket(const AbstractSocket&);
+            AbstractSocket(AbstractSocket const &) = delete;
+            AbstractSocket(AbstractSocket &&) LOG4CPLUS_NOEXCEPT;
             virtual ~AbstractSocket() = 0;
 
-          // methods
             /// Close socket
             virtual void close();
             virtual bool isOpen() const;
+            virtual void shutdown();
+            AbstractSocket & operator = (AbstractSocket && rhs) LOG4CPLUS_NOEXCEPT;
 
-            AbstractSocket& operator=(const AbstractSocket& rhs);
+            void swap (AbstractSocket &);
 
         protected:
-          // Methods
-            virtual void copy(const AbstractSocket& rhs);
-
-          // Data
             SOCKET_TYPE sock;
             SocketState state;
             int err;
@@ -86,12 +86,27 @@ namespace log4cplus {
           // ctor and dtor
             Socket();
             Socket(SOCKET_TYPE sock, SocketState state, int err);
-            Socket(const tstring& address, int port);
+            Socket(const tstring& address, unsigned short port,
+                bool udp = false, bool ipv6 = false);
+            Socket(Socket &&) LOG4CPLUS_NOEXCEPT;
             virtual ~Socket();
+
+            Socket & operator = (Socket &&) LOG4CPLUS_NOEXCEPT;
 
           // methods
             virtual bool read(SocketBuffer& buffer);
             virtual bool write(const SocketBuffer& buffer);
+            virtual bool write(const std::string & buffer);
+            virtual bool write(std::size_t bufferCount,
+                SocketBuffer const * const * buffers);
+
+            template <typename... Args>
+            static bool write(Socket & socket, Args &&... args)
+            {
+                SocketBuffer const * const buffers[sizeof... (args)] {
+                    (&args)... };
+                return socket.write (sizeof... (args), buffers);
+            }
         };
 
 
@@ -104,24 +119,43 @@ namespace log4cplus {
          */
         class LOG4CPLUS_EXPORT ServerSocket : public AbstractSocket {
         public:
-          // ctor and dtor
-            ServerSocket(int port);
+            ServerSocket(unsigned short port, bool udp = false,
+                bool ipv6 = false, tstring const & host = tstring ());
+            ServerSocket(ServerSocket &&) LOG4CPLUS_NOEXCEPT;
             virtual ~ServerSocket();
 
+            ServerSocket & operator = (ServerSocket &&) LOG4CPLUS_NOEXCEPT;
+
             Socket accept();
+            void interruptAccept ();
+            void swap (ServerSocket &);
+
+        protected:
+            std::array<std::ptrdiff_t, 2> interruptHandles;
         };
 
 
-        LOG4CPLUS_EXPORT SOCKET_TYPE openSocket(unsigned short port, SocketState& state);
+        LOG4CPLUS_EXPORT SOCKET_TYPE openSocket(unsigned short port, bool udp,
+            bool ipv6, SocketState& state);
+        LOG4CPLUS_EXPORT SOCKET_TYPE openSocket(tstring const & host,
+            unsigned short port, bool udp, bool ipv6, SocketState& state);
+
         LOG4CPLUS_EXPORT SOCKET_TYPE connectSocket(const log4cplus::tstring& hostn,
-                                                   unsigned short port, SocketState& state);
+            unsigned short port, bool udp, bool ipv6, SocketState& state);
         LOG4CPLUS_EXPORT SOCKET_TYPE acceptSocket(SOCKET_TYPE sock, SocketState& state);
         LOG4CPLUS_EXPORT int closeSocket(SOCKET_TYPE sock);
+        LOG4CPLUS_EXPORT int shutdownSocket(SOCKET_TYPE sock);
 
         LOG4CPLUS_EXPORT long read(SOCKET_TYPE sock, SocketBuffer& buffer);
-        LOG4CPLUS_EXPORT long write(SOCKET_TYPE sock, const SocketBuffer& buffer);
+        LOG4CPLUS_EXPORT long write(SOCKET_TYPE sock,
+            const SocketBuffer& buffer);
+        LOG4CPLUS_EXPORT long write(SOCKET_TYPE sock, std::size_t bufferCount,
+            SocketBuffer const * const * buffers);
+        LOG4CPLUS_EXPORT long write(SOCKET_TYPE sock,
+            const std::string & buffer);
 
         LOG4CPLUS_EXPORT tstring getHostname (bool fqdn);
+        LOG4CPLUS_EXPORT int setTCPNoDelay (SOCKET_TYPE, bool);
 
     } // end namespace helpers
 } // end namespace log4cplus

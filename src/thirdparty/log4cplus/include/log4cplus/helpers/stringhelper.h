@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2003-2010 Tad E. Smith
+// Copyright 2003-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,11 +25,15 @@
 #define LOG4CPLUS_HELPERS_STRINGHELPER_HEADER_
 
 #include <log4cplus/config.hxx>
+
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
+#endif
+
 #include <log4cplus/tstring.h>
 
 #include <algorithm>
 #include <limits>
-#include <iterator>
 
 
 namespace log4cplus {
@@ -39,12 +43,14 @@ namespace log4cplus {
          * Returns <code>s</code> in upper case.
          */
         LOG4CPLUS_EXPORT log4cplus::tstring toUpper(const log4cplus::tstring& s);
+        LOG4CPLUS_EXPORT tchar toUpper(tchar);
 
 
         /**
          * Returns <code>s</code> in lower case.
          */
         LOG4CPLUS_EXPORT log4cplus::tstring toLower(const log4cplus::tstring& s);
+        LOG4CPLUS_EXPORT tchar toLower(tchar);
 
 
         /**
@@ -84,42 +90,46 @@ namespace log4cplus {
             }
             if (first != i)
                 *result = StringType (s, first, i - first);
+            else if (! collapseTokens && first == i)
+                *result = StringType ();
         }
 
 
-        template <typename intType, bool isSigned>
+        template <typename intType, typename stringType, bool isSigned>
         struct ConvertIntegerToStringHelper;
 
 
-        template <typename intType>
-        struct ConvertIntegerToStringHelper<intType, true>
+        template <typename intType, typename charType>
+        struct ConvertIntegerToStringHelper<intType, charType, true>
         {
             static inline
             void
-            step1 (tchar * & it, intType & value)
+            step1 (charType * & it, intType & value)
             {
                 // The sign of the result of the modulo operator is
                 // implementation defined. That's why we work with
-                // positive counterpart instead. Also, in twos
+                // positive counterpart instead.  Also, in twos
                 // complement arithmetic the smallest negative number
                 // does not have positive counterpart; the range is
-                // asymetric. That's why we handle the case of value
+                // asymetric.  That's why we handle the case of value
                 // == min() specially here.
-                if (value == (std::numeric_limits<intType>::min) ())
+                if (LOG4CPLUS_UNLIKELY (
+                    value == (std::numeric_limits<intType>::min) ()))
                 {
                     intType const r = value / 10;
                     intType const a = (-r) * 10;
                     intType const mod = -(a + value);
                     value = -r;
 
-                    *(it - 1) = LOG4CPLUS_TEXT('0') + static_cast<tchar>(mod);
+                    *(it - 1)
+                        = static_cast<charType>(LOG4CPLUS_TEXT('0') + mod);
                     --it;
                 }
                 else
                     value = -value;
             }
 
-            static inline
+            static
             bool
             is_negative (intType val)
             {
@@ -128,17 +138,17 @@ namespace log4cplus {
         };
 
 
-        template <typename intType>
-        struct ConvertIntegerToStringHelper<intType, false>
+        template <typename intType, typename charType>
+        struct ConvertIntegerToStringHelper<intType, charType, false>
         {
             static inline
             void
-            step1 (tchar * &, intType &)
+            step1 (charType * &, intType &)
             {
                 // This will never be called for unsigned types.
             }
 
-            static inline
+            static
             bool
             is_negative (intType)
             {
@@ -147,45 +157,50 @@ namespace log4cplus {
         };
 
 
-        template<class intType>
+        template <class stringType, class intType>
         inline
         void
-        convertIntegerToString (tstring & str, intType value)
+        convertIntegerToString (stringType & str, intType value)
         {
             typedef std::numeric_limits<intType> intTypeLimits;
-            typedef ConvertIntegerToStringHelper<intType,
+            typedef typename stringType::value_type charType;
+            typedef ConvertIntegerToStringHelper<intType, charType,
                 intTypeLimits::is_signed> HelperType;
 
-            const size_t buffer_size
-                = intTypeLimits::digits10 + 2;
-            tchar buffer[buffer_size];
-            tchar * it = &buffer[buffer_size];
-            tchar const * const buf_end = it;
+            charType buffer[intTypeLimits::digits10 + 2];
+            const std::size_t buffer_size
+                = sizeof (buffer) / sizeof (charType);
 
-            if (value == 0)
+            charType * it = &buffer[buffer_size];
+            charType const * const buf_end = &buffer[buffer_size];
+
+            if (LOG4CPLUS_UNLIKELY (value == 0))
             {
                 --it;
                 *it = LOG4CPLUS_TEXT('0');
             }
-
-            bool const negative = HelperType::is_negative (value);
-            if (negative)
-                HelperType::step1 (it, value);
-
-            for (; value != 0; --it)
+            else
             {
-                intType mod = value % 10;
-                value = value / 10;
-                *(it - 1) = LOG4CPLUS_TEXT('0') + static_cast<tchar>(mod);
+                bool const negative = HelperType::is_negative (value);
+                if (negative)
+                    HelperType::step1 (it, value);
+
+                for (; value != 0; --it)
+                {
+                    intType mod = value % 10;
+                    value = value / 10;
+                    *(it - 1) = static_cast<charType>(LOG4CPLUS_TEXT('0')
+                        + mod);
+                }
+
+                if (negative)
+                {
+                    --it;
+                    *it = LOG4CPLUS_TEXT('-');
+                }
             }
 
-            if (negative)
-            {
-                --it;
-                *it = LOG4CPLUS_TEXT('-');
-            }
-
-            str.assign (static_cast<tchar const *>(it), buf_end);
+            str.assign (static_cast<charType const *>(it), buf_end);
         }
 
 
@@ -200,52 +215,54 @@ namespace log4cplus {
         }
 
 
-
-        /**
-         * This iterator can be used in place of the back_insert_iterator
-         * for compilers that don't have a std::basic_string class that
-         * has the <code>push_back</code> method.
-         */
-        template <class Container>
-        class string_append_iterator
-            : public std::iterator<std::output_iterator_tag, void, void, void,
-                void>
+        template<class intType>
+        inline
+        std::string
+        convertIntegerToNarrowString (intType value)
         {
-        public:
-            typedef Container container_type;
+            std::string result;
+            convertIntegerToString (result, value);
+            return result;
+        }
 
-            explicit string_append_iterator(container_type & c)
-                : container(&c)
-            { }
 
-            string_append_iterator<container_type> &
-            operator = (const typename container_type::value_type& value)
+        //! Join a list of items into a string.
+        template <typename Iterator, typename Separator>
+        inline
+        void
+        join_worker (tstring & result, Iterator & start, Iterator & last,
+            Separator const & sep)
+        {
+            if (start != last)
+                result = *start++;
+
+            for (; start != last; ++start)
             {
-                *container += value;
-                return *this;
+                result += sep;
+                result += *start;
             }
+        }
 
-            string_append_iterator<container_type> &
-            operator * ()
-            {
-                return *this;
-            }
+        //! Join a list of items into a string.
+        template <typename Iterator>
+        inline
+        void
+        join (tstring & result, Iterator start, Iterator last,
+            tstring const & sep)
+        {
+            join_worker (result, start, last, sep);
+        }
 
-            string_append_iterator<container_type> &
-            operator ++ ()
-            {
-                return *this;
-            }
+        //! Join a list of items into a string.
+        template <typename Iterator>
+        inline
+        void
+        join (tstring & result, Iterator start, Iterator last,
+            tstring::value_type sep)
+        {
+            join_worker (result, start, last, sep);
+        }
 
-            string_append_iterator<container_type>
-            operator ++ (int)
-            {
-                return *this;
-            }
-
-        protected:
-            container_type * container;
-        };
 
     } // namespace helpers
 

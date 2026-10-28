@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2003-2009 Tad E. Smith
+// Copyright 2003-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,8 +25,13 @@
 #define LOG4CPLUS_SPI_OBJECT_REGISTRY_HEADER_
 
 #include <log4cplus/config.hxx>
+
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
+#endif
+
 #include <log4cplus/tstring.h>
-#include <log4cplus/helpers/threads.h>
+#include <log4cplus/thread/syncprims.h>
 #include <map>
 #include <memory>
 #include <vector>
@@ -52,6 +57,11 @@ namespace log4cplus {
              * Returns the names of all registered objects.
              */
             std::vector<log4cplus::tstring> getAllNames() const;
+
+            //! This function is internal implementation detail.
+            //! It is related to work-around needed for initialization when
+            //! using C++11 threads and mutexes.
+            void _enableLocking (bool);
 
         protected:
           // Ctor and Dtor
@@ -85,8 +95,14 @@ namespace log4cplus {
             typedef std::map<log4cplus::tstring, void*> ObjectMap;
 
           // Data
-            LOG4CPLUS_MUTEX_PTR_DECLARE mutex;
+            thread::Mutex mutex;
             ObjectMap data;
+
+        private:
+            ObjectRegistryBase (ObjectRegistryBase const &);
+            ObjectRegistryBase & operator = (ObjectRegistryBase const &);
+
+            bool volatile locking;
         };
 
     }

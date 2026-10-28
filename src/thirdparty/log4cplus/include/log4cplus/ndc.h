@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2001-2010 Tad E. Smith
+// Copyright 2001-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/** @file 
+/** @file
  * This header defined the NDC class.
  */
 
@@ -27,33 +27,27 @@
 #define _LO4CPLUS_NDC_HEADER_
 
 #include <log4cplus/config.hxx>
+
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
+#endif
+
 #include <log4cplus/tstring.h>
-#include <log4cplus/helpers/logloguser.h>
 
 #include <map>
-#include <stack>
-
-#if (defined(__MWERKS__) && defined(__MACOS__))
-using std::size_t;
-#endif
+#include <deque>
 
 
 namespace log4cplus {
     // Forward declarations
-    class NDC;
     struct DiagnosticContext;
-    typedef std::stack<DiagnosticContext> DiagnosticContextStack;
-
-#if defined (_MSC_VER) || defined (__HP_aCC)
-    LOG4CPLUS_EXPORT NDC& getNDC();
-#endif
-
+    typedef std::deque<DiagnosticContext> DiagnosticContextStack;
 
     /**
      * The NDC class implements <i>nested diagnostic contexts</i> as
      * defined by Neil Harrison in the article "Patterns for Logging
-     * Diagnostic Messages" part of the book "<i>Pattern Languages of
-     * Program Design 3</i>" edited by Martin et al.
+     * Diagnostic Messages" part of the book <i>"Pattern Languages of
+     * Program Design 3"</i> edited by Martin et al.
      *
      * A Nested Diagnostic Context, or NDC in short, is an instrument
      * to distinguish interleaved log output from different sources. Log
@@ -76,32 +70,27 @@ namespace log4cplus {
      * information. To build an NDC one uses the {@link #push}
      * operation. Simply put,
      *
-     * <ul>
-     *   <li>Contexts can be nested.
+     * - Contexts can be nested.
+     * - When entering a context, call `push()`. As a side effect, if
+     *   there is no nested diagnostic context for the current thread,
+     *   this method will create it.
+     * - When leaving a context, call `pop()`.
+     * - When exiting a thread make sure to call `remove()`.
      *
-     *   <li>When entering a context, call <code>getNDC().push()</code>. As a
-     *   side effect, if there is no nested diagnostic context for the
-     *   current thread, this method will create it.
+     * There is no penalty for forgetting to match each push()
+     * operation with a corresponding pop(), except the obvious
+     * mismatch between the real application context and the context
+     * set in the NDC.  Use of the NDCContextCreator class can
+     * automate this process and make your code exception-safe.
      *
-     *   <li>When leaving a context, call <code>getNDC().pop()</code>.
-     *
-     *   <li><b>When exiting a thread make sure to call {@link #remove
-     *   NDC.remove()}</b>.  
-     * </ul>
-     *                                          
-     * There is no penalty for forgetting to match each
-     * <code>push</code> operation with a corresponding <code>pop</code>,
-     * except the obvious mismatch between the real application context
-     * and the context set in the NDC.  Use of the {@link NDCContextCreator}
-     * class can automate this process and make your code exception-safe.
-     *
-     * If configured to do so, {@link log4cplus::PatternLayout} and {@link
-     * log4cplus::TTCCLayout} instances automatically retrieve the nested diagnostic
-     * context for the current thread without any user intervention.
-     * Hence, even if a server is serving multiple clients
-     * simultaneously, the logs emanating from the same code (belonging to
-     * the same logger) can still be distinguished because each client
-     * request will have a different NDC tag.
+     * If configured to do so, {@link log4cplus::PatternLayout} and
+     * {@link log4cplus::TTCCLayout} instances automatically retrieve
+     * the nested diagnostic context for the current thread without
+     * any user intervention.  Hence, even if a server is serving
+     * multiple clients simultaneously, the logs emanating from the
+     * same code (belonging to the same logger) can still be
+     * distinguished because each client request will have a different
+     * NDC tag.
      *
      * Heavy duty systems should call the {@link #remove} method when
      * leaving the run method of a thread. This ensures that the memory
@@ -113,7 +102,8 @@ namespace log4cplus {
      * #cloneStack cloneStack} method and pass the reference to any other
      * thread, in particular to a child.
      */
-    class LOG4CPLUS_EXPORT NDC : protected log4cplus::helpers::LogLogUser {
+    class LOG4CPLUS_EXPORT NDC
+    {
     public:
         /**
          * Clear any nested diagnostic information if any. This method is
@@ -135,10 +125,10 @@ namespace log4cplus {
          *
          * The child thread uses the {@link #inherit inherit} method to
          * inherit the parent's diagnostic context.
-         *                                        
+         *
          * @return Stack A clone of the current thread's  diagnostic context.
          */
-        DiagnosticContextStack cloneStack();
+        DiagnosticContextStack cloneStack() const;
 
         /**
          * Inherit the diagnostic context of another thread.
@@ -159,25 +149,25 @@ namespace log4cplus {
         /**
          * Used when printing the diagnostic context.
          */
-        log4cplus::tstring get();
+        log4cplus::tstring const & get() const;
 
         /**
          * Get the current nesting depth of this diagnostic context.
          *
          * @see #setMaxDepth
          */
-        size_t getDepth();
+        std::size_t getDepth() const;
 
         /**
          * Clients should call this method before leaving a diagnostic
          * context.
          *
          * The returned value is the value that was pushed last. If no
-         * context is available, then the empty string "" is
-         * returned. If each call to push() is paired with a call to
-         * pop() (even in presence of thrown exceptions), the last
-         * pop() call frees the memory used by NDC for this
-         * thread. Otherwise, remove() must be called at the end of
+         * context is available, then the empty string is returned. If
+         * each call to `push()` is paired with a call to `pop()`
+         * (even in presence of thrown exceptions), the last `pop()`
+         * call frees the memory used by NDC for this
+         * thread. Otherwise, `remove()` must be called at the end of
          * the thread to free the memory used by NDC for the thread.
          *
          * @return String The innermost diagnostic context.
@@ -187,15 +177,20 @@ namespace log4cplus {
         log4cplus::tstring pop();
 
         /**
+         * Same as pop() but without the return value.
+         */
+        void pop_void ();
+
+        /**
          * Looks at the last diagnostic context at the top of this NDC
          * without removing it.
          *
          * The returned value is the value that was pushed last. If no
-         * context is available, then the empty string "" is returned.
-         *                          
+         * context is available, then the empty string is returned.
+         *
          * @return String The innermost diagnostic context.
          */
-        log4cplus::tstring peek();
+        log4cplus::tstring const & peek() const;
 
         /**
          * Push new diagnostic context information for the current thread.
@@ -209,6 +204,7 @@ namespace log4cplus {
          * @see NDCContextCreator, pop(), remove()
          */
         void push(const log4cplus::tstring& message);
+        void push(tchar const * message);
 
         /**
          * Remove the diagnostic context for this thread.
@@ -225,58 +221,54 @@ namespace log4cplus {
         void remove();
 
         /**
-         * Set maximum depth of this diagnostic context. If the current
-         * depth is smaller or equal to <code>maxDepth</code>, then no
+         * Set maximum depth of this diagnostic context. If the
+         * current depth is smaller or equal to `maxDepth`, then no
          * action is taken.
          *
-         * This method is a convenient alternative to multiple {@link
-         * #pop} calls. Moreover, it is often the case that at the end of
+         * This method is a convenient alternative to multiple `pop()`
+         * calls. Moreover, it is often the case that at the end of
          * complex call sequences, the depth of the NDC is
-         * unpredictable. The <code>setMaxDepth</code> method circumvents
-         * this problem.
+         * unpredictable. The `setMaxDepth()` method circumvents this
+         * problem.
          *
          * For example, the combination
-         * <pre>
-         *    void foo() {
-         *    &nbsp;  size_t depth = NDC.getDepth();
          *
-         *    &nbsp;  ... complex sequence of calls
-         *
-         *    &nbsp;  NDC.setMaxDepth(depth);
-         *    }
-         * </pre>
+         * ~~~~{.c}
+         * void foo() {
+         *     NDC & ndc = getNDC();
+         *     std::size_t depth = ndc.getDepth();
+         *     //... complex sequence of calls
+         *     ndc.setMaxDepth(depth);
+         * }
+         * ~~~~
          *
          * ensures that between the entry and exit of foo the depth of the
          * diagnostic stack is conserved.
-         * 
-         * <b>Note:</b>  Use of the {@link NDCContextCreator} class will solve
-         * this particular problem.
          *
-         * @see #getDepth
+         * \note Use of the NDCContextCreator class will solve this
+         * particular problem.
+         *
+         * \see NDC::getDepth()
          */
-        void setMaxDepth(size_t maxDepth);
+        void setMaxDepth(std::size_t maxDepth);
+
+        // Public ctor but only to be used by internal::DefaultContext.
+        NDC();
 
       // Dtor
-        ~NDC();
+        virtual ~NDC();
 
     private:
       // Methods
-        DiagnosticContextStack* getPtr();
+        LOG4CPLUS_PRIVATE static DiagnosticContextStack* getPtr();
 
-      // Data
-        LOG4CPLUS_THREAD_LOCAL_TYPE threadLocal;
+        template <typename StringType>
+        LOG4CPLUS_PRIVATE
+        void push_worker (StringType const &);
 
       // Disallow construction (and copying) except by getNDC()
-        NDC();
         NDC(const NDC&);
         NDC& operator=(const NDC&);
-
-      // Friends
-#if defined (_MSC_VER) || defined (__HP_aCC)
-        friend LOG4CPLUS_EXPORT NDC& getNDC();
-#else
-        friend NDC& getNDC();
-#endif
     };
 
 
@@ -289,10 +281,21 @@ namespace log4cplus {
     /**
      * This is the internal object that is stored on the NDC stack.
      */
-    struct LOG4CPLUS_EXPORT DiagnosticContext {
+    struct LOG4CPLUS_EXPORT DiagnosticContext
+    {
       // Ctors
-        DiagnosticContext(const log4cplus::tstring& message, DiagnosticContext *parent);
+        DiagnosticContext(const log4cplus::tstring& message,
+            DiagnosticContext const * parent);
+        DiagnosticContext(tchar const * message,
+            DiagnosticContext const * parent);
         DiagnosticContext(const log4cplus::tstring& message);
+        DiagnosticContext(tchar const * message);
+        DiagnosticContext(DiagnosticContext const &);
+        DiagnosticContext & operator = (DiagnosticContext const &);
+        DiagnosticContext(DiagnosticContext &&);
+        DiagnosticContext & operator = (DiagnosticContext &&);
+
+        void swap (DiagnosticContext &);
 
       // Data
         log4cplus::tstring message; /*!< The message at this context level. */
@@ -301,13 +304,20 @@ namespace log4cplus {
 
 
     /**
-     * This class ensures that a {@link NDC#push} call is always matched with
-     * a {@link NDC#pop} call even in the face of exceptions.
+     * This class ensures that a `NDC::push()` call is always matched
+     * with a `NDC::pop()` call even in the face of exceptions.
      */
     class LOG4CPLUS_EXPORT NDCContextCreator {
     public:
         /** Pushes <code>msg</code> onto the NDC stack. */
-        NDCContextCreator(const log4cplus::tstring& msg);
+        explicit NDCContextCreator(const log4cplus::tstring& msg);
+        explicit NDCContextCreator(tchar const * msg);
+
+        NDCContextCreator() = delete;
+        NDCContextCreator(NDCContextCreator const &) = delete;
+        NDCContextCreator(NDCContextCreator &&) = delete;
+        NDCContextCreator & operator= (NDCContextCreator const &) = delete;
+        NDCContextCreator & operator= (NDCContextCreator &&) = delete;
 
         /** Pops the NDC stack. */
         ~NDCContextCreator();

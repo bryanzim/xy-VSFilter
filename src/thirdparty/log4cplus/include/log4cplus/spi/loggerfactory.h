@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2001-2009 Tad E. Smith
+// Copyright 2001-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,12 +21,16 @@
 
 /** @file */
 
-#ifndef _LOG4CPLUS_SPI_LOGGER_FACTORY_HEADER
-#define _LOG4CPLUS_SPI_LOGGER_FACTORY_HEADER
+#ifndef LOG4CPLUS_SPI_LOGGER_FACTORY_HEADER
+#define LOG4CPLUS_SPI_LOGGER_FACTORY_HEADER
 
 #include <log4cplus/config.hxx>
+
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
+#endif
+
 #include <log4cplus/tstring.h>
-#include <log4cplus/helpers/pointer.h>
 
 
 namespace log4cplus {
@@ -35,6 +39,8 @@ namespace log4cplus {
     class Hierarchy;
 
     namespace spi {
+        class LoggerImpl;
+
         /**
          * Implement this interface to create new instances of Logger or
          * a sub-class of Logger.
@@ -45,12 +51,15 @@ namespace log4cplus {
              * Creates a new <code>Logger</code> object.
              */
             virtual Logger makeNewLoggerInstance(const log4cplus::tstring& name,
-                                                 Hierarchy& h) = 0; 
+                                                 Hierarchy& h) = 0;
             virtual ~LoggerFactory() = 0;
+
+        protected:
+            virtual LoggerImpl * makeNewLoggerImplInstance(
+                const log4cplus::tstring& name, Hierarchy& h) = 0;
         };
 
     } // end namespace spi
 } // end namespace log4cplus
 
-#endif // _LOG4CPLUS_SPI_LOGGER_FACTORY_HEADER
-
+#endif // LOG4CPLUS_SPI_LOGGER_FACTORY_HEADER

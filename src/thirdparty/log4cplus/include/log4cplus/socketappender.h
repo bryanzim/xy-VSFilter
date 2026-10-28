@@ -5,7 +5,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2003-2009 Tad E. Smith
+// Copyright 2003-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,23 +21,31 @@
 
 /** @file */
 
-#ifndef _LOG4CPLUS_SOCKET_APPENDER_HEADER_
-#define _LOG4CPLUS_SOCKET_APPENDER_HEADER_
+#ifndef LOG4CPLUS_SOCKET_APPENDER_HEADER_
+#define LOG4CPLUS_SOCKET_APPENDER_HEADER_
 
 #include <log4cplus/config.hxx>
-#include <log4cplus/appender.h>
-#include <log4cplus/helpers/socket.h>
-#include <log4cplus/helpers/syncprims.h>
 
-
-#ifndef UNICODE
-#  define LOG4CPLUS_MAX_MESSAGE_SIZE (8*1024)
-#else
-#  define LOG4CPLUS_MAX_MESSAGE_SIZE (2*8*1024)
+#if defined (LOG4CPLUS_HAVE_PRAGMA_ONCE)
+#pragma once
 #endif
 
+#include <log4cplus/appender.h>
+#include <log4cplus/helpers/socket.h>
+#include <log4cplus/thread/syncprims.h>
+#include <log4cplus/thread/threads.h>
+#include <log4cplus/helpers/connectorthread.h>
 
-namespace log4cplus {
+
+namespace log4cplus
+{
+
+#ifndef UNICODE
+    std::size_t const LOG4CPLUS_MAX_MESSAGE_SIZE = 8*1024;
+#else
+    std::size_t const LOG4CPLUS_MAX_MESSAGE_SIZE = 2*8*1024;
+#endif
+
 
     /**
      * Sends {@link spi::InternalLoggingEvent} objects to a remote a log server.
@@ -71,7 +79,7 @@ namespace log4cplus {
      *   then the rate of event production, then the client can only
      *   progress at the network rate. In particular, if the network link
      *   to the the server is down, the client will be blocked.
-     * 
+     *
      *   <li>On the other hand, if the network link is up, but the server
      *   is down, the client will not be blocked when making log requests
      *   but the log events will be lost due to server unavailability.
@@ -88,13 +96,23 @@ namespace log4cplus {
      * <dt><tt>ServerName</tt></dt>
      * <dd>Host name of event's origin prepended to each event.</dd>
      *
+     * <dt><tt>IPv6</tt></dt>
+     * <dd>Boolean value specifying whether to use IPv6 (true) or IPv4
+     * (false). Default value is false.</dd>
+     *
      * </dl>
      */
-    class LOG4CPLUS_EXPORT SocketAppender : public Appender {
+    class LOG4CPLUS_EXPORT SocketAppender
+        : public Appender
+#if ! defined (LOG4CPLUS_SINGLE_THREADED)
+        , protected virtual helpers::IConnectorThreadClient
+#endif
+    {
     public:
       // Ctors
-        SocketAppender(const log4cplus::tstring& host, int port, 
-                       const log4cplus::tstring& serverName = tstring());
+        SocketAppender(const log4cplus::tstring& host, unsigned short port,
+            const log4cplus::tstring& serverName = tstring(),
+            bool ipv6 = false);
         SocketAppender(const log4cplus::helpers::Properties & properties);
 
       // Dtor
@@ -111,34 +129,18 @@ namespace log4cplus {
       // Data
         log4cplus::helpers::Socket socket;
         log4cplus::tstring host;
-        int port;
+        unsigned int port;
         log4cplus::tstring serverName;
+        bool ipv6 = false;
 
 #if ! defined (LOG4CPLUS_SINGLE_THREADED)
-        class LOG4CPLUS_EXPORT ConnectorThread;
-        friend class ConnectorThread;
-
-        class LOG4CPLUS_EXPORT ConnectorThread
-            : public thread::AbstractThread
-            , public helpers::LogLogUser
-        {
-        public:
-            ConnectorThread (SocketAppender &);
-            virtual ~ConnectorThread ();
-
-            virtual void run();
-
-            void terminate ();
-            void trigger ();
-
-        protected:
-            SocketAppender & sa;
-            thread::ManualResetEvent trigger_ev;
-            bool exit_flag;
-        };
+        virtual thread::Mutex const & ctcGetAccessMutex () const;
+        virtual helpers::Socket & ctcGetSocket ();
+        virtual helpers::Socket ctcConnect ();
+        virtual void ctcSetConnected ();
 
         volatile bool connected;
-        helpers::SharedObjectPtr<ConnectorThread> connector;
+        helpers::SharedObjectPtr<helpers::ConnectorThread> connector;
 #endif
 
     private:
@@ -149,8 +151,9 @@ namespace log4cplus {
 
     namespace helpers {
         LOG4CPLUS_EXPORT
-        SocketBuffer convertToBuffer(const log4cplus::spi::InternalLoggingEvent& event,
-                                     const log4cplus::tstring& serverName);
+        void convertToBuffer (SocketBuffer & buffer,
+            const log4cplus::spi::InternalLoggingEvent& event,
+            const log4cplus::tstring& serverName);
 
         LOG4CPLUS_EXPORT
         log4cplus::spi::InternalLoggingEvent readFromBuffer(SocketBuffer& buffer);
@@ -158,5 +161,4 @@ namespace log4cplus {
 
 } // end namespace log4cplus
 
-#endif // _LOG4CPLUS_SOCKET_APPENDER_HEADER_
-
+#endif // LOG4CPLUS_SOCKET_APPENDER_HEADER_

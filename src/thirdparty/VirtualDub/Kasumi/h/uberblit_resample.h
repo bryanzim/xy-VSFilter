@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2016-2018 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_UBERBLIT_RESAMPLE_H
 #define f_VD2_KASUMI_UBERBLIT_RESAMPLE_H
 
@@ -28,16 +37,24 @@ public:
 
 	void Init(IVDPixmapGen *src, uint32 srcIndex, uint32 width, float offset, float step, nsVDPixmap::FilterMode filterMode, float filterFactor, bool interpolationOnly);
 
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		mpSrc->TransformPixmapInfo(src,dst);
+	}
+
 	void Start();
 
 	uint32 GetType(uint32 output) const {
 		return mpSrc->GetType(mSrcIndex);
 	}
 
+	virtual const char* dump_name(){ return "ResampleRow"; }
+
 protected:
 	void Compute(void *dst0, sint32 y);
 	void Compute8(void *dst0, sint32 y);
+	void Compute16(void *dst0, sint32 y);
 	void Compute32(void *dst0, sint32 y);
+	void Compute64(void *dst0, sint32 y);
 	void Compute128(void *dst0, sint32 y);
 
 	IVDResamplerSeparableRowStage *mpRowStage;
@@ -60,11 +77,17 @@ public:
 
 	void Init(IVDPixmapGen *src, uint32 srcIndex, uint32 height, float offset, float step, nsVDPixmap::FilterMode filterMode, float filterFactor, bool interpolationOnly);
 
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		mpSrc->TransformPixmapInfo(src,dst);
+	}
+
 	void Start();
 
 	uint32 GetType(uint32 output) const {
 		return mpSrc->GetType(mSrcIndex);
 	}
+
+	virtual const char* dump_name(){ return "ResampleCol"; }
 
 protected:
 	void Compute(void *dst0, sint32 y);

@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2007 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2007 Avery Lee, All Rights Reserved.
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_SYSTEM_VDTYPES_H
 #define f_VD2_SYSTEM_VDTYPES_H
@@ -51,22 +35,10 @@
 	#if defined(_MSC_VER)
 		#define VD_COMPILER_MSVC	_MSC_VER
 
-		#if _MSC_VER >= 1400
-			#define VD_COMPILER_MSVC_VC8		1
-			#define VD_COMPILER_MSVC_VC8_OR_LATER 1
-
-			#if _MSC_FULL_VER == 140040310
-				#define VD_COMPILER_MSVC_VC8_PSDK 1
-			#elif _MSC_FULL_VER == 14002207
-				#define VD_COMPILER_MSVC_VC8_DDK 1
-			#endif
-
-		#elif _MSC_VER >= 1310
-			#define VD_COMPILER_MSVC_VC71	1
-		#elif _MSC_VER >= 1300
-			#define VD_COMPILER_MSVC_VC7		1
-		#elif _MSC_VER >= 1200
-			#define VD_COMPILER_MSVC_VC6		1
+		#if _MSC_VER >= 1900
+			#define VD_COMPILER_MSVC_1900_OR_LATER 1
+		#else
+			#error MSVC 19.00 (Visual Studio 2015 v14.0) compiler or newer required. 
 		#endif
 	#elif defined(__GNUC__)
 		#define VD_COMPILER_GCC
@@ -118,7 +90,7 @@
 		typedef sint64 sintptr;
 		typedef uint64 uintptr;
 	#else
-		#if _MSC_VER >= 1310
+		#if _MSC_VER
 			typedef __w64 sint32 sintptr;
 			typedef __w64 uint32 uintptr;
 		#else
@@ -155,38 +127,7 @@ typedef	struct __VDGUIHandle *VDGUIHandle;
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(VD_COMPILER_MSVC) && (VD_COMPILER_MSVC < 1300 || (defined(VD_COMPILER_MSVC_VC8_PSDK) || defined(VD_COMPILER_MSVC_VC8_DDK)))
-#define new_nothrow new
-#else
 #define new_nothrow new(std::nothrow)
-#endif
-
-///////////////////////////////////////////////////////////////////////////
-//
-//	STL fixes
-//
-///////////////////////////////////////////////////////////////////////////
-
-#if defined(VD_COMPILER_MSVC_VC6) || defined(VD_COMPILER_MSVC_VC8_DDK) || defined(VD_COMPILER_MSVC_VC8_PSDK)
-	// The VC6 STL was deliberately borked to avoid conflicting with
-	// Windows min/max macros.  We work around this bogosity here.  Note
-	// that NOMINMAX must be defined for these to compile properly.  Also,
-	// there is a bug in the VC6 compiler that sometimes causes long
-	// lvalues to "promote" to int, causing ambiguous override errors.
-	// To avoid this, always explicitly declare which type you are using,
-	// i.e. min<int>(x,0).  None of this is a problem with VC7 or later.
-	namespace std {
-		template<class T>
-		inline const T& min(const T& x, const T& y) {
-			return _cpp_min(x, y);
-		}
-
-		template<class T>
-		inline const T& max(const T& x, const T& y) {
-			return _cpp_max(x, y);
-		}
-	};
-#endif
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -194,34 +135,7 @@ typedef	struct __VDGUIHandle *VDGUIHandle;
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#if defined(VD_COMPILER_MSVC) && (VD_COMPILER_MSVC < 1400 || (defined(VD_COMPILER_MSVC_VC8_PSDK) || defined(VD_COMPILER_MSVC_VC8_DDK)))
-	inline int vswprintf(wchar_t *dst, size_t bufsize, const wchar_t *format, va_list val) {
-		return _vsnwprintf(dst, bufsize, format, val);
-	}
-
-	inline int swprintf(wchar_t *dst, size_t bufsize, const wchar_t *format, ...) {
-		va_list val;
-
-		va_start(val, format);
-		int r = vswprintf(dst, bufsize, format, val);
-		va_end(val);
-
-		return r;
-	}
-
-	#define _strdup strdup
-	#define _stricmp stricmp
-	#define _strnicmp strnicmp
-	#define _wcsdup wcsdup
-	#define _wcsicmp wcsicmp
-	#define _wcsnicmp wcsnicmp
-#endif
-
-#if defined(VD_COMPILER_MSVC) && VD_COMPILER_MSVC < 1400
-	#define vdfor if(0);else for
-#else
-	#define vdfor for
-#endif
+#define vdfor for
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -274,14 +188,11 @@ enum VDAssertResult {
 
 extern VDAssertResult VDAssert(const char *exp, const char *file, int line);
 extern VDAssertResult VDAssertPtr(const char *exp, const char *file, int line);
-extern void VDDebugPrint(const char *format, ...);
+extern void VDDebugPrint(const char* format, ...);
+extern void VDDebugPrint(const wchar_t* format, ...);
 
 #if defined(_MSC_VER)
-	#if _MSC_VER >= 1300
-		#define VDBREAK		__debugbreak()
-	#else
-		#define VDBREAK		__asm { int 3 }
-	#endif
+	#define VDBREAK		__debugbreak()
 #elif defined(__GNUC__)
 	#define VDBREAK		__asm__ volatile ("int3" : : )
 #else
@@ -319,21 +230,10 @@ extern void VDDebugPrint(const char *format, ...);
 		bool VDAssertHelper2<lineno>::sDisabled;
 	}
 
-// MPC-HC custom code start
-// We use the old code since the new templated code isn't compatible with MSVC "Edit and continue" feature 
-// because __LINE__ can't be known at compile time.
-#if !defined(VD_COMPILER_MSVC) || defined(__INTEL_COMPILER)
 	#define VDASSERT(exp)		if (!VDAssertHelper2<__LINE__>::sDisabled) if (exp); else switch(VDAssert   (#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: VDAssertHelper2<__LINE__>::sDisabled = true; } else ((void)0)
 	#define VDASSERTPTR(exp) 	if (!VDAssertHelper2<__LINE__>::sDisabled) if (exp); else switch(VDAssertPtr(#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: VDAssertHelper2<__LINE__>::sDisabled = true; } else ((void)0)
 	#define VDVERIFY(exp)		if (exp); else if (!VDAssertHelper2<__LINE__>::sDisabled) switch(VDAssert   (#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: VDAssertHelper2<__LINE__>::sDisabled = true; } else ((void)0)
 	#define VDVERIFYPTR(exp) 	if (exp); else if (!VDAssertHelper2<__LINE__>::sDisabled) switch(VDAssertPtr(#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: VDAssertHelper2<__LINE__>::sDisabled = true; } else ((void)0)
-#else
-	#define VDASSERT(exp)		if (static bool active = true) if (exp); else switch(VDAssert   (#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: active = false; } else ((void)0)
-	#define VDASSERTPTR(exp) 	if (static bool active = true) if (exp); else switch(VDAssertPtr(#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: active = false; } else ((void)0)
-	#define VDVERIFY(exp)		if (exp); else if (static bool active = true) switch(VDAssert   (#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: active = false; } else ((void)0)
-	#define VDVERIFYPTR(exp) 	if (exp); else if (static bool active = true) switch(VDAssertPtr(#exp, __FILE__, __LINE__)) { case kVDAssertBreak: VDBREAK; break; case kVDAssertIgnore: active = false; } else ((void)0)
-#endif
-// MPC-HC custom code end
 	#define VDASSERTCT(exp)		(void)sizeof(int[(exp)?1:-1])
 
 	#define VDINLINEASSERT(exp)			((exp)||(VDAssertHelper<__LINE__>(#exp, __FILE__),false))
@@ -374,8 +274,7 @@ extern void VDDebugPrint(const char *format, ...);
 		#define	VDNEVERHERE			VDASSERT(false)
 	#endif
 
-	extern int VDDEBUG_Helper(const char *, ...);
-	#define VDDEBUG				(void)sizeof VDDEBUG_Helper
+	#define VDDEBUG(...)			__noop
 
 #endif
 
@@ -440,10 +339,6 @@ extern void VDDebugPrint(const char *format, ...);
 // This avoids the conversion operator but unfortunately usually generates
 // an actual loop in the output.
 
-#if defined(VD_COMPILER_MSVC) && (VD_COMPILER_MSVC < 1400 || defined(VD_COMPILER_MSVC_VC8_DDK))
-#define vdobjectscope(object_def) if(object_def) VDNEVERHERE; else
-#else
 #define vdobjectscope(object_def) switch(object_def) case 0: default:
-#endif
 
 #endif

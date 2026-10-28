@@ -65,6 +65,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>h;..\h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
@@ -103,6 +104,7 @@
     <ClCompile Include="source\uberblit_gen.cpp" />
     <ClCompile Include="source\uberblit_resample.cpp" />
     <ClCompile Include="source\uberblit_resample_special.cpp" />
+    <ClCompile Include="source\uberblit_rgb64.cpp" />
     <ClCompile Include="source\uberblit_swizzle.cpp" />
     <ClCompile Include="source\uberblit_swizzle_x86.cpp">
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
@@ -126,6 +128,7 @@
     </ClCompile>
     <ClCompile Include="source\resample_stages_x64.cpp">
       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

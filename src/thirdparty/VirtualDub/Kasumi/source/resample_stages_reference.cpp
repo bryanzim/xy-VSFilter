@@ -1,28 +1,27 @@
-//	VirtualDub - Video processing and capture application
-//	Graphics support library
-//	Copyright (C) 1998-2009 Avery Lee
+// VirtualDub - Video processing and capture application
+// Graphics support library
 //
-//	This program is free software; you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation; either version 2 of the License, or
-//	(at your option) any later version.
+// Copyright (C) 1998-2009 Avery Lee
+// Copyright (C) 2016 Anton Shekhovtsov
 //
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
+// SPDX-License-Identifier: GPL-2.0-or-later
 //
-//	You should have received a copy of the GNU General Public License
-//	along with this program; if not, write to the Free Software
-//	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <stdafx.h>
 #include <vd2/system/memory.h>
 #include <vd2/system/cpuaccel.h>
+#include <vd2/system/math.h>
 #include <vd2/Kasumi/pixmaputils.h>
 #include "resample_stages_reference.h"
 #include <vd2/Kasumi/resample_kernels.h>
 #include "blt_spanutils.h"
+
+int VDRoundDoubleToUInt16(double x) {
+	int v = (int)floor(x + 0.5);
+	if(v<0) v = 0;
+	if(v>0xFFFF) v = 0xFFFF;
+	return v;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +46,20 @@ int VDResamplerRowStageSeparablePoint16::GetWindowSize() const {
 void VDResamplerRowStageSeparablePoint16::Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx) {
 	uint16 *dst = (uint16 *)dst0;
 	const uint16 *src = (const uint16 *)src0;
+
+	do {
+		*dst++ = src[u>>16];
+		u += dudx;
+	} while(--w);
+}
+
+int VDResamplerRowStageSeparablePoint16x4::GetWindowSize() const {
+	return 1;
+}
+
+void VDResamplerRowStageSeparablePoint16x4::Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx) {
+	uint64 *dst = (uint64 *)dst0;
+	const uint64 *src = (const uint64 *)src0;
 
 	do {
 		*dst++ = src[u>>16];
@@ -301,6 +314,78 @@ void VDResamplerRowStageSeparableTable32F::Process(void *dst0, const void *src0,
 	} while(--w);
 }
 
+VDResamplerRowStageSeparableTable16::VDResamplerRowStageSeparableTable16(const IVDResamplerFilter& filter) {
+	mFilterBank.resize(filter.GetFilterWidth() * 256);
+	VDResamplerGenerateTableF(mFilterBank.data(), filter);
+}
+
+int VDResamplerRowStageSeparableTable16::GetWindowSize() const {return (int)mFilterBank.size() >> 8;}
+
+void VDResamplerRowStageSeparableTable16::Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx) {
+	uint16 *dst = (uint16 *)dst0;
+	const uint16 *src = (const uint16 *)src0;
+	const unsigned ksize = (int)mFilterBank.size() >> 8;
+	const float *filterBase = mFilterBank.data();
+
+	VDCPUCleanupExtensions();
+
+	do {
+		const uint16 *src2 = src + (u>>16);
+		const float *filter = filterBase + ksize*((u>>8)&0xff);
+		u += dudx;
+
+		float r = 0;
+		for(unsigned i = ksize; i; --i) {
+			float coeff = *filter++;
+
+			r += coeff * src2[0];
+			++src2;
+		}
+
+		dst[0] = VDRoundDoubleToUInt16(r);
+		++dst;
+	} while(--w);
+}
+
+VDResamplerRowStageSeparableTable16x4::VDResamplerRowStageSeparableTable16x4(const IVDResamplerFilter& filter) {
+	mFilterBank.resize(filter.GetFilterWidth() * 256);
+	VDResamplerGenerateTableF(mFilterBank.data(), filter);
+}
+
+int VDResamplerRowStageSeparableTable16x4::GetWindowSize() const {return (int)mFilterBank.size() >> 8;}
+
+void VDResamplerRowStageSeparableTable16x4::Process(void *dst0, const void *src0, uint32 w, uint32 u, uint32 dudx) {
+	uint16 *dst = (uint16 *)dst0;
+	const uint16 *src = (const uint16 *)src0;
+	const unsigned ksize = (int)mFilterBank.size() >> 8;
+	const float *filterBase = mFilterBank.data();
+
+	VDCPUCleanupExtensions();
+
+	do {
+		const uint16 *src2 = src + (u>>16)*4;
+		const float *filter = filterBase + ksize*((u>>8)&0xff);
+		u += dudx;
+
+		float r = 0, g = 0, b = 0, a = 0;
+		for(unsigned i = ksize; i; --i) {
+			float coeff = *filter++;
+
+			b += coeff * src2[0];
+			g += coeff * src2[1];
+			r += coeff * src2[2];
+			a += coeff * src2[3];
+			src2 += 4;
+		}
+
+		dst[0] = VDRoundDoubleToUInt16(b);
+		dst[1] = VDRoundDoubleToUInt16(g);
+		dst[2] = VDRoundDoubleToUInt16(r);
+		dst[3] = VDRoundDoubleToUInt16(a);
+		dst += 4;
+	} while(--w);
+}
+
 VDResamplerColStageSeparableTable8::VDResamplerColStageSeparableTable8(const IVDResamplerFilter& filter) {
 	mFilterBank.resize(filter.GetFilterWidth() * 256);
 	VDResamplerGenerateTable(mFilterBank.data(), filter);
@@ -374,6 +459,74 @@ void VDResamplerColStageSeparableTable32::Process(void *dst0, const void *const 
 			b = ~b >> 31;
 
 		*dst++ = (r & 0xff0000) + (g & 0xff00) + (b & 0xff);
+	}
+}
+
+VDResamplerColStageSeparableTable16::VDResamplerColStageSeparableTable16(const IVDResamplerFilter& filter) {
+	mFilterBank.resize(filter.GetFilterWidth() * 256);
+	VDResamplerGenerateTableF(mFilterBank.data(), filter);
+}
+
+int VDResamplerColStageSeparableTable16::GetWindowSize() const {return (int)mFilterBank.size() >> 8;}
+
+void VDResamplerColStageSeparableTable16::Process(void *dst0, const void *const *src0, uint32 w, sint32 phase) {
+	uint16 *dst = (uint16 *)dst0;
+	const uint16 *const *src = (const uint16 *const *)src0;
+	const unsigned ksize = (unsigned)mFilterBank.size() >> 8;
+	const float *filter = &mFilterBank[((phase>>8)&0xff) * ksize];
+
+	for(uint32 i=0; i<w; ++i) {
+		float r = 0;
+		const float *filter2 = filter;
+		const uint16 *const *src2 = src;
+
+		for(unsigned j = ksize; j; --j) {
+			const uint16 *p = (*src2++) + i;
+			float coeff = *filter2++;
+
+			r += p[0]*coeff;
+		}
+
+		dst[0] = VDRoundDoubleToUInt16(r);
+		++dst;
+	}
+}
+
+VDResamplerColStageSeparableTable16x4::VDResamplerColStageSeparableTable16x4(const IVDResamplerFilter& filter) {
+	mFilterBank.resize(filter.GetFilterWidth() * 256);
+	VDResamplerGenerateTableF(mFilterBank.data(), filter);
+}
+
+int VDResamplerColStageSeparableTable16x4::GetWindowSize() const {return (int)mFilterBank.size() >> 8;}
+
+void VDResamplerColStageSeparableTable16x4::Process(void *dst0, const void *const *src0, uint32 w, sint32 phase) {
+	uint16 *dst = (uint16 *)dst0;
+	const uint16 *const *src = (const uint16 *const *)src0;
+	const unsigned ksize = (unsigned)mFilterBank.size() >> 8;
+	const float *filter = &mFilterBank[((phase>>8)&0xff) * ksize];
+
+	VDCPUCleanupExtensions();
+
+	for(uint32 i=0; i<w; ++i) {
+		float r = 0, g = 0, b = 0, a = 0;
+		const float *filter2 = filter;
+		const uint16 *const *src2 = src;
+
+		for(unsigned j = ksize; j; --j) {
+			const uint16 *p = (*src2++) + i*4;
+			float coeff = *filter2++;
+
+			b += p[0]*coeff;
+			g += p[1]*coeff;
+			r += p[2]*coeff;
+			a += p[3]*coeff;
+		}
+
+		dst[0] = VDRoundDoubleToUInt16(b);
+		dst[1] = VDRoundDoubleToUInt16(g);
+		dst[2] = VDRoundDoubleToUInt16(r);
+		dst[3] = VDRoundDoubleToUInt16(a);
+		dst += 4;
 	}
 }
 

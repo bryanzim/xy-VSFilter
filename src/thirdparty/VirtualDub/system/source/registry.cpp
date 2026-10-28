@@ -1,27 +1,12 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2018 Anton Shekhovtsov
+// Copyright (C) 2023-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #include "stdafx.h"
 #include <windows.h>
@@ -122,15 +107,8 @@ bool VDRegistryProviderW32::SetString(void *key, const char *pszName, const char
 }
 
 bool VDRegistryProviderW32::SetString(void *key, const char *pszName, const wchar_t *pszString) {
-	if (!VDIsWindowsNT()) {
-		VDStringA s(VDTextWToA(pszString));
-
-		if (RegSetValueExA((HKEY)key, pszName, 0, REG_SZ, (const BYTE *)s.data(), s.size()))
-			return false;
-	} else {
-		if (RegSetValueExW((HKEY)key, VDTextAToW(pszName).c_str(), 0, REG_SZ, (const BYTE *)pszString, sizeof(wchar_t) * wcslen(pszString)))
-			return false;
-	}
+	if (RegSetValueExW((HKEY)key, VDTextAToW(pszName).c_str(), 0, REG_SZ, (const BYTE *)pszString, sizeof(wchar_t) * wcslen(pszString)))
+		return false;
 
 	return true;
 }
@@ -204,13 +182,6 @@ bool VDRegistryProviderW32::GetString(void *key, const char *pszName, VDStringA&
 }
 
 bool VDRegistryProviderW32::GetString(void *key, const char *pszName, VDStringW& str) {
-	if (!VDIsWindowsNT()) {
-		VDStringA v;
-		if (!GetString(key, pszName, v))
-			return false;
-		str = VDTextAToW(v);
-		return true;
-	}
 
 	const VDStringW wsName(VDTextAToW(pszName));
 	DWORD type;
@@ -273,7 +244,7 @@ void *VDRegistryProviderW32::EnumKeysBegin(void *key) {
 const char *VDRegistryProviderW32::EnumKeysNext(void *enumerator) {
 	KeyEnumerator *ke = (KeyEnumerator *)enumerator;
 
-	DWORD len = sizeof(ke->mName)/sizeof(ke->mName[0]);
+	DWORD len = std::size(ke->mName);
 	FILETIME ft;
 	LONG error = RegEnumKeyExA((HKEY)ke->mKey, ke->mIndex, ke->mName, &len, NULL, NULL, NULL, &ft);
 
@@ -300,7 +271,7 @@ void *VDRegistryProviderW32::EnumValuesBegin(void *key) {
 const char *VDRegistryProviderW32::EnumValuesNext(void *enumerator) {
 	ValueEnumerator *ve = (ValueEnumerator *)enumerator;
 
-	DWORD len = sizeof(ve->mName)/sizeof(ve->mName[0]);
+	DWORD len = std::size(ve->mName);
 	LONG error = RegEnumValueA((HKEY)ve->mKey, ve->mIndex, ve->mName, &len, NULL, NULL, NULL, NULL);
 
 	if (error)
@@ -329,15 +300,25 @@ void VDSetRegistryProvider(IVDRegistryProvider *provider) {
 
 ///////////////////////////////////////////////////////////////////////////
 
+VDRegistryKey::VDRegistryKey(IVDRegistryProvider *provider, const char *keyName, bool global, bool write) {
+	if (!provider) provider = VDGetRegistryProvider();
+	this->provider = provider;
+	void *rootKey = global ? provider->GetMachineKey() : provider->GetUserKey();
+
+	mKey = provider->CreateKey(rootKey, keyName, write);
+}
+
 VDRegistryKey::VDRegistryKey(const char *keyName, bool global, bool write) {
 	IVDRegistryProvider *provider = VDGetRegistryProvider();
+	this->provider = provider;
 	void *rootKey = global ? provider->GetMachineKey() : provider->GetUserKey();
 
 	mKey = provider->CreateKey(rootKey, keyName, write);
 }
 
 VDRegistryKey::VDRegistryKey(VDRegistryKey& baseKey, const char *name, bool write) {
-	IVDRegistryProvider *provider = VDGetRegistryProvider();
+	IVDRegistryProvider *provider = baseKey.provider;
+	this->provider = provider;
 	void *rootKey = baseKey.getRawHandle();
 
 	mKey = rootKey ? provider->CreateKey(rootKey, name, write) : NULL;
@@ -345,34 +326,34 @@ VDRegistryKey::VDRegistryKey(VDRegistryKey& baseKey, const char *name, bool writ
 
 VDRegistryKey::~VDRegistryKey() {
 	if (mKey)
-		VDGetRegistryProvider()->CloseKey(mKey);
+		provider->CloseKey(mKey);
 }
 
 bool VDRegistryKey::setBool(const char *name, bool v) const {
-	return mKey && VDGetRegistryProvider()->SetBool(mKey, name, v);
+	return mKey && provider->SetBool(mKey, name, v);
 }
 
 bool VDRegistryKey::setInt(const char *name, int i) const {
-	return mKey && VDGetRegistryProvider()->SetInt(mKey, name, i);
+	return mKey && provider->SetInt(mKey, name, i);
 }
 
 bool VDRegistryKey::setString(const char *name, const char *s) const {
-	return mKey && VDGetRegistryProvider()->SetString(mKey, name, s);
+	return mKey && provider->SetString(mKey, name, s);
 }
 
 bool VDRegistryKey::setString(const char *name, const wchar_t *s) const {
-	return mKey && VDGetRegistryProvider()->SetString(mKey, name, s);
+	return mKey && provider->SetString(mKey, name, s);
 }
 
 bool VDRegistryKey::setBinary(const char *name, const char *data, int len) const {
-	return mKey && VDGetRegistryProvider()->SetBinary(mKey, name, data, len);
+	return mKey && provider->SetBinary(mKey, name, data, len);
 }
 
 VDRegistryKey::Type VDRegistryKey::getValueType(const char *name) const {
 	Type type = kTypeUnknown;
 
 	if (mKey) {
-		switch(VDGetRegistryProvider()->GetType(mKey, name)) {
+		switch(provider->GetType(mKey, name)) {
 			case IVDRegistryProvider::kTypeInt:
 				type = kTypeInt;
 				break;
@@ -392,12 +373,12 @@ VDRegistryKey::Type VDRegistryKey::getValueType(const char *name) const {
 
 bool VDRegistryKey::getBool(const char *name, bool def) const {
 	bool v;
-	return mKey && VDGetRegistryProvider()->GetBool(mKey, name, v) ? v : def;
+	return mKey && provider->GetBool(mKey, name, v) ? v : def;
 }
 
 int VDRegistryKey::getInt(const char *name, int def) const {
 	int v;
-	return mKey && VDGetRegistryProvider()->GetInt(mKey, name, v) ? v : def;
+	return mKey && provider->GetInt(mKey, name, v) ? v : def;
 }
 
 int VDRegistryKey::getEnumInt(const char *pszName, int maxVal, int def) const {
@@ -410,27 +391,27 @@ int VDRegistryKey::getEnumInt(const char *pszName, int maxVal, int def) const {
 }
 
 bool VDRegistryKey::getString(const char *name, VDStringA& str) const {
-	return mKey && VDGetRegistryProvider()->GetString(mKey, name, str);
+	return mKey && provider->GetString(mKey, name, str);
 }
 
 bool VDRegistryKey::getString(const char *name, VDStringW& str) const {
-	return mKey && VDGetRegistryProvider()->GetString(mKey, name, str);
+	return mKey && provider->GetString(mKey, name, str);
 }
 
 int VDRegistryKey::getBinaryLength(const char *name) const {
-	return mKey ? VDGetRegistryProvider()->GetBinaryLength(mKey, name) : -1;
+	return mKey ? provider->GetBinaryLength(mKey, name) : -1;
 }
 
 bool VDRegistryKey::getBinary(const char *name, char *buf, int maxlen) const {
-	return mKey && VDGetRegistryProvider()->GetBinary(mKey, name, buf, maxlen);
+	return mKey && provider->GetBinary(mKey, name, buf, maxlen);
 }
 
 bool VDRegistryKey::removeValue(const char *name) {
-	return mKey && VDGetRegistryProvider()->RemoveValue(mKey, name);
+	return mKey && provider->RemoveValue(mKey, name);
 }
 
 bool VDRegistryKey::removeKey(const char *name) {
-	return mKey && VDGetRegistryProvider()->RemoveKey(mKey, name);
+	return mKey && provider->RemoveKey(mKey, name);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -465,13 +446,18 @@ const char *VDRegistryKeyIterator::Next() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-VDString VDRegistryAppKey::s_appbase;
+VDStringA VDRegistryAppKey::s_appbase;
 
-VDRegistryAppKey::VDRegistryAppKey() : VDRegistryKey(s_appbase.c_str()) {
+VDRegistryAppKey::VDRegistryAppKey(IVDRegistryProvider *provider) : VDRegistryKey(provider, s_appbase.c_str()) {
 }
 
 VDRegistryAppKey::VDRegistryAppKey(const char *pszKey, bool write, bool global)
 	: VDRegistryKey((s_appbase + pszKey).c_str(), global, write)
+{
+}
+
+VDRegistryAppKey::VDRegistryAppKey(IVDRegistryProvider *provider, const char *pszKey, bool write, bool global)
+	: VDRegistryKey(provider, (s_appbase + pszKey).c_str(), global, write)
 {
 }
 

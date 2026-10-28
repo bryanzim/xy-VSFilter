@@ -1,33 +1,14 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2012 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2012 Avery Lee, All Rights Reserved.
+// Copyright (C) 2024-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #include "stdafx.h"
 #include <vd2/system/file.h>
-
-VDFileStream::~VDFileStream() {
-}
 
 const wchar_t *VDFileStream::GetNameForError() {
 	return getFilenameForError();
@@ -120,9 +101,6 @@ VDBufferedStream::VDBufferedStream(IVDRandomAccessStream *pSrc, uint32 bufferSiz
 {
 }
 
-VDBufferedStream::~VDBufferedStream() {
-}
-
 const wchar_t *VDBufferedStream::GetNameForError() {
 	return mpSrc->GetNameForError();
 }
@@ -132,8 +110,9 @@ sint64 VDBufferedStream::Pos() {
 }
 
 void VDBufferedStream::Read(void *buffer, sint32 bytes) {
-	if (bytes != ReadData(buffer, bytes))
-		throw MyError("Cannot read %d bytes at location %08llx from %ls", bytes, mBasePosition + mBufferOffset, mpSrc->GetNameForError());
+	if (bytes != ReadData(buffer, bytes)) {
+		throw MyError(L"Cannot read %d bytes at location %08llx from %s", bytes, mBasePosition + mBufferOffset, mpSrc->GetNameForError());
+	}
 }
 
 sint32 VDBufferedStream::ReadData(void *buffer, sint32 bytes) {
@@ -238,9 +217,6 @@ VDTextStream::VDTextStream(IVDStream *pSrc)
 {
 }
 
-VDTextStream::~VDTextStream() {
-}
-
 const char *VDTextStream::GetNextLine() {
 	if (!mpSrc)
 		return NULL;
@@ -311,9 +287,6 @@ VDTextInputFile::VDTextInputFile(const wchar_t *filename, uint32 flags)
 {
 }
 
-VDTextInputFile::~VDTextInputFile() {
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 VDTextOutputStream::VDTextOutputStream(IVDStream *stream)
@@ -360,13 +333,15 @@ void VDTextOutputStream::Format(const char *format, ...) {
 	va_start(val, format);
 
 	int rv = -1;
-	if (mLevel < kBufSize-4)
-		rv = _vsnprintf(mBuf+mLevel, kBufSize-mLevel, format, val);
+	if (mLevel < kBufSize - 4) {
+		rv = _vsnprintf_s(mBuf + mLevel, kBufSize - mLevel, _TRUNCATE, format, val);
+	}
 
-	if (rv >= 0)
+	if (rv >= 0) {
 		mLevel += rv;
-	else
+	} else {
 		Format2(format, val);
+	}
 
 	va_end(val);
 }
@@ -377,24 +352,28 @@ void VDTextOutputStream::FormatLine(const char *format, ...) {
 	va_start(val, format);
 
 	int rv = -1;
-	if (mLevel < kBufSize-4)
-		rv = _vsnprintf(mBuf+mLevel, kBufSize-mLevel, format, val);
+	if (mLevel < kBufSize - 4) {
+		rv = _vsnprintf_s(mBuf + mLevel, kBufSize - mLevel, _TRUNCATE, format, val);
+	}
 
-	if (rv >= 0)
+	if (rv >= 0) {
 		mLevel += rv;
-	else
+	} else {
 		Format2(format, val);
+	}
+
+	va_end(val);
 
 	PutData("\r\n", 2);
-	va_end(val);
 }
 
 void VDTextOutputStream::Format2(const char *format, va_list val) {
 	char buf[3072];
 
-	int rv = _vsnprintf(buf, 3072, format, val);
-	if (rv > 0)
+	int rv = _vsnprintf_s(buf, std::size(buf) - 1, format, val);
+	if (rv > 0) {
 		PutData(buf, rv);
+	}
 }
 
 void VDTextOutputStream::PutData(const char *s, int len) {

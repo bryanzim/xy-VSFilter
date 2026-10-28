@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2016 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_BLT_SPANUTILS_H
 #define f_VD2_KASUMI_BLT_SPANUTILS_H
 
@@ -18,6 +27,9 @@ namespace nsVDPixmapSpanUtils {
 	void vert_compress2x_centered_fast	(uint8 *dst, const uint8 *const *srcarray, sint32 w, uint8 phase);
 	void vert_compress2x_centered	(uint8 *dst, const uint8 *const *srcarray, sint32 w, uint8 phase);
 	void vert_compress4x_centered(uint8 *dst, const uint8 *const *srcarray, sint32 w, uint8 phase);
+
+	void horiz_expand2x_coaligned_u16	(uint16 *dst, const uint16 *src, sint32 w);
+	void vert_expand2x_centered_u16		(uint16 *dst, const uint16 *const *srcs, sint32 w, uint8 phase);
 }
 
 #endif

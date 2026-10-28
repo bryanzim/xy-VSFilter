@@ -1,20 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	Graphics support library
-//	Copyright (C) 1998-2009 Avery Lee
+// VirtualDub - Video processing and capture application
+// Graphics support library
 //
-//	This program is free software; you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation; either version 2 of the License, or
-//	(at your option) any later version.
+// Copyright (C) 1998-2009 Avery Lee
+// Copyright (C) 2019 Anton Shekhovtsov
 //
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
+// SPDX-License-Identifier: GPL-2.0-or-later
 //
-//	You should have received a copy of the GNU General Public License
-//	along with this program; if not, write to the Free Software
-//	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #include <stdafx.h>
 #include <vd2/system/vdtypes.h>
@@ -952,12 +943,13 @@ namespace {
 	typedef void (*tpYUVPlanarVertDecoder)(uint8 *dst, const uint8 *const *srcs, sint32 w, uint8 phase);
 }
 
+/*
 #ifdef _M_IX86
 	extern "C" void __cdecl vdasm_pixblt_YUV444Planar_to_XRGB1555_scan_MMX(void *dst, const uint8 *y, const uint8 *cb, const uint8 *cr, uint32 count);
 	extern "C" void __cdecl vdasm_pixblt_YUV444Planar_to_RGB565_scan_MMX(void *dst, const uint8 *y, const uint8 *cb, const uint8 *cr, uint32 count);
 	extern "C" void __cdecl vdasm_pixblt_YUV444Planar_to_XRGB8888_scan_MMX(void *dst, const uint8 *y, const uint8 *cb, const uint8 *cr, uint32 count);
 #endif
-
+*/
 
 void VDPixmapBlt_YUVPlanar_decode_reference(const VDPixmap& dst, const VDPixmap& src, vdpixsize w, vdpixsize h) {
 	const VDPixmapFormatInfo& srcinfo = VDPixmapGetInfo(src.format);
@@ -1020,11 +1012,13 @@ void VDPixmapBlt_YUVPlanar_decode_reference(const VDPixmap& dst, const VDPixmap&
 				vfunc = vert_expand2x_centered_ISSE;
 		}
 
+		/*
 		switch(dst.format) {
 		case nsVDPixmap::kPixFormat_XRGB1555:	dfunc = vdasm_pixblt_YUV444Planar_to_XRGB1555_scan_MMX;	break;
 		case nsVDPixmap::kPixFormat_RGB565:		dfunc = vdasm_pixblt_YUV444Planar_to_RGB565_scan_MMX;	break;
 		case nsVDPixmap::kPixFormat_XRGB8888:	dfunc = vdasm_pixblt_YUV444Planar_to_XRGB8888_scan_MMX;	break;
 		}
+		*/
 	}
 #endif
 
@@ -1096,8 +1090,8 @@ void VDPixmapBlt_YUVPlanar_decode_reference(const VDPixmap& dst, const VDPixmap&
 #endif
 
 	uint32 chroma_srcwidth = -(-w >> srcinfo.auxwbits);
-	horiz_buffer_size = (horiz_buffer_size + 15) & ~15;
-	vert_buffer_size = (vert_buffer_size + 15) & ~15;
+	horiz_buffer_size = VDAlignUp(horiz_buffer_size, 16);
+	vert_buffer_size  = VDAlignUp(vert_buffer_size, 16);
 
 	// allocate buffers
 
@@ -1277,7 +1271,7 @@ namespace {
 		const uint8 *window[16];
 
 		vdblock<uint8> tmpbuf;
-		ptrdiff_t tmppitch = (w+15) & ~15;
+		ptrdiff_t tmppitch = VDAlignUp(w, 16);
 
 		if (vfunc && hfunc)
 			tmpbuf.resize(tmppitch * winsize);
@@ -1333,12 +1327,14 @@ void VDPixmapBlt_YUVPlanar_convert_reference(const VDPixmap& dstpm, const VDPixm
 	}
 }
 
+/*
 extern "C" void vdasm_pixblt_YUV411Planar_to_XRGB1555_scan_MMX(void *dst, const void *y, const void *cb, const void *cr, unsigned count);
 extern "C" void vdasm_pixblt_YUV411Planar_to_RGB565_scan_MMX(void *dst, const void *y, const void *cb, const void *cr, unsigned count);
 extern "C" void vdasm_pixblt_YUV411Planar_to_XRGB8888_scan_MMX(void *dst, const void *y, const void *cb, const void *cr, unsigned count);
 extern "C" void vdasm_pixblt_YUV411Planar_to_XRGB1555_scan_ISSE(void *dst, const void *y, const void *cb, const void *cr, unsigned count);
 extern "C" void vdasm_pixblt_YUV411Planar_to_RGB565_scan_ISSE(void *dst, const void *y, const void *cb, const void *cr, unsigned count);
 extern "C" void vdasm_pixblt_YUV411Planar_to_XRGB8888_scan_ISSE(void *dst, const void *y, const void *cb, const void *cr, unsigned count);
+*/
 
 DECLARE_YUV_PLANAR(YUV411, XRGB1555) {
 	uint16			*out	= (uint16 *)dst.data;
@@ -1361,7 +1357,7 @@ DECLARE_YUV_PLANAR(YUV411, XRGB1555) {
 		vdpixsize wt;
 
 		if (wpairs > 0) {
-#if !defined(VD_CPU_X86)
+//#if !defined(VD_CPU_X86)
 			wt = wpairs;
 
 			do {
@@ -1380,6 +1376,7 @@ DECLARE_YUV_PLANAR(YUV411, XRGB1555) {
 				++cb;
 				++cr;
 			} while(--wt);
+/*
 #else
 			vdasm_pixblt_YUV411Planar_to_XRGB1555_scan_ISSE(p, y, cb, cr, wpairs);
 			y += 4*wpairs;
@@ -1387,6 +1384,7 @@ DECLARE_YUV_PLANAR(YUV411, XRGB1555) {
 			cb += wpairs;
 			p += 4*wpairs;
 #endif
+*/
 		}
 
 		if (wleft > 0) {
@@ -1432,7 +1430,7 @@ DECLARE_YUV_PLANAR(YUV411, RGB565) {
 		vdpixsize wt;
 
 		if (wpairs > 0) {
-#if !defined(VD_CPU_X86)
+//#if !defined(VD_CPU_X86)
 			wt = wpairs;
 
 			do {
@@ -1451,9 +1449,11 @@ DECLARE_YUV_PLANAR(YUV411, RGB565) {
 				++cb;
 				++cr;
 			} while(--wt);
+/*
 #else
 			vdasm_pixblt_YUV411Planar_to_RGB565_scan_ISSE(p, y, cb, cr, wpairs);
 #endif
+*/
 		}
 
 		if (wleft > 0) {
@@ -1559,7 +1559,7 @@ DECLARE_YUV_PLANAR(YUV411, XRGB8888) {
 		vdpixsize wt;
 
 		if (wpairs > 0) {
-#if !defined(VD_CPU_X86)
+//#if !defined(VD_CPU_X86)
 			wt = wpairs;
 
 			do {
@@ -1578,6 +1578,7 @@ DECLARE_YUV_PLANAR(YUV411, XRGB8888) {
 				++cb;
 				++cr;
 			} while(--wt);
+/*
 #else
 			vdasm_pixblt_YUV411Planar_to_XRGB8888_scan_MMX(p, y, cb, cr, wpairs);
 			y += 4*wpairs;
@@ -1585,6 +1586,7 @@ DECLARE_YUV_PLANAR(YUV411, XRGB8888) {
 			cb += wpairs;
 			p += 4*wpairs;
 #endif
+*/
 		}
 
 		if (wleft > 0) {

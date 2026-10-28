@@ -1,3 +1,12 @@
+// VirtualDub - Video processing and capture application
+// Graphics support library
+//
+// Copyright (C) 2013 Avery Lee
+// Copyright (C) 2015-2018 Anton Shekhovtsov
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+
 #ifndef f_VD2_KASUMI_UBERBLIT_BASE_H
 #define f_VD2_KASUMI_UBERBLIT_BASE_H
 
@@ -15,6 +24,9 @@ public:
 		mHeight = h;
 	}
 
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+	}
+
 	void AddWindowRequest(int minDY, int maxDY) {
 		if (mWindowMinDY > minDY)
 			mWindowMinDY = minDY;
@@ -26,12 +38,14 @@ public:
 		VDASSERT(mWindowMaxDY >= mWindowMinDY);
 		mWindowSize = mWindowMaxDY + 1 - mWindowMinDY;
 
-		mWindowPitch = (rowbytes + 15) & ~15;
-		mWindowBuffer.resize(mWindowPitch * mWindowSize * outputCount);
+		mWindowPitch = VDAlignUp(rowbytes, 16);
+		mWindowBuffer.resize(mWindowPitch * mWindowSize * outputCount + 15);
 		mWindow.resize(mWindowSize * 2);
 
-		for(sint32 i=0; i<mWindowSize; ++i)
-			mWindow[i] = mWindow[i + mWindowSize] = mWindowBuffer.data() + (mWindowPitch * outputCount * i);
+		uint8* buf_base = (uint8*)VDAlignUp((size_t)mWindowBuffer.data(), 16);
+		for (sint32 i = 0; i < mWindowSize; ++i) {
+			mWindow[i] = mWindow[i + mWindowSize] = buf_base + (mWindowPitch * outputCount * i);
+		}
 
 		mWindowIndex = 0;
 		mWindowLastY = -0x3FFFFFFF;
@@ -84,6 +98,9 @@ protected:
 
 class VDPixmapGenWindowBasedOneSource : public VDPixmapGenWindowBased {
 public:
+	bool alpha;
+	VDPixmapGenWindowBasedOneSource(){ alpha = false; }
+
 	void InitSource(IVDPixmapGen *src, uint32 srcindex) {
 		mpSrc = src;
 		mSrcIndex = srcindex;
@@ -91,6 +108,17 @@ public:
 		mSrcHeight = src->GetHeight(srcindex);
 		mWidth = mSrcWidth;
 		mHeight = mSrcHeight;
+	}
+
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		if (alpha) {
+			FilterModPixmapInfo buf;
+			mpSrc->TransformPixmapInfo(src,buf);
+			dst.copy_alpha(buf);
+			dst.ref_a = buf.ref_a;
+		} else {
+			mpSrc->TransformPixmapInfo(src,dst);
+		}
 	}
 
 	void AddWindowRequest(int minDY, int maxDY) {
@@ -108,6 +136,8 @@ public:
 		return mpSrc->GetType(mSrcIndex);
 	}
 
+	virtual IVDPixmapGen* dump_src(int index){ if(index==0) return mpSrc; return 0; }
+
 protected:
 	virtual void Compute(void *dst0, sint32 y) = 0;
 
@@ -124,6 +154,92 @@ public:
 
 		src->AddWindowRequest(0, 0);
 	}
+};
+
+class VDPixmapGenWindowBasedOneSourceAlign16 : public VDPixmapGenWindowBasedOneSourceSimple {
+public:
+  int bpp;
+
+	void Start() {
+		int type = mpSrc->GetType(0);
+		bpp = 2;
+		if ((type & kVDPixType_Mask)==kVDPixType_16x2_LE) bpp = 4;
+		if ((type & kVDPixType_Mask)==kVDPixType_16x4_LE) bpp = 8;
+		if ((type & kVDPixType_Mask)==kVDPixType_YU64) bpp = 4;
+		StartWindow(mWidth * bpp);
+	}
+	void Compute(void *dst0, sint32 y) {
+		uint16 *dst = (uint16 *)dst0;
+		const uint16 *src = (const uint16 *)mpSrc->GetRow(y, mSrcIndex);
+		int w = mWidth*bpp/2;
+		int w0 = ComputeSpan(dst,src,w);
+		if (w0<w) {
+			src += w0;
+			dst += w0;
+			w -= w0;
+			uint16 src1[8];
+			uint16 dst1[8];
+			memcpy(src1,src,w*2);
+			ComputeSpan(dst1,src1,8);
+			memcpy(dst,dst1,w*2);
+		}
+	}
+	virtual int ComputeSpan(uint16* dst, const uint16* src, int n) = 0;
+};
+
+class VDPixmapGenWindowBasedOneSourceAlign8to16 : public VDPixmapGenWindowBasedOneSourceSimple {
+public:
+	void Start() {
+		StartWindow(mWidth * 2);
+	}
+	void Compute(void *dst0, sint32 y) {
+		uint16 *dst = (uint16 *)dst0;
+		const uint8 *src = (const uint8 *)mpSrc->GetRow(y, mSrcIndex);
+		int w = mWidth;
+		int w0 = ComputeSpan(dst,src,w);
+		if (w0<w) {
+			src += w0;
+			dst += w0;
+			w -= w0;
+			uint8 src1[16];
+			uint16 dst1[16];
+			memcpy(src1,src,w);
+			ComputeSpan(dst1,src1,16);
+			memcpy(dst,dst1,w*2);
+		}
+	}
+	virtual int ComputeSpan(uint16* dst, const uint8* src, int n) = 0;
+};
+
+class VDPixmapGenWindowBasedOneSourceAlign16to8 : public VDPixmapGenWindowBasedOneSourceSimple {
+public:
+	void Start() {
+		StartWindow(mWidth);
+	}
+	void Compute(void *dst0, sint32 y) {
+		uint8 *dst = (uint8 *)dst0;
+		const uint16 *src = (const uint16 *)mpSrc->GetRow(y, mSrcIndex);
+		int w = mWidth;
+		int w0 = ComputeSpan(dst,src,w);
+		if (w0<w) {
+			src += w0;
+			dst += w0;
+			w -= w0;
+			uint16 src1[16];
+			uint8 dst1[16];
+			memcpy(src1,src,w*2);
+			ComputeSpan(dst1,src1,16);
+			memcpy(dst,dst1,w);
+		}
+	}
+	virtual int ComputeSpan(uint8* dst, const uint16* src, int n) = 0;
+};
+
+class VDPixmapUberBlitterGenerator;
+
+class IVDPixmapExtraGen {
+public:
+	virtual void Create(VDPixmapUberBlitterGenerator& gen, const VDPixmapLayout& dst) = 0;
 };
 
 #endif

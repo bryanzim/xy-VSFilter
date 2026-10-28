@@ -1,43 +1,22 @@
-//	VirtualDub - Video processing and capture application
-//	Plugin headers
-//	Copyright (C) 1998-2007 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
 //
-//	The plugin headers in the VirtualDub plugin SDK are licensed differently
-//	differently than VirtualDub and the Plugin SDK themselves.  This
-//	particular file is thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2001 Avery Lee
+// Copyright (C) 2015-2018 Anton Shekhovtsov
+// Copyright (C) 2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: GPL-2.0-or-later
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #ifndef f_VD2_PLUGIN_VDVIDEOFILT_H
 #define f_VD2_PLUGIN_VDVIDEOFILT_H
 
 #ifdef _MSC_VER
 	#pragma once
-	#pragma pack(push, 8)
 #endif
 
 #include <stddef.h>
 
 #include "vdplugin.h"
-
-typedef struct VDXHINSTANCEStruct *VDXHINSTANCE;
-typedef struct VDXHDCStruct *VDXHDC;
-typedef struct VDXHWNDStruct *VDXHWND;
 
 //////////////////
 
@@ -56,6 +35,8 @@ enum {
 
 	/// Filter supports image formats other than RGB32. Filters that support format negotiation must
 	/// set this flag for all calls to paramProc.
+	///
+	/// (API V16 - Now required)
 	FILTERPARAM_SUPPORTS_ALTFORMATS	= 0x00000004L,
 
 	/// Filter requests 16 byte alignment for source and destination buffers. This guarantees that:
@@ -66,7 +47,13 @@ enum {
 	///		- an integral number of 16 byte vectors may be written, even if the last vector includes
 	///		  some bytes beyong the end of the scanline (their values are ignored)
 	///
-	FILTERPARAM_ALIGN_SCANLINES		= 0x00000008L,
+	FILTERPARAM_ALIGN_SCANLINES_16		= 0x00000008L,
+	FILTERPARAM_ALIGN_SCANLINES			= FILTERPARAM_ALIGN_SCANLINES_16,
+
+	///		- same with 32,64 bytes alignment
+	///
+	FILTERPARAM_ALIGN_SCANLINES_32		= 0x00000048L,  // v19
+	FILTERPARAM_ALIGN_SCANLINES_64		= 0x00000040L,  // v19
 
 	/// Filter's output is purely a function of configuration parameters and source image data, and not
 	/// source or output frame numbers. In other words, two output frames produced by a filter instance
@@ -83,10 +70,18 @@ enum {
 	///
 	FILTERPARAM_PURE_TRANSFORM		= 0x00000010L,
 
+	/// Filter requests that 16-bits input bitmap is normalized. This guarantees that info.ref_r..info.ref_a attributes are 0xFFFF when applicable.
+	///
+	FILTERPARAM_NORMALIZE16		= 0x00000020L,
+
 	/// Filter cannot support the requested source format. Note that this sets all bits, so the meaning
 	/// of other bits is ignored. The one exception is that FILTERPARAM_SUPPORTS_ALTFORMATS is assumed
 	/// to be implicitly set.
-	FILTERPARAM_NOT_SUPPORTED		= (long)0xFFFFFFFF
+	FILTERPARAM_NOT_SUPPORTED		= (long)0xFFFFFFFF,
+
+	/// Filter requires that image is not modified further and cpu time is not wasted.
+	/// Intended for "analyzis" filters.
+	FILTERPARAM_TERMINAL	= 0x00000080L,  // v19
 };
 
 /// The filter has a delay from source to output. For instance, a lag of 3 indicates that the
@@ -103,8 +98,12 @@ enum {
 class VDXFBitmap;
 class VDXFilterActivation;
 struct VDXFilterFunctions;
+class FilterModActivation;
+struct FilterModInitFunctions;
 struct VDXFilterModule;
+struct VDXFilterDefinition;
 class IVDXVideoPrefetcher;
+class IVDXAContext;
 
 enum {
 	kVDXVFEvent_None				= 0,
@@ -128,14 +127,30 @@ typedef sint64 (__cdecl *VDXFilterPrefetch   )(const VDXFilterActivation *fa, co
 typedef void (__cdecl *VDXFilterCopy2Proc    )(VDXFilterActivation *fa, const VDXFilterFunctions *ff, void *dst, VDXFilterActivation *fa2, const VDXFilterFunctions *ff2);
 typedef bool (__cdecl *VDXFilterPrefetch2Proc)(const VDXFilterActivation *fa, const VDXFilterFunctions *ff, sint64 frame, IVDXVideoPrefetcher *prefetcher);
 typedef bool (__cdecl *VDXFilterEventProc	 )(const VDXFilterActivation *fa, const VDXFilterFunctions *ff, uint32 event, const void *eventData);
+typedef void (__cdecl *VDXFilterAccelRunProc )(const VDXFilterActivation *fa, const VDXFilterFunctions *ff);
+typedef void (__cdecl *FilterModActivateProc )(FilterModActivation *fma, const VDXFilterFunctions *ff);
+typedef long (__cdecl *FilterModParamProc    )(VDXFilterActivation *fa, const VDXFilterFunctions *ff);
 
 typedef int (__cdecl *VDXFilterModuleInitProc)(VDXFilterModule *fm, const VDXFilterFunctions *ff, int& vdfd_ver, int& vdfd_compat);
+typedef int (__cdecl *FilterModModuleInitProc)(VDXFilterModule *fm, const FilterModInitFunctions *ff, int& vdfd_ver, int& vdfd_compat, int& mod_ver, int& mod_min);
 typedef void (__cdecl *VDXFilterModuleDeinitProc)(VDXFilterModule *fm, const VDXFilterFunctions *ff);
 
 //////////
 
 typedef void (__cdecl *VDXFilterPreviewButtonCallback)(bool fNewState, void *pData);
 typedef void (__cdecl *VDXFilterPreviewSampleCallback)(VDXFBitmap *, long lFrame, long lCount, void *pData);
+
+class IFilterModPreviewSample {
+public:
+	// Run returns combination of these flags
+	enum {
+		result_image = 1, // destination image can be displayed in preview window
+	};
+
+	virtual int Run(const VDXFilterActivation *fa, const VDXFilterFunctions *ff)=0;
+	virtual void GetNextFrame(sint64 frame, sint64* next_frame, sint64* total_count)=0;
+	virtual void Cancel()=0;
+};
 
 class IVDXFilterPreview {
 public:
@@ -154,9 +169,109 @@ public:
 	virtual long SampleFrames()=0;
 };
 
+struct PreviewZoomInfo {
+	int version;
+	enum {
+		popup_update = 1,
+		popup_cancel = 2,
+		popup_click =  4,
+	};
+	int flags;
+	int x,y;
+	float r,g,b,a;
+
+	PreviewZoomInfo() { version = 0; }
+};
+
+struct PreviewExInfo {
+	int version;
+	enum {
+		thick_border = 1,
+		custom_draw = 2,
+		display_source = 4,
+		no_exit = 8,
+	};
+	int flags;
+
+	PreviewExInfo() { version = 0; flags = 0; }
+};
+
+struct ClipEditInfo {
+	int version;
+	enum {
+		edit_update = 1,
+		edit_finish = 2,
+		fill_border = 4,
+		init_size = 8,
+		edit_time_range = 16,
+	};
+	int flags;
+	int x1,y1,x2,y2;
+	int w,h;
+
+	ClipEditInfo() { version = 0; flags = 0; }
+};
+
+typedef void (__cdecl *FilterModPreviewPositionCallback)(int64 pos, void *pData);
+typedef void (__cdecl *FilterModPreviewZoomCallback)(PreviewZoomInfo& info, void *pData);
+typedef void (__cdecl *FilterModPreviewClipEditCallback)(ClipEditInfo& info, void *pData);
+struct tagMSG;
+
 class IVDXFilterPreview2 : public IVDXFilterPreview {
 public:
 	virtual bool IsPreviewDisplayed() = 0;
+};
+
+class IFilterModPreview {
+public:
+	virtual int64 FMSetPosition(int64 pos)=0;
+	virtual void FMSetPositionCallback(FilterModPreviewPositionCallback, void *)=0;
+	virtual void FMSetZoomCallback(FilterModPreviewZoomCallback, void *)=0;
+
+	// FilterModVersion>=4
+	virtual int FMTranslateAccelerator(tagMSG* msg)=0;
+
+	// FilterModVersion>=5
+	virtual long SampleFrames(IFilterModPreviewSample*)=0;
+
+	// new
+	virtual void DisplayEx(VDXHWND, PreviewExInfo& info)=0;
+	virtual void SetClipEdit(ClipEditInfo& info) = 0;
+	virtual void SetClipEditCallback(FilterModPreviewClipEditCallback, void *) = 0;
+};
+
+class IFilterModTimeline {
+public:
+	virtual int64 GetTimelinePos()=0;
+	virtual int64 TimelineToFilterSource(int64 frame)=0;
+	virtual int64 FilterSourceToTimeline(int64 frame)=0;
+};
+
+class FilterReturnInfo {
+public:
+	virtual void setName(const char* s)=0;
+	virtual void setDesc(const char* s)=0;
+	virtual void setMaker(const char* s)=0;
+	virtual void setModulePath(const wchar_t* s)=0;
+	virtual void setBuiltinDef(const VDXFilterDefinition* desc)=0;
+};
+
+class IFilterModSystem {
+public:
+	virtual bool CreateVideoFilter(VDXHWND hParent, FilterReturnInfo& a)=0;
+	virtual bool FindVideoFilter(const char* name, FilterReturnInfo& a)=0;
+};
+
+class IFilterModProject {
+public:
+	virtual bool GetData(void* buf, size_t* buf_size, const wchar_t* id)=0;
+	virtual bool SetData(const void* buf, const size_t buf_size, const wchar_t* id)=0;
+	virtual bool GetProjectData(void* buf, size_t* buf_size, const wchar_t* id)=0;
+	virtual bool SetProjectData(const void* buf, const size_t buf_size, const wchar_t* id)=0;
+	virtual bool GetDataDir(wchar_t* buf, size_t* buf_size)=0;
+	virtual bool GetProjectDir(wchar_t* buf, size_t* buf_size)=0;
+	// FilterModVersion>=6
+	virtual bool GetMainSource(wchar_t* buf, size_t* buf_size)=0;
 };
 
 class IVDXVideoPrefetcher : public IVDXUnknown {
@@ -187,7 +302,7 @@ public:
 
 enum {
 	// This is the highest API version supported by this header file.
-	VIRTUALDUB_FILTERDEF_VERSION		= 14,
+	VIRTUALDUB_FILTERDEF_VERSION		= 20,
 
 	// This is the absolute lowest API version supported by this header file.
 	// Note that V4 is rather old, corresponding to VirtualDub 1.2.
@@ -198,8 +313,10 @@ enum {
 	// version that has copy constructor support. You may still need to
 	// declare a higher vdfd_compat version in your module init if you
 	// need features beyond V9 (VirtualDub 1.4.12).
-	VIRTUALDUB_FILTERDEF_COMPATIBLE_COPYCTOR = 9
+	VIRTUALDUB_FILTERDEF_COMPATIBLE_COPYCTOR = 9,
 
+	// API V17 was last before vdubFM
+	VIRTUALDUB_OFFICIAL		= 17,
 };
 
 // v3: added lCurrentSourceFrame to FrameStateInfo
@@ -211,9 +328,16 @@ enum {
 // v9 (1.4.12): added (working) copy constructor
 // v10 (1.5.10): added preview flag
 // v11 (1.7.0): guaranteed src structure setup before configProc; added IVDFilterPreview2
-// v12 (1.8.0): support for frame alteration
+// v12 (1.7.4): support for frame alteration
 // v13 (1.8.2): added mOutputFrame field to VDXFilterStateInfo
 // v14 (1.9.1): added copyProc2, prefetchProc2, input/output frame arrays
+// v15 (1.9.3): added VDXA support
+// v16 (1.10.x): added multi-source support, feature deprecation
+// v17: added mpStaticAboutProc
+// v18: added FilterModActivation
+// v19: added flags
+
+struct FilterModDefinition;
 
 struct VDXFilterDefinition {
 	void *_next;		// deprecated - set to NULL
@@ -231,7 +355,7 @@ struct VDXFilterDefinition {
 	VDXFilterRunProc		runProc;
 	VDXFilterParamProc		paramProc;
 	VDXFilterConfigProc		configProc;
-	VDXFilterStringProc		stringProc;
+	VDXFilterStringProc		stringProc;			// DEPRECATED - ignored as of v16; use stringProc2
 	VDXFilterStartProc		startProc;
 	VDXFilterEndProc		endProc;
 
@@ -243,7 +367,7 @@ struct VDXFilterDefinition {
 	VDXFilterStringProc2	stringProc2;
 	VDXFilterSerialize		serializeProc;
 	VDXFilterDeserialize	deserializeProc;
-	VDXFilterCopy			copyProc;
+	VDXFilterCopy			copyProc;			// DEPRECATED - ignored as of v16; use copyProc2
 
 	VDXFilterPrefetch		prefetchProc;		// (V12/V1.7.4+)
 
@@ -251,6 +375,25 @@ struct VDXFilterDefinition {
 	VDXFilterCopy2Proc		copyProc2;
 	VDXFilterPrefetch2Proc	prefetchProc2;
 	VDXFilterEventProc		eventProc;
+
+	// NEW - V15 / 1.9.3
+	VDXFilterAccelRunProc	accelRunProc;
+
+	// NEW - V16 / 1.10.1
+	sint32					mSourceCountLowMinus1;
+	sint32					mSourceCountHighMinus1;
+
+	// NEW - V17 / 1.10.2
+	VDXShowStaticAboutProc		mpStaticAboutProc;
+	VDXShowStaticConfigureProc	mpStaticConfigureProc;
+
+	// NEW - V20
+	FilterModDefinition* fm;
+};
+
+struct FilterModDefinition {
+	FilterModActivateProc		activateProc;
+	FilterModParamProc		  paramProc;
 };
 
 //////////
@@ -273,7 +416,7 @@ public:
 		kStateMax		= 0xFFFFFFFF
 	};
 
-	uint32	flags;						// (V10 / 1.5.10+ only)
+	uint32	flags;
 
 	sint32	mOutputFrame;				// (V13/V1.8.2+) current output frame
 };
@@ -314,7 +457,10 @@ class VDXFBitmap : public VDXBitmap {
 public:
 	enum {
 		/// Set in paramProc if the filter requires a Win32 GDI display context
-		/// for a bitmap. (Deprecated as of API V12 - do not use)
+		/// for a bitmap.
+		///
+		/// (Deprecated as of API V12 - do not use)
+		/// (Blocked as of API V16)
 		NEEDS_HDC		= 0x00000001L,
 	};
 
@@ -335,13 +481,17 @@ public:
 	sint64	mFrameTimestampStart;		///< Starting timestamp of frame, in 100ns units.
 	sint64	mFrameTimestampEnd;			///< Ending timestamp of frame, in 100ns units.
 	sint64	mCookie;					///< Cookie supplied when frame was requested.
+
+	uint32	mVDXAHandle;				///< Acceleration handle to be used with VDXA routines.
+	uint32	mBorderWidth;
+	uint32	mBorderHeight;
 };
 
 // VDXFilterActivation: This is what is actually passed to filters at runtime.
 
 class VDXFilterActivation {
 public:
-	const VDXFilterDefinition *filter;		// 
+	const VDXFilterDefinition *filter;	//
 	void *filter_data;
 	VDXFBitmap&	dst;
 	VDXFBitmap&	src;
@@ -359,24 +509,77 @@ public:
 	uint32		mSourceFrameCount;		// (V14+)
 	VDXFBitmap *const *mpSourceFrames;	// (V14+)
 	VDXFBitmap *const *mpOutputFrames;	// (V14+)
+
+	IVDXAContext	*mpVDXA;			// (V15+)
+
+	uint32		mSourceStreamCount;		// (V16+)
+	VDXFBitmap *const *mpSourceStreams;	// (V16+)
+
+	FilterModActivation* fma;	// (V18+)
+};
+
+enum {
+	// This is the highest API version supported by this header file.
+	FILTERMOD_VERSION = 6,
+};
+
+class FilterModActivation {
+public:
+	const VDXFilterDefinition *filter;
+	const FilterModDefinition *filterMod;
+	void *filter_data;
+	IFilterModPreview *fmpreview;
+	IFilterModTimeline *fmtimeline;
+	IFilterModSystem *fmsystem;
+
+	// FilterModVersion>=2
+	IFilterModPixmap *fmpixmap;
+
+	// FilterModVersion>=3
+	IFilterModProject *fmproject;
 };
 
 // These flags must match those in cpuaccel.h!
 
 #ifndef f_VIRTUALDUB_CPUACCEL_H
 #define CPUF_SUPPORTS_CPUID			(0x00000001L)
-#define CPUF_SUPPORTS_FPU			(0x00000002L)
-#define CPUF_SUPPORTS_MMX			(0x00000004L)
-#define CPUF_SUPPORTS_INTEGER_SSE	(0x00000008L)
-#define CPUF_SUPPORTS_SSE			(0x00000010L)
-#define CPUF_SUPPORTS_SSE2			(0x00000020L)
-#define CPUF_SUPPORTS_3DNOW			(0x00000040L)
-#define CPUF_SUPPORTS_3DNOW_EXT		(0x00000080L)
+#define CPUF_SUPPORTS_FPU			(0x00000002L) //  386/486DX
+#define CPUF_SUPPORTS_MMX			(0x00000004L) //  P55C, K6, PII
+#define CPUF_SUPPORTS_INTEGER_SSE	(0x00000008L) //  PIII, Athlon
+#define CPUF_SUPPORTS_SSE			(0x00000010L) //  PIII, Athlon XP/MP
+#define CPUF_SUPPORTS_SSE2			(0x00000020L) //  PIV, K8
+#define CPUF_SUPPORTS_3DNOW			(0x00000040L) //  K6-2
+#define CPUF_SUPPORTS_3DNOW_EXT		(0x00000080L) //  Athlon
+
+#define CPUF_SUPPORTS_SSE3			(0x00000100L) //  PIV+, K8 Venice
+#define CPUF_SUPPORTS_SSSE3			(0x00000200L) //  Core 2
+#define CPUF_SUPPORTS_SSE41			(0x00000400L) //  Penryn, Wolfdale, Yorkfield
+#define CPUF_SUPPORTS_AVX			(0x00000800L) //  Sandy Bridge, Bulldozer
+#define CPUF_SUPPORTS_SSE42			(0x00001000L) //  Nehalem
+
+// VirtualDubFilterMod specific, identical to AVS+
+#define CPUF_SUPPORTS_AVX2			(0x00002000L) //  Haswell
+#define CPUF_SUPPORTS_FMA3			(0x00004000L)
+#define CPUF_SUPPORTS_F16C			(0x00008000L)
+#define CPUF_SUPPORTS_MOVBE			(0x00010000L) // Big Endian move
+#define CPUF_SUPPORTS_POPCNT		(0x00020000L)
+#define CPUF_SUPPORTS_AES			(0x00040000L)
+#define CPUF_SUPPORTS_FMA4			(0x00080000L)
+
+#define CPUF_SUPPORTS_AVX512F		(0x00100000L) // AVX-512 Foundation.
+#define CPUF_SUPPORTS_AVX512DQ		(0x00200000L) // AVX-512 DQ (Double/Quad granular) Instructions
+#define CPUF_SUPPORTS_AVX512PF		(0x00400000L) // AVX-512 Prefetch
+#define CPUF_SUPPORTS_AVX512ER		(0x00800000L) // AVX-512 Exponential and Reciprocal
+#define CPUF_SUPPORTS_AVX512CD		(0x01000000L) // AVX-512 Conflict Detection
+#define CPUF_SUPPORTS_AVX512BW		(0x02000000L) // AVX-512 BW (Byte/Word granular) Instructions
+#define CPUF_SUPPORTS_AVX512VL		(0x04000000L) // AVX-512 VL (128/256 Vector Length) Extensions
+#define CPUF_SUPPORTS_AVX512IFMA	(0x08000000L) // AVX-512 IFMA integer 52 bit
+#define CPUF_SUPPORTS_AVX512VBMI	(0x10000000L) // AVX-512 VBMI
 #endif
 
 struct VDXFilterFunctions {
 	VDXFilterDefinition *(__cdecl *addFilter)(VDXFilterModule *, VDXFilterDefinition *, int fd_len);
-	void (__cdecl *removeFilter)(VDXFilterDefinition *);
+	void __declspec(deprecated) (__cdecl *removeFilter)(VDXFilterDefinition *);
 	bool (__cdecl *isFPUEnabled)();
 	bool (__cdecl *isMMXEnabled)();
 	void (__cdecl *InitVTables)(VDXFilterVTbls *);
@@ -393,7 +596,9 @@ struct VDXFilterFunctions {
 	long (__cdecl *getHostVersionInfo)(char *buffer, int len);	// ADDED: V7 (VirtualDub 1.4d)
 };
 
-
+struct FilterModInitFunctions {
+	VDXFilterDefinition *(__cdecl *addFilter)(VDXFilterModule *, VDXFilterDefinition *, int fd_len, FilterModDefinition*, int md_len);
+};
 
 
 
@@ -471,8 +676,8 @@ typedef int (*VDXScriptIntFunctionPtr)(IVDXScriptInterpreter *, void *, const VD
 
 struct VDXScriptFunctionDef {
 	VDXScriptFunctionPtr func_ptr;
-	char *name;
-	char *arg_list;
+	const char *name;
+	const char *arg_list;
 };
 
 struct VDXScriptObject {
@@ -484,13 +689,13 @@ struct VDXScriptObject {
 class VDXScriptValue {
 public:
 	enum { T_VOID, T_INT, T_PINT, T_STR, T_ARRAY, T_OBJECT, T_FNAME, T_FUNCTION, T_VARLV, T_LONG, T_DOUBLE } type;
-	VDXScriptObject *thisPtr;
+	VDXScriptObject *thisPtr = nullptr;
 	union {
 		int i;
 		char **s;
 		sint64 l;
 		double d;
-	} u;
+	} u = {};
 
 	VDXScriptValue()					{ type = T_VOID; }
 	VDXScriptValue(int i)				{ type = T_INT;			u.i = i; }
@@ -509,9 +714,5 @@ public:
 	double	asDouble() const			{ return u.d; }
 	char **	asString() const 			{ return u.s; }
 };
-
-#ifdef _MSC_VER
-	#pragma pack(pop)
-#endif
 
 #endif

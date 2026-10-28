@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2004 Avery Lee, All Rights Reserved.
+// Copyright (C) 2023-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #include "stdafx.h"
 #include <vd2/system/w32assist.h>
@@ -43,21 +27,11 @@ bool VDIsForegroundTaskW32() {
 }
 
 LPVOID VDConvertThreadToFiberW32(LPVOID parm) {
-	typedef LPVOID (WINAPI *tpConvertThreadToFiber)(LPVOID p);
-	static tpConvertThreadToFiber ctof = (tpConvertThreadToFiber)GetProcAddress(GetModuleHandle(L"kernel32"), "ConvertThreadToFiber");
-
-	if (!ctof)
-		return NULL;
-
-	return ctof(parm);
+	return ConvertThreadToFiber(parm);
 }
 
 void VDSwitchToFiberW32(LPVOID fiber) {
-	typedef void (WINAPI *tpSwitchToFiber)(LPVOID p);
-	static tpSwitchToFiber stof = (tpSwitchToFiber)GetProcAddress(GetModuleHandle(L"kernel32"), "SwitchToFiber");
-
-	if (stof)
-		stof(fiber);
+	SwitchToFiber(fiber);
 }
 
 int VDGetSizeOfBitmapHeaderW32(const BITMAPINFOHEADER *pHdr) {
@@ -77,11 +51,7 @@ int VDGetSizeOfBitmapHeaderW32(const BITMAPINFOHEADER *pHdr) {
 }
 
 void VDSetWindowTextW32(HWND hwnd, const wchar_t *s) {
-	if (VDIsWindowsNT()) {
-		SetWindowTextW(hwnd, s);
-	} else {
-		SetWindowTextA(hwnd, VDTextWToA(s).c_str());
-	}
+	SetWindowTextW(hwnd, s);
 }
 
 void VDSetWindowTextFW32(HWND hwnd, const wchar_t *format, ...) {
@@ -90,9 +60,9 @@ void VDSetWindowTextFW32(HWND hwnd, const wchar_t *format, ...) {
 	va_start(val, format);
 	{
 		wchar_t buf[512];
-		int r = vdvswprintf(buf, 512, format, val);
+		int r = _vsnwprintf_s(buf, std::size(buf) - 1, format, val);
 
-		if ((unsigned)r < 512) {
+		if (r >= 0) {
 			VDSetWindowTextW32(hwnd, buf);
 			va_end(val);
 			return;
@@ -133,7 +103,7 @@ VDStringW VDGetWindowTextW32(HWND hwnd) {
 		char a[512];
 	} buf;
 
-	if (VDIsWindowsNT()) {
+	{
 		int len = GetWindowTextLengthW(hwnd);
 
 		if (len > 255) {
@@ -148,41 +118,19 @@ VDStringW VDGetWindowTextW32(HWND hwnd) {
 			VDStringW text(buf.w, len);
 			return text;
 		}
-	} else {
-		int len = GetWindowTextLengthA(hwnd);
-
-		if (len > 511) {
-			vdblock<char> tmp(len + 1);
-			len = GetWindowTextA(hwnd, tmp.data(), tmp.size());
-
-			VDStringW text(VDTextAToW(tmp.data(), len));
-			return text;
-		} else if (len > 0) {
-			len = GetWindowTextA(hwnd, buf.a, 512);
-
-			VDStringW text(VDTextAToW(buf.a, len));
-			return text;
-		}
 	}
 
 	return VDStringW();
 }
 
 void VDAppendMenuW32(HMENU hmenu, UINT flags, UINT id, const wchar_t *text){
-	if (VDIsWindowsNT()) {
-		AppendMenuW(hmenu, flags, id, text);
-	} else {
-		AppendMenuA(hmenu, flags, id, VDTextWToA(text).c_str());
-	}
+	AppendMenuW(hmenu, flags, id, text);
 }
 
 bool VDAppendPopupMenuW32(HMENU hmenu, UINT flags, HMENU hmenuPopup, const wchar_t *text){
 	flags |= MF_POPUP;
 
-	if (VDIsWindowsNT())
-		return 0 != AppendMenuW(hmenu, flags, (UINT_PTR)hmenuPopup, text);
-	else
-		return 0 != AppendMenuA(hmenu, flags, (UINT_PTR)hmenuPopup, VDTextWToA(text).c_str());
+	return 0 != AppendMenuW(hmenu, flags, (UINT_PTR)hmenuPopup, text);
 }
 
 void VDAppendMenuSeparatorW32(HMENU hmenu) {
@@ -190,7 +138,7 @@ void VDAppendMenuSeparatorW32(HMENU hmenu) {
 	if (pos < 0)
 		return;
 
-	if (VDIsWindowsNT()) {
+	{
 		MENUITEMINFOW mmiW;
 		vdfastfixedvector<wchar_t, 256> bufW;
 
@@ -199,14 +147,6 @@ void VDAppendMenuSeparatorW32(HMENU hmenu) {
 		mmiW.fType		= MFT_SEPARATOR;
 
 		InsertMenuItemW(hmenu, pos, TRUE, &mmiW);
-	} else {
-		MENUITEMINFOA mmiA;
-
-		mmiA.cbSize		= MENUITEMINFO_SIZE_VERSION_400A;
-		mmiA.fMask		= MIIM_TYPE;
-		mmiA.fType		= MFT_SEPARATOR;
-
-		InsertMenuItemA(hmenu, pos, TRUE, &mmiA);
 	}
 }
 
@@ -253,7 +193,7 @@ void VDEnableMenuItemByCommandW32(HMENU hmenu, UINT cmd, bool checked) {
 VDStringW VDGetMenuItemTextByCommandW32(HMENU hmenu, UINT cmd) {
 	VDStringW s;
 
-	if (VDIsWindowsNT()) {
+	{
 		MENUITEMINFOW mmiW;
 		vdfastfixedvector<wchar_t, 256> bufW;
 
@@ -271,30 +211,13 @@ VDStringW VDGetMenuItemTextByCommandW32(HMENU hmenu, UINT cmd) {
 			if (GetMenuItemInfoW(hmenu, cmd, FALSE, &mmiW))
 				s = bufW.data();
 		}
-	} else {
-		MENUITEMINFOA mmiA;
-		vdfastfixedvector<char, 256> bufA;
-
-		mmiA.cbSize		= MENUITEMINFO_SIZE_VERSION_400A;
-		mmiA.fMask		= MIIM_TYPE;
-		mmiA.fType		= MFT_STRING;
-		mmiA.dwTypeData	= NULL;
-
-		if (GetMenuItemInfoA(hmenu, cmd, FALSE, &mmiA)) {
-			bufA.resize(mmiA.cch + 1, 0);
-			++mmiA.cch;
-			mmiA.dwTypeData = bufA.data();
-
-			if (GetMenuItemInfoA(hmenu, cmd, FALSE, &mmiA))
-				s = VDTextAToW(bufA.data());
-		}
 	}
 
 	return s;
 }
 
 void VDSetMenuItemTextByCommandW32(HMENU hmenu, UINT cmd, const wchar_t *text) {
-	if (VDIsWindowsNT()) {
+	{
 		MENUITEMINFOW mmiW;
 
 		mmiW.cbSize		= MENUITEMINFO_SIZE_VERSION_400W;
@@ -303,16 +226,6 @@ void VDSetMenuItemTextByCommandW32(HMENU hmenu, UINT cmd, const wchar_t *text) {
 		mmiW.dwTypeData	= (LPWSTR)text;
 
 		SetMenuItemInfoW(hmenu, cmd, FALSE, &mmiW);
-	} else {
-		MENUITEMINFOA mmiA;
-		VDStringA textA(VDTextWToA(text));
-
-		mmiA.cbSize		= MENUITEMINFO_SIZE_VERSION_400A;
-		mmiA.fMask		= MIIM_TYPE;
-		mmiA.fType		= MFT_STRING;
-		mmiA.dwTypeData	= (LPSTR)textA.c_str();
-
-		SetMenuItemInfoA(hmenu, cmd, FALSE, &mmiA);
 	}
 }
 
@@ -325,42 +238,35 @@ LRESULT VDDualDefWindowProcW32(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 }
 
 EXECUTION_STATE VDSetThreadExecutionStateW32(EXECUTION_STATE esFlags) {
-	EXECUTION_STATE es = 0;
 
-	// SetThreadExecutionState(): requires Windows 98+/2000+.
-	typedef EXECUTION_STATE (WINAPI *tSetThreadExecutionState)(EXECUTION_STATE);
-	static tSetThreadExecutionState pFunc = (tSetThreadExecutionState)GetProcAddress(GetModuleHandle(L"kernel32"), "SetThreadExecutionState");
-
-	if (pFunc)
-		es = pFunc(esFlags);
+	EXECUTION_STATE es = SetThreadExecutionState(esFlags);
 
 	return es;
 }
 
-bool VDSetFilePointerW32(HANDLE h, sint64 pos, DWORD dwMoveMethod) {
-	LONG posHi = (LONG)(pos >> 32);
-	DWORD result = SetFilePointer(h, (LONG)pos, &posHi, dwMoveMethod);
+bool VDSetFilePointerW32(HANDLE h, sint64 pos, DWORD dwMoveMethod)
+{
+	LARGE_INTEGER filepos;
+	filepos.QuadPart = pos;
+	BOOL result = SetFilePointerEx(h, filepos, &filepos, dwMoveMethod);
 
-	if (result != INVALID_SET_FILE_POINTER)
-		return true;
-
-	DWORD dwError = GetLastError();
-
-	return (dwError == NO_ERROR);
+	return !!result;
 }
 
-bool VDGetFileSizeW32(HANDLE h, sint64& size) {
-	DWORD dwSizeHigh;
-	DWORD dwSizeLow = GetFileSize(h, &dwSizeHigh);
+bool VDGetFileSizeW32(HANDLE h, sint64& size)
+{
+	LARGE_INTEGER filesize;
+	BOOL result = GetFileSizeEx(h, &filesize);
 
-	if (dwSizeLow == (DWORD)-1 && GetLastError() != NO_ERROR)
+	if (!result) {
 		return false;
+	}
 
-	size = dwSizeLow + ((sint64)dwSizeHigh << 32);
+	size = filesize.QuadPart;
 	return true;
 }
 
-#if !defined(_MSC_VER) || _MSC_VER < 1300
+#if !defined(_MSC_VER)
 HMODULE VDGetLocalModuleHandleW32() {
 	MEMORY_BASIC_INFORMATION meminfo;
 	static HMODULE shmod = (VirtualQuery((HINSTANCE)&VDGetLocalModuleHandleW32, &meminfo, sizeof meminfo), (HMODULE)meminfo.AllocationBase);
@@ -371,7 +277,7 @@ HMODULE VDGetLocalModuleHandleW32() {
 
 bool VDDrawTextW32(HDC hdc, const wchar_t *s, int nCount, LPRECT lpRect, UINT uFormat) {
 	RECT r;
-	if (VDIsWindowsNT()) {
+	{
 		// If multiline and vcentered (not normally supported...)
 		if (!((uFormat ^ DT_VCENTER) & (DT_VCENTER|DT_SINGLELINE))) {
 			uFormat &= ~DT_VCENTER;
@@ -391,28 +297,6 @@ bool VDDrawTextW32(HDC hdc, const wchar_t *s, int nCount, LPRECT lpRect, UINT uF
 		}
 
 		return !!DrawTextW(hdc, s, nCount, lpRect, uFormat);
-	} else {
-		VDStringA strA(VDTextWToA(s, nCount));
-
-		// If multiline and vcentered (not normally supported...)
-		if (!((uFormat ^ DT_VCENTER) & (DT_VCENTER|DT_SINGLELINE))) {
-			uFormat &= ~DT_VCENTER;
-
-			r = *lpRect;
-			if (!DrawTextA(hdc, strA.data(), strA.size(), &r, uFormat | DT_CALCRECT))
-				return false;
-
-			int dx = ((lpRect->right - lpRect->left) - (r.right - r.left)) >> 1;
-			int dy = ((lpRect->bottom - lpRect->top) - (r.bottom - r.top)) >> 1;
-
-			r.left += dx;
-			r.right += dx;
-			r.top += dy;
-			r.bottom += dy;
-			lpRect = &r;
-		}
-
-		return !!DrawTextA(hdc, strA.data(), strA.size(), lpRect, uFormat);
 	}
 }
 
@@ -621,7 +505,7 @@ bool VDPatchModuleExportTableW32(HMODULE hmod, const char *name, void *pCompareV
 				
 				// Reset the protection.
 
-				DWORD newRVA = (DWORD)pNewValue - (DWORD)pBase;
+				DWORD newRVA = (DWORD)((size_t)pNewValue - (size_t)pBase);
 
 				DWORD dwOldProtect;
 				if (VirtualProtect((void *)pRVA, sizeof(DWORD), PAGE_EXECUTE_READWRITE, &dwOldProtect)) {
@@ -655,7 +539,7 @@ bool VDPatchModuleExportTableW32(HMODULE hmod, const char *name, void *pCompareV
 }
 
 HMODULE VDLoadSystemLibraryW32(const char *name) {
-	if (VDIsWindowsNT()) {
+	{
 		vdfastvector<wchar_t> pathW(MAX_PATH, 0);
 
 		size_t len = GetSystemDirectoryW(pathW.data(), MAX_PATH);
@@ -682,29 +566,5 @@ HMODULE VDLoadSystemLibraryW32(const char *name) {
 		pathW.push_back(0);
 
 		return LoadLibraryW(pathW.data());
-	} else {
-		vdfastvector<char> pathA(MAX_PATH, 0);
-		size_t len = GetSystemDirectoryA(pathA.data(), MAX_PATH);
-
-		if (!len)
-			return NULL;
-
-		if (len > MAX_PATH) {
-			pathA.resize(len + 1, 0);
-
-			len = GetSystemDirectoryA(pathA.data(), len);
-			if (!len || len >= pathA.size())
-				return NULL;
-		}
-
-		pathA.resize(len);
-
-		if (pathA.back() != '\\')
-			pathA.push_back('\\');
-
-		pathA.insert(pathA.end(), name, name + strlen(name));
-		pathA.push_back(0);
-
-		return LoadLibraryA(pathA.data());
 	}
 }

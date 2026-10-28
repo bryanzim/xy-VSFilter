@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2006 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2006 Avery Lee, All Rights Reserved.
+// Copyright (C) 2016 Anton Shekhovtsov
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #include "stdafx.h"
 #include <math.h>
@@ -156,12 +140,28 @@ bool VDFraction::operator>=(VDFraction b) const {
 	return (uint64)hi * b.lo >= (uint64)lo * b.hi;
 }
 
+VDFraction VDFraction::operator+(VDFraction b) const {
+	return reduce((uint64)hi * b.lo + (uint64)lo * b.hi, (uint64)lo * b.lo);
+}
+
+VDFraction VDFraction::operator-(VDFraction b) const {
+	return reduce((uint64)hi * b.lo - (uint64)lo * b.hi, (uint64)lo * b.lo);
+}
+
 VDFraction VDFraction::operator*(VDFraction b) const {
 	return reduce((uint64)hi * b.hi, (uint64)lo * b.lo);
 }
 
 VDFraction VDFraction::operator/(VDFraction b) const {
 	return reduce((uint64)hi * b.lo, (uint64)lo * b.hi);
+}
+
+VDFraction VDFraction::operator+(unsigned long b) const {
+	return reduce((uint64)hi + (uint64)lo * b, lo);
+}
+
+VDFraction VDFraction::operator-(unsigned long b) const {
+	return reduce((uint64)hi - (uint64)lo * b, lo);
 }
 
 VDFraction VDFraction::operator*(unsigned long b) const {
@@ -172,12 +172,28 @@ VDFraction VDFraction::operator/(unsigned long b) const {
 	return reduce(hi, (uint64)lo * b);
 }
 
+VDFraction& VDFraction::operator+=(VDFraction b) {
+	return *this = reduce((uint64)hi * b.lo + (uint64)lo * b.hi, (uint64)lo * b.lo);
+}
+
+VDFraction& VDFraction::operator-=(VDFraction b) {
+	return *this = reduce((uint64)hi * b.lo - (uint64)lo * b.hi, (uint64)lo * b.lo);
+}
+
 VDFraction& VDFraction::operator*=(VDFraction b) {
 	return *this = reduce((uint64)hi * b.hi, (uint64)lo * b.lo);
 }
 
 VDFraction& VDFraction::operator/=(VDFraction b) {
 	return *this = reduce((uint64)hi * b.lo, (uint64)lo * b.hi);
+}
+
+VDFraction& VDFraction::operator+=(unsigned long b) {
+	return *this = reduce((uint64)hi + (uint64)lo * b, lo);
+}
+
+VDFraction& VDFraction::operator-=(unsigned long b) {
+	return *this = reduce((uint64)hi - (uint64)lo * b, lo);
 }
 
 VDFraction& VDFraction::operator*=(unsigned long b) {
@@ -252,6 +268,10 @@ double VDFraction::asDouble() const {
 
 double VDFraction::AsInverseDouble() const {
 	return (double)lo / (double)hi;
+}
+
+unsigned long VDFraction::asInt() const {
+	return (hi + hi + lo) / (lo + lo);
 }
 
 unsigned long VDFraction::roundup32ul() const {

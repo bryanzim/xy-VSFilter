@@ -4,7 +4,7 @@
 // Author:  Tad E. Smith
 //
 //
-// Copyright 2001-2009 Tad E. Smith
+// Copyright 2001-2017 Tad E. Smith
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@
 
 #include <log4cplus/streams.h>
 #include <log4cplus/helpers/pointer.h>
-#include <log4cplus/helpers/threads.h>
-#include <assert.h>
+#include <log4cplus/thread/threads.h>
+#include <log4cplus/thread/impl/syncprims-impl.h>
+#include <cassert>
 
 
 namespace log4cplus { namespace helpers {
@@ -33,8 +34,7 @@ namespace log4cplus { namespace helpers {
 
 SharedObject::~SharedObject()
 {
-    assert(count == 0);
-    LOG4CPLUS_MUTEX_FREE( access_mutex );
+    assert(count__ == 0);
 }
 
 
@@ -44,25 +44,36 @@ SharedObject::~SharedObject()
 ///////////////////////////////////////////////////////////////////////////////
 
 void
-SharedObject::addReference() const
+SharedObject::addReference() const LOG4CPLUS_NOEXCEPT
 {
-    LOG4CPLUS_BEGIN_SYNCHRONIZE_ON_MUTEX( access_mutex )
-        assert (count >= 0);
-        ++count;
-    LOG4CPLUS_END_SYNCHRONIZE_ON_MUTEX;
+#if defined (LOG4CPLUS_SINGLE_THREADED)
+    ++count__;
+
+#else
+    std::atomic_fetch_add_explicit (&count__, 1u,
+        std::memory_order_relaxed);
+
+#endif
 }
 
 
 void
 SharedObject::removeReference() const
 {
-    bool destroy = false;
-    LOG4CPLUS_BEGIN_SYNCHRONIZE_ON_MUTEX( access_mutex );
-        assert (count > 0);
-        if (--count == 0)
-            destroy = true;
-    LOG4CPLUS_END_SYNCHRONIZE_ON_MUTEX;
-    if (destroy)
+    assert (count__ > 0);
+    bool destroy;
+
+#if defined (LOG4CPLUS_SINGLE_THREADED)
+    destroy = --count__ == 0;
+
+#else
+    destroy = std::atomic_fetch_sub_explicit (&count__, 1u,
+        std::memory_order_release) == 1;
+    if (LOG4CPLUS_UNLIKELY (destroy))
+        std::atomic_thread_fence (std::memory_order_acquire);
+
+#endif
+    if (LOG4CPLUS_UNLIKELY (destroy))
         delete this;
 }
 

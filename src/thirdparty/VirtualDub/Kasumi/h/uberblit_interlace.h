@@ -1,20 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	Graphics support library
-//	Copyright (C) 1998-2009 Avery Lee
+// VirtualDub - Video processing and capture application
+// Graphics support library
 //
-//	This program is free software; you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation; either version 2 of the License, or
-//	(at your option) any later version.
+// Copyright (C) 1998-2009 Avery Lee
+// Copyright (C) 2015-2018 Anton Shekhovtsov
 //
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
+// SPDX-License-Identifier: GPL-2.0-or-later
 //
-//	You should have received a copy of the GNU General Public License
-//	along with this program; if not, write to the Free Software
-//	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #ifndef f_VD2_KASUMI_UBERBLIT_INTERLACE_H
 #define f_VD2_KASUMI_UBERBLIT_INTERLACE_H
@@ -25,6 +16,10 @@ class VDPixmapGen_SplitFields : public IVDPixmapGen {
 public:
 	void AddWindowRequest(int minDY, int maxDY) {
 		mpSrc->AddWindowRequest(minDY*2, maxDY*2+1);
+	}
+
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		mpSrc->TransformPixmapInfo(src,dst);
 	}
 
 	void Start() {
@@ -61,6 +56,13 @@ public:
 		mHeight[1] = h >> 1;
 	}
 
+	virtual IVDPixmapGen* dump_src(int index){
+		if(index==0) return mpSrc;
+		return 0; 
+	}
+
+	virtual const char* dump_name(){ return "SplitFields"; }
+
 protected:
 	IVDPixmapGen *mpSrc;
 	uint32 mSrcIndex;
@@ -74,6 +76,11 @@ public:
 	void AddWindowRequest(int minDY, int maxDY) {
 		mpSrc[0]->AddWindowRequest(minDY >> 1, maxDY >> 1);
 		mpSrc[1]->AddWindowRequest(minDY >> 1, maxDY >> 1);
+	}
+
+	void TransformPixmapInfo(const FilterModPixmapInfo& src, FilterModPixmapInfo& dst) {
+		mpSrc[0]->TransformPixmapInfo(src,dst);
+		mpSrc[1]->TransformPixmapInfo(src,dst);
 	}
 
 	void Start() {
@@ -111,6 +118,14 @@ public:
 		mHeight = h;
 		mBpr = bpr;
 	}
+
+	virtual IVDPixmapGen* dump_src(int index){
+		if(index==0) return mpSrc[0];
+		if(index==1) return mpSrc[1];
+		return 0; 
+	}
+
+	virtual const char* dump_name(){ return "MergeFields"; }
 
 protected:
 	IVDPixmapGen *mpSrc[2];

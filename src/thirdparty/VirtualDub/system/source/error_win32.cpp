@@ -1,27 +1,11 @@
-//	VirtualDub - Video processing and capture application
-//	System library component
-//	Copyright (C) 1998-2012 Avery Lee, All Rights Reserved.
+// VirtualDub - Video processing and capture application
+// System library component
 //
-//	Beginning with 1.6.0, the VirtualDub system library is licensed
-//	differently than the remainder of VirtualDub.  This particular file is
-//	thus licensed as follows (the "zlib" license):
+// Copyright (C) 1998-2012 Avery Lee, All Rights Reserved.
+// Copyright (C) 2024-2025 v0lt
 //
-//	This software is provided 'as-is', without any express or implied
-//	warranty.  In no event will the authors be held liable for any
-//	damages arising from the use of this software.
+// SPDX-License-Identifier: Zlib
 //
-//	Permission is granted to anyone to use this software for any purpose,
-//	including commercial applications, and to alter it and redistribute it
-//	freely, subject to the following restrictions:
-//
-//	1.	The origin of this software must not be misrepresented; you must
-//		not claim that you wrote the original software. If you use this
-//		software in a product, an acknowledgment in the product
-//		documentation would be appreciated but is not required.
-//	2.	Altered source versions must be plainly marked as such, and must
-//		not be misrepresented as being the original software.
-//	3.	This notice may not be removed or altered from any source
-//		distribution.
 
 #include "stdafx.h"
 #include <windows.h>
@@ -64,11 +48,11 @@ MyICError::MyICError(const char *s, uint32 icErr) {
 
 MyICError::MyICError(uint32 icErr, const char *format, ...) {
 	char tmpbuf[1024];
+	tmpbuf[0] = 0;
 
 	va_list val;
 	va_start(val, format);
-	tmpbuf[(sizeof tmpbuf) - 1] = 0;
-	_vsnprintf(tmpbuf, (sizeof tmpbuf) - 1, format, val);
+	_vsnprintf_s(tmpbuf, _TRUNCATE, format, val);
 	va_end(val);
 
 	setf(tmpbuf, GetVCMErrorString(icErr));
@@ -102,16 +86,92 @@ MyAVIError::MyAVIError(const char *s, uint32 avierr) {
 	setf("%s error: %s (%08lx)", s, err, avierr);
 }
 
+MyWin32Error::MyWin32Error(const wchar_t* format, uint32 err, ...)
+	: mWin32Error(err)
+{
+	wchar_t szError[1024];
+	wchar_t szTemp[1024];
+	szError[0] = 0;
+
+	va_list val;
+	va_start(val, err);
+	_vsnwprintf_s(szError, _TRUNCATE, format, val);
+	va_end(val);
+
+	// Determine the position of the last %s, and escape everything else. This doesn't
+	// track escaped % signs properly, but it works for the strings that we receive (and at
+	// worst just produces a funny message).
+	const wchar_t* keep = wcsstr(szError, L"%s");
+	if (keep) {
+		for (;;) {
+			const wchar_t* test = wcsstr(keep + 1, L"%s");
+			if (!test) {
+				break;
+			}
+			keep = test;
+		}
+	}
+
+	wchar_t* t = szTemp;
+	wchar_t* end = szTemp + std::size(szTemp) - 1;
+	const wchar_t* s = szError;
+
+	while (wchar_t c = *s++) {
+		if (c == L'%') {
+			// We allow one %s to go through. Everything else gets escaped.
+			if (s - 1 != keep) {
+				if (t >= end) {
+					break;
+				}
+
+				*t++ = L'%';
+			}
+		}
+
+		if (t >= end) {
+			break;
+		}
+
+		*t++ = c;
+	}
+
+	*t = 0;
+
+	if (!FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		0,
+		err,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		szError,
+		std::size(szError),
+		NULL))
+	{
+		szError[0] = 0;
+	}
+
+	if (szError[0]) {
+		long l = wcslen(szError);
+
+		if (l > 1 && szError[l - 2] == L'\r') {
+			szError[l - 2] = 0;
+		}
+		else if (szError[l - 1] == L'\n') {
+			szError[l - 1] = 0;
+		}
+	}
+
+	setf(szTemp, szError);
+}
+
 MyWin32Error::MyWin32Error(const char *format, uint32 err, ...)
 	: mWin32Error(err)
 {
 	char szError[1024];
 	char szTemp[1024];
-	va_list val;
+	szError[0] = 0;
 
+	va_list val;
 	va_start(val, err);
-	szError[(sizeof szError)-1] = 0;
-	_vsnprintf(szError, (sizeof szError)-1, format, val);
+	_vsnprintf_s(szError, _TRUNCATE, format, val);
 	va_end(val);
 
 	// Determine the position of the last %s, and escape everything else. This doesn't
@@ -130,7 +190,7 @@ MyWin32Error::MyWin32Error(const char *format, uint32 err, ...)
 	}
 
 	char *t = szTemp;
-	char *end = szTemp + (sizeof szTemp) - 1;
+	char *end = szTemp + std::size(szTemp) - 1;
 	const char *s = szError;
 
 	while(char c = *s++) {
@@ -157,7 +217,7 @@ MyWin32Error::MyWin32Error(const char *format, uint32 err, ...)
 			err,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			szError,
-			sizeof szError,
+			std::size(szError),
 			NULL))
 	{
 		szError[0] = 0;

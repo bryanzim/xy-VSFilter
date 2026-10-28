@@ -28,7 +28,7 @@
 enum exttype {EXTSRT = 0, EXTSUB, EXTSMI, EXTPSB, EXTSSA, EXTASS, EXTIDX, EXTUSF, EXTXSS, EXTTXT,
     EXTSSF, EXTRT, EXTSUP, EXTVTT};
 
-extern TCHAR* G_EXTTYPESTR[];
+extern const TCHAR* G_EXTTYPESTR[];
 typedef struct 
 {
     CString full_file_name;

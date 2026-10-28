@@ -84,7 +84,7 @@ bool CDVDSession::Authenticate()
 
 	BYTE Challenge[10], Key[10];
 
-	for(int i = 0; i < 10; i++) Challenge[i] = i;
+	for(int i = 0; i < 10; ++i) Challenge[i] = i;
 
 	if(!SendKey(DvdChallengeKey, Challenge))
 		return(false);
@@ -94,7 +94,7 @@ bool CDVDSession::Authenticate()
 
 	int varient = -1;
 
-	for(int i = 31; i >= 0; i--)
+	for(int i = 31; i >= 0; --i)
 	{
 		BYTE KeyCheck[5];
 		CSSkey1(i, Challenge, KeyCheck);
@@ -124,9 +124,9 @@ bool CDVDSession::GetDiscKey()
 	if(!ReadKey(DvdDiskKey, DiscKeys))
 		return(false);
 
-	for(int i = 0; i < g_nPlayerKeys; i++)
+	for(int i = 0; i < g_nPlayerKeys; ++i)
 	{
-		for(int j = 1; j < 409; j++)
+		for(int j = 1; j < 409; ++j)
 		{
 			BYTE DiscKey[6];
 			memcpy(DiscKey, &DiscKeys[j*5], 5);
@@ -178,7 +178,7 @@ static void Reverse(BYTE* d, BYTE* s, int len)
 	}
 	else
 	{
-		for(int i = 0; i < len; i++)
+		for(int i = 0; i < len; ++i)
 			d[i] = s[len-1 - i];
 	}
 }
@@ -268,12 +268,12 @@ bool CDVDSession::ReadKey(DVD_KEY_TYPE KeyType, BYTE* pKeyData, int lba)
 			break;
 		case DvdDiskKey:
 			memcpy(pKeyData, key->KeyData, 2048);
-			for(int i = 0; i < 2048/5; i++)
+			for(int i = 0; i < 2048/5; ++i)
 				pKeyData[i] ^= m_SessionKey[4-(i%5)];
 			break;
 		case DvdTitleKey:
 			memcpy(pKeyData, key->KeyData, 5);
-			for(int i = 0; i < 5; i++)
+			for(int i = 0; i < 5; ++i)
 				pKeyData[i] ^= m_SessionKey[4-(i%5)];
 			break;
 		default: 
@@ -383,7 +383,7 @@ bool CVobFile::Open(CString fn, CAtlList<CString>& vobs)
 
 	fn = fn.Left(fn.ReverseFind('.')+1);
 	fn.TrimRight(_T(".0123456789"));
-	for(int i = 0; i < 100; i++)
+	for(int i = 0; i < 100; ++i)
 	{
 		CString vob;
 		vob.Format(_T("%s%d.vob"), fn, i);
@@ -447,7 +447,7 @@ bool CVobFile::Open(CAtlList<CString>& vobs, int offset)
 
 	if(m_files.GetCount() > 0 && CDVDSession::Open(m_files[0].fn))
 	{
-		for(int i = 0; !m_fHasTitleKey && i < m_files.GetCount(); i++)
+		for(int i = 0; !m_fHasTitleKey && i < m_files.GetCount(); ++i)
 		{
 			if(BeginSession())
 			{
@@ -488,7 +488,7 @@ bool CVobFile::Open(CAtlList<CString>& vobs, int offset)
 			BYTE key[5];
 			if(HasTitleKey(key) && i == 0 && offset >= 0)
 			{
-				i++;
+				++i;
 
 				if(BeginSession())
 				{
@@ -619,7 +619,7 @@ bool CVobFile::Read(BYTE* buff)
 		return(false);
 	}
 
-	m_pos++;
+	++m_pos;
 
 	if(buff[0x14] & 0x30)
 	{

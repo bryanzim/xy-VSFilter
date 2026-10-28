@@ -22,14 +22,14 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetOutputRect( RECT *outputRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper::GetOutputRect( RECT *outputRect )
 {
     TRACE_SUB_RENDER_FRAME(outputRect<<" "<<m_output_rect);
     if (!outputRect)
@@ -40,7 +40,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetClipRect( RECT *clipRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper::GetClipRect( RECT *clipRect )
 {
     TRACE_SUB_RENDER_FRAME(clipRect<<" "<<m_clip_rect);
     if (!clipRect)
@@ -51,7 +51,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetXyColorSpace( int *xyColorSpace )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper::GetXyColorSpace( int *xyColorSpace )
 {
     TRACE_SUB_RENDER_FRAME(xyColorSpace);
     if (!xyColorSpace)
@@ -62,7 +62,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetBitmapCount( int *count )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper::GetBitmapCount( int *count )
 {
     TRACE_SUB_RENDER_FRAME(count<<" "<<1);
     if (!count)
@@ -73,7 +73,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size
     , LPCVOID *pixels, int *pitch )
 {
     if (index!=0)
@@ -117,7 +117,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper( CMemSubPic * inner_obj, const 
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper::GetBitmapExtra( const int index, const LPVOID extra_info )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper::GetBitmapExtra( const int index, const LPVOID extra_info )
 {
     if (index!=0)
     {
@@ -170,7 +170,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     if (count>0)
     {
         m_ids.SetCount(count);
-        for (int i{0};i<count;i++)
+        for (int i{0};i<count;++i)
         {
             ULONGLONG id;
             hr = inner_obj->GetBitmap(i, &id, NULL, NULL, NULL, NULL);
@@ -180,34 +180,34 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderFrame)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetOutputRect( RECT *outputRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper2::GetOutputRect( RECT *outputRect )
 {
     return m_inner_obj->GetOutputRect(outputRect);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetClipRect( RECT *clipRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper2::GetClipRect( RECT *clipRect )
 {
     return m_inner_obj->GetClipRect(clipRect);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetXyColorSpace( int *xyColorSpace )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper2::GetXyColorSpace( int *xyColorSpace )
 {
     return m_inner_obj->GetXyColorSpace(xyColorSpace);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapCount( int *count )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapCount( int *count )
 {
     return m_inner_obj->GetBitmapCount(count);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper2::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size
     , LPCVOID *pixels, int *pitch )
 {
     HRESULT hr{m_inner_obj->GetBitmap(index, id, position, size, pixels, pitch)};
@@ -224,7 +224,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapExtra( const int index, const LPVOID extra_info )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrameWrapper2::GetBitmapExtra( const int index, const LPVOID extra_info )
 {
     return m_inner_obj->GetBitmapExtra(index, extra_info);
 }
@@ -238,7 +238,7 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
     using namespace std;
 
     ASSERT(sub);
-    [[nodiscard]] ofstream output(filename, ios::out);
+    ofstream output(filename, ios::out);
     if (!output)
     {
         XY_LOG_ERROR("Failed to open file '"<<filename<<"'");
@@ -282,7 +282,7 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
         output<<"Colorspace NOT Supported! "<<endl;
         return S_FALSE;
     }
-    for (int i{0};i<count;i++)
+    for (int i{0};i<count;++i)
     {
         ULONGLONG id;
         POINT position;
@@ -299,10 +299,10 @@ HRESULT DumpSubRenderFrame( IXySubRenderFrame *sub, const char * filename )
         output<<"\tbitmap "<<i<<" id: "<<id<<" position: "<<position<<" size: "<<size<<" pitch: "<<pitch
             <<" pixels: "<<pixels2<<endl;
         output<<hex;
-        for (int m{0};m<size.cy;m++)
+        for (int m{0};m<size.cy;++m)
         {
             output<<"\timg:";
-            for (int n{0};n<size.cx;n++)
+            for (int n{0};n<size.cx;++n)
             {
                 output<<" "<<setfill('0')<<setw(8)<<(int)pixels2[n];
             }
@@ -345,7 +345,7 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
     }
 
     RGBQUAD bmiColors[256U];
-    for (int i{0}; i < 256; i++) {
+    for (int i{0}; i < 256; ++i) {
         bmiColors[i].rgbRed   = i;
         bmiColors[i].rgbGreen = i;
         bmiColors[i].rgbBlue  = i;
@@ -383,7 +383,7 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
         XY_LOG_ERROR("Colorspace NOT Supported!");
         return S_FALSE;
     }
-    for (int i{0};i<count;i++)
+    for (int i{0};i<count;++i)
     {
         ULONGLONG id;
         POINT position;
@@ -418,11 +418,11 @@ HRESULT DumpToBitmap( IXySubRenderFrame *sub, LPCTSTR filename, bool dump_alpha_
             size.cy -= position.y + size.cy - clip_rect.bottom;
         }
 
-        for (int m{0};m<size.cy;m++)
+        for (int m{0};m<size.cy;++m)
         {
             BYTE * pix_8bpp{(BYTE *)image8bbp.GetPixelAddress(position.x-output_rect.left, position.y+m-output_rect.top)};
             BYTE * pix_32bpp{(BYTE *)imageBmp.GetPixelAddress(position.x-output_rect.left, position.y+m-output_rect.top)};
-            for (int n{0};n<size.cx;n++)
+            for (int n{0};n<size.cx;++n)
             {
                 DWORD argb{pixels2[n]};
                 DWORD a{(argb&0xff000000)>>24};

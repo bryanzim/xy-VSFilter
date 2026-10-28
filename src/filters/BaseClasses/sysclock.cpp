@@ -38,7 +38,7 @@ CSystemClock::CSystemClock(TCHAR *pName,LPUNKNOWN pUnk,HRESULT *phr) :
 {
 }
 
-STDMETHODIMP CSystemClock::NonDelegatingQueryInterface(
+DECLSPEC_NOTHROW STDMETHODIMP CSystemClock::NonDelegatingQueryInterface(
     REFIID riid,
     void ** ppv)
 {
@@ -57,7 +57,7 @@ STDMETHODIMP CSystemClock::NonDelegatingQueryInterface(
 }
 
 /* Return the clock's clsid */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CSystemClock::GetClassID(CLSID *pClsID)
 {
     CheckPointer(pClsID,E_POINTER);
@@ -67,7 +67,7 @@ CSystemClock::GetClassID(CLSID *pClsID)
 }
 
 
-STDMETHODIMP 
+DECLSPEC_NOTHROW STDMETHODIMP 
 CSystemClock::SetClockDelta(REFERENCE_TIME rtDelta)
 {
     return SetTimeDelta(rtDelta);

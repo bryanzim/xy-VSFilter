@@ -72,9 +72,9 @@ bool g_fAutoRefreshLevels = false;
 
 const TCHAR *pBaseKey = TEXT("SOFTWARE\\Debug");
 const TCHAR *pGlobalKey = TEXT("GLOBAL");
-static CHAR *pUnknownName = "UNKNOWN";
+static const CHAR *pUnknownName = "UNKNOWN";
 
-TCHAR *TimeoutName = TEXT("TIMEOUT");
+const TCHAR *TimeoutName = TEXT("TIMEOUT");
 
 /* This sets the instance handle that the debug library uses to find
    the module's file name from the Win32 GetModuleFileName function */
@@ -993,7 +993,7 @@ void WINAPI DbgSetWaitTimeout(DWORD dwTimeout)
     CGuidNameList GuidNames;
     int g_cGuidNames = sizeof(g_GuidNames) / sizeof(g_GuidNames[0]);
 
-    char *CGuidNameList::operator [] (const GUID &guid)
+    const char *CGuidNameList::operator [] (const GUID &guid)
     {
         for (int i = 0; i < g_cGuidNames; i++) {
             if (g_GuidNames[i].guid == guid) {
@@ -1042,7 +1042,7 @@ CDisp::CDisp(LONGLONG ll, int Format)
 	default:
 	    wsprintf(m_String, TEXT("0x%X%8.8X"), li.HighPart, li.LowPart);
     }
-};
+}
 
 CDisp::CDisp(REFCLSID clsid)
 {
@@ -1050,7 +1050,7 @@ CDisp::CDisp(REFCLSID clsid)
     StringFromGUID2(clsid, strClass, sizeof(strClass) / sizeof(strClass[0]));
     ASSERT(sizeof(m_String)/sizeof(m_String[0]) >= CHARS_IN_GUID+1);
     wsprintf(m_String, TEXT("%ls"), strClass);
-};
+}
 
 #ifdef __STREAMS__
 /*  Display stuff */
@@ -1080,7 +1080,7 @@ CDisp::CDisp(CRefTime llTime)
     wsprintf(lpsz, TEXT("%d.%3.3d sec"),
              (LONG)llTime / 10000000,
              (LONG)((llTime % 10000000) / 10000));
-};
+}
 
 #endif // __STREAMS__
 

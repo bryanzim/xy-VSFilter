@@ -103,17 +103,17 @@ public:
     [[nodiscard]] POSITION  GetNext(POSITION pos) {
         m_pPresentationSegments.GetNext(pos);
         return pos;
-    };
+    }
 
 
     [[nodiscard]] virtual REFERENCE_TIME GetStart(POSITION nPos) {
         HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt(nPos)};
         return pPresentationSegment != NULL ? pPresentationSegment->rtStart : INVALID_TIME;
-    };
+    }
     [[nodiscard]] virtual REFERENCE_TIME GetStop(POSITION nPos) {
         HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt(nPos)};
         return pPresentationSegment != NULL ? pPresentationSegment->rtStop : INVALID_TIME;
-    };
+    }
 
     void      Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox);
     [[nodiscard]] HRESULT   GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft);

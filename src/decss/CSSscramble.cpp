@@ -161,7 +161,7 @@ void CSSdisckey(unsigned char *dkey,unsigned char *pkey)
 	t4=t3&7;
 	t3=t3*2+8-t4;
 	t5=0;
-	for(i=0;i<5;i++)
+	for(i=0;i<5;++i)
 	{
 		t4=CSStab2[t2]^CSStab3[t1];
 		t2=t1>>1;
@@ -174,7 +174,7 @@ void CSSdisckey(unsigned char *dkey,unsigned char *pkey)
 		k[i]=t5&0xff;
 		t5>>=8;
 	}
-	for(i=9;i>=0;i--)
+	for(i=9;i>=0;--i)
 		dkey[CSStab0[i+1]]=k[CSStab0[i+1]]^CSStab1[dkey[CSStab0[i+1]]]^dkey[CSStab0[i]];
 }
 
@@ -190,7 +190,7 @@ void CSStitlekey(unsigned char *tkey,unsigned char *dkey)
 	t4=t3&7;
 	t3=t3*2+8-t4;
 	t5=0;
-	for(i=0;i<5;i++)
+	for(i=0;i<5;++i)
 	{
 		t4=CSStab2[t2]^CSStab3[t1];
 		t2=t1>>1;
@@ -203,7 +203,7 @@ void CSStitlekey(unsigned char *tkey,unsigned char *dkey)
 		k[i]=t5&0xff;
 		t5>>=8;
 	}
-	for(i=9;i>=0;i--)
+	for(i=9;i>=0;--i)
 		tkey[CSStab0[i+1]]=k[CSStab0[i+1]]^CSStab1[tkey[CSStab0[i+1]]]^tkey[CSStab0[i]];
 }
 

@@ -18,10 +18,10 @@ public:
     CSeekingPassThru(TCHAR *pName, LPUNKNOWN pUnk, HRESULT *phr);
     ~CSeekingPassThru();
 
-    DECLARE_IUNKNOWN;
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
+    DECLARE_IUNKNOWN
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 
-    STDMETHODIMP Init(BOOL bSupportRendering, IPin *pPin);
+    DECLSPEC_NOTHROW STDMETHODIMP Init(BOOL bSupportRendering, IPin *pPin);
 
 private:
     CPosPassThru              *m_pPosPassThru;

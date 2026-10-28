@@ -73,17 +73,17 @@ yuvtoyuy2row_loop:
 	};
 }
 
+static const __int64 yuvtoyuy2row_avg_mask{0x7f7f7f7f7f7f7f7fi64};
+
 void __declspec(naked) yuvtoyuy2row_avg_MMX(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, const DWORD width, const DWORD pitchuv)
 {
-	static const __int64 mask{0x7f7f7f7f7f7f7f7fi64};
-
 	__asm {
 		push	ebp
 		push	edi
 		push	esi
 		push	ebx
 
-		movq	mm7, mask
+		movq	mm7, yuvtoyuy2row_avg_mask
 
 		mov		edi, [esp+20] // dst
 		mov		ebp, [esp+24] // srcy

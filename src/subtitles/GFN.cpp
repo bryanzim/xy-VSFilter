@@ -26,7 +26,7 @@
 #include "xy_logger.h"
 
 // note: match with enum 'exttype'
-TCHAR* G_EXTTYPESTR[] = 
+const TCHAR* G_EXTTYPESTR[] = 
 {
     _T("srt"), _T("sub"), _T("smi"), _T("psb"), 
     _T("ssa"), _T("ass"), _T("idx"), _T("usf"), 
@@ -54,11 +54,11 @@ public:
     bool init(const CString& load_ext_list)
     {
         int extsubnum{countof(G_EXTTYPESTR)};
-        for (int i{0};i<extsubnum;i++)
+        for (int i{0};i<extsubnum;++i)
         {
             ext_map[CString(G_EXTTYPESTR[i])] = -1;
         }
-        for (int i{0}, start=0;true;i++)
+        for (int i{0}, start=0;true;++i)
         {
             CString ext{load_ext_list.Tokenize(_T(";"), start)};
             if (ext!="")
@@ -122,7 +122,7 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
     if(!fWeb)
     {
         WIN32_FIND_DATA wfd;
-        for(std::size_t k{0U}; k < paths.GetCount(); k++)
+        for(std::size_t k{0U}; k < paths.GetCount(); ++k)
         {
             CString path{paths[k]};
             path.Replace('\\', '/');

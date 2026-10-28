@@ -36,15 +36,15 @@ public:
     CDeCSSInputPin(TCHAR* pObjectName, CTransformFilter* pFilter, HRESULT* phr, LPWSTR pName);
 
 	DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
 	void StripPacket(BYTE*& p, long& len);
 
 	// IMemInputPin
-    STDMETHODIMP Receive(IMediaSample* pSample);
+    DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample* pSample);
 
 	// IKsPropertySet
-    STDMETHODIMP Set(REFGUID PropSet, ULONG Id, LPVOID InstanceData, ULONG InstanceLength, LPVOID PropertyData, ULONG DataLength);
-    STDMETHODIMP Get(REFGUID PropSet, ULONG Id, LPVOID InstanceData, ULONG InstanceLength, LPVOID PropertyData, ULONG DataLength, ULONG* pBytesReturned);
-    STDMETHODIMP QuerySupported(REFGUID PropSet, ULONG Id, ULONG* pTypeSupport);
+    DECLSPEC_NOTHROW STDMETHODIMP Set(REFGUID PropSet, ULONG Id, LPVOID InstanceData, ULONG InstanceLength, LPVOID PropertyData, ULONG DataLength);
+    DECLSPEC_NOTHROW STDMETHODIMP Get(REFGUID PropSet, ULONG Id, LPVOID InstanceData, ULONG InstanceLength, LPVOID PropertyData, ULONG DataLength, ULONG* pBytesReturned);
+    DECLSPEC_NOTHROW STDMETHODIMP QuerySupported(REFGUID PropSet, ULONG Id, ULONG* pTypeSupport);
 };

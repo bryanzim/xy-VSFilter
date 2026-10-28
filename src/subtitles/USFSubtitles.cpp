@@ -109,7 +109,7 @@
 	
 	int mul[4U] = {1,1000,60*1000,60*60*1000};
 	POSITION pos{sl.GetHeadPosition()};
-	for(i = 0; pos; i++)
+	for(i = 0; pos; ++i)
 	{
 		const WCHAR* s{sl.GetNext(pos)};
 		WCHAR* tmp{NULL};
@@ -389,7 +389,7 @@ CUSFSubtitles::~CUSFSubtitles()
 		    stss->shadowDepthX = stss->shadowDepthY = wcstol(s->fontstyle.shadow, NULL, 10);
 		}
 
-		for(int i{0}; i < 4; i++)
+		for(int i{0}; i < 4; ++i)
 		{
 			DWORD color{ColorToDWORD(s->fontstyle.color[i])};
 			int alpha{(BYTE)wcstol(s->fontstyle.alpha, NULL, 10)};
@@ -472,7 +472,7 @@ CUSFSubtitles::~CUSFSubtitles()
 		}
 
 		WCHAR rtags[3U][8U] = {L"{\\rz%d}", L"{\\rx%d}", L"{\\ry%d}"};
-		for(int i{0}; i < 3; i++)
+		for(int i{0}; i < 3; ++i)
 		{
 			if(int angle = wcstol(t->pal.rotate[i], NULL, 10))
 			{
@@ -547,7 +547,7 @@ CUSFSubtitles::~CUSFSubtitles()
 
 					if(name == L"style")
 					{
-						[[nodiscard]] CAutoPtr<style_t> s(new style_t);
+						CAutoPtr<style_t> s(new style_t);
 						if(s)
 						{
 							ParseStyle(pGrandChild, s);
@@ -574,7 +574,7 @@ CUSFSubtitles::~CUSFSubtitles()
 
 					if(name == L"effect")
 					{
-						[[nodiscard]] CAutoPtr<effect_t> e(new effect_t);
+						CAutoPtr<effect_t> e(new effect_t);
 						if(e)
 						{
 							ParseEffect(pGrandChild, e);
@@ -762,7 +762,7 @@ void CUSFSubtitles::ParseEffect(const CComPtr<IXMLDOMNode> pNode, effect_t* e)
 
 			if(name == L"keyframe")
 			{
-				[[nodiscard]] CAutoPtr<keyframe_t> k(new keyframe_t);
+				CAutoPtr<keyframe_t> k(new keyframe_t);
 				if(k)
 				{
 					ParseKeyframe(pChild, k);
@@ -808,7 +808,7 @@ void CUSFSubtitles::ParseSubtitle(const CComPtr<IXMLDOMNode> pNode, int start, i
 
 	if(name == L"text" || name == L"karaoke")
 	{
-		[[nodiscard]] CAutoPtr<text_t> t(new text_t);
+		CAutoPtr<text_t> t(new text_t);
 		if(t)
 		{
 			t->start = start;
@@ -862,7 +862,7 @@ void CUSFSubtitles::ParseText(const CComPtr<IXMLDOMNode> pNode, CStringW& str)
 		if(!fs.outline.IsEmpty()) {prefix += L"{\\bord" + fs.outline + L"}"; postfix += L"{\\bord}";}
 		if(!fs.shadow.IsEmpty()) {prefix += L"{\\shad" + fs.shadow + L"}"; postfix += L"{\\shad}";}
 
-		for(int i{0}; i < 4; i++)
+		for(int i{0}; i < 4; ++i)
 		{
 			if(!fs.color[i].IsEmpty())
 			{

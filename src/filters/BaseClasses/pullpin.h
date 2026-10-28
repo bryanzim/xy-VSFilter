@@ -114,19 +114,19 @@ public:
     LONGLONG AlignDown(LONGLONG ll, LONG lAlign) {
 	// aligning downwards is just truncation
 	return ll & ~(lAlign-1);
-    };
+    }
 
     LONGLONG AlignUp(LONGLONG ll, LONG lAlign) {
 	// align up: round up to next boundary
 	return (ll + (lAlign -1)) & ~(lAlign -1);
-    };
+    }
 
     // GetReader returns the (addrefed) IAsyncReader interface
     // for SyncRead etc
     IAsyncReader* GetReader() {
 	m_pReader->AddRef();
 	return m_pReader;
-    };
+    }
 
     // -- pure --
 

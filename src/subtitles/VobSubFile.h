@@ -28,6 +28,9 @@
 
 #define VOBSUBIDXVER 7
 
+// MSVC packs a two-character literal with the last character in the low byte.
+#define TwoCc(a, b) ((unsigned short)(((unsigned char)(a) << 8) | (unsigned char)(b)))
+
 #define ReadBEb(var)              \
     f.Read(&((BYTE*)&var)[0], 1);
 
@@ -144,25 +147,25 @@ public:
     [[nodiscard]] CString GetTitle() { return m_title; }
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-    [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
 
     // IPersist
-    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
-    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    [[nodiscard]] STDMETHODIMP_(int) GetStream();
-    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
-    STDMETHODIMP Reload();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+    DECLSPEC_NOTHROW STDMETHODIMP Reload();
 };
 
 class __declspec(uuid("D7FBFB45-2D13-494F-9B3D-FFC9557D5C45"))
@@ -188,23 +191,23 @@ public:
     void RemoveAll();
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-    [[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
 
     // IPersist
-    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
     // ISubStream
-    [[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
-    [[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-    [[nodiscard]] STDMETHODIMP_(int) GetStream();
-    [[nodiscard]] STDMETHODIMP SetStream(int iStream);
-    [[nodiscard]] STDMETHODIMP Reload() { return E_NOTIMPL; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Reload() { return E_NOTIMPL; }
 };

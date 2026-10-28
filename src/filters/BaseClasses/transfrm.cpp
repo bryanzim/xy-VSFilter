@@ -140,7 +140,7 @@ CTransformFilter::GetPin(int n)
 // If Id is In or Out then return the IPin* for that pin
 // creating the pin if need be.  Otherwise return NULL with an error.
 
-STDMETHODIMP CTransformFilter::FindPin(LPCWSTR Id, IPin **ppPin)
+DECLSPEC_NOTHROW STDMETHODIMP CTransformFilter::FindPin(LPCWSTR Id, IPin **ppPin)
 {
     CheckPointer(ppPin,E_POINTER);
     ValidateReadWritePtr(ppPin,sizeof(IPin *));
@@ -442,7 +442,7 @@ CTransformFilter::EndFlush(void)
 
 // override these so that the derived filter can catch them
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformFilter::Stop()
 {
     CAutoLock lck1(&m_csFilter);
@@ -484,7 +484,7 @@ CTransformFilter::Stop()
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformFilter::Pause()
 {
     CAutoLock lck(&m_csFilter);
@@ -690,7 +690,7 @@ CTransformInputPin::SetMediaType(const CMediaType* mtIn)
 
 // provide EndOfStream that passes straight downstream
 // (there is no queued data)
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformInputPin::EndOfStream(void)
 {
     CAutoLock lck(&m_pTransformFilter->m_csReceive);
@@ -704,7 +704,7 @@ CTransformInputPin::EndOfStream(void)
 
 // enter flushing state. Call default handler to block Receives, then
 // pass to overridable method in filter
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformInputPin::BeginFlush(void)
 {
     CAutoLock lck(&m_pTransformFilter->m_csFilter);
@@ -726,7 +726,7 @@ CTransformInputPin::BeginFlush(void)
 // leave flushing state.
 // Pass to overridable method in filter, then call base class
 // to unblock receives (finally)
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformInputPin::EndFlush(void)
 {
     CAutoLock lck(&m_pTransformFilter->m_csFilter);
@@ -769,7 +769,7 @@ CTransformInputPin::Receive(IMediaSample * pSample)
 
 
 // override to pass downstream
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformInputPin::NewSegment(
     REFERENCE_TIME tStart,
     REFERENCE_TIME tStop,
@@ -830,7 +830,7 @@ CTransformOutputPin::~CTransformOutputPin()
 
 // overriden to expose IMediaPosition and IMediaSeeking control interfaces
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformOutputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     CheckPointer(ppv,E_POINTER);
@@ -989,7 +989,7 @@ CTransformOutputPin::GetMediaType(
 
 // Pass the quality mesage on upstream.
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransformOutputPin::Notify(IBaseFilter * pSender, Quality q)
 {
     UNREFERENCED_PARAMETER(pSender);

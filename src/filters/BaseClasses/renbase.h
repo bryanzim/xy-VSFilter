@@ -42,11 +42,11 @@ public:
 
     // Add rendering behaviour to interface functions
 
-    STDMETHODIMP QueryId(LPWSTR *Id);
-    STDMETHODIMP EndOfStream();
-    STDMETHODIMP BeginFlush();
-    STDMETHODIMP EndFlush();
-    STDMETHODIMP Receive(IMediaSample *pMediaSample);
+    DECLSPEC_NOTHROW STDMETHODIMP QueryId(LPWSTR *Id);
+    DECLSPEC_NOTHROW STDMETHODIMP EndOfStream();
+    DECLSPEC_NOTHROW STDMETHODIMP BeginFlush();
+    DECLSPEC_NOTHROW STDMETHODIMP EndFlush();
+    DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample *pMediaSample);
 
     // Helper
     IMemAllocator inline *Allocator() const
@@ -106,7 +106,7 @@ public:
     // Overriden to say what interfaces we support and where
 
     virtual HRESULT GetMediaPositionInterface(REFIID riid,void **ppv);
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID, void **);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID, void **);
 
     virtual HRESULT SourceThreadCanWait(BOOL bCanWait);
 
@@ -119,18 +119,18 @@ public:
 
     // Return internal information about this filter
 
-    BOOL IsEndOfStream() { return m_bEOS; };
-    BOOL IsEndOfStreamDelivered() { return m_bEOSDelivered; };
-    BOOL IsStreaming() { return m_bStreaming; };
-    void SetAbortSignal(BOOL bAbort) { m_bAbort = bAbort; };
-    virtual void OnReceiveFirstSample(IMediaSample *pMediaSample) { };
-    CAMEvent *GetRenderEvent() { return &m_RenderEvent; };
+    BOOL IsEndOfStream() { return m_bEOS; }
+    BOOL IsEndOfStreamDelivered() { return m_bEOSDelivered; }
+    BOOL IsStreaming() { return m_bStreaming; }
+    void SetAbortSignal(BOOL bAbort) { m_bAbort = bAbort; }
+    virtual void OnReceiveFirstSample(IMediaSample *pMediaSample) { }
+    CAMEvent *GetRenderEvent() { return &m_RenderEvent; }
 
     // Permit access to the transition state
 
-    void Ready() { m_evComplete.Set(); };
-    void NotReady() { m_evComplete.Reset(); };
-    BOOL CheckReady() { return m_evComplete.Check(); };
+    void Ready() { m_evComplete.Set(); }
+    void NotReady() { m_evComplete.Reset(); }
+    BOOL CheckReady() { return m_evComplete.Check(); }
 
     virtual int GetPinCount();
     virtual CBasePin *GetPin(int n);
@@ -142,21 +142,21 @@ public:
 
     // Override the filter and pin interface functions
 
-    STDMETHODIMP Stop();
-    STDMETHODIMP Pause();
-    STDMETHODIMP Run(REFERENCE_TIME StartTime);
-    STDMETHODIMP GetState(DWORD dwMSecs,FILTER_STATE *State);
-    STDMETHODIMP FindPin(LPCWSTR Id, IPin **ppPin);
+    DECLSPEC_NOTHROW STDMETHODIMP Stop();
+    DECLSPEC_NOTHROW STDMETHODIMP Pause();
+    DECLSPEC_NOTHROW STDMETHODIMP Run(REFERENCE_TIME StartTime);
+    DECLSPEC_NOTHROW STDMETHODIMP GetState(DWORD dwMSecs,FILTER_STATE *State);
+    DECLSPEC_NOTHROW STDMETHODIMP FindPin(LPCWSTR Id, IPin **ppPin);
 
     // These are available for a quality management implementation
 
     virtual void OnRenderStart(IMediaSample *pMediaSample);
     virtual void OnRenderEnd(IMediaSample *pMediaSample);
-    virtual HRESULT OnStartStreaming() { return NOERROR; };
-    virtual HRESULT OnStopStreaming() { return NOERROR; };
-    virtual void OnWaitStart() { };
-    virtual void OnWaitEnd() { };
-    virtual void PrepareRender() { };
+    virtual HRESULT OnStartStreaming() { return NOERROR; }
+    virtual HRESULT OnStopStreaming() { return NOERROR; }
+    virtual void OnWaitStart() { }
+    virtual void OnWaitEnd() { }
+    virtual void PrepareRender() { }
 
 #ifdef PERF
     REFERENCE_TIME m_trRenderStart; // Just before we started drawing
@@ -416,8 +416,8 @@ public:
 
     // IQualityControl methods - Notify allows audio-video throttling
 
-    STDMETHODIMP SetSink( IQualityControl * piqc);
-    STDMETHODIMP Notify( IBaseFilter * pSelf, Quality q);
+    DECLSPEC_NOTHROW STDMETHODIMP SetSink( IQualityControl * piqc);
+    DECLSPEC_NOTHROW STDMETHODIMP Notify( IBaseFilter * pSelf, Quality q);
 
     // These provide a full video quality management implementation
 
@@ -441,7 +441,7 @@ public:
                                 REFERENCE_TIME *ptrEnd);
 
     virtual HRESULT SendQuality(REFERENCE_TIME trLate, REFERENCE_TIME trRealStream);
-    STDMETHODIMP JoinFilterGraph(IFilterGraph * pGraph, LPCWSTR pName);
+    DECLSPEC_NOTHROW STDMETHODIMP JoinFilterGraph(IFilterGraph * pGraph, LPCWSTR pName);
 
     //
     //  Do estimates for standard deviations for per-frame
@@ -461,17 +461,17 @@ public:
 
     // IQualProp property page support
 
-    STDMETHODIMP get_FramesDroppedInRenderer(int *cFramesDropped);
-    STDMETHODIMP get_FramesDrawn(int *pcFramesDrawn);
-    STDMETHODIMP get_AvgFrameRate(int *piAvgFrameRate);
-    STDMETHODIMP get_Jitter(int *piJitter);
-    STDMETHODIMP get_AvgSyncOffset(int *piAvg);
-    STDMETHODIMP get_DevSyncOffset(int *piDev);
+    DECLSPEC_NOTHROW STDMETHODIMP get_FramesDroppedInRenderer(int *cFramesDropped);
+    DECLSPEC_NOTHROW STDMETHODIMP get_FramesDrawn(int *pcFramesDrawn);
+    DECLSPEC_NOTHROW STDMETHODIMP get_AvgFrameRate(int *piAvgFrameRate);
+    DECLSPEC_NOTHROW STDMETHODIMP get_Jitter(int *piJitter);
+    DECLSPEC_NOTHROW STDMETHODIMP get_AvgSyncOffset(int *piAvg);
+    DECLSPEC_NOTHROW STDMETHODIMP get_DevSyncOffset(int *piDev);
 
     // Implement an IUnknown interface and expose IQualProp
 
     DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,VOID **ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,VOID **ppv);
 };
 
 #endif // __RENBASE__

@@ -20,14 +20,14 @@ SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPic* inner_obj )
     
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubPicWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubPicWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(ISimpleSubPic)
         __super::NonDelegatingQueryInterface(riid, ppv);    
 }
 
-[[nodiscard]] STDMETHODIMP SimpleSubPicWrapper::AlphaBlt(SubPicDesc* target)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubPicWrapper::AlphaBlt(SubPicDesc* target)
 {
     if (m_inner_obj)
     {

@@ -27,13 +27,13 @@ class CStdioFile64 : public CStdioFile
     DECLARE_DYNAMIC(CStdioFile64)
 
 public:
-    explicit CStdioFile64() : CStdioFile() {};
-    explicit CStdioFile64(CAtlTransactionManager* pTM) : CStdioFile(pTM) {};
-    explicit CStdioFile64(FILE* pOpenStream) : CStdioFile(pOpenStream) {};
-    CStdioFile64(LPCTSTR lpszFileName, UINT nOpenFlags) : CStdioFile(lpszFileName, nOpenFlags) {};
-    CStdioFile64(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM) : CStdioFile(lpszFileName, nOpenFlags, pTM) {};
+    explicit CStdioFile64() : CStdioFile() {}
+    explicit CStdioFile64(CAtlTransactionManager* pTM) : CStdioFile(pTM) {}
+    explicit CStdioFile64(FILE* pOpenStream) : CStdioFile(pOpenStream) {}
+    CStdioFile64(LPCTSTR lpszFileName, UINT nOpenFlags) : CStdioFile(lpszFileName, nOpenFlags) {}
+    CStdioFile64(LPCTSTR lpszFileName, UINT nOpenFlags, CAtlTransactionManager* pTM) : CStdioFile(lpszFileName, nOpenFlags, pTM) {}
 
-    virtual ~CStdioFile64() {};
+    virtual ~CStdioFile64() {}
 
     [[nodiscard]] virtual ULONGLONG GetPosition() const;
     [[nodiscard]] virtual ULONGLONG GetLength() const;

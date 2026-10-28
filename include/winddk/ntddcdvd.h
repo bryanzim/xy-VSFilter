@@ -1,3 +1,8 @@
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextern-c-compat"
+#endif
+
 /*++ BUILD Version: 0001    // Increment this if a change has global effects
 
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -25,13 +30,15 @@ Abstract:
 #pragma warning(disable:4200) // zero-sized array
 #pragma warning(disable:4201) // nonstandard extension used : nameless struct/union
 #pragma warning(disable:4214) // bitfield other than int
-#if defined(__INTEL_COMPILER)
-#pragma warning(disable:94)   // warning #94: the size of an array must be greater than zero
-#endif
 
 #if _MSC_VER > 1000
 #pragma once
 #endif
+#include <winapifamily.h>
+
+#pragma region Desktop Family or OneCore Family
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 
 //
 // NtDeviceIoControlFile IoControlCode values for this device.
@@ -114,7 +121,7 @@ typedef enum {
     DvdInvalidateAGID = 0x3f
 } DVD_KEY_TYPE;
 
-typedef __typefix(LONG) __range(-1,3) ULONG DVD_SESSION_ID, *PDVD_SESSION_ID;
+typedef _At_((LONG)_Curr_, _Field_range_(-1,3)) ULONG DVD_SESSION_ID, *PDVD_SESSION_ID;
 
 #pragma pack(push, 1)
 typedef struct _DVD_COPY_PROTECT_KEY {
@@ -660,7 +667,6 @@ typedef struct _DVD_ASF { // Authentication Success Flag
 } DVD_ASF, * PDVD_ASF;
 C_ASSERT(sizeof(DVD_ASF) == 4);
 
-#if 0
 typedef struct _DVD_REGION {
      UCHAR CopySystem;
      UCHAR RegionData;                      // current media region (not playable when set)
@@ -668,7 +674,6 @@ typedef struct _DVD_REGION {
      UCHAR ResetCount;                      // number of resets available
 } DVD_REGION, *PDVD_REGION;
 C_ASSERT(sizeof(DVD_REGION) == 4);
-#endif
 
 // ALL THE ABOVE STRUCTURES ARE BYTE-PACKED:
 /////////////////////////////////////////////////////////////
@@ -687,8 +692,8 @@ C_ASSERT(sizeof(DVD_REGION) == 4);
 // The AACS layer number refers to the layer of the disc a structure
 // is read from.  This can only be a single byte in the CDB, so limit
 // the value to 0..255.
-typedef __range(0,255)       ULONG  AACS_LAYER_NUMBER, *PAACS_LAYER_NUMBER;
-typedef __range(0,255) const ULONG CAACS_LAYER_NUMBER, *PCAACS_LAYER_NUMBER;
+typedef _Field_range_(0,255)       ULONG  AACS_LAYER_NUMBER, *PAACS_LAYER_NUMBER;
+typedef _Field_range_(0,255) const ULONG CAACS_LAYER_NUMBER, *PCAACS_LAYER_NUMBER;
 
 
 // The AACS Certificate (opaque data structure) is used to validate
@@ -776,7 +781,7 @@ C_ASSERT(sizeof(AACS_BINDING_NONCE) == 32);
 //       
 typedef struct _AACS_READ_BINDING_NONCE {
     DVD_SESSION_ID        SessionId;
-    __range(0,255) ULONG  NumberOfSectors; // spec only provides one byte
+    _Field_range_(0,255) ULONG  NumberOfSectors; // spec only provides one byte
     ULONGLONG             StartLba;
 
     // 32-bit HANDLE is 32 bits, 64-bit HANDLE is 64 bits
@@ -789,8 +794,15 @@ typedef struct _AACS_READ_BINDING_NONCE {
 /////////////////////////////////////////////////////////////
 
 #pragma warning(pop)
+
+#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM) */
+#pragma endregion
+
 #endif  // _NTDDCDVD_
 
 // end_winioctl
 
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif

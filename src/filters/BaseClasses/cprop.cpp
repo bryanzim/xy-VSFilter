@@ -50,7 +50,7 @@ CBasePropertyPage::CBasePropertyPage(CHAR *pName,      // Debug only name
 
 // Increment our reference count
 
-STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingAddRef()
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingAddRef()
 {
     LONG lRef = InterlockedIncrement(&m_cRef);
     ASSERT(lRef > 0);
@@ -61,7 +61,7 @@ STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingAddRef()
 
 // Release a reference count and protect against reentrancy
 
-STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingRelease()
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingRelease()
 {
     // If the reference count drops to zero delete ourselves
 
@@ -79,7 +79,7 @@ STDMETHODIMP_(ULONG) CBasePropertyPage::NonDelegatingRelease()
 
 // Expose our IPropertyPage interface
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePropertyPage::NonDelegatingQueryInterface(REFIID riid,void **ppv)
 {
     if (riid == IID_IPropertyPage) {
@@ -92,7 +92,7 @@ CBasePropertyPage::NonDelegatingQueryInterface(REFIID riid,void **ppv)
 
 // Get the page info so that the page site can size itself
 
-STDMETHODIMP CBasePropertyPage::GetPageInfo(LPPROPPAGEINFO pPageInfo)
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::GetPageInfo(LPPROPPAGEINFO pPageInfo)
 {
     CheckPointer(pPageInfo,E_POINTER);
     WCHAR wszTitle[STR_MAX_LENGTH];
@@ -158,7 +158,7 @@ INT_PTR CALLBACK CBasePropertyPage::DialogProc(HWND hwnd,
 
 // Tells us the object that should be informed of the property changes
 
-STDMETHODIMP CBasePropertyPage::SetObjects(ULONG cObjects,LPUNKNOWN *ppUnk)
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::SetObjects(ULONG cObjects,LPUNKNOWN *ppUnk)
 {
     if (cObjects == 1) {
 
@@ -184,7 +184,7 @@ STDMETHODIMP CBasePropertyPage::SetObjects(ULONG cObjects,LPUNKNOWN *ppUnk)
 
 // Create the window we will use to edit properties
 
-STDMETHODIMP CBasePropertyPage::Activate(HWND hwndParent,
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::Activate(HWND hwndParent,
                                          LPCRECT pRect,
                                          BOOL fModal)
 {
@@ -216,7 +216,7 @@ STDMETHODIMP CBasePropertyPage::Activate(HWND hwndParent,
 
 // Set the position of the property page
 
-STDMETHODIMP CBasePropertyPage::Move(LPCRECT pRect)
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::Move(LPCRECT pRect)
 {
     CheckPointer(pRect,E_POINTER);
 
@@ -237,7 +237,7 @@ STDMETHODIMP CBasePropertyPage::Move(LPCRECT pRect)
 
 // Display the property dialog
 
-STDMETHODIMP CBasePropertyPage::Show(UINT nCmdShow)
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::Show(UINT nCmdShow)
 {
    // Have we been activated yet
 
@@ -259,7 +259,7 @@ STDMETHODIMP CBasePropertyPage::Show(UINT nCmdShow)
 
 // Destroy the property page dialog
 
-STDMETHODIMP CBasePropertyPage::Deactivate(void)
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::Deactivate(void)
 {
     if (m_hwnd == NULL) {
         return E_UNEXPECTED;
@@ -290,7 +290,7 @@ STDMETHODIMP CBasePropertyPage::Deactivate(void)
 
 // Tells the application property page site
 
-STDMETHODIMP CBasePropertyPage::SetPageSite(LPPROPERTYPAGESITE pPageSite)
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::SetPageSite(LPPROPERTYPAGESITE pPageSite)
 {
     if (pPageSite) {
 
@@ -316,7 +316,7 @@ STDMETHODIMP CBasePropertyPage::SetPageSite(LPPROPERTYPAGESITE pPageSite)
 
 // Apply any changes so far made
 
-STDMETHODIMP CBasePropertyPage::Apply()
+DECLSPEC_NOTHROW STDMETHODIMP CBasePropertyPage::Apply()
 {
     // In ActiveMovie 1.0 we used to check whether we had been activated or
     // not. This is too constrictive. Apply should be allowed as long as

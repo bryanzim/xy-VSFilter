@@ -279,14 +279,14 @@ inline V& XyAtlMap< K, V, KTraits, VTraits >::GetValueAt(_In_ POSITION pos)
 template< typename K, typename V, class KTraits, class VTraits >
 inline void XyAtlMap< K, V, KTraits, VTraits >::DisableAutoRehash() throw()
 {
-    m_nLockCount++;
+    ++m_nLockCount;
 }
 
 template< typename K, typename V, class KTraits, class VTraits >
 inline void XyAtlMap< K, V, KTraits, VTraits >::EnableAutoRehash() throw()
 {
     ATLASSUME( m_nLockCount > 0 );
-    m_nLockCount--;
+    --m_nLockCount;
 }
 
 template< typename K, typename V, class KTraits, class VTraits >
@@ -316,7 +316,7 @@ UINT XyAtlMap< K, V, KTraits, VTraits >::PickSize(_In_ std::size_t nElements) co
     int iPrime{0};
     while( nBinsEstimate > s_anPrimes[iPrime] )
     {
-        iPrime++;
+        ++iPrime;
     }
 
     if( s_anPrimes[iPrime] == UINT_MAX )
@@ -361,7 +361,7 @@ POSITION XyAtlMap< K, V, KTraits, VTraits >::GetStartPosition() const throw()
         return( NULL );
     }
 
-    for( UINT iBin{0}; iBin < m_nBins; iBin++ )
+    for( UINT iBin{0}; iBin < m_nBins; ++iBin )
     {
         if( m_ppBins[iBin] != NULL )
         {
@@ -550,7 +550,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAll()
     DisableAutoRehash();
     if( m_ppBins != NULL )
     {
-        for( UINT iBin{0}; iBin < m_nBins; iBin++ )
+        for( UINT iBin{0}; iBin < m_nBins; ++iBin )
         {
             CNode* pNext;
 
@@ -572,7 +572,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::RemoveAll()
 
     if( !IsLocked() )
     {
-        InitHashTable( PickSize( m_nElements ), false );
+        (void)InitHashTable( PickSize( m_nElements ), false );
     }
 
     FreePlexes();
@@ -615,11 +615,11 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
         }
         pNode = (CNode*)pPlex->data();
         pNode += m_nBlockSize-1;
-        for( int iBlock = m_nBlockSize-1; iBlock >= 0; iBlock-- )
+        for( int iBlock = m_nBlockSize-1; iBlock >= 0; --iBlock )
         {
             pNode->m_pNext = m_pFree;
             m_pFree = pNode;
-            pNode--;
+            --pNode;
         }
     }
     ATLENSURE(m_pFree != NULL );
@@ -637,7 +637,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
 
         _ATLRETHROW;
     }
-    m_nElements++;
+    ++m_nElements;
 
     pNewNode->m_pNext = m_ppBins[iBin];
     m_ppBins[iBin] = pNewNode;
@@ -662,7 +662,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::FreeNode(_Inout_ CNode* pNode)
     m_pFree = pNode;
 
     ATLASSUME( m_nElements > 0 );
-    m_nElements--;
+    --m_nElements;
 
     if( (m_nElements < m_nLoRehashThreshold) && !IsLocked() )
     {
@@ -855,7 +855,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
     if( m_ppBins == NULL )
     {
         // Just set the new number of bins
-        InitHashTable( nBins, false );
+        (void)InitHashTable( nBins, false );
         return;
     }
 
@@ -870,7 +870,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::Rehash(_In_ UINT nBins)
 
     // Nothing gets copied.  We just rewire the old nodes
     // into the new bins.
-    for( UINT iSrcBin{0}; iSrcBin < m_nBins; iSrcBin++ )
+    for( UINT iSrcBin{0}; iSrcBin < m_nBins; ++iSrcBin )
     {
         CNode* pNode;
 
@@ -1032,7 +1032,7 @@ typename XyAtlMap< K, V, KTraits, VTraits >::CNode* XyAtlMap< K, V, KTraits, VTr
                 pNext = m_ppBins[iBin];
             }
 
-            iBin++;
+            ++iBin;
         }
     }
 
@@ -1217,14 +1217,14 @@ public:
 
     [[nodiscard]] inline POSITION Lookup(const K& key)
     {
-        _query_count++;
+        ++_query_count;
         POSITION pos{__super::Lookup(key)};
         _cache_hit += (pos!=NULL);
         return pos;
     }
     [[nodiscard]] inline POSITION AddHeadIfNotExists(const K& key, const V& value, bool *new_item_added)
     {
-        _query_count++;
+        ++_query_count;
         bool tmp{false};
         POSITION pos{__super::AddHeadIfNotExists(key, value, &tmp)};
         _cache_hit += (tmp==false);

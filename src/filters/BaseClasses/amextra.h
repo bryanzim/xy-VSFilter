@@ -36,8 +36,8 @@ public:
 #endif
     
     // Override methods to track end of stream state
-    STDMETHODIMP EndOfStream();
-    STDMETHODIMP EndFlush();
+    DECLSPEC_NOTHROW STDMETHODIMP EndOfStream();
+    DECLSPEC_NOTHROW STDMETHODIMP EndFlush();
 
     HRESULT Active();
     HRESULT Run(REFERENCE_TIME tStart);

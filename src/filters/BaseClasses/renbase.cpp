@@ -126,7 +126,7 @@ HRESULT CBaseRenderer::GetMediaPositionInterface(REFIID riid,void **ppv)
 
 // Overriden to say what interfaces we support and where
 
-STDMETHODIMP CBaseRenderer::NonDelegatingQueryInterface(REFIID riid,void **ppv)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseRenderer::NonDelegatingQueryInterface(REFIID riid,void **ppv)
 {
     // Do we have this interface
 
@@ -329,7 +329,7 @@ FILTER_STATE CBaseRenderer::GetRealState() {
 // it has got one media sample to render. If you ask it for its state while
 // it's waiting it will return the state along with VFW_S_STATE_INTERMEDIATE
 
-STDMETHODIMP CBaseRenderer::GetState(DWORD dwMSecs,FILTER_STATE *State)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseRenderer::GetState(DWORD dwMSecs,FILTER_STATE *State)
 {
     CheckPointer(State,E_POINTER);
 
@@ -386,7 +386,7 @@ HRESULT CBaseRenderer::CompleteStateChange(FILTER_STATE OldState)
 //      Any end of stream signalled is now obsolete so reset
 //      Allow us to be stopped when we are not connected
 
-STDMETHODIMP CBaseRenderer::Stop()
+DECLSPEC_NOTHROW STDMETHODIMP CBaseRenderer::Stop()
 {
     CAutoLock cRendererLock(&m_InterfaceLock);
 
@@ -443,7 +443,7 @@ STDMETHODIMP CBaseRenderer::Stop()
 //      Possibly complete the state change if we have data
 //      Allow us to be paused when we are not connected
 
-STDMETHODIMP CBaseRenderer::Pause()
+DECLSPEC_NOTHROW STDMETHODIMP CBaseRenderer::Pause()
 {
     CAutoLock cRendererLock(&m_InterfaceLock);
     FILTER_STATE OldState = m_State;
@@ -516,7 +516,7 @@ STDMETHODIMP CBaseRenderer::Pause()
 //      Allow us to be run when we are not connected
 //      Signal EC_COMPLETE if we are not connected
 
-STDMETHODIMP CBaseRenderer::Run(REFERENCE_TIME StartTime)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseRenderer::Run(REFERENCE_TIME StartTime)
 {
     CAutoLock cRendererLock(&m_InterfaceLock);
     FILTER_STATE OldState = m_State;
@@ -625,7 +625,7 @@ CBasePin *CBaseRenderer::GetPin(int n)
 
 // If "In" then return the IPin for our input pin, otherwise NULL and error
 
-STDMETHODIMP CBaseRenderer::FindPin(LPCWSTR Id, IPin **ppPin)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseRenderer::FindPin(LPCWSTR Id, IPin **ppPin)
 {
     CheckPointer(ppPin,E_POINTER);
 
@@ -1560,7 +1560,7 @@ CRendererInputPin::CRendererInputPin(CBaseRenderer *pRenderer,
 
 // Signals end of data stream on the input pin
 
-STDMETHODIMP CRendererInputPin::EndOfStream()
+DECLSPEC_NOTHROW STDMETHODIMP CRendererInputPin::EndOfStream()
 {
     CAutoLock cRendererLock(&m_pRenderer->m_InterfaceLock);
     CAutoLock cSampleLock(&m_pRenderer->m_RendererLock);
@@ -1588,7 +1588,7 @@ STDMETHODIMP CRendererInputPin::EndOfStream()
 // has to take the renderer lock to serialise our state. Therefore holding a
 // renderer lock when calling timeKillEvent could cause a deadlock condition
 
-STDMETHODIMP CRendererInputPin::BeginFlush()
+DECLSPEC_NOTHROW STDMETHODIMP CRendererInputPin::BeginFlush()
 {
     CAutoLock cRendererLock(&m_pRenderer->m_InterfaceLock);
     {
@@ -1602,7 +1602,7 @@ STDMETHODIMP CRendererInputPin::BeginFlush()
 
 // Signals end of flushing on the input pin
 
-STDMETHODIMP CRendererInputPin::EndFlush()
+DECLSPEC_NOTHROW STDMETHODIMP CRendererInputPin::EndFlush()
 {
     CAutoLock cRendererLock(&m_pRenderer->m_InterfaceLock);
     CAutoLock cSampleLock(&m_pRenderer->m_RendererLock);
@@ -1617,7 +1617,7 @@ STDMETHODIMP CRendererInputPin::EndFlush()
 
 // Pass the sample straight through to the renderer object
 
-STDMETHODIMP CRendererInputPin::Receive(IMediaSample *pSample)
+DECLSPEC_NOTHROW STDMETHODIMP CRendererInputPin::Receive(IMediaSample *pSample)
 {
     HRESULT hr = m_pRenderer->Receive(pSample);
     if (FAILED(hr)) {
@@ -1685,7 +1685,7 @@ HRESULT CRendererInputPin::CompleteConnect(IPin *pReceivePin)
 
 // Give the pin id of our one and only pin
 
-STDMETHODIMP CRendererInputPin::QueryId(LPWSTR *Id)
+DECLSPEC_NOTHROW STDMETHODIMP CRendererInputPin::QueryId(LPWSTR *Id)
 {
     CheckPointer(Id,E_POINTER);
 
@@ -2060,7 +2060,7 @@ void CBaseVideoRenderer::OnRenderEnd(IMediaSample *pMediaSample)
 } // OnRenderEnd
 
 
-STDMETHODIMP CBaseVideoRenderer::SetSink( IQualityControl * piqc)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::SetSink( IQualityControl * piqc)
 {
 
     m_pQSink = piqc;
@@ -2069,7 +2069,7 @@ STDMETHODIMP CBaseVideoRenderer::SetSink( IQualityControl * piqc)
 } // SetSink
 
 
-STDMETHODIMP CBaseVideoRenderer::Notify( IBaseFilter * pSelf, Quality q)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::Notify( IBaseFilter * pSelf, Quality q)
 {
     // NOTE:  We are NOT getting any locks here.  We could be called
     // asynchronously and possibly even on a time critical thread of
@@ -2619,7 +2619,7 @@ BOOL CBaseVideoRenderer::ScheduleSample(IMediaSample *pMediaSample)
 // our IQualProp interface. The AddRef and Release are handled automatically
 // by the base class and will be passed on to the appropriate outer object
 
-STDMETHODIMP CBaseVideoRenderer::get_FramesDroppedInRenderer(int *pcFramesDropped)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::get_FramesDroppedInRenderer(int *pcFramesDropped)
 {
     CheckPointer(pcFramesDropped,E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
@@ -2631,7 +2631,7 @@ STDMETHODIMP CBaseVideoRenderer::get_FramesDroppedInRenderer(int *pcFramesDroppe
 // Set *pcFramesDrawn to the number of frames drawn since
 // streaming started.
 
-STDMETHODIMP CBaseVideoRenderer::get_FramesDrawn( int *pcFramesDrawn)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::get_FramesDrawn( int *pcFramesDrawn)
 {
     CheckPointer(pcFramesDrawn,E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
@@ -2643,7 +2643,7 @@ STDMETHODIMP CBaseVideoRenderer::get_FramesDrawn( int *pcFramesDrawn)
 // Set iAvgFrameRate to the frames per hundred secs since
 // streaming started.  0 otherwise.
 
-STDMETHODIMP CBaseVideoRenderer::get_AvgFrameRate( int *piAvgFrameRate)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::get_AvgFrameRate( int *piAvgFrameRate)
 {
     CheckPointer(piAvgFrameRate,E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
@@ -2670,7 +2670,7 @@ STDMETHODIMP CBaseVideoRenderer::get_AvgFrameRate( int *piAvgFrameRate)
 // in mSec.  The sync offset is the time in mSec between when the frame
 // should have been drawn and when the frame was actually drawn.
 
-STDMETHODIMP CBaseVideoRenderer::get_AvgSyncOffset( int *piAvg)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::get_AvgSyncOffset( int *piAvg)
 {
     CheckPointer(piAvg,E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
@@ -2775,7 +2775,7 @@ HRESULT CBaseVideoRenderer::GetStdDev(
 // Set *piDev to the standard deviation in mSec of the sync offset
 // of each frame since streaming started.
 
-STDMETHODIMP CBaseVideoRenderer::get_DevSyncOffset( int *piDev)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::get_DevSyncOffset( int *piDev)
 {
     // First frames have invalid stamps, so we get no stats for them
     // So we need 2 frames to get 1 datum, so N is cFramesDrawn-1
@@ -2789,7 +2789,7 @@ STDMETHODIMP CBaseVideoRenderer::get_DevSyncOffset( int *piDev)
 // Set *piJitter to the standard deviation in mSec of the inter-frame time
 // of frames since streaming started.
 
-STDMETHODIMP CBaseVideoRenderer::get_Jitter( int *piJitter)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseVideoRenderer::get_Jitter( int *piJitter)
 {
     // First frames have invalid stamps, so we get no stats for them
     // So second frame gives invalid inter-frame time
@@ -2803,7 +2803,7 @@ STDMETHODIMP CBaseVideoRenderer::get_Jitter( int *piJitter)
 
 // Overidden to return our IQualProp interface
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseVideoRenderer::NonDelegatingQueryInterface(REFIID riid,VOID **ppv)
 {
     // We return IQualProp and delegate everything else
@@ -2820,7 +2820,7 @@ CBaseVideoRenderer::NonDelegatingQueryInterface(REFIID riid,VOID **ppv)
 // Override JoinFilterGraph so that, just before leaving
 // the graph we can send an EC_WINDOW_DESTROYED event
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseVideoRenderer::JoinFilterGraph(IFilterGraph *pGraph,LPCWSTR pName)
 {
     // Since we send EC_ACTIVATE, we also need to ensure

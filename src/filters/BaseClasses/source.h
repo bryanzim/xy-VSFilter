@@ -61,7 +61,7 @@ public:
     HRESULT     AddPin(CSourceStream *);
     HRESULT     RemovePin(CSourceStream *);
 
-    STDMETHODIMP FindPin(
+    DECLSPEC_NOTHROW STDMETHODIMP FindPin(
         LPCWSTR Id,
         IPin ** ppPin
     );
@@ -119,9 +119,9 @@ protected:
     // Called as the thread is created/destroyed - use to perform
     // jobs such as start/stop streaming mode
     // If OnThreadCreate returns an error the thread will exit.
-    virtual HRESULT OnThreadCreate(void) {return NOERROR;};
-    virtual HRESULT OnThreadDestroy(void) {return NOERROR;};
-    virtual HRESULT OnThreadStartPlay(void) {return NOERROR;};
+    virtual HRESULT OnThreadCreate(void) {return NOERROR;}
+    virtual HRESULT OnThreadDestroy(void) {return NOERROR;}
+    virtual HRESULT OnThreadStartPlay(void) {return NOERROR;}
 
     // *
     // * Worker Thread
@@ -164,7 +164,7 @@ protected:
     // You must override this fn. or the above 2!
     virtual HRESULT GetMediaType(CMediaType *pMediaType) {return E_UNEXPECTED;}
 
-    STDMETHODIMP QueryId(
+    DECLSPEC_NOTHROW STDMETHODIMP QueryId(
         LPWSTR * Id
     );
 };

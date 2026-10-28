@@ -50,7 +50,7 @@ XySubFilterAutoLoader::XySubFilterAutoLoader( LPUNKNOWN punk, HRESULT* phr
     m_paths.Add(_T("."));
     m_paths.Add(_T(".\\subtitles"));
     m_paths.Add(_T(".\\subs"));
-    for(int i{3}; i < 10; i++)
+    for(int i{3}; i < 10; ++i)
     {
         CString tmp;
         tmp.Format(IDS_RP_PATH, i);
@@ -104,7 +104,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     return 1;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterAutoLoader::JoinFilterGraph( IFilterGraph* pGraph, const LPCWSTR pName )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterAutoLoader::JoinFilterGraph( IFilterGraph* pGraph, const LPCWSTR pName )
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(this)<<"pGraph:"<<(void*)pGraph);
     m_loaded = false;
@@ -134,7 +134,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     return __super::JoinFilterGraph(pGraph, pName);;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterAutoLoader::QueryFilterInfo( FILTER_INFO* pInfo )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterAutoLoader::QueryFilterInfo( FILTER_INFO* pInfo )
 {
     CheckPointer(pInfo, E_POINTER);
     ValidateReadWritePtr(pInfo, sizeof(FILTER_INFO));
@@ -167,7 +167,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     CComPtr<IBaseFilter> pBF;
     if( m_load_embedded )
     {
-        for (int i{0}, n=m_known_source_filters_guid.GetCount();i<n;i++)
+        for (int i{0}, n=m_known_source_filters_guid.GetCount();i<n;++i)
         {
             if ((pBF = FindFilter(m_known_source_filters_guid[i], pGraph)))
             {
@@ -303,7 +303,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
                     XY_LOG_ERROR("Failed to create XySubFilter."<<XY_LOG_VAR_2_STR(hr));
                     return E_FAIL;
                 }
-                [[nodiscard]] CComQIPtr<IXyOptions> xy_sub_filter(filter);
+                CComQIPtr<IXyOptions> xy_sub_filter(filter);
                 hr = xy_sub_filter->XySetBool(DirectVobSubXyOptions::BOOL_BE_AUTO_LOADED     , true);
                 if (FAILED(hr))
                 {

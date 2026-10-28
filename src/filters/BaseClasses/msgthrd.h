@@ -62,7 +62,7 @@ public:
 
     // override this if you want to do something on thread startup
     virtual void OnThreadInit() {
-    };
+    }
 
     BOOL CreateThread();
 

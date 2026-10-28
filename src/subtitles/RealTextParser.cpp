@@ -194,7 +194,7 @@ CRealTextParser::~CRealTextParser()
         p_rTag.m_bComment = true;
 
         std::wstring szComment;
-        GetString(p_rszLine, iPos, szComment, L">");
+        (void)GetString(p_rszLine, iPos, szComment, L">");
         p_rTag.m_szName = szComment;
 
         ++iPos; // Skip >
@@ -476,7 +476,7 @@ CRealTextParser::~CRealTextParser()
     std::wstring szString;
 
     for (auto iter{p_crlTags.cbegin()}; iter != p_crlTags.cend(); ++iter) {
-        [[nodiscard]] Tag oTag(*iter);
+        Tag oTag(*iter);
 
         if (oTag.m_szName == L"br") {
             szString += L"\n";

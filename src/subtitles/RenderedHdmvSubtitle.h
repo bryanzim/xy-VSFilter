@@ -37,29 +37,29 @@ public:
 	~CRenderedHdmvSubtitle(void);
 
 	[[nodiscard]] DECLARE_IUNKNOWN
-	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+	DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
 	// ISubPicProvider
-	[[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-	[[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-	[[nodiscard]] STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-	[[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
-	[[nodiscard]] STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
 
     // ISubPicProviderEx
-    [[nodiscard]] STDMETHODIMP_(bool) IsColorTypeSupported(int type);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsColorTypeSupported(int type);
 
 	// IPersist
-	[[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClassID);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
 	// ISubStream
-	[[nodiscard]] STDMETHODIMP_(int) GetStreamCount();
-	[[nodiscard]] STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-	[[nodiscard]] STDMETHODIMP_(int) GetStream();
-	[[nodiscard]] STDMETHODIMP SetStream(int iStream);
-	STDMETHODIMP Reload();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+	DECLSPEC_NOTHROW STDMETHODIMP Reload();
 
 	[[nodiscard]] HRESULT ParseSample (IMediaSample* pSample);
     [[nodiscard]] HRESULT NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);

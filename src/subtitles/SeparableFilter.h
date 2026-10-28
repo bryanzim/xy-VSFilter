@@ -35,12 +35,12 @@ template<ptrdiff_t PixelDist>
 void SeparableFilterX(unsigned char *src, unsigned char *dst, int width, int height, ptrdiff_t stride, int *kernel, int kernel_size, int divisor)
 {
 #pragma omp parallel for
-	for (int y{0}; y < height; y++) {
+	for (int y{0}; y < height; ++y) {
 		unsigned char *in{src + y*stride};
 		unsigned char *out{dst + y*stride};
-		for (int x{0}; x < width; x++) {
+		for (int x{0}; x < width; ++x) {
 			int accum{0};
-			for (int k{0}; k < kernel_size; k++) {
+			for (int k{0}; k < kernel_size; ++k) {
 				int xofs{k - kernel_size/2};
 				if (x+xofs < 0)
 				{
@@ -82,9 +82,9 @@ void SeparableFilterY(unsigned char *src, unsigned char *dst, int width, const i
 	for (int  x{0}; x < width; x+=PixelDist) {
 		unsigned char *in{src + x};
 		unsigned char *out{dst + x};
-		for (int y{0}; y < height; y++) {
+		for (int y{0}; y < height; ++y) {
 			int accum{0};
-			for (int k{0}; k < kernel_size; k++) {
+			for (int k{0}; k < kernel_size; ++k) {
 				int yofs{k - kernel_size/2};
 				if (y+yofs < 0)
 				{
@@ -145,7 +145,7 @@ struct GaussianKernel {
 		kernel = new int[width];
 		kernel[width/2] = (int)(NormalDist(sigma, 0) * 255);
 		divisor = kernel[width/2];
-		for (int x{width/2-1}; x >= 0; x--) {
+		for (int x{width/2-1}; x >= 0; --x) {
 			int val{(int)(NormalDist(sigma, width/2-x) * 255 + 0.5)};
 			divisor += val*2;
 			kernel[x] = val;

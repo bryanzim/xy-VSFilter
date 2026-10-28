@@ -10,6 +10,9 @@ static __m128i blake2s_IV_0_3, blake2s_IV_4_7;
 static __m128i crotr8, crotr16;
 #endif
 
+#if defined(__clang__) && defined(_WIN_32)
+__attribute__((target("sse2")))
+#endif
 static void blake2s_init_sse()
 {
   // We cannot initialize these 128 bit variables in place when declaring
@@ -101,6 +104,8 @@ static void blake2s_init_sse()
 
 #if defined(__clang__) && !defined(_WIN_32)
 __attribute__((target("ssse3"), noinline))
+#elif defined(__clang__)
+__attribute__((target("sse2")))
 #endif
 static int blake2s_compress_sse( blake2s_state *S, const byte block[BLAKE2S_BLOCKBYTES] )
 {

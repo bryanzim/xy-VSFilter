@@ -114,7 +114,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 {
 	CStringA urlstr;
 
-	for(int i{0}; i < str.GetLength(); i++)
+	for(int i{0}; i < str.GetLength(); ++i)
 	{
 		CHAR c{str[i]};
 		if(fRaw && c == '+')
@@ -179,8 +179,8 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 			*s2 = *s1 == '+' && !fRaw ? ' ' : *s1;
 		}
 
-		s1++;
-		s2++;
+		++s1;
+		++s2;
 	}
 
 	str.ReleaseBuffer(s2 - s);
@@ -208,7 +208,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 	{
 		CString attrib{tag.Left(i).Trim().MakeLower()};
 		tag = tag.Mid(i+1);
-		for(i = 0; i < tag.GetLength() && _istspace(tag[i]); i++)
+		for(i = 0; i < tag.GetLength() && _istspace(tag[i]); ++i)
 		{
 		    ;
 		}

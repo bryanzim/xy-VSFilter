@@ -15,21 +15,20 @@ private:
     XySubFilterAutoLoader *m_filter;
 };
 
-[uuid("6b237877-902b-4c6c-92f6-e63169a5166c")]
-class XySubFilterAutoLoader : public CBaseFilter
+class __declspec(uuid("6b237877-902b-4c6c-92f6-e63169a5166c")) XySubFilterAutoLoader : public CBaseFilter
 {
 public:
     XySubFilterAutoLoader(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(XySubFilterAutoLoader));
     virtual ~XySubFilterAutoLoader();
 
-    DECLARE_IUNKNOWN;
+    DECLARE_IUNKNOWN
 
     //CBaseFilter
     [[nodiscard]] CBasePin* GetPin(int n);
     [[nodiscard]] int GetPinCount();
-    [[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
 
-    [[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
     [[nodiscard]] bool ShouldWeAutoLoad(IFilterGraph* pGraph);
     [[nodiscard]] HRESULT CheckInput(const CMediaType * mt);

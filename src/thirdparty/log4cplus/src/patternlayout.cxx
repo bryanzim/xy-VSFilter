@@ -842,6 +842,9 @@ log4cplus::pattern::PatternParser::finalizeConverter(log4cplus::tchar c)
             goto not_implemented;
 
 not_implemented:;
+        #if defined(__clang__)
+        [[clang::fallthrough]];
+        #endif
         default:
             log4cplus::tostringstream buf;
             buf << LOG4CPLUS_TEXT("Unexpected char [")

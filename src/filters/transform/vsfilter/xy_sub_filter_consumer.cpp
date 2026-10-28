@@ -31,6 +31,7 @@
 #include "../../../subpic/SimpleSubPicWrapper.h"
 
 #include <initguid.h>
+#include <VersionHelpers.h>
 #include "..\..\..\..\include\moreuuids.h"
 #include "../../../subtitles/xy_bitmap.h"
 #include "../../../subpic/alpha_blender.h"
@@ -79,10 +80,10 @@ const REFERENCE_TIME DEFAULT_FRAME_RATE = 10000000.0/25;
 //
 
 XySubFilterConsumer::XySubFilterConsumer(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid)
-    : CDirectVobSub(XyConsumerVobFilterOptions, &m_csSubLock)
-    , CBaseVideoFilter(NAME("XySubFilterConsumer"), punk, phr, clsid)
-    , m_fMSMpeg4Fix(false)
+    : CBaseVideoFilter(NAME("XySubFilterConsumer"), punk, phr, clsid)
+    , CDirectVobSub(XyConsumerVobFilterOptions, &m_csSubLock)
     , SubRenderOptionsImpl(::options, this)
+    , m_fMSMpeg4Fix(false)
 {
     XY_LOG_INFO("Construct XySubFilterConsumer");
     m_xy_str_opt[STRING_NAME] = L"XySubFilterConsumer";
@@ -114,14 +115,14 @@ XySubFilterConsumer::XySubFilterConsumer(LPUNKNOWN punk, HRESULT* phr, const GUI
 
 XySubFilterConsumer::~XySubFilterConsumer()
 {
-    [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+    CAutoLock cAutoLock(&m_csSubLock);
 
     DeleteObj4OSD();
 
     XY_LOG_INFO("Deconstructed");
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
 
@@ -141,7 +142,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
 {
     XY_LOG_INFO("");
     CSize s(w, h), os = s;
-    AdjustFrameSize(s);
+    (void)AdjustFrameSize(s);
     w = s.cx;
     h = s.cy;
 
@@ -308,7 +309,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     //
 
     {
-        [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+        CAutoLock cAutoLock(&m_csSubLock);
         m_sub_render_frame = NULL;
         if(m_provider)
         {
@@ -322,7 +323,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     const CMediaType& mt{m_pInput->CurrentMediaType()};
 
     BITMAPINFOHEADER bihIn;
-    ExtractBIH(&mt, &bihIn);
+    (void)ExtractBIH(&mt, &bihIn);
 
     hr = TryNotCopy(pIn, mt, bihIn); 
     if( hr!=S_OK )
@@ -349,7 +350,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     //
 
     BITMAPINFOHEADER bihOut;
-    ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
+    (void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
 
     bool fInputFlipped{bihIn.biHeight >= 0 && bihIn.biCompression <= 3};
     bool fOutputFlipped{bihOut.biHeight >= 0 && bihOut.biCompression <= 3};
@@ -373,7 +374,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     //
 
     {
-        [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+        CAutoLock cAutoLock(&m_csSubLock);
 
         if(m_sub_render_frame)
         {
@@ -391,7 +392,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
             TRACE_RENDERER_REQUEST("AlphaBlt finished");
         }
     }
-    CopyBuffer(pDataOut, (BYTE*)spd.bits, spd.w, std::abs(spd.h)*(fFlip?-1:1), spd.pitch, mt.subtype);
+    (void)CopyBuffer(pDataOut, (BYTE*)spd.bits, spd.w, std::abs(spd.h)*(fFlip?-1:1), spd.pitch, mt.subtype);
 
     PrintMessages(pDataOut);
     return m_pOutput->Deliver(pOut);
@@ -406,7 +407,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     int count{0};
     hr = m_sub_render_frame->GetBitmapCount(&count);
     ASSERT(SUCCEEDED(hr));
-    for (int i{0};i<count;i++)
+    for (int i{0};i<count;++i)
     {
         XySubPicPlan sub;
         CPoint pos;
@@ -443,11 +444,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
             unsigned __int64 ver{GetFileVersion(_T("divx_c32.ax"))};
             if(((ver >> 48)&0xffff) == 4 && ((ver >> 32)&0xffff) == 2)
             {
-                DWORD dwVersion{GetVersion()};
-                DWORD dwWindowsMajorVersion{(DWORD)(LOBYTE(LOWORD(dwVersion)))};
-                DWORD dwWindowsMinorVersion{(DWORD)(HIBYTE(LOWORD(dwVersion)))};
-
-                if(dwVersion < 0x80000000 && dwWindowsMajorVersion >= 5)
+                if(IsWindowsVersionOrGreater(5, 0, 0))
                 {
                     AfxMessageBox(IDS_DIVX_WARNING);
                     theApp.WriteProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_SEENDIVXWARNING), 1);
@@ -466,7 +463,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     return __super::JoinFilterGraph(pGraph, pName);
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::QueryFilterInfo(FILTER_INFO* pInfo)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::QueryFilterInfo(FILTER_INFO* pInfo)
 {
     CheckPointer(pInfo, E_POINTER);
     ValidateReadWritePtr(pInfo, sizeof(FILTER_INFO));
@@ -477,7 +474,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     else {
         swprintf_s(pInfo->achName, L"XySubFilterConsumer (merit:0x%x|forced loading)", CONSUMRE_MERIT);
     }
-    if(pInfo->pGraph = m_pGraph)
+    if((pInfo->pGraph = m_pGraph))
     {
         m_pGraph->AddRef();
     }
@@ -498,7 +495,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
 
     if(dir == PINDIR_INPUT)
     {
-        [[nodiscard]] CAutoLock cAutoLock(&m_csReceive);
+        CAutoLock cAutoLock(&m_csReceive);
 
         REFERENCE_TIME atpf{pmt->formattype == FORMAT_VideoInfo ? ((VIDEOINFOHEADER*)pmt->Format())->AvgTimePerFrame :
             pmt->formattype == FORMAT_VideoInfo2 ? ((VIDEOINFOHEADER2*)pmt->Format())->AvgTimePerFrame :
@@ -549,11 +546,11 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
         CComPtr<IBaseFilter> pFilter;
 
         // needed when we have a decoder with a version number of 3.x
-        if(SUCCEEDED(m_pGraph->FindFilterByName(L"DivX MPEG-4 DVD Video Decompressor ", &pFilter))
-            && (GetFileVersion(_T("divx_c32.ax")) >> 48) <= 4
+        if((SUCCEEDED(m_pGraph->FindFilterByName(L"DivX MPEG-4 DVD Video Decompressor ", &pFilter))
+            && (GetFileVersion(_T("divx_c32.ax")) >> 48) <= 4)
             || SUCCEEDED(m_pGraph->FindFilterByName(L"Microcrap MPEG-4 Video Decompressor", &pFilter))
-            || SUCCEEDED(m_pGraph->FindFilterByName(L"Microsoft MPEG-4 Video Decompressor", &pFilter))
-            && (GetFileVersion(_T("mpg4ds32.ax")) >> 48) <= 3)
+            || (SUCCEEDED(m_pGraph->FindFilterByName(L"Microsoft MPEG-4 Video Decompressor", &pFilter))
+            && (GetFileVersion(_T("mpg4ds32.ax")) >> 48) <= 3))
         {
             m_fMSMpeg4Fix = true;
         }
@@ -678,8 +675,6 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
      * CFGManager class.
      */
 
-    HRESULT hr{NOERROR};
-
     InitConsumerFields();
 
     return __super::StartStreaming();
@@ -712,12 +707,12 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
 void XySubFilterConsumer::InitConsumerFields()
 {
     XY_LOG_INFO("");
-    [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+    CAutoLock cAutoLock(&m_csSubLock);
 
     const GUID& subtype{m_pInput->CurrentMediaType().subtype};
 
     BITMAPINFOHEADER bihIn;
-    ExtractBIH(&m_pInput->CurrentMediaType(), &bihIn);
+    (void)ExtractBIH(&m_pInput->CurrentMediaType(), &bihIn);
 
     m_spd.type = -1;
 
@@ -816,8 +811,6 @@ void XySubFilterConsumer::InitConsumerFields()
 
     CSize video{bihIn.biWidth, bihIn.biHeight};
 
-    HRESULT hr{S_OK};
-
     m_xy_size_opt[SIZE_ORIGINAL_VIDEO   ].SetSize(m_w, m_h);
     m_xy_size_opt[SIZE_AR_ADJUSTED_VIDEO].SetSize(m_w, m_h);//fix me: important! AR adjusted video size not filled properly
     m_xy_rect_opt[RECT_VIDEO_OUTPUT     ].SetRect(0, 0, m_w, m_h);
@@ -829,7 +822,7 @@ void XySubFilterConsumer::InitConsumerFields()
 [[nodiscard]] bool XySubFilterConsumer::AdjustFrameSize(CSize& s)
 {
     int horizontal, vertical, resx2, resx2minw, resx2minh;
-    get_ExtendPicture(&horizontal, &vertical, &resx2, &resx2minw, &resx2minh);
+    (void)get_ExtendPicture(&horizontal, &vertical, &resx2, &resx2minw, &resx2minh);
 
     bool fRet{(resx2 == 1) || (resx2 == 2 && s.cx*s.cy <= resx2minw*resx2minh)};
 
@@ -881,7 +874,7 @@ void XySubFilterConsumer::InitConsumerFields()
     return(fRet);
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::GetClassID(CLSID* pClsid)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::GetClassID(CLSID* pClsid)
 {
     if(pClsid == NULL)
     {
@@ -891,7 +884,7 @@ void XySubFilterConsumer::InitConsumerFields()
     return NOERROR;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::GetPages(CAUUID* pPages)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::GetPages(CAUUID* pPages)
 {
     CheckPointer(pPages, E_POINTER);
 
@@ -925,7 +918,7 @@ void XySubFilterConsumer::GetInputColorspaces( ColorSpaceId *preferredOrder, UIN
     if( hr==S_OK )
     {
         *count = 0;
-        for (int i{0};i<tempCount;i++)
+        for (int i{0};i<tempCount;++i)
         {
             if(color_space[i].selected)
             {
@@ -952,7 +945,7 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
     if( hr==S_OK )
     {
         *count = 0;
-        for (int i{0};i<tempCount;i++)
+        for (int i{0};i<tempCount;++i)
         {
             if(color_space[i].selected)
             {
@@ -970,14 +963,14 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
 
 // ISubRenderConsumer
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::GetMerit( ULONG *merit )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::GetMerit( ULONG *merit )
 {
     CheckPointer(merit, E_POINTER);
     *merit = CONSUMRE_MERIT;//Video Post Processor
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::Connect( ISubRenderProvider *subtitleRenderer )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::Connect( ISubRenderProvider *subtitleRenderer )
 {
     CheckPointer(subtitleRenderer, E_POINTER);
     HRESULT hr{S_OK};
@@ -1002,7 +995,7 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
 
         m_provider = subtitleRenderer;
 
-        BaseAlphaBlender::SetupDefaultAlphaBlender(MSP_RGBA, MSP_RGB32, g_cpuid.m_flags);
+        (void)BaseAlphaBlender::SetupDefaultAlphaBlender(MSP_RGBA, MSP_RGB32, g_cpuid.m_flags);
         return S_OK;
     }
     else
@@ -1012,7 +1005,7 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
     return S_FALSE;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::Disconnect()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::Disconnect()
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(this));
     static bool entered{false};
@@ -1022,7 +1015,7 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
     {
         entered = true;
         this->AddRef();//so that we won't be destroy because a call to m_provider->Disconnect
-        [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+        CAutoLock cAutoLock(&m_csSubLock);
 
         ASSERT(m_provider);
         if (m_provider)
@@ -1045,9 +1038,9 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
     return S_FALSE;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::DeliverFrame( const REFERENCE_TIME start, const REFERENCE_TIME stop, const LPVOID context, ISubRenderFrame *subtitleFrame )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::DeliverFrame( const REFERENCE_TIME start, const REFERENCE_TIME stop, const LPVOID context, ISubRenderFrame *subtitleFrame )
 {
-    [[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+    CAutoLock cAutoLock(&m_csSubLock);
     //fix me
     m_sub_render_frame = subtitleFrame;
     return S_FALSE;
@@ -1126,9 +1119,9 @@ void XySubFilterConsumer::SetYuvMatrix()
 // IXyOptions
 //
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::XySetBool( const unsigned field, const bool value )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::XySetBool( const unsigned field, const bool value )
 {
-    [[nodiscard]] CAutoLock cAutolock(&m_csSubLock);
+    CAutoLock cAutolock(&m_csSubLock);
     HRESULT hr{CDirectVobSub::XySetBool(field, value)};
     if(hr != NOERROR)
     {
@@ -1148,9 +1141,9 @@ void XySubFilterConsumer::SetYuvMatrix()
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP XySubFilterConsumer::XySetInt( const unsigned field, const int value )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::XySetInt( const unsigned field, const int value )
 {
-    [[nodiscard]] CAutoLock cAutolock(&m_csSubLock);
+    CAutoLock cAutolock(&m_csSubLock);
     HRESULT hr{CDirectVobSub::XySetInt(field, value)};
     if(hr != NOERROR)
     {
@@ -1215,9 +1208,9 @@ void XySubFilterConsumer::InitObj4OSD()
         RGBQUAD biColors[256U];
     } b = {
         {sizeof(BITMAPINFOHEADER), m_w, -(int)m_h, 1, 8, BI_RGB, 0, 0, 0, 0, 0},
-        {0}
+        {{0}}
     };
-    for (int i{0};i<256;i++)
+    for (int i{0};i<256;++i)
     {
         b.biColors[i].rgbBlue = b.biColors[i].rgbGreen = b.biColors[i].rgbRed = i;
     }
@@ -1227,19 +1220,6 @@ void XySubFilterConsumer::InitObj4OSD()
     BITMAP bm;
     GetObject(m_hbm, sizeof(bm), &bm);
     std::memset(bm.bmBits, 0, bm.bmHeight*bm.bmWidthBytes);
-}
-
-static void LogSubPicStartStop( const REFERENCE_TIME& rtStart, const REFERENCE_TIME& rtStop, const CString& msg)
-{
-#if ENABLE_XY_LOG
-    static REFERENCE_TIME s_rtStart{-1}, s_rtStop = -1;
-    if(s_rtStart!=rtStart || s_rtStop!=rtStop)
-    {
-        XY_LOG_INFO(msg.GetString());
-        s_rtStart=rtStart;
-        s_rtStop=rtStop;
-    }
-#endif
 }
 
 void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
@@ -1422,7 +1402,7 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
     const GUID& subtype{m_pOutput->CurrentMediaType().subtype};
 
     BITMAPINFOHEADER bihOut;
-    ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
+    (void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
 
     CString msg, tmp;
 
@@ -1452,7 +1432,7 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
             tmp.Format(_T("queue stats: %I64d - %I64d [ms]\n"), rtStart/10000, rtStop/10000);
             msg += tmp;
 
-            for(int i{0}; i < nSubPics; i++)
+            for(int i{0}; i < nSubPics; ++i)
             {
                 m_provider->GetStats(i, rtStart, rtStop);
                 tmp.Format(_T("%d: %I64d - %I64d [ms]\n"), i, rtStart/10000, rtStop/10000);
@@ -1539,7 +1519,7 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
     GetObject(m_hbm, sizeof(BITMAP), &bm);
 
     const int MARGIN{8};
-    [[nodiscard]] CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
+    CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
     DrawText(m_hdc, msg, _tcslen(msg), &r, DT_CALCRECT|DT_EXTERNALLEADING|DT_NOPREFIX|DT_WORDBREAK);
 
     r &= CRect(0, 0, bm.bmWidth, bm.bmHeight);

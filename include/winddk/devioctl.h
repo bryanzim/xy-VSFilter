@@ -95,8 +95,36 @@ Revision History:
 #define FILE_DEVICE_BLUETOOTH           0x00000041
 #define FILE_DEVICE_MT_COMPOSITE        0x00000042
 #define FILE_DEVICE_MT_TRANSPORT        0x00000043
-#define FILE_DEVICE_BIOMETRIC		0x00000044
+#define FILE_DEVICE_BIOMETRIC           0x00000044
 #define FILE_DEVICE_PMI                 0x00000045
+#define FILE_DEVICE_EHSTOR              0x00000046
+#define FILE_DEVICE_DEVAPI              0x00000047
+#define FILE_DEVICE_GPIO                0x00000048
+#define FILE_DEVICE_USBEX               0x00000049
+#define FILE_DEVICE_CONSOLE             0x00000050
+#define FILE_DEVICE_NFP                 0x00000051
+#define FILE_DEVICE_SYSENV              0x00000052
+#define FILE_DEVICE_VIRTUAL_BLOCK       0x00000053
+#define FILE_DEVICE_POINT_OF_SERVICE    0x00000054
+#define FILE_DEVICE_STORAGE_REPLICATION 0x00000055
+#define FILE_DEVICE_TRUST_ENV           0x00000056
+#define FILE_DEVICE_UCM                 0x00000057
+#define FILE_DEVICE_UCMTCPCI            0x00000058
+#define FILE_DEVICE_PERSISTENT_MEMORY   0x00000059
+#define FILE_DEVICE_NVDIMM              0x0000005a
+#define FILE_DEVICE_HOLOGRAPHIC         0x0000005b
+#define FILE_DEVICE_SDFXHCI             0x0000005c
+#define FILE_DEVICE_UCMUCSI             0x0000005d
+#define FILE_DEVICE_PRM                 0x0000005e
+#define FILE_DEVICE_EVENT_COLLECTOR     0x0000005f
+#define FILE_DEVICE_USB4                0x00000060
+#define FILE_DEVICE_SOUNDWIRE           0x00000061
+#define FILE_DEVICE_FABRIC_NVME         0x00000062
+#define FILE_DEVICE_SVM                 0x00000063
+#define FILE_DEVICE_HARDWARE_ACCELERATOR 0x00000064
+#define FILE_DEVICE_I3C                 0x00000065
+#define FILE_DEVICE_MULTITIER_MEMORY    0x00000066
+#define FILE_DEVICE_CXL_TYPE3           0x00000067
 
 //
 // Macro definition for defining IOCTL and FSCTL function control codes.  Note
@@ -161,4 +189,3 @@ Revision History:
 #endif // _DEVIOCTL_
 
 // end_winioctl
-

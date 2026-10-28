@@ -72,7 +72,7 @@ CGolombBuffer::~CGolombBuffer()
 
 {
     int n{-1};
-    for (BYTE b{0}; !b; n++) {
+    for (BYTE b{0}; !b; ++n) {
         b = (BYTE)BitRead(1);
     }
     return (1ui64 << n) - 1 + BitRead(n);

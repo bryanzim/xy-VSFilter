@@ -34,44 +34,44 @@ public:
     explicit XyOptionsImpl(const Option *option_list);
     virtual ~XyOptionsImpl() {}
 
-    [[nodiscard]] STDMETHODIMP XyGetBool     (unsigned field, bool      *value);
-    [[nodiscard]] STDMETHODIMP XyGetInt      (unsigned field, int       *value);
-    [[nodiscard]] STDMETHODIMP XyGetSize     (unsigned field, SIZE      *value);
-    [[nodiscard]] STDMETHODIMP XyGetRect     (unsigned field, RECT      *value);
-    [[nodiscard]] STDMETHODIMP XyGetUlonglong(unsigned field, ULONGLONG *value);
-    [[nodiscard]] STDMETHODIMP XyGetDouble   (unsigned field, double    *value);
-    [[nodiscard]] STDMETHODIMP XyGetString   (unsigned field, LPWSTR    *value, int *chars);
-    [[nodiscard]] STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size );
-    [[nodiscard]] STDMETHODIMP XyGetBin2     (unsigned field, void      *value, int  size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBool     (unsigned field, bool      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetInt      (unsigned field, int       *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetSize     (unsigned field, SIZE      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetRect     (unsigned field, RECT      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetUlonglong(unsigned field, ULONGLONG *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetDouble   (unsigned field, double    *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetString   (unsigned field, LPWSTR    *value, int *chars);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBin2     (unsigned field, void      *value, int  size );
 
-    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
-    [[nodiscard]] STDMETHODIMP XySetInt      (unsigned field, int       value);
-    [[nodiscard]] STDMETHODIMP XySetSize     (unsigned field, SIZE      value);
-    [[nodiscard]] STDMETHODIMP XySetRect     (unsigned field, RECT      value);
-    [[nodiscard]] STDMETHODIMP XySetUlonglong(unsigned field, ULONGLONG value);
-    [[nodiscard]] STDMETHODIMP XySetDouble   (unsigned field, double    value);
-    [[nodiscard]] STDMETHODIMP XySetString   (unsigned field, LPWSTR    value, int chars);
-    [[nodiscard]] STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetInt      (unsigned field, int       value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetSize     (unsigned field, SIZE      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetRect     (unsigned field, RECT      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetUlonglong(unsigned field, ULONGLONG value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetDouble   (unsigned field, double    value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetString   (unsigned field, LPWSTR    value, int chars);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size );
 
     //methods for array
-    [[nodiscard]] STDMETHODIMP XyGetBools     (unsigned field, int id, bool      *value);
-    [[nodiscard]] STDMETHODIMP XyGetInts      (unsigned field, int id, int       *value);
-    [[nodiscard]] STDMETHODIMP XyGetSizes     (unsigned field, int id, SIZE      *value);
-    [[nodiscard]] STDMETHODIMP XyGetRects     (unsigned field, int id, RECT      *value);
-    [[nodiscard]] STDMETHODIMP XyGetUlonglongs(unsigned field, int id, ULONGLONG *value);
-    [[nodiscard]] STDMETHODIMP XyGetDoubles   (unsigned field, int id, double    *value);
-    [[nodiscard]] STDMETHODIMP XyGetStrings   (unsigned field, int id, LPWSTR    *value, int *chars);
-    [[nodiscard]] STDMETHODIMP XyGetBins      (unsigned field, int id, LPVOID    *value, int *size );
-    [[nodiscard]] STDMETHODIMP XyGetBins2     (unsigned field, int id, void      *value, int  size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBools     (unsigned field, int id, bool      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetInts      (unsigned field, int id, int       *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetSizes     (unsigned field, int id, SIZE      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetRects     (unsigned field, int id, RECT      *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetUlonglongs(unsigned field, int id, ULONGLONG *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetDoubles   (unsigned field, int id, double    *value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetStrings   (unsigned field, int id, LPWSTR    *value, int *chars);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBins      (unsigned field, int id, LPVOID    *value, int *size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBins2     (unsigned field, int id, void      *value, int  size );
 
-    [[nodiscard]] STDMETHODIMP XySetBools     (unsigned field, int id, bool      value);
-    [[nodiscard]] STDMETHODIMP XySetInts      (unsigned field, int id, int       value);
-    [[nodiscard]] STDMETHODIMP XySetSizes     (unsigned field, int id, SIZE      value);
-    [[nodiscard]] STDMETHODIMP XySetRects     (unsigned field, int id, RECT      value);
-    [[nodiscard]] STDMETHODIMP XySetUlonglongs(unsigned field, int id, ULONGLONG value);
-    [[nodiscard]] STDMETHODIMP XySetDoubles   (unsigned field, int id, double    value);
-    [[nodiscard]] STDMETHODIMP XySetStrings   (unsigned field, int id, LPWSTR    value, int chars);
-    [[nodiscard]] STDMETHODIMP XySetBins      (unsigned field, int id, LPVOID    value, int size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBools     (unsigned field, int id, bool      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetInts      (unsigned field, int id, int       value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetSizes     (unsigned field, int id, SIZE      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetRects     (unsigned field, int id, RECT      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetUlonglongs(unsigned field, int id, ULONGLONG value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetDoubles   (unsigned field, int id, double    value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetStrings   (unsigned field, int id, LPWSTR    value, int chars);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBins      (unsigned field, int id, LPVOID    value, int size );
 
     [[nodiscard]] inline bool TestOption(const unsigned field)
 
@@ -102,38 +102,38 @@ protected:
 };
 
 #define DECLARE_IXYOPTIONS                                                                                                         \
-    STDMETHODIMP XyGetBool     (unsigned field, bool      *value) { return XyOptionsImpl::XyGetBool(field, value); }                      \
-    STDMETHODIMP XyGetInt      (unsigned field, int       *value) { return XyOptionsImpl::XyGetInt(field, value); }                       \
-    STDMETHODIMP XyGetSize     (unsigned field, SIZE      *value) { return XyOptionsImpl::XyGetSize(field, value); }                      \
-    STDMETHODIMP XyGetRect     (unsigned field, RECT      *value) { return XyOptionsImpl::XyGetRect(field, value); }                      \
-    STDMETHODIMP XyGetUlonglong(unsigned field, ULONGLONG *value) { return XyOptionsImpl::XyGetUlonglong(field, value); }                 \
-    STDMETHODIMP XyGetDouble   (unsigned field, double    *value) { return XyOptionsImpl::XyGetDouble(field, value); }                    \
-    STDMETHODIMP XyGetString   (unsigned field, LPWSTR    *value, int *chars) { return XyOptionsImpl::XyGetString(field, value, chars); } \
-    STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size ) { return XyOptionsImpl::XyGetBin(field, value, size); }     \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetBool     (unsigned field, bool      *value) { return XyOptionsImpl::XyGetBool(field, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetInt      (unsigned field, int       *value) { return XyOptionsImpl::XyGetInt(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetSize     (unsigned field, SIZE      *value) { return XyOptionsImpl::XyGetSize(field, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetRect     (unsigned field, RECT      *value) { return XyOptionsImpl::XyGetRect(field, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetUlonglong(unsigned field, ULONGLONG *value) { return XyOptionsImpl::XyGetUlonglong(field, value); }                 \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetDouble   (unsigned field, double    *value) { return XyOptionsImpl::XyGetDouble(field, value); }                    \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetString   (unsigned field, LPWSTR    *value, int *chars) { return XyOptionsImpl::XyGetString(field, value, chars); } \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size ) { return XyOptionsImpl::XyGetBin(field, value, size); }     \
     \
-    STDMETHODIMP XySetBool     (unsigned field, bool      value) { return XyOptionsImpl::XySetBool(field, value); }                       \
-    STDMETHODIMP XySetInt      (unsigned field, int       value) { return XyOptionsImpl::XySetInt(field, value); }                        \
-    STDMETHODIMP XySetSize     (unsigned field, SIZE      value) { return XyOptionsImpl::XySetSize(field, value); }                       \
-    STDMETHODIMP XySetRect     (unsigned field, RECT      value) { return XyOptionsImpl::XySetRect(field, value); }                       \
-    STDMETHODIMP XySetUlonglong(unsigned field, ULONGLONG value) { return XyOptionsImpl::XySetUlonglong(field, value); }                  \
-    STDMETHODIMP XySetDouble   (unsigned field, double    value) { return XyOptionsImpl::XySetDouble(field, value); }                     \
-    STDMETHODIMP XySetString   (unsigned field, LPWSTR    value, int chars) { return XyOptionsImpl::XySetString(field, value, chars); }   \
-    STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size ) { return XyOptionsImpl::XySetBin(field, value, size); }       \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetBool     (unsigned field, bool      value) { return XyOptionsImpl::XySetBool(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetInt      (unsigned field, int       value) { return XyOptionsImpl::XySetInt(field, value); }                        \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetSize     (unsigned field, SIZE      value) { return XyOptionsImpl::XySetSize(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetRect     (unsigned field, RECT      value) { return XyOptionsImpl::XySetRect(field, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetUlonglong(unsigned field, ULONGLONG value) { return XyOptionsImpl::XySetUlonglong(field, value); }                  \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetDouble   (unsigned field, double    value) { return XyOptionsImpl::XySetDouble(field, value); }                     \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetString   (unsigned field, LPWSTR    value, int chars) { return XyOptionsImpl::XySetString(field, value, chars); }   \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size ) { return XyOptionsImpl::XySetBin(field, value, size); }       \
     \
-    STDMETHODIMP XyGetBools     (unsigned field, int id, bool      *value) { return XyOptionsImpl::XyGetBools(field, id, value); }                      \
-    STDMETHODIMP XyGetInts      (unsigned field, int id, int       *value) { return XyOptionsImpl::XyGetInts(field, id, value); }                       \
-    STDMETHODIMP XyGetSizes     (unsigned field, int id, SIZE      *value) { return XyOptionsImpl::XyGetSizes(field, id, value); }                      \
-    STDMETHODIMP XyGetRects     (unsigned field, int id, RECT      *value) { return XyOptionsImpl::XyGetRects(field, id, value); }                      \
-    STDMETHODIMP XyGetUlonglongs(unsigned field, int id, ULONGLONG *value) { return XyOptionsImpl::XyGetUlonglongs(field, id, value); }                 \
-    STDMETHODIMP XyGetDoubles   (unsigned field, int id, double    *value) { return XyOptionsImpl::XyGetDoubles(field, id, value); }                    \
-    STDMETHODIMP XyGetStrings   (unsigned field, int id, LPWSTR    *value, int *chars) { return XyOptionsImpl::XyGetStrings(field, id, value, chars); } \
-    STDMETHODIMP XyGetBins      (unsigned field, int id, LPVOID    *value, int *size ) { return XyOptionsImpl::XyGetBins(field, id, value, size); }     \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetBools     (unsigned field, int id, bool      *value) { return XyOptionsImpl::XyGetBools(field, id, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetInts      (unsigned field, int id, int       *value) { return XyOptionsImpl::XyGetInts(field, id, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetSizes     (unsigned field, int id, SIZE      *value) { return XyOptionsImpl::XyGetSizes(field, id, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetRects     (unsigned field, int id, RECT      *value) { return XyOptionsImpl::XyGetRects(field, id, value); }                      \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetUlonglongs(unsigned field, int id, ULONGLONG *value) { return XyOptionsImpl::XyGetUlonglongs(field, id, value); }                 \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetDoubles   (unsigned field, int id, double    *value) { return XyOptionsImpl::XyGetDoubles(field, id, value); }                    \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetStrings   (unsigned field, int id, LPWSTR    *value, int *chars) { return XyOptionsImpl::XyGetStrings(field, id, value, chars); } \
+    DECLSPEC_NOTHROW STDMETHODIMP XyGetBins      (unsigned field, int id, LPVOID    *value, int *size ) { return XyOptionsImpl::XyGetBins(field, id, value, size); }     \
     \
-    STDMETHODIMP XySetBools     (unsigned field, int id, bool      value) { return XyOptionsImpl::XySetBools(field, id, value); }                       \
-    STDMETHODIMP XySetInts      (unsigned field, int id, int       value) { return XyOptionsImpl::XySetInts(field, id, value); }                        \
-    STDMETHODIMP XySetSizes     (unsigned field, int id, SIZE      value) { return XyOptionsImpl::XySetSizes(field, id, value); }                       \
-    STDMETHODIMP XySetRects     (unsigned field, int id, RECT      value) { return XyOptionsImpl::XySetRects(field, id, value); }                       \
-    STDMETHODIMP XySetUlonglongs(unsigned field, int id, ULONGLONG value) { return XyOptionsImpl::XySetUlonglongs(field, id, value); }                  \
-    STDMETHODIMP XySetDoubles   (unsigned field, int id, double    value) { return XyOptionsImpl::XySetDoubles(field, id, value); }                     \
-    STDMETHODIMP XySetStrings   (unsigned field, int id, LPWSTR    value, int chars) { return XyOptionsImpl::XySetStrings(field, id, value, chars); }   \
-    STDMETHODIMP XySetBins      (unsigned field, int id, LPVOID    value, int size ) { return XyOptionsImpl::XySetBins(field, id, value, size); }
+    DECLSPEC_NOTHROW STDMETHODIMP XySetBools     (unsigned field, int id, bool      value) { return XyOptionsImpl::XySetBools(field, id, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetInts      (unsigned field, int id, int       value) { return XyOptionsImpl::XySetInts(field, id, value); }                        \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetSizes     (unsigned field, int id, SIZE      value) { return XyOptionsImpl::XySetSizes(field, id, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetRects     (unsigned field, int id, RECT      value) { return XyOptionsImpl::XySetRects(field, id, value); }                       \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetUlonglongs(unsigned field, int id, ULONGLONG value) { return XyOptionsImpl::XySetUlonglongs(field, id, value); }                  \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetDoubles   (unsigned field, int id, double    value) { return XyOptionsImpl::XySetDoubles(field, id, value); }                     \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetStrings   (unsigned field, int id, LPWSTR    value, int chars) { return XyOptionsImpl::XySetStrings(field, id, value, chars); }   \
+    DECLSPEC_NOTHROW STDMETHODIMP XySetBins      (unsigned field, int id, LPVOID    value, int size ) { return XyOptionsImpl::XySetBins(field, id, value, size); }

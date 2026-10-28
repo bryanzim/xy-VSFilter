@@ -1,3 +1,8 @@
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextern-c-compat"
+#endif
+
 /*++ BUILD Version: 0001    // Increment this if a change has global effects
 
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -27,20 +32,23 @@ extern "C" {
 
 #if _MSC_VER >= 1200
 #pragma warning(push)
+#pragma warning(disable:4820) /* padding added after data member */
 #endif
 
 #if _MSC_VER > 1000
 #pragma once
 #endif
+#include <winapifamily.h>
+
+#pragma region Desktop Family or OneCore Family
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
+
 
 //
 // remove some level 4 warnings for this header file:
 #pragma warning(disable:4200) // array[0]
 #pragma warning(disable:4201) // nameless struct/unions
 #pragma warning(disable:4214) // bit fields other than int
-#if defined(__INTEL_COMPILER)
-#pragma warning(disable:94)   // warning #94: the size of an array must be greater than zero
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -935,8 +943,15 @@ typedef struct _CDROM_WRITE_SPEED_DESCRIPTOR {
 }
 #endif
 
+
+#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM) */
+#pragma endregion
+
 #endif  // _NTDDCDRM_
 
 // end_winioctl
 
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif

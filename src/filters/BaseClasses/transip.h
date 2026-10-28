@@ -57,17 +57,17 @@ public:
     // --- IMemInputPin -----
 
     // Provide an enumerator for media types by getting one from downstream
-    STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
+    DECLSPEC_NOTHROW STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
 
     // Say whether media type is acceptable.
     HRESULT CheckMediaType(const CMediaType* pmt);
 
     // Return our upstream allocator
-    STDMETHODIMP GetAllocator(IMemAllocator ** ppAllocator);
+    DECLSPEC_NOTHROW STDMETHODIMP GetAllocator(IMemAllocator ** ppAllocator);
 
     // get told which allocator the upstream output pin is actually
     // going to use.
-    STDMETHODIMP NotifyAllocator(IMemAllocator * pAllocator,
+    DECLSPEC_NOTHROW STDMETHODIMP NotifyAllocator(IMemAllocator * pAllocator,
                                  BOOL bReadOnly);
 
     // Allow the filter to see what allocator we have
@@ -76,11 +76,11 @@ public:
         {  return m_pAllocator; }
 
     // Pass this on downstream if it ever gets called.
-    STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps);
+    DECLSPEC_NOTHROW STDMETHODIMP GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps);
 
     HRESULT CompleteConnect(IPin *pReceivePin);
 
-    inline const BOOL ReadOnly() { return m_bReadOnly ; }
+    inline BOOL ReadOnly() { return m_bReadOnly ; }
 
 };  // CTransInPlaceInputPin
 
@@ -113,7 +113,7 @@ public:
     // virtual HRESULT DecideAllocator(IMemInputPin * pPin, IMemAllocator ** pAlloc);
 
     // Provide a media type enumerator.  Get it from upstream.
-    STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
+    DECLSPEC_NOTHROW STDMETHODIMP EnumMediaTypes( IEnumMediaTypes **ppEnum );
 
     // Say whether media type is acceptable.
     HRESULT CheckMediaType(const CMediaType* pmt);
@@ -177,7 +177,7 @@ public:
     HRESULT CheckTransform(const CMediaType *mtIn, const CMediaType *mtOut)
     {
         return S_OK;
-    };
+    }
 
 
     // =================================================================
@@ -212,7 +212,7 @@ public:
 
 protected:
 
-    IMediaSample * CTransInPlaceFilter::Copy(IMediaSample *pSource);
+    IMediaSample * Copy(IMediaSample *pSource);
 
 #ifdef PERF
     int m_idTransInPlace;                 // performance measuring id
@@ -227,11 +227,11 @@ protected:
     CTransInPlaceInputPin  *InputPin() const
     {
         return (CTransInPlaceInputPin *)m_pInput;
-    };
+    }
     CTransInPlaceOutputPin *OutputPin() const
     {
         return (CTransInPlaceOutputPin *)m_pOutput;
-    };
+    }
 
     //  Helper to see if the input and output types match
     BOOL TypesMatch()

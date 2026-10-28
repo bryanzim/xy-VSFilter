@@ -91,31 +91,31 @@ public:
             : CBaseObject(NAME("List node"))
 #endif
         {
-        };
+        }
 
 
         /* Return the previous node before this one */
-        CNode *Prev() const { return m_pPrev; };
+        CNode *Prev() const { return m_pPrev; }
 
 
         /* Return the next node after this one */
-        CNode *Next() const { return m_pNext; };
+        CNode *Next() const { return m_pNext; }
 
 
         /* Set the previous node before this one */
-        void SetPrev(CNode *p) { m_pPrev = p; };
+        void SetPrev(CNode *p) { m_pPrev = p; }
 
 
         /* Set the next node after this one */
-        void SetNext(CNode *p) { m_pNext = p; };
+        void SetNext(CNode *p) { m_pNext = p; }
 
 
         /* Get the pointer to the object for this node */
-        void *GetData() const { return m_pObject; };
+        void *GetData() const { return m_pObject; }
 
 
         /* Set the pointer to the object for this node */
-        void SetData(void *p) { m_pObject = p; };
+        void SetData(void *p) { m_pObject = p; }
     };
 
     class CNodeCache
@@ -124,7 +124,7 @@ public:
         CNodeCache(INT iCacheSize) : m_iCacheSize(iCacheSize),
                                      m_iUsed(0),
                                      m_pHead(NULL)
-                                     {};
+                                     {}
         ~CNodeCache() {
             CNode *pNode = m_pHead;
             while (pNode) {
@@ -132,7 +132,7 @@ public:
                 pNode = pNode->Next();
                 delete pCurrent;
             }
-        };
+        }
         void AddToCache(CNode *pNode)
         {
             if (m_iUsed < m_iCacheSize) {
@@ -142,7 +142,7 @@ public:
             } else {
                 delete pNode;
             }
-        };
+        }
         CNode *RemoveFromCache()
         {
             CNode *pNode = m_pHead;
@@ -154,7 +154,7 @@ public:
                 ASSERT(m_iUsed == 0);
             }
             return pNode;
-        };
+        }
     private:
         INT m_iCacheSize;
         INT m_iUsed;
@@ -500,10 +500,10 @@ public:
                      CBaseList(pName, iItems) {
         UNREFERENCED_PARAMETER(bAlert);
         UNREFERENCED_PARAMETER(bLock);
-    };
+    }
     CGenericList(TCHAR *pName) :
                      CBaseList(pName) {
-    };
+    }
 
     POSITION GetHeadPosition() const { return (POSITION)m_pFirst; }
     POSITION GetTailPosition() const { return (POSITION)m_pLast; }
@@ -528,9 +528,9 @@ public:
     BOOL AddHead(CGenericList<OBJECT> *pList)
             { return CBaseList::AddHead((CBaseList *) pList); }
     BOOL AddAfter(POSITION p, CGenericList<OBJECT> *pList)
-            { return CBaseList::AddAfter(p, (CBaseList *) pList); };
+            { return CBaseList::AddAfter(p, (CBaseList *) pList); }
     BOOL AddBefore(POSITION p, CGenericList<OBJECT> *pList)
-            { return CBaseList::AddBefore(p, (CBaseList *) pList); };
+            { return CBaseList::AddBefore(p, (CBaseList *) pList); }
     POSITION Find( OBJECT * pObj) const { return FindI(pObj); }
 }; // end of class declaration
 

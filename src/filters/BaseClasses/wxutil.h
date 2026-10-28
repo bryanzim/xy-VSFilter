@@ -39,19 +39,19 @@ public:
 public:
     CCritSec() {
         InitializeCriticalSection(&m_CritSec);
-    };
+    }
 
     ~CCritSec() {
         DeleteCriticalSection(&m_CritSec);
-    };
+    }
 
     void Lock() {
         EnterCriticalSection(&m_CritSec);
-    };
+    }
 
     void Unlock() {
         LeaveCriticalSection(&m_CritSec);
-    };
+    }
 #endif
 };
 
@@ -95,11 +95,11 @@ public:
     {
         m_pLock = plock;
         m_pLock->Lock();
-    };
+    }
 
     ~CAutoLock() {
         m_pLock->Unlock();
-    };
+    }
 };
 
 
@@ -120,14 +120,14 @@ public:
     ~CAMEvent();
 
     // Cast to HANDLE - we don't support this as an lvalue
-    operator HANDLE () const { return m_hEvent; };
+    operator HANDLE () const { return m_hEvent; }
 
-    void Set() {EXECUTE_ASSERT(SetEvent(m_hEvent));};
+    void Set() {EXECUTE_ASSERT(SetEvent(m_hEvent));}
     BOOL Wait(DWORD dwTimeout = INFINITE) {
 	return (WaitForSingleObject(m_hEvent, dwTimeout) == WAIT_OBJECT_0);
-    };
-    void Reset() { ResetEvent(m_hEvent); };
-    BOOL Check() { return Wait(0); };
+    }
+    void Reset() { ResetEvent(m_hEvent); }
+    BOOL Check() { return Wait(0); }
 };
 
 
@@ -197,7 +197,7 @@ public:
             WaitForSingleObject(hThread, INFINITE);
             CloseHandle(hThread);
         }
-    };
+    }
 
     // ThreadExists
     // Return TRUE if the thread exists. FALSE otherwise
@@ -221,10 +221,10 @@ public:
 
     // If you want to do WaitForMultipleObjects you'll need to include
     // this handle in your wait list or you won't be responsive
-    HANDLE GetRequestHandle() const { return m_EventSend; };
+    HANDLE GetRequestHandle() const { return m_EventSend; }
 
     // Find out what the request was
-    DWORD GetRequestParam() const { return m_dwParam; };
+    DWORD GetRequestParam() const { return m_dwParam; }
 
     // call CoInitializeEx (COINIT_DISABLE_OLE1DDE) if
     // available. S_FALSE means it's not available.
@@ -428,8 +428,8 @@ STDAPI_(WORD) GetBitCount(const GUID *pSubtype);
 //
 // STDAPI_(/* T */ CHAR *) GetSubtypeName(const GUID *pSubtype);
 
-STDAPI_(CHAR *) GetSubtypeNameA(const GUID *pSubtype);
-STDAPI_(WCHAR *) GetSubtypeNameW(const GUID *pSubtype);
+STDAPI_(const CHAR *) GetSubtypeNameA(const GUID *pSubtype);
+STDAPI_(const WCHAR *) GetSubtypeNameW(const GUID *pSubtype);
 
 #ifdef UNICODE
 #define GetSubtypeName GetSubtypeNameW

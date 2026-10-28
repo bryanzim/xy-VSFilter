@@ -28,14 +28,14 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderProvider)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper::Connect( IXyOptions *consumer )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper::Connect( IXyOptions *consumer )
 {
     HRESULT hr{NOERROR};
     if (consumer)
@@ -50,7 +50,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now  )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now  )
 {
     ASSERT(m_consumer);
     double fps;
@@ -83,7 +83,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
         {
             XY_LOG_INFO("'Use dst alpha' option changed from "<<m_use_dst_alpha<<" to "<<use_dst_alpha);
         }
-        Invalidate();
+        (void)Invalidate();
         m_original_video_size = original_video_size;
         m_use_dst_alpha = use_dst_alpha;
     }
@@ -225,7 +225,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
 {
     if (m_pSubPic )
     {
@@ -271,14 +271,14 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     }
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper2::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     return
         QI(IXySubRenderProvider)
         __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper2::Connect( IXyOptions *consumer )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper2::Connect( IXyOptions *consumer )
 {
     HRESULT hr{NOERROR};
     if (consumer)
@@ -293,7 +293,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper2::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper2::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now )
 {
     ASSERT(m_consumer);
     double fps;
@@ -359,7 +359,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     if (should_invalidate)
     {
         XY_LOG_INFO("Output rects or max_bitmap_count or alpha type changed.");
-        Invalidate();
+        (void)Invalidate();
     }
     if (should_invalidate_allocator)
     {
@@ -399,7 +399,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP XySubRenderProviderWrapper2::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderProviderWrapper2::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
 {
     if (m_start>=rtInvalidate)
     {
@@ -503,7 +503,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
             return hr;
         }
         CRect dirty_rect;
-        for (int i{0};i<count;i++)
+        for (int i{0};i<count;++i)
         {
             POINT pos;
             SIZE size;

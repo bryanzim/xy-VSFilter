@@ -538,9 +538,9 @@ void XForm::Matrix::Initalize()
 {
 	Matrix ret;
 
-	for(int i{0}; i < 4; i++)
+	for(int i{0}; i < 4; ++i)
 	{
-		for(int j{0}; j < 4; j++)
+		for(int j{0}; j < 4; ++j)
 		{
 			ret.mat[i][j] = mat[i][0U] * m.mat[0U][j] +
 							mat[i][1U] * m.mat[1U][j] +

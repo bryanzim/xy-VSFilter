@@ -223,7 +223,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
     const GUID& subtype{m_pOutput->CurrentMediaType().subtype};
 
     BITMAPINFOHEADER bihOut;
-    ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
+    (void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
 
     CString msg, tmp;
 
@@ -243,7 +243,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
 			m_pInput->CurrentRate());
 		msg += tmp;
 
-		[[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+		CAutoLock cAutoLock(&m_csSubLock);
 
 		if(m_simple_provider)
 		{
@@ -253,7 +253,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
             tmp.Format(_T("queue stats: %I64d - %I64d [ms]\n"), RT2MS(rtStart), RT2MS(rtStop));
 			msg += tmp;
 
-			for(int i{0}; i < nSubPics; i++)
+			for(int i{0}; i < nSubPics; ++i)
 			{
 				m_simple_provider->GetStats(i, rtStart, rtStop);
                 tmp.Format(_T("%d: %I64d - %I64d [ms]\n"), i, RT2MS(rtStart), RT2MS(rtStop));
@@ -271,8 +271,8 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
         msg += tmp;
 
         SIZE layout_size, script_playres;
-        XyGetSize(SIZE_LAYOUT_WITH, &layout_size);
-        XyGetSize(SIZE_ASS_PLAY_RESOLUTION, &script_playres);
+        (void)XyGetSize(SIZE_LAYOUT_WITH, &layout_size);
+        (void)XyGetSize(SIZE_ASS_PLAY_RESOLUTION, &script_playres);
         tmp.Format( _T("Layout with size %dx%d, script playres %dx%d\n"),
             layout_size.cx, layout_size.cy, script_playres.cx, script_playres.cy );
         msg += tmp;
@@ -280,8 +280,8 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
         //print cache info
         CachesInfo caches_info;
         XyFlyWeightInfo xy_fw_info;
-        XyGetBin2(DirectVobSubXyOptions::BIN2_CACHES_INFO, reinterpret_cast<LPVOID>(&caches_info), sizeof(caches_info));
-        XyGetBin2(DirectVobSubXyOptions::BIN2_XY_FLY_WEIGHT_INFO, reinterpret_cast<LPVOID>(&xy_fw_info), sizeof(xy_fw_info));
+        (void)XyGetBin2(DirectVobSubXyOptions::BIN2_CACHES_INFO, reinterpret_cast<LPVOID>(&caches_info), sizeof(caches_info));
+        (void)XyGetBin2(DirectVobSubXyOptions::BIN2_XY_FLY_WEIGHT_INFO, reinterpret_cast<LPVOID>(&xy_fw_info), sizeof(xy_fw_info));
         tmp.Format(
             _T("Cache :stored_num/hit_count/query_count\n")\
             _T("  Parser cache 1:%ld/%ld/%ld\n")\
@@ -335,7 +335,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
     GetObject(m_hbm, sizeof(BITMAP), &bm);
 
     const int MARGIN{8};
-    [[nodiscard]] CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
+    CRect r(MARGIN, MARGIN, bm.bmWidth, bm.bmHeight);
     DrawText(m_hdc, msg, _tcslen(msg), &r, DT_CALCRECT|DT_EXTERNALLEADING|DT_NOPREFIX|DT_WORDBREAK);
 
     r &= CRect(0, 0, bm.bmWidth, bm.bmHeight);

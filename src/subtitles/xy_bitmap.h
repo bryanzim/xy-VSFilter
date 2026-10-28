@@ -3,7 +3,7 @@
 
 #include <atltypes.h>
 #include <boost/shared_ptr.hpp>
-#include "XySubRenderIntf.h"
+#include "../filters/transform/vsfilter/XySubRenderIntf.h"
 
 class XyBitmap
 {
@@ -41,15 +41,15 @@ private:
 class XySubRenderFrame: public CUnknown, public IXySubRenderFrame
 {
 public:
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    [[nodiscard]] STDMETHODIMP GetOutputRect(RECT *outputRect);
-    [[nodiscard]] STDMETHODIMP GetClipRect(RECT *clipRect);
-    [[nodiscard]] STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
-    [[nodiscard]] STDMETHODIMP GetBitmapCount(int *count);
-    [[nodiscard]] STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
-    [[nodiscard]] STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetOutputRect(RECT *outputRect);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClipRect(RECT *clipRect);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetXyColorSpace(int *xyColorSpace);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBitmapCount(int *count);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBitmap(int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBitmapExtra(int index, LPVOID extra_info);
 public:
     explicit XySubRenderFrame();
     ~XySubRenderFrame();

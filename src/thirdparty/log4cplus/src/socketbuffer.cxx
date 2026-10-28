@@ -70,7 +70,7 @@ SocketBuffer&
 log4cplus::helpers::SocketBuffer::operator=(const SocketBuffer& rhs)
 {
     if(&rhs != this) {
-        delete buffer;
+        delete [] buffer;
         copy(rhs);
     }
 

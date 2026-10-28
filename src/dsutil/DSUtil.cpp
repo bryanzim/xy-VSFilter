@@ -52,7 +52,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 
 	if(size == sizeof(VIDEO_STREAM_CONFIG_CAPS))
 	{
-		for(int i{0}; i < cnt; i++)
+		for(int i{0}; i < cnt; ++i)
 		{
 			AM_MEDIA_TYPE* pmt{NULL};
 
@@ -154,11 +154,11 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 
 			if(dir == PINDIR_INPUT) {nIn++; if(pPinConnectedTo)
 			{
-			    nInC++;
+			    ++nInC;
 			}}
 			else if(dir == PINDIR_OUTPUT) {nOut++; if(pPinConnectedTo)
 			{
-			    nOutC++;
+			    ++nOutC;
 			}}
 		}
 	}
@@ -170,27 +170,27 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 [[nodiscard]] bool IsSplitter(IBaseFilter* pBF, const bool fCountConnectedOnly)
 {
 	int nIn, nOut, nInC, nOutC;
-	CountPins(pBF, nIn, nOut, nInC, nOutC);
+	(void)CountPins(pBF, nIn, nOut, nInC, nOutC);
 	return(fCountConnectedOnly ? nOutC > 1 : nOut > 1);
 }
 
 [[nodiscard]] bool IsMultiplexer(IBaseFilter* pBF, const bool fCountConnectedOnly)
 {
 	int nIn, nOut, nInC, nOutC;
-	CountPins(pBF, nIn, nOut, nInC, nOutC);
+	(void)CountPins(pBF, nIn, nOut, nInC, nOutC);
 	return(fCountConnectedOnly ? nInC > 1 : nIn > 1);
 }
 
 [[nodiscard]] bool IsStreamStart(IBaseFilter* pBF)
 {
-	[[nodiscard]] CComQIPtr<IAMFilterMiscFlags> pAMMF(pBF);
+	CComQIPtr<IAMFilterMiscFlags> pAMMF(pBF);
 	if(pAMMF && pAMMF->GetMiscFlags()&AM_FILTER_MISC_FLAGS_IS_SOURCE)
 	{
 		return(true);
 	}
 
 	int nIn, nOut, nInC, nOutC;
-	CountPins(pBF, nIn, nOut, nInC, nOutC);
+	(void)CountPins(pBF, nIn, nOut, nInC, nOutC);
 	AM_MEDIA_TYPE mt;
 	CComPtr<IPin> pIn = GetFirstPin(pBF);
 	return((nOut > 1)
@@ -200,14 +200,14 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 [[nodiscard]] bool IsStreamEnd(IBaseFilter* pBF)
 {
 	int nIn, nOut, nInC, nOutC;
-	CountPins(pBF, nIn, nOut, nInC, nOutC);
+	(void)CountPins(pBF, nIn, nOut, nInC, nOutC);
 	return(nOut == 0);
 }
 
 [[nodiscard]] bool IsVideoRenderer(IBaseFilter* pBF)
 {
 	int nIn, nOut, nInC, nOutC;
-	CountPins(pBF, nIn, nOut, nInC, nOutC);
+	(void)CountPins(pBF, nIn, nOut, nInC, nOutC);
 
 	if(nInC > 0 && nOut == 0)
 	{
@@ -239,7 +239,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 bool IsAudioWaveRenderer(IBaseFilter* pBF)
 {
 	int nIn, nOut, nInC, nOutC;
-	CountPins(pBF, nIn, nOut, nInC, nOutC);
+	(void)CountPins(pBF, nIn, nOut, nInC, nOutC);
 
 	if(nInC > 0 && nOut == 0 && CComQIPtr<IBasicAudio>(pBF))
 	{
@@ -811,7 +811,7 @@ void CStringToBin(CString str, CAtlArray<BYTE>& data)
 	BYTE b{0};
 
 	str.MakeUpper();
-	for(int i{0}, j = str.GetLength(); i < j; i++)
+	for(int i{0}, j = str.GetLength(); i < j; ++i)
 	{
 		TCHAR c{str[i]};
 		if(c >= '0' && c <= '9') 
@@ -863,7 +863,7 @@ void CStringToBin(CString str, CAtlArray<BYTE>& data)
 		str.Format(_T("%c%c"), high, low);
 		ret += str;
 
-		ptr++;
+		++ptr;
 	}
 
 	return(ret);
@@ -917,7 +917,6 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 		}
 
 		// CDROM_Audio
-		if(!(GetVersion()&0x80000000))
 		{
 			HANDLE hDrive{CreateFile(CString(_T("\\\\.\\")) + path, GENERIC_READ, FILE_SHARE_READ, NULL, 
 				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE)NULL)};
@@ -927,7 +926,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 				CDROM_TOC TOC;
 				if(DeviceIoControl(hDrive, IOCTL_CDROM_READ_TOC, NULL, 0, &TOC, sizeof(TOC), &BytesReturned, 0))
 				{
-					for(int i{TOC.FirstTrack}; i <= TOC.LastTrack; i++)
+					for(int i{TOC.FirstTrack}; i <= TOC.LastTrack; ++i)
 					{
 						// MMC-3 Draft Revision 10g: Table 222 ?Q Sub-channel control field
 						TOC.TrackData[i-1].Control &= 5;
@@ -998,14 +997,14 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 				if(afi.dwCaps&AVIFILECAPS_ALLKEYFRAMES)
 				{
 					kfs.SetSize(si.dwLength);
-					for(int kf{0}; kf < si.dwLength; kf++)
+					for(int kf{0}; kf < si.dwLength; ++kf)
 					{
 					    kfs[kf] = kf;
 					}
 				}
 				else
 				{
-					for(int kf{0}; ; kf++)
+					for(int kf{0}; ; ++kf)
 					{
 						kf = pavi->FindSample(kf, FIND_KEY|FIND_NEXT);
 						if(kf < 0 || (kfs.GetCount() > 0 && kfs[kfs.GetCount()-1] >= kf))
@@ -1084,8 +1083,14 @@ void memsetd(void* dst, const unsigned int c, const std::size_t nbytes)
 	switch(n - o) {
 		case 3:
 				((DWORD*)dst)[o + 2] = c;
+		#if defined(__clang__)
+		[[clang::fallthrough]];
+		#endif
 		case 2:
 				((DWORD*)dst)[o + 1] = c;
+		#if defined(__clang__)
+		[[clang::fallthrough]];
+		#endif
 		case 1:
 				((DWORD*)dst)[o + 0] = c;
 	}
@@ -1273,7 +1278,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	{
 	    return false;
 	}
-	seqhdr_end++;
+	++seqhdr_end;
 	if(seqhdr_end - seqhdr > len)
 	{
 	    return false;
@@ -2223,7 +2228,7 @@ static struct {
 	std::strncpy(tmp, code, 2);
 	tmp[2U] = 0;
 	_strlwr(tmp);
-	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+	for(int i{0}, j = countof(s_isolangs); i < j; ++i)
 		if(!std::strcmp(s_isolangs[i].iso6391, tmp))
 		{
 			CString ret{CString(CStringA(s_isolangs[i].name))};
@@ -2243,7 +2248,7 @@ static struct {
 	std::strncpy(tmp, code, 3);
 	tmp[3U] = 0;
 	_strlwr(tmp);
-	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+	for(int i{0}, j = countof(s_isolangs); i < j; ++i)
 	{
 		if(!std::strcmp(s_isolangs[i].iso6392, tmp))
 		{
@@ -2265,7 +2270,7 @@ static struct {
 	strncpy_s(tmp, code, 3);
 	tmp[3U] = 0;
 	_strlwr_s(tmp);
-	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; i++) {
+	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; ++i) {
 		if(!std::strcmp(s_isolangs[i].iso6391, code)) {
 			return s_isolangs[i].lcid;
 		}
@@ -2279,7 +2284,7 @@ static struct {
 	strncpy_s(tmp, code, 3);
 	tmp[3U] = 0;
 	_strlwr_s(tmp);
-	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; i++) {
+	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; ++i) {
 		if(!std::strcmp(s_isolangs[i].iso6392, tmp)) {
 			return s_isolangs[i].lcid;
 		}
@@ -2293,7 +2298,7 @@ static struct {
 	std::strncpy(tmp, code, 2);
 	tmp[2U] = 0;
 	_strlwr(tmp);
-	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+	for(int i{0}, j = countof(s_isolangs); i < j; ++i)
 	{
 		if(!std::strcmp(s_isolangs[i].iso6391, tmp))
 		{
@@ -2309,7 +2314,7 @@ static struct {
 	std::strncpy(tmp, code, 3);
 	tmp[3U] = 0;
 	_strlwr(tmp);
-	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+	for(int i{0}, j = countof(s_isolangs); i < j; ++i)
 	{
 		if(!std::strcmp(s_isolangs[i].iso6392, tmp))
 		{
@@ -2323,7 +2328,7 @@ static struct {
 {
 	CString str{lang};
 	str.MakeLower();
-	for(int i{0}, j = countof(s_isolangs); i < j; i++)
+	for(int i{0}, j = countof(s_isolangs); i < j; ++i)
 	{
 		CAtlList<CString> sl;
 		Explode(CString(s_isolangs[i].name), sl, ';');
@@ -2540,16 +2545,16 @@ void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, const LPCTST
 	CString majortype{CStringFromGUID(MEDIATYPE_Stream)};
 	CString subtype{CStringFromGUID(subtype2)};
 
-	SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("0"), chkbytes);
-	SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("Source Filter"), CStringFromGUID(clsid));
+	(void)SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("0"), chkbytes);
+	(void)SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("Source Filter"), CStringFromGUID(clsid));
 	
-	DeleteRegKey(_T("Media Type\\") + null, subtype);
+	(void)DeleteRegKey(_T("Media Type\\") + null, subtype);
 
 	va_list marker;
 	va_start(marker, ext);
 	for(; ext; ext = va_arg(marker, LPCTSTR))
 	{
-		DeleteRegKey(_T("Media Type\\Extensions"), ext);
+		(void)DeleteRegKey(_T("Media Type\\Extensions"), ext);
 	}
 	va_end(marker);
 }
@@ -2561,29 +2566,29 @@ void RegisterSourceFilter(const CLSID& clsid, const GUID& subtype2, const CAtlLi
 	CString subtype{CStringFromGUID(subtype2)};
 
 	POSITION pos{chkbytes.GetHeadPosition()};
-	for(int i{0}; pos; i++)
+	for(int i{0}; pos; ++i)
 	{
 		CString idx;
 		idx.Format(_T("%d"), i);
-		SetRegKeyValue(_T("Media Type\\") + majortype, subtype, idx, chkbytes.GetNext(pos));
+		(void)SetRegKeyValue(_T("Media Type\\") + majortype, subtype, idx, chkbytes.GetNext(pos));
 	}
 
-	SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("Source Filter"), CStringFromGUID(clsid));
+	(void)SetRegKeyValue(_T("Media Type\\") + majortype, subtype, _T("Source Filter"), CStringFromGUID(clsid));
 	
-	DeleteRegKey(_T("Media Type\\") + null, subtype);
+	(void)DeleteRegKey(_T("Media Type\\") + null, subtype);
 
 	va_list marker;
 	va_start(marker, ext);
 	for(; ext; ext = va_arg(marker, LPCTSTR))
 	{
-		DeleteRegKey(_T("Media Type\\Extensions"), ext);
+		(void)DeleteRegKey(_T("Media Type\\Extensions"), ext);
 	}
 	va_end(marker);
 }
 
 void UnRegisterSourceFilter(const GUID& subtype)
 {
-	DeleteRegKey(_T("Media Type\\") + CStringFromGUID(MEDIATYPE_Stream), CStringFromGUID(subtype));
+	(void)DeleteRegKey(_T("Media Type\\") + CStringFromGUID(MEDIATYPE_Stream), CStringFromGUID(subtype));
 }
 
 // hour, minute, second, millisec

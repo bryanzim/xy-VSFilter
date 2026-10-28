@@ -34,31 +34,31 @@ public:
     explicit CSubPicProviderImpl(CCritSec* pLock);
     virtual ~CSubPicProviderImpl();
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
 
-    STDMETHODIMP Lock();
-    STDMETHODIMP Unlock();
+    DECLSPEC_NOTHROW STDMETHODIMP Lock();
+    DECLSPEC_NOTHROW STDMETHODIMP Unlock();
 
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps) = 0;
-    [[nodiscard]] STDMETHODIMP_(POSITION) GetNext(POSITION pos) = 0;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps) = 0;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos) = 0;
 
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps) = 0;
-    [[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps) = 0;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps) = 0;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps) = 0;
 
-    [[nodiscard]] STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox) = 0;
-	[[nodiscard]] STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft) {
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox) = 0;
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft) {
 		return E_NOTIMPL;
-	};
+	}
 
     // ISubPicProviderEx
 
-    [[nodiscard]] STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop);
+    DECLSPEC_NOTHROW STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop);
 
-    [[nodiscard]] STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRect>& rectList);
 
-    [[nodiscard]] STDMETHODIMP_(bool) IsColorTypeSupported(int type);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsColorTypeSupported(int type);
 };
 

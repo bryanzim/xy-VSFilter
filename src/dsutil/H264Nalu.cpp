@@ -33,7 +33,7 @@ void CH264Nalu::SetBuffer(BYTE* pBuffer, int nSize, int nNALSize)
     m_nNALDataPos   = 0;
 
     if (!nNALSize && nSize) {
-        MoveToNextAnnexBStartcode();
+        (void)MoveToNextAnnexBStartcode();
     }
 }
 
@@ -42,7 +42,7 @@ void CH264Nalu::SetBuffer(BYTE* pBuffer, int nSize, int nNALSize)
 {
     int nBuffEnd{m_nSize - 4};
 
-    for (int i{m_nCurPos}; i < nBuffEnd; i++) {
+    for (int i{m_nCurPos}; i < nBuffEnd; ++i) {
         if ((*((DWORD*)(m_pBuffer + i)) & 0x00FFFFFF) == 0x00010000) {
             // Find next AnnexB Nal
             m_nCurPos = i;
@@ -78,22 +78,22 @@ void CH264Nalu::SetBuffer(BYTE* pBuffer, int nSize, int nNALSize)
         m_nNALStartPos = m_nCurPos;
         m_nNALDataPos  = m_nCurPos + m_nNALSize;
         unsigned nTemp{0U};
-        for (int i{0}; i < m_nNALSize; i++) {
+        for (int i{0}; i < m_nNALSize; ++i) {
             nTemp = (nTemp << 8) + m_pBuffer[m_nCurPos++];
         }
         m_nNextRTP += nTemp + m_nNALSize;
-        MoveToNextRTPStartcode();
+        (void)MoveToNextRTPStartcode();
     } else {
         // Remove trailing bits
         while (m_pBuffer[m_nCurPos] == 0x00 && ((*((DWORD*)(m_pBuffer + m_nCurPos)) & 0x00FFFFFF) != 0x00010000)) {
-            m_nCurPos++;
+            ++m_nCurPos;
         }
 
         // AnnexB Nalu : 00 00 01 NAL...
         m_nNALStartPos = m_nCurPos;
         m_nCurPos     += 3;
         m_nNALDataPos  = m_nCurPos;
-        MoveToNextAnnexBStartcode();
+        (void)MoveToNextAnnexBStartcode();
     }
 
     forbidden_bit     = (m_pBuffer[m_nNALDataPos] >> 7) & 1;

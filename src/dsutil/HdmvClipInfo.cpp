@@ -34,7 +34,7 @@ CHdmvClipInfo::CHdmvClipInfo()
 
 CHdmvClipInfo::~CHdmvClipInfo()
 {
-    CloseFile(S_OK);
+    (void)CloseFile(S_OK);
 }
 
 [[nodiscard]] HRESULT CHdmvClipInfo::CloseFile(const HRESULT hr)
@@ -81,17 +81,17 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     Pos.QuadPart = ProgramInfo_start_address;
     SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
 
-    ReadDword();    //length
-    ReadByte();     //reserved_for_word_align
+    (void)ReadDword();    //length
+    (void)ReadByte();     //reserved_for_word_align
     number_of_program_sequences = (BYTE)ReadByte();
     int iStream{0};
-    for (std::size_t i{0U}; i < number_of_program_sequences; i++) {
-        ReadDword();    //SPN_program_sequence_start
-        ReadShort();    //program_map_PID
+    for (std::size_t i{0U}; i < number_of_program_sequences; ++i) {
+        (void)ReadDword();    //SPN_program_sequence_start
+        (void)ReadShort();    //program_map_PID
         number_of_streams_in_ps = (BYTE)ReadByte(); //number_of_streams_in_ps
-        ReadByte();     //reserved_for_future_use
+        (void)ReadByte();     //reserved_for_future_use
 
-        for (std::size_t stream_index{0U}; stream_index < number_of_streams_in_ps; stream_index++) {
+        for (std::size_t stream_index{0U}; stream_index < number_of_streams_in_ps; ++stream_index) {
             m_Streams.SetCount(iStream + 1);
             m_Streams[iStream].m_PID = ReadShort();  // stream_PID
 
@@ -147,7 +147,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
                 }
                 break;
                 case SUBTITLE_STREAM: {
-                    ReadByte(); // Should this really be here?
+                    (void)ReadByte(); // Should this really be here?
                     ReadBuffer((BYTE*)m_Streams[iStream].m_LanguageCode, 3);
                     m_Streams[iStream].m_LanguageCode[3U] = '\0';
                     m_Streams[iStream].m_LCID = ISO6392ToLcid(m_Streams[iStream].m_LanguageCode);
@@ -157,7 +157,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
                     break;
             }
 
-            iStream++;
+            ++iStream;
             SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
         }
     }
@@ -185,7 +185,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         SequenceInfo_start_address = ReadDword();
         ProgramInfo_start_address  = ReadDword();
 
-        ReadProgramInfo();
+        (void)ReadProgramInfo();
 
         m_bIsHdmv = true;
 
@@ -198,7 +198,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 [[nodiscard]] CHdmvClipInfo::Stream* CHdmvClipInfo::FindStream(const short wPID)
 {
     std::size_t nStreams{m_Streams.GetCount()};
-    for (std::size_t i{0U}; i < nStreams; i++) {
+    for (std::size_t i{0U}; i < nStreams; ++i) {
         if (m_Streams[i].m_PID == wPID) {
             return &m_Streams[i];
         }
@@ -281,17 +281,17 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         unsigned short nPlaylistItems;
 
         Pos.QuadPart = ReadDword(); // PlayList_start_address
-        ReadDword();                // PlayListMark_start_address
+        (void)ReadDword();                // PlayListMark_start_address
 
         // PlayList()
         SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
-        ReadDword();                   // length
-        ReadShort();                   // reserved_for_future_use
+        (void)ReadDword();                   // length
+        (void)ReadShort();                   // reserved_for_future_use
         nPlaylistItems = ReadShort();  // number_of_PlayItems
-        ReadShort();                   // number_of_SubPaths
+        (void)ReadShort();                   // number_of_SubPaths
 
         Pos.QuadPart += 10;
-        for (std::size_t i{0U}; i < nPlaylistItems; i++) {
+        for (std::size_t i{0U}; i < nPlaylistItems; ++i) {
             PlaylistItem Item;
             SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
             Pos.QuadPart += ReadShort() + 2;
@@ -320,7 +320,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             //TRACE(_T("File : %s, Duration : %s, Total duration  : %s\n"), strTemp, ReftimeToString (rtOut - rtIn), ReftimeToString (rtDuration));
         }
 
-        CloseFile(S_OK);
+        (void)CloseFile(S_OK);
         return bDuplicate ? S_FALSE : S_OK;
     }
 
@@ -351,7 +351,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
             rtOffset[nIndex] = rtSum - PI.m_rtIn;
             rtSum = rtSum + PI.Duration();
-            nIndex++;
+            ++nIndex;
         }
 
         ReadBuffer(Buff, 4);
@@ -369,17 +369,17 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         LARGE_INTEGER  Pos;
         unsigned short nMarkCount;
 
-        ReadDword();                // PlayList_start_address
+        (void)ReadDword();                // PlayList_start_address
         Pos.QuadPart = ReadDword(); // PlayListMark_start_address
 
         // PlayListMark()
         SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
-        ReadDword();                // length
+        (void)ReadDword();                // length
         nMarkCount = ReadShort();   // number_of_PlayList_marks
-        for (std::size_t i{0U}; i < nMarkCount; i++) {
+        for (std::size_t i{0U}; i < nMarkCount; ++i) {
             PlaylistChapter Chapter;
 
-            ReadByte();                                           // reserved_for_future_use
+            (void)ReadByte();                                           // reserved_for_future_use
             Chapter.m_nMarkType   = (PlaylistMarkType)ReadByte(); // mark_type
             Chapter.m_nPlayItemId = ReadShort();                  // ref_to_PlayItem_id
             Chapter.m_rtTimestamp = 20000i64 * ReadDword() / 90 + rtOffset[Chapter.m_nPlayItemId];    // mark_time_stamp
@@ -391,7 +391,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             //TRACE(_T("Chapter %d : %s\n"), i, ReftimeToString(Chapter.m_rtTimestamp));
         }
 
-        CloseFile(S_OK);
+        (void)CloseFile(S_OK);
         SAFE_DELETE_ARRAY(rtOffset);
         return bDuplicate ? S_FALSE : S_OK;
     }
@@ -455,8 +455,8 @@ HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile
 
     if (MPLSPlaylists.GetCount() > 1) {
         // bubble sort
-        for (std::size_t j{0U}; j < MPLSPlaylists.GetCount(); j++) {
-            for (std::size_t i{0U}; i < MPLSPlaylists.GetCount() - 1; i++) {
+        for (std::size_t j{0U}; j < MPLSPlaylists.GetCount(); ++j) {
+            for (std::size_t i{0U}; i < MPLSPlaylists.GetCount() - 1; ++i) {
                 if (MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i)).Duration() < MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i + 1)).Duration()) {
                     MPLSPlaylists.SwapElements(MPLSPlaylists.FindIndex(i), MPLSPlaylists.FindIndex(i + 1));
                 }

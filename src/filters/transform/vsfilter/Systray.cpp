@@ -245,7 +245,7 @@ void CSystrayWindow::OnDestroy()
             if (!m_properties_page_showing)
             {
                 m_properties_page_showing = true;
-                [[nodiscard]] RECT desktopRect;
+                RECT desktopRect;
                 ::GetWindowRect(::GetDesktopWindow(), &desktopRect);
                 ::SetWindowPos(m_hWnd, 0, (desktopRect.right / 2) - 200, (desktopRect.bottom / 2) - 300, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
                 ShowPPage(CComQIPtr<IBaseFilter>(m_tbid->dvs), hWnd);
@@ -285,7 +285,7 @@ void CSystrayWindow::OnDestroy()
 			CMenu popup;
 			popup.CreatePopupMenu();
 
-			for(std::size_t j{0U}; j < pStreams.GetCount(); j++)
+			for(std::size_t j{0U}; j < pStreams.GetCount(); ++j)
 			{
 				bool fMMSwitcher{!names[j].Compare(_T("Morgan Stream Switcher"))};
 
@@ -294,7 +294,7 @@ void CSystrayWindow::OnDestroy()
 
 				DWORD flags, group, prevgroup = -1;
 				
-				for(UINT i{0}; i < cStreams; i++)
+				for(UINT i{0}; i < cStreams; ++i)
 				{
 					WCHAR* pName{NULL};
 
@@ -324,7 +324,7 @@ void CSystrayWindow::OnDestroy()
 			int i;
 
 			TCHAR* str;
-			for(i = 0; (str = CallPPage(m_tbid->graph, i, (HWND)INVALID_HANDLE_VALUE)); i++)
+			for(i = 0; (str = CallPPage(m_tbid->graph, i, (HWND)INVALID_HANDLE_VALUE)); ++i)
 			{
 				if(_tcsncmp(str, _T("DivX MPEG"), 9) || m_tbid->fRunOnce)
 				{ // divx3's ppage will crash if the graph hasn't been run at least once yet
@@ -459,7 +459,7 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 			break;
 		}
 
-		i++;
+		++i;
 	}
 	EndEnumFilters
 

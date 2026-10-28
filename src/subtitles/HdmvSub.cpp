@@ -80,7 +80,7 @@ void CHdmvSub::AllocSegment(const int nSize)
  // log first 2 objects
  //   {
  //       POSITION pos = m_pPresentationSegments.GetHeadPosition();
- //       for (int i=0;i<2 && pos!=NULL; i++)
+ //       for (int i=0;i<2 && pos!=NULL; ++i)
  //       {
  //           CompositionObject*	pObject = m_pPresentationSegments.GetNext(pos);
  //           TRACE_HDMVSUB( (_T("CHdmvSub:HDMV cur %d object %d  %lS => %lS\n"), i, pObject->GetRLEDataSize(),
@@ -185,7 +185,7 @@ void CHdmvSub::AllocSegment(const int nSize)
                         // Enqueue the current presentation segment if any
                         EnqueuePresentationSegment(rtStart);
                         // Parse the new presentation segment
-                        ParsePresentationSegment(rtStart, &SegmentBuffer);
+                        (void)ParsePresentationSegment(rtStart, &SegmentBuffer);
 
                         break;
                     case WINDOW_DEF:
@@ -231,7 +231,7 @@ void CHdmvSub::AllocSegment(const int nSize)
         return 0;
     }
 
-    for (int i{0}; i < m_pCurrentPresentationSegment->objectCount; i++) {
+    for (int i{0}; i < m_pCurrentPresentationSegment->objectCount; ++i) {
         CompositionObject* pCompositionObject{DEBUG_NEW CompositionObject()};
         ParseCompositionObject(pGBuffer, pCompositionObject);
         m_pCurrentPresentationSegment->objects.AddTail(pCompositionObject);
@@ -283,7 +283,7 @@ void CHdmvSub::ParsePalette(CGolombBuffer* pGBuffer, const unsigned short nSize)
     ASSERT((nSize - 2) % sizeof(HDMV_PALETTE) == 0);
     CLUT.size = (nSize - 2) / sizeof(HDMV_PALETTE);
 
-    for (int i{0}; i < CLUT.size; i++) {
+    for (int i{0}; i < CLUT.size; ++i) {
         CLUT.palette[i].entry_id = pGBuffer->ReadByte();
 
         CLUT.palette[i].Y  = pGBuffer->ReadByte();

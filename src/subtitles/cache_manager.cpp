@@ -36,12 +36,12 @@ ULONG PathDataTraits::Hash( const PathData& key )
     ULONG hash{515};
     hash += (hash<<5);
     hash += key.mPathPoints;
-    for (int i{0};i<key.mPathPoints;i++)
+    for (int i{0};i<key.mPathPoints;++i)
     {
         hash += (hash<<5);
         hash += key.mpPathTypes[i];
     }
-    for (int i{0};i<key.mPathPoints;i++)
+    for (int i{0};i<key.mPathPoints;++i)
     {
         hash += (hash<<5);
         hash += key.mpPathPoints[i].x;
@@ -67,12 +67,12 @@ ULONG PathDataTraits::Hash( const PathData& key )
     hash += (hash<<5);
     hash += hash_value(key.m_polygon->m_scaley);
 
-    for (int i{0};i<sizeof(key.m_effect.param)/sizeof(key.m_effect.param[0U]);i++)
+    for (int i{0};i<sizeof(key.m_effect.param)/sizeof(key.m_effect.param[0U]);++i)
     {
         hash += (hash<<5);
         hash += key.m_effect.param[i];
     }
-    for (int i{0};i<sizeof(key.m_effect.t)/sizeof(key.m_effect.t[0U]);i++)
+    for (int i{0};i<sizeof(key.m_effect.t)/sizeof(key.m_effect.t[0U]);++i)
     {
         hash += (hash<<5);
         hash += key.m_effect.t[i];
@@ -357,7 +357,7 @@ DrawItemHashKey::DrawItemHashKey( const DrawItem& draw_item)
     , m_fBody(draw_item.fBody)
     , m_fBorder(draw_item.fBorder)
 {
-    for(int i{0};i<countof(m_switchpts);i++)
+    for(int i{0};i<countof(m_switchpts);++i)
     {
         m_switchpts[i] = draw_item.switchpts[i];
     }
@@ -385,7 +385,7 @@ DrawItemHashKey::DrawItemHashKey( const DrawItem& draw_item)
 {
     m_hash_value = hash_value(m_clip_rect);
     ASSERT(m_key);
-    for( unsigned i{0U};i<m_key->GetCount();i++)
+    for( unsigned i{0U};i<m_key->GetCount();++i)
     {
         m_hash_value += (m_hash_value<<5);
         m_hash_value += m_key->GetAt(i)->GetHashValue();
@@ -406,7 +406,7 @@ DrawItemHashKey::DrawItemHashKey( const DrawItem& draw_item)
     }
     else
     {
-        for( unsigned i{0U};i<m_key->GetCount();i++)
+        for( unsigned i{0U};i<m_key->GetCount();++i)
         {
             if( !(*m_key->GetAt(i) == *key.m_key->GetAt(i)) )
             {

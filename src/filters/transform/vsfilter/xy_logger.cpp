@@ -102,7 +102,7 @@ void DumpPackBitmap2File(POINT pos, SIZE size, const LPCVOID pixels, const int p
 {
     using namespace std;
 
-    [[nodiscard]] ofstream axxx(filename, ios_base::app);
+    ofstream axxx(filename, ios_base::app);
     int h{size.cy};
     int w{size.cx};
     const BYTE* src{reinterpret_cast<const BYTE*>(pixels)};

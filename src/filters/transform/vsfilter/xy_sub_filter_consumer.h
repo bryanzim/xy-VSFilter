@@ -31,8 +31,7 @@
 #include "SubRenderIntf.h"
 
 
-[uuid("db6974b5-9bd1-45f5-8462-27a88019b352")]
-class XySubFilterConsumer
+class __declspec(uuid("db6974b5-9bd1-45f5-8462-27a88019b352")) XySubFilterConsumer
     : public CBaseVideoFilter
     , public CDirectVobSub
     , public ISpecifyPropertyPages
@@ -62,14 +61,14 @@ public:
     XySubFilterConsumer(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(XySubFilterConsumer));
     virtual ~XySubFilterConsumer();
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-    DECLARE_ISUBRENDEROPTIONS;
+    DECLARE_ISUBRENDEROPTIONS
 
     // CBaseFilter
-    [[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
-    [[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
     // CTransformFilter
     HRESULT SetMediaType(PIN_DIRECTION dir, const CMediaType* pMediaType),
@@ -85,20 +84,20 @@ public:
     void GetOutputColorspaces(ColorSpaceId *preferredOrder, UINT *count);
 
     //ISubRenderConsumer
-    [[nodiscard]] STDMETHODIMP GetMerit(ULONG *merit);
-    [[nodiscard]] STDMETHODIMP Connect(ISubRenderProvider *subtitleRenderer);
-    [[nodiscard]] STDMETHODIMP Disconnect(void);
-    [[nodiscard]] STDMETHODIMP DeliverFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context, ISubRenderFrame *subtitleFrame);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetMerit(ULONG *merit);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect(ISubRenderProvider *subtitleRenderer);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Disconnect(void);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DeliverFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context, ISubRenderFrame *subtitleFrame);
 
     // IXyOptions
-    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
-    [[nodiscard]] STDMETHODIMP XySetInt      (unsigned field, int       value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetInt      (unsigned field, int       value);
 
     // ISpecifyPropertyPages
-    [[nodiscard]] STDMETHODIMP GetPages(CAUUID* pPages);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetPages(CAUUID* pPages);
 
     // CPersistStream
-    [[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClsid);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClsid);
 
 protected:
     //OSD

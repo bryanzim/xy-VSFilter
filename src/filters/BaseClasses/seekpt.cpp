@@ -23,7 +23,7 @@ CUnknown * CSeekingPassThru::CreateInstance(LPUNKNOWN pUnk, HRESULT *phr)
 }
 
 
-STDMETHODIMP CSeekingPassThru::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
+DECLSPEC_NOTHROW STDMETHODIMP CSeekingPassThru::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
     if (riid == IID_ISeekingPassThru) {
         return GetInterface((ISeekingPassThru *) this, ppv);
@@ -51,7 +51,7 @@ CSeekingPassThru::~CSeekingPassThru()
     delete m_pPosPassThru;
 }
 
-STDMETHODIMP CSeekingPassThru::Init(BOOL bRendererSeeking, IPin *pPin)
+DECLSPEC_NOTHROW STDMETHODIMP CSeekingPassThru::Init(BOOL bRendererSeeking, IPin *pPin)
 {
     HRESULT hr = NOERROR;
     if (m_pPosPassThru) {

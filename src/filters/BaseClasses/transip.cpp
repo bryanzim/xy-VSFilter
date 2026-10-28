@@ -685,7 +685,7 @@ CTransInPlaceInputPin::CTransInPlaceInputPin
 //     ) or it could mean offering the one from downstream
 // Else fail to offer any allocator at all.
 
-STDMETHODIMP CTransInPlaceInputPin::GetAllocator(IMemAllocator ** ppAllocator)
+DECLSPEC_NOTHROW STDMETHODIMP CTransInPlaceInputPin::GetAllocator(IMemAllocator ** ppAllocator)
 {
     CheckPointer(ppAllocator,E_POINTER);
     ValidateReadWritePtr(ppAllocator,sizeof(IMemAllocator *));
@@ -717,7 +717,7 @@ STDMETHODIMP CTransInPlaceInputPin::GetAllocator(IMemAllocator ** ppAllocator)
 /* Get told which allocator the upstream output pin is actually going to use */
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransInPlaceInputPin::NotifyAllocator(
     IMemAllocator * pAllocator,
     BOOL bReadOnly)
@@ -809,7 +809,7 @@ CTransInPlaceInputPin::NotifyAllocator(
 
 // EnumMediaTypes
 // - pass through to our downstream filter
-STDMETHODIMP CTransInPlaceInputPin::EnumMediaTypes( IEnumMediaTypes **ppEnum )
+DECLSPEC_NOTHROW STDMETHODIMP CTransInPlaceInputPin::EnumMediaTypes( IEnumMediaTypes **ppEnum )
 {
     // Can only pass through if connected
     if( !m_pTIPFilter->m_pOutput->IsConnected() )
@@ -840,7 +840,7 @@ HRESULT CTransInPlaceInputPin::CheckMediaType(const CMediaType *pmt )
 
 // If upstream asks us what our requirements are, we will try to ask downstream
 // if that doesn't work, we'll just take the defaults.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CTransInPlaceInputPin::GetAllocatorRequirements(ALLOCATOR_PROPERTIES *pProps)
 {
 
@@ -895,7 +895,7 @@ CTransInPlaceOutputPin::CTransInPlaceOutputPin(
 
 // EnumMediaTypes
 // - pass through to our upstream filter
-STDMETHODIMP CTransInPlaceOutputPin::EnumMediaTypes( IEnumMediaTypes **ppEnum )
+DECLSPEC_NOTHROW STDMETHODIMP CTransInPlaceOutputPin::EnumMediaTypes( IEnumMediaTypes **ppEnum )
 {
     // Can only pass through if connected.
     if( ! m_pTIPFilter->m_pInput->IsConnected() )

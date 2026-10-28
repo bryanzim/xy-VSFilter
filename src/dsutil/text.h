@@ -160,7 +160,7 @@ template<class T>
         typename T::PCXSTR szStart{str};
         typename T::PCXSTR szEnd{szStart + str.GetLength() - 1};
         typename T::PCXSTR szCur{szEnd};
-        for (; szCur >= szStart; szCur--) {
+        for (; szCur >= szStart; --szCur) {
             if (!T::StrTraits::IsSpace(*szCur)) {
                 break;
             }

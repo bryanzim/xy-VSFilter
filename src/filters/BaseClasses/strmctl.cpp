@@ -31,7 +31,7 @@ CBaseStreamControl::~CBaseStreamControl()
 }
 
 
-STDMETHODIMP CBaseStreamControl::StopAt(const REFERENCE_TIME * ptStop, BOOL bSendExtra, DWORD dwCookie)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseStreamControl::StopAt(const REFERENCE_TIME * ptStop, BOOL bSendExtra, DWORD dwCookie)
 {
     CAutoLock lck(&m_CritSec);
     m_bStopSendExtra = FALSE;	// reset
@@ -78,7 +78,7 @@ STDMETHODIMP CBaseStreamControl::StopAt(const REFERENCE_TIME * ptStop, BOOL bSen
     return NOERROR;
 }
 
-STDMETHODIMP CBaseStreamControl::StartAt
+DECLSPEC_NOTHROW STDMETHODIMP CBaseStreamControl::StartAt
 ( const REFERENCE_TIME *ptStart, DWORD dwCookie )
 {
     CAutoLock lck(&m_CritSec);
@@ -120,7 +120,7 @@ STDMETHODIMP CBaseStreamControl::StartAt
 }
 
 //  Retrieve information about current settings
-STDMETHODIMP CBaseStreamControl::GetInfo(AM_STREAM_INFO *pInfo)
+DECLSPEC_NOTHROW STDMETHODIMP CBaseStreamControl::GetInfo(AM_STREAM_INFO *pInfo)
 {
     if (pInfo == NULL)
 	return E_POINTER;
@@ -135,6 +135,9 @@ STDMETHODIMP CBaseStreamControl::GetInfo(AM_STREAM_INFO *pInfo)
     switch (m_StreamState) {
     default:
         DbgBreak("Invalid stream state");
+    #if defined(__clang__)
+    [[clang::fallthrough]];
+    #endif
     case STREAM_FLOWING:
         break;
     case STREAM_DISCARDING:
@@ -385,6 +388,9 @@ void CBaseStreamControl::NotifyFilterState( FILTER_STATE new_state, REFERENCE_TI
             m_tRunStart = tStart;
             // fall-through
 
+        #if defined(__clang__)
+        [[clang::fallthrough]];
+        #endif
         default: // case State_Paused:
             m_FilterState = new_state;
     }

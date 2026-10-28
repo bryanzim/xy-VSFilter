@@ -60,43 +60,43 @@ public:
 	CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT& hr, CString *_pError);
     virtual ~CSubPicAllocatorPresenterImpl();
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicAllocatorPresenter
 
-    [[nodiscard]] STDMETHODIMP CreateRenderer(IUnknown** ppRenderer) = 0;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CreateRenderer(IUnknown** ppRenderer) = 0;
 
-    [[nodiscard]] STDMETHODIMP_(SIZE) GetVideoSize(bool fCorrectAR = true);
-	[[nodiscard]] STDMETHODIMP_(SIZE) GetVisibleVideoSize() {
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(SIZE) GetVideoSize(bool fCorrectAR = true);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(SIZE) GetVisibleVideoSize() {
 		return m_NativeVideoSize;
-	};
-    STDMETHODIMP_(void) SetPosition(RECT w, RECT v);
-    [[nodiscard]] STDMETHODIMP_(bool) Paint(bool fAll) = 0;
+	}
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetPosition(RECT w, RECT v);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) Paint(bool fAll) = 0;
 
-    STDMETHODIMP_(void) SetTime(REFERENCE_TIME rtNow);
-    STDMETHODIMP_(void) SetSubtitleDelay(int delay_ms);
-    [[nodiscard]] STDMETHODIMP_(int) GetSubtitleDelay();
-    [[nodiscard]] STDMETHODIMP_(double) GetFPS();
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetTime(REFERENCE_TIME rtNow);
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSubtitleDelay(int delay_ms);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetSubtitleDelay();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(double) GetFPS();
 
-    STDMETHODIMP_(void) SetSubPicProvider(ISubPicProvider* pSubPicProvider);
-    STDMETHODIMP_(void) Invalidate(REFERENCE_TIME rtInvalidate = -1);
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSubPicProvider(ISubPicProvider* pSubPicProvider);
+    DECLSPEC_NOTHROW STDMETHODIMP_(void) Invalidate(REFERENCE_TIME rtInvalidate = -1);
 
-	[[nodiscard]] STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size) {
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size) {
 		return E_NOTIMPL;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(bool) ResetDevice() {
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) ResetDevice() {
 		return false;
 	}
-	[[nodiscard]] STDMETHODIMP_(bool) DisplayChange() {
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) DisplayChange() {
 		return false;
 	}
-    [[nodiscard]] STDMETHODIMP SetVideoAngle(Vector v, bool fRepaint = true);
-	[[nodiscard]] STDMETHODIMP SetPixelShader(const LPCSTR pSrcData, const LPCSTR pTarget) {
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetVideoAngle(Vector v, bool fRepaint = true);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader(const LPCSTR pSrcData, const LPCSTR pTarget) {
 		return E_NOTIMPL;
 	}
-	[[nodiscard]] STDMETHODIMP SetPixelShader2(const LPCSTR pSrcData, const LPCSTR pTarget, const bool bScreenSpace) {
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader2(const LPCSTR pSrcData, const LPCSTR pTarget, const bool bScreenSpace) {
 		if (!bScreenSpace) {
 			return SetPixelShader(pSrcData, pTarget);
 		}

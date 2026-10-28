@@ -100,16 +100,16 @@ class IVSFRipperCallbackImpl : public CUnknown, public IVSFRipperCallback
 {
 protected:
     DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv) {
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv) {
         return
             QI(IVSFRipperCallback)
             __super::NonDelegatingQueryInterface(riid, ppv);
     }
 
     // IVSFRipperCallback
-    [[nodiscard]] STDMETHODIMP OnMessage(const LPCTSTR msg) { return S_FALSE; }
-    [[nodiscard]] STDMETHODIMP OnProgress(const double progress /*0.0 -> 1.0*/) { return S_FALSE; }
-    [[nodiscard]] STDMETHODIMP OnFinished(const bool bSucceeded) { return S_FALSE; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnMessage(const LPCTSTR msg) { return S_FALSE; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnProgress(const double progress /*0.0 -> 1.0*/) { return S_FALSE; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP OnFinished(const bool bSucceeded) { return S_FALSE; }
 
 public:
     explicit IVSFRipperCallbackImpl() : CUnknown(NAME("IVSFRipperCallbackImpl"), nullptr) {}
@@ -174,16 +174,16 @@ public:
     virtual ~CVobSubFileRipper();
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IVSFRipper
-    [[nodiscard]] STDMETHODIMP SetCallBack(IVSFRipperCallback* pCallback);
-    [[nodiscard]] STDMETHODIMP LoadParamFile(CString fn);
-    [[nodiscard]] STDMETHODIMP SetInput(CString infn);
-    [[nodiscard]] STDMETHODIMP SetOutput(CString outfn);
-    [[nodiscard]] STDMETHODIMP GetRipperData(VSFRipperData& rd);
-    [[nodiscard]] STDMETHODIMP UpdateRipperData(VSFRipperData& rd);
-    STDMETHODIMP Index();
-    STDMETHODIMP IsIndexing();
-    [[nodiscard]] STDMETHODIMP Abort(bool bSavePartial);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetCallBack(IVSFRipperCallback* pCallback);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP LoadParamFile(CString fn);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetInput(CString infn);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetOutput(CString outfn);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetRipperData(VSFRipperData& rd);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP UpdateRipperData(VSFRipperData& rd);
+    DECLSPEC_NOTHROW STDMETHODIMP Index();
+    DECLSPEC_NOTHROW STDMETHODIMP IsIndexing();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Abort(bool bSavePartial);
 };

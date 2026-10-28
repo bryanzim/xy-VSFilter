@@ -114,7 +114,7 @@ namespace ssf
 		}
 	}
 
-	[[nodiscard]] STDMETHODIMP CRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 	{
 		CheckPointer(ppv, E_POINTER);
 		*ppv = NULL;
@@ -128,26 +128,26 @@ namespace ssf
 
 	// ISubPicProvider
 
-	[[nodiscard]] STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(const REFERENCE_TIME rt, const double fps)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(const REFERENCE_TIME rt, const double fps)
 	{
 		std::size_t k;
 		return m_file && m_file->m_segments.Lookup((float)rt/10000000, k) ? (POSITION)(++k) : NULL;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
 	{
 		std::size_t k{(std::size_t)pos};
 		return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : NULL;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, const double fps)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, const double fps)
 	{
 		std::size_t k{(std::size_t)pos-1};
 		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : NULL};
 		return s ? (REFERENCE_TIME)(s->m_start*10000000) : 0;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(POSITION pos, const double fps)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(POSITION pos, const double fps)
 	{
 		CheckPointer(m_file, 0);
 
@@ -156,12 +156,12 @@ namespace ssf
 		return s ? (REFERENCE_TIME)(s->m_stop*10000000) : 0;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(bool) CRenderer::IsAnimated(POSITION pos)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CRenderer::IsAnimated(POSITION pos)
 	{
 		return true;
 	}
 
-	[[nodiscard]] STDMETHODIMP CRenderer::Render(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::Render(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox)
 	{
 		CheckPointer(m_file, E_UNEXPECTED);
 		CheckPointer(m_renderer, E_UNEXPECTED);	
@@ -199,19 +199,19 @@ namespace ssf
 
 	// IPersist
 
-	[[nodiscard]] STDMETHODIMP CRenderer::GetClassID(CLSID* pClassID)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::GetClassID(CLSID* pClassID)
 	{
 		return pClassID ? *pClassID = __uuidof(this), S_OK : E_POINTER;
 	}
 
 	// ISubStream
 
-	[[nodiscard]] STDMETHODIMP_(int) CRenderer::GetStreamCount()
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderer::GetStreamCount()
 	{
 		return 1;
 	}
 
-	[[nodiscard]] STDMETHODIMP CRenderer::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
 	{
 		if(iStream != 0)
 		{
@@ -237,17 +237,17 @@ namespace ssf
 		return S_OK;
 	}
 
-	[[nodiscard]] STDMETHODIMP_(int) CRenderer::GetStream()
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderer::GetStream()
 	{
 		return 0;
 	}
 
-	[[nodiscard]] STDMETHODIMP CRenderer::SetStream(const int iStream)
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::SetStream(const int iStream)
 	{
 		return iStream == 0 ? S_OK : E_FAIL;
 	}
 
-	[[nodiscard]] STDMETHODIMP CRenderer::Reload()
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::Reload()
 	{
 		CAutoLock csAutoLock{m_pLock};
 

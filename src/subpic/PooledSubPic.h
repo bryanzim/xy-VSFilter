@@ -29,8 +29,8 @@ private:
     [[nodiscard]] virtual bool AllocEx(bool fStatic, ISubPicEx** ppSubPic);
 
     void CollectUnUsedItem();
-    [[nodiscard]] STDMETHODIMP_(int) SetSpdColorType(int color_type);
-    [[nodiscard]] STDMETHODIMP_(bool) IsSpdColorTypeSupported(int type);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) SetSpdColorType(int color_type);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsSpdColorTypeSupported(int type);
 };
 
 class CPooledSubPic : public CMemSubPic

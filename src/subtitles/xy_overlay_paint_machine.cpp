@@ -75,8 +75,8 @@ void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2
             trans_org2.y=0;
         }
 
-        [[nodiscard]] CPoint psub_true( (p.x&SubpixelPositionControler::EIGHT_X_EIGHT_MASK), (p.y&SubpixelPositionControler::EIGHT_X_EIGHT_MASK) );
-        [[nodiscard]] OverlayKey sub_key(*word, psub_true, trans_org2);
+        CPoint psub_true( (p.x&SubpixelPositionControler::EIGHT_X_EIGHT_MASK), (p.y&SubpixelPositionControler::EIGHT_X_EIGHT_MASK) );
+        OverlayKey sub_key(*word, psub_true, trans_org2);
         sub_key.UpdateHashValue();
         if( SubpixelPositionControler::GetGlobalControler().UseBilinearShift() )
         {
@@ -86,13 +86,13 @@ void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2
             if(pos!=NULL) 
             {
                 *overlay = overlay_cache->GetAt(pos);
-                overlay_cache->UpdateCache( pos );
+                (void)overlay_cache->UpdateCache( pos );
             }
         }
         if( !overlay->get() )
         {
             CPoint psub{SubpixelPositionControler::GetGlobalControler().GetSubpixel(p)};
-            [[nodiscard]] OverlayKey overlay_key(*word, psub, trans_org2);
+            OverlayKey overlay_key(*word, psub, trans_org2);
             overlay_key.UpdateHashValue();
             OverlayMruCache* overlay_cache{CacheManager::GetOverlayMruCache()};
             POSITION pos{overlay_cache->Lookup(overlay_key)};
@@ -107,7 +107,7 @@ void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2
             else
             {
                 *overlay = overlay_cache->GetAt(pos);
-                overlay_cache->UpdateCache( pos );
+                (void)overlay_cache->UpdateCache( pos );
             }
             CWord::PaintFromOverlay(p, trans_org2, sub_key, *overlay);
         }
@@ -143,7 +143,7 @@ void CWordPaintMachine::CreatePaintMachines( const SharedPtrCWord& word
     , const CPointCoor2& org
     , SharedPtrOverlayPaintMachine *shadow, SharedPtrOverlayPaintMachine *outline, SharedPtrOverlayPaintMachine *body)
 {
-    [[nodiscard]] SharedCWordPaintMachine machine(DEBUG_NEW CWordPaintMachine());
+    SharedCWordPaintMachine machine(DEBUG_NEW CWordPaintMachine());
     machine->m_word = word;
     if (shadow!=NULL)
     {
@@ -217,7 +217,7 @@ void CWordPaintMachine::PaintBody( const SharedPtrCWord& word, const CPointCoor2
         trans_org2.x=0;
         trans_org2.y=0;
     }
-    [[nodiscard]] CPoint psub_true( (p.x&SubpixelPositionControler::EIGHT_X_EIGHT_MASK), (p.y&SubpixelPositionControler::EIGHT_X_EIGHT_MASK) );
+    CPoint psub_true( (p.x&SubpixelPositionControler::EIGHT_X_EIGHT_MASK), (p.y&SubpixelPositionControler::EIGHT_X_EIGHT_MASK) );
     OverlayKey *body_overlay_key{DEBUG_NEW OverlayKey(*word, psub_true, trans_org2)};
     body_overlay_key->UpdateHashValue();
     return body_overlay_key;

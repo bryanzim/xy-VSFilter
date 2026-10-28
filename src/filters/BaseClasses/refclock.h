@@ -79,7 +79,7 @@ protected:
 public:
     CBaseReferenceClock(TCHAR *pName, LPUNKNOWN pUnk, HRESULT *phr, CAMSchedule * pSched = 0 );
 
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void ** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void ** ppv);
 
     DECLARE_IUNKNOWN
 
@@ -90,13 +90,13 @@ public:
     // clock has gone backwards and GetTime time has halted until internal
     // time has caught up. (Don't know if this will be much use to folk,
     // but it seems odd not to use the return code for something useful.)
-    STDMETHODIMP GetTime(REFERENCE_TIME *pTime);
+    DECLSPEC_NOTHROW STDMETHODIMP GetTime(REFERENCE_TIME *pTime);
     // When this is called, it sets m_rtLastGotTime to the time it returns.
 
     /* Provide standard mechanisms for scheduling events */
 
     /* Ask for an async notification that a time has elapsed */
-    STDMETHODIMP AdviseTime(
+    DECLSPEC_NOTHROW STDMETHODIMP AdviseTime(
         REFERENCE_TIME baseTime,        // base reference time
         REFERENCE_TIME streamTime,      // stream offset time
         HEVENT hEvent,                  // advise via this event
@@ -104,7 +104,7 @@ public:
     );
 
     /* Ask for an asynchronous periodic notification that a time has elapsed */
-    STDMETHODIMP AdvisePeriodic(
+    DECLSPEC_NOTHROW STDMETHODIMP AdvisePeriodic(
         REFERENCE_TIME StartTime,       // starting at this time
         REFERENCE_TIME PeriodTime,      // time between notifications
         HSEMAPHORE hSemaphore,          // advise via a semaphore
@@ -118,7 +118,7 @@ public:
      * clients call Unadvise to clear a Periodic advise setting.
      */
 
-    STDMETHODIMP Unadvise(DWORD_PTR dwAdviseCookie);
+    DECLSPEC_NOTHROW STDMETHODIMP Unadvise(DWORD_PTR dwAdviseCookie);
 
     /* Methods for the benefit of derived classes or outer objects */
 
@@ -131,7 +131,7 @@ public:
     virtual REFERENCE_TIME GetPrivateTime();
 
     /* Provide a method for correcting drift */
-    STDMETHODIMP SetTimeDelta( const REFERENCE_TIME& TimeDelta );
+    DECLSPEC_NOTHROW STDMETHODIMP SetTimeDelta( const REFERENCE_TIME& TimeDelta );
 
     CAMSchedule * GetSchedule() const { return m_pSchedule; }
 

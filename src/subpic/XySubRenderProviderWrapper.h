@@ -1,6 +1,6 @@
 #pragma once
 
-#include "XySubRenderIntf.h"
+#include "../filters/transform/vsfilter/XySubRenderIntf.h"
 
 interface ISubPicProviderEx;
 interface IXyOptions;
@@ -13,13 +13,13 @@ public:
     XySubRenderProviderWrapper( ISubPicProviderEx *provider, HRESULT* phr/*=NULL*/ );
     virtual ~XySubRenderProviderWrapper() {}
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IXySubRenderProvider
-    [[nodiscard]] STDMETHODIMP Connect( IXyOptions *consumer );
-    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    [[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect( IXyOptions *consumer );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
 
 private:
     HRESULT Render( REFERENCE_TIME now, POSITION pos, double fps );
@@ -40,13 +40,13 @@ public:
     XySubRenderProviderWrapper2( ISubPicProviderEx2 *provider, HRESULT* phr/*=NULL*/ );
     virtual ~XySubRenderProviderWrapper2() {}
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IXySubRenderProvider
-    [[nodiscard]] STDMETHODIMP Connect(IXyOptions *consumer);
-    [[nodiscard]] STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
-    [[nodiscard]] STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect(IXyOptions *consumer);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RequestFrame(IXySubRenderFrame**subRenderFrame, REFERENCE_TIME now);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
 
 private:
     HRESULT Render( REFERENCE_TIME now, POSITION pos );

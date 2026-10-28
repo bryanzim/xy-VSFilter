@@ -1483,7 +1483,7 @@ void CImageAllocator::Free()
 
 // Prepare the allocator by checking all the input parameters
 
-STDMETHODIMP CImageAllocator::CheckSizes(ALLOCATOR_PROPERTIES *pRequest)
+DECLSPEC_NOTHROW STDMETHODIMP CImageAllocator::CheckSizes(ALLOCATOR_PROPERTIES *pRequest)
 {
     // Check we have a valid connection
 
@@ -1522,7 +1522,7 @@ STDMETHODIMP CImageAllocator::CheckSizes(ALLOCATOR_PROPERTIES *pRequest)
 // this allocator is derived from allows samples to be aligned only on byte
 // boundaries NOTE the buffers are not allocated until the Commit call
 
-STDMETHODIMP CImageAllocator::SetProperties(
+DECLSPEC_NOTHROW STDMETHODIMP CImageAllocator::SetProperties(
     ALLOCATOR_PROPERTIES * pRequest,
     ALLOCATOR_PROPERTIES * pActual)
 {
@@ -1687,7 +1687,7 @@ void CImageAllocator::NotifyMediaType(CMediaType *pMediaType)
 
 // Overriden to increment the owning object's reference count
 
-STDMETHODIMP_(ULONG) CImageAllocator::NonDelegatingAddRef()
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) CImageAllocator::NonDelegatingAddRef()
 {
     return m_pFilter->AddRef();
 }
@@ -1695,7 +1695,7 @@ STDMETHODIMP_(ULONG) CImageAllocator::NonDelegatingAddRef()
 
 // Overriden to decrement the owning object's reference count
 
-STDMETHODIMP_(ULONG) CImageAllocator::NonDelegatingRelease()
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) CImageAllocator::NonDelegatingRelease()
 {
     return m_pFilter->Release();
 }

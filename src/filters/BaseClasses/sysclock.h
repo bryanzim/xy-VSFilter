@@ -26,14 +26,14 @@ public:
 
     DECLARE_IUNKNOWN
 
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void ** ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid,void ** ppv);
 
     // Yield up our class id so that we can be persisted
     // Implement required Ipersist method
-    STDMETHODIMP GetClassID(CLSID *pClsID);
+    DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID *pClsID);
 
     //  IAMClockAdjust methods
-    STDMETHODIMP SetClockDelta(REFERENCE_TIME rtDelta);
+    DECLSPEC_NOTHROW STDMETHODIMP SetClockDelta(REFERENCE_TIME rtDelta);
 }; //CSystemClock
 
 #endif /* __SYSTEMCLOCK__ */

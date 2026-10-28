@@ -58,7 +58,7 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 }
 
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
 	CheckPointer(ppv, E_POINTER);
 	*ppv = NULL;
@@ -72,65 +72,65 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 
 // ISubPicProvider
 
-[[nodiscard]] STDMETHODIMP_(POSITION) CRenderedHdmvSubtitle::GetStartPosition(const REFERENCE_TIME rt, const double fps)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderedHdmvSubtitle::GetStartPosition(const REFERENCE_TIME rt, const double fps)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 	return	m_pSub->GetStartPosition(rt - m_rtStart, fps);
 }
 
-[[nodiscard]] STDMETHODIMP_(POSITION) CRenderedHdmvSubtitle::GetNext(POSITION pos)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderedHdmvSubtitle::GetNext(POSITION pos)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 	return m_pSub->GetNext (pos);
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStart(POSITION pos, const double fps)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStart(POSITION pos, const double fps)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 	return m_pSub->GetStart(pos) + m_rtStart;
 }
 
-[[nodiscard]] STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStop(POSITION pos, const double fps)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderedHdmvSubtitle::GetStop(POSITION pos, const double fps)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 	return m_pSub->GetStop(pos) + m_rtStart;
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsAnimated(POSITION pos)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsAnimated(POSITION pos)
 {
 	return false;
 }
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::Render(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::Render(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 	m_pSub->Render (spd, rt - m_rtStart, bbox);
 
 	return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 	HRESULT hr{m_pSub->GetTextureSize(pos, MaxTextureSize, VideoSize, VideoTopLeft)};
 	return hr;
-};
+}
 
 // IPersist
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::GetClassID(CLSID* pClassID)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::GetClassID(CLSID* pClassID)
 {
 	return pClassID ? *pClassID = __uuidof(this), S_OK : E_POINTER;
 }
 
 // ISubStream
 
-[[nodiscard]] STDMETHODIMP_(int) CRenderedHdmvSubtitle::GetStreamCount()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderedHdmvSubtitle::GetStreamCount()
 {
 	return (1);
 }
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
 {
 	if(iStream != 0) {
 		return E_INVALIDARG;
@@ -152,24 +152,24 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 	return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP_(int) CRenderedHdmvSubtitle::GetStream()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderedHdmvSubtitle::GetStream()
 {
 	return(0);
 }
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::SetStream(const int iStream)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::SetStream(const int iStream)
 {
 	return iStream == 0 ? S_OK : E_FAIL;
 }
 
-[[nodiscard]] STDMETHODIMP CRenderedHdmvSubtitle::Reload()
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderedHdmvSubtitle::Reload()
 {
 	return S_OK;
 }
 
 [[nodiscard]] HRESULT CRenderedHdmvSubtitle::ParseSample (IMediaSample* pSample)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 	HRESULT		hr;
 
 	hr = m_pSub->ParseSample (pSample);
@@ -178,7 +178,7 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 
 [[nodiscard]] HRESULT CRenderedHdmvSubtitle::NewSegment(const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate)
 {
-	[[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+	CAutoLock cAutoLock(&m_csCritSec);
 
 	m_pSub->Reset();
 	m_rtStart = tStart;
@@ -187,11 +187,11 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 
 void CRenderedHdmvSubtitle::EndOfStream()
 {
-    [[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+    CAutoLock cAutoLock(&m_csCritSec);
     m_pSub->EndOfStream();
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsColorTypeSupported( const int type )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsColorTypeSupported( const int type )
 
 {
     return type==MSP_AYUV_PLANAR ||
@@ -202,6 +202,6 @@ void CRenderedHdmvSubtitle::EndOfStream()
 
 [[nodiscard]] HRESULT CRenderedHdmvSubtitle::SetYuvType( const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType )
 {
-    [[nodiscard]] CAutoLock cAutoLock(&m_csCritSec);
+    CAutoLock cAutoLock(&m_csCritSec);
     return m_pSub->SetYuvType(colorType, yuvRangeType);
 }

@@ -39,8 +39,15 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVSFilterApp 
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-local-typedef"
+#endif
 BEGIN_MESSAGE_MAP(CVSFilterApp, CWinApp)
 END_MESSAGE_MAP()
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 CVSFilterApp::CVSFilterApp()
 {

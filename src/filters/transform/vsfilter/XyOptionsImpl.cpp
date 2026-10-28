@@ -4,7 +4,7 @@
 
 XyOptionsImpl::XyOptionsImpl( const Option *option_list )
 {
-    for (int i{0};i<=MAX_OPTION_ID;i++)
+    for (int i{0};i<=MAX_OPTION_ID;++i)
     {
         m_option_type[i] = OPTION_TYPE_END_FLAG;
 
@@ -12,7 +12,7 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
         m_xy_bool_opt[i] = false;
         m_xy_double_opt[i] = 0;
     }
-    for (const Option * op{option_list}; op && op->type!=OPTION_TYPE_END_FLAG; op++)
+    for (const Option * op{option_list}; op && op->type!=OPTION_TYPE_END_FLAG; ++op)
     {
         ASSERT(op->option_id<MAX_OPTION_ID);
         m_option_type[op->option_id] = op->type | op->rw_mode;
@@ -24,37 +24,37 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     if (!value) return S_FALSE;                                                    \
     return DoGetField(field, value);
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBool(const unsigned field, bool *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetBool(const unsigned field, bool *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_BOOL, m_xy_bool_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetInt(const unsigned field, int *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetInt(const unsigned field, int *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_INT, m_xy_int_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetSize(const unsigned field, SIZE *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetSize(const unsigned field, SIZE *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_SIZE, m_xy_size_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetRect(const unsigned field, RECT *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetRect(const unsigned field, RECT *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_RECT, m_xy_rect_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetUlonglong(const unsigned field, ULONGLONG *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetUlonglong(const unsigned field, ULONGLONG *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_ULONGLONG, m_xy_ulonglong_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetDouble(const unsigned field, double *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetDouble(const unsigned field, double *value)
 {
     XY_GET_TEMPLATE(OPTION_TYPE_DOUBLE, m_xy_double_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetString(const unsigned field, LPWSTR *value, int *chars)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetString(const unsigned field, LPWSTR *value, int *chars)
 {
     if (!TestOption(field, OPTION_TYPE_STRING, OPTION_MODE_READ))
     {
@@ -82,7 +82,7 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     return hr;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBin(const unsigned field, LPVOID *value, int *size)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetBin(const unsigned field, LPVOID *value, int *size)
 {
     if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_READ))
     {
@@ -95,7 +95,7 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBin2( const unsigned field, void *value, const int size )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetBin2( const unsigned field, void *value, const int size )
 {
     if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_READ))
     {
@@ -112,37 +112,37 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     if (!TestOption(field, OPTION_TYPE_x, OPTION_MODE_WRITE)) return E_INVALIDARG;  \
     return DoSetField(field, &value);
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBool(const unsigned field, const bool value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetBool(const unsigned field, const bool value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_BOOL, m_xy_bool_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetInt(const unsigned field, const int value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetInt(const unsigned field, const int value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_INT, m_xy_int_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSize(const unsigned field, SIZE value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetSize(const unsigned field, SIZE value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_SIZE, m_xy_size_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRect(const unsigned field, RECT value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetRect(const unsigned field, RECT value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_RECT, m_xy_rect_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetUlonglong(const unsigned field, const ULONGLONG value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetUlonglong(const unsigned field, const ULONGLONG value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_ULONGLONG, m_xy_ulonglong_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetDouble(const unsigned field, const double value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetDouble(const unsigned field, const double value)
 {
     XY_SET_TEMPLATE(OPTION_TYPE_DOUBLE, m_xy_double_opt);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetString(const unsigned field, const LPWSTR value, const int chars)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetString(const unsigned field, const LPWSTR value, const int chars)
 {
     if (!TestOption(field, OPTION_TYPE_STRING, OPTION_MODE_WRITE))
     {
@@ -152,7 +152,7 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
     return DoSetField(field, &tmp);
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBin(const unsigned field, const LPVOID value, const int size)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetBin(const unsigned field, const LPVOID value, const int size)
 {
     if (!TestOption(field, OPTION_TYPE_BIN, OPTION_MODE_WRITE))
     {
@@ -163,88 +163,88 @@ XyOptionsImpl::XyOptionsImpl( const Option *option_list )
 
 // methods for array not implement
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBools(const unsigned field, const int id, bool *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetBools(const unsigned field, const int id, bool *value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetInts(const unsigned field, const int id, int *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetInts(const unsigned field, const int id, int *value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetSizes(const unsigned field, const int id, SIZE *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetSizes(const unsigned field, const int id, SIZE *value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetRects(const unsigned field, const int id, RECT *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetRects(const unsigned field, const int id, RECT *value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetUlonglongs(const unsigned field, const int id, ULONGLONG *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetUlonglongs(const unsigned field, const int id, ULONGLONG *value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetDoubles(const unsigned field, const int id, double *value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetDoubles(const unsigned field, const int id, double *value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetStrings(const unsigned field, const int id, LPWSTR *value, int *chars)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetStrings(const unsigned field, const int id, LPWSTR *value, int *chars)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBins(const unsigned field, const int id, LPVOID *value, int *size)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetBins(const unsigned field, const int id, LPVOID *value, int *size)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XyGetBins2( const unsigned field, const int id, void *value, const int size )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetBins2( const unsigned field, const int id, void *value, const int size )
 
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBools(const unsigned field, const int id, const bool value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetBools(const unsigned field, const int id, const bool value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetInts(const unsigned field, const int id, const int value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetInts(const unsigned field, const int id, const int value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetSizes(const unsigned field, const int id, SIZE value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetSizes(const unsigned field, const int id, SIZE value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetRects(const unsigned field, const int id, RECT value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetRects(const unsigned field, const int id, RECT value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetUlonglongs(const unsigned field, const int id, const ULONGLONG value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetUlonglongs(const unsigned field, const int id, const ULONGLONG value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetDoubles(const unsigned field, const int id, const double value)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetDoubles(const unsigned field, const int id, const double value)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetStrings(const unsigned field, const int id, const LPWSTR value, const int chars)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetStrings(const unsigned field, const int id, const LPWSTR value, const int chars)
 {
     return E_NOTIMPL;
 }
 
-[[nodiscard]] STDMETHODIMP XyOptionsImpl::XySetBins(const unsigned field, const int id, const LPVOID value, const int size)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetBins(const unsigned field, const int id, const LPVOID value, const int size)
 {
     return E_NOTIMPL;
 }

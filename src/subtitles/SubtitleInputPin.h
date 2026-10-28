@@ -46,9 +46,9 @@ class CSubtitleInputPinHelperImpl: public CSubtitleInputPinHelper
 public:
     explicit CSubtitleInputPinHelperImpl(CComPtr<ISubStream> pSubStream) : m_pSubStream(pSubStream){}
 
-    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    [[nodiscard]] STDMETHODIMP_(ISubStream*) GetSubStream() { return m_pSubStream; }
-    [[nodiscard]] STDMETHODIMP EndOfStream() { return S_FALSE; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(ISubStream*) GetSubStream() { return m_pSubStream; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP EndOfStream() { return S_FALSE; }
 protected:
     CComPtr<ISubStream> m_pSubStream;
     REFERENCE_TIME m_tStart, m_tStop;
@@ -76,10 +76,10 @@ public:
     [[nodiscard]] HRESULT CheckMediaType(const CMediaType* pmt);
     [[nodiscard]] HRESULT CompleteConnect(IPin* pReceivePin);
     HRESULT BreakConnect();
-    [[nodiscard]] STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
-    [[nodiscard]] STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
-    [[nodiscard]] STDMETHODIMP Receive(IMediaSample* pSample);
-    [[nodiscard]] STDMETHODIMP EndOfStream(void);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ReceiveConnection(IPin* pConnector, const AM_MEDIA_TYPE* pmt);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Receive(IMediaSample* pSample);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP EndOfStream(void);
 
     [[nodiscard]] ISubStream* GetSubStream();
 };

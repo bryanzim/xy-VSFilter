@@ -103,7 +103,7 @@ void CompositionObject::InitColor(const SubPicDesc& spd)
         {
         case MSP_AYUV_PLANAR:
         case MSP_AYUV:
-            for (int i{0};i<paletteNumber;i++)
+            for (int i{0};i<paletteNumber;++i)
             {
                 m_Colors[m_Palette[i].entry_id] = ColorConvTable::A8Y8U8V8_TO_CUR_AYUV(
                     m_Palette[i].T, 
@@ -112,7 +112,7 @@ void CompositionObject::InitColor(const SubPicDesc& spd)
             }
             break;
         case MSP_XY_AUYV:
-            for (int i{0};i<paletteNumber;i++)
+            for (int i{0};i<paletteNumber;++i)
             {
                 m_Colors[m_Palette[i].entry_id] = AYUV_2_AUYV(
                     ColorConvTable::A8Y8U8V8_TO_CUR_AYUV(
@@ -122,7 +122,7 @@ void CompositionObject::InitColor(const SubPicDesc& spd)
             }
             break;
         case MSP_RGBA:
-            for (int i{0};i<paletteNumber;i++)
+            for (int i{0};i<paletteNumber;++i)
             {
                 DWORD argb{ColorConvTable::A8Y8U8V8_TO_ARGB(
                     m_Palette[i].T, 
@@ -208,7 +208,7 @@ void CompositionObject::RenderHdmv(SubPicDesc& spd)
             }
             nX += nCount;
         } else {
-            nY++;
+            ++nY;
             nX = m_horizontal_position;
         }
     }

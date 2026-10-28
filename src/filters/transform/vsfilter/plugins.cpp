@@ -78,19 +78,19 @@ public:
         m_xy_str_opt[STRING_NAME] = L"CFilter";
 
         //fix me: should not do init here
-        CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
-        CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]);
-        CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]);
-        CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]);
+        (void)CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
+        (void)CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]);
+        (void)CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]);
+        (void)CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]);
 
-        XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
-        CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+        (void)XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+        (void)CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
 
-        CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]);
-        CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
-        CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
+        (void)CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]);
+        (void)CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
+        (void)CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
 
-        SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel( static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]) );
+        (void)SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel( static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]) );
         
         m_script_selected_yuv = CSimpleTextSubtitle::YCbCrMatrix_AUTO;
         m_script_selected_range = CSimpleTextSubtitle::YCbCrRange_AUTO;
@@ -99,8 +99,8 @@ public:
     }
 	virtual ~CFilter() {CAMThread::CallWorker(0);}
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv)
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv)
     {
         CheckPointer(ppv, E_POINTER);
         
@@ -264,7 +264,7 @@ public:
 		CString fn{GetFileName()};
 		CFileStatus fs;
 		fs.m_mtime = 0;
-		CFileGetStatus(fn, fs);
+		(void)CFileGetStatus(fn, fs);
 
 		while(1)
 		{
@@ -281,7 +281,7 @@ public:
 				{
 					CFileStatus fs2;
 					fs2.m_mtime = 0;
-					CFileGetStatus(fn, fs2);
+					(void)CFileGetStatus(fn, fs2);
 
 					if(fs.m_mtime < fs2.m_mtime)
 					{
@@ -289,7 +289,7 @@ public:
 
 						if(CComQIPtr<ISubStream> pSubStream{m_pSubPicProvider})
 						{
-							[[nodiscard]] CAutoLock cAutoLock(&m_csSubLock);
+							CAutoLock cAutoLock(&m_csSubLock);
 							pSubStream->Reload();
 						}
 					}
@@ -309,7 +309,7 @@ public:
 						fn = fn2;
 						handles.SetCount(1);
 						handles.Add(h);
-						CFileGetStatus(fn, fs);
+						(void)CFileGetStatus(fn, fs);
 					}
 				}
 			}
@@ -321,7 +321,7 @@ public:
 
 		m_hThread = 0;
 
-		for(std::size_t i{1U}; i < handles.GetCount(); i++)
+		for(std::size_t i{1U}; i < handles.GetCount(); ++i)
 		{
 			FindCloseChangeNotification(handles[i]);
 		}
@@ -337,7 +337,7 @@ public:
 	{
 		if(!fn.IsEmpty())
 		{
-		    Open(fn);
+		    (void)Open(fn);
 		}
 	}
 
@@ -374,7 +374,7 @@ public:
 		m_fps = fps;
 		if(!fn.IsEmpty())
 		{
-		    Open(fn, CharSet);
+		    (void)Open(fn, CharSet);
 		}
 	}
 
@@ -446,7 +446,7 @@ public:
                 dst.pitch = fa->src.pitch;
                 dst.bits = (BYTE*)fa->src.data;
 
-                Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame);
+                (void)Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame);
 
                 return 0;
             }
@@ -488,7 +488,7 @@ public:
             }
 
             [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, const int buflen) {
-                [[nodiscard]] CStringA fn(GetFileName());
+                CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\")", fn);
                 return true;
@@ -505,7 +505,7 @@ public:
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
-                [[nodiscard]] CFileDialog fd(TRUE, NULL, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK,
+                CFileDialog fd(TRUE, NULL, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK,
                                formats, CWnd::FromHandle(hwnd), sizeof(OPENFILENAME));
 
                 fd.m_pOFN->hInstance = AfxGetResourceHandle();
@@ -529,7 +529,7 @@ public:
             }
 
             [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, const int buflen) {
-                [[nodiscard]] CStringA fn(GetFileName());
+                CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\", %d)", fn, GetCharSet());
                 return true;
@@ -611,7 +611,7 @@ public:
         }
 
         ScriptFunctionDef vobsub_func_defs[] = {
-            { (ScriptFunctionPtr)vobsubScriptConfig, "Config", "0s" },
+            { (ScriptFunctionPtr)vobsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0s") },
             { NULL },
         };
 
@@ -639,7 +639,7 @@ public:
         };
 
         ScriptFunctionDef textsub_func_defs[] = {
-            { (ScriptFunctionPtr)textsubScriptConfig, "Config", "0si" },
+            { (ScriptFunctionPtr)textsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0si") },
             { NULL },
         };
 
@@ -714,7 +714,7 @@ public:
                 dst.pitch = fa->src.pitch;
                 dst.bits = (BYTE*)fa->src.data;
 
-                Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame);
+                (void)Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame);
 
                 return 0;
             }
@@ -756,7 +756,7 @@ public:
             }
 
             [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, const int buflen) {
-                [[nodiscard]] CStringA fn(GetFileName());
+                CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\")", fn.GetString());
                 return true;
@@ -775,7 +775,7 @@ public:
                 /* off encoding changing */
 #ifndef _DEBUG
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
-                [[nodiscard]] CFileDialog fd(TRUE, NULL, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK,
+                CFileDialog fd(TRUE, NULL, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK,
                                formats, CWnd::FromHandle((HWND)hwnd), sizeof(OPENFILENAME));
 
                 fd.m_pOFN->hInstance = AfxGetResourceHandle();
@@ -784,7 +784,7 @@ public:
                 fd.m_pOFN->lCustData = (LPARAM)DEFAULT_CHARSET;
 #else
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
-                [[nodiscard]] CFileDialog fd(TRUE, NULL, GetFileName(), OFN_ENABLESIZING | OFN_HIDEREADONLY,
+                CFileDialog fd(TRUE, NULL, GetFileName(), OFN_ENABLESIZING | OFN_HIDEREADONLY,
                                formats, CWnd::FromHandle((HWND)hwnd), sizeof(OPENFILENAME));
 #endif
                 if (fd.DoModal() != IDOK) {
@@ -803,7 +803,7 @@ public:
             }
 
             [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, const int buflen) {
-                [[nodiscard]] CStringA fn(GetFileName());
+                CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\", %d)", fn.GetString(), GetCharSet());
                 return true;
@@ -883,7 +883,7 @@ public:
         }
 
         VDXScriptFunctionDef vobsub_func_defs[] = {
-            { (VDXScriptFunctionPtr)vobsubScriptConfig, "Config", "0s" },
+            { (VDXScriptFunctionPtr)vobsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0s") },
             { NULL },
         };
 
@@ -911,7 +911,7 @@ public:
         };
 
         VDXScriptFunctionDef textsub_func_defs[] = {
-            { (VDXScriptFunctionPtr)textsubScriptConfig, "Config", "0si" },
+            { (VDXScriptFunctionPtr)textsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0si") },
             { NULL },
         };
 
@@ -1021,8 +1021,8 @@ public:
             static void prepare_luma_shift6_c(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
 
             {
-                for (int y{0}; y < height; y++) {
-                    for (int x{0}; x < width; x++) {
+                for (int y{0}; y < height; ++y) {
+                    for (int x{0}; x < width; ++x) {
                         if (before)
                         {
                             reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] << 6;
@@ -1041,7 +1041,7 @@ public:
             static void prepare_luma_shift6_sse2(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
             {
                 const int modw{(width / 8) * 8}; // 8 uv pairs at a time
-                for (int y{0}; y < height; y++) {
+                for (int y{0}; y < height; ++y) {
                     for (int x{0}; x < modw; x += 8) {
                         __m128i y{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(src) + x))};
                         if (before)
@@ -1055,7 +1055,7 @@ public:
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdst) + x), y);
                     }
 
-                    for (int x{modw}; x < width; x++) {
+                    for (int x{modw}; x < width; ++x) {
                         if (before)
                         {
                             reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] << 6;
@@ -1074,8 +1074,8 @@ public:
             static void prepare_to_interleaved_uv_c(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* srcu, const ::std::uint8_t* srcv, const int pitchUV, const int width, const int height)
 
             {
-                for (int y{0}; y < height; y++) {
-                    for (int x{0}; x < width; x++) {
+                for (int y{0}; y < height; ++y) {
+                    for (int x{0}; x < width; ++x) {
                         ::std::uint16_t u, v;
                         if (shift6) {
                             u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
@@ -1098,7 +1098,7 @@ public:
             static void prepare_to_interleaved_uv_sse2(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* srcu, const ::std::uint8_t* srcv, const int pitchUV, const int width, const int height)
             {
                 const int modw{(width / 8) * 8}; // 8 uv pairs at a time
-                for (int y{0}; y < height; y++) {
+                for (int y{0}; y < height; ++y) {
                     for (int x{0}; x < modw; x += 8) {
                         __m128i u{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcu) + x))};
                         __m128i v{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcv) + x))};
@@ -1113,7 +1113,7 @@ public:
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint32_t*>(pdst) + x + 4), uv);
                     }
 
-                    for (int x{modw}; x < width; x++) {
+                    for (int x{modw}; x < width; ++x) {
                         ::std::uint16_t u, v;
                         if (shift6) {
                             u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
@@ -1137,8 +1137,8 @@ public:
             static void prepare_from_interleaved_uv_c(::std::uint8_t* pdstu, ::std::uint8_t* pdstv, const int pitchUV, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
 
             {
-                for (int y{0}; y < height; y++) {
-                    for (int x{0}; x < width; x++) {
+                for (int y{0}; y < height; ++y) {
+                    for (int x{0}; x < width; ++x) {
                         ::std::uint32_t uv{reinterpret_cast<const ::std::uint32_t*>(src)[x]};
                         ::std::uint16_t u{uv & 0xFFFF};
                         ::std::uint16_t v{uv >> 16};
@@ -1188,7 +1188,7 @@ public:
             {
                 const int modw{(width / 8) * 8};
                 auto mask0000FFFF{_mm_set1_epi32(0x0000FFFF)};
-                for (int y{0}; y < height; y++) {
+                for (int y{0}; y < height; ++y) {
                     for (int x{0}; x < modw; x += 8) {
                         auto uv_lo{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x))};
                         auto uv_hi{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x + 4))};
@@ -1207,7 +1207,7 @@ public:
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdstv) + x), v);
                     }
 
-                    for (int x{modw}; x < width; x++) {
+                    for (int x{modw}; x < width; ++x) {
                         ::std::uint32_t uv{reinterpret_cast<const ::std::uint32_t*>(src)[x]};
                         ::std::uint16_t u{uv & 0xFFFF};
                         ::std::uint16_t v{uv >> 16};
@@ -1250,7 +1250,7 @@ public:
             {
                 width >>= 1;
                 __m128i Ymask{_mm_set1_epi16(0x00FF)};
-                for (int y{0}; y < height; y++) {
+                for (int y{0}; y < height; ++y) {
                     for (int x{0}; x < width; x += 4) {
                         __m128i fullsrc{_mm_load_si128(reinterpret_cast<const __m128i*>(src + x * 4))}; // VYUYVYUYVYUYVYUY
                         __m128i yy{_mm_and_si128(fullsrc, Ymask)}; // 0Y0Y0Y0Y0Y0Y0Y0Y
@@ -1297,7 +1297,7 @@ public:
                 ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, int width, const int height)
             {
                 width >>= 1;
-                for (int y{0}; y < height; y++) {
+                for (int y{0}; y < height; ++y) {
                     for (int x{0}; x < width; x += 4) {
                         __m128i yy{_mm_loadl_epi64(reinterpret_cast<const __m128i*>(py + x * 2))}; // YYYYYYYY
                         __m128i uu{_mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pu + x)))}; // 000000000000UUUU
@@ -1379,7 +1379,7 @@ public:
                     dst.bpp = frame->GetRowSize() / dst.w * 8;
                 }
 
-                BYTE* pdst_save;
+                BYTE* pdst_save{nullptr};
                 PVideoFrame buffer;
 
                 // P010/P016/P210/P216 format:
@@ -1509,7 +1509,7 @@ public:
                     timestamp = (REFERENCE_TIME)(10000000 * vfr->TimeStampFromFrameNumber(n));
                 }
 
-                Render(dst, timestamp, fps);
+                (void)Render(dst, timestamp, fps);
 
                 if (semi_packed_p10 || semi_packed_p16) {
                     // convert semi packed formats back to Avisynth YUV420P10 and P16 formats
@@ -1728,7 +1728,7 @@ UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lPar
         case WM_INITDIALOG: {
             SetWindowLongPtr(hDlg, GWLP_USERDATA, lParam);
 
-            for (ptrdiff_t i{0}; i < CharSetLen; i++) {
+            for (ptrdiff_t i{0}; i < CharSetLen; ++i) {
                 CString s;
                 s.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
                 SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)(LPCTSTR)s);

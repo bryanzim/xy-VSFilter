@@ -35,7 +35,7 @@ public:
     }
     [[nodiscard]] inline CPoint GetSubpixel(const CPoint& p)
     {
-        [[nodiscard]] CPoint result(p.x & _subpixel_mask, p.y & _subpixel_mask);
+        CPoint result(p.x & _subpixel_mask, p.y & _subpixel_mask);
         return result;
     }
     [[nodiscard]] inline bool UseBilinearShift() { return _subpixel_level==EIGHT_X_EIGHT_INTERPOLATE; }

@@ -13,12 +13,12 @@ using namespace std;
 void CPooledSubPicAllocator::OnItemDestruct( void* Item )
 {
     TRACE_ALLOCATOR(Item);
-    [[nodiscard]] CAutoLock lock(&_poolLock);
+    CAutoLock lock(&_poolLock);
     POSITION pos{_using.Find((CPooledSubPic*)Item)};
     if(pos!=NULL)
     {
         _using.RemoveAt(pos);
-        _capacity--;
+        --_capacity;
     }
     ASSERT(_free.Find((CPooledSubPic*)Item)==NULL);
 }
@@ -26,7 +26,7 @@ void CPooledSubPicAllocator::OnItemDestruct( void* Item )
 [[nodiscard]] bool STDMETHODCALLTYPE CPooledSubPicAllocator::InitPool( int capacity )
 {
     TRACE_ALLOCATOR(capacity);
-    [[nodiscard]] CAutoLock lock(&_poolLock);
+    CAutoLock lock(&_poolLock);
     CPooledSubPic* temp{NULL};
 
     if(capacity<0)
@@ -40,14 +40,14 @@ void CPooledSubPicAllocator::OnItemDestruct( void* Item )
         if(!_free.IsEmpty())
         {
             temp = _free.RemoveTail();
-            _capacity--;
+            --_capacity;
             temp->_pool = NULL;
             temp->Release();
         }
         else if(!_using.IsEmpty())
         {
             temp = _using.RemoveTail();
-            _capacity--;
+            --_capacity;
             temp->_pool = NULL;
             temp->Release();
         }
@@ -64,7 +64,7 @@ void CPooledSubPicAllocator::OnItemDestruct( void* Item )
         }
 
         _free.AddTail(temp);
-        _capacity++;
+        ++_capacity;
         temp->AddRef();
     }
     return true;
@@ -105,7 +105,7 @@ CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE max
         }
     }
     _capacity = 0;
-    InitPool(capacity);
+    (void)InitPool(capacity);
 }
 
 
@@ -116,7 +116,7 @@ CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE max
         return(false);
     }
     {
-        [[nodiscard]] CAutoLock lock(&_poolLock);
+        CAutoLock lock(&_poolLock);
         CollectUnUsedItem();
 
         if(!_free.IsEmpty())
@@ -145,7 +145,7 @@ CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE max
             }
             _using.AddTail(item);
             item->AddRef();
-            _capacity++;
+            ++_capacity;
 
             *ppSubPic = item;
             item->AddRef();
@@ -165,7 +165,7 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
 {
     TRACE_ALLOCATOR("");
     CPooledSubPic* item{NULL};
-    [[nodiscard]] CAutoLock lock(&_poolLock);
+    CAutoLock lock(&_poolLock);
     for(POSITION pos{_free.GetHeadPosition()}; pos!=NULL; )
     {
         item = _free.GetNext(pos);
@@ -186,7 +186,7 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
     }
 }
 
-[[nodiscard]] STDMETHODIMP_(int) CPooledSubPicAllocator::SetSpdColorType( const int color_type )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CPooledSubPicAllocator::SetSpdColorType( const int color_type )
 
 {
     if(_type!=color_type)
@@ -197,7 +197,7 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
     return _type;
 }
 
-[[nodiscard]] STDMETHODIMP_(bool) CPooledSubPicAllocator::IsSpdColorTypeSupported( const int type )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CPooledSubPicAllocator::IsSpdColorTypeSupported( const int type )
 
 {
     if( (type==MSP_RGBA) 
@@ -296,7 +296,7 @@ void CPooledSubPicAllocator::CollectUnUsedItem()
             item->_pool = NULL;
             item->Release();
         }
-        _capacity--;
+        --_capacity;
     }
 }
 

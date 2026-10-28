@@ -32,8 +32,7 @@
 
 /* This is for graphedit */
 
-[uuid("93A22E7A-5091-45ef-BA61-6DA26156A5D0")]
-class CDirectVobSubFilter
+class __declspec(uuid("93A22E7A-5091-45ef-BA61-6DA26156A5D0")) CDirectVobSubFilter
 	: public CBaseVideoFilter
 	, public CDirectVobSub
 	, public ISpecifyPropertyPages
@@ -65,16 +64,16 @@ public:
     CDirectVobSubFilter(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(CDirectVobSubFilter));
 	virtual ~CDirectVobSubFilter();
 
-    DECLARE_IUNKNOWN;
-    [[nodiscard]] STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    DECLARE_IUNKNOWN
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // CBaseFilter
 
 	[[nodiscard]] CBasePin* GetPin(int n);
 	[[nodiscard]] int GetPinCount();
 
-	[[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
-	[[nodiscard]] STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP QueryFilterInfo(FILTER_INFO* pInfo);
 
     // CTransformFilter
 	HRESULT SetMediaType(PIN_DIRECTION dir, const CMediaType* pMediaType),
@@ -96,36 +95,36 @@ public:
     [[nodiscard]] virtual HRESULT DoGetField(unsigned field, void *value);
 
     // IXyOptions
-    [[nodiscard]] STDMETHODIMP XySetBool     (unsigned field, bool      value);
-    [[nodiscard]] STDMETHODIMP XySetInt      (unsigned field, int       value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBool     (unsigned field, bool      value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetInt      (unsigned field, int       value);
 
     // DirectVobSubImpl
     [[nodiscard]] HRESULT GetCurStyles( SubStyle sub_style[], int count );
     [[nodiscard]] HRESULT SetCurStyles( const SubStyle sub_style[], int count );
 
     // IDirectVobSub
-	[[nodiscard]] STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
-	[[nodiscard]] STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
 
-    [[nodiscard]] STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
-    [[nodiscard]] STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_CachesInfo(CachesInfo* caches_info);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_XyFlyWeightInfo(XyFlyWeightInfo* xy_fw_info);
 
-	[[nodiscard]] STDMETHODIMP HasConfigDialog(int iSelected);
-	[[nodiscard]] STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HasConfigDialog(int iSelected);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
 
 	// IDirectVobSub2
-	[[nodiscard]] STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
 
     // ISpecifyPropertyPages
-    [[nodiscard]] STDMETHODIMP GetPages(CAUUID* pPages);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetPages(CAUUID* pPages);
 
 	// IAMStreamSelect
-	[[nodiscard]] STDMETHODIMP Count(DWORD* pcStreams); 
-	[[nodiscard]] STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
-	[[nodiscard]] STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);  
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Count(DWORD* pcStreams); 
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Enable(long lIndex, DWORD dwFlags); 
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Info(long lIndex, AM_MEDIA_TYPE** ppmt, DWORD* pdwFlags, LCID* plcid, DWORD* pdwGroup, WCHAR** ppszName, IUnknown** ppObject, IUnknown** ppUnk);  
 
     // CPersistStream
-	[[nodiscard]] STDMETHODIMP GetClassID(CLSID* pClsid);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClsid);
 
 protected:
     //OSD
@@ -199,8 +198,7 @@ private:
 
 /* The "auto-loading" version */
 
-[uuid("9852A670-F845-491b-9BE6-EBD841B8A613")]
-class CDirectVobSubFilter2 : public CDirectVobSubFilter
+class __declspec(uuid("9852A670-F845-491b-9BE6-EBD841B8A613")) CDirectVobSubFilter2 : public CDirectVobSubFilter
 {
     [[nodiscard]] bool IsAppBlackListed();
 	[[nodiscard]] bool ShouldWeAutoload(IFilterGraph* pGraph);
@@ -210,7 +208,7 @@ public:
     CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(CDirectVobSubFilter2));
 
 	[[nodiscard]] HRESULT CheckConnect(PIN_DIRECTION dir, IPin* pPin);
-	[[nodiscard]] STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName);
     [[nodiscard]] HRESULT CheckInputType(const CMediaType* mtIn);
 };
 

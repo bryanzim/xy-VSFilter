@@ -24,7 +24,7 @@
 
 CCDecoder::CCDecoder(CString fn, CString rawfn) : m_fn(fn), m_rawfn(rawfn)
 {
-    m_sts.CreateDefaultStyle(ANSI_CHARSET);
+    (void)m_sts.CreateDefaultStyle(ANSI_CHARSET);
 
     m_time = 0;
     m_fEndOfCaption = false;
@@ -43,10 +43,10 @@ CCDecoder::~CCDecoder()
     if (!m_sts.IsEmpty() && !m_fn.IsEmpty())
     {
         m_sts.Sort();
-        m_sts.SaveAs(m_fn, EXTSRT, -1, CTextFile::DEFAULT_ENCODING);
-        m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf8.srt"), EXTSRT, -1, CTextFile::UTF8);
-        m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16le.srt"), EXTSRT, -1, CTextFile::LE16);
-        m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16be.srt"), EXTSRT, -1, CTextFile::BE16);
+        (void)m_sts.SaveAs(m_fn, EXTSRT, -1, CTextFile::DEFAULT_ENCODING);
+        (void)m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf8.srt"), EXTSRT, -1, CTextFile::UTF8);
+        (void)m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16le.srt"), EXTSRT, -1, CTextFile::LE16);
+        (void)m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16be.srt"), EXTSRT, -1, CTextFile::BE16);
     }
 }
 
@@ -86,15 +86,15 @@ void CCDecoder::SaveDisp(const __int64 time)
 {
     CStringW str;
 
-    for (int row{0}; row < 16; row++)
+    for (int row{0}; row < 16; ++row)
     {
         bool fNonEmptyRow{false};
 
-        for (int col{0}; col < 32; col++)
+        for (int col{0}; col < 32; ++col)
         {
             if (m_disp[row][col])
             {
-                [[nodiscard]] CStringW str2(&m_disp[row][col]);
+                CStringW str2(&m_disp[row][col]);
                 if (fNonEmptyRow)
                 {
                     str += ' ';
@@ -131,7 +131,7 @@ void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
                       (int)((time / 1000) % 60),
                       (int)(time % 1000));
 
-            for (int i{0}; i < len; i++)
+            for (int i{0}; i < len; ++i)
             {
                 _ftprintf(f, _T("%02x"), buff[i]);
                 if (i < len - 1)
@@ -151,7 +151,7 @@ void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
         }
     }
 
-    for (int i{0}; i < len; i++)
+    for (int i{0}; i < len; ++i)
     {
         BYTE c = buff[i] & 0x7f;
         if (c >= 0x20)
@@ -345,7 +345,7 @@ void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
                 }
                 if (buff[i + 1] & 0x20)
                 {
-                    row++;
+                    ++row;
                 }
 
                 int col{buff[i + 1] & 0xe};
@@ -364,14 +364,14 @@ void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
             {
             }
 
-            i++;
+            ++i;
         }
     }
 }
 
 void CCDecoder::ExtractCC(BYTE *buff, const int len, const __int64 time)
 {
-    for (int i{0}; i < len - 9; i++)
+    for (int i{0}; i < len - 9; ++i)
     {
         if (*(DWORD *)&buff[i] == 0xb2010000 && *(DWORD *)&buff[i + 4] == 0xf8014343)
         {
@@ -400,7 +400,7 @@ void CCDecoder::ExtractCC(BYTE *buff, const int len, const __int64 time)
                             i += 2;
                         }
 
-                        j++;
+                        ++j;
 
                         if (j >= nBytes)
                         {
@@ -417,7 +417,7 @@ void CCDecoder::ExtractCC(BYTE *buff, const int len, const __int64 time)
                             i += 2;
                         }
 
-                        j++;
+                        ++j;
                     }
 
                     if (nBytes1 > 0)

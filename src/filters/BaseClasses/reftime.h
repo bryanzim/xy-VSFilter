@@ -60,54 +60,56 @@ public:
     {
         // default to 0 time
         m_time = 0;
-    };
+    }
 
     inline CRefTime(LONG msecs)
     {
         m_time = MILLISECONDS_TO_100NS_UNITS(msecs);
-    };
+    }
 
     inline CRefTime(REFERENCE_TIME rt)
     {
         m_time = rt;
-    };
+    }
 
     inline operator REFERENCE_TIME() const
     {
         return m_time;
-    };
+    }
+
+    inline CRefTime(const CRefTime&) = default;
 
     inline CRefTime& operator=(const CRefTime& rt)
     {
         m_time = rt.m_time;
         return *this;
-    };
+    }
 
     inline CRefTime& operator=(const LONGLONG ll)
     {
         m_time = ll;
         return *this;
-    };
+    }
 
     inline CRefTime& operator+=(const CRefTime& rt)
     {
         return (*this = *this + rt);
-    };
+    }
 
     inline CRefTime& operator-=(const CRefTime& rt)
     {
         return (*this = *this - rt);
-    };
+    }
 
     inline LONG Millisecs(void)
     {
         return (LONG)(m_time / (UNITS / MILLISECONDS));
-    };
+    }
 
     inline LONGLONG GetUnits(void)
     {
         return m_time;
-    };
+    }
 };
 
 const LONGLONG TimeZero = 0;

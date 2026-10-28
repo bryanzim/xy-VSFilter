@@ -124,7 +124,7 @@ CBaseMediaFilter::~CBaseMediaFilter()
 
 /* Override this to say what interfaces we support and where */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::NonDelegatingQueryInterface(
     REFIID riid,
     void ** ppv)
@@ -139,7 +139,7 @@ CBaseMediaFilter::NonDelegatingQueryInterface(
 }
 
 /* Return the filter's clsid */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::GetClassID(CLSID *pClsID)
 {
     CheckPointer(pClsID,E_POINTER);
@@ -150,7 +150,7 @@ CBaseMediaFilter::GetClassID(CLSID *pClsID)
 
 /* Override this if your state changes are not done synchronously */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
 {
     UNREFERENCED_PARAMETER(dwMSecs);
@@ -164,7 +164,7 @@ CBaseMediaFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
 
 /* Set the clock we will use for synchronisation */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::SetSyncSource(IReferenceClock *pClock)
 {
     CAutoLock cObjectLock(m_pLock);
@@ -187,7 +187,7 @@ CBaseMediaFilter::SetSyncSource(IReferenceClock *pClock)
 }
 
 /* Return the clock we are using for synchronisation */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::GetSyncSource(IReferenceClock **pClock)
 {
     CheckPointer(pClock,E_POINTER);
@@ -205,7 +205,7 @@ CBaseMediaFilter::GetSyncSource(IReferenceClock **pClock)
 
 /* Put the filter into a stopped state */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::Stop()
 {
     CAutoLock cObjectLock(m_pLock);
@@ -217,7 +217,7 @@ CBaseMediaFilter::Stop()
 
 /* Put the filter into a paused state */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::Pause()
 {
     CAutoLock cObjectLock(m_pLock);
@@ -236,7 +236,7 @@ CBaseMediaFilter::Pause()
 // or you can call CBaseMediaFilter::StreamTime and compare that against
 // the sample timestamp.
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseMediaFilter::Run(REFERENCE_TIME tStart)
 {
     CAutoLock cObjectLock(m_pLock);
@@ -292,7 +292,7 @@ CBaseMediaFilter::StreamTime(CRefTime& rtStream)
 
 /* Override this to say what interfaces we support and where */
 
-STDMETHODIMP CBaseFilter::NonDelegatingQueryInterface(REFIID riid,
+DECLSPEC_NOTHROW STDMETHODIMP CBaseFilter::NonDelegatingQueryInterface(REFIID riid,
                                                       void **ppv)
 {
     /* Do we have this interface */
@@ -311,7 +311,7 @@ STDMETHODIMP CBaseFilter::NonDelegatingQueryInterface(REFIID riid,
 }
 
 #ifdef DEBUG
-STDMETHODIMP_(ULONG) CBaseFilter::NonDelegatingRelease()
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG) CBaseFilter::NonDelegatingRelease()
 {
     if (m_cRef == 1) {
         KASSERT(m_pGraph == NULL);
@@ -423,7 +423,7 @@ CBaseFilter::~CBaseFilter()
 }
 
 /* Return the filter's clsid */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::GetClassID(CLSID *pClsID)
 {
     CheckPointer(pClsID,E_POINTER);
@@ -433,7 +433,7 @@ CBaseFilter::GetClassID(CLSID *pClsID)
 }
 
 /* Override this if your state changes are not done synchronously */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
 {
     UNREFERENCED_PARAMETER(dwMSecs);
@@ -447,7 +447,7 @@ CBaseFilter::GetState(DWORD dwMSecs, FILTER_STATE *State)
 
 /* Set the clock we will use for synchronisation */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::SetSyncSource(IReferenceClock *pClock)
 {
     CAutoLock cObjectLock(m_pLock);
@@ -470,7 +470,7 @@ CBaseFilter::SetSyncSource(IReferenceClock *pClock)
 }
 
 /* Return the clock we are using for synchronisation */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::GetSyncSource(IReferenceClock **pClock)
 {
     CheckPointer(pClock,E_POINTER);
@@ -489,7 +489,7 @@ CBaseFilter::GetSyncSource(IReferenceClock **pClock)
 
 // override CBaseMediaFilter Stop method, to deactivate any pins this
 // filter has.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::Stop()
 {
     CAutoLock cObjectLock(m_pLock);
@@ -526,7 +526,7 @@ CBaseFilter::Stop()
 // override CBaseMediaFilter Pause method to activate any pins
 // this filter has (also called from Run)
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::Pause()
 {
     CAutoLock cObjectLock(m_pLock);
@@ -565,7 +565,7 @@ CBaseFilter::Pause()
 // or you can call CBaseFilter::StreamTime and compare that against
 // the sample timestamp.
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::Run(REFERENCE_TIME tStart)
 {
     CAutoLock cObjectLock(m_pLock);
@@ -633,7 +633,7 @@ CBaseFilter::StreamTime(CRefTime& rtStream)
 
 /* Create an enumerator for the pins attached to this filter */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::EnumPins(IEnumPins **ppEnum)
 {
     CheckPointer(ppEnum,E_POINTER);
@@ -650,7 +650,7 @@ CBaseFilter::EnumPins(IEnumPins **ppEnum)
 
 // default behaviour of FindPin is to assume pins are named
 // by their pin names
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::FindPin(
     LPCWSTR Id,
     IPin ** ppPin
@@ -681,7 +681,7 @@ CBaseFilter::FindPin(
 
 /* Return information about this filter */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::QueryFilterInfo(FILTER_INFO * pInfo)
 {
     CheckPointer(pInfo,E_POINTER);
@@ -701,7 +701,7 @@ CBaseFilter::QueryFilterInfo(FILTER_INFO * pInfo)
 
 /* Provide the filter with a filter graph */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::JoinFilterGraph(
     IFilterGraph * pGraph,
     LPCWSTR pName)
@@ -750,7 +750,7 @@ CBaseFilter::JoinFilterGraph(
 // return a Vendor information string. Optional - may return E_NOTIMPL.
 // memory returned should be freed using CoTaskMemFree
 // default implementation returns E_NOTIMPL
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseFilter::QueryVendorInfo(
     LPWSTR* pVendorInfo)
 {
@@ -828,7 +828,7 @@ void CBaseFilter::IncrementPinVersion()
 
 /* register filter */
 
-STDMETHODIMP CBaseFilter::Register()
+DECLSPEC_NOTHROW STDMETHODIMP CBaseFilter::Register()
 {
     // get setup data, if it exists
     //
@@ -869,7 +869,7 @@ STDMETHODIMP CBaseFilter::Register()
 
 /* unregister filter */
 
-STDMETHODIMP CBaseFilter::Unregister()
+DECLSPEC_NOTHROW STDMETHODIMP CBaseFilter::Unregister()
 {
     // get setup data, if it exists
     //
@@ -978,7 +978,7 @@ CEnumPins::~CEnumPins()
 
 /* Override this to say what interfaces we support where */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumPins::QueryInterface(REFIID riid,void **ppv)
 {
     CheckPointer(ppv, E_POINTER);
@@ -993,13 +993,13 @@ CEnumPins::QueryInterface(REFIID riid,void **ppv)
     }
 }
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CEnumPins::AddRef()
 {
     return InterlockedIncrement(&m_cRef);
 }
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CEnumPins::Release()
 {
     ULONG cRef = InterlockedDecrement(&m_cRef);
@@ -1013,7 +1013,7 @@ CEnumPins::Release()
    interface that initially has the same state. Since we are taking a snapshot
    of an object (current position and all) we must lock access at the start */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumPins::Clone(IEnumPins **ppEnum)
 {
     CheckPointer(ppEnum,E_POINTER);
@@ -1038,7 +1038,7 @@ CEnumPins::Clone(IEnumPins **ppEnum)
 
 /* Return the next pin after the current position */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumPins::Next(ULONG cPins,        // place this many pins...
         IPin **ppPins,      // ...in this array
         ULONG *pcFetched)   // actual count passed returned here
@@ -1121,7 +1121,7 @@ CEnumPins::Next(ULONG cPins,        // place this many pins...
 
 /* Skip over one or more entries in the enumerator */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumPins::Skip(ULONG cPins)
 {
     /* Check we are still in sync with the filter */
@@ -1151,7 +1151,7 @@ CEnumPins::Skip(ULONG cPins)
  * return S_OK
  */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumPins::Reset()
 {
     m_Version = m_pFilter->GetPinVersion();
@@ -1174,7 +1174,7 @@ CEnumPins::Reset()
  * return S_OK
  */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumPins::Refresh()
 {
     m_Version = m_pFilter->GetPinVersion();
@@ -1238,7 +1238,7 @@ CEnumMediaTypes::~CEnumMediaTypes()
 
 /* Override this to say what interfaces we support where */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumMediaTypes::QueryInterface(REFIID riid,void **ppv)
 {
     CheckPointer(ppv, E_POINTER);
@@ -1253,13 +1253,13 @@ CEnumMediaTypes::QueryInterface(REFIID riid,void **ppv)
     }
 }
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CEnumMediaTypes::AddRef()
 {
     return InterlockedIncrement(&m_cRef);
 }
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CEnumMediaTypes::Release()
 {
     ULONG cRef = InterlockedDecrement(&m_cRef);
@@ -1273,7 +1273,7 @@ CEnumMediaTypes::Release()
    interface that initially has the same state. Since we are taking a snapshot
    of an object (current position and all) we must lock access at the start */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumMediaTypes::Clone(IEnumMediaTypes **ppEnum)
 {
     CheckPointer(ppEnum,E_POINTER);
@@ -1307,7 +1307,7 @@ CEnumMediaTypes::Clone(IEnumMediaTypes **ppEnum)
    The actual count always correctly reflects the number of types in the array.
 */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumMediaTypes::Next(ULONG cMediaTypes,          // place this many types...
               AM_MEDIA_TYPE **ppMediaTypes,   // ...in this array
               ULONG *pcFetched)           // actual count passed
@@ -1382,7 +1382,7 @@ CEnumMediaTypes::Next(ULONG cMediaTypes,          // place this many types...
 
 /* Skip over one or more entries in the enumerator */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumMediaTypes::Skip(ULONG cMediaTypes)
 {
     //  If we're skipping 0 elements we're guaranteed to skip the
@@ -1412,7 +1412,7 @@ CEnumMediaTypes::Skip(ULONG cMediaTypes)
  * return S_OK
  */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CEnumMediaTypes::Reset()
 
 {
@@ -1556,7 +1556,7 @@ CBasePin::~CBasePin()
 
 /* Override this to say what interfaces we support and where */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
     /* Do we have this interface */
@@ -1573,7 +1573,7 @@ CBasePin::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 
 /* Override to increment the owning filter's reference count */
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CBasePin::NonDelegatingAddRef()
 {
     ASSERT(InterlockedIncrement(&m_cRef) > 0);
@@ -1583,7 +1583,7 @@ CBasePin::NonDelegatingAddRef()
 
 /* Override to decrement the owning filter's reference count */
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CBasePin::NonDelegatingRelease()
 {
     ASSERT(InterlockedDecrement(&m_cRef) >= 0);
@@ -1644,7 +1644,7 @@ void CBasePin::DisplayTypeInfo(IPin *pPin, const CMediaType *pmt)
    any of the formats that it would ideally like, failing that we retrieve
    our enumerator and see if it will accept any of our preferred types */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::Connect(
     IPin * pReceivePin,
     const AM_MEDIA_TYPE *pmt   // optional media type
@@ -1976,7 +1976,7 @@ CBasePin::BreakConnect()
    connection.
 */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::ReceiveConnection(
     IPin * pConnector,      // this is the pin who we will connect to
     const AM_MEDIA_TYPE *pmt    // this is the media type we will exchange
@@ -2061,7 +2061,7 @@ CBasePin::ReceiveConnection(
 
 /* Called when we want to terminate a pin connection */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::Disconnect()
 {
     CAutoLock cObjectLock(m_pLock);
@@ -2074,7 +2074,7 @@ CBasePin::Disconnect()
     return DisconnectInternal();
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::DisconnectInternal()
 {
     ASSERT(CritCheckIn(m_pLock));
@@ -2104,7 +2104,7 @@ CBasePin::DisconnectInternal()
 
 
 /* Return an AddRef()'d pointer to the connected pin if there is one */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::ConnectedTo(
     IPin **ppPin
 )
@@ -2128,7 +2128,7 @@ CBasePin::ConnectedTo(
 }
 
 /* Return the media type of the connection */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::ConnectionMediaType(
     AM_MEDIA_TYPE *pmt
 )
@@ -2149,7 +2149,7 @@ CBasePin::ConnectionMediaType(
 
 /* Return information about the filter we are connect to */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::QueryPinInfo(
     PIN_INFO * pInfo
 )
@@ -2173,7 +2173,7 @@ CBasePin::QueryPinInfo(
     return NOERROR;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::QueryDirection(
     PIN_DIRECTION * pPinDir
 )
@@ -2186,7 +2186,7 @@ CBasePin::QueryDirection(
 }
 
 // Default QueryId to return the pin's name
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::QueryId(
     LPWSTR * Id
 )
@@ -2202,7 +2202,7 @@ CBasePin::QueryId(
    the media types you support depend on some internal state that is updated
    dynamically then you will need to implement locking in a derived class */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::QueryAccept(
     const AM_MEDIA_TYPE *pmt
 )
@@ -2230,7 +2230,7 @@ CBasePin::QueryAccept(
    output pins should expose at least one preferred format otherwise it is
    possible that neither pin has any types and so no connection is possible */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::EnumMediaTypes(
     IEnumMediaTypes **ppEnum
 )
@@ -2321,14 +2321,14 @@ CBasePin::Inactive(void)
 
 
 // Called when no more data will arrive
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::EndOfStream(void)
 {
     return S_OK;
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::SetSink(IQualityControl * piqc)
 {
     CAutoLock cObjectLock(m_pLock);
@@ -2338,7 +2338,7 @@ CBasePin::SetSink(IQualityControl * piqc)
 } // SetSink
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::Notify(IBaseFilter * pSender, Quality q)
 {
     UNREFERENCED_PARAMETER(q);
@@ -2352,7 +2352,7 @@ CBasePin::Notify(IBaseFilter * pSender, Quality q)
 // about to be received. Default implementation records data and
 // returns S_OK.
 // Override this to pass downstream.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBasePin::NewSegment(
                 REFERENCE_TIME tStart,
                 REFERENCE_TIME tStop,
@@ -2653,7 +2653,7 @@ CBaseOutputPin::Inactive(void)
 
 // we have a default handling of EndOfStream which is to return
 // an error, since this should be called on input pins only
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseOutputPin::EndOfStream(void)
 {
     return E_UNEXPECTED;
@@ -2661,14 +2661,14 @@ CBaseOutputPin::EndOfStream(void)
 
 
 // BeginFlush should be called on input pins only
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseOutputPin::BeginFlush(void)
 {
     return E_UNEXPECTED;
 }
 
 // EndFlush should be called on input pins only
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseOutputPin::EndFlush(void)
 {
     return E_UNEXPECTED;
@@ -2758,7 +2758,7 @@ CBaseInputPin::~CBaseInputPin()
 
 
 // override this to publicise our interfaces
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     /* Do we know about this interface */
@@ -2782,7 +2782,7 @@ CBaseInputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
    Override this to provide your own allocator.
 */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::GetAllocator(
     IMemAllocator **ppAllocator)
 {
@@ -2808,7 +2808,7 @@ CBaseInputPin::GetAllocator(
    GetAllocator is unnecessary but derived classes that do something useful
    will undoubtedly have to lock the object so this might help remind people */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::NotifyAllocator(
     IMemAllocator * pAllocator,
     BOOL bReadOnly)
@@ -2864,7 +2864,7 @@ CBaseInputPin::BreakConnect()
    disconnected etc
 */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::Receive(IMediaSample *pSample)
 {
     CheckPointer(pSample,E_POINTER);
@@ -2939,7 +2939,7 @@ CBaseInputPin::Receive(IMediaSample *pSample)
 
 
 /*  Receive multiple samples */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::ReceiveMultiple (
     IMediaSample **pSamples,
     long nSamples,
@@ -2963,7 +2963,7 @@ CBaseInputPin::ReceiveMultiple (
 }
 
 /*  See if Receive() might block */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::ReceiveCanBlock()
 {
     /*  Ask all the output pins if they block
@@ -3011,7 +3011,7 @@ CBaseInputPin::ReceiveCanBlock()
 // of your implementation (makes sure that all Receive calls
 // fail). After calling this, you need to free any queued data
 // and then call downstream.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::BeginFlush(void)
 {
     //  BeginFlush is NOT synchronized with streaming but is part of
@@ -3035,7 +3035,7 @@ CBaseInputPin::BeginFlush(void)
 // pushing any more without a further receive, then call downstream,
 // then call this method to clear the m_bFlushing flag and re-enable
 // receives
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::EndFlush(void)
 {
     //  Endlush is NOT synchronized with streaming but is part of
@@ -3059,7 +3059,7 @@ CBaseInputPin::EndFlush(void)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::Notify(IBaseFilter * pSender, Quality q)
 {
     UNREFERENCED_PARAMETER(q);
@@ -3088,7 +3088,7 @@ CBaseInputPin::Inactive(void)
 // what requirements do we have of the allocator - override if you want
 // to support other people's allocators but need a specific alignment
 // or prefix.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseInputPin::GetAllocatorRequirements(ALLOCATOR_PROPERTIES*pProps)
 {
     UNREFERENCED_PARAMETER(pProps);
@@ -3224,7 +3224,7 @@ CMediaSample::~CMediaSample()
 
 /* Override this to publicise our interfaces */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::QueryInterface(REFIID riid, void **ppv)
 {
     if (riid == IID_IMediaSample ||
@@ -3236,7 +3236,7 @@ CMediaSample::QueryInterface(REFIID riid, void **ppv)
     }
 }
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CMediaSample::AddRef()
 {
     return InterlockedIncrement(&m_cRef);
@@ -3260,7 +3260,7 @@ CMediaSample::AddRef()
 // is called, he releases himself, possibly causing us and him to be deleted.
 
 
-STDMETHODIMP_(ULONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(ULONG)
 CMediaSample::Release()
 {
     /* Decrement our own private reference count */
@@ -3312,7 +3312,7 @@ CMediaSample::SetPointer(BYTE * ptr, LONG cBytes)
 
 // get me a read/write pointer to this buffer's memory. I will actually
 // want to use sizeUsed bytes.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::GetPointer(BYTE ** ppBuffer)
 {
     ValidateReadWritePtr(ppBuffer,sizeof(BYTE *));
@@ -3327,7 +3327,7 @@ CMediaSample::GetPointer(BYTE ** ppBuffer)
 
 
 // return the size in bytes of this buffer
-STDMETHODIMP_(LONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(LONG)
 CMediaSample::GetSize(void)
 {
     return m_cbBuffer;
@@ -3335,7 +3335,7 @@ CMediaSample::GetSize(void)
 
 
 // get the stream time at which this sample should start and finish.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::GetTime(
     REFERENCE_TIME * pTimeStart,     // put time here
     REFERENCE_TIME * pTimeEnd
@@ -3364,7 +3364,7 @@ CMediaSample::GetTime(
 
 // Set the stream time at which this sample should start and finish.
 // NULL pointers means the time is reset
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::SetTime(
     REFERENCE_TIME * pTimeStart,
     REFERENCE_TIME * pTimeEnd
@@ -3393,7 +3393,7 @@ CMediaSample::SetTime(
 
 
 // get the media times (eg bytes) for this sample
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::GetMediaTime(
     LONGLONG * pTimeStart,
     LONGLONG * pTimeEnd
@@ -3413,7 +3413,7 @@ CMediaSample::GetMediaTime(
 
 
 // Set the media times for this sample
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::SetMediaTime(
     LONGLONG * pTimeStart,
     LONGLONG * pTimeEnd
@@ -3435,7 +3435,7 @@ CMediaSample::SetMediaTime(
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::IsSyncPoint(void)
 {
     if (m_dwFlags & Sample_SyncPoint) {
@@ -3446,7 +3446,7 @@ CMediaSample::IsSyncPoint(void)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::SetSyncPoint(BOOL bIsSyncPoint)
 {
     if (bIsSyncPoint) {
@@ -3460,7 +3460,7 @@ CMediaSample::SetSyncPoint(BOOL bIsSyncPoint)
 // returns S_OK if there is a discontinuity in the data (this same is
 // not a continuation of the previous stream of data
 // - there has been a seek).
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::IsDiscontinuity(void)
 {
     if (m_dwFlags & Sample_Discontinuity) {
@@ -3472,7 +3472,7 @@ CMediaSample::IsDiscontinuity(void)
 
 // set the discontinuity property - TRUE if this sample is not a
 // continuation, but a new sample after a seek.
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::SetDiscontinuity(BOOL bDiscont)
 {
     // should be TRUE or FALSE
@@ -3484,7 +3484,7 @@ CMediaSample::SetDiscontinuity(BOOL bDiscont)
     return S_OK;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::IsPreroll(void)
 {
     if (m_dwFlags & Sample_Preroll) {
@@ -3495,7 +3495,7 @@ CMediaSample::IsPreroll(void)
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::SetPreroll(BOOL bIsPreroll)
 {
     if (bIsPreroll) {
@@ -3506,14 +3506,14 @@ CMediaSample::SetPreroll(BOOL bIsPreroll)
     return NOERROR;
 }
 
-STDMETHODIMP_(LONG)
+DECLSPEC_NOTHROW STDMETHODIMP_(LONG)
 CMediaSample::GetActualDataLength(void)
 {
     return m_lActual;
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::SetActualDataLength(LONG lActual)
 {
     if (lActual > m_cbBuffer) {
@@ -3527,7 +3527,7 @@ CMediaSample::SetActualDataLength(LONG lActual)
 
 /* These allow for limited format changes in band */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::GetMediaType(AM_MEDIA_TYPE **ppMediaType)
 {
     ValidateReadWritePtr(ppMediaType,sizeof(AM_MEDIA_TYPE *));
@@ -3555,7 +3555,7 @@ CMediaSample::GetMediaType(AM_MEDIA_TYPE **ppMediaType)
 
 /* Mark this sample as having a different format type */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMediaSample::SetMediaType(AM_MEDIA_TYPE *pMediaType)
 {
     /* Delete the current media type */
@@ -3588,7 +3588,7 @@ CMediaSample::SetMediaType(AM_MEDIA_TYPE *pMediaType)
 }
 
 // Set and get properties (IMediaSample2)
-STDMETHODIMP CMediaSample::GetProperties(
+DECLSPEC_NOTHROW STDMETHODIMP CMediaSample::GetProperties(
     DWORD cbProperties,
     BYTE * pbProperties
 )
@@ -3853,7 +3853,7 @@ HRESULT CDynamicOutputPin::Initialize(void)
     return S_OK;
 }
 
-STDMETHODIMP CDynamicOutputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
+DECLSPEC_NOTHROW STDMETHODIMP CDynamicOutputPin::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     if(riid == IID_IPinFlowControl) {
         return GetInterface(static_cast<IPinFlowControl*>(this), ppv);
@@ -3862,13 +3862,13 @@ STDMETHODIMP CDynamicOutputPin::NonDelegatingQueryInterface(REFIID riid, void **
     }
 }
 
-STDMETHODIMP CDynamicOutputPin::Disconnect(void)
+DECLSPEC_NOTHROW STDMETHODIMP CDynamicOutputPin::Disconnect(void)
 {
     CAutoLock cObjectLock(m_pLock);
     return DisconnectInternal();
 }
 
-STDMETHODIMP CDynamicOutputPin::Block(DWORD dwBlockFlags, HANDLE hEvent)
+DECLSPEC_NOTHROW STDMETHODIMP CDynamicOutputPin::Block(DWORD dwBlockFlags, HANDLE hEvent)
 {
     const DWORD VALID_FLAGS = AM_PIN_FLOW_CONTROL_BLOCK;
 
@@ -4520,7 +4520,7 @@ CBaseAllocator::~CBaseAllocator()
 
 /* Override this to publicise our interfaces */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     /* Do we know about this interface */
@@ -4539,7 +4539,7 @@ CBaseAllocator::NonDelegatingQueryInterface(REFIID riid, void **ppv)
    allocated then assuming no samples are outstanding the user may call us
    to change the buffering, the memory will be released in Commit() */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::SetProperties(
                 ALLOCATOR_PROPERTIES* pRequest,
                 ALLOCATOR_PROPERTIES* pActual)
@@ -4588,7 +4588,7 @@ CBaseAllocator::SetProperties(
     return NOERROR;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::GetProperties(
     ALLOCATOR_PROPERTIES * pActual)
 {
@@ -4664,7 +4664,7 @@ HRESULT CBaseAllocator::GetBuffer(IMediaSample **ppBuffer,
 
 /* Final release of a CMediaSample will call this */
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::ReleaseBuffer(IMediaSample * pSample)
 {
     CheckPointer(pSample,E_POINTER);
@@ -4714,7 +4714,7 @@ CBaseAllocator::ReleaseBuffer(IMediaSample * pSample)
     return NOERROR;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::SetNotify(
     IMemAllocatorNotifyCallbackTemp* pNotify
     )
@@ -4731,7 +4731,7 @@ CBaseAllocator::SetNotify(
     return S_OK;
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::GetFreeCount(
     LONG* plBuffersFree
     )
@@ -4752,7 +4752,7 @@ CBaseAllocator::NotifySample()
     }
 }
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::Commit()
 {
     /* Check we are not decommitted */
@@ -4791,7 +4791,7 @@ CBaseAllocator::Commit()
 }
 
 
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CBaseAllocator::Decommit()
 {
     BOOL bRelease = FALSE;
@@ -4913,7 +4913,7 @@ CMemAllocator::CMemAllocator(
    actually allocated until Commit() is called, if memory has already been
    allocated then assuming no samples are outstanding the user may call us
    to change the buffering, the memory will be released in Commit() */
-STDMETHODIMP
+DECLSPEC_NOTHROW STDMETHODIMP
 CMemAllocator::SetProperties(
                 ALLOCATOR_PROPERTIES* pRequest,
                 ALLOCATOR_PROPERTIES* pActual)

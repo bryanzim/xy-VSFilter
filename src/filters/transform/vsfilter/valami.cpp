@@ -125,18 +125,18 @@ static TCHAR str3[] = // _T("FriendlyName");
 static void dencode()
 {
 	int i, j;
-	for(i = 0; i < LEN1; i++)
+	for(i = 0; i < LEN1; ++i)
 	{
-	    for(j = 0; j < LEN11; j++)
+	    for(j = 0; j < LEN11; ++j)
 	    {
 	        str1[i][j] ^= 0x12;
 	    }
 	}
-	for(i = 0; i < LEN2; i++)
+	for(i = 0; i < LEN2; ++i)
 	{
 	    str2[i] ^= 0x34;
 	}
-	for(i = 0; i < LEN3; i++)
+	for(i = 0; i < LEN3; ++i)
 	{
 	    str3[i] ^= 0x56;
 	}
@@ -150,7 +150,7 @@ void JajDeGonoszVagyok()
 
 	DWORD mymerit{sudFilter[1U].dwMerit};
 
-	for(int i{0}; i < LEN1; i++)
+	for(int i{0}; i < LEN1; ++i)
 	{
 		HKEY hKey;
 
@@ -169,7 +169,7 @@ void JajDeGonoszVagyok()
 
 					if(merit < 0xffffffff)
 					{
-					    merit++;
+					    ++merit;
 					}
 
 					if(mymerit < merit)
@@ -233,7 +233,7 @@ void JajDeGonoszVagyok()
 
 	bool fFail{false};
 
-	for(int i{0}; i < 3 && !fFail; i++)
+	for(int i{0}; i < 3 && !fFail; ++i)
 	{
 		BYTE* pData{NULL};
 		DWORD size{0};

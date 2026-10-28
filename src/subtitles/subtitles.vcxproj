@@ -79,14 +79,17 @@
     <ClCompile Include="hdmv_subtitle_provider.cpp" />
     <ClCompile Include="Rasterizer.cpp">
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput Condition="'$(PlatformToolset)'=='ClangCL'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="RealTextParser.cpp" />
     <ClCompile Include="RenderedHdmvSubtitle.cpp" />
     <ClCompile Include="RTS.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput Condition="'$(PlatformToolset)'=='ClangCL'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="SSF.cpp">
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput Condition="'$(PlatformToolset)'=='ClangCL'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

@@ -38,7 +38,7 @@ SAMPLE CODE TO COPY - not active at the moment
 // NonDelegatingQueryInterface
 //
 // This object supports IPersist & IPersistStream
-STDMETHODIMP CPersistStream::NonDelegatingQueryInterface(REFIID riid, void **ppv)
+DECLSPEC_NOTHROW STDMETHODIMP CPersistStream::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     if (riid == IID_IPersist) {
         return GetInterface((IPersist *) this, ppv);
@@ -80,7 +80,7 @@ HRESULT CPersistStream::ReadFromStream(IStream * pStream)
 // Load
 //
 // Load all the data from the given stream
-STDMETHODIMP CPersistStream::Load(LPSTREAM pStm)
+DECLSPEC_NOTHROW STDMETHODIMP CPersistStream::Load(LPSTREAM pStm)
 {
     HRESULT hr;
     // Load the version number then the data
@@ -98,7 +98,7 @@ STDMETHODIMP CPersistStream::Load(LPSTREAM pStm)
 // Save
 //
 // Save the contents of this Stream.
-STDMETHODIMP CPersistStream::Save(LPSTREAM pStm, BOOL fClearDirty)
+DECLSPEC_NOTHROW STDMETHODIMP CPersistStream::Save(LPSTREAM pStm, BOOL fClearDirty)
 {
 
     HRESULT hr = WriteInt(pStm, GetSoftwareVersion());

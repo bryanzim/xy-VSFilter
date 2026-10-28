@@ -30,12 +30,12 @@
 // 
 static void SaveRect2File(const CRect& cRect, const char * filename)
 {
-    [[nodiscard]] std::ofstream os(filename);
+    std::ofstream os(filename);
     os<<cRect.left<<","<<cRect.top<<","<<cRect.right<<","<<cRect.bottom;
 }
 static void SaveAxxx2File(SubPicDesc& spd, const CRect& cRect, const char * filename)
 {
-    [[nodiscard]] std::ofstream axxx(filename);
+    std::ofstream axxx(filename);
     int w{cRect.Width()}, h = cRect.Height();
 
     BYTE* top{(BYTE*)spd.bits + spd.pitch*cRect.top + cRect.left*4};
@@ -68,7 +68,7 @@ static void SaveAyuv2File(SubPicDesc& spd, const CRect& cRect, const char * file
 }
 static void SaveNvxx2File(SubPicDesc& spd, const CRect& cRect, const char * filename)
 {
-    [[nodiscard]] std::ofstream os(filename);
+    std::ofstream os(filename);
     int w{cRect.Width()}, h = cRect.Height();
 
     BYTE* top{(BYTE*)spd.bits};
@@ -211,12 +211,12 @@ CMemSubPic::~CMemSubPic()
 
 // ISubPic
 
-[[nodiscard]] STDMETHODIMP_(void*) CMemSubPic::GetObject() const
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(void*) CMemSubPic::GetObject() const
 {
     return (void*)&m_spd;
 }
 
-[[nodiscard]] STDMETHODIMP CMemSubPic::GetDesc(SubPicDesc& spd) const
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::GetDesc(SubPicDesc& spd) const
 {
     spd.type = m_spd.type;
     spd.w = m_size.cx;
@@ -230,7 +230,7 @@ CMemSubPic::~CMemSubPic()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CMemSubPic::CopyTo(ISubPicEx* pSubPic)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::CopyTo(ISubPicEx* pSubPic)
 {
     HRESULT hr;
 	if(FAILED(hr = __super::CopyTo(pSubPic))) {
@@ -255,7 +255,7 @@ CMemSubPic::~CMemSubPic()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CMemSubPic::ClearDirtyRect(const DWORD color)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::ClearDirtyRect(const DWORD color)
 {
     if(m_rectListDirty.IsEmpty()) {
         return S_OK;
@@ -306,12 +306,12 @@ CMemSubPic::~CMemSubPic()
     return S_OK;
 }
 
-[[nodiscard]] STDMETHODIMP CMemSubPic::Lock(SubPicDesc& spd)
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::Lock(SubPicDesc& spd)
 {
     return GetDesc(spd);
 }
 
-[[nodiscard]] STDMETHODIMP CMemSubPic::UnlockEx( CAtlList<CRect>* dirtyRectList )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::UnlockEx( CAtlList<CRect>* dirtyRectList )
 {
     int src_type{m_spd.type};
     int dst_type{m_alpha_blt_dst_type};
@@ -357,7 +357,7 @@ CMemSubPic::~CMemSubPic()
 
 [[nodiscard]] HRESULT CMemSubPic::UnlockOther(CAtlList<CRect>* dirtyRectList)
 {
-    SetDirtyRectEx(dirtyRectList);
+    (void)SetDirtyRectEx(dirtyRectList);
     if(m_rectListDirty.IsEmpty()) {
         return S_OK;
     }
@@ -380,7 +380,7 @@ CMemSubPic::~CMemSubPic()
             {
                 DWORD* s{(DWORD*)top};
                 DWORD* e{s + w};
-                for(; s < e; s++)
+                for(; s < e; ++s)
                 {
                     *s = ((*s>>3)&0x1f000000)|((*s>>8)&0xf800)|((*s>>5)&0x07e0)|((*s>>3)&0x001f);
                     //				*s = (*s&0xff000000)|((*s>>8)&0xf800)|((*s>>5)&0x07e0)|((*s>>3)&0x001f);
@@ -393,7 +393,7 @@ CMemSubPic::~CMemSubPic()
             {
                 DWORD* s{(DWORD*)top};
                 DWORD* e{s + w};
-                for(; s < e; s++)
+                for(; s < e; ++s)
                 {
                     *s = ((*s>>3)&0x1f000000)|((*s>>9)&0x7c00)|((*s>>6)&0x03e0)|((*s>>3)&0x001f);
                     //				*s = (*s&0xff000000)|((*s>>9)&0x7c00)|((*s>>6)&0x03e0)|((*s>>3)&0x001f);
@@ -447,7 +447,7 @@ CMemSubPic::~CMemSubPic()
     ONCER( SaveRect2File(dirtyRectList->GetHead(), SPD_DUMP_FILE".rect") );
     ONCER( SaveArgb2File(m_spd, CRect(CPoint(0,0), m_size), SPD_DUMP_FILE".argb") );
 
-    SetDirtyRectEx(dirtyRectList);
+    (void)SetDirtyRectEx(dirtyRectList);
 
     ONCER( SaveRect2File(dirtyRectList->GetHead(), SPD_DUMP_FILE".rect2") );
     if(m_rectListDirty.IsEmpty()) {
@@ -578,7 +578,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
 }
 
 
-[[nodiscard]] STDMETHODIMP CMemSubPic::AlphaBlt( const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::AlphaBlt( const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget )
 {    
     if(!pSrc || !pDst || !pTarget) {
         return E_POINTER;
@@ -1191,7 +1191,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for(ptrdiff_t i{0}; i < 2; i++) {
+    for(ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U]+3};
@@ -1280,7 +1280,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for (ptrdiff_t i{0}; i < 2; i++) {
+    for (ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U] + 3};
@@ -1369,7 +1369,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for (ptrdiff_t i{0}; i < 2; i++) {
+    for (ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U] + 1};
@@ -1466,7 +1466,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for(ptrdiff_t i{0}; i < 2; i++) {
+    for(ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U]+3};
@@ -1599,7 +1599,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     return AlphaBltAnv12_Nv12(sa, sy, s_uv, src.pitch, d, dUV, dst.pitch, w, h);
 }
 
-[[nodiscard]] STDMETHODIMP CMemSubPic::SetDirtyRectEx(CAtlList<CRect>* dirtyRectList )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::SetDirtyRectEx(CAtlList<CRect>* dirtyRectList )
 {
     //if(m_spd.type == MSP_YUY2 || m_spd.type == MSP_YV12 || m_spd.type == MSP_IYUV || m_spd.type == MSP_AYUV)
     if(dirtyRectList!=NULL)
@@ -1827,32 +1827,74 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             case 15:
 #define _XY_MIX_ONE if(sa2[0] < 0xff) { d_w[0] = ((d_w[0]*sa2[0])>>8) + (s2[0]<<8); } sa2++;d_w++;s2++;
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 14:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 13:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 12:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 11:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 10:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 9:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 8:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 7:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 6:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 5:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 4:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 3:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 2:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 1://fall through on purpose
                 _XY_MIX_ONE
             }
@@ -1864,32 +1906,74 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             {
             case 15:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 14:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 13:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 12:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 11:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 10:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 9:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 8:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 7:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 6:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 5:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 4:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 3:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 2:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 1://fall through on purpose
                 _XY_MIX_ONE
             }
@@ -1974,32 +2058,74 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             case 15:
 #define _XY_MIX_ONE if(sa2[0] < 0xff) { d_w[0] = ((d_w[0]*sa2[0])>>8) + (s2[0]<<8); } sa2++;d_w++;s2++;
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 14:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 13:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 12:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 11:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 10:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 9:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 8:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 7:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 6:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 5:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 4:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 3:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 2:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 1://fall through on purpose
                 _XY_MIX_ONE
             }
@@ -2011,32 +2137,74 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             {
             case 15:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 14:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 13:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 12:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 11:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 10:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 9:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 8:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 7:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 6:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 5:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 4:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 3:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 2:
                 _XY_MIX_ONE
+            #if defined(__clang__)
+            [[clang::fallthrough]];
+            #endif
             case 1://fall through on purpose
                 _XY_MIX_ONE
             }

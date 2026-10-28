@@ -99,6 +99,9 @@ static void blake2s_init_sse()
 }
 
 
+#if defined(__clang__) && !defined(_WIN_32)
+__attribute__((target("ssse3"), noinline))
+#endif
 static int blake2s_compress_sse( blake2s_state *S, const byte block[BLAKE2S_BLOCKBYTES] )
 {
   __m128i row[4];

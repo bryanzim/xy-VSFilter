@@ -42,7 +42,6 @@
       <PreprocessorDefinitions>_LIB;RARDLL;SILENT;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <EnablePREfast>false</EnablePREfast>
-      <AdditionalOptions Condition="'$(PlatformToolset)'=='ClangCL'">-mssse3 -maes %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
@@ -54,9 +53,7 @@
   <ItemGroup>
     <ClCompile Include="archive.cpp" />
     <ClCompile Include="arcread.cpp" />
-    <ClCompile Include="blake2s.cpp">
-      <AdditionalOptions Condition="'$(PlatformToolset)'=='ClangCL'">-mssse3 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
+    <ClCompile Include="blake2s.cpp" />
     <ClCompile Include="cmddata.cpp" />
     <ClCompile Include="consio.cpp" />
     <ClCompile Include="crc.cpp" />
@@ -90,9 +87,7 @@
     <ClCompile Include="rawread.cpp" />
     <ClCompile Include="rdwrfn.cpp" />
     <ClCompile Include="recvol.cpp" />
-    <ClCompile Include="rijndael.cpp">
-      <AdditionalOptions Condition="'$(PlatformToolset)'=='ClangCL'">-maes %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
+    <ClCompile Include="rijndael.cpp" />
     <ClCompile Include="rs.cpp" />
     <ClCompile Include="rs16.cpp" />
     <ClCompile Include="scantree.cpp" />

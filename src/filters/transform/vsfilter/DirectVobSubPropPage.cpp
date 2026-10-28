@@ -100,7 +100,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
     }
     for (int i{0}; i<count; i++)
     {
-        delete style[i].style;
+        delete static_cast<STSStyle*>(style[i].style);
     }
     delete[] style;
 }

@@ -120,12 +120,12 @@ namespace ssf
 			{
 				if(!pDef->m_predefined)
 				{
-					throw Exception(_T("redefinition of '%s' is not allowed"), CString(name));
+					throw Exception(_T("redefinition of '%s' is not allowed"), CString(name).GetString());
 				}
 
 				if(!pDef->IsTypeUnknown() && !pDef->IsType(type))
 				{
-					throw Exception(_T("cannot redefine type of %s to %s"), CString(name), CString(type));
+					throw Exception(_T("cannot redefine type of %s to %s"), CString(name).GetString(), CString(type).GetString());
 				}
 			}
 		}

@@ -82,7 +82,7 @@ public:
     int filter_width;
     int ex_filter_width;
 
-    explicit XyFilterTestData() :buff_base(NULL),filter_f(NULL),data(NULL)
+    explicit XyFilterTestData() :buff_base(nullptr),filter_f(nullptr),data(nullptr)
     {
         buff_base = (float*)xy_malloc(MAX_BUFF_SIZE*sizeof(float));
         data = buff_base + MAX_FILTER_LENGTH;
@@ -91,7 +91,7 @@ public:
     ~XyFilterTestData()
 
     {
-        xy_free(buff_base);buff_base=NULL;
+        xy_free(buff_base);buff_base=nullptr;
     }
 
     [[nodiscard]] const XyFilterTestData& copy (const XyFilterTestData& rhs)

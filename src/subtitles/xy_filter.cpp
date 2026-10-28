@@ -606,7 +606,7 @@ void xy_filter_sse(float *dst, const int width, const int height, const int stri
 {
     typedef void (*Filter)(float *dst, int width, int height, int stride, const float *filter);
     const Filter filters[] = { 
-        NULL,
+        nullptr,
         xy_filter_sse_template<1>, xy_filter_sse_template<4>, xy_filter_sse_template<4>, xy_filter_sse_template<4>, 
         xy_filter_sse_template<5>, xy_filter_sse_template<8>, xy_filter_sse_template<8>, xy_filter_sse_template<8>, 
         xy_filter_sse_template<9>, xy_filter_sse_template<12>, xy_filter_sse_template<12>, xy_filter_sse_template<12>, 
@@ -1059,7 +1059,7 @@ void xy_be_filter_c(const PUINT8 dst, const int width, const int height, const i
     {
         return;
     }
-    PUINT8 dst2{NULL};
+    PUINT8 dst2{nullptr};
     XyRounding<ROUNDING_POLICY, 2> xy_rounding;
     for (int y{0};y<height;++y)
     {
@@ -1105,7 +1105,7 @@ void xy_be_filter2_c(const PUINT8 dst, const int width, const int height, const 
         return xy_be_filter_c<ROUNDING_POLICY>(dst, width, height, stride);
     }
 
-    PUINT8 dst2{NULL};
+    PUINT8 dst2{nullptr};
     XyRounding<ROUNDING_POLICY, VOLUME_BITS> xy_rounding;
     for (int y{0};y<height;++y)
     {

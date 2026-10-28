@@ -39,16 +39,16 @@ public:
     explicit CBaseSub(SUBTITLE_TYPE nType);
     virtual ~CBaseSub();
 
-    [[nodiscard]] virtual HRESULT         ParseSample(IMediaSample* pSample) = NULL;
+    [[nodiscard]] virtual HRESULT         ParseSample(IMediaSample* pSample) = 0;
     virtual void            EndOfStream() { /* Nothing to do */ }
-    virtual void            Reset() = NULL;
-    [[nodiscard]] virtual POSITION        GetStartPosition(REFERENCE_TIME rt, double fps = 0) = NULL;
-    [[nodiscard]] virtual POSITION        GetNext(POSITION pos) = NULL;
-    [[nodiscard]] virtual REFERENCE_TIME  GetStart(POSITION nPos) = NULL;
-    [[nodiscard]] virtual REFERENCE_TIME  GetStop(POSITION nPos) = NULL;
-    virtual void            Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox) = NULL;
-    [[nodiscard]] virtual HRESULT         GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft) = NULL;
-    [[nodiscard]] virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType) = NULL;
+    virtual void            Reset() = 0;
+    [[nodiscard]] virtual POSITION        GetStartPosition(REFERENCE_TIME rt, double fps = 0) = 0;
+    [[nodiscard]] virtual POSITION        GetNext(POSITION pos) = 0;
+    [[nodiscard]] virtual REFERENCE_TIME  GetStart(POSITION nPos) = 0;
+    [[nodiscard]] virtual REFERENCE_TIME  GetStop(POSITION nPos) = 0;
+    virtual void            Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox) = 0;
+    [[nodiscard]] virtual HRESULT         GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft) = 0;
+    [[nodiscard]] virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType) = 0;
 protected:
     SUBTITLE_TYPE           m_nType;
     ColorType               m_colorTypeSetting;

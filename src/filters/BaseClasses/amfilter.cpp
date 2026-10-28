@@ -912,7 +912,7 @@ DECLSPEC_NOTHROW STDMETHODIMP CBaseFilter::Unregister()
     // (couldn't find a suitable #define'd
     // name for the error!)
     //
-    if( 0x80070002 == hr)
+    if(hr == static_cast<HRESULT>(0x80070002))
       return NOERROR;
     else
       return hr;
@@ -5192,7 +5192,7 @@ AMovieSetupRegisterFilter( const AMOVIESETUP_FILTER * const psetupdata
   // (couldn't find a suitable #define'd
   // name for the error!)
   //
-  if( 0x80070002 == hr)
+  if(hr == static_cast<HRESULT>(0x80070002))
     return NOERROR;
   else
     return hr;

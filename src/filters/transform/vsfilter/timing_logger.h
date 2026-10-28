@@ -13,7 +13,7 @@ class TimingLogger
 {
 public:
     TimingLogger(const log4cplus::Logger& l, const log4cplus::tstring& _msg,
-        const char* _file=NULL, int _line=-1)
+        const char* _file=nullptr, int _line=-1)
         : logger(l), msg(_msg), file(_file), line(_line)
     {
         using namespace log4cplus;

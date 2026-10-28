@@ -128,7 +128,7 @@ private:
     return &result;
 }
 
-WidenRegionCreater::WidenRegionCreater():m_impl(NULL)
+WidenRegionCreater::WidenRegionCreater():m_impl(nullptr)
 {
     
 }
@@ -148,7 +148,7 @@ void WidenRegionCreater::xy_overlap_region( SpanBuffer* dst, const SpanBuffer& s
 // WidenRegionCreaterImpl
 // 
 
-WidenRegionCreaterImpl::WidenRegionCreaterImpl(): m_ellipse(NULL)
+WidenRegionCreaterImpl::WidenRegionCreaterImpl(): m_ellipse(nullptr)
 {
 }
 
@@ -160,15 +160,15 @@ WidenRegionCreaterImpl::~WidenRegionCreaterImpl()
 
 void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer& src, const int rx, const int ry)
 {
-    if (m_ellipse!=NULL && (m_ellipse->m_rx!=rx || m_ellipse->m_ry!=ry))
+    if (m_ellipse!=nullptr && (m_ellipse->m_rx!=rx || m_ellipse->m_ry!=ry))
     {
         delete m_ellipse;
-        m_ellipse = NULL;
+        m_ellipse = nullptr;
     }
-    if (m_ellipse==NULL)
+    if (m_ellipse==nullptr)
     {
         m_ellipse = DEBUG_NEW XyEllipse{};
-        if (m_ellipse==NULL)
+        if (m_ellipse==nullptr)
         {
             ASSERT(0);
             return;
@@ -182,7 +182,7 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
     }
 
     LinkSpanList link_span_list;
-    POSITION pos{NULL};
+    POSITION pos{nullptr};
     int dst_line{0};
 
     SpanBuffer::const_iterator it_src{src.begin()};
@@ -366,14 +366,14 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
     {
         POSITION pos_cur{spans.GetHeadPosition()};
         POSITION pos_next{pos_cur};
-        ASSERT(pos_next!=NULL);
+        ASSERT(pos_next!=nullptr);
         LinkSpan *span{&spans.GetNext(pos_next)};
-        if (pos_next==NULL)
+        if (pos_next==nullptr)
         {
             break;
         }
 
-        while(pos_next!=NULL)
+        while(pos_next!=nullptr)
         {
             ASSERT(!span->left.empty());
             const LinkArcItem &left_top{span->left.get_at(0)};
@@ -452,7 +452,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
 // 
 [[nodiscard]] int gen_left_arc(int left_arc[], int rx, int ry)
 {
-    if (left_arc==NULL)
+    if (left_arc==nullptr)
     {
         return 0;
     }
@@ -555,10 +555,10 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
 
 XyEllipse::XyEllipse()
     : m_rx(0), m_ry(0)
-    , m_left_arc(NULL)
-    , m_left_arc_base(NULL)
-    , m_cross_matrix(NULL)
-    , m_cross_matrix_base(NULL)
+    , m_left_arc(nullptr)
+    , m_left_arc_base(nullptr)
+    , m_cross_matrix(nullptr)
+    , m_cross_matrix_base(nullptr)
 {
 
 }

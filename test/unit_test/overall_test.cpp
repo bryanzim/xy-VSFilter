@@ -5,13 +5,13 @@
 using namespace std;
 
 
-csri_inst * g_csri_inst_yyy{NULL};
+csri_inst * g_csri_inst_yyy{nullptr};
 
 void OpenTestScript( const char *filename )
 {
     csri_rend * csri_rend_xxx{csri_renderer_default()};
 
-    g_csri_inst_yyy = csri_open_file(csri_rend_xxx, filename, NULL);
+    g_csri_inst_yyy = csri_open_file(csri_rend_xxx, filename, nullptr);
 }
 
 void OverallTest( const float fps /*= 25*/, const int width/*=1280*/, const int height/*=720*/, const double start/*=0*/, const double end/*=60*/ )

@@ -24,7 +24,7 @@
 #include "MemSubPic.h"
 #include <boost/scoped_ptr.hpp>
 
-BaseAlphaBlender* BaseAlphaBlender::s_default_alpha_blender = NULL;
+BaseAlphaBlender* BaseAlphaBlender::s_default_alpha_blender = nullptr;
 
 [[nodiscard]] BaseAlphaBlender* BaseAlphaBlender::SetupDefaultAlphaBlender( const int src_type, const int dst_type, const int cpu_flags )
 {
@@ -41,7 +41,7 @@ BaseAlphaBlender* BaseAlphaBlender::s_default_alpha_blender = NULL;
     {
         return DEBUG_NEW AlphaBlenderArgbC{};
     }
-    return NULL;
+    return nullptr;
 }
 
 

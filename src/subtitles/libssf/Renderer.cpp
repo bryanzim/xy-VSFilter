@@ -623,7 +623,7 @@ namespace ssf
 			if(g->style.shadow.depth <= 0) continue;
 
 			DWORD c = g->style.shadow.color;
-			DWORD sw[6] = {c, -1};
+			DWORD sw[6] = {c, 0xFFFFFFFFu};
 
 			bool outline = g->style.background.type == L"outline" && g->style.background.size > 0;
 
@@ -638,7 +638,7 @@ namespace ssf
 			Glyph* g = m_glyphs.GetNext(pos);
 
 			DWORD c = g->style.background.color;
-			DWORD sw[6] = {c, -1};
+			DWORD sw[6] = {c, 0xFFFFFFFFu};
 
 			if(g->style.background.type == L"outline" && g->style.background.size > 0)
 			{
@@ -659,7 +659,7 @@ namespace ssf
 			Glyph* g = m_glyphs.GetNext(pos);
 
 			DWORD c = g->style.font.color;
-			DWORD sw[6] = {c, -1}; // TODO: fill
+			DWORD sw[6] = {c, 0xFFFFFFFFu}; // TODO: fill
 
 			bbox |= g->ras.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, 0);
 		}
@@ -752,7 +752,7 @@ namespace ssf
 		CStringW key;
 
 		key.Format(L"%s,%d,%d,%d", 
-			CStringW(lf.lfFaceName), lf.lfHeight, lf.lfWeight, 
+			CStringW(lf.lfFaceName).GetString(), lf.lfHeight, lf.lfWeight, 
 			((lf.lfItalic&1)<<2) | ((lf.lfUnderline&1)<<1) | ((lf.lfStrikeOut&1)<<0));
 
 		FontWrapper* pFW = NULL;

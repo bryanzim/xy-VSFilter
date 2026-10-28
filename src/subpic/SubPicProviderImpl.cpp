@@ -30,7 +30,7 @@
 //
 
 CSubPicProviderImpl::CSubPicProviderImpl(CCritSec* pLock)
-    : CUnknown(NAME("CSubPicProviderImpl"), NULL)
+    : CUnknown(NAME("CSubPicProviderImpl"), nullptr)
     , m_pLock(pLock)
 {
 }

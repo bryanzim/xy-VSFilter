@@ -165,8 +165,8 @@ public:
 
     void CleanUp()
     {
-        mBody.reset((BYTE*)NULL);
-        mBorder.reset((BYTE*)NULL);
+        mBody.reset((BYTE*)nullptr);
+        mBorder.reset((BYTE*)nullptr);
         mOffsetX=mOffsetY=mWidth=mHeight=0;
         mOverlayWidth=mOverlayHeight=mOverlayPitch=0;
         mfWideOutlineEmpty = false;

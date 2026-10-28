@@ -65,7 +65,7 @@ const SubRenderOptionsImpl::OptionMap options[] =
     {"frameRate"          , SubRenderOptionsImpl::OPTION_TYPE_ULONGLONG, ULONGLOG_FRAME_RATE   },
     {"refreshRate"        , SubRenderOptionsImpl::OPTION_TYPE_DOUBLE   , DOUBLE_REFRESH_RATE   },
     {"yuvMatrix"          , SubRenderOptionsImpl::OPTION_TYPE_STRING   , STRING_YUV_MATRIX     },
-    {0}
+    {nullptr, SubRenderOptionsImpl::OPTION_TYPE_BOOL, 0}
 };
 
 const REFERENCE_TIME DEFAULT_FRAME_RATE = 10000000.0/25;
@@ -169,7 +169,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
 {
     CSize sub{m_w, m_h};
     CSize in{bihIn.biWidth, bihIn.biHeight};
-    BYTE* pDataIn{NULL};
+    BYTE* pDataIn{nullptr};
     if(FAILED(pIn->GetPointer(&pDataIn)) || !pDataIn)
     {
         return S_FALSE;
@@ -310,7 +310,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
 
     {
         CAutoLock cAutoLock(&m_csSubLock);
-        m_sub_render_frame = NULL;
+        m_sub_render_frame = nullptr;
         if(m_provider)
         {
             m_provider->RequestFrame(rtStart, rtStop, 0);//fix me: important! we've assumed provider would call DeliverFrame 
@@ -336,14 +336,14 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
     SubPicDesc spd{m_spd};
 
     CComPtr<IMediaSample> pOut;
-    BYTE* pDataOut{NULL};
+    BYTE* pDataOut{nullptr};
     if(FAILED(hr = GetDeliveryBuffer(spd.w, spd.h, &pOut))
         || FAILED(hr = pOut->GetPointer(&pDataOut)))
     {
         return hr;
     }
     pOut->SetTime(&rtStart, &rtStop);
-    pOut->SetMediaTime(NULL, NULL);
+    pOut->SetMediaTime(nullptr, nullptr);
     pOut->SetDiscontinuity(pIn->IsDiscontinuity() == S_OK);
     pOut->SetSyncPoint(pIn->IsSyncPoint() == S_OK);
     pOut->SetPreroll(pIn->IsPreroll() == S_OK);
@@ -412,7 +412,7 @@ void XySubFilterConsumer::GetOutputSize(int& w, int& h, int& arx, int& ary)
         XySubPicPlan sub;
         CPoint pos;
         SIZE size;
-        hr = m_sub_render_frame->GetBitmap(i, NULL, &pos, &size, (LPCVOID*)&sub.bits, &sub.pitch );
+        hr = m_sub_render_frame->GetBitmap(i, nullptr, &pos, &size, (LPCVOID*)&sub.bits, &sub.pitch );
         if (FAILED(hr))
         {
             XY_LOG_ERROR("Failed to get bitmap. "<<XY_LOG_VAR_2_STR(hr));
@@ -876,7 +876,7 @@ void XySubFilterConsumer::InitConsumerFields()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterConsumer::GetClassID(CLSID* pClsid)
 {
-    if(pClsid == NULL)
+    if(pClsid == nullptr)
     {
         return E_POINTER;
     }
@@ -891,7 +891,7 @@ void XySubFilterConsumer::InitConsumerFields()
     pPages->cElems = 4;
     pPages->pElems = (GUID*)CoTaskMemAlloc(sizeof(GUID)*pPages->cElems);
 
-    if(pPages->pElems == NULL)
+    if(pPages->pElems == nullptr)
     {
         return E_OUTOFMEMORY;
     }
@@ -911,7 +911,7 @@ void XySubFilterConsumer::GetInputColorspaces( ColorSpaceId *preferredOrder, UIN
 {
     XY_LOG_INFO("");
     HRESULT hr{NOERROR};
-    ColorSpaceOpt *color_space{NULL};
+    ColorSpaceOpt *color_space{nullptr};
     int tempCount{0};
     hr = XyGetBin(BIN_INPUT_COLOR_FORMAT, reinterpret_cast<LPVOID*>(&color_space), &tempCount);
     CHECK_N_LOG(hr, "Failed to get option");
@@ -938,7 +938,7 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
 {
     XY_LOG_INFO("");
     HRESULT hr{NOERROR};
-    ColorSpaceOpt *color_space{NULL};
+    ColorSpaceOpt *color_space{nullptr};
     int tempCount{0};
     hr = XyGetBin(BIN_OUTPUT_COLOR_FORMAT, reinterpret_cast<LPVOID*>(&color_space), &tempCount);
     CHECK_N_LOG(hr, "Failed to get option");
@@ -976,14 +976,14 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
     HRESULT hr{S_OK};
     if (m_provider!=subtitleRenderer)
     {
-        if (m_provider!=NULL)
+        if (m_provider!=nullptr)
         {
             hr = m_provider->Disconnect();
             if (FAILED(hr))
             {
                 XY_LOG_WARN("Failed to Connect with previous provider.");
             }
-            m_provider = NULL;
+            m_provider = nullptr;
         }
 
         hr = subtitleRenderer->SetBool("useDestAlpha", true);
@@ -1025,7 +1025,7 @@ void XySubFilterConsumer::GetOutputColorspaces( ColorSpaceId *preferredOrder, UI
             {
                 XY_LOG_WARN("Failed to disconnect with provider!");
             }
-            m_provider = NULL;
+            m_provider = nullptr;
         }
         else
         {
@@ -1179,10 +1179,10 @@ void XySubFilterConsumer::ZeroObj4OSD()
         lf.lfOutPrecision = OUT_CHARACTER_PRECIS;
         lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
         lf.lfQuality = ANTIALIASED_QUALITY;
-        HDC hdc{GetDC(NULL)};
+        HDC hdc{GetDC(nullptr)};
         lf.lfHeight = 16;
         //MulDiv(20, GetDeviceCaps(hdc, LOGPIXELSY), 54);
-        ReleaseDC(NULL, hdc);
+        ReleaseDC(nullptr, hdc);
         lf.lfWeight = FW_BOLD;
         _tcscpy_s(lf.lfFaceName, _T("Arial"));
         m_hfont = CreateFontIndirect(&lf);
@@ -1200,22 +1200,22 @@ void XySubFilterConsumer::DeleteObj4OSD()
 void XySubFilterConsumer::InitObj4OSD()
 {
     XY_LOG_INFO("");
-    if(m_hbm) {DeleteObject(m_hbm); m_hbm = NULL;}
-    if(m_hdc) {DeleteDC(m_hdc); m_hdc = NULL;}
+    if(m_hbm) {DeleteObject(m_hbm); m_hbm = nullptr;}
+    if(m_hdc) {DeleteDC(m_hdc); m_hdc = nullptr;}
 
     struct {
         BITMAPINFOHEADER bih;
         RGBQUAD biColors[256U];
     } b = {
         {sizeof(BITMAPINFOHEADER), m_w, -(int)m_h, 1, 8, BI_RGB, 0, 0, 0, 0, 0},
-        {{0}}
+        {}
     };
     for (int i{0};i<256;++i)
     {
         b.biColors[i].rgbBlue = b.biColors[i].rgbGreen = b.biColors[i].rgbRed = i;
     }
-    m_hdc = CreateCompatibleDC(NULL);
-    m_hbm = CreateDIBSection(m_hdc, (BITMAPINFO*)&b, DIB_RGB_COLORS, NULL, NULL, 0);
+    m_hdc = CreateCompatibleDC(nullptr);
+    m_hbm = CreateDIBSection(m_hdc, (BITMAPINFO*)&b, DIB_RGB_COLORS, nullptr, nullptr, 0);
 
     BITMAP bm;
     GetObject(m_hbm, sizeof(bm), &bm);
@@ -1410,9 +1410,9 @@ void XySubFilterConsumer::PrintMessages(BYTE* pOut)
     {
         tmp.Format(_T("in: %dx%d %s\nout: %dx%d %s\n"), 
             m_w, m_h, 
-            Subtype2String(m_pInput->CurrentMediaType().subtype),
+            Subtype2String(m_pInput->CurrentMediaType().subtype).GetString(),
             bihOut.biWidth, bihOut.biHeight, 
-            Subtype2String(m_pOutput->CurrentMediaType().subtype));
+            Subtype2String(m_pOutput->CurrentMediaType().subtype).GetString());
         msg += tmp;
 
         tmp.Format(_T("fps: %.3f, media time: %d, subtitle time: %d [ms]\nframe number: %d (calculated)\nrate: %.4f\n"), 

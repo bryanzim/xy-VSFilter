@@ -36,7 +36,7 @@ XyBitmap::~XyBitmap()
 [[nodiscard]] XyBitmap * XyBitmap::CreateBitmap( const CRect& target_rect, const MemLayout layout )
 {
     XyBitmap *result{DEBUG_NEW XyBitmap()};
-    if (result==NULL)
+    if (result==nullptr)
     {
         ASSERT(0);
         return result;
@@ -65,7 +65,7 @@ XyBitmap::~XyBitmap()
         break;
     default:
         ASSERT(0);
-        result->bits = NULL;
+        result->bits = nullptr;
         break;
     }
     ClearBitmap(result);
@@ -261,7 +261,7 @@ void XyBitmap::BltPack( SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pix
 // 
 
 XySubRenderFrame::XySubRenderFrame()
-    : CUnknown(NAME("XySubRenderFrameWrapper"), NULL)
+    : CUnknown(NAME("XySubRenderFrameWrapper"), nullptr)
 {
 
 }

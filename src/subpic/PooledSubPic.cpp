@@ -15,19 +15,19 @@ void CPooledSubPicAllocator::OnItemDestruct( void* Item )
     TRACE_ALLOCATOR(Item);
     CAutoLock lock(&_poolLock);
     POSITION pos{_using.Find((CPooledSubPic*)Item)};
-    if(pos!=NULL)
+    if(pos!=nullptr)
     {
         _using.RemoveAt(pos);
         --_capacity;
     }
-    ASSERT(_free.Find((CPooledSubPic*)Item)==NULL);
+    ASSERT(_free.Find((CPooledSubPic*)Item)==nullptr);
 }
 
 [[nodiscard]] bool STDMETHODCALLTYPE CPooledSubPicAllocator::InitPool( int capacity )
 {
     TRACE_ALLOCATOR(capacity);
     CAutoLock lock(&_poolLock);
-    CPooledSubPic* temp{NULL};
+    CPooledSubPic* temp{nullptr};
 
     if(capacity<0)
     {
@@ -41,14 +41,14 @@ void CPooledSubPicAllocator::OnItemDestruct( void* Item )
         {
             temp = _free.RemoveTail();
             --_capacity;
-            temp->_pool = NULL;
+            temp->_pool = nullptr;
             temp->Release();
         }
         else if(!_using.IsEmpty())
         {
             temp = _using.RemoveTail();
             --_capacity;
-            temp->_pool = NULL;
+            temp->_pool = nullptr;
             temp->Release();
         }
     }
@@ -124,7 +124,7 @@ CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE max
             CPooledSubPic *item{_free.RemoveHead()};
             if(item->m_spd.type!=_type)
             {
-                item->_pool = NULL;
+                item->_pool = nullptr;
                 item->Release();
                 item = DoAlloc();
                 item->AddRef();
@@ -151,7 +151,7 @@ CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE max
             item->AddRef();
         }
     }
-    if(*ppSubPic!=NULL)
+    if(*ppSubPic!=nullptr)
     {
         return true;
     }
@@ -164,23 +164,23 @@ CPooledSubPicAllocator::CPooledSubPicAllocator( int alpha_blt_dst_type, SIZE max
 CPooledSubPicAllocator::~CPooledSubPicAllocator()
 {
     TRACE_ALLOCATOR("");
-    CPooledSubPic* item{NULL};
+    CPooledSubPic* item{nullptr};
     CAutoLock lock(&_poolLock);
-    for(POSITION pos{_free.GetHeadPosition()}; pos!=NULL; )
+    for(POSITION pos{_free.GetHeadPosition()}; pos!=nullptr; )
     {
         item = _free.GetNext(pos);
-        if(item!=NULL)
+        if(item!=nullptr)
         {
-            item->_pool = NULL;
+            item->_pool = nullptr;
             item->Release();
         }
     }
-    for(POSITION pos{_using.GetHeadPosition()}; pos!=NULL; )
+    for(POSITION pos{_using.GetHeadPosition()}; pos!=nullptr; )
     {
         item = _using.GetNext(pos);
-        if(item!=NULL)
+        if(item!=nullptr)
         {
-            item->_pool = NULL;
+            item->_pool = nullptr;
             item->Release();
         }
     }
@@ -191,7 +191,7 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
 {
     if(_type!=color_type)
     {
-        m_pStatic = NULL;
+        m_pStatic = nullptr;
         _type = color_type;
     }
     return _type;
@@ -245,16 +245,16 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
     if(!spd.bits)
     {
         ASSERT(0);
-        return(NULL);
+        return(nullptr);
     }
-    CPooledSubPic* temp{NULL};
+    CPooledSubPic* temp{nullptr};
     temp = DEBUG_NEW CPooledSubPic{spd, _alpha_blt_dst_type, this};
     if(!temp)
     {
         xy_free(spd.bits);
         ASSERT(0);
         TRACE_ALLOCATOR("Failed to allocate memory.");
-        return(NULL);
+        return(nullptr);
     }
     return temp;
 }
@@ -291,9 +291,9 @@ void CPooledSubPicAllocator::CollectUnUsedItem()
     {
         TRACE_ALLOCATOR("Free items count exceeded "<<MAX_FREE_ITEM<<". Auto shrink.");
         CPooledSubPic* item{_free.RemoveHead()};
-        if(item!=NULL)
+        if(item!=nullptr)
         {
-            item->_pool = NULL;
+            item->_pool = nullptr;
             item->Release();
         }
         --_capacity;
@@ -303,10 +303,10 @@ void CPooledSubPicAllocator::CollectUnUsedItem()
 CPooledSubPic::~CPooledSubPic()
 {
     TRACE_ALLOCATOR("");
-    if(_pool!=NULL)
+    if(_pool!=nullptr)
     {
         _pool->OnItemDestruct(this);
     }
     xy_free(m_spd.bits);
-    m_spd.bits = NULL;
+    m_spd.bits = nullptr;
 }

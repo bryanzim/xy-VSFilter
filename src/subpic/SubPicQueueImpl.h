@@ -46,7 +46,7 @@ protected:
     [[nodiscard]] HRESULT SetSubPicProviderEx(ISubPicProviderEx* pSubPicProviderEx);
     [[nodiscard]] HRESULT GetSubPicProviderEx(ISubPicProviderEx** pSubPicProviderEx);
 public:
-	CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype=NULL, int prefered_colortype_num=0);
+	CSubPicQueueImpl(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype=nullptr, int prefered_colortype_num=0);
 	virtual ~CSubPicQueueImpl();
 
 	DECLARE_IUNKNOWN
@@ -127,7 +127,7 @@ class CSubPicQueueNoThread : public CSubPicQueueImpl
     
     [[nodiscard]] bool LookupSubPicEx(REFERENCE_TIME rtNow, ISubPicEx** ppSubPic);
 public:
-	CSubPicQueueNoThread(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype=NULL, int prefered_colortype_num=0);
+	CSubPicQueueNoThread(ISubPicExAllocator* pAllocator, HRESULT* phr, const int *prefered_colortype=nullptr, int prefered_colortype_num=0);
 	virtual ~CSubPicQueueNoThread();
 
 	// ISubPicQueue

@@ -60,7 +60,7 @@ CHdmvClipInfo::~CHdmvClipInfo()
 {
     BYTE  bVal;
     DWORD dwRead;
-    ReadFile(m_hFile, &bVal, sizeof(bVal), &dwRead, NULL);
+    ReadFile(m_hFile, &bVal, sizeof(bVal), &dwRead, nullptr);
 
     return bVal;
 }
@@ -68,7 +68,7 @@ CHdmvClipInfo::~CHdmvClipInfo()
 void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 {
     DWORD dwRead;
-    ReadFile(m_hFile, pBuff, nLen, &dwRead, NULL);
+    ReadFile(m_hFile, pBuff, nLen, &dwRead, nullptr);
 }
 
 [[nodiscard]] HRESULT CHdmvClipInfo::ReadProgramInfo()
@@ -79,7 +79,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
     m_Streams.RemoveAll();
     Pos.QuadPart = ProgramInfo_start_address;
-    SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
+    SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
 
     (void)ReadDword();    //length
     (void)ReadByte();     //reserved_for_word_align
@@ -158,7 +158,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             }
 
             ++iStream;
-            SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
+            SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
         }
     }
     return S_OK;
@@ -167,8 +167,8 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 [[nodiscard]] HRESULT CHdmvClipInfo::ReadInfo(const LPCTSTR strFile)
 {
     m_bIsHdmv = false;
-    m_hFile = CreateFile(strFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                         OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    m_hFile = CreateFile(strFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                         OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
     if (m_hFile != INVALID_HANDLE_VALUE) {
         BYTE Buff[100U];
@@ -204,7 +204,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 [[nodiscard]] LPCTSTR CHdmvClipInfo::Stream::Format()
@@ -260,8 +260,8 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     Path.RemoveFileSpec();
     Path.RemoveFileSpec();
 
-    m_hFile = CreateFile(strPlaylistFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                         OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    m_hFile = CreateFile(strPlaylistFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                         OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
     if (m_hFile != INVALID_HANDLE_VALUE) {
         BYTE Buff[100U];
@@ -284,7 +284,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         (void)ReadDword();                // PlayListMark_start_address
 
         // PlayList()
-        SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
+        SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
         (void)ReadDword();                   // length
         (void)ReadShort();                   // reserved_for_future_use
         nPlaylistItems = ReadShort();  // number_of_PlayItems
@@ -293,10 +293,10 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         Pos.QuadPart += 10;
         for (std::size_t i{0U}; i < nPlaylistItems; ++i) {
             PlaylistItem Item;
-            SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
+            SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
             Pos.QuadPart += ReadShort() + 2;
             ReadBuffer(Buff, 5);
-            Item.m_strFileName.Format(_T("%s\\STREAM\\%c%c%c%c%c.M2TS"), Path, Buff[0U], Buff[1U], Buff[2U], Buff[3U], Buff[4U]);
+            Item.m_strFileName.Format(_T("%s\\STREAM\\%c%c%c%c%c.M2TS"), static_cast<LPCTSTR>(Path), Buff[0U], Buff[1U], Buff[2U], Buff[3U], Buff[4U]);
 
             ReadBuffer(Buff, 4);
             if (std::memcmp(Buff, "M2TS", 4)) {
@@ -312,7 +312,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
             rtDuration += (Item.m_rtOut - Item.m_rtIn);
 
-            if (Playlist.Find(Item) != NULL) {
+            if (Playlist.Find(Item) != nullptr) {
                 bDuplicate = true;
             }
             Playlist.AddTail(Item);
@@ -335,8 +335,8 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     Path.RemoveFileSpec();
     Path.RemoveFileSpec();
 
-    m_hFile = CreateFile(strPlaylistFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                         OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+    m_hFile = CreateFile(strPlaylistFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                         OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
     if (m_hFile != INVALID_HANDLE_VALUE) {
         REFERENCE_TIME* rtOffset{DEBUG_NEW REFERENCE_TIME[PlaylistItems.GetCount()]};
@@ -373,7 +373,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         Pos.QuadPart = ReadDword(); // PlayListMark_start_address
 
         // PlayListMark()
-        SetFilePointerEx(m_hFile, Pos, NULL, FILE_BEGIN);
+        SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
         (void)ReadDword();                // length
         nMarkCount = ReadShort();   // number_of_PlayList_marks
         for (std::size_t i{0U}; i < nMarkCount; ++i) {
@@ -411,12 +411,12 @@ HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile
     MPLSPlaylists.RemoveAll();
 
     CAtlList<PlaylistItem> Playlist;
-    WIN32_FIND_DATA fd = {0};
+    WIN32_FIND_DATA fd{};
 
     strPath.Replace(_T("\\PLAYLIST\\"), _T("\\"));
     strPath.Replace(_T("\\STREAM\\"), _T("\\"));
     strPath += _T("\\BDMV\\");
-    strFilter.Format(_T("%sPLAYLIST\\*.mpls"), strPath);
+    strFilter.Format(_T("%sPLAYLIST\\*.mpls"), strPath.GetString());
 
     HANDLE hFind{FindFirstFile(strFilter, &fd)};
     if (hFind != INVALID_HANDLE_VALUE) {
@@ -424,7 +424,7 @@ HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile
         REFERENCE_TIME rtCurrent;
         CString strCurrentPlaylist;
         do {
-            strCurrentPlaylist.Format(_T("%sPLAYLIST\\%s"), strPath, fd.cFileName);
+            strCurrentPlaylist.Format(_T("%sPLAYLIST\\%s"), strPath.GetString(), fd.cFileName);
             Playlist.RemoveAll();
 
             // Main movie shouldn't have duplicate M2TS filename...

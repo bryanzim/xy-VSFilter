@@ -87,7 +87,7 @@ bool doConfigure(const log4cplus::tstring& configFilename)
 
 void write_file(const char * filename, const void * buff, const int size)
 {
-    FILE* out_file{NULL};
+    FILE* out_file{nullptr};
     int rv{fopen_s(&out_file, filename,"ab")};
     if (rv!=0 || !out_file)
     {
@@ -246,7 +246,7 @@ void XyDumpGraph(IFilterGraph *pGraph, const DWORD dwLevel)
                     } else {
                         QueryPinInfoReleaseFilter(info);
 
-                        IPin *pPinConnected{NULL};
+                        IPin *pPinConnected{nullptr};
 
                         HRESULT hr{pPin->ConnectedTo(&pPinConnected)};
 

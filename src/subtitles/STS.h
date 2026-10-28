@@ -267,15 +267,15 @@ public:
     //@iSegment: return the index, 0 based, of the STSSegment found, return STSSegments count if all STSSegments' stop time are NOT bigger than @t
     //@nSegment: return the STSSegments count
     //@return: the ptr to the STSSegment found, return NULL if such STSSegment not exist
-    [[nodiscard]] const STSSegment* SearchSubs(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment = NULL, int* nSegments = NULL);
+    [[nodiscard]] const STSSegment* SearchSubs(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment = nullptr, int* nSegments = nullptr);
 
     //find STSSegment with a duration containing @t, i.e. with a start time <= @t and a stop time > @t
     //@iSegment: return the index, 0 based, of the STSSegment found. Return -1 if such STSSegment not exist
     //@nSegment: return the STSSegments count
     //@return: the ptr to the STSSegment found, return NULL if such STSSegment not exist
-    [[nodiscard]] STSSegment* SearchSubs2(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment=NULL, int* nSegments=NULL);
+    [[nodiscard]] STSSegment* SearchSubs2(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment=nullptr, int* nSegments=nullptr);
 
-    [[nodiscard]] const STSSegment* GetSegment(const int iSegment) {return iSegment >= 0 && iSegment < (int)m_segments.GetCount() ? &m_segments[iSegment] : NULL;}
+    [[nodiscard]] const STSSegment* GetSegment(const int iSegment) {return iSegment >= 0 && iSegment < (int)m_segments.GetCount() ? &m_segments[iSegment] : nullptr;}
 
     [[nodiscard]] STSStyle* GetStyle(int i);
     [[nodiscard]] bool      GetStyle(int i, STSStyle* const stss);

@@ -22,8 +22,8 @@ public:
         x = y = w = h = 0;
         type = 0;
         pitch = 0;
-        bits = NULL;
-        plans[0U] = plans[1U] = plans[2U] = plans[3U] = NULL;
+        bits = nullptr;
+        plans[0U] = plans[1U] = plans[2U] = plans[3U] = nullptr;
     }
     ~XyBitmap();
 

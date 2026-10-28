@@ -13,7 +13,7 @@ CSubPicProviderExWrapper* CSubPicProviderExWrapper::GetSubPicProviderExWrapper(I
 }
 
 CSubPicProviderExWrapper::CSubPicProviderExWrapper(ISubPicProvider* const inner_provider)
-    : CUnknown(NAME("CSubPicProviderExWrapper"), NULL),
+    : CUnknown(NAME("CSubPicProviderExWrapper"), nullptr),
     _inner_provider(inner_provider)
 {
 }

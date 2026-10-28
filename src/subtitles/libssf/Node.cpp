@@ -88,7 +88,7 @@ namespace ssf
 			}
 		}
 
-		for(int i = 0; i < sizeof(rdl)/sizeof(rdl[0]); i++)
+		for(size_t i = 0; i < sizeof(rdl)/sizeof(rdl[0]); ++i)
 		{
 			l.AddTailList(&rdl[i]);
 		}
@@ -121,7 +121,7 @@ namespace ssf
 			}
 		}
 
-		for(int i = 0; i < sizeof(rdl)/sizeof(rdl[0]); i++)
+		for(size_t i = 0; i < sizeof(rdl)/sizeof(rdl[0]); ++i)
 		{
 			l.AddTailList(&rdl[i]);
 		}
@@ -499,7 +499,7 @@ namespace ssf
 		if(!IsTypeUnknown() && !m_autotype) str += m_type;
 		if(!IsNameUnknown()) str += '#' + m_name;
 		str += ':';
-		s.PutString(L"%s", str);
+		s.PutString(L"%s", str.GetString());
 
 		if(!m_nodes.IsEmpty())
 		{
@@ -515,7 +515,7 @@ namespace ssf
 				else 
 				{
 					ASSERT(!pNode->IsNameUnknown());
-					s.PutString(L" %s", pNode->m_name);
+					s.PutString(L" %s", pNode->m_name.GetString());
 				}
 			}
 
@@ -527,21 +527,21 @@ namespace ssf
 		{
 			CStringW str = m_value;
 			str.Replace(L"\"", L"\\\"");
-			s.PutString(L" \"%s\";\n", str);
+			s.PutString(L" \"%s\";\n", str.GetString());
 		}
 		else if(m_status == number)
 		{
 			CStringW str = m_value;
 			if(!m_unit.IsEmpty()) str += m_unit;
-			s.PutString(L" %s;\n", str);
+			s.PutString(L" %s;\n", str.GetString());
 		}
 		else if(m_status == boolean)
 		{
-			s.PutString(L" %s;\n", m_value);
+			s.PutString(L" %s;\n", m_value.GetString());
 		}
 		else if(m_status == block)
 		{
-			s.PutString(L" {%s};\n", m_value);
+			s.PutString(L" {%s};\n", m_value.GetString());
 		}
 		else
 		{

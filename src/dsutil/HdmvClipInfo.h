@@ -124,7 +124,7 @@ public:
     [[nodiscard]] Stream* FindStream(short wPID);
     [[nodiscard]] bool IsHdmv() const { return m_bIsHdmv; }
     [[nodiscard]] std::size_t GetStreamNumber() { return m_Streams.GetCount(); }
-    [[nodiscard]] Stream* GetStreamByIndex(const std::size_t nIndex) { return (nIndex < m_Streams.GetCount()) ? &m_Streams[nIndex] : NULL; }
+    [[nodiscard]] Stream* GetStreamByIndex(const std::size_t nIndex) { return (nIndex < m_Streams.GetCount()) ? &m_Streams[nIndex] : nullptr; }
 
     [[nodiscard]] HRESULT FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile, CAtlList<PlaylistItem>& MainPlaylist, CAtlList<PlaylistItem>& MPLSPlaylists);
     [[nodiscard]] HRESULT ReadPlaylist(CString strPlaylistFile, REFERENCE_TIME& rtDuration, CAtlList<PlaylistItem>& Playlist);

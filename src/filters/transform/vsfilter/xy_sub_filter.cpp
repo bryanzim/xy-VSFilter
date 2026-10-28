@@ -43,7 +43,7 @@ const SubRenderOptionsImpl::OptionMap options[] =
     {"outputLevels",   SubRenderOptionsImpl::OPTION_TYPE_STRING, STRING_OUTPUT_LEVELS        },
     {"isMovable",      SubRenderOptionsImpl::OPTION_TYPE_BOOL,   BOOL_IS_MOVABLE             },
     {"isBitmap",       SubRenderOptionsImpl::OPTION_TYPE_BOOL,   BOOL_IS_BITMAP              },
-    {0}
+    {nullptr, SubRenderOptionsImpl::OPTION_TYPE_BOOL, 0}
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ XySubFilter::XySubFilter( LPUNKNOWN punk,
     : CBaseFilter(NAME("XySubFilter"), punk, &m_csFilter, clsid)
     , CDVS4XySubFilter(XyVobFilterOptions, &m_csFilter)
     , SubRenderOptionsImpl(::options, this)
-    , m_curSubStream(NULL)
+    , m_curSubStream(nullptr)
     , m_not_first_pause(false)
     , m_hSystrayThread(0)
     , m_context_id(0)
@@ -111,8 +111,8 @@ XySubFilter::XySubFilter( LPUNKNOWN punk,
     }
 
     m_tbid.WndCreatedEvent.Create(0, FALSE, FALSE, 0);
-    m_tbid.hSystrayWnd = NULL;
-    m_tbid.graph = NULL;
+    m_tbid.hSystrayWnd = nullptr;
+    m_tbid.graph = nullptr;
     m_tbid.fRunOnce = false;
     m_tbid.fShowIcon = true;
 
@@ -153,7 +153,7 @@ XySubFilter::~XySubFilter()
         delete m_pSubtitleInputPin[i];
     }
 
-    m_sub_provider = NULL;
+    m_sub_provider = nullptr;
     ::DeleteSystray(&m_hSystrayThread, &m_tbid);
     _ASSERTE(_CrtCheckMemory());
 }
@@ -184,7 +184,7 @@ XySubFilter::~XySubFilter()
     CAutoLock cAutoLock(&m_csFilter);
     if (m_workaround_mpc_hc)
     {
-        return NULL;
+        return nullptr;
     }
 
     if(n >= 0 && n < (int)m_pSubtitleInputPin.GetCount())
@@ -192,7 +192,7 @@ XySubFilter::~XySubFilter()
         return m_pSubtitleInputPin[n];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 [[nodiscard]] int XySubFilter::GetPinCount()
@@ -303,7 +303,7 @@ XySubFilter::~XySubFilter()
             }
             m_filter_info_string = m_xy_str_opt[STRING_NAME];
             CAutoLock cAutoLock(&m_csConsumer);
-            m_consumer = NULL;
+            m_consumer = nullptr;
         }
         ::DeleteSystray(&m_hSystrayThread, &m_tbid);
         m_workaround_mpc_hc   = false;
@@ -522,7 +522,7 @@ XySubFilter::~XySubFilter()
     case INT_CUR_STYLES_COUNT:
         {
             CAutoLock cAutoLock(&m_csFilter);
-            if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=NULL)
+            if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=nullptr)
             {
                 hr = S_OK;
                 CRenderedTextSubtitle * rts{dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)};
@@ -605,7 +605,7 @@ XySubFilter::~XySubFilter()
 [[nodiscard]] HRESULT XySubFilter::GetCurStyles( SubStyle sub_style[], const int count )
 {
     CAutoLock cAutoLock(&m_csFilter);
-    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=NULL)
+    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=nullptr)
     {
         CRenderedTextSubtitle * rts{dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)};
         if (count != rts->m_styles.GetCount())
@@ -644,7 +644,7 @@ XySubFilter::~XySubFilter()
 {
     HRESULT hr{NOERROR};
     CAutoLock cAutoLock(&m_csFilter);
-    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=NULL)
+    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=nullptr)
     {
         CRenderedTextSubtitle * rts{dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)};
         if (count != rts->m_styles.GetCount())
@@ -661,7 +661,7 @@ XySubFilter::~XySubFilter()
         bool changed{false};
         for (int i{0};i<count;++i)
         {
-            STSStyle * style{NULL};
+            STSStyle * style{nullptr};
             rts->m_styles.Lookup(sub_style[i].name, style);
             ASSERT(style);
             if (sub_style[i].style)
@@ -708,7 +708,7 @@ XySubFilter::~XySubFilter()
 
             if(i < pSubStream->GetStreamCount())
             {
-                pSubStream->GetStreamInfo(i, ppName, NULL);
+                pSubStream->GetStreamInfo(i, ppName, nullptr);
                 hr = NOERROR;
                 break;
             }
@@ -818,7 +818,7 @@ XySubFilter::~XySubFilter()
     pPages->cElems = 5;
     pPages->pElems = (GUID*)CoTaskMemAlloc(sizeof(GUID)*pPages->cElems);
 
-    if(pPages->pElems == NULL)
+    if(pPages->pElems == nullptr)
     {
         return E_OUTOFMEMORY;
     }
@@ -901,7 +901,7 @@ XySubFilter::~XySubFilter()
         hr = put_SelectedLanguage(i);
         CHECK_N_LOG(hr, "Failed to set option");
 
-        WCHAR* pName{NULL};
+        WCHAR* pName{nullptr};
         hr = get_LanguageName(i, &pName);
         if(SUCCEEDED(hr))
         {
@@ -968,7 +968,7 @@ XySubFilter::~XySubFilter()
     if(ppmt) 
     {
         //fix me: not supported yet
-        *ppmt = NULL;
+        *ppmt = nullptr;
         //if(i >= 0 && i < nLangs)
         //{
         //    *ppmt = CreateMediaType(&m_pSubtitleInputPin[i]->m_mt);
@@ -1031,7 +1031,7 @@ XySubFilter::~XySubFilter()
 
     if(ppszName)
     {
-        *ppszName = NULL;
+        *ppszName = nullptr;
 
         CStringW str;
         if(i == -1)
@@ -1059,7 +1059,7 @@ XySubFilter::~XySubFilter()
         if(!str.IsEmpty())
         {
             *ppszName = (WCHAR*)CoTaskMemAlloc((str.GetLength()+1)*sizeof(WCHAR));
-            if(*ppszName == NULL)
+            if(*ppszName == nullptr)
             {
                 return S_FALSE;
             }
@@ -1069,12 +1069,12 @@ XySubFilter::~XySubFilter()
 
     if(ppObject)
     {
-        *ppObject = NULL;
+        *ppObject = nullptr;
     }
 
     if(ppUnk)
     {
-        *ppUnk = NULL;
+        *ppUnk = nullptr;
     }
 
     return hr;
@@ -1186,7 +1186,7 @@ void XySubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handles)
                 {
                     for(j = 0; j < 10; ++j)
                     {
-                        FILE* f{NULL};
+                        FILE* f{nullptr};
                         if(!_tfopen_s(&f, fn, _T("rb+")))
                         {
                             fclose(f);
@@ -1340,7 +1340,7 @@ void XySubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handles)
                 XY_LOG_WARN("Failed to disconnect with consumer!");
             }
             CAutoLock cAutoLock(&m_csConsumer);
-            m_consumer = NULL;
+            m_consumer = nullptr;
         }
         else
         {
@@ -1361,7 +1361,7 @@ void XySubFilter::SetYuvMatrix()
     CAutoLock cAutolock(&m_csFilter);
     CAutoLock cAutoLock(&m_csProviderFields);
     m_xy_str_opt[STRING_YUV_MATRIX] = L"None";
-    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=NULL) {
+    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=nullptr) {
         ColorConvTable::YuvMatrixType yuv_matrix{ColorConvTable::BT601};
         ColorConvTable::YuvRangeType  yuv_range{ColorConvTable::RANGE_TV};
         if ( m_xy_int_opt[INT_COLOR_SPACE]==DirectVobSubImpl::YuvMatrix_AUTO )
@@ -1501,8 +1501,8 @@ void XySubFilter::SetYuvMatrix()
         }
         (void)sub_frame_creater->SetVsfilterCompactRgbCorrection(false);
     }
-    else if (dynamic_cast<HdmvSubtitleProvider*>(m_curSubStream)!=NULL
-        || dynamic_cast<SupFileSubtitleProvider*>(m_curSubStream)!=NULL)
+    else if (dynamic_cast<HdmvSubtitleProvider*>(m_curSubStream)!=nullptr
+        || dynamic_cast<SupFileSubtitleProvider*>(m_curSubStream)!=nullptr)
     {
         if ( m_xy_str_opt[STRING_PGS_YUV_RANGE].CompareNoCase(_T("PC"))==0 )
         {
@@ -1577,7 +1577,7 @@ void XySubFilter::SetRgbOutputLevel()
     CAutoLock cAutoLock(&m_csProviderFields);
 
     XySubRenderFrameCreater * sub_frame_creater{XySubRenderFrameCreater::GetDefaultCreater()};
-    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=NULL)
+    if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=nullptr)
     {
         if (m_xy_int_opt[INT_RGB_OUTPUT_TV_LEVEL]==RGB_OUTPUT_LEVEL_AUTO)
         {
@@ -1602,8 +1602,8 @@ void XySubFilter::SetRgbOutputLevel()
         m_xy_str_opt[STRING_OUTPUT_LEVELS] = sub_frame_creater->GetRgbOutputTvLevel() ? 
             L"TV" : L"PC";
     }
-    else if (dynamic_cast<HdmvSubtitleProvider*>(m_curSubStream)!=NULL
-        || dynamic_cast<SupFileSubtitleProvider*>(m_curSubStream)!=NULL)
+    else if (dynamic_cast<HdmvSubtitleProvider*>(m_curSubStream)!=nullptr
+        || dynamic_cast<SupFileSubtitleProvider*>(m_curSubStream)!=nullptr)
     {
         if (m_xy_int_opt[INT_RGB_OUTPUT_TV_LEVEL]==RGB_OUTPUT_LEVEL_AUTO)
         {
@@ -1759,7 +1759,7 @@ void XySubFilter::UpdateSubtitle(const bool fApplyDefStyle/*= true*/)
     {
         int i{m_xy_int_opt[INT_SELECTED_LANGUAGE]};
 
-        for(POSITION pos{m_pSubStreams.GetHeadPosition()}; i >= 0 && pos; pSubStream = NULL)
+        for(POSITION pos{m_pSubStreams.GetHeadPosition()}; i >= 0 && pos; pSubStream = nullptr)
         {
             pSubStream = m_pSubStreams.GetNext(pos);
 
@@ -1967,16 +1967,16 @@ void XySubFilter::SetSubtitle( ISubStream* pSubStream, const bool fApplyDefStyle
     }
     else if (CComQIPtr<ISubPicProviderEx2>(pSubStream))
     {
-        m_sub_provider = DEBUG_NEW XySubRenderProviderWrapper2(CComQIPtr<ISubPicProviderEx2>(pSubStream), NULL);
+        m_sub_provider = DEBUG_NEW XySubRenderProviderWrapper2(CComQIPtr<ISubPicProviderEx2>(pSubStream), nullptr);
     }
     else if (CComQIPtr<ISubPicProviderEx>(pSubStream))
     {
-        m_sub_provider = DEBUG_NEW XySubRenderProviderWrapper(CComQIPtr<ISubPicProviderEx>(pSubStream), NULL);
+        m_sub_provider = DEBUG_NEW XySubRenderProviderWrapper(CComQIPtr<ISubPicProviderEx>(pSubStream), nullptr);
     }
     else
     {
-        m_sub_provider = NULL;
-        if (pSubStream!=NULL) 
+        m_sub_provider = nullptr;
+        if (pSubStream!=nullptr) 
         {
             XY_LOG_WARN("This subtitle stream is NOT supported");
         }
@@ -2195,7 +2195,7 @@ int XySubFilter::FindPreferedLanguage( bool fHideToo /*= true*/ )
             for(int ret{0}; ret < nLangs; ++ret)
             {
                 CString l;
-                WCHAR* pName{NULL};
+                WCHAR* pName{nullptr};
                 hr = get_LanguageName(ret, &pName);
                 CHECK_N_LOG(hr, "Failed to get option");
 
@@ -2316,7 +2316,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 
     POSITION pos{m_pSubStreams.GetHeadPosition()};
     POSITION pos2{m_fIsSubStreamEmbeded.GetHeadPosition()};
-    while(pos!=NULL)
+    while(pos!=nullptr)
     {
         if( m_pSubStreams.GetAt(pos)==pSubStream )
         {
@@ -2406,8 +2406,8 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
     {
         if(CComQIPtr<IFileSourceFilter> pFSF{pBF})
         {
-            LPOLESTR fnw{NULL};
-            if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, NULL)) || !fnw)
+            LPOLESTR fnw{nullptr};
+            if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, nullptr)) || !fnw)
             {
                 continue;
             }
@@ -2434,7 +2434,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 
 [[nodiscard]] HRESULT IsPinConnected(IPin *pPin, bool *pResult)
 {
-    CComPtr<IPin> pTmp = NULL;
+    CComPtr<IPin> pTmp = nullptr;
     HRESULT hr{pPin->ConnectedTo(&pTmp)};
     if (SUCCEEDED(hr))
     {
@@ -2500,7 +2500,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
                     }
                     else if (GetPinCount()>0)
                     {
-                        m_pGraph->ConnectDirect(pPinTo, GetPin(m_pSubtitleInputPin.GetCount()-1), NULL);
+                        m_pGraph->ConnectDirect(pPinTo, GetPin(m_pSubtitleInputPin.GetCount()-1), nullptr);
                     }
                 }
             }
@@ -2508,7 +2508,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
         EndEnumPins
         if (video_input_pin && video_output_pin)
         {
-            m_pGraph->ConnectDirect(video_input_pin, video_output_pin, NULL);
+            m_pGraph->ConnectDirect(video_input_pin, video_output_pin, nullptr);
         }
         hr = m_pGraph->RemoveFilter(pBF);
         if (FAILED(hr))
@@ -2562,7 +2562,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 					CComQIPtr<IMFGetService> evrservices(pBF);
 					if(evrservices)
 					{
-						ISubRenderConsumer * tmpCI{NULL};
+						ISubRenderConsumer * tmpCI{nullptr};
 						evrservices->GetService(MR_VIDEO_RENDER_SERVICE, __uuidof(ISubRenderConsumer), (LPVOID*)&tmpCI);
 						if(tmpCI)
 						{
@@ -2612,7 +2612,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
             if (FAILED(hr))
             {
                 XY_LOG_ERROR("Failed to connect "<<XY_LOG_VAR_2_STR(consumer)<<XY_LOG_VAR_2_STR(hr));
-                m_consumer = NULL;
+                m_consumer = nullptr;
                 return hr;
             }
             XY_LOG_INFO("Connected with "<<XY_LOG_VAR_2_STR(consumer)<<" "
@@ -2620,7 +2620,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 
             //update filter info string
             do {
-                LPWSTR consumer_name{NULL};
+                LPWSTR consumer_name{nullptr};
                 int name_len{0};
                 hr = m_consumer->GetString("name", &consumer_name, &name_len);
                 if (FAILED(hr))

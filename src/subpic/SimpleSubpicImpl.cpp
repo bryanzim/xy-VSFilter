@@ -11,7 +11,7 @@
 //
 
 SimpleSubpic::SimpleSubpic( IXySubRenderFrame*sub_render_frame, int alpha_blt_dst_type )
-    : CUnknown(NAME("SimpleSubpic"), NULL)
+    : CUnknown(NAME("SimpleSubpic"), nullptr)
     , m_sub_render_frame(sub_render_frame)
     , m_alpha_blt_dst_type(alpha_blt_dst_type)
 {
@@ -35,7 +35,7 @@ SimpleSubpic::~SimpleSubpic()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubpic::AlphaBlt( SubPicDesc* target )
 {
-    ASSERT(target!=NULL);
+    ASSERT(target!=nullptr);
     HRESULT hr{S_FALSE};
     int count = m_bitmap.GetCount();
     for(int i{0};i<count;++i)
@@ -84,8 +84,8 @@ SimpleSubpic::~SimpleSubpic()
     int w{src.size.cx}, h = src.size.cy;
     bool bottom_down = rd.top > rd.bottom;
 
-    BYTE* d{NULL};
-    BYTE* dUV{NULL};
+    BYTE* d{nullptr};
+    BYTE* dUV{nullptr};
     if(!bottom_down)
     {
         d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*rd.top + rd.left*2; // 2: sizeof(uint16_t)
@@ -145,8 +145,8 @@ SimpleSubpic::~SimpleSubpic()
     int w{src.size.cx}, h = src.size.cy;
     bool bottom_down = rd.top > rd.bottom;
 
-    BYTE* d{NULL};
-    BYTE* dUV{NULL};
+    BYTE* d{nullptr};
+    BYTE* dUV{nullptr};
     if (!bottom_down)
     {
         d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*rd.top + rd.left;
@@ -463,7 +463,7 @@ SimpleSubpic::~SimpleSubpic()
     m_buffers.SetCount(count);
     for (int i{0};i<count;++i)
     {
-        m_buffers.GetAt(i) = NULL;//safe
+        m_buffers.GetAt(i) = nullptr;//safe
 
         Bitmap &bitmap{m_bitmap.GetAt(i)};
         hr = m_sub_render_frame->GetBitmap(i, &bitmap.id, &bitmap.pos, &bitmap.size, &bitmap.pixels, &bitmap.pitch);
@@ -578,7 +578,7 @@ SimpleSubpic::~SimpleSubpic()
 
 void SimpleSubpic::SubsampleAndInterlace( const int index, Bitmap*bitmap, const bool u_first )
 {
-    ASSERT(bitmap!=NULL);
+    ASSERT(bitmap!=nullptr);
     //fix me: check alignment and log error
     int w{bitmap->size.cx}, h = bitmap->size.cy;
     ASSERT(h%2==0);
@@ -624,7 +624,7 @@ void SimpleSubpic::SubsampleAndInterlace( const int index, Bitmap*bitmap, const 
 }
 void SimpleSubpic::SubsampleAndInterlace422(const int index, Bitmap* bitmap, const bool u_first)
 {
-    ASSERT(bitmap != NULL);
+    ASSERT(bitmap != nullptr);
     //fix me: check alignment and log error
     int w{bitmap->size.cx}, h = bitmap->size.cy;
     // ASSERT(h % 2 == 0); no vertical subsampling

@@ -5,7 +5,7 @@
 
 void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
 {
-    if(output==NULL || input.GetCount()==0)
+    if(output==nullptr || input.GetCount()==0)
     {
         return;
     }
@@ -19,7 +19,7 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
         explicit Segment()
 
         {
-            rects = NULL;
+            rects = nullptr;
         }
         ~Segment()
 

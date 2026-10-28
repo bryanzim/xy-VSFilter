@@ -38,7 +38,7 @@ BOOL WINAPI MyGetDialogSize(int iResourceID, DLGPROC pDlgProc, LPARAM lParam, SI
         pDlgProc,
         lParam)};
 
-    if(hwnd == NULL)
+    if(hwnd == nullptr)
     {
         return FALSE;
     }
@@ -69,23 +69,23 @@ void EditStyle(HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* default_styl
 {
     using namespace DirectVobSubXyOptions;
     SubStyle * ret{DEBUG_NEW SubStyle[count]};
-    if (ret==NULL)
+    if (ret==nullptr)
     {
         XY_LOG_FATAL("Overflow");
-        return NULL;
+        return nullptr;
     }
     for (int i{0};i<count;++i)
     {
-        ret[i].style = NULL;
+        ret[i].style = nullptr;
     }
     for (int i{0};i<count;++i)
     {
         ret[i].style = DEBUG_NEW STSStyle{};
-        if (ret[i].style==NULL)
+        if (ret[i].style==nullptr)
         {
             XY_LOG_FATAL("Overflow");
             DeleteSubStyles(ret, count);
-            return NULL;
+            return nullptr;
         }
     }
     return ret;
@@ -108,7 +108,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
 [[nodiscard]] HRESULT GetSubStyles(IXyOptions *filter, DirectVobSubXyOptions::SubStyle* *style, int *count)
 {
     ASSERT(style && count);
-    *style = NULL;
+    *style = nullptr;
     HRESULT hr{filter->XyGetInt(DirectVobSubXyOptions::INT_CUR_STYLES_COUNT, count)};
     if (hr != S_OK || *count==0)
     {
@@ -123,7 +123,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
     if (hr != S_OK)
     {
         DeleteSubStyles(*style, *count);
-        *style = NULL;
+        *style = nullptr;
         *count = 0;
     }
     return hr;
@@ -154,10 +154,10 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
 void EditStyle(const HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* default_style)
 {
     int style_count{0};
-    DirectVobSubXyOptions::SubStyle* styles{NULL};
+    DirectVobSubXyOptions::SubStyle* styles{nullptr};
     HRESULT hr{GetSubStyles(filter, &styles, &style_count)};
     CHECK_N_LOG(hr, "Failed to get styles."<<XY_LOG_VAR_2_STR(hr));
-    CStyleEditorPPage* pages{NULL};
+    CStyleEditorPPage* pages{nullptr};
     CPropertySheet dlg(_T("Styles"), CWnd::FromHandle(hWnd));
     hr = CreateSubStyleEditDialog(*default_style, styles, style_count, dlg, &pages);
     if (FAILED(hr))
@@ -218,8 +218,8 @@ void EditStyle(const HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* defaul
 
     pPageInfo->cb               = sizeof(PROPPAGEINFO);
     pPageInfo->pszTitle         = pszTitle;
-    pPageInfo->pszDocString     = NULL;
-    pPageInfo->pszHelpFile      = NULL;
+    pPageInfo->pszDocString     = nullptr;
+    pPageInfo->pszHelpFile      = nullptr;
     pPageInfo->dwHelpContext    = 0;
     // Set defaults in case GetDialogSize fails
     pPageInfo->size.cx          = 340;
@@ -247,7 +247,7 @@ void EditStyle(const HWND hWnd, IXyOptions *filter, /* in-out */STSStyle* defaul
     }
 
     m_hwnd = CreateDialogParam(AfxGetResourceHandle(), MAKEINTRESOURCE(m_DialogId), hwndParent, DialogProc, (LPARAM)this);
-    if(m_hwnd == NULL)
+    if(m_hwnd == nullptr)
     {
         return E_OUTOFMEMORY;
     }
@@ -335,7 +335,7 @@ CDVSBasePPage::CDVSBasePPage(TCHAR* pName, LPUNKNOWN lpunk, int DialogId, int Ti
 
 [[nodiscard]] HRESULT CDVSBasePPage::OnDisconnect()
 {
-    if(m_pDirectVobSub == NULL)
+    if(m_pDirectVobSub == nullptr)
     {
         return E_UNEXPECTED;
     }
@@ -454,7 +454,7 @@ void CDVSBasePPage::BindControl(UINT id, CWnd& control)
 CDVSMainPPage::CDVSMainPPage(LPUNKNOWN pUnk, HRESULT* phr) 
     : CDVSBasePPage(NAME("DirectVobSub Property Page (main)"), pUnk, IDD_DVSMAINPAGE, IDD_DVSMAINPAGE)
     , m_nLangs(0)
-    , m_ppLangs(NULL)
+    , m_ppLangs(nullptr)
 {
     BindControl(IDC_FILENAME, m_fnedit);
     BindControl(IDC_LANGCOMBO, m_langs);
@@ -482,7 +482,7 @@ void CDVSMainPPage::FreeLangs()
         }
         CoTaskMemFree(m_ppLangs);
         m_nLangs = 0;
-        m_ppLangs = NULL;
+        m_ppLangs = nullptr;
     }
 }
 
@@ -506,7 +506,7 @@ void CDVSMainPPage::AllocLangs(const int nLangs)
                     {
                         AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-                        CFileDialog fd(TRUE, NULL, NULL, 
+                        CFileDialog fd(TRUE, nullptr, nullptr, 
                             OFN_EXPLORER|OFN_ENABLESIZING|OFN_HIDEREADONLY|OFN_FILEMUSTEXIST|OFN_PATHMUSTEXIST,
                             _T(".idx .smi .sub .srt .psb .ssa .ass .usf .ssf|*.idx;*.smi;*.sub;*.srt;*.psb;*.ssa;*.ass;*.usf;*.ssf|")
                             _T("All files (*.*)|*.*||"),
@@ -585,7 +585,7 @@ void CDVSMainPPage::UpdateObjectData(const bool fSave)
         CHECK_N_LOG(hr, "Failed to get option");
         hr = m_pDirectVobSub->get_Placement(&m_fOverridePlacement, &m_PlacementXperc, &m_PlacementYperc);
         CHECK_N_LOG(hr, "Failed to get option");
-        hr = m_pDirectVobSub->get_VobSubSettings(NULL, &m_fOnlyShowForcedVobSubs, NULL);
+        hr = m_pDirectVobSub->get_VobSubSettings(nullptr, &m_fOnlyShowForcedVobSubs, nullptr);
         CHECK_N_LOG(hr, "Failed to get option");
         hr = m_pDirectVobSub->get_TextSettings(&m_defStyle);
         CHECK_N_LOG(hr, "Failed to get option");
@@ -1266,7 +1266,7 @@ CDVSAboutPPage::CDVSAboutPPage( LPUNKNOWN lpunk, HRESULT* phr, TCHAR* pName/*=NA
             version_sha1_short = version_sha1_short.Left(7);
             CStringA version{XY_ABOUT_VERSION_STR};
 
-            LPWSTR name{NULL};
+            LPWSTR name{nullptr};
             int chars{0};
             hr = m_pDirectVobSubXy->XyGetString(DirectVobSubXyOptions::STRING_NAME, &name, &chars);
             CHECK_N_LOG(hr, "Failed to get option");
@@ -1367,8 +1367,8 @@ void CDVSZoomPPage::UpdateObjectData(const bool fSave)
 CDVSColorPPage::CDVSColorPPage(LPUNKNOWN pUnk, HRESULT* phr
     , TCHAR *pName /*= NAME("DirectVobSub Property Page (color settings)")*/) 
     : CDVSBasePPage(pName, pUnk, IDD_DVSCOLORPAGE, IDD_DVSCOLORPAGE)
-    , m_outputColorSpace(NULL)
-    , m_inputColorSpace(NULL)
+    , m_outputColorSpace(nullptr)
+    , m_inputColorSpace(nullptr)
 {
     BindControl(IDC_OUTPUT_FORMAT_LIST, m_outputFmtList);
     BindControl(IDC_INPUT_FORMAT_LIST, m_inputFmtList);
@@ -1471,8 +1471,8 @@ void CDVSColorPPage::UpdateObjectData(const bool fSave)
     }
     else
     {
-        delete []m_outputColorSpace; m_outputColorSpace=NULL;
-        delete []m_inputColorSpace;  m_inputColorSpace=NULL;
+        delete []m_outputColorSpace; m_outputColorSpace=nullptr;
+        delete []m_inputColorSpace;  m_inputColorSpace=nullptr;
         hr = m_pDirectVobSubXy->XyGetBool(DirectVobSubXyOptions::BOOL_FOLLOW_UPSTREAM_PREFERRED_ORDER, &m_fFollowUpstream);
         CHECK_N_LOG(hr, "Failed to get option");
         hr = m_pDirectVobSubXy->XyGetBin(DirectVobSubXyOptions::BIN_OUTPUT_COLOR_FORMAT, reinterpret_cast<LPVOID*>(&m_outputColorSpace), &m_outputColorSpaceCount);
@@ -1608,11 +1608,11 @@ CDVSPathsPPage::CDVSPathsPPage( LPUNKNOWN lpunk, HRESULT* phr
 
                             BROWSEINFO bi;
                             bi.hwndOwner = m_Dlg;
-                            bi.pidlRoot = NULL;
+                            bi.pidlRoot = nullptr;
                             bi.pszDisplayName = pathbuff;
                             bi.lpszTitle = _T("");
                             bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_EDITBOX | BIF_VALIDATE | BIF_USENEWUI;
-                            bi.lpfn = NULL;
+                            bi.lpfn = nullptr;
                             bi.lParam = 0;
                             bi.iImage = 0; 
 
@@ -1739,7 +1739,7 @@ void CDVSPathsPPage::UpdateControlData(const bool fSave)
 CXySubFilterMainPPage::CXySubFilterMainPPage(LPUNKNOWN pUnk, HRESULT* phr) 
     : CDVSBasePPage(NAME("XySubFilter Property Page (main)"), pUnk, IDD_XY_SUB_FILTER_MAINPAGE, IDD_XY_SUB_FILTER_MAINPAGE)
     , m_nLangs(0)
-    , m_ppLangs(NULL)
+    , m_ppLangs(nullptr)
 {
     BindControl(IDC_FILENAME, m_fnedit);
     BindControl(IDC_LANGCOMBO, m_langs);
@@ -1772,7 +1772,7 @@ void CXySubFilterMainPPage::FreeLangs()
         }
         CoTaskMemFree(m_ppLangs);
         m_nLangs = 0;
-        m_ppLangs = NULL;
+        m_ppLangs = nullptr;
     }
 }
 
@@ -1796,7 +1796,7 @@ void CXySubFilterMainPPage::AllocLangs(const int nLangs)
                     {
                         AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-                        CFileDialog fd(TRUE, NULL, NULL, 
+                        CFileDialog fd(TRUE, nullptr, nullptr, 
                             OFN_EXPLORER|OFN_ENABLESIZING|OFN_HIDEREADONLY|OFN_FILEMUSTEXIST|OFN_PATHMUSTEXIST,
                             _T(".idx .smi .sub .srt .psb .ssa .ass .usf .ssf|*.idx;*.smi;*.sub;*.srt;*.psb;*.ssa;*.ass;*.usf;*.ssf|")
                             _T("All files (*.*)|*.*||"),
@@ -1891,7 +1891,7 @@ void CXySubFilterMainPPage::UpdateObjectData(const bool fSave)
         CHECK_N_LOG(hr, "Failed to get option");
         hr = m_pDirectVobSub->get_Placement(&m_fOverridePlacement, &m_PlacementXperc, &m_PlacementYperc);
         CHECK_N_LOG(hr, "Failed to get option");
-        hr = m_pDirectVobSub->get_VobSubSettings(NULL, &m_fOnlyShowForcedVobSubs, NULL);
+        hr = m_pDirectVobSub->get_VobSubSettings(nullptr, &m_fOnlyShowForcedVobSubs, nullptr);
         CHECK_N_LOG(hr, "Failed to get option");
         hr = m_pDirectVobSub->get_TextSettings(&m_defStyle);
         CHECK_N_LOG(hr, "Failed to get option");

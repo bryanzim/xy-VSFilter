@@ -206,7 +206,7 @@ CMemSubPic::CMemSubPic(SubPicDesc& spd, int alpha_blt_dst_type)
 CMemSubPic::~CMemSubPic()
 
 {
-    delete [] m_spd.bits, m_spd.bits = NULL;
+    delete [] m_spd.bits, m_spd.bits = nullptr;
 }
 
 // ISubPic
@@ -363,7 +363,7 @@ CMemSubPic::~CMemSubPic()
     }
 
     POSITION pos{m_rectListDirty.GetHeadPosition()};
-    while(pos!=NULL)
+    while(pos!=nullptr)
     {
         const CRect& cRect{m_rectListDirty.GetNext(pos)};
         int w{cRect.Width()}, h = cRect.Height();
@@ -455,7 +455,7 @@ CMemSubPic::~CMemSubPic()
     }
 
     POSITION pos{m_rectListDirty.GetHeadPosition()};
-    while(pos!=NULL)
+    while(pos!=nullptr)
     {
         const CRect& cRect{m_rectListDirty.GetNext(pos)};
         int w{cRect.Width()}, h = cRect.Height();
@@ -1516,8 +1516,8 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     // or n lines UVUVUVUVUVUVUV (4:2:2)
     // Pitch is common. P010/P210 is upshifted to 16 bits
 
-    BYTE* d{NULL};
-    BYTE* dUV{NULL};
+    BYTE* d{nullptr};
+    BYTE* dUV{nullptr};
     if(!bottom_down)
     {
         d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*rd.top + rd.left*2;
@@ -1577,8 +1577,8 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     int w{rs.Width()}, h = rs.Height();
     bool bottom_down = rd.top > rd.bottom;
 
-    BYTE* d{NULL};
-    BYTE* dUV{NULL};
+    BYTE* d{nullptr};
+    BYTE* dUV{nullptr};
     if (!bottom_down)
     {
         d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*rd.top + rd.left;
@@ -1602,7 +1602,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::SetDirtyRectEx(CAtlList<CRect>* dirtyRectList )
 {
     //if(m_spd.type == MSP_YUY2 || m_spd.type == MSP_YV12 || m_spd.type == MSP_IYUV || m_spd.type == MSP_AYUV)
-    if(dirtyRectList!=NULL)
+    if(dirtyRectList!=nullptr)
     {
         POSITION pos{dirtyRectList->GetHeadPosition()};
         if(m_spd.type == MSP_AYUV_PLANAR || m_alpha_blt_dst_type==MSP_IYUV || m_alpha_blt_dst_type==MSP_YV12 
@@ -1610,7 +1610,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             || m_alpha_blt_dst_type==MSP_NV12 || m_alpha_blt_dst_type==MSP_NV21
             )
         {
-            while(pos!=NULL)
+            while(pos!=nullptr)
             {
                 CRect& cRectSrc{dirtyRectList->GetNext(pos)};
                 cRectSrc.left &= ~15;
@@ -1628,7 +1628,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             || m_alpha_blt_dst_type == MSP_YV16
             || m_alpha_blt_dst_type == MSP_YV24)
         {
-            while (pos != NULL)
+            while (pos != nullptr)
             {
                 CRect& cRectSrc{dirtyRectList->GetNext(pos)};
                 cRectSrc.left &= ~15;
@@ -1642,7 +1642,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         else if(m_spd.type == MSP_XY_AUYV || m_alpha_blt_dst_type==MSP_YUY2)
         {
-            while(pos!=NULL)
+            while(pos!=nullptr)
             {
                 CRect& cRectSrc{dirtyRectList->GetNext(pos)};
                 cRectSrc.left &= ~3;

@@ -11,8 +11,8 @@
 
 XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provider
     , HRESULT* phr/*=NULL*/ )
-    : CUnknown(NAME("XySubRenderProviderWrapper"), NULL, phr)
-    , m_consumer(NULL)
+    : CUnknown(NAME("XySubRenderProviderWrapper"), nullptr, phr)
+    , m_consumer(nullptr)
     , m_provider(provider)
     , m_use_dst_alpha(false)
 {
@@ -55,7 +55,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     ASSERT(m_consumer);
     double fps;
     CheckPointer(subRenderFrame, E_POINTER);
-    *subRenderFrame = NULL;
+    *subRenderFrame = nullptr;
 
     HRESULT hr{m_consumer->XyGetDouble(DirectVobSubXyOptions::DOUBLE_FPS, &fps)};
     if (FAILED(hr))
@@ -130,7 +130,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     HRESULT hr{E_FAIL};
 
     //should always re-alloc one for the old be in used by the consumer
-    m_pSubPic = NULL;
+    m_pSubPic = nullptr;
     ASSERT(m_allocator);
     if(FAILED(m_allocator->AllocDynamicEx(&m_pSubPic))) {
         XY_LOG_ERROR("Failed to allocate subpic");
@@ -208,7 +208,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     }
     else
     {
-        m_xy_sub_render_frame = NULL;
+        m_xy_sub_render_frame = nullptr;
     }
     return hr;
 }
@@ -230,11 +230,11 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
     if (m_pSubPic )
     {
         if (m_pSubPic->GetStart()>=rtInvalidate) {
-            m_pSubPic = NULL;
+            m_pSubPic = nullptr;
 
             //fix me: important!
-            m_xy_sub_render_frame = NULL;
-            m_allocator = NULL;
+            m_xy_sub_render_frame = nullptr;
+            m_allocator = nullptr;
         }
         else if (m_pSubPic->GetStop()>rtInvalidate)
         {
@@ -250,8 +250,8 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper( ISubPicProviderEx *provi
 //
 XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *provider
     , HRESULT* phr/*=NULL*/ )
-    : CUnknown(NAME("XySubRenderProviderWrapper2"), NULL, phr)
-    , m_consumer(NULL)
+    : CUnknown(NAME("XySubRenderProviderWrapper2"), nullptr, phr)
+    , m_consumer(nullptr)
     , m_provider(provider)
     , m_start(0), m_stop(0)
     , m_use_dst_alpha(0)
@@ -298,7 +298,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     ASSERT(m_consumer);
     double fps;
     CheckPointer(subRenderFrame, E_POINTER);
-    *subRenderFrame = NULL;
+    *subRenderFrame = nullptr;
 
     HRESULT hr{m_consumer->XyGetDouble(DirectVobSubXyOptions::DOUBLE_FPS, &fps)};
     if (FAILED(hr))
@@ -403,7 +403,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
 {
     if (m_start>=rtInvalidate)
     {
-        m_xy_sub_render_frame = NULL;
+        m_xy_sub_render_frame = nullptr;
         m_start = m_stop = 0;
     }
     else if (m_stop>rtInvalidate)
@@ -422,7 +422,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
         return S_FALSE;
     }
 
-    m_xy_sub_render_frame = NULL;
+    m_xy_sub_render_frame = nullptr;
     HRESULT hr{E_FAIL};
 
     if(FAILED(m_provider->Lock())) {
@@ -474,7 +474,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
     HRESULT hr{NOERROR};
     if (m_xy_sub_render_frame)
     {
-        m_subpic = NULL;
+        m_subpic = nullptr;
         hr = m_allocator->AllocDynamicEx(&m_subpic);
         if(FAILED(hr) || !m_subpic) {
             XY_LOG_FATAL("Failed to allocate subpic. "<<XY_LOG_VAR_2_STR(hr));
@@ -509,7 +509,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2( ISubPicProviderEx2 *pr
             SIZE size;
             LPCVOID pixels;
             int pitch;
-            hr = m_xy_sub_render_frame->GetBitmap(i, NULL, &pos, &size, &pixels, &pitch );
+            hr = m_xy_sub_render_frame->GetBitmap(i, nullptr, &pos, &size, &pixels, &pitch );
             if (FAILED(hr))
             {
                 XY_LOG_ERROR("Failed to get bitmap. "<<XY_LOG_VAR_2_STR(hr));

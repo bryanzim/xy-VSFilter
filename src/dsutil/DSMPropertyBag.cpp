@@ -218,7 +218,7 @@ IDSMResourceBagImpl::IDSMResourceBagImpl()
 	    CheckPointer(pDataLen, E_POINTER);
 	}
 
-	if((INT_PTR)iIndex >= m_resources.GetCount())
+	if(iIndex >= m_resources.GetCount())
 	{
 		return E_INVALIDARG;
 	}
@@ -248,7 +248,7 @@ IDSMResourceBagImpl::IDSMResourceBagImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP IDSMResourceBagImpl::ResSet(const DWORD iIndex, const LPCWSTR pName, const LPCWSTR pDesc, const LPCWSTR pMime, BYTE* pData, const DWORD len, DWORD_PTR tag)
 {
-	if((INT_PTR)iIndex >= m_resources.GetCount())
+	if(iIndex >= m_resources.GetCount())
 	{
 		return E_INVALIDARG;
 	}
@@ -283,7 +283,7 @@ IDSMResourceBagImpl::IDSMResourceBagImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP IDSMResourceBagImpl::ResRemoveAt(const DWORD iIndex)
 {
-	if((INT_PTR)iIndex >= m_resources.GetCount())
+	if(iIndex >= m_resources.GetCount())
 	{
 		return E_INVALIDARG;
 	}
@@ -375,7 +375,7 @@ IDSMChapterBagImpl::IDSMChapterBagImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP IDSMChapterBagImpl::ChapGet(const DWORD iIndex, REFERENCE_TIME* prt, BSTR* ppName)
 {
-	if((INT_PTR)iIndex >= m_chapters.GetCount())
+	if(iIndex >= m_chapters.GetCount())
 	{
 		return E_INVALIDARG;
 	}
@@ -396,7 +396,7 @@ IDSMChapterBagImpl::IDSMChapterBagImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP IDSMChapterBagImpl::ChapSet(const DWORD iIndex, REFERENCE_TIME rt, const LPCWSTR pName)
 {
-	if((INT_PTR)iIndex >= m_chapters.GetCount())
+	if(iIndex >= m_chapters.GetCount())
 	{
 		return E_INVALIDARG;
 	}
@@ -421,7 +421,7 @@ IDSMChapterBagImpl::IDSMChapterBagImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP IDSMChapterBagImpl::ChapRemoveAt(const DWORD iIndex)
 {
-	if((INT_PTR)iIndex >= m_chapters.GetCount())
+	if(iIndex >= m_chapters.GetCount())
 	{
 		return E_INVALIDARG;
 	}
@@ -477,7 +477,7 @@ IDSMChapterBagImpl::IDSMChapterBagImpl()
 //
 
 CDSMChapterBag::CDSMChapterBag(LPUNKNOWN pUnk, HRESULT* phr) 
-	: CUnknown(_T("CDSMChapterBag"), NULL)
+	: CUnknown(_T("CDSMChapterBag"), nullptr)
 {
 }
 

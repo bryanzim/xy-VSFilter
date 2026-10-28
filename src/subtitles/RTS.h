@@ -288,7 +288,7 @@ public:
 
 struct CSubtitle2
 {
-    explicit CSubtitle2():s(NULL){}
+    explicit CSubtitle2():s(nullptr){}
 
     CSubtitle2(CSubtitle* s_,const CRectCoor2& clipRect_, const CPoint& org_, const CPoint& org2_
         , const CPoint& p_, int alpha_, int time_)

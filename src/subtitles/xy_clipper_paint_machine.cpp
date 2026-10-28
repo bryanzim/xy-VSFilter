@@ -13,13 +13,13 @@
 void CClipperPaintMachine::Paint(SharedPtrGrayImage2 *output)
 {
     ASSERT(output);
-    if (m_clipper!=NULL)
+    if (m_clipper!=nullptr)
     {
         ClipperAlphaMaskCacheKey key{m_clipper};
         key.UpdateHashValue();
         ClipperAlphaMaskMruCache * cache{CacheManager::GetClipperAlphaMaskMruCache()};
         POSITION pos{cache->Lookup(key)};
-        if( pos!=NULL )
+        if( pos!=nullptr )
         {
             *output = cache->GetAt(pos);
             (void)cache->UpdateCache(pos);

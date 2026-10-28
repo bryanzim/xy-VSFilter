@@ -126,24 +126,24 @@ namespace ssf
 					float angle_in = atan2((float)in.y, (float)in.x);
 					float angle_out = atan2((float)out.y, (float)out.x);
 					float angle_diff = angle_out - angle_in;
-					if(angle_diff < 0) angle_diff += M_PI*2;
-					if(angle_diff > M_PI) angle_diff -= M_PI*2;
+					if(angle_diff < 0) angle_diff += static_cast<float>(M_PI) * 2;
+					if(angle_diff > static_cast<float>(M_PI)) angle_diff -= static_cast<float>(M_PI) * 2;
 					float scale = cos(angle_diff / 2);
 
 					CPoint p;
 
 					if(angle_diff < 0)
 					{
-						if(angle_diff > -M_PI/8) {if(scale < 1) scale = 1;}
-						else {if(scale < 0.50) scale = 0.50;}
+						if(angle_diff > -static_cast<float>(M_PI) / 8) {if(scale < 1) scale = 1;}
+						else {if(scale < 0.50f) scale = 0.50f;}
 					}
 					else
 					{
-						if(angle_diff < M_PI/8) {if(scale < 0.75) scale = 0.75;}
-						else {if(scale < 0.25) scale = 0.25;}
+						if(angle_diff < static_cast<float>(M_PI) / 8) {if(scale < 0.75f) scale = 0.75f;}
+						else {if(scale < 0.25f) scale = 0.25f;}
 					}
 
-					if(scale < 0.1) scale = 0.1;
+					if(scale < 0.1f) scale = 0.1f;
 
 					float angle = angle_in + angle_diff / 2 - rotate;
 					float radius = -size / scale; // FIXME

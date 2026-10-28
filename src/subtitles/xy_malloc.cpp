@@ -26,7 +26,7 @@ std::size_t g_xy_malloc_used_size{0U};
               sizeof( i_size ) );
     if (!buf)
     {
-        return NULL;
+        return nullptr;
     }
     align_buf = buf + MASK + sizeof( void ** ) + sizeof( i_size );
     align_buf -= (ALIGNMENT + ((intptr_t) align_buf & MASK) - align_shift) & MASK;
@@ -56,7 +56,7 @@ void xy_free( void *p )
 [[nodiscard]] void *xy_realloc( void *p, const std::size_t i_size, const int align_shift )
 {
     std::size_t i_old_size{0U};
-    std::uint8_t    *p_new{NULL};
+    std::uint8_t    *p_new{nullptr};
     p_new = (std::uint8_t*)xy_malloc( i_size, align_shift );
     if (p_new && p)
     {

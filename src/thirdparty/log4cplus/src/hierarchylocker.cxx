@@ -63,7 +63,6 @@ HierarchyLocker::~HierarchyLocker()
     }
     catch(...) {
         h.getLogLog().error(LOG4CPLUS_TEXT("HierarchyLocker::dtor()- An error occurred while unlocking"));
-        throw;
     }
 }
 

@@ -76,7 +76,7 @@ public:
     [[nodiscard]] int   GetRLEDataSize() { return m_nRLEDataSize; }
     [[nodiscard]] bool  IsRLEComplete() { return m_nRLEPos >= m_nRLEDataSize; }
     void  RenderHdmv(SubPicDesc& spd);
-    void  RenderDvb(SubPicDesc& spd, short nX, short nY, RECT *dirtyRect = NULL /* in-out */);
+    void  RenderDvb(SubPicDesc& spd, short nX, short nY, RECT *dirtyRect = nullptr /* in-out */);
     void  WriteSeg(SubPicDesc& spd, short nX, short nY, short nCount, short nPaletteIndex);
     void  InitColor(const SubPicDesc& spd);
     void  SetPalette(int nNbEntry, HDMV_PALETTE* pPalette, ColorType color_type, YuvRangeType yuv_range);
@@ -99,7 +99,7 @@ public:
         std::memcpy(pCompositionObject->m_Colors, m_Colors, sizeof(m_Colors));
         pCompositionObject->m_colorType = m_colorType;
 
-        pCompositionObject->m_pRLEData = NULL;
+        pCompositionObject->m_pRLEData = nullptr;
         pCompositionObject->SetRLEData(m_pRLEData, m_nRLEDataSize, m_nRLEDataSize);
 
         return pCompositionObject;
@@ -118,8 +118,8 @@ private:
     DWORD       m_Colors[256U];
     int         m_colorType;
 
-    void  DvbRenderField(SubPicDesc& spd, CGolombBuffer& gb, short nXStart, short nYStart, short nLength, RECT *dirtyRect = NULL);
-    void  Dvb2PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT *dirtyRect = NULL);
-    void  Dvb4PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT *dirtyRect = NULL);
-    void  Dvb8PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT *dirtyRect = NULL);
+    void  DvbRenderField(SubPicDesc& spd, CGolombBuffer& gb, short nXStart, short nYStart, short nLength, RECT *dirtyRect = nullptr);
+    void  Dvb2PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT *dirtyRect = nullptr);
+    void  Dvb4PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT *dirtyRect = nullptr);
+    void  Dvb8PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT *dirtyRect = nullptr);
 };

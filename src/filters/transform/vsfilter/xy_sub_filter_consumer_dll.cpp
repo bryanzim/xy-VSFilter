@@ -60,8 +60,8 @@ static WCHAR sudNameOut[] = L"Output";
 
 const AMOVIESETUP_PIN sudpPins[] =
 {
-    {sudNameIn, FALSE, FALSE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesIn), sudPinTypesIn},
-    {sudNameOut, FALSE, TRUE, FALSE, FALSE, &CLSID_NULL, NULL, countof(sudPinTypesOut), sudPinTypesOut},
+    {sudNameIn, FALSE, FALSE, FALSE, FALSE, &CLSID_NULL, nullptr, countof(sudPinTypesIn), sudPinTypesIn},
+    {sudNameOut, FALSE, TRUE, FALSE, FALSE, &CLSID_NULL, nullptr, countof(sudPinTypesOut), sudPinTypesOut},
 };
 
 /*const*/ AMOVIESETUP_FILTER sudFilter[] =
@@ -71,11 +71,11 @@ const AMOVIESETUP_PIN sudpPins[] =
 
 CFactoryTemplate g_Templates[] =
 {
-    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<XySubFilterConsumer>, NULL, &sudFilter[0U]},
-    {L"XySubFilterConsumerGeneralPPage", &__uuidof(CXySubFilterConsumerGeneralPPage), CreateInstance<CXySubFilterConsumerGeneralPPage>},
-    {L"XySubFilterConsumerMiscPPage", &__uuidof(CXySubFilterConsumerMiscPPage), CreateInstance<CXySubFilterConsumerMiscPPage>},
-    {L"XySubFilterConsumerColorPPage", &__uuidof(CXySubFilterConsumerColorPPage), CreateInstance<CXySubFilterConsumerColorPPage>},
-    {L"XySubFilterConsumerAboutPPage", &__uuidof(CXySubFilterConsumerAboutPPage), CreateInstance<CXySubFilterConsumerAboutPPage>},
+    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<XySubFilterConsumer>, nullptr, &sudFilter[0U]},
+    {L"XySubFilterConsumerGeneralPPage", &__uuidof(CXySubFilterConsumerGeneralPPage), CreateInstance<CXySubFilterConsumerGeneralPPage>, nullptr, nullptr},
+    {L"XySubFilterConsumerMiscPPage", &__uuidof(CXySubFilterConsumerMiscPPage), CreateInstance<CXySubFilterConsumerMiscPPage>, nullptr, nullptr},
+    {L"XySubFilterConsumerColorPPage", &__uuidof(CXySubFilterConsumerColorPPage), CreateInstance<CXySubFilterConsumerColorPPage>, nullptr, nullptr},
+    {L"XySubFilterConsumerAboutPPage", &__uuidof(CXySubFilterConsumerAboutPPage), CreateInstance<CXySubFilterConsumerAboutPPage>, nullptr, nullptr},
 };
 
 int g_cTemplates{countof(g_Templates)};

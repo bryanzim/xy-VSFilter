@@ -99,8 +99,8 @@ public:
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetInt      (unsigned field, int       value);
 
     // DirectVobSubImpl
-    [[nodiscard]] HRESULT GetCurStyles( SubStyle sub_style[], int count );
-    [[nodiscard]] HRESULT SetCurStyles( const SubStyle sub_style[], int count );
+    [[nodiscard]] HRESULT GetCurStyles( SubStyle sub_style[], const int count );
+    [[nodiscard]] HRESULT SetCurStyles( const SubStyle sub_style[], const int count );
 
     // IDirectVobSub
 	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_LanguageName(int iLanguage, WCHAR** ppName);

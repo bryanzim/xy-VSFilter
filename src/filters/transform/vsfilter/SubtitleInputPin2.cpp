@@ -75,7 +75,7 @@ void SubtitleInputPin2::InvalidateSubtitle( const REFERENCE_TIME rtStart, ISubSt
         CString			name;
         LCID			lcid{0};
 
-        if (psi != NULL) {
+        if (psi != nullptr) {
             name = ISO6392ToLanguage(psi->IsoLang);
             lcid = ISO6392ToLcid(psi->IsoLang);
 
@@ -95,7 +95,7 @@ void SubtitleInputPin2::InvalidateSubtitle( const REFERENCE_TIME rtStart, ISubSt
     {
         return __super::CreateHelper(mt, pReceivePin);
     }
-    return NULL;
+    return nullptr;
 }
 
 [[nodiscard]] HRESULT SubtitleInputPin2::CheckMediaType(const CMediaType* pmt)

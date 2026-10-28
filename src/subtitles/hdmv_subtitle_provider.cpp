@@ -17,7 +17,7 @@
 //
 HdmvSubtitleProviderImpl::HdmvSubtitleProviderImpl( CBaseSub* pSub )
     : m_pSub(pSub)
-    , m_consumer(NULL)
+    , m_consumer(nullptr)
     , m_use_dst_alpha(false)
 {
 
@@ -46,7 +46,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProviderImpl::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now )
 {
     CheckPointer(subRenderFrame, E_POINTER);
-    *subRenderFrame = NULL;
+    *subRenderFrame = nullptr;
 
     HRESULT hr{NOERROR};
 
@@ -117,10 +117,10 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     if (m_pSubPic )
     {
         if (m_pSubPic->GetStart()>=rtInvalidate) {
-            m_pSubPic = NULL;
+            m_pSubPic = nullptr;
 
             //fix me: important!
-            m_xy_sub_render_frame = NULL;
+            m_xy_sub_render_frame = nullptr;
         }
         else if (m_pSubPic->GetStop()>rtInvalidate)
         {
@@ -158,7 +158,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     }
 
     //should always re-alloc one for the old be in used by the consumer
-    m_pSubPic = NULL;
+    m_pSubPic = nullptr;
     ASSERT(m_allocator);
     if(FAILED(m_allocator->AllocDynamicEx(&m_pSubPic))) {
         XY_LOG_ERROR("Failed to allocate subpic");
@@ -220,7 +220,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     }
     else
     {
-        m_xy_sub_render_frame = NULL;
+        m_xy_sub_render_frame = nullptr;
     }
     return hr;
 }
@@ -230,7 +230,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
 //
 HdmvSubtitleProvider::HdmvSubtitleProvider( CCritSec* pLock, SUBTITLE_TYPE nType
     , const CString& name, LCID lcid )
-    : CUnknown(NAME("HdmvSubtitleProvider"), NULL)
+    : CUnknown(NAME("HdmvSubtitleProvider"), nullptr)
     , m_name(name), m_lcid(lcid)
 {
     switch (nType) {
@@ -252,8 +252,8 @@ HdmvSubtitleProvider::HdmvSubtitleProvider( CCritSec* pLock, SUBTITLE_TYPE nType
         break;
     default :
         ASSERT (FALSE);
-        m_pSub = NULL;
-        m_helper = NULL;
+        m_pSub = nullptr;
+        m_helper = nullptr;
     }
     m_rtStart = 0;
 }
@@ -268,7 +268,7 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::NonDelegatingQueryInterface( REFIID riid, void** ppv )
 {
     CheckPointer(ppv, E_POINTER);
-    *ppv = NULL;
+    *ppv = nullptr;
 
     return
         QI(IPersist)
@@ -385,9 +385,9 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
 // SupFileSubtitleProvider
 //
 SupFileSubtitleProvider::SupFileSubtitleProvider()
-    : CUnknown(NAME("SupSubFile"), NULL)
-    , m_pSub(NULL)
-    , m_helper(NULL)
+    : CUnknown(NAME("SupSubFile"), nullptr)
+    , m_pSub(nullptr)
+    , m_helper(nullptr)
 {
 }
 
@@ -506,7 +506,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
-    *ppv = NULL;
+    *ppv = nullptr;
 
     return
         QI(IPersist)

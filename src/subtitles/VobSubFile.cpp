@@ -1048,7 +1048,7 @@ static unsigned int RARpos{0};
             continue;
         }
 
-        str.Format(_T("# %s\n"), sl.name);
+        str.Format(_T("# %s\n"), sl.name.GetString());
         f.WriteString(str);
 
         ASSERT(sl.id);
@@ -1060,7 +1060,7 @@ static unsigned int RARpos{0};
 
         str = _T("# Uncomment next line to activate alternative name in DirectVobSub / Windows Media Player 6.x\n");
         f.WriteString(str);
-        str.Format(_T("alt: %s\n"), sl.alt);
+        str.Format(_T("alt: %s\n"), sl.alt.GetString());
         if (sl.name == sl.alt) {
             str = _T("# ") + str;
         }
@@ -1816,11 +1816,11 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
         }
 
         CString bmpfn;
-        bmpfn.Format(_T("%s_%06u.bmp"), fn, i + 1);
+        bmpfn.Format(_T("%s_%06u.bmp"), fn.GetString(), i + 1);
 
         CString str;
         str.Format(_T("%s\t%02d:%02d:%02d:%02d %02d:%02d:%02d:%02d\t%03d %03d %03d %03d %d %d %d %d\n"),
-                   bmpfn,
+                   bmpfn.GetString(),
                    t1 / 1000 / 60 / 60, (t1 / 1000 / 60) % 60, (t1 / 1000) % 60, (t1 % 1000) / 10,
                    t2 / 1000 / 60 / 60, (t2 / 1000 / 60) % 60, (t2 / 1000) % 60, (t2 % 1000) / 10,
                    m_img.rect.Width(), m_img.rect.Height(), m_img.rect.left, m_img.rect.top,
@@ -1903,8 +1903,8 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
                 !m_fOnlyShowForcedSubs ? _T("non_forced") : _T("forced"),
                 m_size.cy == 480 ? _T("NTSC") : _T("PAL"),
                 m_size.cy - 3,
-                fullpath,
-                title,
+                fullpath.GetString(),
+                title.GetString(),
                 m_size.cy == 480 ? 479 : 574);
 
     f.WriteString(str2);
@@ -2010,7 +2010,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
         }
 
         CString bmpfn;
-        bmpfn.Format(_T("%s_%04u.bmp"), fn, i + 1);
+        bmpfn.Format(_T("%s_%04u.bmp"), fn.GetString(), i + 1);
         title = bmpfn.Mid(bmpfn.ReverseFind('/') + 1);
 
         // E1, E2, P, Bg
@@ -2096,7 +2096,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
                    ++k,
                    h1, m1, s1, f1,
                    h2, m2, s2, f2,
-                   title);
+                   title.GetString());
         f.WriteString(str);
 
         CFile bmp;
@@ -2158,8 +2158,8 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
                 !m_fOnlyShowForcedSubs ? _T("non_forced") : _T("forced"),
                 m_size.cy == 480 ? _T("NTSC") : _T("PAL"),
                 m_size.cy - 3,
-                fullpath,
-                title,
+                fullpath.GetString(),
+                title.GetString(),
                 m_size.cy == 480 ? 479 : 574);
 
     f.WriteString(str2);
@@ -2240,7 +2240,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
         }
 
         CString bmpfn;
-        bmpfn.Format(_T("%s_%04u.bmp"), fn, i + 1);
+        bmpfn.Format(_T("%s_%04u.bmp"), fn.GetString(), i + 1);
         title = bmpfn.Mid(bmpfn.ReverseFind('/') + 1);
 
         // E1, E2, P, Bg
@@ -2324,7 +2324,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
                    ++k,
                    h1, m1, s1, f1,
                    h2, m2, s2, f2,
-                   title);
+                   title.GetString());
         f.WriteString(str);
 
         CFile bmp;

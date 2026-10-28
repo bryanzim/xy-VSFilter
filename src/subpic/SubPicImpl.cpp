@@ -184,7 +184,7 @@ DECLSPEC_NOTHROW STDMETHODIMP_(void) CSubPicImplHelper::SetStop(const REFERENCE_
 //
 
 CSubPicImpl::CSubPicImpl()
-    :CUnknown(NAME("CSubPicImpl"), NULL)
+    :CUnknown(NAME("CSubPicImpl"), nullptr)
     ,CSubPicImplHelper()
 {
 
@@ -202,7 +202,7 @@ CSubPicImpl::CSubPicImpl()
 //
 
 CSubPicExImpl::CSubPicExImpl()
-    :CUnknown(NAME("CSubPicExImpl"),NULL),CSubPicImplHelper()
+    :CUnknown(NAME("CSubPicExImpl"),nullptr),CSubPicImplHelper()
 {
 
 }
@@ -250,13 +250,13 @@ CSubPicExImpl::CSubPicExImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicExImpl::SetDirtyRectEx(CAtlList<CRect>* dirtyRectList)
 {
-    if(dirtyRectList!=NULL)
+    if(dirtyRectList!=nullptr)
     {
         m_rectListDirty.RemoveAll();
         m_rcDirty.SetRectEmpty();
 
         POSITION pos{dirtyRectList->GetHeadPosition()};
-        while(pos!=NULL)
+        while(pos!=nullptr)
         {
             m_rcDirty |= dirtyRectList->GetNext(pos);
         }
@@ -269,7 +269,7 @@ CSubPicExImpl::CSubPicExImpl()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicExImpl::GetDirtyRects( CAtlList<const CRect>& dirtyRectList /*[out]*/ ) const
 {
     POSITION pos{m_rectListDirty.GetHeadPosition()};
-    while(pos!=NULL)
+    while(pos!=nullptr)
     {
         dirtyRectList.AddTail(m_rectListDirty.GetNext(pos));
     }
@@ -286,7 +286,7 @@ CSubPicExImpl::CSubPicExImpl()
     }
     else
     {
-        return UnlockEx( reinterpret_cast<CAtlList<CRect>*>(NULL) );
+        return UnlockEx(nullptr);
     }
 }
 
@@ -296,7 +296,7 @@ CSubPicExImpl::CSubPicExImpl()
 //
 
 CSubPicAllocatorImpl::CSubPicAllocatorImpl(SIZE cursize, bool fDynamicWriteOnly, bool fPow2Textures )
-    : CUnknown(NAME("ISubPicAllocatorImpl"), NULL)
+    : CUnknown(NAME("ISubPicAllocatorImpl"), nullptr)
     , m_cursize(cursize)
     , m_fDynamicWriteOnly(fDynamicWriteOnly)
     , m_fPow2Textures(fPow2Textures)
@@ -369,7 +369,7 @@ CSubPicAllocatorImpl::CSubPicAllocatorImpl(SIZE cursize, bool fDynamicWriteOnly,
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicAllocatorImpl::ChangeDevice(IUnknown* pDev)
 {
-    m_pStatic = NULL;
+    m_pStatic = nullptr;
     return S_OK;
 }
 
@@ -378,7 +378,7 @@ CSubPicAllocatorImpl::CSubPicAllocatorImpl(SIZE cursize, bool fDynamicWriteOnly,
 // 
 
 CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWriteOnly, bool fPow2Textures )
-    :CUnknown(NAME("CSubPicExAllocatorImpl"), NULL)
+    :CUnknown(NAME("CSubPicExAllocatorImpl"), nullptr)
     , m_cursize(cursize)
     , m_fDynamicWriteOnly(fDynamicWriteOnly)
     , m_fPow2Textures(fPow2Textures)
@@ -414,7 +414,7 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWrite
 {
     if( !ppSubPic )
     {
-        return GetStaticEx(NULL);
+        return GetStaticEx(nullptr);
     }
     else
     {
@@ -429,7 +429,7 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWrite
 {
     if( !ppSubPic )
     {
-        return AllocDynamicEx(NULL);
+        return AllocDynamicEx(nullptr);
     }
     else
     {
@@ -448,7 +448,7 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWrite
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicExAllocatorImpl::ChangeDevice(IUnknown* pDev)
 {
-    m_pStatic = NULL;
+    m_pStatic = nullptr;
     return S_OK;
 }
 
@@ -490,9 +490,9 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl( SIZE cursize, bool fDynamicWrite
 
 [[nodiscard]] bool CSubPicExAllocatorImpl::Alloc( const bool fStatic, ISubPic** ppSubPic )
 {
-    if(ppSubPic==NULL)
+    if(ppSubPic==nullptr)
     {
-        return AllocEx(fStatic, NULL);
+        return AllocEx(fStatic, nullptr);
     }
     else
     {

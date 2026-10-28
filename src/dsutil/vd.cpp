@@ -80,7 +80,7 @@ CCpuID::CCpuID()
 
 [[nodiscard]] bool BitBltFromI420ToI420(int w, int h, BYTE* dsty, BYTE* dstu, BYTE* dstv, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, const int srcpitch)
 {
-	VDPixmap srcbm = {0};
+	VDPixmap srcbm{};
 
 	srcbm.data		= srcy;
 	srcbm.pitch		= srcpitch;
@@ -92,7 +92,7 @@ CCpuID::CCpuID()
 	srcbm.data3		= srcv;
 	srcbm.pitch3	= srcpitch / 2;
 
-	VDPixmap dstpxm = {0};
+	VDPixmap dstpxm{};
 
 	dstpxm.data		= dsty;
 	dstpxm.pitch	= dstpitch;
@@ -109,7 +109,7 @@ CCpuID::CCpuID()
 
 [[nodiscard]] bool BitBltFromYUY2ToYUY2(int w, int h, BYTE* dst, const int dstpitch, BYTE* src, const int srcpitch)
 {
-	VDPixmap srcbm = {0};
+	VDPixmap srcbm{};
 
 	srcbm.data		= src;
 	srcbm.pitch		= srcpitch;
@@ -119,10 +119,15 @@ CCpuID::CCpuID()
 
 	VDPixmap dstpxm = {
 		dst,
-		NULL,
+		nullptr,
 		w,
 		h,
-		dstpitch
+		dstpitch,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		0
 	};
 
 	dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
@@ -132,7 +137,7 @@ CCpuID::CCpuID()
 
 [[nodiscard]] bool BitBltFromI420ToRGB(int w, int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* srcy, BYTE* srcu, BYTE* srcv, const int srcpitch)
 {
-	VDPixmap srcbm = {0};
+	VDPixmap srcbm{};
 
 	srcbm.data		= srcy;
 	srcbm.pitch		= srcpitch;
@@ -145,11 +150,16 @@ CCpuID::CCpuID()
 	srcbm.pitch3	= srcpitch/2;
 
 	VDPixmap dstpxm = {
-		(char *)dst + dstpitch * (h - 1),
-		NULL,
+		reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
+		nullptr,
 		w,
 		h,
-		-dstpitch
+		-dstpitch,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		0
 	};
 
 	switch(dbpp) {
@@ -191,7 +201,7 @@ CCpuID::CCpuID()
 	}
 #endif
 
-	VDPixmap srcbm = {0};
+	VDPixmap srcbm{};
 
 	srcbm.data		= srcy;
 	srcbm.pitch		= srcpitch;
@@ -205,10 +215,15 @@ CCpuID::CCpuID()
 
 	VDPixmap dstpxm = {
 		dst,
-		NULL,
+		nullptr,
 		w,
 		h,
-		dstpitch
+		dstpitch,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		0
 	};
 
 	dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
@@ -219,11 +234,16 @@ CCpuID::CCpuID()
 [[nodiscard]] bool BitBltFromRGBToRGB(const int w, const int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* src, const int srcpitch, const int sbpp)
 {
 	VDPixmap srcbm = {
-		(char *)src + srcpitch * (h - 1),
-		NULL,
+		reinterpret_cast<char*>(src) + srcpitch * (h - 1),
+		nullptr,
 		w,
 		h,
-		-srcpitch
+		-srcpitch,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		0
 	};
 
 	switch(dbpp) {
@@ -244,11 +264,16 @@ CCpuID::CCpuID()
 	}
 
 	VDPixmap dstpxm = {
-		(char *)dst + dstpitch * (h - 1),
-		NULL,
+		reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
+		nullptr,
 		w,
 		h,
-		-dstpitch
+		-dstpitch,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		0
 	};
 
 	switch(dbpp) {
@@ -278,7 +303,7 @@ CCpuID::CCpuID()
 	    srcpitch = w;
 	}
 
-	VDPixmap srcbm = {0};
+	VDPixmap srcbm{};
 
 	srcbm.data		= src;
 	srcbm.pitch		= srcpitch;
@@ -287,11 +312,16 @@ CCpuID::CCpuID()
 	srcbm.format	= nsVDPixmap::kPixFormat_YUV422_YUYV;
 
 	VDPixmap dstpxm = {
-		(char *)dst + dstpitch * (h - 1),
-		NULL,
+		reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
+		nullptr,
 		w,
 		h,
-		-dstpitch
+		-dstpitch,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		0
 	};
 
 	switch(dbpp) {
@@ -345,8 +375,8 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 	    srcpitch = w;
 	}
 
-	void (*yuvtoyuy2row)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width) = NULL;
-	void (*yuvtoyuy2row_avg)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, DWORD pitchuv) = NULL;
+	void (*yuvtoyuy2row)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width) = nullptr;
+	void (*yuvtoyuy2row_avg)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, DWORD pitchuv) = nullptr;
 
 #ifndef _WIN64
 	if((g_cpuid.m_flags & CCpuID::sse2)

@@ -21,7 +21,7 @@
 
 #include "..\..\..\dsutil\DSUtil.h"
 
-static TCHAR str1[][256U] = 
+static TCHAR s_reg_path[][256U] = 
 /*
 {
 	_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\{9D2935C7-3D8B-4EF6-B0D1-C14064698794}"), // divxg400
@@ -117,8 +117,8 @@ static TCHAR str3[] = // _T("FriendlyName");
 };
 
 
-#define LEN1 (countof(str1))
-#define LEN11 (countof(str1[0]))
+#define LEN1 (countof(s_reg_path))
+#define LEN11 (countof(s_reg_path[0]))
 #define LEN2 (countof(str2))
 #define LEN3 (countof(str3))
 
@@ -129,7 +129,7 @@ static void dencode()
 	{
 	    for(j = 0; j < LEN11; ++j)
 	    {
-	        str1[i][j] ^= 0x12;
+	        s_reg_path[i][j] ^= 0x12;
 	    }
 	}
 	for(i = 0; i < LEN2; ++i)
@@ -154,16 +154,16 @@ void JajDeGonoszVagyok()
 	{
 		HKEY hKey;
 
-		if(RegOpenKeyEx(HKEY_CLASSES_ROOT, str1[i], 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+		if(RegOpenKeyEx(HKEY_CLASSES_ROOT, s_reg_path[i], 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 		{
-			BYTE* pData{NULL};
+			BYTE* pData{nullptr};
 			DWORD size{0};
 
-			if(RegQueryValueEx(hKey, str2, 0, NULL, NULL, &size) == ERROR_SUCCESS)
+			if(RegQueryValueEx(hKey, str2, 0, nullptr, nullptr, &size) == ERROR_SUCCESS)
 			{
 				pData = new BYTE[size];
 
-				if(pData && RegQueryValueEx(hKey, str2, 0, NULL, pData, &size) == ERROR_SUCCESS)
+				if(pData && RegQueryValueEx(hKey, str2, 0, nullptr, pData, &size) == ERROR_SUCCESS)
 				{
 					DWORD merit{*((DWORD*)(pData+4))};
 
@@ -235,23 +235,23 @@ void JajDeGonoszVagyok()
 
 	for(int i{0}; i < 3 && !fFail; ++i)
 	{
-		BYTE* pData{NULL};
+		BYTE* pData{nullptr};
 		DWORD size{0};
 
 		HKEY hKey;
 		
-		if(RegOpenKeyEx(HKEY_CLASSES_ROOT, str1[i], 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+		if(RegOpenKeyEx(HKEY_CLASSES_ROOT, s_reg_path[i], 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 		{
-			if(RegQueryValueEx(hKey, str3, 0, NULL, NULL, &size) == ERROR_SUCCESS)
+			if(RegQueryValueEx(hKey, str3, 0, nullptr, nullptr, &size) == ERROR_SUCCESS)
 			{
 				pData = new BYTE[size];
 
 				if(pData)
 				{
-					if(RegQueryValueEx(hKey, str3, 0, NULL, pData, &size) != ERROR_SUCCESS)
+					if(RegQueryValueEx(hKey, str3, 0, nullptr, pData, &size) != ERROR_SUCCESS)
 					{
 						delete [] pData;
-						pData = NULL;
+						pData = nullptr;
 					}
 				}
 			}

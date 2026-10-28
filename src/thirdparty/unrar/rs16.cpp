@@ -270,7 +270,7 @@ void RSCoder16::UpdateECC(uint DataNum, uint ECCNum, const byte *Data, byte *ECC
 #endif
 
 #ifdef USE_SSE
-  if (DirectAccess && SSE_UpdateECC(DataNum,ECCNum,Data,ECC,BlockSize))
+  if (DirectAccess && _SSE_Version>=SSE_SSSE3 && SSE_UpdateECC(DataNum,ECCNum,Data,ECC,BlockSize))
     return;
 #endif
 
@@ -311,11 +311,13 @@ void RSCoder16::UpdateECC(uint DataNum, uint ECCNum, const byte *Data, byte *ECC
 
 #ifdef USE_SSE
 // Data and ECC addresses must be properly aligned for SSE.
+#if defined(__clang__)
+__attribute__((target("ssse3"), noinline))
+#endif
 bool RSCoder16::SSE_UpdateECC(uint DataNum, uint ECCNum, const byte *Data, byte *ECC, size_t BlockSize)
 {
-  // Check data alignment and SSSE3 support.
-  if ((size_t(Data) & (SSE_ALIGNMENT-1))!=0 || (size_t(ECC) & (SSE_ALIGNMENT-1))!=0 ||
-      _SSE_Version<SSE_SSSE3)
+  // Check data alignment. SSSE3 support is checked by the caller.
+  if ((size_t(Data) & (SSE_ALIGNMENT-1))!=0 || (size_t(ECC) & (SSE_ALIGNMENT-1))!=0)
     return false;
 
   uint M=MX[ECCNum * ND + DataNum];

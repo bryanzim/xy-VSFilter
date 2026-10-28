@@ -1408,7 +1408,7 @@ void CLine::Compact()
             COLORREF secondary{revcolor(w->m_style.get().colors[1U]) | ((0xff-asecondary)<<24)};
             DWORD sw[6U] = {primary, 0, secondary};
             // karaoke
-            double t;
+            double t{0};
             if(w->m_ktype == 0 || w->m_ktype == 2)
             {
                 t = time < w->m_kstart ? 0 : 1;

@@ -1175,11 +1175,16 @@ public:
 #pragma warning(pop)
 #endif
 
+#if defined(__clang__)
+            __attribute__((target("sse4.1"), noinline))
+#endif
+            static __m128i packus_epi32_sse41(const __m128i a, const __m128i b)
+            {
+                return _mm_packus_epi32(a, b);
+            }
+
             template<bool shift6, bool hasSSE41>
             static void prepare_from_interleaved_uv_sse2(::std::uint8_t* pdstu, ::std::uint8_t* pdstv, int pitchUV, const ::std::uint8_t* src, int srcpitch, int width, int height)
-#if defined(__clang__)
-                __attribute__((target("sse4.1")))
-#endif
             {
                 const int modw{(width / 8) * 8};
                 auto mask0000FFFF{_mm_set1_epi32(0x0000FFFF)};
@@ -1193,12 +1198,12 @@ public:
                         }
                         auto u_lo{_mm_and_si128(uv_lo, mask0000FFFF)};
                         auto u_hi{_mm_and_si128(uv_hi, mask0000FFFF)};
-                        auto u{shift6 ? _mm_packs_epi32(u_lo, u_hi) : (hasSSE41 ? _mm_packus_epi32(u_lo, u_hi) : _MM_PACKUS_EPI32(u_lo, u_hi))};
+                        auto u{shift6 ? _mm_packs_epi32(u_lo, u_hi) : (hasSSE41 ? packus_epi32_sse41(u_lo, u_hi) : _MM_PACKUS_EPI32(u_lo, u_hi))};
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdstu) + x), u);
 
                         auto v_lo{_mm_srli_epi32(uv_lo, 16)};
                         auto v_hi{_mm_srli_epi32(uv_hi, 16)};
-                        auto v{shift6 ? _mm_packs_epi32(v_lo, v_hi) : (hasSSE41 ? _mm_packus_epi32(v_lo, v_hi) : _MM_PACKUS_EPI32(v_lo, v_hi))};
+                        auto v{shift6 ? _mm_packs_epi32(v_lo, v_hi) : (hasSSE41 ? packus_epi32_sse41(v_lo, v_hi) : _MM_PACKUS_EPI32(v_lo, v_hi))};
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdstv) + x), v);
                     }
 

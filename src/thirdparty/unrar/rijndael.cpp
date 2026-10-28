@@ -186,6 +186,9 @@ void Rijndael::blockDecrypt(const byte *input, size_t inputLen, byte *outBuffer)
 
 
 #ifdef USE_SSE
+#if defined(__clang__)
+__attribute__((target("aes"), noinline))
+#endif
 void Rijndael::blockDecryptSSE(const byte *input, size_t numBlocks, byte *outBuffer)
 {
   __m128i initVector = _mm_loadu_si128((__m128i*)m_initVector);

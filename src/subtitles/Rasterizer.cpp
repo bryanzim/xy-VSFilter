@@ -1409,10 +1409,7 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE* alpha, cons
         __m128i d3{_mm_loadu_si128(reinterpret_cast<const __m128i*>(dst+32))};
         __m128i d4{_mm_loadu_si128(reinterpret_cast<const __m128i*>(dst+48))};
 
-        __m128i ra;
-#ifdef _DEBUG
-        ra = _mm_setzero_si128();
-#endif // _DEBUG
+        __m128i ra{_mm_setzero_si128()};
         ra = _mm_cmpeq_epi32(ra, ra);
         ra = _mm_xor_si128(ra, a);
         __m128i a1{_mm_unpacklo_epi8(ra, a)};
@@ -1662,10 +1659,7 @@ void AlphaBlt8bppSse2(byte* pY,
     __m128i zero{_mm_setzero_si128()};
     __m128i s{_mm_set1_epi16(Y)};               //s = c  0  c  0  c  0  c  0  c  0  c  0  c  0  c  0    
 
-    __m128i ones;
-#ifdef _DEBUG
-    ones = _mm_setzero_si128();
-#endif // _DEBUG
+    __m128i ones{_mm_setzero_si128()};
     ones = _mm_cmpeq_epi32(ones, ones);
     ones = _mm_srli_epi16(ones, 15);
     ones = _mm_slli_epi16(ones, 8);

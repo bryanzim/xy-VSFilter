@@ -243,6 +243,8 @@
 #define IDC_COLORSHAD                   1066
 #define IDS_RG_ALLOWMOVING              1070
 #define IDC_CHECKBOX_ALLOW_MOVING       1071
+#define IDC_COMBO_TEXT_RENDERER_MODE    347
+#define IDS_RT_TEXT_RENDERER_MODE       1078
 
 // Next default values for new objects
 // 
@@ -250,7 +252,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        338
 #define _APS_NEXT_COMMAND_VALUE         32770
-#define _APS_NEXT_CONTROL_VALUE         343
+#define _APS_NEXT_CONTROL_VALUE         348
 #define _APS_NEXT_SYMED_VALUE           210
 #endif
 #endif

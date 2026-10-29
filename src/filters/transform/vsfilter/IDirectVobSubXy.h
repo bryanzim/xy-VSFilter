@@ -147,6 +147,8 @@ namespace DirectVobSubXyOptions
 
         BOOL_ALLOW_MOVING,
 
+        INT_TEXT_RENDERER_MODE,
+
         OPTION_COUNT
     };
     struct ColorSpaceOpt
@@ -299,6 +301,7 @@ namespace DirectVobSubXyOptions
         {XyOptionsImpl::OPTION_TYPE_BOOL  , XyOptionsImpl::OPTION_MODE_RW, BOOL_ENABLE_ZP_ICON},
         {XyOptionsImpl::OPTION_TYPE_INT   , XyOptionsImpl::OPTION_MODE_READ, INT_CUR_STYLES_COUNT},
         {XyOptionsImpl::OPTION_TYPE_BIN2  , XyOptionsImpl::OPTION_MODE_RW, BIN2_CUR_STYLES},
+        {XyOptionsImpl::OPTION_TYPE_INT   , XyOptionsImpl::OPTION_MODE_RW, INT_TEXT_RENDERER_MODE},
 
         {XyOptionsImpl::OPTION_TYPE_END_FLAG, 0, 0}
     };
@@ -399,6 +402,7 @@ namespace DirectVobSubXyOptions
         {XyOptionsImpl::OPTION_TYPE_BOOL  , XyOptionsImpl::OPTION_MODE_RW, BOOL_FORCE_DEFAULT_STYLE},
         {XyOptionsImpl::OPTION_TYPE_BOOL  , XyOptionsImpl::OPTION_MODE_RW, BOOL_BE_AUTO_LOADED},
         {XyOptionsImpl::OPTION_TYPE_BOOL  , XyOptionsImpl::OPTION_MODE_RW, BOOL_GET_RID_OF_VSFILTER},
+        {XyOptionsImpl::OPTION_TYPE_INT   , XyOptionsImpl::OPTION_MODE_RW, INT_TEXT_RENDERER_MODE},
 
         {XyOptionsImpl::OPTION_TYPE_END_FLAG, 0, 0}
     };

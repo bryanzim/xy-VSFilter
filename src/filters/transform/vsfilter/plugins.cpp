@@ -67,6 +67,10 @@ protected:
 
     CSimpleTextSubtitle::YCbCrMatrix m_script_selected_yuv;
     CSimpleTextSubtitle::YCbCrRange m_script_selected_range;
+    bool m_frame_matrix_valid{false};
+    bool m_frame_range_valid{false};
+    ColorConvTable::YuvMatrixType m_frame_matrix{ColorConvTable::BT601};
+    ColorConvTable::YuvRangeType m_frame_range{ColorConvTable::RANGE_TV};
 
     bool m_fLazyInit;
 public:
@@ -134,7 +138,16 @@ public:
                 break;
             case CSimpleTextSubtitle::YCbCrMatrix_AUTO:
             default:
-                yuv_matrix = ColorConvTable::BT601;                
+                if (m_frame_matrix_valid)
+                {
+                    yuv_matrix = m_frame_matrix;
+                }
+                else
+                {
+                    yuv_matrix = ((dst.w > m_bt601Width) || (dst.h > m_bt601Height))
+                        ? ColorConvTable::BT709
+                        : ColorConvTable::BT601;
+                }
                 break;
             }
         }
@@ -152,7 +165,16 @@ public:
                 yuv_matrix = ColorConvTable::BT2020;
                 break;
             case CDirectVobSub::GUESS:
-                yuv_matrix = (dst.w > m_bt601Width || dst.h > m_bt601Height) ? ColorConvTable::BT709 : ColorConvTable::BT601;
+                if (m_frame_matrix_valid)
+                {
+                    yuv_matrix = m_frame_matrix;
+                }
+                else
+                {
+                    yuv_matrix = ((dst.w > m_bt601Width) || (dst.h > m_bt601Height))
+                        ? ColorConvTable::BT709
+                        : ColorConvTable::BT601;
+                }
                 break;
             }
         }
@@ -168,8 +190,8 @@ public:
                 yuv_range = ColorConvTable::RANGE_TV;
                 break;
             case CSimpleTextSubtitle::YCbCrRange_AUTO:
-            default:        
-                yuv_range = ColorConvTable::RANGE_TV;
+            default:
+                yuv_range = m_frame_range_valid ? m_frame_range : ColorConvTable::RANGE_TV;
                 break;
             }
         }
@@ -405,6 +427,7 @@ public:
 		{
 			if(CRenderedTextSubtitle* rts = new CRenderedTextSubtitle(&m_csSubLock))
 			{
+				rts->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
 				m_pSubPicProvider = (ISubPicProvider*)rts;
 				if(rts->Open(CString(fn), CharSet))
 				{
@@ -1430,6 +1453,65 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 }
             }
 
+            void ReadAvisynthFrameColor(IScriptEnvironment* env, const PVideoFrame& frame)
+            {
+                m_frame_matrix_valid = false;
+                m_frame_range_valid = false;
+                if ((env == nullptr) || !frame)
+                {
+                    return;
+                }
+
+                const AVSMap* props{env->getFramePropsRO(frame)};
+                if (props == nullptr)
+                {
+                    return;
+                }
+
+                int error{0};
+                const ::std::int64_t matrix{env->propGetInt(props, "_Matrix", 0, &error)};
+                if (error == 0)
+                {
+                    switch (matrix)
+                    {
+                    case 1:
+                    case 7:
+                        m_frame_matrix = ColorConvTable::BT709;
+                        m_frame_matrix_valid = true;
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                        m_frame_matrix = ColorConvTable::BT601;
+                        m_frame_matrix_valid = true;
+                        break;
+                    case 9:
+                    case 10:
+                        m_frame_matrix = ColorConvTable::BT2020;
+                        m_frame_matrix_valid = true;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                error = 0;
+                const ::std::int64_t range{env->propGetInt(props, "_ColorRange", 0, &error)};
+                if (error == 0)
+                {
+                    if (range == 0)
+                    {
+                        m_frame_range = ColorConvTable::RANGE_PC;
+                        m_frame_range_valid = true;
+                    }
+                    else if (range == 1)
+                    {
+                        m_frame_range = ColorConvTable::RANGE_TV;
+                        m_frame_range_valid = true;
+                    }
+                }
+            }
+
             // Crash and/or corruption if MT. To be tested, why
             [[nodiscard]] int __stdcall SetCacheHints(const int cachehints, const int frame_range) override {
                 return cachehints == CACHE_GET_MTMODE ? MT_SERIALIZED : 0;
@@ -1600,6 +1682,10 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     timestamp = (REFERENCE_TIME)(10000000 * vfr->TimeStampFromFrameNumber(n));
                 }
 
+                if (has_at_least_v8)
+                {
+                    ReadAvisynthFrameColor(env, frame);
+                }
                 (void)Render(dst, timestamp, fps);
 
                 if (semi_packed_p10 || semi_packed_p16) {

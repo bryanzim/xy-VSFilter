@@ -239,7 +239,7 @@ target_include_directories(subtitles SYSTEM PUBLIC
     "${XY_INCLUDE}/vd2"
     "${XY_INCLUDE}/winddk"
     "${XY_SRC}/thirdparty")
-target_link_libraries(subtitles PUBLIC strmbase log4cplus_static unrar)
+target_link_libraries(subtitles PUBLIC strmbase log4cplus_static unrar usp10)
 if(XY_WIN64)
     target_link_libraries(subtitles PUBLIC "${XY_ROOT}/lib/libacof64.lib")
 else()
@@ -265,6 +265,7 @@ xy_use_pch(libssf "${XY_LIBSSF}/stdafx.h")
 set(XY_BASEVIDEO "${XY_SRC}/filters/transform/basevideofilter")
 add_library(basevideofilter STATIC
     "${XY_BASEVIDEO}/BaseVideoFilter.cpp"
+    "${XY_BASEVIDEO}/MediaSideData.cpp"
     "${XY_BASEVIDEO}/stdafx.cpp")
 target_include_directories(basevideofilter PUBLIC
     "${XY_BASEVIDEO}"

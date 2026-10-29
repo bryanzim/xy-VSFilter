@@ -15,8 +15,9 @@
 //
 // HdmvSubtitleProviderImpl
 //
-HdmvSubtitleProviderImpl::HdmvSubtitleProviderImpl( CBaseSub* pSub )
+HdmvSubtitleProviderImpl::HdmvSubtitleProviderImpl( CBaseSub* pSub, const bool cleanOld )
     : m_pSub(pSub)
+    , m_cleanOld(cleanOld)
     , m_consumer(nullptr)
     , m_use_dst_alpha(false)
 {
@@ -54,7 +55,14 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     CSize MaxTextureSize, VideoSize;
     CPoint VideoTopLeft;
 
-    pos = m_pSub->GetStartPosition(now);
+    if (CHdmvSub* pHdmvSub{dynamic_cast<CHdmvSub*>(m_pSub)})
+    {
+        pos = pHdmvSub->GetStartPosition(now, 0.0, m_cleanOld);
+    }
+    else
+    {
+        pos = m_pSub->GetStartPosition(now);
+    }
 
     if (!pos)
     {
@@ -450,7 +458,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
         delete m_pSub;
         delete m_helper;
         m_pSub    = DEBUG_NEW CHdmvSub{};
-        m_helper  = DEBUG_NEW HdmvSubtitleProviderImpl{m_pSub};
+        m_helper  = DEBUG_NEW HdmvSubtitleProviderImpl{m_pSub, false};
     }
 
     return CAMThread::Create()==TRUE;

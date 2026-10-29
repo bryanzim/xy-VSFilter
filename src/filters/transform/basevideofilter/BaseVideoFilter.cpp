@@ -22,6 +22,7 @@
 #include "stdafx.h"
 #include <mmintrin.h>
 #include "BaseVideoFilter.h"
+#include "MediaSideData.h"
 #include "..\..\..\dsutil\DSUtil.h"
 #include "..\..\..\dsutil\MediaTypes.h"
 
@@ -33,7 +34,87 @@
 #include <algorithm>
 #include "xy_logger.h"
 
-#pragma warning(pop) 
+#pragma warning(pop)
+
+namespace
+{
+constexpr DWORD kControlFlagsMask{
+    AMCONTROL_USED | AMCONTROL_PAD_TO_4x3 | AMCONTROL_PAD_TO_16x9
+    | AMCONTROL_COLORINFO_PRESENT};
+constexpr DWORD kColorInfoPresentMask{AMCONTROL_COLORINFO_PRESENT};
+constexpr DWORD kChromaSubsamplingMask{0x00000f00};
+constexpr DWORD kTransferMatrixMask{0x00038000};
+constexpr DWORD kRgbColorInfoMask{
+    0x00007000
+    | 0x003c0000
+    | 0x07c00000
+    | 0xf8000000};
+
+[[nodiscard]] const VIDEOINFOHEADER2* GetVideoInfoHeader2(const CMediaType& mt)
+{
+    if ((mt.formattype != FORMAT_VideoInfo2)
+        || (mt.FormatLength() < sizeof(VIDEOINFOHEADER2))
+        || (mt.Format() == nullptr))
+    {
+        return nullptr;
+    }
+    return reinterpret_cast<const VIDEOINFOHEADER2*>(mt.Format());
+}
+
+[[nodiscard]] bool IsYuvSubtype(const GUID& subtype)
+{
+    return (subtype == MEDIASUBTYPE_P010)
+        || (subtype == MEDIASUBTYPE_P016)
+        || (subtype == MEDIASUBTYPE_P210)
+        || (subtype == MEDIASUBTYPE_P216)
+        || (subtype == MEDIASUBTYPE_NV12)
+        || (subtype == MEDIASUBTYPE_NV21)
+        || (subtype == MEDIASUBTYPE_YV12)
+        || (subtype == MEDIASUBTYPE_YV16)
+        || (subtype == MEDIASUBTYPE_YV24)
+        || (subtype == MEDIASUBTYPE_I420)
+        || (subtype == MEDIASUBTYPE_IYUV)
+        || (subtype == MEDIASUBTYPE_YUY2)
+        || (subtype == MEDIASUBTYPE_AYUV);
+}
+
+[[nodiscard]] DWORD ColorControlFlagsForOutput(const CMediaType& input, const CMediaType& output)
+{
+    const VIDEOINFOHEADER2* input_vih2{GetVideoInfoHeader2(input)};
+    const VIDEOINFOHEADER2* output_vih2{GetVideoInfoHeader2(output)};
+    if ((input_vih2 == nullptr) || (output_vih2 == nullptr)
+        || ((input_vih2->dwControlFlags & AMCONTROL_USED) == 0U))
+    {
+        return 0U;
+    }
+
+    const DWORD input_flags{input_vih2->dwControlFlags};
+    const DWORD output_flags{input_flags & kControlFlagsMask};
+    const bool has_color_info{(input_flags & kColorInfoPresentMask) != 0U};
+    if (!has_color_info)
+    {
+        return output_flags;
+    }
+
+    if (input.subtype == output.subtype)
+    {
+        return output_flags | (input_flags & 0xffffff00);
+    }
+
+    if (IsYuvSubtype(input.subtype) && IsYuvSubtype(output.subtype))
+    {
+        return output_flags | (input_flags & 0xffffff00 & ~kChromaSubsamplingMask);
+    }
+
+    if (!IsYuvSubtype(output.subtype))
+    {
+        return output_flags | (input_flags & 0xffffff00 & ~kTransferMatrixMask
+            & ~kChromaSubsamplingMask & kRgbColorInfoMask);
+    }
+
+    return output_flags;
+}
+}
 
 const GUID* InputFmts[] =
 {
@@ -798,6 +879,11 @@ HRESULT hr1{0}, hr2 = 0;
 	((VIDEOINFOHEADER*)pmt->Format())->AvgTimePerFrame = ((VIDEOINFOHEADER*)mt.Format())->AvgTimePerFrame;
 	((VIDEOINFOHEADER*)pmt->Format())->dwBitRate = ((VIDEOINFOHEADER*)mt.Format())->dwBitRate;
 	((VIDEOINFOHEADER*)pmt->Format())->dwBitErrorRate = ((VIDEOINFOHEADER*)mt.Format())->dwBitErrorRate;
+	if ((pmt->formattype == FORMAT_VideoInfo2) && (mt.formattype == FORMAT_VideoInfo2))
+	{
+		reinterpret_cast<VIDEOINFOHEADER2*>(pmt->Format())->dwControlFlags =
+			ColorControlFlagsForOutput(mt, *pmt);
+	}
 
 	CorrectMediaType(pmt);
 
@@ -1037,6 +1123,70 @@ CBaseVideoInputAllocator::CBaseVideoInputAllocator(HRESULT* phr)
 	{
 	    *phr = S_OK;
 	}
+}
+
+[[nodiscard]] HRESULT CBaseVideoInputAllocator::Alloc()
+{
+	CAutoLock lock{this};
+
+	HRESULT hr{CBaseAllocator::Alloc()};
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	if (hr == S_FALSE)
+	{
+		ASSERT(m_pBuffer);
+		return S_OK;
+	}
+
+	if (m_pBuffer != nullptr)
+	{
+		ReallyFree();
+	}
+
+	LONG aligned_size{m_lSize + m_lPrefix};
+	if (m_lAlignment > 1)
+	{
+		const LONG remainder{aligned_size % m_lAlignment};
+		if (remainder != 0)
+		{
+			aligned_size += m_lAlignment - remainder;
+		}
+	}
+
+	ASSERT(aligned_size % m_lAlignment == 0);
+	m_pBuffer = static_cast<PBYTE>(VirtualAlloc(
+		nullptr,
+		static_cast<SIZE_T>(m_lCount) * static_cast<SIZE_T>(aligned_size),
+		MEM_COMMIT,
+		PAGE_READWRITE));
+	if (m_pBuffer == nullptr)
+	{
+		return E_OUTOFMEMORY;
+	}
+
+	LPBYTE next_buffer{m_pBuffer};
+	ASSERT(m_lAllocated == 0);
+	for (; m_lAllocated < m_lCount; ++m_lAllocated, next_buffer += aligned_size)
+	{
+		CMediaSample* sample{CreateMediaSampleWithSideData(
+			NAME("CBaseVideoInputAllocator media sample"),
+			this,
+			&hr,
+			next_buffer + m_lPrefix,
+			m_lSize)};
+		if ((sample == nullptr) || FAILED(hr))
+		{
+			delete sample;
+			return E_OUTOFMEMORY;
+		}
+		m_lFree.Add(sample);
+	}
+
+	m_bChanged = FALSE;
+	return S_OK;
 }
 
 void CBaseVideoInputAllocator::SetMediaType(const CMediaType& mt)

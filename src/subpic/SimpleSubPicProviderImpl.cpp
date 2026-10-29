@@ -256,6 +256,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
     hr = m_consumer->XyGetSize(DirectVobSubXyOptions::SIZE_LAYOUT_WITH, &size_render_with);
     if (FAILED(hr))
     {
+        pSubPicProviderEx->Unlock();
         return hr;
     }
 

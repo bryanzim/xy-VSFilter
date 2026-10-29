@@ -422,6 +422,22 @@ XySubFilter::~XySubFilter()
         UpdateSubtitle(false);
         ++m_context_id;
         break;
+    case INT_TEXT_RENDERER_MODE:
+        {
+            const TextRendererMode mode{NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE])};
+            m_xy_int_opt[INT_TEXT_RENDERER_MODE] = static_cast<int>(mode);
+            for (POSITION pos{m_pSubStreams.GetHeadPosition()}; pos != nullptr; )
+            {
+                CComPtr<ISubStream> pSubStream{m_pSubStreams.GetNext(pos)};
+                if (CRenderedTextSubtitle* rts{dynamic_cast<CRenderedTextSubtitle*>(pSubStream.p)})
+                {
+                    rts->SetTextRendererMode(mode);
+                }
+            }
+            InvalidateSubtitle();
+            ++m_context_id;
+            break;
+        }
     case INT_OVERLAY_CACHE_MAX_ITEM_NUM:
         (void)CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[field]);
         break;
@@ -965,14 +981,11 @@ XySubFilter::~XySubFilter()
 
     int i{lIndex-1};
 
-    if(ppmt) 
+    if(ppmt != nullptr)
     {
         //fix me: not supported yet
         *ppmt = nullptr;
-        //if(i >= 0 && i < nLangs)
-        //{
-        //    *ppmt = CreateMediaType(&m_pSubtitleInputPin[i]->m_mt);
-        //}
+        return E_INVALIDARG;
     }
 
     if(pdwFlags)
@@ -1067,14 +1080,16 @@ XySubFilter::~XySubFilter()
         }
     }
 
-    if(ppObject)
+    if(ppObject != nullptr)
     {
         *ppObject = nullptr;
+        return E_INVALIDARG;
     }
 
-    if(ppUnk)
+    if(ppUnk != nullptr)
     {
         *ppUnk = nullptr;
+        return E_INVALIDARG;
     }
 
     return hr;
@@ -1676,6 +1691,10 @@ void XySubFilter::SetRgbOutputLevel()
             //            CAutoTiming t(TEXT("CRenderedTextSubtitle::Open"), 0);
             XY_AUTO_TIMING(TEXT("CRenderedTextSubtitle::Open"));
             CAutoPtr<CRenderedTextSubtitle> pRTS(DEBUG_NEW CRenderedTextSubtitle(&m_csFilter));
+            if (pRTS)
+            {
+                pRTS->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
+            }
             if(pRTS && pRTS->Open(ret[i].full_file_name, DEFAULT_CHARSET) && pRTS->GetStreamCount() > 0)
             {
                 pSubStream = pRTS.Detach();
@@ -1815,6 +1834,7 @@ void XySubFilter::SetSubtitle( ISubStream* pSubStream, const bool fApplyDefStyle
         else if(clsid == __uuidof(CRenderedTextSubtitle))
         {
             CRenderedTextSubtitle* pRTS{dynamic_cast<CRenderedTextSubtitle*>(pSubStream)};
+            pRTS->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
             pRTS->Deinit();//clear caches
 
             STSStyle s{m_defStyle};

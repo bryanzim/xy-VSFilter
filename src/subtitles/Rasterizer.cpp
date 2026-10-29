@@ -2975,7 +2975,7 @@ void PathData::_TrashPath()
     if(succeeded)
     {
         mPathPoints = GetPath(hdc, nullptr, nullptr, 0);
-        if(!mPathPoints)
+        if(mPathPoints < 1)
         {
             return true;
         }
@@ -3009,7 +3009,7 @@ void PathData::_TrashPath()
         BYTE* pNewTypes;
         POINT* pNewPoints;
         nPoints = GetPath(hdc, nullptr, nullptr, 0);
-        if(!nPoints)
+        if(nPoints < 1)
         {
             return true;
         }

@@ -1,0 +1,14 @@
+---
+description: Commit messages omit the Cursor co-author trailer
+alwaysApply: true
+---
+
+# Commit messages
+
+Do not add a `Co-authored-by` trailer for Cursor. A commit message must not contain this line:
+
+```
+Co-authored-by: Cursor <cursoragent@cursor.com>
+```
+
+Leave `Co-authored-by` lines that name other people as they are.

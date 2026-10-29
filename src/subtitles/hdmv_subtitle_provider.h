@@ -8,7 +8,7 @@
 class HdmvSubtitleProviderImpl
 {
 public:
-    explicit HdmvSubtitleProviderImpl (CBaseSub* pSub);
+    explicit HdmvSubtitleProviderImpl (CBaseSub* pSub, const bool cleanOld = true);
     ~HdmvSubtitleProviderImpl(void);
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect     (IXyOptions *consumer);
@@ -19,6 +19,7 @@ private:
     [[nodiscard]] HRESULT Render(REFERENCE_TIME now, POSITION pos);
 private :
     CBaseSub*                   m_pSub;
+    bool                        m_cleanOld;
 
     IXyOptions                 *m_consumer;
     CSize                       m_cur_output_size;

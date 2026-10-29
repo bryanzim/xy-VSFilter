@@ -22,6 +22,7 @@
 #pragma once
 
 #include "STS.h"
+#include "TextRendererMode.h"
 #include "Rasterizer.h"
 #include "../subpic/SubPicProviderImpl.h"
 #include "../subpic/ISimpleSubPic.h"
@@ -131,14 +132,21 @@ public:
 protected:
     virtual bool CreatePath(PathData* path_data);
 
-    static void GetTextInfo(TextInfo *output, const FwSTSStyle& style, const CStringW& str);
+    static void GetTextInfo(TextInfo *output, const FwSTSStyle& style, const CStringW& str,
+        TextRendererMode text_renderer_mode);
 public:
     CText(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend
-        , double target_scale_x=1.0, double target_scale_y=1.0);
+        , double target_scale_x=1.0, double target_scale_y=1.0
+        , TextRendererMode text_renderer_mode = TEXT_RENDERER_LEGACY_GDI);
     CText(const CText& src);
 
     virtual SharedPtrCWord Copy();
     [[nodiscard]] virtual bool Append(const SharedPtrCWord& w);
+
+private:
+    TextRendererMode m_text_renderer_mode{TEXT_RENDERER_LEGACY_GDI};
+
+    friend class PathDataCacheKey;
 };
 
 class CPolygon : public CWord
@@ -425,6 +433,7 @@ private:
     int                      m_period;//1000/m_fps
     double                   m_target_scale_x, m_target_scale_y;
     bool                     m_movable;
+    TextRendererMode         m_text_renderer_mode{TEXT_RENDERER_LEGACY_GDI};
 
     static void InitCmdMap();
 
@@ -467,6 +476,7 @@ private:
         const SIZE& layout_size);
 public:
     void Deinit();
+    void SetTextRendererMode(TextRendererMode mode);
 
     [[nodiscard]] DECLARE_IUNKNOWN
     DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);

@@ -158,6 +158,8 @@ class __declspec(uuid("69CE757B-E8C0-4B0A-9EA0-CEA284096F98")) CDVSMorePPage : p
 
     CSpinButtonCtrl m_layout_size_x, m_layout_size_y;
     CComboBox m_combo_subpixel_pos, m_combo_layout_size_opt;
+    CComboBox m_combo_text_renderer_mode;
+    int m_text_renderer_mode{0};
 protected:
     virtual bool OnMessage(const UINT uMsg, const WPARAM wParam, const LPARAM lParam);
     virtual void UpdateControlData(bool fSave);
@@ -289,6 +291,8 @@ class __declspec(uuid("E7946C91-1083-4F0E-AC45-5CF6BE7DB4C7")) CXySubFilterMoreP
 
     CSpinButtonCtrl m_layout_size_x, m_layout_size_y;
     CComboBox m_combo_subpixel_pos, m_combo_layout_size_opt;
+    CComboBox m_combo_text_renderer_mode;
+    int m_text_renderer_mode{0};
     CButton m_checkbox_render_to_original_video_size;
 
     CComboBox m_combo_yuv_matrix, m_combo_yuv_range, m_combo_rgb_level;

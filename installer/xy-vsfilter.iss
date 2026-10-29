@@ -1,6 +1,10 @@
 ; xy-VSFilter 4.0.0.0 setup.
-; Compile with Inno Setup 6:
+; Compile with Inno Setup 7:
 ;   ISCC.exe installer\xy-vsfilter.iss
+
+#if Ver < EncodeVer(7, 0, 0)
+  #error This script requires Inno Setup 7 or later.
+#endif
 
 #define MyAppName "xy-VSFilter"
 #define MyAppVersion "4.0.0.0"
@@ -100,18 +104,16 @@ begin
   end;
 end;
 
-procedure RegisterInstalledFilters(const Unregister: Boolean);
+procedure RegisterFiltersIn(const AppDir: String; const Unregister: Boolean);
 var
   NativeReg: String;
   WowReg: String;
-  AppDir: String;
 begin
   { Only files for the selected components are present, so registering
     every DLL that exists matches the install, and unregistering every
     DLL that exists matches the uninstall. }
   NativeReg := ExpandConstant('{sys}\regsvr32.exe');
   WowReg := ExpandConstant('{syswow64}\regsvr32.exe');
-  AppDir := ExpandConstant('{app}');
   if Is64BitInstallMode then
   begin
     RegSvr32(AppDir + '\x64\XySubFilter.dll', NativeReg, Unregister);
@@ -129,9 +131,66 @@ begin
   end;
 end;
 
+procedure RegisterInstalledFilters(const Unregister: Boolean);
+begin
+  RegisterFiltersIn(ExpandConstant('{app}'), Unregister);
+end;
+
+function PreviousInstallPath(var InstallPath: String): Boolean;
+var
+  Key: String;
+begin
+  Key := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#SetupSetting("AppId")}_is1';
+  Result := RegQueryStringValue(HKLM, Key, 'Inno Setup: App Path', InstallPath);
+  if not Result then
+    Result := RegQueryStringValue(HKCU, Key, 'Inno Setup: App Path', InstallPath);
+  if not Result and IsWin64 then
+    Result := RegQueryStringValue(HKLM32, Key, 'Inno Setup: App Path', InstallPath);
+end;
+
+procedure RemoveFilterFiles(const AppDir: String);
+begin
+  DeleteFile(AppDir + '\x64\XySubFilter.dll');
+  DeleteFile(AppDir + '\x64\VSFilter.dll');
+  DeleteFile(AppDir + '\x64\xy_sub_filter_consumer.dll');
+  DeleteFile(AppDir + '\x86\XySubFilter.dll');
+  DeleteFile(AppDir + '\x86\VSFilter.dll');
+  DeleteFile(AppDir + '\x86\xy_sub_filter_consumer.dll');
+  RemoveDir(AppDir + '\x64');
+  RemoveDir(AppDir + '\x86');
+end;
+
+procedure RemovePreviousInstall;
+var
+  OldDir: String;
+  NewDir: String;
+begin
+  if not PreviousInstallPath(OldDir) then
+    Exit;
+  OldDir := RemoveBackslash(OldDir);
+  if not DirExists(OldDir) then
+    Exit;
+  NewDir := RemoveBackslash(ExpandConstant('{app}'));
+  RegisterFiltersIn(OldDir, True);
+  RemoveFilterFiles(OldDir);
+  { A different previous folder has been unregistered. Remove the files this
+    setup owns there, then the folder itself when nothing else remains. }
+  if CompareText(OldDir, NewDir) <> 0 then
+  begin
+    DeleteFile(OldDir + '\License.txt');
+    DeleteFile(OldDir + '\README.md');
+    DeleteFile(OldDir + '\unins000.exe');
+    DeleteFile(OldDir + '\unins000.dat');
+    DeleteFile(OldDir + '\unins000.msg');
+    RemoveDir(OldDir);
+  end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep = ssPostInstall then
+  if CurStep = ssInstall then
+    RemovePreviousInstall
+  else if CurStep = ssPostInstall then
     RegisterInstalledFilters(False);
 end;
 

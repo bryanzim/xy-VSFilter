@@ -27,6 +27,7 @@
 #include "DirectVobSubPropPage.h"
 #include "VSFilter.h"
 #include "Systray.h"
+#include "../basevideofilter/MediaSideData.h"
 #include "../../../dsutil/MediaTypes.h"
 #include "../../../subpic/SimpleSubPicProviderImpl.h"
 #include "../../../subpic/PooledSubPic.h"
@@ -368,6 +369,7 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
 	pOut->SetDiscontinuity(pIn->IsDiscontinuity() == S_OK);
 	pOut->SetSyncPoint(pIn->IsSyncPoint() == S_OK);
 	pOut->SetPreroll(pIn->IsPreroll() == S_OK);
+	(void)CopyHDRMediaSideData(pIn, pOut);
 	//
 
 	BITMAPINFOHEADER bihOut;
@@ -1821,6 +1823,10 @@ void CDirectVobSubFilter2::GetRidOfInternalScriptRenderer()
 //            CAutoTiming t(TEXT("CRenderedTextSubtitle::Open"), 0);
             XY_AUTO_TIMING(TEXT("CRenderedTextSubtitle::Open"));
             CAutoPtr<CRenderedTextSubtitle> pRTS(new CRenderedTextSubtitle(&m_csSubLock));
+            if (pRTS)
+            {
+                pRTS->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
+            }
             if(pRTS && pRTS->Open(ret[i].full_file_name, DEFAULT_CHARSET) && pRTS->GetStreamCount() > 0)
             {
                 pSubStream = pRTS.Detach();
@@ -1954,6 +1960,7 @@ void CDirectVobSubFilter::SetSubtitle(ISubStream* pSubStream, const bool fApplyD
 		else if(clsid == __uuidof(CRenderedTextSubtitle))
 		{
 			CRenderedTextSubtitle* pRTS{dynamic_cast<CRenderedTextSubtitle*>(pSubStream)};
+            pRTS->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
             pRTS->Deinit();//clear caches
 
             STSStyle s{m_defStyle};
@@ -2545,6 +2552,21 @@ void CDirectVobSubFilter::SetYuvMatrix()
     case BIN2_SUBTITLE_TIMING:
         InvalidateSubtitle();
         break;
+    case INT_TEXT_RENDERER_MODE:
+        {
+            const TextRendererMode mode{NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE])};
+            m_xy_int_opt[INT_TEXT_RENDERER_MODE] = static_cast<int>(mode);
+            for (POSITION pos{m_pSubStreams.GetHeadPosition()}; pos != nullptr; )
+            {
+                CComPtr<ISubStream> pSubStream{m_pSubStreams.GetNext(pos)};
+                if (CRenderedTextSubtitle* rts{dynamic_cast<CRenderedTextSubtitle*>(pSubStream.p)})
+                {
+                    rts->SetTextRendererMode(mode);
+                }
+            }
+            InvalidateSubtitle();
+            break;
+        }
     }
 
     return hr;

@@ -50,6 +50,7 @@ set(XY_SUBTITLES_SOURCES
     draw_item.cpp
     DVBSub.cpp
     GFN.cpp
+    GdiTextRenderer.cpp
     HdmvSub.cpp
     hdmv_subtitle_provider.cpp
     Rasterizer.cpp

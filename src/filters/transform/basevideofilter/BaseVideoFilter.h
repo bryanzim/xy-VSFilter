@@ -103,10 +103,13 @@ class CBaseVideoInputAllocator : public CMemAllocator
 {
 	CMediaType m_mt;
 
+protected:
+	[[nodiscard]] HRESULT Alloc() override;
+
 public:
 	explicit CBaseVideoInputAllocator(HRESULT* phr);
 	void SetMediaType(const CMediaType& mt);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, DWORD dwFlags);
+	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetBuffer(IMediaSample** ppBuffer, REFERENCE_TIME* pStartTime, REFERENCE_TIME* pEndTime, DWORD dwFlags) override;
 };
 
 class CBaseVideoInputPin : public CTransformInputPin

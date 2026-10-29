@@ -75,6 +75,7 @@
     <ClCompile Include="draw_item.cpp" />
     <ClCompile Include="DVBSub.cpp" />
     <ClCompile Include="GFN.cpp" />
+    <ClCompile Include="GdiTextRenderer.cpp" />
     <ClCompile Include="HdmvSub.cpp" />
     <ClCompile Include="hdmv_subtitle_provider.cpp" />
     <ClCompile Include="Rasterizer.cpp">
@@ -121,6 +122,8 @@
     <ClInclude Include="DVBSub.h" />
     <ClInclude Include="flyweight_base_types.h" />
     <ClInclude Include="GFN.h" />
+    <ClInclude Include="GdiTextRenderer.h" />
+    <ClInclude Include="TextRendererMode.h" />
     <ClInclude Include="HdmvSub.h" />
     <ClInclude Include="hdmv_subtitle_provider.h" />
     <ClInclude Include="mru_cache.h" />

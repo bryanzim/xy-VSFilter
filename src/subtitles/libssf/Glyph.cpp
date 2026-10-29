@@ -23,14 +23,14 @@
 #include "Glyph.h"
 #include "Split.h"
 
-#define deg2rad(d) (float)(M_PI/180*(d))
+#define deg2rad(d) static_cast<float>(M_PI/180*(d))
 
 namespace ssf
 {
 	Glyph::Glyph()
 	{
 		c = 0;
-		font = NULL;
+		font = nullptr;
 		ascent = descent = width = spacing = fill = 0;
 		tl.x = tl.y = tls.x = tls.y = 0;
 	}
@@ -49,8 +49,8 @@ namespace ssf
 	{
 		CRect r = bbox + tl;
 
-		int size = (int)(GetBackgroundSize() + 0.5);
-		int depth = (int)(GetShadowDepth() + 0.5);
+		int size = static_cast<int>(GetBackgroundSize() + 0.5);
+		int depth = static_cast<int>(GetShadowDepth() + 0.5);
 
 		r.InflateRect(size, size);
 		r.InflateRect(depth, depth);
@@ -75,21 +75,21 @@ namespace ssf
 		{
 			if(c != ssf::Text::LSEP)
 			{
-				int s = (int)(GetBackgroundSize() + 0.5);
+				int s = static_cast<int>(GetBackgroundSize() + 0.5);
 				int x0 = (!vertical ? -spacing/2 : ascent - row_ascent);
 				int y0 = (!vertical ? ascent - row_ascent : -spacing/2);
 				int x1 = x0 + (!vertical ? width + spacing : row_ascent + row_descent);
 				int y1 = y0 + (!vertical ? row_ascent + row_descent : width + spacing);
-				path_bkg.types.SetCount(4);
-				path_bkg.types[0] = PT_MOVETO;
-				path_bkg.types[1] = PT_LINETO;
-				path_bkg.types[2] = PT_LINETO;
-				path_bkg.types[3] = PT_LINETO;
-				path_bkg.points.SetCount(4);
-				path_bkg.points[0] = CPoint(x0-s, y0-s);
-				path_bkg.points[1] = CPoint(x1+s, y0-s);
-				path_bkg.points[2] = CPoint(x1+s, y1+s);
-				path_bkg.points[3] = CPoint(x0-s, y1+s);
+				path_bkg.types.SetCount(4U);
+				path_bkg.types[0U] = PT_MOVETO;
+				path_bkg.types[1U] = PT_LINETO;
+				path_bkg.types[2U] = PT_LINETO;
+				path_bkg.types[3U] = PT_LINETO;
+				path_bkg.points.SetCount(4U);
+				path_bkg.points[0U] = CPoint(x0-s, y0-s);
+				path_bkg.points[1U] = CPoint(x1+s, y0-s);
+				path_bkg.points[2U] = CPoint(x1+s, y1+s);
+				path_bkg.points[3U] = CPoint(x0-s, y1+s);
 			}
 		}
 	}
@@ -99,12 +99,14 @@ namespace ssf
 		spline.RemoveAll();
 
 		if(style.placement.path.IsEmpty())
+		{
 			return;
+		}
 
-		size_t i = 0, j = style.placement.path.GetCount();
+		std::size_t i{0U}, j{style.placement.path.GetCount()};
 
 		CAtlArray<Point> pts;
-		pts.SetCount(j + 2);
+		pts.SetCount(j + 2U);
 
 		Point p;
 
@@ -115,48 +117,48 @@ namespace ssf
 			pts[++i] = p;
 		}
 
-		if(pts.GetCount() >= 4)
+		if(pts.GetCount() >= 4U)
 		{
-			if(pts[1].x == pts[j].x && pts[1].y == pts[j].y)
+			if(pts[1U].x == pts[j].x && pts[1U].y == pts[j].y)
 			{
-				pts.SetAt(0, pts[j-1]);
-				pts.SetAt(j+1, pts[2]);
+				pts.SetAt(0, pts[j-1U]);
+				pts.SetAt(j+1U, pts[2U]);
 			}
 			else
 			{
-				p.x = pts[1].x*2 - pts[2].x;
-				p.y = pts[1].y*2 - pts[2].y;
+				p.x = pts[1U].x*2 - pts[2U].x;
+				p.y = pts[1U].y*2 - pts[2U].y;
 				pts.SetAt(0, p);
 
-				p.x = pts[j].x*2 - pts[j-1].x;
-				p.y = pts[j].y*2 - pts[j-1].y;
-				pts.SetAt(j+1, p);
+				p.x = pts[j].x*2 - pts[j-1U].x;
+				p.y = pts[j].y*2 - pts[j-1U].y;
+				pts.SetAt(j+1U, p);
 			}
 
-			spline.SetCount(pts.GetCount()-3);
+			spline.SetCount(pts.GetCount()-3U);
 
-			for(size_t i = 0, j = pts.GetCount()-4; i <= j; i++)
+			for(std::size_t splineIndex{0U}, lastSpline{pts.GetCount()-4U}; splineIndex <= lastSpline; ++splineIndex)
 			{
 				static const float _1div6 = 1.0f / 6;
 
 				SplineCoeffs sc;
 
-				sc.cx[3] = _1div6*(-  pts[i+0].x + 3*pts[i+1].x - 3*pts[i+2].x + pts[i+3].x);
-				sc.cx[2] = _1div6*( 3*pts[i+0].x - 6*pts[i+1].x + 3*pts[i+2].x);
-				sc.cx[1] = _1div6*(-3*pts[i+0].x	            + 3*pts[i+2].x);
-				sc.cx[0] = _1div6*(   pts[i+0].x + 4*pts[i+1].x + 1*pts[i+2].x);
+				sc.cx[3U] = _1div6*(-  pts[splineIndex+0U].x + 3*pts[splineIndex+1U].x - 3*pts[splineIndex+2U].x + pts[splineIndex+3U].x);
+				sc.cx[2U] = _1div6*( 3*pts[splineIndex+0U].x - 6*pts[splineIndex+1U].x + 3*pts[splineIndex+2U].x);
+				sc.cx[1U] = _1div6*(-3*pts[splineIndex+0U].x	            + 3*pts[splineIndex+2U].x);
+				sc.cx[0U] = _1div6*(   pts[splineIndex+0U].x + 4*pts[splineIndex+1U].x + 1*pts[splineIndex+2U].x);
 
-				sc.cy[3] = _1div6*(-  pts[i+0].y + 3*pts[i+1].y - 3*pts[i+2].y + pts[i+3].y);
-				sc.cy[2] = _1div6*( 3*pts[i+0].y - 6*pts[i+1].y + 3*pts[i+2].y);
-				sc.cy[1] = _1div6*(-3*pts[i+0].y                + 3*pts[i+2].y);
-				sc.cy[0] = _1div6*(   pts[i+0].y + 4*pts[i+1].y + 1*pts[i+2].y);
+				sc.cy[3U] = _1div6*(-  pts[splineIndex+0U].y + 3*pts[splineIndex+1U].y - 3*pts[splineIndex+2U].y + pts[splineIndex+3U].y);
+				sc.cy[2U] = _1div6*( 3*pts[splineIndex+0U].y - 6*pts[splineIndex+1U].y + 3*pts[splineIndex+2U].y);
+				sc.cy[1U] = _1div6*(-3*pts[splineIndex+0U].y                + 3*pts[splineIndex+2U].y);
+				sc.cy[0U] = _1div6*(   pts[splineIndex+0U].y + 4*pts[splineIndex+1U].y + 1*pts[splineIndex+2U].y);
 
-				spline.SetAt(i, sc);
+				spline.SetAt(splineIndex, sc);
 			}
 		}
 	}
 
-	void Glyph::Transform(GlyphPath& path, CPoint org, const CRect& subrect)
+	void Glyph::Transform(GlyphPath& glyphPath, CPoint org, const CRect& subrect)
 	{
 		// TODO: add sse code path
 
@@ -167,16 +169,16 @@ namespace ssf
 		bool bspline = !spline.IsEmpty();
 		bool bscale = brotate || bspline || sx != 1 || sy != 1;
 
-		float caz = cos(deg2rad(style.placement.angle.z));
-		float saz = sin(deg2rad(style.placement.angle.z));
-		float cax = cos(deg2rad(style.placement.angle.x));
-		float sax = sin(deg2rad(style.placement.angle.x));
-		float cay = cos(deg2rad(style.placement.angle.y));
-		float say = sin(deg2rad(style.placement.angle.y));
+		float caz = static_cast<float>(std::cos(deg2rad(style.placement.angle.z)));
+		float saz = static_cast<float>(std::sin(deg2rad(style.placement.angle.z)));
+		float cax = static_cast<float>(std::cos(deg2rad(style.placement.angle.x)));
+		float sax = static_cast<float>(std::sin(deg2rad(style.placement.angle.x)));
+		float cay = static_cast<float>(std::cos(deg2rad(style.placement.angle.y)));
+		float say = static_cast<float>(std::sin(deg2rad(style.placement.angle.y)));
 
-		for(size_t i = 0, j = path.types.GetCount(); i < j; i++)
+		for(std::size_t i{0U}, j{glyphPath.types.GetCount()}; i < j; ++i)
 		{
-			CPoint p = path.points[i];
+			CPoint p = glyphPath.points[i];
 
 			if(bscale)
 			{
@@ -189,7 +191,7 @@ namespace ssf
 				if(bspline)
 				{
 					float pos = vertical ? y + org.y + tl.y - subrect.top : x + org.x + tl.x - subrect.left;
-					float size = vertical ? subrect.Size().cy : subrect.Size().cx;
+					float size = static_cast<float>(vertical ? subrect.Size().cy : subrect.Size().cx);
 					float dist = vertical ? x : y;
 
 					const SplineCoeffs* sc;
@@ -197,25 +199,25 @@ namespace ssf
 
 					if(pos >= size)
 					{
-						sc = &spline[spline.GetCount() - 1];
+						sc = &spline[spline.GetCount() - 1U];
 						t = 1;
 					}
 					else
 					{
 						float u = size / spline.GetCount();
-						sc = &spline[max((int)(pos / u), 0)];
-						t = fmod(pos, u) / u;
+						sc = &spline[max(static_cast<int>(pos / u), 0)];
+						t = static_cast<float>(std::fmod(pos, u) / u);
 					}
 
-					float nx = sc->cx[1] + 2*t*sc->cx[2] + 3*t*t*sc->cx[3];
-					float ny = sc->cy[1] + 2*t*sc->cy[2] + 3*t*t*sc->cy[3];
-					float nl = 1.0f / sqrt(nx*nx + ny*ny);
+					float nx = sc->cx[1U] + 2*t*sc->cx[2U] + 3*t*t*sc->cx[3U];
+					float ny = sc->cy[1U] + 2*t*sc->cy[2U] + 3*t*t*sc->cy[3U];
+					float nl = static_cast<float>(1.0f / std::sqrt(nx*nx + ny*ny));
 
 					nx *= nl;
 					ny *= nl;
 
-					x = sc->cx[0] + t*(sc->cx[1] + t*(sc->cx[2] + t*sc->cx[3])) - ny * dist - org.x - tl.x;
-					y = sc->cy[0] + t*(sc->cy[1] + t*(sc->cy[2] + t*sc->cy[3])) + nx * dist - org.y - tl.y;
+					x = sc->cx[0U] + t*(sc->cx[1U] + t*(sc->cx[2U] + t*sc->cx[3U])) - ny * dist - org.x - tl.x;
+					y = sc->cy[0U] + t*(sc->cy[1U] + t*(sc->cy[2U] + t*sc->cy[3U])) + nx * dist - org.y - tl.y;
 				}
 
 				if(brotate)
@@ -238,23 +240,23 @@ namespace ssf
 					y = (yy * 20000) * zz;
 				}
 
-				p.x = (int)(x + org.x + 0.5);
-				p.y = (int)(y + org.y + 0.5);
+				p.x = static_cast<int>(x + org.x + 0.5);
+				p.y = static_cast<int>(y + org.y + 0.5);
 
-				path.points[i] = p;
+				glyphPath.points[i] = p;
 			}
 
-			if(p.x < bbox.left) bbox.left = p.x;
-			if(p.x > bbox.right) bbox.right = p.x;
-			if(p.y < bbox.top) bbox.top = p.y;
-			if(p.y > bbox.bottom) bbox.bottom = p.y;
+			if(p.x < bbox.left) { bbox.left = p.x; }
+			if(p.x > bbox.right) { bbox.right = p.x; }
+			if(p.y < bbox.top) { bbox.top = p.y; }
+			if(p.y > bbox.bottom) { bbox.bottom = p.y; }
 		}
 	}
 
 	void Glyph::Transform(CPoint org, const CRect& subrect)
 	{
-		if(!style.placement.org.auto_x) org.x = style.placement.org.x * scale.cx;
-		if(!style.placement.org.auto_y) org.y = style.placement.org.y * scale.cy;
+		if(!style.placement.org.auto_x) { org.x = static_cast<LONG>(style.placement.org.x * scale.cx); }
+		if(!style.placement.org.auto_y) { org.y = static_cast<LONG>(style.placement.org.y * scale.cy); }
 
 		org -= tl;
 
@@ -278,7 +280,7 @@ namespace ssf
 
 		if(style.background.type == L"outline" && style.background.size > 0)
 		{
-			ras.CreateWidenedRegion((int)(GetBackgroundSize() + 0.5));
+			ras.CreateWidenedRegion(static_cast<int>(GetBackgroundSize() + 0.5));
 		}
 
 		//
@@ -295,8 +297,8 @@ namespace ssf
 
 			float depth = GetShadowDepth();
 
-			tls.x = tl.x + (int)(depth * cos(deg2rad(style.shadow.angle)) + 0.5);
-			tls.y = tl.y + (int)(depth * -sin(deg2rad(style.shadow.angle)) + 0.5);
+			tls.x = tl.x + static_cast<int>(depth * std::cos(deg2rad(style.shadow.angle)) + 0.5);
+			tls.y = tl.y + static_cast<int>(depth * -std::sin(deg2rad(style.shadow.angle)) + 0.5);
 
 			ras_shadow.Rasterize(tls.x, tls.y);
 			ras_shadow.Blur(style.shadow.blur, plane ? 1 : 0);

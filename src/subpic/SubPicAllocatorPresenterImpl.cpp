@@ -127,7 +127,7 @@ DECLSPEC_NOTHROW STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetPosition(
 	}
 
 	if(fWindowPosChanged || fVideoRectChanged) {
-		(void)Paint(fWindowSizeChanged || fVideoRectChanged);
+		(void)Paint((fWindowSizeChanged || fVideoRectChanged));
 	}
 }
 

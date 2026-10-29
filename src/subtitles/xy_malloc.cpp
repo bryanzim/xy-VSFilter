@@ -4,10 +4,8 @@
 /************************************************************************/
 #include "xy_malloc.h"
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
-#include <stdint.h>
-#include <malloc.h>
-#include <string.h>
 
 std::size_t g_xy_malloc_used_size{0U};
 
@@ -22,14 +20,14 @@ std::size_t g_xy_malloc_used_size{0U};
     std::uint8_t * buf;
     std::uint8_t * align_buf;
     align_shift &= MASK;
-    buf = (std::uint8_t *) malloc( i_size + MASK + sizeof( void ** ) +
+    buf = (std::uint8_t *) std::malloc( i_size + MASK + sizeof( void ** ) +
               sizeof( i_size ) );
     if (!buf)
     {
         return nullptr;
     }
     align_buf = buf + MASK + sizeof( void ** ) + sizeof( i_size );
-    align_buf -= (ALIGNMENT + ((intptr_t) align_buf & MASK) - align_shift) & MASK;
+    align_buf -= (ALIGNMENT + ((std::intptr_t) align_buf & MASK) - align_shift) & MASK;
     *( (void **) ( align_buf - sizeof( void ** ) ) ) = buf;
     *( (std::size_t *) ( align_buf - sizeof( void ** ) - sizeof( i_size ) ) ) = i_size;
     g_xy_malloc_used_size += i_size;
@@ -46,7 +44,7 @@ void xy_free( void *p )
     {
         g_xy_malloc_used_size -= *( (std::size_t*) ( (std::uint8_t*) p - sizeof( void ** ) -
             sizeof( std::size_t ) ) );
-        free( *( ( ( void **) p ) - 1 ) );
+        std::free( *( ( ( void **) p ) - 1 ) );
     }
 }
 

@@ -54,7 +54,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         BYTE* db{(BYTE*)d};
         BYTE* dbtend{db + w};
 
-        for(; db < dbtend; sub++, db++)
+        for(; db < dbtend; ++sub, ++db)
         {
             *db = (*db+*sub)>>1;
         }
@@ -66,7 +66,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         WORD* db{reinterpret_cast<WORD*>(d)};
         WORD* dbtend{db + w};
 
-        for(; db < dbtend; sub++, db++)
+        for(; db < dbtend; ++sub, ++db)
         {
             *db = (*db + (*sub<<8))>>1;
         }
@@ -76,7 +76,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         BYTE* ds{(BYTE*)d};
         BYTE* dstend{ds + w*2};
 
-        for(; ds < dstend; sub++, ds+=2)
+        for(; ds < dstend; ++sub, ds+=2)
         {
             ds[0U] = (ds[0U]+*sub)>>1;
         }
@@ -86,7 +86,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         BYTE* db{(BYTE*)d};
         BYTE* dbtend{db + w*4};
 
-        for(; db < dbtend; sub++, db+=4)
+        for(; db < dbtend; ++sub, db+=4)
         {
             db[2U] = (db[2U]+*sub)>>1;
         }
@@ -96,7 +96,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         WORD* ds{(WORD*)d};
         WORD* dstend{ds + w};
 
-        for(; ds < dstend; sub++, ds++)
+        for(; ds < dstend; ++sub, ++ds)
         {
             DWORD tmp{*ds};
             WORD tmpsub{*sub};
@@ -110,7 +110,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         WORD* ds{(WORD*)d};
         WORD* dstend{ds + w};
 
-        for(; ds < dstend; sub++, ds++)
+        for(; ds < dstend; ++sub, ++ds)
         {
             WORD tmp{*ds};
             *ds  = ((tmp>>11) + (*sub>>3))>>1<<11;
@@ -123,7 +123,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         BYTE* dt{(BYTE*)d};
         BYTE* dstend{dt + w*3};
 
-        for(; dt < dstend; sub++, dt+=3)
+        for(; dt < dstend; ++sub, dt+=3)
         {
             dt[0U] = (dt[0U]+*sub)>>1;
             dt[1U] = (dt[1U]+*sub)>>1;
@@ -135,7 +135,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         BYTE* dt{(BYTE*)d};
         BYTE* dstend{dt + w*4};
 
-        for(; dt < dstend; sub++, dt+=4)
+        for(; dt < dstend; ++sub, dt+=4)
         {
             dt[0U] = (dt[0U]+*sub)>>1;
             dt[1U] = (dt[1U]+*sub)>>1;
@@ -170,7 +170,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
 
         j += (hSub - hIn) >> 1;
 
-        for(; i < j; i++, pSub += pitchSub)
+        for(; i < j; ++i, pSub += pitchSub)
         {
             memsetd(pSub, black, dpLeft+dpMid+dpRight);
         }
@@ -189,7 +189,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
         }
         else
         {
-            for(int k{min(j, hSub)}; i < k; i++, pIn += pitchIn, pSub += pitchSub)
+            for(int k{min(j, hSub)}; i < k; ++i, pIn += pitchIn, pSub += pitchSub)
             {
                 memsetd(pSub, black, dpLeft);
                 std::memcpy(pSub + dpLeft, pIn, dpMid);
@@ -199,7 +199,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
 
         j = hSub;
 
-        for(; i < j; i++, pSub += pitchSub)
+        for(; i < j; ++i, pSub += pitchSub)
         {
             memsetd(pSub, black, dpLeft+dpMid+dpRight);
         }

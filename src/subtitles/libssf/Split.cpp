@@ -25,28 +25,28 @@
 
 namespace ssf
 {
-	Split::Split(LPCWSTR sep, CStringW str, size_t limit, SplitType type)
+	Split::Split(LPCWSTR sep, CStringW str, std::size_t limit, SplitType type)
 	{
 		DoSplit(sep, str, limit, type);
 	}
 
-	Split::Split(WCHAR sep, CStringW str, size_t limit, SplitType type)
+	Split::Split(WCHAR sep, CStringW str, std::size_t limit, SplitType type)
 	{
 		DoSplit(CStringW(sep), str, limit, type);
 	}
 
-	void Split::DoSplit(LPCWSTR sep, CStringW str, size_t limit, SplitType type)
+	void Split::DoSplit(LPCWSTR sep, CStringW str, std::size_t limit, SplitType type)
 	{
 		RemoveAll();
 
-		if(size_t seplen = wcslen(sep))
+		if(std::size_t seplen{std::wcslen(sep)})
 		{
 			for(int i = 0, j = 0, len = str.GetLength(); 
-				i <= len && (limit == 0 || GetCount() < limit); 
-				i = j + (int)seplen)
+				i <= len && (limit == 0U || GetCount() < limit); 
+				i = j + static_cast<int>(seplen))
 			{
 				j = str.Find(sep, i);
-				if(j < 0) j = len;
+				if(j < 0) { j = len; }
 
 				CStringW s = i < j ? str.Mid(i, j - i) : L"";
 
@@ -56,7 +56,7 @@ namespace ssf
 #if defined(__clang__)
 				[[clang::fallthrough]];
 #endif
-				case Def: if(s.IsEmpty()) break;
+				case Def: if(s.IsEmpty()) { break; }
 #if defined(__clang__)
 				[[clang::fallthrough]];
 #endif
@@ -66,15 +66,15 @@ namespace ssf
 		}
 	}
 
-	int Split::GetAtInt(size_t i)
+	int Split::GetAtInt(std::size_t i)
 	{
-		if(i >= GetCount()) throw Exception(_T("Index out of bounds"));
+		if(i >= GetCount()) { throw Exception(_T("Index out of bounds")); }
 		return _wtoi(GetAt(i));
 	}
 
-	float Split::GetAtFloat(size_t i)
+	float Split::GetAtFloat(std::size_t i)
 	{
-		if(i >= GetCount()) throw Exception(_T("Index out of bounds"));
-		return (float)_wtof(GetAt(i));
+		if(i >= GetCount()) { throw Exception(_T("Index out of bounds")); }
+		return static_cast<float>(_wtof(GetAt(i)));
 	}
 }

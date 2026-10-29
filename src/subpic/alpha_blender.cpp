@@ -47,7 +47,7 @@ BaseAlphaBlender* BaseAlphaBlender::s_default_alpha_blender = nullptr;
 
 void BaseAlphaBlender::AlphaBlend( const XySubPicPlan src_plans[], CRect src_rect, const XySubPicPlan dst_plans[], CPoint dst_pos )
 {
-    ASSERT(src_plans&&dst_plans);
+    ASSERT((src_plans&&dst_plans));
     ClipRect(src_plans[0U].w, src_plans[0U].h, dst_plans[0U].w, std::abs(dst_plans[0U].h), &src_rect, &dst_pos);
     if (src_rect.Width()<=0 || src_rect.Height()<=0)
     {
@@ -58,7 +58,7 @@ void BaseAlphaBlender::AlphaBlend( const XySubPicPlan src_plans[], CRect src_rec
 
 void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], POINT dst_pos)
 {
-    ASSERT(src_plans&&dst_plans);
+    ASSERT((src_plans&&dst_plans));
     CRect src_rect{0,0,src_plans[0U].w, src_plans[0U].h};
     if (dst_pos.x < 0)
     {
@@ -78,7 +78,7 @@ void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPic
 
 void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], POINT dst_pos, SIZE size)
 {
-    ASSERT(src_plans&&dst_plans);
+    ASSERT((src_plans&&dst_plans));
     int dst_limit_w{dst_plans[0U].w-dst_pos.x};
     if (size.cx > dst_limit_w)
     {
@@ -155,7 +155,7 @@ void BaseAlphaBlender::LimitPoint( const int limit_x, const int limit_y, CPoint 
 
 void BaseAlphaBlender::ClipRect( const int src_w, const int src_h, const int dst_w, const int dst_h, CRect *src_rect, CPoint *dst_point )
 {
-    ASSERT(src_rect&&dst_point);
+    ASSERT((src_rect&&dst_point));
     ClipTopLeftToZero(&(src_rect->TopLeft()), dst_point);
     LimitPoint(src_w, src_h, src_rect->BottomRight());
     LimitPoint(dst_w-dst_point->x+src_rect->left, dst_h-dst_point->y+src_rect->top
@@ -198,12 +198,12 @@ void AlphaBlenderArgbC::AlphaBlendNoClip( const XySubPicPlan src_plans[], const 
 
 void AlphaBlenderArgbC::AlphaBlend( const BYTE *src, const int w, const int h, const int pitch, BYTE *dst, const int dst_pitch )
 {
-    for(int i{0}; i < h; i++, src += pitch, dst += dst_pitch)
+    for(int i{0}; i < h; ++i, src += pitch, dst += dst_pitch)
     {
         const BYTE* s2{src};
         const BYTE* s2end{s2 + w*4};
         DWORD* d2{(DWORD*)dst};
-        for(; s2 < s2end; s2 += 4, d2++)
+        for(; s2 < s2end; s2 += 4, ++d2)
         {
             if(s2[3U] < 0xff)
             {

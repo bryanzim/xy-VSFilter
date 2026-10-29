@@ -41,10 +41,10 @@ namespace ssf
 	class Path : public CAtlArray<Point>
 	{
 	public: 
-		Path() {} 
+		explicit Path() {} 
 		Path(const Path& path) {*this = path;} 
 		Path& operator = (const Path& path) {Copy(path); return *this;} 
-		Path(LPCWSTR str) {*this = str;} 
+		explicit Path(LPCWSTR str) {*this = str;} 
 		Path& operator = (LPCWSTR str);
 		CStringW ToString();
 	};
@@ -77,7 +77,7 @@ namespace ssf
 		int id;
 		Color color;
 		float width;
-        Fill() : id(0) {}
+        explicit Fill() : id(0) {}
 	};
 
 	struct Style
@@ -101,7 +101,7 @@ namespace ssf
 
 	class Subtitle
 	{
-		static struct n2n_t {StringMapW<float> align[2], weight, transition;} m_n2n;
+		static struct n2n_t {StringMapW<float> align[2U], weight, transition;} m_n2n;
 
 		File* m_pFile;
 
@@ -130,7 +130,7 @@ namespace ssf
 		CAtlList<Text> m_text;
 
 	public:
-		Subtitle(File* pFile);
+		explicit Subtitle(File* pFile);
 		virtual ~Subtitle();
 
 		bool Parse(Definition* pDef, float start, float stop, float at);

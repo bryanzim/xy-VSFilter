@@ -118,25 +118,24 @@ static TCHAR str3[] = // _T("FriendlyName");
 
 
 #define LEN1 (countof(s_reg_path))
-#define LEN11 (countof(s_reg_path[0]))
+#define LEN11 (countof(s_reg_path[0U]))
 #define LEN2 (countof(str2))
 #define LEN3 (countof(str3))
 
 static void dencode()
 {
-	int i, j;
-	for(i = 0; i < LEN1; ++i)
+	for(std::size_t i{0U}; i < LEN1; ++i)
 	{
-	    for(j = 0; j < LEN11; ++j)
+	    for(std::size_t j{0U}; j < LEN11; ++j)
 	    {
 	        s_reg_path[i][j] ^= 0x12;
 	    }
 	}
-	for(i = 0; i < LEN2; ++i)
+	for(std::size_t i{0U}; i < LEN2; ++i)
 	{
 	    str2[i] ^= 0x34;
 	}
-	for(i = 0; i < LEN3; ++i)
+	for(std::size_t i{0U}; i < LEN3; ++i)
 	{
 	    str3[i] ^= 0x56;
 	}
@@ -150,7 +149,7 @@ void JajDeGonoszVagyok()
 
 	DWORD mymerit{sudFilter[1U].dwMerit};
 
-	for(int i{0}; i < LEN1; ++i)
+	for(std::size_t i{0U}; i < LEN1; ++i)
 	{
 		HKEY hKey;
 
@@ -165,9 +164,9 @@ void JajDeGonoszVagyok()
 
 				if(pData && RegQueryValueEx(hKey, str2, 0, nullptr, pData, &size) == ERROR_SUCCESS)
 				{
-					DWORD merit{*((DWORD*)(pData+4))};
+					DWORD merit{*reinterpret_cast<DWORD*>(pData + 4)};
 
-					if(merit < 0xffffffff)
+					if(merit < 0xFFFFFFFFU)
 					{
 					    ++merit;
 					}
@@ -266,7 +265,7 @@ void JajDeGonoszVagyok()
 			{
 				CFilterInfo fi;
 				if(SUCCEEDED(pi.pFilter->QueryFilterInfo(&fi))
-				&& !wcsncmp((WCHAR*)pData, fi.achName, wcslen((WCHAR*)pData)))
+				&& !std::wcsncmp((WCHAR*)pData, fi.achName, std::wcslen((WCHAR*)pData)))
 				{
 					fFail = true;
 				}

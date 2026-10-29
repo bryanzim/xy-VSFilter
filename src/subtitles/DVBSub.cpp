@@ -162,7 +162,7 @@ CDVBSub::~CDVBSub()
     }
     nSize = pSample->GetActualDataLength();
 
-    if (*((LONG*)pData) == 0xBD010000) {
+    if (*reinterpret_cast<const DWORD*>(pData) == 0xBD010000U) {
         CGolombBuffer gb{pData, nSize};
 
         gb.SkipBytes(4);
@@ -400,12 +400,12 @@ void CDVBSub::Render(SubPicDesc& spd, const REFERENCE_TIME rt, RECT& bbox)
     POSITION	pos{m_Pages.GetHeadPosition()};
 
     while (pos) {
-        DVB_PAGE*	pPage{m_Pages.GetAt (pos)};
+        DVB_PAGE*	currentPage{m_Pages.GetAt (pos)};
 
-        if (rt >= pPage->rtStart && rt < pPage->rtStop) {
+        if (rt >= currentPage->rtStart && rt < currentPage->rtStop) {
             break;
         }
-        else if( rt < pPage->rtStart )
+        else if( rt < currentPage->rtStart )
         {
             pos = nullptr;
             break;

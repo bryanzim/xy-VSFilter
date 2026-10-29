@@ -6,11 +6,13 @@ void CSSkey1(int varient,unsigned char const *challenge,unsigned char *key)
 {
 	static unsigned char perm_challenge[] = {1,3,0,7,5, 2,9,6,4,8};
 
-	unsigned char scratch[10];
+	unsigned char scratch[10U];
 	int i;
 
 	for (i = 9; i >= 0; --i)
+	{
 		scratch[i] = challenge[perm_challenge[i]];
+	}
 
 	CSSengine(varient, scratch, key);
 }
@@ -25,11 +27,13 @@ void CSSkey2(int varient,unsigned char const *challenge,unsigned char *key)
 		0x02, 0x00, 0x06, 0x04, 0x03, 0x01, 0x07, 0x05,
 		0x12, 0x10, 0x16, 0x14, 0x13, 0x11, 0x17, 0x15};
 
-	unsigned char scratch[10];
+	unsigned char scratch[10U];
 	int i;
 
 	for (i = 9; i >= 0; --i)
+	{
 		scratch[i] = challenge[perm_challenge[i]];
+	}
 
 	CSSengine(perm_varient[varient], scratch, key);
 }
@@ -43,11 +47,13 @@ void CSSbuskey(int varient,unsigned char const *challenge,unsigned char *key)
 		0x13, 0x1b, 0x17, 0x1f, 0x03, 0x0b, 0x07, 0x0f,
 		0x11, 0x19, 0x15, 0x1d, 0x01, 0x09, 0x05, 0x0d};
 
-	unsigned char scratch[10];
+	unsigned char scratch[10U];
 	int i;
 
 	for (i = 9; i >= 0; --i)
+	{
 		scratch[i] = challenge[perm_challenge[i]];
+	}
 
 	CSSengine(perm_varient[varient], scratch, key);
 }
@@ -61,8 +67,8 @@ static void CSSgenbits(unsigned char *output, int len,unsigned char const *s)
 	 * initial values are non-zero.  Thus when we initialise them from
 	 * the seed,  we ensure that a bit is set.
 	 */
-	lfsr0 = (s[0] << 17) | (s[1] << 9) | ((s[2] & ~7) << 1) | 8 | (s[2] & 7);
-	lfsr1 = (s[3] << 9) | 0x100 | s[4];
+	lfsr0 = (s[0U] << 17) | (s[1U] << 9) | ((s[2U] & ~7) << 1) | 8 | (s[2U] & 7);
+	lfsr1 = (s[3U] << 9) | 0x100 | s[4U];
 
 	++output;
 
@@ -103,9 +109,9 @@ unsigned char CSStable3[];
 static void CSSengine(int varient, unsigned char const *input,unsigned char *output)
 {
 	unsigned char cse, term, index;
-	unsigned char temp1[5];
-	unsigned char temp2[5];
-	unsigned char bits[30];
+	unsigned char temp1[5U];
+	unsigned char temp2[5U];
+	unsigned char bits[30U];
 
 	int i;
 
@@ -114,9 +120,11 @@ static void CSSengine(int varient, unsigned char const *input,unsigned char *out
 	 * generate the bits to play with.
 	 */
 	for (i = 5; --i >= 0; )
+	{
 		temp1[i] = input[5 + i] ^ CSSsecret[i] ^ CSStable2[i];
+	}
 
-	CSSgenbits(&bits[29], sizeof bits, temp1);
+	CSSgenbits(&bits[29U], sizeof bits, temp1);
 
 	/* This term is used throughout the following to
 	 * select one of 32 different variations on the
@@ -134,7 +142,7 @@ static void CSSengine(int varient, unsigned char const *input,unsigned char *out
 
 		temp1[i] = CSStable2[index] ^ CSStable3[index] ^ term;
 	}
-	temp1[4] ^= temp1[0];
+	temp1[4U] ^= temp1[0U];
 
 	for (i = 5, term = 0; --i >= 0; term = temp1[i]) {
 		index = bits[20 + i] ^ temp1[i];
@@ -142,7 +150,7 @@ static void CSSengine(int varient, unsigned char const *input,unsigned char *out
 
 		temp2[i] = CSStable2[index] ^ CSStable3[index] ^ term;
 	}
-	temp2[4] ^= temp2[0];
+	temp2[4U] ^= temp2[0U];
 
 	for (i = 5, term = 0; --i >= 0; term = temp2[i]) {
 		index = bits[15 + i] ^ temp2[i];
@@ -151,7 +159,7 @@ static void CSSengine(int varient, unsigned char const *input,unsigned char *out
 
 		temp1[i] = CSStable0[index] ^ CSStable2[index];
 	}
-	temp1[4] ^= temp1[0];
+	temp1[4U] ^= temp1[0U];
 
 	for (i = 5, term = 0; --i >= 0; term = temp1[i]) {
 		index = bits[10 + i] ^ temp1[i];
@@ -161,7 +169,7 @@ static void CSSengine(int varient, unsigned char const *input,unsigned char *out
 
 		temp2[i] = CSStable0[index] ^ CSStable2[index];
 	}
-	temp2[4] ^= temp2[0];
+	temp2[4U] ^= temp2[0U];
 
 	for (i = 5, term = 0; --i >= 0; term = temp2[i]) {
 		index = bits[5 + i] ^ temp2[i];
@@ -169,7 +177,7 @@ static void CSSengine(int varient, unsigned char const *input,unsigned char *out
 
 		temp1[i] = CSStable2[index] ^ CSStable3[index] ^ term;
 	}
-	temp1[4] ^= temp1[0];
+	temp1[4U] ^= temp1[0U];
 
 	for (i = 5, term = 0; --i >= 0; term = temp1[i]) {
 		index = bits[i] ^ temp1[i];

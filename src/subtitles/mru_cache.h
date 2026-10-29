@@ -487,7 +487,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::SetOptimalLoad(
     _In_ bool bRehashNow)
 {
     ATLASSERT( fOptimalLoad > 0 );
-    ATLASSERT( (fLoThreshold >= 0) && (fLoThreshold < fOptimalLoad) );
+    ATLASSERT( ((fLoThreshold >= 0) && (fLoThreshold < fOptimalLoad)) );
     ATLASSERT( fHiThreshold > fOptimalLoad );
 
     m_fOptimalLoad = fOptimalLoad;
@@ -1045,7 +1045,7 @@ void XyAtlMap< K, V, KTraits, VTraits >::AssertValid() const
 {
     ATLASSUME( m_nBins > 0 );
     // non-empty map should have hash table
-    ATLASSERT( IsEmpty() || (m_ppBins != nullptr) );
+    ATLASSERT( (IsEmpty() || (m_ppBins != nullptr)) );
 }
 #endif
 

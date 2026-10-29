@@ -96,8 +96,8 @@ void write_file(const char * filename, const void * buff, const int size)
         XY_LOG_ERROR("Failed to open file: "<<filename);
         return;
     }
-    fwrite(buff, size, 1, out_file);
-    fclose(out_file);
+    std::fwrite(buff, size, 1, out_file);
+    std::fclose(out_file);
 }
 
 void DumpPackBitmap2File(POINT pos, SIZE size, const LPCVOID pixels, const int pitch, const char *filename)
@@ -110,7 +110,7 @@ void DumpPackBitmap2File(POINT pos, SIZE size, const LPCVOID pixels, const int p
     const BYTE* src{reinterpret_cast<const BYTE*>(pixels)};
 
     axxx<<"pos:("<<pos.x<<","<<pos.y<<") size:("<<size.cx<<","<<size.cy<<")"<<std::endl;
-    for(int i{0};i<h;i++, src += pitch)
+    for(int i{0};i<h;++i, src += pitch)
     {
         const BYTE* s2{src};
         const BYTE* s2end{s2 + w*4};

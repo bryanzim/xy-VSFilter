@@ -302,7 +302,7 @@ XySubFilter::~XySubFilter()
                 XY_LOG_ERROR("Failed to disconnect consumer");
             }
             m_filter_info_string = m_xy_str_opt[STRING_NAME];
-            CAutoLock cAutoLock(&m_csConsumer);
+            CAutoLock cConsumerLock(&m_csConsumer);
             m_consumer = nullptr;
         }
         ::DeleteSystray(&m_hSystrayThread, &m_tbid);
@@ -608,7 +608,7 @@ XySubFilter::~XySubFilter()
     if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=nullptr)
     {
         CRenderedTextSubtitle * rts{dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)};
-        if (count != rts->m_styles.GetCount())
+        if (static_cast<std::size_t>(count) != rts->m_styles.GetCount())
         {
             return E_INVALIDARG;
         }
@@ -621,7 +621,7 @@ XySubFilter::~XySubFilter()
             {
                 return E_FAIL;
             }
-            if (pair->m_key.GetLength()>=countof(sub_style[0U].name))
+            if (static_cast<std::size_t>(pair->m_key.GetLength()) >= countof(sub_style[0U].name))
             {
                 return ERROR_BUFFER_OVERFLOW;
             }
@@ -647,7 +647,7 @@ XySubFilter::~XySubFilter()
     if (dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)!=nullptr)
     {
         CRenderedTextSubtitle * rts{dynamic_cast<CRenderedTextSubtitle*>(m_curSubStream)};
-        if (count != rts->m_styles.GetCount())
+        if (static_cast<std::size_t>(count) != rts->m_styles.GetCount())
         {
             return E_INVALIDARG;
         }
@@ -1189,7 +1189,7 @@ void XySubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handles)
                         FILE* f{nullptr};
                         if(!_tfopen_s(&f, fn, _T("rb+")))
                         {
-                            fclose(f);
+                            std::fclose(f);
                             j = 0;
                             break;
                         }
@@ -1210,11 +1210,11 @@ void XySubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handles)
             {
                 Sleep(500);
 
-                POSITION pos{m_frd.files.GetHeadPosition()};
-                for(int i{0}; pos; ++i)
+                POSITION reloadPos{m_frd.files.GetHeadPosition()};
+                for(int i{0}; reloadPos; ++i)
                 {
                     CFileStatus status;
-                    if(CFileGetStatus(m_frd.files.GetNext(pos), status)
+                    if(CFileGetStatus(m_frd.files.GetNext(reloadPos), status)
                         && m_frd.mtime[i] != status.m_mtime)
                     {
                         (void)Open();
@@ -1339,7 +1339,7 @@ void XySubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handles)
             {
                 XY_LOG_WARN("Failed to disconnect with consumer!");
             }
-            CAutoLock cAutoLock(&m_csConsumer);
+            CAutoLock cConsumerLock(&m_csConsumer);
             m_consumer = nullptr;
         }
         else
@@ -1993,7 +1993,7 @@ void XySubFilter::InvalidateSubtitle( const REFERENCE_TIME rtInvalidate /*= -1*/
 
     if(m_sub_provider)
     {
-        if (nSubtitleId == -1 || nSubtitleId == reinterpret_cast<DWORD_PTR>(m_curSubStream))
+        if (nSubtitleId == static_cast<DWORD_PTR>(-1) || nSubtitleId == reinterpret_cast<DWORD_PTR>(m_curSubStream))
         {
             if (m_last_requested>rtInvalidate)
             {
@@ -2418,7 +2418,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
     }
     EndEnumFilters;
     XY_LOG_INFO(L"fn:"<<fn.GetString());
-    if((load_external || load_web) && (load_web || !(wcsstr(fn, L"http://") || wcsstr(fn, L"mms://"))))
+    if((load_external || load_web) && (load_web || !(std::wcsstr(fn, L"http://") || std::wcsstr(fn, L"mms://"))))
     {
         bool fTemp{m_xy_bool_opt[BOOL_HIDE_SUBTITLES]};
         fRet = (!fn.IsEmpty() && SUCCEEDED(put_FileName((LPWSTR)(LPCWSTR)fn)))

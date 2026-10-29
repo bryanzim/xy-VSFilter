@@ -292,7 +292,7 @@ CMediaTypeEx::CMediaTypeEx()
 		{
 			if(b[i] >= 'a' && b[i] <= 'z')
 			{ 
-				b[i] = toupper(b[i]);
+				b[i] = std::toupper(b[i]);
 			}
 		}
 
@@ -530,21 +530,21 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
 		if(formattype == FORMAT_VideoInfo2 || formattype == FORMAT_MPEG2_VIDEO)
 		{
-			VIDEOINFOHEADER2& vih{*(VIDEOINFOHEADER2*)pbFormat};
-			bih = &vih.bmiHeader;
+			VIDEOINFOHEADER2& vih2{*(VIDEOINFOHEADER2*)pbFormat};
+			bih = &vih2.bmiHeader;
 
 			sl.AddTail(_T("VIDEOINFOHEADER2:"));
-			str.Format(_T("dwInterlaceFlags: 0x%08x"), vih.dwInterlaceFlags);
+			str.Format(_T("dwInterlaceFlags: 0x%08x"), vih2.dwInterlaceFlags);
 			sl.AddTail(str);
-			str.Format(_T("dwCopyProtectFlags: 0x%08x"), vih.dwCopyProtectFlags);
+			str.Format(_T("dwCopyProtectFlags: 0x%08x"), vih2.dwCopyProtectFlags);
 			sl.AddTail(str);
-			str.Format(_T("dwPictAspectRatioX: %d"), vih.dwPictAspectRatioX);
+			str.Format(_T("dwPictAspectRatioX: %d"), vih2.dwPictAspectRatioX);
 			sl.AddTail(str);
-			str.Format(_T("dwPictAspectRatioY: %d"), vih.dwPictAspectRatioY);
+			str.Format(_T("dwPictAspectRatioY: %d"), vih2.dwPictAspectRatioY);
 			sl.AddTail(str);
-			str.Format(_T("dwControlFlags: 0x%08x"), vih.dwControlFlags);
+			str.Format(_T("dwControlFlags: 0x%08x"), vih2.dwControlFlags);
 			sl.AddTail(str);
-			str.Format(_T("dwReserved2: 0x%08x"), vih.dwReserved2);
+			str.Format(_T("dwReserved2: 0x%08x"), vih2.dwReserved2);
 			sl.AddTail(str);
 
 			sl.AddTail(_T(""));
@@ -644,21 +644,21 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 			{
 				fmtsize = sizeof(WAVEFORMATEXTENSIBLE);
 
-				WAVEFORMATEXTENSIBLE& wfe{*(WAVEFORMATEXTENSIBLE*)pbFormat};
+				WAVEFORMATEXTENSIBLE& wfext{*(WAVEFORMATEXTENSIBLE*)pbFormat};
 
 				sl.AddTail(_T("WAVEFORMATEXTENSIBLE:"));
-				if(wfe.Format.wBitsPerSample != 0)
+				if(wfext.Format.wBitsPerSample != 0)
 				{
-				    str.Format(_T("wValidBitsPerSample: %d"), wfe.Samples.wValidBitsPerSample);
+				    str.Format(_T("wValidBitsPerSample: %d"), wfext.Samples.wValidBitsPerSample);
 				}
 				else
 				{
-				    str.Format(_T("wSamplesPerBlock: %d"), wfe.Samples.wSamplesPerBlock);
+				    str.Format(_T("wSamplesPerBlock: %d"), wfext.Samples.wSamplesPerBlock);
 				}
 				sl.AddTail(str);
-				str.Format(_T("dwChannelMask: 0x%08x"), wfe.dwChannelMask);
+				str.Format(_T("dwChannelMask: 0x%08x"), wfext.dwChannelMask);
 				sl.AddTail(str);
-				str.Format(_T("SubFormat: %s"), CStringFromGUID(wfe.SubFormat).GetString());
+				str.Format(_T("SubFormat: %s"), CStringFromGUID(wfext.SubFormat).GetString());
 				sl.AddTail(str);
 
 				sl.AddTail(_T(""));
@@ -667,18 +667,18 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 			{
 				fmtsize = sizeof(DOLBYAC3WAVEFORMAT);
 
-				DOLBYAC3WAVEFORMAT& wfe{*(DOLBYAC3WAVEFORMAT*)pbFormat};
+				DOLBYAC3WAVEFORMAT& wfAc3{*(DOLBYAC3WAVEFORMAT*)pbFormat};
 
 				sl.AddTail(_T("DOLBYAC3WAVEFORMAT:"));
-				str.Format(_T("bBigEndian: %d"), wfe.bBigEndian);
+				str.Format(_T("bBigEndian: %d"), wfAc3.bBigEndian);
 				sl.AddTail(str);
-				str.Format(_T("bsid: %d"), wfe.bsid);
+				str.Format(_T("bsid: %d"), wfAc3.bsid);
 				sl.AddTail(str);
-				str.Format(_T("lfeon: %d"), wfe.lfeon);
+				str.Format(_T("lfeon: %d"), wfAc3.lfeon);
 				sl.AddTail(str);
-				str.Format(_T("copyrightb: %d"), wfe.copyrightb);
+				str.Format(_T("copyrightb: %d"), wfAc3.copyrightb);
 				sl.AddTail(str);
-				str.Format(_T("nAuxBitsCode: %d"), wfe.nAuxBitsCode);
+				str.Format(_T("nAuxBitsCode: %d"), wfAc3.nAuxBitsCode);
 				sl.AddTail(str);
 
 				sl.AddTail(_T(""));
@@ -746,25 +746,25 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 	{
 		sl.AddTail(_T("pbFormat:"));
 
-		for(int i{0}, j = (cbFormat + 15) & ~15; i < j; i += 16)
+		for(ULONG i{0U}, j{(cbFormat + 15U) & ~15U}; i < j; i += 16U)
 		{
 			str.Format(_T("%04x:"), i);
 
-			for(int k{i}, l = min(i + 16, cbFormat); k < l; ++k)
+			for(ULONG k{i}, l{min(i + 16U, cbFormat)}; k < l; ++k)
 			{
 				CString byte;
-				byte.Format(_T("%c%02x"), fmtsize > 0 && fmtsize == k ? '|' : ' ', pbFormat[k]);
+				byte.Format(_T("%c%02x"), (fmtsize > 0 && static_cast<ULONG>(fmtsize) == k ? '|' : ' '), pbFormat[k]);
 				str += byte;
 			}
 
-			for(int k = min(i + 16, cbFormat), l = i + 16; k < l; ++k)
+			for(ULONG k{min(i + 16U, cbFormat)}, l{i + 16U}; k < l; ++k)
 			{
 				str += _T("   ");
 			}
 
 			str += ' ';
 
-			for(int k{i}, l = min(i + 16, cbFormat); k < l; ++k)
+			for(ULONG k{i}, l{min(i + 16U, cbFormat)}; k < l; ++k)
 			{
 				unsigned char c{(unsigned char)pbFormat[k]};
 				CStringA ch;

@@ -32,28 +32,28 @@ namespace ssf
 	protected:
 		StringMapW<T> m_key2obj;
 		CAtlList<CStringW> m_objs;
-		size_t m_limit;
+		std::size_t m_limit;
 
 	public:
-		Cache(size_t limit) {m_limit = max(1, limit);}
+		explicit Cache(std::size_t limit) {m_limit = max(1, limit);}
 		virtual ~Cache() {RemoveAll();}
 
 		void RemoveAll()
 		{
 			POSITION pos = m_key2obj.GetStartPosition();
-			while(pos) delete m_key2obj.GetNextValue(pos);
+			while(pos) { delete m_key2obj.GetNextValue(pos); }
 			m_key2obj.RemoveAll();
 			m_objs.RemoveAll();
 		}
 
 		void Add(const CStringW& key, T& obj, bool fFlush = true)
 		{
-			if(typename StringMapW<T>::CPair* p = m_key2obj.Lookup(key)) delete p->m_value;
-			else m_objs.AddTail(key);
+			if(typename StringMapW<T>::CPair* p = m_key2obj.Lookup(key)) { delete p->m_value; }
+			else { m_objs.AddTail(key); }
 
 			m_key2obj[key] = obj;
 
-			if(fFlush) Flush();
+			if(fFlush) { Flush(); }
 		}
 
 		void Flush()
@@ -78,7 +78,7 @@ namespace ssf
 			if(m_key2obj.Lookup(key, val))
 			{
 				delete val;
-				m_key2obj[key] = NULL;
+				m_key2obj[key] = nullptr;
 			}
 		}
 	};
@@ -86,14 +86,14 @@ namespace ssf
 	class FontCache : public Cache<FontWrapper*> 
 	{
 	public:
-		FontCache() : Cache(20) {}
+		explicit FontCache() : Cache(20U) {}
 		FontWrapper* Create(HDC hDC, const LOGFONT& lf);
 	};
 
 	class GlyphPathCache : public Cache<GlyphPath*>
 	{
 	public:
-		GlyphPathCache() : Cache(100) {}
+		explicit GlyphPathCache() : Cache(100U) {}
 		GlyphPath* Create(HDC hDC, const FontWrapper* f, WCHAR c);
 	};
 
@@ -101,7 +101,7 @@ namespace ssf
 	{
 	public:
 		int ascent, descent, border, width;
-		Row() {ascent = descent = border = width = 0;}
+		explicit Row() {ascent = descent = border = width = 0;}
 	};
 
 	class RenderedSubtitle
@@ -120,7 +120,7 @@ namespace ssf
 	class RenderedSubtitleCache : public Cache<RenderedSubtitle*>
 	{
 	public:
-		RenderedSubtitleCache() : Cache(10) {}
+		explicit RenderedSubtitleCache() : Cache(10U) {}
 	};
 
 	class SubRect
@@ -128,7 +128,7 @@ namespace ssf
 	public:
 		CRect rect;
 		float layer;
-		SubRect() {}
+		explicit SubRect() {}
 		SubRect(const CRect& r, float l) : rect(r), layer(l) {}
 	};
 
@@ -151,7 +151,7 @@ namespace ssf
 		SubRectAllocator m_sra;
 
 	public:
-		Renderer();
+		explicit Renderer();
 		virtual ~Renderer();
 
 		void NextSegment(const CAutoPtrList<Subtitle>& subs);

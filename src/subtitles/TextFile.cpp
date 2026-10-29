@@ -282,7 +282,7 @@ void CTextFile::WriteString(const LPCWSTR lpsz/*CStringW str*/)
 		}
 
 		int nContinuationBytes{Utf8::continuationBytes(c)};
-		if (m_bufferCount - m_bufferPos < nContinuationBytes) {
+		if (m_bufferCount - m_bufferPos < static_cast<std::size_t>(nContinuationBytes)) {
 			--m_bufferPos;
 			return CHARERR_NEED_MORE;
 		}

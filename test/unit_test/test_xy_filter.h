@@ -18,7 +18,7 @@ void xy_filter_one_line_sse_v6(float *dst, int width, const float *filter, int f
 template<typename T>
 [[nodiscard]] std::ostream& GetBufString(std::ostream& os, T* buf, const int len)
 {
-    for (int i{0};i<len;i++)
+    for (int i{0};i<len;++i)
     {
         os<<buf[i]<<" ";
     }
@@ -34,7 +34,7 @@ template<typename T>
 
     // default NAN won't compare as equal to anything.
 
-    assert(maxUlps > 0 && maxUlps < 4 * 1024 * 1024);
+    assert((maxUlps > 0 && maxUlps < 4 * 1024 * 1024));
 
     int aInt{*(int*)&A};
 
@@ -108,7 +108,7 @@ public:
     }
     [[nodiscard]] bool operator== (const XyFilterTestData& rhs) const
     {
-        for (int i{0};i<MAX_BUFF_SIZE;i++)
+        for (int i{0};i<MAX_BUFF_SIZE;++i)
         {
             if (!AlmostEqual2sComplement(buff_base[i], rhs.buff_base[i],8))
             {
@@ -132,30 +132,30 @@ public:
 
         ASSERT(this->pitch*this->h <= MAX_DATA_BUFF_SIZE);
 
-        for (int i{0};i<h;i++)
+        for (int i{0};i<h;++i)
         {
             float *data2{(float*)((PUINT8)data + i*pitch)};
-            for (int j{0};j<w+filter_width;j++)
+            for (int j{0};j<w+filter_width;++j)
             {
                 data2[j] = rand()&0xFF;
             }
         }
         float sum{0};
-        for (int i{0};i<filter_width/2+1;i++)
+        for (int i{0};i<filter_width/2+1;++i)
         {
             filter_f[i] = std::abs((rand()&0xFFFFF)+0xFFFFF);
             sum += filter_f[i];
         }
-        for (int i{filter_width/2+1};i<filter_width;i++)
+        for (int i{filter_width/2+1};i<filter_width;++i)
         {
             filter_f[i] = filter_f[filter_width-i-1];
             sum += filter_f[i];
         }
-        for (int i{0};i<filter_width;i++)
+        for (int i{0};i<filter_width;++i)
         {
             filter_f[i] /= sum;
         }
-        for (int i{filter_width};i<ex_filter_width;i++)
+        for (int i{filter_width};i<ex_filter_width;++i)
         {
             filter_f[i] = 0;
         }
@@ -194,9 +194,10 @@ TEST_F(XyFilterTest, c_vs_sse)
 {
     int LOOP_NUM{10};
     for(int WIDTH{4};WIDTH<256;WIDTH+=4)
-        for (int FILTER_WIDTH{3};FILTER_WIDTH<32;FILTER_WIDTH++)
+    {
+        for (int FILTER_WIDTH{3};FILTER_WIDTH<32;++FILTER_WIDTH)
         {
-            for(int i{0};i<LOOP_NUM;i++)
+            for(int i{0};i<LOOP_NUM;++i)
             {
                 data0.FillRandData(WIDTH, 1, FILTER_WIDTH);
                 data1.copy(data0);
@@ -210,6 +211,7 @@ TEST_F(XyFilterTest, c_vs_sse)
                     <<"data2:"<<data2;
             }
         }
+    }
 }
 
 
@@ -217,9 +219,10 @@ TEST_F(XyFilterTest, sse_vs_sse_v6)
 {
     int LOOP_NUM{10};
     for(int WIDTH{4};WIDTH<256;WIDTH+=4)
-        for (int FILTER_WIDTH{3};FILTER_WIDTH<32;FILTER_WIDTH++)
+    {
+        for (int FILTER_WIDTH{3};FILTER_WIDTH<32;++FILTER_WIDTH)
         {
-            for(int i{0};i<LOOP_NUM;i++)
+            for(int i{0};i<LOOP_NUM;++i)
             {
                 data0.FillRandData(WIDTH, 1, FILTER_WIDTH);
                 data1.copy(data0);
@@ -233,6 +236,7 @@ TEST_F(XyFilterTest, sse_vs_sse_v6)
                     <<"data2:"<<data2;
             }
         }
+    }
 }
 
 #endif // __TEST_XY_FILTER_0B6AC4E9_AA51_4EF9_B255_90792DC07DB9_H__

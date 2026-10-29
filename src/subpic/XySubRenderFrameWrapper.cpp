@@ -165,7 +165,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     ASSERT(inner_obj);
     int count{0};
     HRESULT hr{inner_obj->GetBitmapCount(&count)};
-    ASSERT(SUCCEEDED(hr) && count>=0);
+    ASSERT((SUCCEEDED(hr) && count>=0));
     (void)hr;
     if (count>0)
     {
@@ -217,7 +217,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2( IXySubRenderFrame *inner_obj
     }
     if (id)
     {
-        ASSERT(index>=0 && index<m_ids.GetCount());
+        ASSERT((index>=0 && index<m_ids.GetCount()));
         *id = m_ids.GetAt(index);
         TRACE_SUB_RENDER_FRAME(index<<" contexted id:"<<*id);
     }

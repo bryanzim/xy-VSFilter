@@ -145,8 +145,8 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
 	CHAR* s2{s};
 	while(s1 < e)
 	{
-		CHAR s11 = (s1 < e-1) ? (__isascii(s1[1U]) && isupper(s1[1U]) ? tolower(s1[1U]) : s1[1U]) : 0;
-		CHAR s12 = (s1 < e-2) ? (__isascii(s1[2U]) && isupper(s1[2U]) ? tolower(s1[2U]) : s1[2U]) : 0;
+		CHAR s11 = (s1 < e-1) ? (__isascii(s1[1U]) && std::isupper(s1[1U]) ? std::tolower(s1[1U]) : s1[1U]) : 0;
+		CHAR s12 = (s1 < e-2) ? (__isascii(s1[2U]) && std::isupper(s1[2U]) ? std::tolower(s1[2U]) : s1[2U]) : 0;
 
 		if(*s1 == '%' && s1 < e-2
 		&& ((s1[1U] >= '0' && s1[1U] <= '9') || (s11 >= 'a' && s11 <= 'f'))

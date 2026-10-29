@@ -81,26 +81,30 @@ namespace ssf
 
 			if(types.IsEmpty())
 			{
-				if(name.IsEmpty()) s.ThrowError(_T("syntax error"));
+				if(name.IsEmpty()) { s.ThrowError(_T("syntax error")); }
 				types.AddTail(L"?");
 			}
 
 			Reference* pRef = pParentRef;
 
-			while(types.GetCount() > 1)
+			while(types.GetCount() > 1U)
+			{
 				pRef = CreateRef(CreateDef(pRef, types.RemoveHead()));
+			}
 
-			Definition* pDef = NULL;
+			Definition* pDef = nullptr;
 
 			if(!types.IsEmpty())
+			{
 				pDef = CreateDef(pRef, types.RemoveHead(), name, priority);
+			}
 
 			c = s.SkipWhiteSpace(L":=");
 
-			if(c == '"' || c == '\'') ParseQuotedString(s, pDef);
-			else if(iswdigit(static_cast<wint_t>(c)) || c == '+' || c == '-') ParseNumber(s, pDef);
-			else if(pDef->IsType(L"@")) ParseBlock(s, pDef);
-			else ParseRefs(s, pDef);
+			if(c == '"' || c == '\'') { ParseQuotedString(s, pDef); }
+			else if(iswdigit(static_cast<wint_t>(c)) || c == '+' || c == '-') { ParseNumber(s, pDef); }
+			else if(pDef->IsType(L"@")) { ParseBlock(s, pDef); }
+			else { ParseRefs(s, pDef); }
 		}
 
 		s.GetChar();
@@ -118,18 +122,18 @@ namespace ssf
 
 			if(c == '.') 
 			{
-				if(str.IsEmpty()) s.ThrowError(_T("'type' cannot be an empty string"));
-				if(!iswcsym(static_cast<wint_t>(s.PeekChar()))) s.ThrowError(_T("unexpected dot after type '%s'"), str.GetString());
+				if(str.IsEmpty()) { s.ThrowError(_T("'type' cannot be an empty string")); }
+				if(!iswcsym(static_cast<wint_t>(s.PeekChar()))) { s.ThrowError(_T("unexpected dot after type '%s'"), str.GetString()); }
 
 				types.AddTail(str);
 				str.Empty();
 			}
 			else
 			{
-				if(str.IsEmpty() && iswdigit(static_cast<wint_t>(c))) s.ThrowError(_T("'type' cannot start with a number"));
-				if((!str.IsEmpty() || !types.IsEmpty()) && c == '@') s.ThrowError(_T("unexpected @ in 'type'"));
+				if(str.IsEmpty() && iswdigit(static_cast<wint_t>(c))) { s.ThrowError(_T("'type' cannot start with a number")); }
+				if((!str.IsEmpty() || !types.IsEmpty()) && c == '@') { s.ThrowError(_T("unexpected @ in 'type'")); }
 
-				str += (WCHAR)c;
+				str += static_cast<WCHAR>(c);
 			}
 		}
 
@@ -143,10 +147,10 @@ namespace ssf
 	{
 		name.Empty();
 
-		for(int c = s.SkipWhiteSpace(); iswcsym(c); c = s.PeekChar())
+		for(int c = s.SkipWhiteSpace(); iswcsym(static_cast<wint_t>(c)); c = s.PeekChar())
 		{
-			if(name.IsEmpty() && iswdigit(c)) s.ThrowError(_T("'name' cannot start with a number"));
-			name += (WCHAR)s.GetChar();
+			if(name.IsEmpty() && iswdigit(static_cast<wint_t>(c))) { s.ThrowError(_T("'name' cannot start with a number")); }
+			name += static_cast<WCHAR>(s.GetChar());
 		}
 	}
 
@@ -155,17 +159,17 @@ namespace ssf
 		CStringW v;
 
 		int quote = s.SkipWhiteSpace();
-		if(quote != '"' && quote != '\'') s.ThrowError(_T("expected qouted string"));
+		if(quote != '"' && quote != '\'') { s.ThrowError(_T("expected qouted string")); }
 		s.GetChar();
 
 		for(int c = s.PeekChar(); c != Stream::EOS; c = s.PeekChar())
 		{
 			c = s.GetChar();
 			if(c == quote) {pDef->SetAsValue(Definition::string, v); return;}
-			if(c == '\n') s.ThrowError(_T("qouted string terminated unexpectedly by a new-line character"));
-			if(c == '\\') c = s.GetChar();
-			if(c == Stream::EOS) s.ThrowError(_T("qouted string terminated unexpectedly by EOS"));
-			v += (WCHAR)c;
+			if(c == '\n') { s.ThrowError(_T("qouted string terminated unexpectedly by a new-line character")); }
+			if(c == '\\') { c = s.GetChar(); }
+			if(c == Stream::EOS) { s.ThrowError(_T("qouted string terminated unexpectedly by EOS")); }
+			v += static_cast<WCHAR>(c);
 		}
 
 		s.ThrowError(_T("unterminated quoted string"));
@@ -175,7 +179,7 @@ namespace ssf
 	{
 		CStringW v, u;
 
-		for(int c = s.SkipWhiteSpace(); iswxdigit(c) || wcschr(L"+-.x:", c); c = s.PeekChar())
+		for(int c = s.SkipWhiteSpace(); iswxdigit(static_cast<wint_t>(c)) || std::wcschr(L"+-.x:", c); c = s.PeekChar())
 		{
 			if(((c == '+' || c == '-') && !v.IsEmpty())
 			|| (c == '.' && (v.IsEmpty() || v.Find('.') >= 0 || v.Find('x') >= 0))
@@ -186,14 +190,14 @@ namespace ssf
 				s.ThrowError(_T("unexpected character '%c' in number"), (TCHAR)c);
 			}
 
-			v += (WCHAR)s.GetChar();
+			v += static_cast<WCHAR>(s.GetChar());
 		}
 
-		if(v.IsEmpty()) s.ThrowError(_T("invalid number"));
+		if(v.IsEmpty()) { s.ThrowError(_T("invalid number")); }
 
-		for(int c = s.SkipWhiteSpace(); iswcsym(c); c = s.PeekChar())
+		for(int c = s.SkipWhiteSpace(); iswcsym(static_cast<wint_t>(c)); c = s.PeekChar())
 		{
-			u += (WCHAR)s.GetChar();
+			u += static_cast<WCHAR>(s.GetChar());
 		}
 
 		pDef->SetAsNumber(v, u);
@@ -204,20 +208,20 @@ namespace ssf
 		CStringW v;
 
 		int c = s.SkipWhiteSpace(L":=");
-		if(c != '{') s.ThrowError(_T("expected '{'"));
+		if(c != '{') { s.ThrowError(_T("expected '{'")); }
 		s.GetChar();
 
 		int depth = 0;
 
-		for(int c = s.PeekChar(); c != Stream::EOS; c = s.PeekChar())
+		for(int blockChar = s.PeekChar(); blockChar != Stream::EOS; blockChar = s.PeekChar())
 		{
-			c = s.GetChar();
-			if(c == '}' && depth == 0) {pDef->SetAsValue(Definition::block, v); return;}
-			if(c == '\\') {v += (WCHAR)c; c = s.GetChar();}
-			else if(c == '{') depth++;
-			else if(c == '}') depth--;
-			if(c == Stream::EOS) s.ThrowError(_T("block terminated unexpectedly by EOS"));
-			v += (WCHAR)c;
+			blockChar = s.GetChar();
+			if(blockChar == '}' && depth == 0) {pDef->SetAsValue(Definition::block, v); return;}
+			if(blockChar == '\\') {v += static_cast<WCHAR>(blockChar); blockChar = s.GetChar();}
+			else if(blockChar == '{') { ++depth; }
+			else if(blockChar == '}') { --depth; }
+			if(blockChar == Stream::EOS) { s.ThrowError(_T("block terminated unexpectedly by EOS")); }
+			v += static_cast<WCHAR>(blockChar);
 		}
 
 		s.ThrowError(_T("unterminated block"));
@@ -229,14 +233,14 @@ namespace ssf
 
 		do
 		{
-			if(pParentDef->IsValue()) s.ThrowError(_T("cannot mix references with other values"));
+			if(pParentDef->IsValue()) { s.ThrowError(_T("cannot mix references with other values")); }
 
 			if(c == '{')
 			{
 				s.GetChar();
 				ParseDefs(s, CreateRef(pParentDef));
 			}
-			else if(iswcsym(c))
+			else if(iswcsym(static_cast<wint_t>(c)))
 			{
 				CStringW str;
 				ParseName(s, str);
@@ -244,19 +248,19 @@ namespace ssf
 				// TODO: allow spec references: parent.<type>, self.<type>, child.<type>
 
 				Definition* pDef = GetDefByName(str);
-				if(!pDef) s.ThrowError(_T("cannot find definition of '%s'"), str.GetString());
+				if(!pDef) { s.ThrowError(_T("cannot find definition of '%s'"), str.GetString()); }
 
-				if(!pParentDef->IsVisible(pDef)) s.ThrowError(_T("cannot access '%s' from here"), str.GetString());
+				if(!pParentDef->IsVisible(pDef)) { s.ThrowError(_T("cannot access '%s' from here"), str.GetString()); }
 
 				pParentDef->AddTail(pDef);
 			}
-			else if(!wcschr(term, c) && c != Stream::EOS)
+			else if(!std::wcschr(term, static_cast<wchar_t>(c)) && c != Stream::EOS)
 			{
 				s.ThrowError(_T("unexpected character '%c'"), (TCHAR)c);
 			}
 
 			c = s.SkipWhiteSpace();
 		}
-		while(!wcschr(term, c) && c != Stream::EOS);
+		while(!std::wcschr(term, static_cast<wchar_t>(c)) && c != Stream::EOS);
 	}
 }

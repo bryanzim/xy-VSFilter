@@ -36,10 +36,10 @@ namespace ssf
 		encoding_t m_encoding;
 
 	public:
-		Stream();
+		explicit Stream();
 		virtual ~Stream();
 
-		static bool IsWhiteSpace(int c, LPCWSTR morechars = NULL);
+		static bool IsWhiteSpace(int c, LPCWSTR morechars = nullptr);
 
 		void ThrowError(LPCTSTR fmt, ...);
 	};
@@ -55,12 +55,12 @@ namespace ssf
 		virtual int NextByte() = 0;
 
 	public:
-		InputStream();
+		explicit InputStream();
 		~InputStream();
 
 		int PeekChar(), GetChar();
 
-		int SkipWhiteSpace(LPCWSTR morechars = NULL);
+		int SkipWhiteSpace(LPCWSTR morechars = nullptr);
 	};
 
 	class FileInputStream : public InputStream
@@ -71,7 +71,7 @@ namespace ssf
 		int NextByte();
 
 	public:
-		FileInputStream(const TCHAR* fn);
+		explicit FileInputStream(const TCHAR* fn);
 		~FileInputStream();
 	};
 
@@ -98,7 +98,7 @@ namespace ssf
 		int NextByte();
 
 	public:
-		WCharInputStream(CStringW str);
+		explicit WCharInputStream(CStringW str);
 	};
 
 	class OutputStream : public Stream
@@ -109,7 +109,7 @@ namespace ssf
 		virtual void NextByte(int b) = 0;
 
 	public:
-		OutputStream(encoding_t e);
+		explicit OutputStream(encoding_t e);
 		virtual ~OutputStream();
 
 		void PutChar(WCHAR c);
@@ -124,7 +124,7 @@ namespace ssf
 		void NextByte(int b);
 
 	public:
-		WCharOutputStream();
+		explicit WCharOutputStream();
 
 		const CStringW& GetString() {return m_str;}
 	};
@@ -137,7 +137,7 @@ namespace ssf
 		void NextByte(int b);
 
 	public:
-		DebugOutputStream();
+		explicit DebugOutputStream();
 		~DebugOutputStream();
 	};
 }

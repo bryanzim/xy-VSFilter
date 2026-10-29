@@ -36,8 +36,8 @@ public:
 	float x, y, z;
 
 	explicit Vector() {x = y = z = 0;}
-	Vector(float x, float y, float z);
-	void Set(float x, float y, float z);
+	Vector(float ax, float ay, float az);
+	void Set(float ax, float ay, float az);
 
 	[[nodiscard]] Vector Normal(const Vector& a, const Vector& b) const;
 	[[nodiscard]] float Angle(const Vector& a, const Vector& b) const;
@@ -94,8 +94,8 @@ public:
 	Vector p, d;
 
 	explicit Ray() {}
-	Ray(const Vector& p, const Vector& d);
-	void Set(const Vector& p, const Vector& d);
+	Ray(const Vector& origin, const Vector& direction);
+	void Set(const Vector& origin, const Vector& direction);
 
 	[[nodiscard]] float GetDistanceFrom(const Ray& r) const; // r = plane
 	[[nodiscard]] float GetDistanceFrom(const Vector& v) const; // v = point
@@ -113,8 +113,8 @@ class XForm
 		explicit Matrix();
 		void Initalize();
 
-		[[nodiscard]] Matrix operator * (const Matrix& m) const;
-		Matrix& operator *= (const Matrix& m);
+		[[nodiscard]] Matrix operator * (const Matrix& other) const;
+		Matrix& operator *= (const Matrix& other);
 	} m;
 
 	bool m_isWorldToLocal;

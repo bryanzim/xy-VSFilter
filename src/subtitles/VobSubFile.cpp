@@ -395,7 +395,7 @@ void CVobSubFile::Close()
     m_title.Empty();
     m_sub.SetLength(0);
     m_img.Invalidate();
-    m_iLang = -1;
+    m_iLang = static_cast<std::size_t>(-1);
     for(int i{0}; i < 32; ++i)
     {
         m_langs[i].id = 0;
@@ -420,7 +420,7 @@ void CVobSubFile::Close()
     __int64 celltimestamp{0};
 
     CString str;
-    for (ptrdiff_t line{0}; !fError && f.ReadString(str); ++line) {
+    for (std::ptrdiff_t line{0}; !fError && f.ReadString(str); ++line) {
         str.Trim();
 
         if (line == 0) {
@@ -595,7 +595,7 @@ void CVobSubFile::Close()
             if (_stscanf_s(str, _T("%d"), &iLang) != 1) {
                 fError = true;
             }
-            m_iLang = (iLang < 0 && std::size_t(iLang) >= m_langs.size()) ? -1 : std::size_t(iLang);
+            m_iLang = (iLang < 0 || static_cast<std::size_t>(iLang) >= m_langs.size()) ? static_cast<std::size_t>(-1) : static_cast<std::size_t>(iLang);
         } else if (entry == _T("palette")) {
             if (_stscanf_s(str, _T("%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x,%x"),
                            (unsigned int *)&m_orgpal[0U], (unsigned int *)&m_orgpal[1U], (unsigned int *)&m_orgpal[2U], (unsigned int *)&m_orgpal[3U],
@@ -660,7 +660,7 @@ void CVobSubFile::Close()
                 fError = true;
                 continue;
             }
-            if (m_iLang == -1) {
+            if (m_iLang == static_cast<std::size_t>(-1)) {
                 m_iLang = std::size_t(id);
             }
 
@@ -758,18 +758,33 @@ void CVobSubFile::Close()
     return true;
 }
 
-static unsigned char* RARbuff{nullptr};
-static unsigned int RARpos{0};
+struct RarExtract
+{
+    unsigned char* data{nullptr};
+    unsigned int capacity{0U};
+    unsigned int used{0U};
+};
 
 [[nodiscard]] static int CALLBACK MyCallbackProc(const UINT msg, const LPARAM UserData, const LPARAM P1, const LPARAM P2)
 {
-    if (msg == UCM_PROCESSDATA) {
-        ASSERT(RARbuff);
-
-        std::memcpy(&RARbuff[RARpos], (char*)P1, (std::size_t)P2);
-        RARpos += (unsigned int)P2;
+    if (msg != UCM_PROCESSDATA)
+    {
+        return 1;
     }
 
+    RarExtract* extract{reinterpret_cast<RarExtract*>(UserData)};
+    if (extract == nullptr || extract->data == nullptr || P1 == 0 || P2 < 0)
+    {
+        return -1;
+    }
+    if (static_cast<unsigned long long>(P2) > static_cast<unsigned long long>(extract->capacity - extract->used))
+    {
+        return -1;
+    }
+
+    const unsigned int count{static_cast<unsigned int>(P2)};
+    std::memcpy(extract->data + extract->used, reinterpret_cast<const void*>(P1), count);
+    extract->used += count;
     return 1;
 }
 
@@ -818,7 +833,9 @@ static unsigned int RARpos{0};
     OpenArchiveData.ArcName = fnA;
     OpenArchiveData.OpenMode = RAR_OM_EXTRACT;
     OpenArchiveData.CmtBuf = 0;
+    RarExtract extract;
     OpenArchiveData.Callback = MyCallbackProc;
+    OpenArchiveData.UserData = reinterpret_cast<LPARAM>(&extract);
     HANDLE hArcData{OpenArchiveEx(&OpenArchiveData)};
     if (!hArcData) {
 #ifndef USE_UNRAR_STATIC
@@ -834,6 +851,12 @@ static unsigned int RARpos{0};
         CString subfn(HeaderDataEx.FileNameW);
 
         if (!subfn.Right(4).CompareNoCase(_T(".sub"))) {
+            if (HeaderDataEx.UnpSizeHigh != 0U || HeaderDataEx.UnpSize == 0U)
+            {
+                ProcessFile(hArcData, RAR_SKIP, nullptr, nullptr);
+                continue;
+            }
+
             CAutoVectorPtr<BYTE> buff;
             if (!buff.Allocate(HeaderDataEx.UnpSize)) {
                 CloseArchive(hArcData);
@@ -843,10 +866,11 @@ static unsigned int RARpos{0};
                 return false;
             }
 
-            RARbuff = buff;
-            RARpos = 0;
+            extract.data = buff;
+            extract.capacity = HeaderDataEx.UnpSize;
+            extract.used = 0U;
 
-            if (ProcessFile(hArcData, RAR_TEST, nullptr, nullptr)) {
+            if (ProcessFile(hArcData, RAR_TEST, nullptr, nullptr) != 0 || extract.used != HeaderDataEx.UnpSize) {
                 CloseArchive(hArcData);
 #ifndef USE_UNRAR_STATIC
                 FreeLibrary{h};
@@ -855,13 +879,14 @@ static unsigned int RARpos{0};
                 return false;
             }
 
-            m_sub.SetLength(HeaderDataEx.UnpSize);
+            m_sub.SetLength(extract.used);
             m_sub.SeekToBegin();
-            m_sub.Write(buff, HeaderDataEx.UnpSize);
+            m_sub.Write(buff, extract.used);
             m_sub.SeekToBegin();
 
-            RARbuff = nullptr;
-            RARpos = 0;
+            extract.data = nullptr;
+            extract.capacity = 0U;
+            extract.used = 0U;
 
             break;
         }
@@ -1127,6 +1152,9 @@ static unsigned int RARpos{0};
     if (iLang >= m_langs.size()) {
         iLang = m_iLang;
     }
+    if (iLang >= m_langs.size()) {
+        return nullptr;
+    }
     CAtlArray<SubPos>& sp = m_langs[iLang].subpos;
 
     do {
@@ -1147,7 +1175,7 @@ static unsigned int RARpos{0};
 
         // let's check a few things to make sure...
         if (*(DWORD*)&buff[0x00U] != 0xba010000
-                || *(DWORD*)&buff[0x0e] != 0xbd010000
+                || *(DWORD*)&buff[0x0eU] != 0xbd010000
                 || !(buff[0x15U] & 0x80)
                 || (buff[0x17U] & 0xf0) != 0x20
                 || (buff[buff[0x16U] + 0x17] & 0xe0) != 0x20
@@ -1195,6 +1223,9 @@ static unsigned int RARpos{0};
     if (iLang >= m_langs.size()) {
         iLang = m_iLang;
     }
+    if (iLang >= m_langs.size()) {
+        return nullptr;
+    }
     const CAtlArray<SubPos>& sp = m_langs[iLang].subpos;
 
     if (idx >= sp.GetCount()
@@ -1210,6 +1241,9 @@ static unsigned int RARpos{0};
 {
     if (iLang >= m_langs.size()) {
         iLang = m_iLang;
+    }
+    if (iLang >= m_langs.size()) {
+        return false;
     }
     CAtlArray<SubPos>& sp = m_langs[iLang].subpos;
 
@@ -1252,12 +1286,12 @@ static unsigned int RARpos{0};
 [[nodiscard]] std::size_t CVobSubFile::GetFrameIdxByTimeStamp(const __int64 time)
 {
     if (m_iLang >= m_langs.size() || m_langs[m_iLang].subpos.IsEmpty()) {
-        return -1;
+        return static_cast<std::size_t>(-1);
     }
 
     CAtlArray<SubPos>& sp = m_langs[m_iLang].subpos;
 
-    std::size_t i{0U}, j = sp.GetCount() - 1, ret = -1;
+    std::size_t i{0U}, j{sp.GetCount() - 1}, ret{static_cast<std::size_t>(-1)};
 
     if (time >= sp[j].start) {
         return j;
@@ -1271,7 +1305,7 @@ static unsigned int RARpos{0};
             ret = mid;
             break;
         } else if (time < midstart) {
-            ret = -1;
+            ret = static_cast<std::size_t>(-1);
             if (j == mid) {
                 --mid;
             }
@@ -1359,7 +1393,7 @@ static unsigned int RARpos{0};
 
     rt /= 10000;
 
-    if (!GetFrame(GetFrameIdxByTimeStamp(rt), -1, rt)) {
+    if (!GetFrame(GetFrameIdxByTimeStamp(rt), SIZE_T_ERROR, rt)) {
         return E_FAIL;
     }
 
@@ -1540,7 +1574,7 @@ static void StretchBlt(SubPicDesc& spd, CRect dstrect, CVobSubImage& src)
     dw = dstrect.Width();
     dh = dstrect.Height();
 
-    for (int y{dstrect.top}; y < dstrect.bottom; y++, srcy += (srcdy << 1)) {
+    for (int y{dstrect.top}; y < dstrect.bottom; ++y, srcy += (srcdy << 1)) {
         RGBQUAD* ptr{(RGBQUAD*) & ((BYTE*)spd.bits)[y * spd.pitch] + dstrect.left};
         RGBQUAD* endptr{ptr + dw};
 
@@ -1742,6 +1776,9 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
         return false;
     }
 
+    if (m_iLang >= m_langs.size()) {
+        return false;
+    }
     CAtlArray<SubPos>& sp = m_langs[m_iLang].subpos;
     for (std::size_t i{0U}; i < sp.GetCount(); ++i) {
         if (!GetFrame(i)) {
@@ -1787,10 +1824,10 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
         int h{m_img.rect.Height() - 2};
         int pitch{(((w + 1) >> 1) + 3) & ~3};
 
-        for (ptrdiff_t y{0}; y < h; ++y) {
+        for (std::ptrdiff_t y{0}; y < h; ++y) {
             DWORD* p{(DWORD*)&m_img.lpPixels[(y + 1) * (w + 2) + 1]};
 
-            for (ptrdiff_t x{0}; x < w; x++, p++) {
+            for (std::ptrdiff_t x{0}; x < w; ++x, ++p) {
                 BYTE c{0};
 
                 if (*p & 0xff000000) {
@@ -1940,7 +1977,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
     BITMAPINFOHEADER ihdr = {
         sizeof(BITMAPINFOHEADER),
         720, m_size.cy - 2, 1, 4, 0,
-        360 * (m_size.cy - 2),
+        static_cast<DWORD>(360 * (m_size.cy - 2)),
         0, 0,
         16, 4
     };
@@ -1979,6 +2016,9 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
 
     int pc[4U] = {1, 1, 1, 1}, pa[4U] = {15, 15, 15, 0};
 
+    if (m_iLang >= m_langs.size()) {
+        return false;
+    }
     CAtlArray<SubPos>& sp = m_langs[m_iLang].subpos;
     for (std::size_t i{0U}, k = 0; i < sp.GetCount(); ++i) {
         if (!GetFrame(i)) {
@@ -1993,7 +2033,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
             }
         }
 
-        for (ptrdiff_t y{max(m_img.rect.top + 1, 2l)}; y < m_img.rect.bottom - 1; ++y) {
+        for (std::ptrdiff_t y{max(m_img.rect.top + 1, 2l)}; y < m_img.rect.bottom - 1; ++y) {
             ASSERT(m_size.cy - y - 1 >= 0);
             if (m_size.cy - y - 1 < 0) {
                 break;
@@ -2001,7 +2041,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
 
             DWORD* p{(DWORD*)&m_img.lpPixels[(y - m_img.rect.top) * m_img.rect.Width() + 1]};
 
-            for (ptrdiff_t x{m_img.rect.left + 1}; x < m_img.rect.right - 1; x++, p++) {
+            for (std::ptrdiff_t x{m_img.rect.left + 1}; x < m_img.rect.right - 1; ++x, ++p) {
                 DWORD rgb{*p & 0xffffff};
                 BYTE c = rgb == 0x0000ff ? 0 : rgb == 0xff0000 ? 1 : rgb == 0x000000 ? 2 : 3;
                 BYTE& c4bpp{p4bpp[(m_size.cy - y - 1) * 360 + (x >> 1)]};
@@ -2176,7 +2216,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
     BITMAPINFOHEADER ihdr = {
         sizeof(BITMAPINFOHEADER),
         720, m_size.cy - 2, 1, 4, 0,
-        360 * (m_size.cy - 2),
+        static_cast<DWORD>(360 * (m_size.cy - 2)),
         0, 0,
         16, 4
     };
@@ -2209,6 +2249,9 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
 
     int pc[4U] = {1, 1, 1, 1}, pa[4U] = {15, 15, 15, 0};
 
+    if (m_iLang >= m_langs.size()) {
+        return false;
+    }
     CAtlArray<SubPos>& sp = m_langs[m_iLang].subpos;
     for (std::size_t i{0U}, k = 0; i < sp.GetCount(); ++i) {
         if (!GetFrame(i)) {
@@ -2223,7 +2266,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
             }
         }
 
-        for (ptrdiff_t y{max(m_img.rect.top + 1, 2l)}; y < m_img.rect.bottom - 1; ++y) {
+        for (std::ptrdiff_t y{max(m_img.rect.top + 1, 2l)}; y < m_img.rect.bottom - 1; ++y) {
             ASSERT(m_size.cy - y - 1 >= 0);
             if (m_size.cy - y - 1 < 0) {
                 break;
@@ -2231,7 +2274,7 @@ void CVobSubSettings::SetAlignment(const bool fAlign, int x, int y, const int ho
 
             DWORD* p{(DWORD*)&m_img.lpPixels[(y - m_img.rect.top) * m_img.rect.Width() + 1]};
 
-            for (ptrdiff_t x{m_img.rect.left + 1}; x < m_img.rect.right - 1; x++, p++) {
+            for (std::ptrdiff_t x{m_img.rect.left + 1}; x < m_img.rect.right - 1; ++x, ++p) {
                 DWORD rgb{*p & 0xffffff};
                 BYTE c = rgb == 0x0000ff ? 0 : rgb == 0xff0000 ? 1 : rgb == 0x000000 ? 2 : 3;
                 BYTE& c4bpp{p4bpp[(m_size.cy - y - 1) * 360 + (x >> 1)]};
@@ -2464,7 +2507,7 @@ void CVobSubStream::Add(REFERENCE_TIME tStart, REFERENCE_TIME tStop, BYTE* pData
     CAutoLock cAutoLock(&m_csSubPics);
     while (m_subpics.GetCount() && m_subpics.GetTail()->tStart >= tStart) {
         m_subpics.RemoveTail();
-        m_img.iIdx = -1;
+        m_img.iIdx = static_cast<std::size_t>(-1);
     }
 
     // We can only render one subpicture at a time, thus if there is overlap
@@ -2483,7 +2526,7 @@ void CVobSubStream::RemoveAll()
 {
     CAutoLock cAutoLock(&m_csSubPics);
     m_subpics.RemoveAll();
-    m_img.iIdx = -1;
+    m_img.iIdx = static_cast<std::size_t>(-1);
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CVobSubStream::NonDelegatingQueryInterface(REFIID riid, void** ppv)

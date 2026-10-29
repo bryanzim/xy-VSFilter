@@ -107,7 +107,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
 
 [[nodiscard]] HRESULT GetSubStyles(IXyOptions *filter, DirectVobSubXyOptions::SubStyle* *style, int *count)
 {
-    ASSERT(style && count);
+    ASSERT((style && count));
     *style = nullptr;
     HRESULT hr{filter->XyGetInt(DirectVobSubXyOptions::INT_CUR_STYLES_COUNT, count)};
     if (hr != S_OK || *count==0)

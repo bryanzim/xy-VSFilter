@@ -29,48 +29,48 @@ void xy_filter_c_v0(float *dst, const int width, const int height, const int str
         float *dst_endr{dst_f + width};
         float *dst_end0{dst_endr - filter_width};
         float *dst_endl{dst_f - xx_fix};
-        ASSERT(xx_fix==0 || dst_end0==dst_endl);
+        ASSERT((xx_fix==0 || dst_end0==dst_endl));
 
         ASSERT(filter_start == filter);
         filter_start += filter_width;
         const float *filter_end{filter_start};
-        for (;dst2<dst_endl;dst2++, filter_start--)//left margin
+        for (;dst2<dst_endl;++dst2, --filter_start)//left margin
         {
             const float *src{dst_f};
             float sum{0};
-            for(const float* f{filter_start};f<filter_end;f++, src++)
+            for(const float* f{filter_start};f<filter_end;++f, ++src)
             {
                 sum += src[0U] * f[0U];
             }
             *dst2 = sum;
         }
-        for (;dst2<dst_f;dst2++, filter_start--, filter_end--)//if width < filter_width
+        for (;dst2<dst_f;++dst2, --filter_start, --filter_end)//if width < filter_width
         {
             const float *src{dst_f};
             float sum{0};
-            for(const float* f{filter_start};f<filter_end;f++, src++)
+            for(const float* f{filter_start};f<filter_end;++f, ++src)
             {
                 sum += src[0U] * f[0U];
             }
             *dst2 = sum;
         }
         ASSERT(filter_start==filter);
-        for (;dst2<dst_end0;dst2++)
+        for (;dst2<dst_end0;++dst2)
         {
             const float *src{dst2};
 
             float sum{0};
-            for(const float* f{filter_start};f<filter_end;f++, src++)
+            for(const float* f{filter_start};f<filter_end;++f, ++src)
             {
                 sum += src[0U] * f[0U];
             }
             *dst2 = sum;
         }
-        for (;dst2<dst_endr;dst2++, filter_end--)//right margin
+        for (;dst2<dst_endr;++dst2, --filter_end)//right margin
         {
             const float *src{dst2};
             float sum{0};
-            for(const float* f{filter};f<filter_end;f++, src++)
+            for(const float* f{filter};f<filter_end;++f, ++src)
             {
                 sum += src[0U] * f[0U];
             }
@@ -98,7 +98,7 @@ void xy_filter_sse_v0(float *dst, const int width, const int height, const int s
         float *dst_endr{dst_f + width};
         float *dst_end0{dst_endr - filter_width};
         float *dst_endl{dst_f - xx_fix};
-        ASSERT(xx_fix==0 || dst_end0==dst_endl);
+        ASSERT((xx_fix==0 || dst_end0==dst_endl));
 
         ASSERT(filter_start == filter);
         filter_start += filter_width;
@@ -236,7 +236,7 @@ void xy_filter_sse_v1(float *dst, const int width, const int height, const int s
         float *dst_endr{dst_f + width};
         float *dst_end0{dst_endr - filter_width};
         float *dst_endl{dst_f - xx_fix};
-        ASSERT(xx_fix==0 || dst_end0==dst_endl);
+        ASSERT((xx_fix==0 || dst_end0==dst_endl));
 
         ASSERT(filter_start == filter);
         filter_start += filter_width;
@@ -370,7 +370,7 @@ void xy_filter_sse_v2(float *dst, const int width, const int height, const int s
         float *dst_endr{dst_f + width};
         float *dst_end0{dst_endr - filter_width};
         float *dst_endl{dst_f - xx_fix};
-        ASSERT(xx_fix==0 || dst_end0==dst_endl);
+        ASSERT((xx_fix==0 || dst_end0==dst_endl));
 
         ASSERT(filter_start == filter);
         filter_start += filter_width;
@@ -520,7 +520,7 @@ void xy_filter_sse_v3(float *dst, const int width, const int height, const int s
         float *dst_endr{dst_f + width};
         float *dst_end0{dst_endr - filter_width};
         float *dst_endl{dst_f - xx_fix};
-        ASSERT(xx_fix==0 || dst_end0==dst_endl);
+        ASSERT((xx_fix==0 || dst_end0==dst_endl));
 
         ASSERT(filter_start == filter);
         filter_start += filter_width;
@@ -652,7 +652,7 @@ __forceinline void xy_filter_one_line_sse_v4(float *dst, int width, const float 
     float *dst_endr{dst + width};
     float *dst_end0{dst_endr - filter_width};
     float *dst_endl{dst - xx_fix};
-    ASSERT(xx_fix==0 || dst_end0==dst_endl);
+    ASSERT((xx_fix==0 || dst_end0==dst_endl));
 
     ASSERT(filter_start == filter);
     filter_start += filter_width;
@@ -926,7 +926,7 @@ __forceinline void xy_filter_one_line_sse_v6(float *dst, const int width, const 
     float *dst_endr{dst + width};
     float *dst_end0{dst_endr - filter_width - 4};
     float *dst_endl{dst - xx_fix};
-    ASSERT(xx_fix==0 || dst_end0==dst_endl-4);
+    ASSERT((xx_fix==0 || dst_end0==dst_endl-4));
 
     ASSERT(filter_start == filter);
     filter_start += filter_width;
@@ -1079,7 +1079,7 @@ void xy_filter_sse_v6(float *dst, const int width, const int height, const int s
 {
     // Make sure maxUlps is non-negative and small enough that the
     // default NAN won't compare as equal to anything.
-    ASSERT(maxUlps > 0 && maxUlps < 4 * 1024 * 1024);
+    ASSERT((maxUlps > 0 && maxUlps < 4 * 1024 * 1024));
     int aInt{*(int*)&A};
     // Make aInt lexicographically ordered as a twos-complement int
     if (aInt < 0)
@@ -1395,7 +1395,7 @@ void xy_3_tag_symmetric_filter_sse(float *dst, const int width, const int height
     ASSERT( stride>=4*(width+filter_width) );
     ASSERT( ((stride|(4*width)|(4*filter_width)|reinterpret_cast<int>(dst)|reinterpret_cast<int>(filter))&15)==0 );
 
-    ASSERT(filter_width==4 && filter[3U]==0 && filter[2U]==filter[0U]);
+    ASSERT((filter_width==4 && filter[3U]==0 && filter[2U]==filter[0U]));
     
     __m128 f3_1{_mm_set1_ps(filter[0U])};
     __m128 f3_2{_mm_set1_ps(filter[1U])};
@@ -1855,30 +1855,30 @@ public:
 
         ASSERT(this->pitch*this->h <= MAX_DATA_BUFF_SIZE);
 
-        for (int i{0};i<h;i++)
+        for (int i{0};i<h;++i)
         {
             float *data2{(float*)((PUINT8)data + i*pitch)};
-            for (int j{0};j<w+filter_width;j++)
+            for (int j{0};j<w+filter_width;++j)
             {
                 data2[j] = rand()&0xFF;
             }
         }
         float sum{0};
-        for (int i{0};i<filter_width/2+1;i++)
+        for (int i{0};i<filter_width/2+1;++i)
         {
             filter_f[i] = std::abs((rand()&0xFFFFF)+0xFFFFF);
             sum += filter_f[i];
         }
-        for (int i{filter_width/2+1};i<filter_width;i++)
+        for (int i{filter_width/2+1};i<filter_width;++i)
         {
             filter_f[i] = filter_f[filter_width-i-1];
             sum += filter_f[i];
         }
-        for (int i{0};i<filter_width;i++)
+        for (int i{0};i<filter_width;++i)
         {
             filter_f[i] /= sum;
         }
-        for (int i{filter_width};i<ex_filter_width;i++)
+        for (int i{filter_width};i<ex_filter_width;++i)
         {
             filter_f[i] = 0;
         }
@@ -1896,7 +1896,7 @@ private:
 TEST_F(XyFilterTest, function ## _ ## width ## _ ## height ## _ ## FILTER_LENGTH ## _ ## loop_num ) \
 {\
     FillRandData(width, height, FILTER_LENGTH);\
-    for(int i=0;i<loop_num;i++)\
+    for(int i=0;i<loop_num;++i)\
     {\
         function(data, w, h, pitch, filter_f, (FILTER_LENGTH+3)&~3);\
     }\
@@ -1956,17 +1956,17 @@ void xy_float_2_float_transpose_c_v0(float *dst, int dst_width, int dst_stride,
     PUINT8 dst_byte{reinterpret_cast<PUINT8>(dst)};
     const float* src_end{src + width};
     PCUINT8 src2_end{reinterpret_cast<PCUINT8>(src) + height*src_stride};
-    for( ; src<src_end; src++, dst_byte+=dst_stride )
+    for( ; src<src_end; ++src, dst_byte+=dst_stride )
     {
         PCUINT8 src2{reinterpret_cast<PCUINT8>(src)};
 
         float *dst2{reinterpret_cast<float*>(dst_byte)};        
-        for (;src2<src2_end;src2+=src_stride,dst2++)
+        for (;src2<src2_end;src2+=src_stride,++dst2)
         {
             *dst2 = *reinterpret_cast<const float*>(src2);
         }
         float *dst2_end{reinterpret_cast<float*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -1985,7 +1985,7 @@ void xy_float_2_float_transpose_sse_v0(float *dst, const int dst_width, const in
     SrcT* src_end{src + width};
     PCUINT8 src2_end1{reinterpret_cast<PCUINT8>(src) + (height&~3)*src_stride};
     PCUINT8 src2_end2{reinterpret_cast<PCUINT8>(src) + height*src_stride};
-    for( ; src<src_end; src++, dst_byte+=dst_stride )
+    for( ; src<src_end; ++src, dst_byte+=dst_stride )
     {
         PCUINT8 src2{reinterpret_cast<PCUINT8>(src)};
 
@@ -1999,12 +1999,12 @@ void xy_float_2_float_transpose_sse_v0(float *dst, const int dst_width, const in
                 *(SrcT*)(src2))};
             _mm_store_ps(dst2, m1);
         }
-        for (;src2<src2_end2;src2+=src_stride,dst2++)
+        for (;src2<src2_end2;src2+=src_stride,++dst2)
         {
             *dst2 = *reinterpret_cast<SrcT*>(src2);
         }
         float *dst2_end{reinterpret_cast<DstT*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -2018,17 +2018,17 @@ void float_2_byte_transpose_v0(UINT8 *dst, const int dst_width, const int dst_st
     PUINT8 dst_byte{reinterpret_cast<PUINT8>(dst)};
     const float* src_end{src + width};
     PCUINT8 src2_end{reinterpret_cast<PCUINT8>(src) + height*src_stride};
-    for( ; src<src_end; src++, dst_byte+=dst_stride )
+    for( ; src<src_end; ++src, dst_byte+=dst_stride )
     {
         PCUINT8 src2{reinterpret_cast<PCUINT8>(src)};
 
         UINT8 *dst2{reinterpret_cast<UINT8*>(dst_byte)};
-        for (;src2<src2_end;src2+=src_stride,dst2++)
+        for (;src2<src2_end;src2+=src_stride,++dst2)
         {
             *dst2 = static_cast<UINT8>(*reinterpret_cast<const float*>(src2)+0.5);
         }
         UINT8 *dst2_end{reinterpret_cast<UINT8*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -2046,7 +2046,7 @@ void float_2_byte_transpose_sse_v0(UINT8 *dst, const int dst_width, const int ds
     SrcT* src_end{src + width};
     PCUINT8 src2_end00{reinterpret_cast<PCUINT8>(src) + (height&~15)*src_stride};
     PCUINT8 src2_end{reinterpret_cast<PCUINT8>(src) + height*src_stride};
-    for( ; src<src_end; src++, dst_byte+=dst_stride )
+    for( ; src<src_end; ++src, dst_byte+=dst_stride )
     {
         PCUINT8 src2{reinterpret_cast<PCUINT8>(src)};
 
@@ -2085,12 +2085,12 @@ void float_2_byte_transpose_sse_v0(UINT8 *dst, const int dst_width, const int ds
 
             _mm_store_si128((__m128i*)dst2, i1);
         }
-        for (;src2<src2_end;src2+=src_stride,dst2++)
+        for (;src2<src2_end;src2+=src_stride,++dst2)
         {
             *dst2 = static_cast<DstT>(*reinterpret_cast<SrcT*>(src2)+0.5);
         }
         DstT *dst2_end{reinterpret_cast<DstT*>(dst_byte) + dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2 = 0;
         }
@@ -2110,12 +2110,12 @@ void byte_2_float_c_v0(float *dst, const int dst_width, const int dst_stride,
         PCUINT8 src_end{src2 + width};
         float *dst2{reinterpret_cast<float*>(dst_byte)};
 
-        for (;src2<src_end;src2++, dst2++)
+        for (;src2<src_end;++src2, ++dst2)
         {
             *dst2 = *src2;
         }
         float *dst2_end{reinterpret_cast<float*>(dst_byte)+dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2=0;
         }
@@ -2156,12 +2156,12 @@ void byte_2_float_sse_v0(float *dst, const int dst_width, const int dst_stride,
             _mm_stream_ps(dst2+12, dst_f4);
         }
         PCUINT8 src2_end{src + width};
-        for (;src2<src2_end;src2++,dst2++)
+        for (;src2<src2_end;++src2,++dst2)
         {
             *dst2 = *src2;
         }
         float *dst2_end{reinterpret_cast<float*>(dst_byte)+dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2=0;
         }
@@ -2202,12 +2202,12 @@ void byte_2_float_sse_v1(float *dst, const int dst_width, const int dst_stride,
             _mm_store_ps(dst2+12, dst_f4);
         }
         PCUINT8 src2_end{src + width};
-        for (;src2<src2_end;src2++,dst2++)
+        for (;src2<src2_end;++src2,++dst2)
         {
             *dst2 = *src2;
         }
         float *dst2_end{reinterpret_cast<float*>(dst_byte)+dst_width};
-        for (;dst2<dst2_end;dst2++)
+        for (;dst2<dst2_end;++dst2)
         {
             *dst2=0;
         }
@@ -2247,10 +2247,10 @@ protected:
         {
             data_f = (float*)(((int)data_f + 15) & ~15);
         }
-        for (int i{0};i<h;i++)
+        for (int i{0};i<h;++i)
         {
             float *data2{(float*)((PUINT8)data_f + i*pitch)};
-            for (int j{0};j<w;j++)
+            for (int j{0};j<w;++j)
             {
                 data2[j] = rand()*0.1f/0xFF;
             }
@@ -2270,11 +2270,11 @@ protected:
 TEST_F(XyTransposeTest, function ## _ ## width ## _ ## height ## _ ## loop_num ) \
 {\
     FillRandData(width, height);\
-    for(int i=0;i<loop_num;i++)\
+    for(int i=0;i<loop_num;++i)\
     {\
         function(data_f2, height, (width+15)&~15, data_f, width, height, pitch);\
     }\
-    ASSERT_EQ(data_f2[0],data_f2[0]);\
+    ASSERT_EQ(data_f2[0U],data_f2[0U]);\
 }
 
 Float2FloatTest( 272, 80, 10000, xy_float_2_float_transpose_c_v0)
@@ -2285,11 +2285,11 @@ Float2FloatTest( 272, 80, 10000, xy_float_2_float_transpose_c_v0)
 TEST_F(XyTransposeTest, function ## _ ## width ## _ ## height ## _ ## loop_num ) \
 {\
     FillRandData(width, height);\
-    for(int i=0;i<loop_num;i++)\
+    for(int i=0;i<loop_num;++i)\
     {\
         function(data_b, height, (width+15)&~15, data_f, width, height, pitch);\
     }\
-    ASSERT_EQ(data_b[0],data_b[0]);\
+    ASSERT_EQ(data_b[0U],data_b[0U]);\
 }
 
 Float2ByteTest( 272, 80, 10000, float_2_byte_transpose_v0)
@@ -2300,11 +2300,11 @@ Float2ByteTest( 272, 80, 10000, float_2_byte_transpose_v0)
 TEST_F(XyTransposeTest, function ## _ ## width ## _ ## height ## _ ## loop_num ) \
 {\
     FillRandData(width, height);\
-    for(int i=0;i<loop_num;i++)\
+    for(int i=0;i<loop_num;++i)\
     {\
         function(data_f, width, (width+15)&~15, data_b, width, height, pitch);\
     }\
-    ASSERT_EQ(data_b[0],data_b[0]);\
+    ASSERT_EQ(data_b[0U],data_b[0U]);\
 }
 
 

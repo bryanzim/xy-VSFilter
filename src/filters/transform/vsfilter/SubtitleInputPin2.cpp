@@ -79,7 +79,7 @@ void SubtitleInputPin2::InvalidateSubtitle( const REFERENCE_TIME rtStart, ISubSt
             name = ISO6392ToLanguage(psi->IsoLang);
             lcid = ISO6392ToLcid(psi->IsoLang);
 
-            if(wcslen(psi->TrackName) > 0) {
+            if(std::wcslen(psi->TrackName) > 0) {
                 name += (!name.IsEmpty() ? _T(", ") : _T("")) + CString(psi->TrackName);
             }
             if(name.IsEmpty()) {

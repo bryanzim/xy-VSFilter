@@ -17,7 +17,7 @@ void OpenTestScript( const char *filename )
 
 void OverallTest( const float fps /*= 25*/, const int width/*=1280*/, const int height/*=720*/, const double start/*=0*/, const double end/*=60*/ )
 {
-    csri_fmt fmt = { CSRI_F_BGR_, width, height };
+    csri_fmt fmt = { CSRI_F_BGR_, static_cast<unsigned>(width), static_cast<unsigned>(height) };
 
     csri_request_fmt(g_csri_inst_yyy, &fmt);
 
@@ -26,7 +26,7 @@ void OverallTest( const float fps /*= 25*/, const int width/*=1280*/, const int 
     std::memset(&frame, 0, sizeof(frame));
     frame.pixfmt = CSRI_F_BGR_;
 	frame.planes[0U] = &buf[0U]+16;
-    frame.planes[0U] = reinterpret_cast<unsigned char*>(reinterpret_cast<uintptr_t>(frame.planes[0U]) & ~uintptr_t{15});
+    frame.planes[0U] = reinterpret_cast<unsigned char*>(reinterpret_cast<std::uintptr_t>(frame.planes[0U]) & ~std::uintptr_t{15});
     frame.strides[0U] = ((width+15)&~15);
     
     for (double time{start};time<end;time+=1/fps)

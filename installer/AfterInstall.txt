@@ -1,0 +1,7 @@
+XySubFilter.dll registers two DirectShow filters: XySubFilter and XySubFilter AutoLoader. The autoloader is what inserts the filter into a player graph for external subtitles. Copying the DLL into a folder does not do that; this setup does.
+
+On 64-bit Windows both the 64-bit and 32-bit copies are registered, so 64-bit and 32-bit players can load the filters. The files are under the x64 and x86 folders of the install directory.
+
+DirectVobSub (VSFilter.dll) is a separate filter with its own auto-loading version. Install it when a player expects the classic DirectVobSub filter. Leave it out when XySubFilter alone should handle subtitles.
+
+The subtitle consumer is for a player that takes rendered subtitle frames from XySubFilter and blends them itself.

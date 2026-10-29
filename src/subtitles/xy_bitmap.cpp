@@ -86,7 +86,7 @@ void XyBitmap::ClearBitmap( XyBitmap *bitmap )
     else
     {
         BYTE * p{bitmap->plans[0U]};
-        for (int i{0};i<bitmap->h;i++, p+=bitmap->pitch)
+        for (int i{0};i<bitmap->h;++i, p+=bitmap->pitch)
         {
             memsetd(p, 0xFF000000, bitmap->w*4);
         }        
@@ -119,12 +119,12 @@ void XyBitmap::AlphaBltPack( SubPicDesc& spd, POINT pos, SIZE size, const LPCVOI
 
     BYTE* dst{reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x*spd.bpp)>>3)};
 
-    for(int i{0};i<h;i++, src += pitch, dst += spd.pitch)
+    for(int i{0};i<h;++i, src += pitch, dst += spd.pitch)
     {
         const BYTE* s2{src};
         const BYTE* s2end{s2 + w*4};
         DWORD* d2{(DWORD*)dst};
-        for(; s2 < s2end; s2 += 4, d2++)
+        for(; s2 < s2end; s2 += 4, ++d2)
         {
             int tmp{s2[3U]+1};
             *d2 = (((((*d2&0x00ff00ff)*tmp)>>8) + (*((DWORD*)s2)&0x00ff00ff))&0x00ff00ff)
@@ -169,7 +169,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
     BYTE* dst_V{dst_U + spd.pitch*spd.h};
 
     const BYTE*  src_A1{src_A};
-    for (int i{0};i<h;i++, src_A += pitch, dst_A += spd.pitch)
+    for (int i{0};i<h;++i, src_A += pitch, dst_A += spd.pitch)
     {
         for (int j{0};j<w;++j)
         {
@@ -178,7 +178,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
     }
 
     src_A = src_A1;
-    for (int i{0};i<h;i++, src_A += pitch, src_Y += pitch, dst_Y += spd.pitch)
+    for (int i{0};i<h;++i, src_A += pitch, src_Y += pitch, dst_Y += spd.pitch)
     {
         for (int j{0};j<w;++j)
         {
@@ -186,7 +186,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
         }
     }
     src_A = src_A1;
-    for (int i{0};i<h;i++, src_A += pitch, src_U += pitch, dst_U += spd.pitch)
+    for (int i{0};i<h;++i, src_A += pitch, src_U += pitch, dst_U += spd.pitch)
     {
         for (int j{0};j<w;++j)
         {
@@ -194,7 +194,7 @@ void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyP
         }
     }
     src_A = src_A1;
-    for (int i{0};i<h;i++, src_A += pitch, src_V += pitch, dst_V += spd.pitch)
+    for (int i{0};i<h;++i, src_A += pitch, src_V += pitch, dst_V += spd.pitch)
     {
         for (int j{0};j<w;++j)
         {
@@ -249,7 +249,7 @@ void XyBitmap::BltPack( SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pix
 
     BYTE* dst{reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x*spd.bpp)>>3)};
 
-    for(int i{0};i<h;i++, src += pitch, dst += spd.pitch)
+    for(int i{0};i<h;++i, src += pitch, dst += spd.pitch)
     {
         std::memcpy(dst, src, w*4);
     }

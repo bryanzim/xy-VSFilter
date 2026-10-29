@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cstdint>
+
 /*************************************************************************
   vStrip by [maven] (maven@maven.de)
 *************************************************************************/
 
-typedef unsigned __int64 QWORD;
+typedef std::uint64_t QWORD;
 #define fio_SECTOR_SIZE 2048
 
 typedef char dstring; // last BYTE of string indicates encoding/length
@@ -61,7 +63,7 @@ typedef struct
 {
 	DWORD			Length; // 00, high 2 bits: 0 ^= recorded & used, 1 ^= not recorded & used, 2 ^= not recorded & not used, 3 ^= linked list
 	t_udf_lb_addr	Location; // 04
-	BYTE			ImplementationUse[6]; // 10
+	BYTE			ImplementationUse[6U]; // 10
 } t_udf_long_ad, *tp_udf_long_ad; // 16
 
 typedef struct
@@ -70,13 +72,13 @@ typedef struct
 	DWORD			RecordedLength; // 04
 	DWORD			InformationLength; // 08
 	t_udf_lb_addr	Location; // 12
-	BYTE			ImplementationUse[2]; // 18
+	BYTE			ImplementationUse[2U]; // 18
 } t_udf_ext_ad, *tp_udf_ext_ad; // 20
 
 typedef struct
 {
 	BYTE	CharacterSetType; // 00
-	BYTE	CharacterSetInfo[63]; // 01
+	BYTE	CharacterSetInfo[63U]; // 01
 } t_udf_charspec; // 64
 
 typedef struct
@@ -108,8 +110,8 @@ typedef struct
 typedef struct
 { /* ISO 13346 1/7.4 */
 	BYTE	Flags; // 00
-	char	Identifier[23]; // 01
-	char	IdentifierSuffix[8]; // 24
+	char	Identifier[23U]; // 01
+	char	IdentifierSuffix[8U]; // 24
 } t_udf_EntityID; // 32
 
 typedef struct
@@ -117,7 +119,7 @@ typedef struct
 	t_udf_tag		DescriptorTag; // 00
 	t_udf_extent_ad	MainVolumeDescriptorSequenceExtent; // 16
 	t_udf_extent_ad	ReserveVolumeDescriptorSequenceExtent; // 24
-	BYTE			Reserved[480]; // 32
+	BYTE			Reserved[480U]; // 32
 } t_udf_AnchorVolumeDescriptorPointer, *tp_udf_AnchorVolumeDescriptorPointer; // 512
 
 typedef struct
@@ -125,7 +127,7 @@ typedef struct
 	t_udf_tag		DescriptorTag; // 00
 	DWORD			VolumeDescriptorSequenceNumber; // 16
 	t_udf_charspec	DescriptorCharacterSet; // 20
-	dstring			LogicalVolumeIdentifier[128]; // 84
+	dstring			LogicalVolumeIdentifier[128U]; // 84
 	DWORD			LogicalBlockSize; // 212
 	t_udf_EntityID	DomainIdentifier; // 244
 //	BYTE			LogicalVolumeContentsUse[16]; // 276
@@ -133,9 +135,9 @@ typedef struct
 	DWORD			MapTableLength; // 292
 	DWORD			NumberofPartitionMaps; // 296
 	t_udf_EntityID	ImplementationIdentifier; // 300
-	BYTE			ImplementationUse[128]; // 332
+	BYTE			ImplementationUse[128U]; // 332
 	t_udf_extent_ad	IntegritySequenceExtent; // 460
-	BYTE			PartitionMaps[1]; // 468
+	BYTE			PartitionMaps[1U]; // 468
 } t_udf_LogicalVolumeDescriptor, *tp_udf_LogicalVolumeDescriptor;
 
 typedef struct
@@ -145,7 +147,7 @@ typedef struct
 	t_udf_short_ad	PartitionIntegrityTable; // 16
 	t_udf_short_ad	FreedSpaceTable; // 24
 	t_udf_short_ad	FreedSpaceBitmap; // 32
-	BYTE			Reserved[88]; // 40
+	BYTE			Reserved[88U]; // 40
 } t_udf_PartitionHeaderDescriptor; // 128
 
 typedef struct
@@ -160,8 +162,8 @@ typedef struct
 	DWORD			PartitionStartingLocation; // 188
 	DWORD			PartitionLength; // 192
 	t_udf_EntityID	ImplementationIdentifier; // 196
-	BYTE			ImplementationUse[128]; // 228
-	BYTE			Reserved[156]; // 356
+	BYTE			ImplementationUse[128U]; // 228
+	BYTE			Reserved[156U]; // 356
 } t_udf_PartitionDescriptor, *tp_udf_PartitionDescriptor; // 512
 
 typedef struct
@@ -175,23 +177,23 @@ typedef struct
 	DWORD			FileSetNumber; // 40
 	DWORD			FileSetDescriptorNumber; // 44
 	t_udf_charspec	LogicalVolumeIdentifierCharacterSet; // 48
-	dstring			LogicalVolumeIdentifier[128]; // 112
+	dstring			LogicalVolumeIdentifier[128U]; // 112
 	t_udf_charspec	FileSetCharacterSet; // 240
-	dstring			FileSetIdentifer[32]; // 304
-	dstring			CopyrightFileIdentifier[32]; // 336
-	dstring			AbstractFileIdentifier[32]; // 368
+	dstring			FileSetIdentifer[32U]; // 304
+	dstring			CopyrightFileIdentifier[32U]; // 336
+	dstring			AbstractFileIdentifier[32U]; // 368
 	t_udf_long_ad	RootDirectoryICB; // 400
 	t_udf_EntityID	DomainIdentifier; // 416
 	t_udf_long_ad	NextExtent; // 448
 	t_udf_long_ad	StreamDirectoryICB; // 464
-	BYTE			Reserved[32]; // 480
+	BYTE			Reserved[32U]; // 480
 } t_udf_FileSetDescriptor, *tp_udf_FileSetDescriptor; // 512
 
 typedef struct
 { /* ECMA 167 4/14.6 */
 	DWORD			PriorRecordedNumberofDirectEntries; // 00
 	WORD			StrategyType; // 04
-	BYTE			StrategyParameter[2]; // 06
+	BYTE			StrategyParameter[2U]; // 06
 	WORD			NumberofEntries; // 08
 	BYTE			Reserved; // 10
 	BYTE			FileType; // 11

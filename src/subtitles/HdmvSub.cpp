@@ -91,12 +91,12 @@ void CHdmvSub::AllocSegment(const int nSize)
     POSITION	pos{m_pPresentationSegments.GetHeadPosition()};
 
     while (pos) {
-        HDMV_PRESENTATION_SEGMENT* pPresentationSegment{m_pPresentationSegments.GetAt (pos)};
+        HDMV_PRESENTATION_SEGMENT* currentSegment{m_pPresentationSegments.GetAt (pos)};
 
-        if (rt >= pPresentationSegment->rtStart && rt < pPresentationSegment->rtStop) {
+        if (rt >= currentSegment->rtStart && rt < currentSegment->rtStop) {
             break;
         }
-        else if( rt < pPresentationSegment->rtStart )
+        else if( rt < currentSegment->rtStart )
         {
             pos = nullptr;
             break;
@@ -297,7 +297,7 @@ void CHdmvSub::ParseObject(CGolombBuffer* pGBuffer, const unsigned short nUnitSi
 {
     short object_id{pGBuffer->ReadShort()};
 
-    if (object_id >= _countof(m_compositionObjects)) {
+    if (object_id < 0 || static_cast<std::size_t>(object_id) >= _countof(m_compositionObjects)) {
         TRACE_HDMVSUB((_T("CHdmvSub::ParseObject() : FAILED, object_id - %d"), object_id));
         return;
     }

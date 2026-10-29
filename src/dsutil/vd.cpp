@@ -127,7 +127,10 @@ CCpuID::CCpuID()
 		nullptr,
 		0,
 		nullptr,
-		0
+		0,
+		nullptr,
+		0,
+		{}
 	};
 
 	dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
@@ -159,7 +162,10 @@ CCpuID::CCpuID()
 		nullptr,
 		0,
 		nullptr,
-		0
+		0,
+		nullptr,
+		0,
+		{}
 	};
 
 	switch(dbpp) {
@@ -223,7 +229,10 @@ CCpuID::CCpuID()
 		nullptr,
 		0,
 		nullptr,
-		0
+		0,
+		nullptr,
+		0,
+		{}
 	};
 
 	dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
@@ -243,7 +252,10 @@ CCpuID::CCpuID()
 		nullptr,
 		0,
 		nullptr,
-		0
+		0,
+		nullptr,
+		0,
+		{}
 	};
 
 	switch(dbpp) {
@@ -273,7 +285,10 @@ CCpuID::CCpuID()
 		nullptr,
 		0,
 		nullptr,
-		0
+		0,
+		nullptr,
+		0,
+		{}
 	};
 
 	switch(dbpp) {
@@ -321,7 +336,10 @@ CCpuID::CCpuID()
 		nullptr,
 		0,
 		nullptr,
-		0
+		0,
+		nullptr,
+		0,
+		{}
 	};
 
 	switch(dbpp) {
@@ -356,7 +374,7 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 
 {
 	WORD* dstw{(WORD*)dst};
-	for(; width > 1; width -= 2, srcu++, srcv++)
+	for(; width > 1; width -= 2, ++srcu, ++srcv)
 	{
 		*dstw++ = (((srcu[0U]+srcu[pitchuv])>>1)<<8)|*srcy++;
 		*dstw++ = (((srcv[0U]+srcv[pitchuv])>>1)<<8)|*srcy++;
@@ -404,7 +422,7 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 		return false;
 	}
 
-	int halfsrcpitch{srcpitch/2};
+	const int halfsrcpitch{srcpitch/2};
 	do
 	{
 		yuvtoyuy2row(dst, srcy, srcu, srcv, w);
@@ -422,7 +440,9 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 
 #ifndef _WIN64
 	if(g_cpuid.m_flags & CCpuID::mmx)
+	{
 		__asm emms
+	}
 #endif
 
 	return true;
@@ -433,7 +453,7 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
     if (w <= 0 || h <= 0) {
         return true;
     }
-    ASSERT(dst && src && w*2<=srcpitch && w*2<=dstpitch && ((h&1)==0));
+    ASSERT((dst && src && w*2<=srcpitch && w*2<=dstpitch && ((h&1)==0)));
     VDMemcpyRect(dst, dstpitch, src, srcpitch, w*2, h+h/2);
 
     return true;
@@ -444,7 +464,7 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
     if (w <= 0 || h <= 0) {
         return true;
     }
-    ASSERT(dst && src && w * 2 <= srcpitch && w * 2 <= dstpitch);
+    ASSERT((dst && src && w * 2 <= srcpitch && w * 2 <= dstpitch));
     VDMemcpyRect(dst, dstpitch, src, srcpitch, w * 2, h + h);
 
     return true;
@@ -455,7 +475,7 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
     if (w <= 0 || h <= 0) {
         return true;
     }
-    ASSERT(dst && src && w<=srcpitch && w<=dstpitch && ((h&1)==0));
+    ASSERT((dst && src && w<=srcpitch && w<=dstpitch && ((h&1)==0)));
     VDMemcpyRect(dst, dstpitch, src, srcpitch, w, h+h/2);
 
     return true;

@@ -73,18 +73,18 @@ public:
     explicit CVobSubImage();
     virtual ~CVobSubImage();
 
-    void Invalidate() { iLang = iIdx = -1; }
+    void Invalidate() { iLang = iIdx = static_cast<std::size_t>(-1); }
 
     void GetPacketInfo(const BYTE* lpData, std::size_t packetSize, std::size_t dataSize, int t = INT_MAX);
     [[nodiscard]] bool Decode(BYTE* lpData, std::size_t packetSize, std::size_t dataSize, int t,
-                bool fCustomPal,
-                int tridx,
-                RGBQUAD* orgpal /*[16]*/, RGBQUAD* cuspal /*[4]*/,
+                bool useCustomPal,
+                int transparencyIndex,
+                RGBQUAD* originalPal /*[16]*/, RGBQUAD* cuspal /*[4]*/,
                 bool fTrim);
 
 private:
     CAutoPtrList<COutline>* GetOutlineList(CPoint& topleft);
-    [[nodiscard]] int  GrabSegment(int start, const COutline& o, COutline& ret);
+    [[nodiscard]] int  GrabSegment(int segmentStart, const COutline& o, COutline& ret);
     void SplitOutline(const COutline& o, COutline& o1, COutline& o2);
     void AddSegment(COutline& o, CAtlArray<BYTE>& pathTypes, CAtlArray<CPoint>& pathPoints);
 

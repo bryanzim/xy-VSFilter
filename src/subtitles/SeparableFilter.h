@@ -31,8 +31,8 @@
 
 // Filter an image in horizontal direction with a one-dimensional filter
 // PixelWidth is the distance in bytes between pixels
-template<ptrdiff_t PixelDist>
-void SeparableFilterX(unsigned char *src, unsigned char *dst, int width, int height, ptrdiff_t stride, int *kernel, int kernel_size, int divisor)
+template<std::ptrdiff_t PixelDist>
+void SeparableFilterX(unsigned char *src, unsigned char *dst, int width, int height, std::ptrdiff_t stride, int *kernel, int kernel_size, int divisor)
 {
 #pragma omp parallel for
 	for (int y{0}; y < height; ++y) {
@@ -73,8 +73,8 @@ void SeparableFilterX(unsigned char *src, unsigned char *dst, int width, int hei
 // This one templated with PixelWidth since the channel interlacing is horizontal only,
 // filtering once vertically will automatically catch all channels.
 // (Width must be multiplied by pixel width for that to happen though.)
-template<ptrdiff_t PixelDist>
-void SeparableFilterY(unsigned char *src, unsigned char *dst, int width, const int height, const ptrdiff_t stride, int *kernel, const int kernel_size, const int divisor)
+template<std::ptrdiff_t PixelDist>
+void SeparableFilterY(unsigned char *src, unsigned char *dst, int width, const int height, const std::ptrdiff_t stride, int *kernel, const int kernel_size, const int divisor)
 
 {
 #pragma omp parallel for

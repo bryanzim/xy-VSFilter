@@ -329,7 +329,7 @@ void ConvMatrix::InitVSFilterCompactCorretionMatrix()
 
 [[nodiscard]] DWORD ConvMatrix::VSFilterCompactCorretion( const int r8, const int g8, const int b8, const int output_rgb_level )
 {
-    ASSERT(output_rgb_level==LEVEL_PC || output_rgb_level==LEVEL_TV);
+    ASSERT((output_rgb_level==LEVEL_PC || output_rgb_level==LEVEL_TV));
     return DoConvert(r8, g8, b8, &m_matrix_vsfilter_compact_corretion[output_rgb_level][0U][0U]);
 }
 

@@ -33,7 +33,7 @@ namespace ssf
 		unsigned int joindual: 1;
 		unsigned int required_lig_with_alef: 1;
 	}
-	ArabicForms[256] = 
+	ArabicForms[256U] = 
 	{
 		{ 0x0600, 0x0600, 0x0600, 0x0600, 0, 0, 0 },
 		{ 0x0601, 0x0601, 0x0601, 0x0601, 0, 0, 0 },
@@ -300,7 +300,7 @@ namespace ssf
 
 	bool Arabic::Replace(WCHAR& c, pres_form_t pf)
 	{
-		if(!IsArabic(c)) return false;
+		if(!IsArabic(c)) { return false; }
 
 		const arabicforms& af = ArabicForms[c - 0x600];
 
@@ -317,7 +317,7 @@ namespace ssf
 
 	bool Arabic::Replace(WCHAR& c, WCHAR prev, WCHAR next)
 	{
-		if(!IsArabic(c)) return false;
+		if(!IsArabic(c)) { return false; }
 
 		bool p = IsArabic(prev);
 		bool n = IsArabic(next);

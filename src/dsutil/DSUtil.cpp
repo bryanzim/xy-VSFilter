@@ -152,11 +152,11 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
 			CComPtr<IPin> pPinConnectedTo;
 			pPin->ConnectedTo(&pPinConnectedTo);
 
-			if(dir == PINDIR_INPUT) {nIn++; if(pPinConnectedTo)
+			if(dir == PINDIR_INPUT) {++nIn; if(pPinConnectedTo)
 			{
 			    ++nInC;
 			}}
-			else if(dir == PINDIR_OUTPUT) {nOut++; if(pPinConnectedTo)
+			else if(dir == PINDIR_OUTPUT) {++nOut; if(pPinConnectedTo)
 			{
 			    ++nOutC;
 			}}
@@ -680,7 +680,7 @@ void ExtractMediaTypes(IPin* pPin, CAtlList<CMediaType>& mts)
 
 [[nodiscard]] int Eval_Exception(const int n_except)
 {
-    if(n_except == STATUS_ACCESS_VIOLATION)
+    if(static_cast<DWORD>(n_except) == STATUS_ACCESS_VIOLATION)
 	{
 		AfxMessageBox(_T("The property page of this filter has just caused a\nmemory access violation. The application will gently die now :)"));
 	}
@@ -997,7 +997,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 				if(afi.dwCaps&AVIFILECAPS_ALLKEYFRAMES)
 				{
 					kfs.SetSize(si.dwLength);
-					for(int kf{0}; kf < si.dwLength; ++kf)
+					for(DWORD kf{0}; kf < si.dwLength; ++kf)
 					{
 					    kfs[kf] = kf;
 					}
@@ -1007,7 +1007,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
 					for(int kf{0}; ; ++kf)
 					{
 						kf = pavi->FindSample(kf, FIND_KEY|FIND_NEXT);
-						if(kf < 0 || (kfs.GetCount() > 0 && kfs[kfs.GetCount()-1] >= kf))
+						if(kf < 0 || (kfs.GetCount() > 0 && kfs[kfs.GetCount()-1] >= static_cast<UINT>(kf)))
 						{
 						    break;
 						}
@@ -1070,7 +1070,7 @@ void memsetd(void* dst, const unsigned int c, const std::size_t nbytes)
 	std::size_t o{n - (n % 4)};
 
 	__m128i val{_mm_set1_epi32 ( (int)c )};
-	if (((uintptr_t)dst & 0x0F) == 0) { // 16-byte aligned
+	if (((std::uintptr_t)dst & 0x0F) == 0) { // 16-byte aligned
 		for (std::size_t i{0U}; i < o; i+=4) {
 			_mm_store_si128( (__m128i*)&(((DWORD*)dst)[i]), val );
 		}
@@ -1258,7 +1258,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	BYTE* seqhdr_ext{nullptr};
 
 	BYTE* seqhdr_end{seqhdr + 11};
-	if(seqhdr_end - seqhdr > len)
+	if(static_cast<DWORD>(seqhdr_end - seqhdr) > len)
 	{
 	    return false;
 	}
@@ -1266,7 +1266,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	{
 	    seqhdr_end += 64;
 	}
-	if(seqhdr_end - seqhdr > len)
+	if(static_cast<DWORD>(seqhdr_end - seqhdr) > len)
 	{
 	    return false;
 	}
@@ -1274,17 +1274,17 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 	{
 	    seqhdr_end += 64;
 	}
-	if(seqhdr_end - seqhdr > len)
+	if(static_cast<DWORD>(seqhdr_end - seqhdr) > len)
 	{
 	    return false;
 	}
 	++seqhdr_end;
-	if(seqhdr_end - seqhdr > len)
+	if(static_cast<DWORD>(seqhdr_end - seqhdr) > len)
 	{
 	    return false;
 	}
 	if(len - (seqhdr_end - seqhdr) > 4 && *(DWORD*)seqhdr_end == 0xb5010000) {seqhdr_ext = seqhdr_end; seqhdr_end += 10;}
-	if(seqhdr_end - seqhdr > len)
+	if(static_cast<DWORD>(seqhdr_end - seqhdr) > len)
 	{
 	    return false;
 	}
@@ -1435,15 +1435,15 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 			break;
 		}
 
-		BeginEnumPins(pBF, pEP, pPinTo)
+		BeginEnumPins(pBF, pEP, pInputPin)
 		{
-			PIN_DIRECTION dir;
-			if(FAILED(pPinTo->QueryDirection(&dir)) || dir != PINDIR_INPUT)
+			PIN_DIRECTION inputDir;
+			if(FAILED(pInputPin->QueryDirection(&inputDir)) || inputDir != PINDIR_INPUT)
 			{
 				continue;
 			}
 
-			if(SUCCEEDED(pGB->ConnectDirect(pPin, pPinTo, nullptr)))
+			if(SUCCEEDED(pGB->ConnectDirect(pPin, pInputPin, nullptr)))
 			{
 				return(pBF);
 			}
@@ -2229,6 +2229,7 @@ static struct {
 	tmp[2U] = 0;
 	_strlwr(tmp);
 	for(int i{0}, j = countof(s_isolangs); i < j; ++i)
+	{
 		if(!std::strcmp(s_isolangs[i].iso6391, tmp))
 		{
 			CString ret{CString(CStringA(s_isolangs[i].name))};
@@ -2239,6 +2240,7 @@ static struct {
 			}
 			return ret;
 		}
+	}
 	return(_T(""));
 }
 
@@ -2270,7 +2272,7 @@ static struct {
 	strncpy_s(tmp, code, 3);
 	tmp[3U] = 0;
 	_strlwr_s(tmp);
-	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; ++i) {
+	for(std::ptrdiff_t i{0}, j = countof(s_isolangs); i < j; ++i) {
 		if(!std::strcmp(s_isolangs[i].iso6391, code)) {
 			return s_isolangs[i].lcid;
 		}
@@ -2284,7 +2286,7 @@ static struct {
 	strncpy_s(tmp, code, 3);
 	tmp[3U] = 0;
 	_strlwr_s(tmp);
-	for(ptrdiff_t i{0}, j = countof(s_isolangs); i < j; ++i) {
+	for(std::ptrdiff_t i{0}, j = countof(s_isolangs); i < j; ++i) {
 		if(!std::strcmp(s_isolangs[i].iso6392, tmp)) {
 			return s_isolangs[i].lcid;
 		}

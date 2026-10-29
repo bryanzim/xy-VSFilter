@@ -16,15 +16,15 @@ protected:
 	bool BeginSession();
 	void EndSession();
 
-	BYTE m_SessionKey[5];
+	BYTE m_SessionKey[5U];
 	bool Authenticate();
 
-	BYTE m_DiscKey[6], m_TitleKey[6];
+	BYTE m_DiscKey[6U], m_TitleKey[6U];
 	bool GetDiscKey();
 	bool GetTitleKey(int lba, BYTE* pKey);
 
 public:
-	CDVDSession();
+	explicit CDVDSession();
 	virtual ~CDVDSession();
 
 	bool Open(LPCTSTR path);
@@ -45,7 +45,7 @@ class CLBAFile : private CFile
 	using CFile::Seek;
 	using CFile::Read;
 public:
-	CLBAFile();
+	explicit CLBAFile();
 	virtual ~CLBAFile();
 
 	bool IsOpen();
@@ -74,7 +74,7 @@ class CVobFile : public CDVDSession
 	bool m_fDVD, m_fHasDiscKey, m_fHasTitleKey;
 
 public:
-	CVobFile();
+	explicit CVobFile();
 	virtual ~CVobFile();
 
 	bool IsDVD();

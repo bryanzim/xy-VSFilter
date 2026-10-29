@@ -31,7 +31,7 @@ namespace ssf
 {
 	Node::Node(NodeFactory* pnf, CStringW name)
 		: m_pnf(pnf)
-		, m_parent(NULL)
+		, m_parent(nullptr)
 		, m_type('?')
 		, m_name(name)
 		, m_priority(PNormal)
@@ -54,7 +54,7 @@ namespace ssf
 
 	bool Node::IsNameUnknown()
 	{
-		return m_name.IsEmpty() || !!iswdigit(m_name[0]);
+		return m_name.IsEmpty() || !!iswdigit(m_name[0U]);
 	}
 
 	bool Node::IsTypeUnknown()
@@ -69,7 +69,7 @@ namespace ssf
 
 	void Node::GetChildDefs(CAtlList<Definition*>& l, LPCWSTR type, bool fFirst)
 	{
-		CAtlList<Definition*> rdl[3];
+		CAtlList<Definition*> rdl[3U];
 
 		if(fFirst)
 		{
@@ -88,7 +88,7 @@ namespace ssf
 			}
 		}
 
-		for(size_t i = 0; i < sizeof(rdl)/sizeof(rdl[0]); ++i)
+		for(std::size_t i{0U}; i < sizeof(rdl)/sizeof(rdl[0U]); ++i)
 		{
 			l.AddTailList(&rdl[i]);
 		}
@@ -107,7 +107,7 @@ namespace ssf
 
 	void Reference::GetChildDefs(CAtlList<Definition*>& l, LPCWSTR type, bool fFirst)
 	{
-		CAtlList<Definition*> rdl[3];
+		CAtlList<Definition*> rdl[3U];
 
 		POSITION pos = m_nodes.GetHeadPosition();
 		while(pos)
@@ -121,7 +121,7 @@ namespace ssf
 			}
 		}
 
-		for(size_t i = 0; i < sizeof(rdl)/sizeof(rdl[0]); ++i)
+		for(std::size_t i{0U}; i < sizeof(rdl)/sizeof(rdl[0U]); ++i)
 		{
 			l.AddTailList(&rdl[i]);
 		}
@@ -129,7 +129,7 @@ namespace ssf
 
 	void Reference::Dump(OutputStream& s, int level, bool fLast)
 	{
-		if(m_predefined) return;
+		if(m_predefined) { return; }
 
 		CStringW tabs(' ', level*4);
 
@@ -143,7 +143,7 @@ namespace ssf
 
 			if(Definition* pDef = dynamic_cast<Definition*>(pNode))
 			{
-				pDef->Dump(s, level + 1, pos == NULL);
+				pDef->Dump(s, level + 1, pos == nullptr);
 			}
 		}
 
@@ -203,9 +203,11 @@ namespace ssf
 
 	Definition& Definition::operator[] (LPCWSTR type) 
 	{
-		Definition* pRetDef = NULL;
+		Definition* pRetDef = nullptr;
 		if(m_type2def.Lookup(type, pRetDef))
+		{
 			return *pRetDef;
+		}
 
 		pRetDef = new Definition(m_pnf, L"");
 		pRetDef->m_priority = PLow;
@@ -241,7 +243,7 @@ namespace ssf
 		if(!type)
 		{
 			POSITION pos = m_type2def.GetStartPosition();
-			while(pos) delete m_type2def.GetNextValue(pos);
+			while(pos) { delete m_type2def.GetNextValue(pos); }
 		}
 		else if(StringMapW<Definition*>::CPair* p = m_type2def.Lookup(type))
 		{
@@ -288,7 +290,7 @@ namespace ssf
 
 		if(n2n)
 		{
-			if(m_status == node) throw Exception(_T("expected value type"));
+			if(m_status == node) { throw Exception(_T("expected value type")); }
 
 			if(typename StringMapW<T>::CPair* p = n2n->Lookup(str))
 			{
@@ -297,16 +299,16 @@ namespace ssf
 			}
 		}
 
-		if(m_status != number) throw Exception(_T("expected number"));
+		if(m_status != number) { throw Exception(_T("expected number")); }
 
 		n.sign = str.Find('+') == 0 ? 1 : str.Find('-') == 0 ? -1 : 0;
 		str.TrimLeft(L"+-");
 
 		if(str.Find(L"0x") == 0)
 		{
-			if(n.sign) throw Exception(_T("hex values must be unsigned"));
+			if(n.sign) { throw Exception(_T("hex values must be unsigned")); }
 
-			n.value = (T)wcstoul(str.Mid(2), NULL, 16);
+			n.value = static_cast<T>(std::wcstoul(str.Mid(2), nullptr, 16));
 		}
 		else
 		{
@@ -317,11 +319,11 @@ namespace ssf
 				Split sa(':', str);
 				Split sa2('.', sa ? sa[sa-1] : L"");
 
-				if(sa == 0 || sa2 == 0 || sa2 > 2) throw Exception(_T("invalid number"));
+				if(sa == 0 || sa2 == 0 || sa2 > 2) { throw Exception(_T("invalid number")); }
 
 				float f = 0;
-				for(size_t i = 0; i < sa; i++) {f *= 60; f += wcstoul(sa[i], NULL, 10);}
-				if(sa2 > 1) f += (float)wcstoul(sa2[1], NULL, 10) / pow((float)10, sa2[1].GetLength());
+				for(std::size_t i{0U}; i < sa; ++i) {f *= 60; f += std::wcstoul(sa[i], nullptr, 10);}
+				if(sa2 > 1) { f += static_cast<float>(static_cast<float>(std::wcstoul(sa2[1U], nullptr, 10)) / std::pow(static_cast<float>(10), sa2[1U].GetLength())); }
 
 				if(n.unit == L"ms") {f /= 1000; n.unit = L"s";}
 				else if(n.unit == L"m") {f *= 60; n.unit = L"s";}
@@ -331,21 +333,21 @@ namespace ssf
 				m_num.unit = n.unit;
 				m_num_string = num_string;
 
-				n.value = (T)f;
+				n.value = static_cast<T>(f);
 			}
 			else
 			{
-				n.value = (T)m_num.value;
+				n.value = static_cast<T>(m_num.value);
 				n.unit = m_num.unit;
 			}
 
-			if(n.sign) n.value *= n.sign;
+			if(n.sign) { n.value *= n.sign; }
 		}
 	}
 
 	void Definition::GetAsString(CStringW& str)
 	{
-		if(m_status == node) throw Exception(_T("expected value type"));
+		if(m_status == node) { throw Exception(_T("expected value type")); }
 
 		str = m_value; 
 	}
@@ -381,8 +383,8 @@ namespace ssf
 		Definition& time = (*this)[L"time"];
 
 		CStringW id;
-		if(time[L"id"].IsValue()) id = (LPCWSTR)time[L"id"];
-		else id.Format(L"%d", default_id);
+		if(time[L"id"].IsValue()) { id = static_cast<LPCWSTR>(time[L"id"]); }
+		else { id.Format(L"%d", default_id); }
 
 		float scale = time[L"scale"].IsValue() ? time[L"scale"] : 1.0f;
 
@@ -391,14 +393,14 @@ namespace ssf
 			time[L"start"].GetAsNumber(t.start, n2n);
 			time[L"stop"].GetAsNumber(t.stop, n2n);
 
-			if(t.start.unit.IsEmpty()) t.start.value *= scale;
-			if(t.stop.unit.IsEmpty()) t.stop.value *= scale;
+			if(t.start.unit.IsEmpty()) { t.start.value *= scale; }
+			if(t.stop.unit.IsEmpty()) { t.stop.value *= scale; }
 
 			float o = 0;
 			offset.Lookup(id, o);
 
-			if(t.start.sign != 0) t.start.value = o + t.start.value;
-			if(t.stop.sign != 0) t.stop.value = t.start.value + t.stop.value;
+			if(t.start.sign != 0) { t.start.value = o + t.start.value; }
+			if(t.stop.sign != 0) { t.stop.value = t.start.value + t.stop.value; }
 
 			offset[id] = t.stop.value;
 
@@ -435,18 +437,18 @@ namespace ssf
 
 		Split split('.', path);
 
-		for(size_t i = 0, j = split-1; i <= j; i++)
+		for(std::size_t i{0U}, j{split-1U}; i <= j; ++i)
 		{
 			CStringW type = split[i];
 
 			if(pDef->m_nodes.IsEmpty() || !dynamic_cast<Reference*>(pDef->m_nodes.GetTail()))
 			{
-				EXECUTE_ASSERT(m_pnf->CreateRef(pDef) != NULL);
+				EXECUTE_ASSERT(m_pnf->CreateRef(pDef) != nullptr);
 			}
 
 			if(Reference* pRef = dynamic_cast<Reference*>(pDef->m_nodes.GetTail()))
 			{
-				pDef = NULL;
+				pDef = nullptr;
 
 				POSITION pos = pRef->m_nodes.GetTailPosition();
 				while(pos)
@@ -455,7 +457,7 @@ namespace ssf
 
 					if(pChildDef->IsType(type))
 					{
-						if(pChildDef->IsNameUnknown()) pDef = pChildDef;
+						if(pChildDef->IsNameUnknown()) { pDef = pChildDef; }
 						break;
 					}
 				}
@@ -473,7 +475,7 @@ namespace ssf
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	Definition* Definition::SetChildAsNumber(CStringW path, CStringW v, CStringW u)
@@ -488,16 +490,16 @@ namespace ssf
 
 	void Definition::Dump(OutputStream& s, int level, bool fLast)
 	{
-		if(m_predefined) return;
+		if(m_predefined) { return; }
 
 		CStringW tabs(' ', level*4);
 
 		CStringW str = tabs;
-		if(m_predefined) str += '?';
-		if(m_priority == PLow) str += '*';
-		else if(m_priority == PHigh) str += '!';
-		if(!IsTypeUnknown() && !m_autotype) str += m_type;
-		if(!IsNameUnknown()) str += '#' + m_name;
+		if(m_predefined) { str += '?'; }
+		if(m_priority == PLow) { str += '*'; }
+		else if(m_priority == PHigh) { str += '!'; }
+		if(!IsTypeUnknown() && !m_autotype) { str += m_type; }
+		if(!IsNameUnknown()) { str += '#' + m_name; }
 		str += ':';
 		s.PutString(L"%s", str.GetString());
 
@@ -521,19 +523,19 @@ namespace ssf
 
 			s.PutString(L";\n");
 
-			if(!fLast && (!m_nodes.IsEmpty() || level == 0)) s.PutString(L"\n");
+			if(!fLast && (!m_nodes.IsEmpty() || level == 0)) { s.PutString(L"\n"); }
 		}
 		else if(m_status == string)
 		{
-			CStringW str = m_value;
-			str.Replace(L"\"", L"\\\"");
-			s.PutString(L" \"%s\";\n", str.GetString());
+			CStringW escapedValue = m_value;
+			escapedValue.Replace(L"\"", L"\\\"");
+			s.PutString(L" \"%s\";\n", escapedValue.GetString());
 		}
 		else if(m_status == number)
 		{
-			CStringW str = m_value;
-			if(!m_unit.IsEmpty()) str += m_unit;
-			s.PutString(L" %s;\n", str.GetString());
+			CStringW numberText = m_value;
+			if(!m_unit.IsEmpty()) { numberText += m_unit; }
+			s.PutString(L" %s;\n", numberText.GetString());
 		}
 		else if(m_status == boolean)
 		{

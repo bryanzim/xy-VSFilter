@@ -52,6 +52,13 @@
 #endif
 
 #include <afx.h>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cwchar>
 #include <afxwin.h>         // MFC core and standard components
 #include <atlcoll.h>         // MFC core and standard components
 

@@ -147,7 +147,7 @@ void CCDecoder::DecodeCC(BYTE *buff, const int len, const __int64 time)
             {
                 _ftprintf(f, _T("\n\n"));
             }
-            fclose(f);
+            std::fclose(f);
         }
     }
 

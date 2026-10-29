@@ -308,7 +308,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 
 	HRESULT hr{S_OK};
 
-	if(fForceReconnection || m_w != m_wout || m_h != m_hout || m_arx != m_arxout || m_ary != m_aryout)
+	if(fForceReconnection || static_cast<DWORD>(m_w) != m_wout || static_cast<DWORD>(m_h) != m_hout || static_cast<DWORD>(m_arx) != m_arxout || static_cast<DWORD>(m_ary) != m_aryout)
 	{
 		if(GetCLSID(m_pOutput->GetConnected()) == CLSID_VideoRenderer)
 		{
@@ -352,8 +352,8 @@ HRESULT hr1{0}, hr2 = 0;
 			AM_MEDIA_TYPE* pmt;
 			if(SUCCEEDED(pOut->GetMediaType(&pmt)) && pmt)
 			{
-				CMediaType mt{*pmt};
-				m_pOutput->SetMediaType(&mt);
+				CMediaType sampleType{*pmt};
+				m_pOutput->SetMediaType(&sampleType);
 				DeleteMediaType(pmt);
 			}
 			else // stupid overlay mixer won't let us know the new pitch...
@@ -478,7 +478,7 @@ HRESULT hr1{0}, hr2 = 0;
 		{
 			if(!BitBltFromI420ToRGB(w, h, pOut, pitchOut, bihOut.biBitCount, pIn, pInU, pInV, pitchIn))
 			{
-				for(int y{0}; y < h; y++, pOut += pitchOut)
+				for(int y{0}; y < h; ++y, pOut += pitchOut)
 				{
 					std::memset(pOut, 0, pitchOut);
 				}
@@ -519,7 +519,7 @@ HRESULT hr1{0}, hr2 = 0;
         {
             if(!BitBltFromYUY2ToRGB(w, h, pOut, pitchOut, bihOut.biBitCount, ppIn[0U], pitchIn))
             {
-                for(int y{0}; y < h; y++, pOut += pitchOut)
+                for(int y{0}; y < h; ++y, pOut += pitchOut)
                 {
                     std::memset(pOut, 0, pitchOut);
                 }
@@ -543,7 +543,7 @@ HRESULT hr1{0}, hr2 = 0;
 		{
 			if(!BitBltFromRGBToRGB(w, h, pOut, pitchOut, bihOut.biBitCount, ppIn[0U], pitchIn, sbpp))
 			{
-				for(int y{0}; y < h; y++, pOut += pitchOut)
+				for(int y{0}; y < h; ++y, pOut += pitchOut)
 				{
 					std::memset(pOut, 0, pitchOut);
 				}
@@ -968,7 +968,7 @@ void CBaseVideoFilter::GetOutputColorspaces( ColorSpaceId *preferredOrder, UINT 
         ASSERT(pMediaType);
 
         ColorSpaceId pos{Subtype2OutputColorSpaceId(pMediaType->subtype, 0)};
-        while(pos>=0 && pos<count)
+        while(pos >= 0 && static_cast<UINT>(pos) < count)
         {
             priorities[pos] = priority;
             --priority;

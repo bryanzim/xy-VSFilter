@@ -32,11 +32,11 @@ namespace ssf
 		CAtlList<CStringW> m_newnodes;
 		bool m_predefined;
 
-		unsigned __int64 m_counter;
+		std::uint64_t m_counter;
 		CStringW GenName();
 
 	public:
-		NodeFactory();
+		explicit NodeFactory();
 		virtual ~NodeFactory();
 
 		virtual void RemoveAll();
@@ -49,7 +49,7 @@ namespace ssf
 		Reference* CreateRootRef();
 		Reference* GetRootRef() const;
 		Reference* CreateRef(Definition* pParentDef);
-		Definition* CreateDef(Reference* pParentRef = NULL, CStringW type = L"", CStringW name = L"", NodePriority priority = PNormal);
+		Definition* CreateDef(Reference* pParentRef = nullptr, CStringW type = L"", CStringW name = L"", NodePriority priority = PNormal);
 		Definition* GetDefByName(CStringW name) const;
 		void GetNewDefs(CAtlList<Definition*>& defs);
 

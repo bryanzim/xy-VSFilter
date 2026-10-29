@@ -52,9 +52,9 @@ XySubFilterAutoLoader::XySubFilterAutoLoader( LPUNKNOWN punk, HRESULT* phr
     m_paths.Add(_T(".\\subs"));
     for(int i{3}; i < 10; ++i)
     {
-        CString tmp;
-        tmp.Format(IDS_RP_PATH, i);
-        CString path{theApp.GetProfileString(ResStr(IDS_R_DEFTEXTPATHES), tmp)};
+        CString pathName;
+        pathName.Format(IDS_RP_PATH, i);
+        CString path{theApp.GetProfileString(ResStr(IDS_R_DEFTEXTPATHES), pathName)};
         if(!path.IsEmpty())
         {
             m_paths.Add(path);
@@ -204,9 +204,9 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         // find file name
         CStringW fn;
 
-        BeginEnumFilters(pGraph, pEF, pBF)
+        BeginEnumFilters(pGraph, pEF, pGraphFilter)
         {
-            if(CComQIPtr<IFileSourceFilter> pFSF{pBF})
+            if(CComQIPtr<IFileSourceFilter> pFSF{pGraphFilter})
             {
                 LPOLESTR fnw{nullptr};
                 if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, nullptr)) || !fnw)
@@ -221,7 +221,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         EndEnumFilters;
         XY_LOG_INFO(L"fn:"<<fn.GetString());
 
-        if((m_load_external || m_load_web) && (m_load_web || !(wcsstr(fn, L"http://") || wcsstr(fn, L"mms://"))))
+        if((m_load_external || m_load_web) && (m_load_web || !(std::wcsstr(fn, L"http://") || std::wcsstr(fn, L"mms://"))))
         {
             CAtlArray<SubFile> file_list;
             GetSubFileNames(fn, m_paths, m_load_exts, file_list);
@@ -365,19 +365,19 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     CRegKey key;
     if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ) == ERROR_SUCCESS) { 
         ULONG size{256*1024};
-        BYTE  *largebuf{(BYTE*)malloc(size)};
+        BYTE  *largebuf{(BYTE*)std::malloc(size)};
         LONG  lret;
 
         if (!largebuf) { XY_LOG_DEBUG("key_name:"<<key_name); key.Close(); return E_FAIL; }
 
         lret = key.QueryBinaryValue(_T("FilterData"), largebuf, &size);
-        if (lret != ERROR_SUCCESS) { XY_LOG_DEBUG(key_name<<" "<<lret); free(largebuf); key.Close(); return E_FAIL; }
+        if (lret != ERROR_SUCCESS) { XY_LOG_DEBUG(key_name<<" "<<lret); std::free(largebuf); key.Close(); return E_FAIL; }
 
         // change the merit
         DWORD *dwbuf{(DWORD*)largebuf};
         *merit = dwbuf[1U];
 
-        free(largebuf);
+        std::free(largebuf);
 
     } else {
         XY_LOG_DEBUG(key_name.GetString());

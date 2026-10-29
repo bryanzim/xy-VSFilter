@@ -226,7 +226,7 @@ namespace ssf
 				return E_OUTOFMEMORY;
 			}
 
-			wcscpy(*ppName, CStringW(m_name));
+			std::wcscpy(*ppName, CStringW(m_name));
 		}
 
 		if(pLCID)

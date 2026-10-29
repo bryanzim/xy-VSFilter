@@ -290,7 +290,7 @@ void CreateDrawItemExTree( CompositeDrawItemListList& input,
     CompositeDrawItemExTree *out_draw_item_ex_tree, 
     XyRectExList *out_rect_ex_list )
 {
-    ASSERT(out_draw_item_ex_tree!=nullptr && out_rect_ex_list!=nullptr);
+    ASSERT((out_draw_item_ex_tree!=nullptr && out_rect_ex_list!=nullptr));
 
     int list_count = input.GetCount();
     out_draw_item_ex_tree->SetCount(list_count);
@@ -426,10 +426,10 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
         XyRectEx *cur_rect{&cur_line.GetPrev(pos_cur_line)};
         if(cur_rect->top == upper_line.GetTail().bottom)
         {
-            POSITION pos{upper_line.GetTailPosition()};                          
-            while(pos)
+            POSITION upperPos{upper_line.GetTailPosition()};                          
+            while(upperPos)
             {
-                XyRectEx& upper_rect{upper_line.GetPrev(pos)};
+                XyRectEx& upper_rect{upper_line.GetPrev(upperPos)};
                 while( upper_rect.right<cur_rect->right || upper_rect.left<cur_rect->left )
                 {
                     output->AddHead(*cur_rect);
@@ -541,7 +541,7 @@ void DecideDrawMethod( CompositeDrawItemListList& compDrawItemListList, XyRectEx
 
 void GroupedDrawItems::Draw( SharedPtrXyBitmap *bitmap, int *bitmap_identity_num )
 {
-    ASSERT(bitmap && bitmap_identity_num);
+    ASSERT((bitmap && bitmap_identity_num));
     BitmapMruCache *bitmap_cache{CacheManager::GetBitmapMruCache()};
     GroupedDrawItemsHashKey *key{DEBUG_NEW GroupedDrawItemsHashKey()};
     CreateHashKey(key);
@@ -549,13 +549,13 @@ void GroupedDrawItems::Draw( SharedPtrXyBitmap *bitmap, int *bitmap_identity_num
     POSITION pos{bitmap_cache->Lookup( key_id )};
     if (pos==nullptr)
     {
-        POSITION pos{draw_item_list.GetHeadPosition()};
+        POSITION itemPos{draw_item_list.GetHeadPosition()};
         XyBitmap *tmp{XySubRenderFrameCreater::GetDefaultCreater()->CreateBitmap(clip_rect)};
         bitmap->reset(tmp);
 
-        while(pos)
+        while(itemPos)
         {
-            DrawItem& item{*draw_item_list.GetNext(pos)};
+            DrawItem& item{*draw_item_list.GetNext(itemPos)};
             (void)DrawItem::Draw(tmp, item, clip_rect);
         }
         XyColorSpace color_space;

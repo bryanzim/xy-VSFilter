@@ -81,7 +81,7 @@ public:
 		temp_section.start_frame = 0;
 		temp_section.end_frame = 0;
 
-		while (fgets(buf, 100, vfrfile)) {
+		while (std::fgets(buf, 100, vfrfile)) {
 			// Comment?
 			if (buf[0U] == '#')
 			{
@@ -90,7 +90,7 @@ public:
 
 			if (_strnicmp(buf, "Assume ", 7) == 0 && default_spf < 0) {
 				char *num{buf+7};
-				default_spf = atof(num);
+				default_spf = std::atof(num);
 				if (default_spf > 0)
 				{
 					default_spf = 1 / default_spf;
@@ -162,14 +162,14 @@ public:
 
 		timestamps.reserve(8192); // should be enough for most cases
 
-		while (fgets(buf, 50, vfrfile)) {
+		while (std::fgets(buf, 50, vfrfile)) {
 			// Comment?
 			if (buf[0U] == '#')
 			{
 			    continue;
 			}
 			// Otherwise assume it's a good timestamp
-			timestamps.push_back(atof(buf)/1000);
+			timestamps.push_back(std::atof(buf)/1000);
 		}
 
 		last_known_frame = (int)timestamps.size()-1;
@@ -186,10 +186,10 @@ public:
 	buf[19U] = 0; // In "# timecode format v1" the version number is character index 19
 	FILE *f{nullptr};
     int rv{fopen_s(&f, vfrfile, "r")};
-    ASSERT(rv==0 && f);
+    ASSERT((rv==0 && f));
     (void)rv;
 	VFRTranslator *res{0};
-	if (fgets(buf, 32, f) && buf[0U] == '#') {
+	if (std::fgets(buf, 32, f) && buf[0U] == '#') {
 		// So do some really shoddy parsing here, assume the file is good
 		if (buf[19U] == '1') {
 			res = new TimecodesV1(f);
@@ -197,7 +197,7 @@ public:
 			res = new TimecodesV2(f);
 		}
 	}
-	fclose(f);
+	std::fclose(f);
 	return res;
 }
 

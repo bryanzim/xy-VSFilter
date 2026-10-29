@@ -98,7 +98,7 @@ static int g_hDC_refcnt{0};
 // Skip all trailing whitespace, first char must NOT be white space
 [[nodiscard]] inline CStringW::PCXSTR FastSkipWhiteSpaceRight(const CStringW::PCXSTR start, CStringW::PCXSTR end)
 {
-    while( iswspace( *--end ) );
+    while( iswspace( *--end ) ) { ; }
     return end+1;
 }
 
@@ -469,7 +469,7 @@ void CWord::Transform(PathData* path_data, const CPointCoor2 &org )
     //   y = y/z + org.y
 
     //A3*A4
-    ASSERT(m_target_scale_x!=0 && m_target_scale_y!=0);
+    ASSERT((m_target_scale_x!=0 && m_target_scale_y!=0));
     double tmp1{-org.x/m_target_scale_x};
     double tmp2{-org.y/m_target_scale_y};
 
@@ -527,7 +527,7 @@ void CWord::Transform(PathData* path_data, const CPointCoor2 &org )
     double scaled_org_x{org.x+0.5};
     double scaled_org_y{org.y+0.5};
 
-    for (ptrdiff_t i{0}; i < path_data->mPathPoints; ++i) {
+    for (std::ptrdiff_t i{0}; i < path_data->mPathPoints; ++i) {
         double x, y, z, xx;
 
         xx = path_data->mpPathPoints[i].x;
@@ -716,7 +716,7 @@ void CText::GetTextInfo(TextInfo *output, const FwSTSStyle& style, const CString
     else
     {
         CSize extent;
-        if(!GetTextExtentPoint32W(g_hDC, str, wcslen(str), &extent)) {SelectFont(g_hDC, hOldFont); ASSERT(0); return;}
+        if(!GetTextExtentPoint32W(g_hDC, str, std::wcslen(str), &extent)) {SelectFont(g_hDC, hOldFont); ASSERT(0); return;}
         output->m_width += extent.cx;
     }
     output->m_width = (int)(style.get().fontScaleX/100*output->m_width + 4) >> 3;
@@ -940,7 +940,7 @@ CPolygon::~CPolygon()
     }
     if(path_data->mPathPoints != len)
     {
-        BYTE* pNewPathTypes{(BYTE*)realloc(path_data->mpPathTypes, len * sizeof(BYTE))};
+        BYTE* pNewPathTypes{(BYTE*)std::realloc(path_data->mpPathTypes, len * sizeof(BYTE))};
         if (!pNewPathTypes)
         {
             TRACE_PARSER("Overflow!");
@@ -948,7 +948,7 @@ CPolygon::~CPolygon()
         }
         path_data->mpPathTypes = pNewPathTypes;
 
-        POINT* pNewPathPoints{(POINT*)realloc(path_data->mpPathPoints, len*sizeof(POINT))};
+        POINT* pNewPathPoints{(POINT*)std::realloc(path_data->mpPathPoints, len*sizeof(POINT))};
         if (!pNewPathPoints)
         {
             TRACE_PARSER("Overflow!");
@@ -1063,8 +1063,8 @@ CClipper::~CClipper()
     BYTE* dst{result_data + m_size.cx * y + x};
 
     if (m_inverse) {
-          for (ptrdiff_t i{0}; i < h; ++i) {
-            for (ptrdiff_t wt{0}; wt < w; ++wt) {
+          for (std::ptrdiff_t i{0}; i < h; ++i) {
+            for (std::ptrdiff_t wt{0}; wt < w; ++wt) {
                 dst[wt] = 0x40 - src[wt];
             }
 
@@ -1072,7 +1072,7 @@ CClipper::~CClipper()
             dst += m_size.cx;
           }
     } else {
-       for (ptrdiff_t i{0}; i < h; ++i) {
+       for (std::ptrdiff_t i{0}; i < h; ++i) {
             std::memcpy(dst, src, w * sizeof(BYTE));
             src += overlay->mOverlayPitch;
             dst += m_size.cx;
@@ -1097,18 +1097,18 @@ CClipper::~CClipper()
 
     int da{(64<<8)/width};
     BYTE* am{result->data.get()};
-    for(int j{0}; j < h; j++, am += w)
+    for(int j{0}; j < h; ++j, am += w)
     {
         int a{0};
         int k{min(width, w)};
-        for(int i{0}; i < k; i++, a += da)
+        for(int i{0}; i < k; ++i, a += da)
         {
             am[i] = (am[i]*a)>>14;
         }
         a = 0x40<<8;
         k = w-width;
         if(k < 0) {a -= -k*da; k = 0;}
-        for(int i{k}; i < w; i++, a -= da)
+        for(int i{k}; i < w; ++i, a -= da)
         {
             am[i] = (am[i]*a)>>14;
         }
@@ -1142,9 +1142,9 @@ CClipper::~CClipper()
     {
         BYTE* am{&data[k*w]};
         std::memset(data, 0, am - data);
-        for(int j{k}; j < l; j++, a += da)
+        for(int j{k}; j < l; ++j, a += da)
         {
-            for(int i{0}; i < w; i++, am++)
+            for(int i{0}; i < w; ++i, ++am)
             {
                 *am = ((*am)*a)>>14;
             }
@@ -1160,9 +1160,9 @@ CClipper::~CClipper()
     {
         BYTE* am{&data[k*w]};
         int j{k};
-        for(; j < l; j++, a += da)
+        for(; j < l; ++j, a += da)
         {
-            for(int i{0}; i < w; i++, am++)
+            for(int i{0}; i < w; ++i, ++am)
             {
                 *am = ((*am)*a)>>14;
             }
@@ -1350,7 +1350,7 @@ void CLine::Compact()
             {
                 outputItem.shadow.reset( 
                     DrawItem::CreateDrawItem(shadow_pm, clipRect, clipper, shadowPos.x, shadowPos.y, sw,
-                    w->m_ktype > 0 || w->m_style.get().alpha[0U] < 0xff,
+                    (w->m_ktype > 0 || w->m_style.get().alpha[0U] < 0xff),
                     hasOutline)
                     );
             }
@@ -1376,7 +1376,7 @@ void CLine::Compact()
             {
                 outputItem.outline.reset( 
                     DrawItem::CreateDrawItem(outline_pm, clipRect, clipper, outlinePos.x, outlinePos.y, sw, 
-                    !w->m_style.get().alpha[0U] && !w->m_style.get().alpha[1U] && !alpha, true)
+                    (!w->m_style.get().alpha[0U] && !w->m_style.get().alpha[1U] && !alpha), true)
                     );
             }
             else if(w->m_style.get().borderStyle == 1)
@@ -2020,7 +2020,7 @@ void CRenderedTextSubtitle::OnChanged()
         subtitle_target_rect.right*MAX_SUB_PIXEL, subtitle_target_rect.bottom*MAX_SUB_PIXEL);
     m_size = CSize(layout_size.cx*MAX_SUB_PIXEL, layout_size.cy*MAX_SUB_PIXEL);
 
-    ASSERT(layout_size.cx!=0 && layout_size.cy!=0);
+    ASSERT((layout_size.cx!=0 && layout_size.cy!=0));
 
     m_target_scale_x = video_rect.Width()  * 1.0 / layout_size.cx;
     m_target_scale_y = video_rect.Height() * 1.0 / layout_size.cy;
@@ -2247,7 +2247,7 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         j += pc-str_start;
         if( pc-str_start>0 )
         {
-            while( iswspace(*--pc) );
+            while( iswspace(*--pc) ) { ; }
             ++pc;
         }
 
@@ -2261,27 +2261,27 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
         if(str[j] == L'(')
         {
             ++j;
-            CStringW::PCXSTR str_start{str.GetString() + j};
-            CStringW::PCXSTR pc{str_start};
-            while( iswspace(*pc) ) 
+            CStringW::PCXSTR argsStart{str.GetString() + j};
+            CStringW::PCXSTR argsScan{argsStart};
+            while( iswspace(*argsScan) ) 
             {
-                ++pc;
+                ++argsScan;
             }
-            j += pc-str_start;
-            str_start = pc;
-            while( *pc && *pc != L')' )
+            j += argsScan-argsStart;
+            argsStart = argsScan;
+            while( *argsScan && *argsScan != L')' )
             {
-                ++pc;
+                ++argsScan;
             }
-            j += pc-str_start;
-            if (pc-str_start>0)
+            j += argsScan-argsStart;
+            if (argsScan-argsStart>0)
             {
-                while( iswspace(*--pc) );
-                ++pc;
+                while( iswspace(*--argsScan) ) { ; }
+                ++argsScan;
             }
 
-            CStringW::PCXSTR param_start{str_start};
-            CStringW::PCXSTR param_end{pc};
+            CStringW::PCXSTR param_start{argsStart};
+            CStringW::PCXSTR param_end{argsScan};
             while( param_start<param_end )
             {
                 param_start = SkipWhiteSpaceLeft(param_start, param_end);
@@ -3019,55 +3019,55 @@ void CRenderedTextSubtitle::ParsePolygon(CSubtitle* sub, const CStringW& str, co
     {
         if(!fClosing)
         {
-            for(std::size_t i{0U}; i < attribs.GetCount(); ++i)
+            for(std::size_t attribIndex{0U}; attribIndex < attribs.GetCount(); ++attribIndex)
             {
-                if(params[i].IsEmpty())
+                if(params[attribIndex].IsEmpty())
                 {
                     continue;
                 }
                 int nColor{-1};
-                if(attribs[i] == L"face")
+                if(attribs[attribIndex] == L"face")
                 {
-                    style.fontName = params[i];
+                    style.fontName = params[attribIndex];
                 }
-                else if(attribs[i] == L"size")
+                else if(attribs[attribIndex] == L"size")
                 {
-                    if(params[i][0U] == L'+')
+                    if(params[attribIndex][0U] == L'+')
                     {
-                        style.fontSize += wcstol(params[i], nullptr, 10);
+                        style.fontSize += wcstol(params[attribIndex], nullptr, 10);
                     }
-                    else if(params[i][0U] == L'-')
+                    else if(params[attribIndex][0U] == L'-')
                     {
-                        style.fontSize -= wcstol(params[i], nullptr, 10);
+                        style.fontSize -= wcstol(params[attribIndex], nullptr, 10);
                     }
                     else
                     {
-                        style.fontSize = wcstol(params[i], nullptr, 10);
+                        style.fontSize = wcstol(params[attribIndex], nullptr, 10);
                     }
                 }
-                else if(attribs[i] == L"color")
+                else if(attribs[attribIndex] == L"color")
                 {
                     nColor = 0;
                 }
-                else if(attribs[i] == L"outline-color")
+                else if(attribs[attribIndex] == L"outline-color")
                 {
                     nColor = 2;
                 }
-                else if(attribs[i] == L"outline-level")
+                else if(attribs[attribIndex] == L"outline-level")
                 {
-                    style.outlineWidthX = style.outlineWidthY = wcstol(params[i], nullptr, 10);
+                    style.outlineWidthX = style.outlineWidthY = wcstol(params[attribIndex], nullptr, 10);
                 }
-                else if(attribs[i] == L"shadow-color")
+                else if(attribs[attribIndex] == L"shadow-color")
                 {
                     nColor = 3;
                 }
-                else if(attribs[i] == L"shadow-level")
+                else if(attribs[attribIndex] == L"shadow-level")
                 {
-                    style.shadowDepthX = style.shadowDepthY = wcstol(params[i], nullptr, 10);
+                    style.shadowDepthX = style.shadowDepthY = wcstol(params[attribIndex], nullptr, 10);
                 }
                 if(nColor >= 0 && nColor < 4)
                 {
-                    CString key{params[i].TrimLeft(L'#')};
+                    CString key{params[attribIndex].TrimLeft(L'#')};
                     DWORD val;
                     if(g_colors.Lookup(key, val))
                     {
@@ -3451,7 +3451,7 @@ struct LSub {int idx, layer, readorder;};
         subs.Add(ls);
     }
     TRACE_RENDERER_REQUEST("Begin sort LSub.");
-    qsort(subs.GetData(), subs.GetCount(), sizeof(LSub), lscomp);
+    std::qsort(subs.GetData(), subs.GetCount(), sizeof(LSub), lscomp);
     TRACE_RENDERER_REQUEST("Begin parse subs.");
     for(int i{0}, j = subs.GetCount(); i < j; ++i)
     {
@@ -3844,10 +3844,10 @@ void CRenderedTextSubtitle::RenderOneSubtitle( const SIZECoor2& output_size,
         case 1: margin.y = video_org.y;                      break; //do not move so that it aligns with the middle of the video
         case 2: margin.y = video_org.y + margin_rect.bottom; break;//move to bottom
         }
-        ASSERT(clipRect.Width() * MAX_SUB_PIXEL == output_size.cx &&
+        ASSERT((clipRect.Width() * MAX_SUB_PIXEL == output_size.cx &&
                 ( (clipRect.Height() * MAX_SUB_PIXEL == output_size.cy) ||
                   ((clipRect.Height() + 1) & ~1) * MAX_SUB_PIXEL == ((output_size.cy + 1) & ~1)
-                ));
+                )));
         // Do not assert when height is e.g. 413*8 instead of 414*8. YV12 SubSampling? FIXME to check
         clipRect.SetRect(0,0, 
             (output_size.cx + video_org.x+margin_rect.left+margin_rect.right)>>3,
@@ -3945,7 +3945,7 @@ void CRenderedTextSubtitle::RenderOneSubtitle( const SIZECoor2& output_size,
         {
             return E_OUTOFMEMORY;
         }
-        wcscpy(*ppName, CStringW(m_name));
+        std::wcscpy(*ppName, CStringW(m_name));
     }
     if(pLCID)
     {

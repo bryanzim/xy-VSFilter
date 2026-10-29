@@ -62,7 +62,7 @@ CVSFilterApp::CVSFilterApp()
 #endif
 
 #if (defined XY_SUB_FILTER_DLL)
-    free((void*)m_pszProfileName);
+    std::free((void*)m_pszProfileName);
     m_pszProfileName = _tcsdup(_T("XySubFilter"));
 #endif
 }
@@ -78,7 +78,7 @@ extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
 
 	SetRegistryKey(_T("Gabest"));
 #if (defined XY_SUB_FILTER_DLL)
-    free((void*)m_pszProfileName);
+    std::free((void*)m_pszProfileName);
     m_pszProfileName = _tcsdup(_T("XySubFilter"));//restore m_pszProfileName overwrite by SetRegistryKey
 #endif
 

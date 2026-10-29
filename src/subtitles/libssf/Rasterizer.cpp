@@ -39,7 +39,7 @@ namespace ssf
 
 	Rasterizer::Rasterizer()
 	{
-		mpOverlayBuffer = NULL;
+		mpOverlayBuffer = nullptr;
 		mOverlayWidth = mOverlayHeight = 0;
 		mPathOffsetX = mPathOffsetY = 0;
 		mOffsetX = mOffsetY = 0;
@@ -52,22 +52,22 @@ namespace ssf
 
 	void Rasterizer::_TrashOverlay()
 	{
-		if(mpOverlayBuffer) delete [] mpOverlayBuffer;
-		mpOverlayBuffer = NULL;
+		if(mpOverlayBuffer) { delete [] mpOverlayBuffer; }
+		mpOverlayBuffer = nullptr;
 	}
 
 	void Rasterizer::_ReallocEdgeBuffer(int edges)
 	{
 		mEdgeHeapSize = edges;
-		mpEdgeBuffer = (Edge*)realloc(mpEdgeBuffer, sizeof(Edge)*edges);
+		mpEdgeBuffer = static_cast<Edge*>(std::realloc(mpEdgeBuffer, sizeof(Edge)*edges));
 	}
 
 	void Rasterizer::_EvaluateBezier(const CPoint& p0, const CPoint& p1, const CPoint& p2, const CPoint& p3)
 	{
-		if(abs(p0.x + p2.x - p1.x*2) +
-		   abs(p0.y + p2.y - p1.y*2) +
-		   abs(p1.x + p3.x - p2.x*2) +
-		   abs(p1.y + p3.y - p2.y*2) <= max(2, 1<<FONT_AA))
+		if(std::abs(p0.x + p2.x - p1.x*2) +
+		   std::abs(p0.y + p2.y - p1.y*2) +
+		   std::abs(p1.x + p3.x - p2.x*2) +
+		   std::abs(p1.y + p3.y - p2.y*2) <= max(2, 1<<FONT_AA))
 		{
 			_EvaluateLine(p0, p3);
 		}
@@ -127,7 +127,9 @@ namespace ssf
 				int invslope = ((p1.x - p0.x) << 8) / dy;
 
 				while(mEdgeNext + p1.y + 1 - iy > mEdgeHeapSize)
+				{
 					_ReallocEdgeBuffer(mEdgeHeapSize*2);
+				}
 
 				xacc += (invslope * (y - p0.y)) >> FONT_SCALE;
 
@@ -162,7 +164,9 @@ namespace ssf
 				int invslope = ((p0.x - p1.x) << 8) / dy;
 
 				while(mEdgeNext + p0.y + 1 - iy > mEdgeHeapSize)
+				{
 					_ReallocEdgeBuffer(mEdgeHeapSize*2);
+				}
 
 				xacc += (invslope * (y - p1.y)) >> FONT_SCALE;
 
@@ -220,12 +224,12 @@ namespace ssf
 
 		mEdgeNext = 1;
 		mEdgeHeapSize = 0x10000;
-		mpEdgeBuffer = (Edge*)malloc(sizeof(Edge)*mEdgeHeapSize);
+		mpEdgeBuffer = static_cast<Edge*>(std::malloc(sizeof(Edge)*mEdgeHeapSize));
 
 		// Initialize scanline list.
 
 		mpScanBuffer = new unsigned int[mHeight];
-		memset(mpScanBuffer, 0, mHeight*sizeof(unsigned int));
+		std::memset(mpScanBuffer, 0, mHeight*sizeof(unsigned int));
 
 		// Scan convert the outline.  Yuck, Bezier curves....
 
@@ -242,27 +246,27 @@ namespace ssf
 		BYTE* type = path.types.GetData();
 		POINT* pt = path.points.GetData();
 
-		for(size_t i = 0, j = path.types.GetCount(); i < j; i++)
+		for(std::size_t i{0U}, j{path.types.GetCount()}; i < j; ++i)
 		{
 			switch(type[i] & ~PT_CLOSEFIGURE)
 			{
 			case PT_MOVETO:
-				if(lastmoveto >= 0 && firstp != lastp) _EvaluateLine(lastp, firstp);
-				lastmoveto = i;
+				if(lastmoveto >= 0 && firstp != lastp) { _EvaluateLine(lastp, firstp); }
+				lastmoveto = static_cast<int>(i);
 				fFirstSet = false;
 				lastp = pt[i];
 				break;
 			case PT_LINETO:
-				if(j - (i-1) >= 2) _EvaluateLine(pt[i-1], pt[i]);
+				if(j - (i-1) >= 2) { _EvaluateLine(pt[i-1], pt[i]); }
 				break;
 			case PT_BEZIERTO:
-				if(j - (i-1) >= 4) _EvaluateBezier(pt[i-1], pt[i], pt[i+1], pt[i+2]);
+				if(j - (i-1) >= 4) { _EvaluateBezier(pt[i-1], pt[i], pt[i+1], pt[i+2]); }
 				i += 2;
 				break;
 			}
 		}
 
-		if(lastmoveto >= 0 && firstp != lastp) _EvaluateLine(lastp, firstp);
+		if(lastmoveto >= 0 && firstp != lastp) { _EvaluateLine(lastp, firstp); }
 
 		// Convert the edges to spans.  We couldn't do this before because some of
 		// the regions may have winding numbers >+1 and it would have been a pain
@@ -272,15 +276,15 @@ namespace ssf
 
 		std::vector<int> heap;
 
-		mOutline.SetCount(0, mEdgeNext / 2);
+		mOutline.SetCount(0U, mEdgeNext / 2);
 
-		for(int y = 0; y < mHeight; y++)
+		for(int y = 0; y < mHeight; ++y)
 		{
 			int count = 0;
 
 			// Detangle scanline into edge heap.
 
-			for(unsigned int ptr = mpScanBuffer[y]; ptr; ptr = mpEdgeBuffer[ptr].next)
+			for(unsigned int ptr{mpScanBuffer[y]}; ptr; ptr = mpEdgeBuffer[ptr].next)
 			{
 				heap.push_back(mpEdgeBuffer[ptr].posandflag);
 			}
@@ -308,8 +312,8 @@ namespace ssf
 					x1 = x >> 1;
 				}
 
-				if(x&1) ++count;
-				else --count;
+				if(x&1) { ++count; }
+				else { --count; }
 
 				if(!count)
 				{
@@ -362,7 +366,7 @@ namespace ssf
 				x.first = b->first + o.first;
 				x.second = b->second + o.second;
 
-				b++;
+				++b;
 
 				// B spans don't overlap, so begin merge loop with A first.
 
@@ -373,7 +377,9 @@ namespace ssf
 					// overlap) and we exit.
 
 					if(a == ae || a->first > x.second)
+					{
 						break;
+					}
 
 					do {x.second = mymax(x.second, a->second);}
 					while(++a != ae && a->first <= x.second);
@@ -383,7 +389,9 @@ namespace ssf
 					// overlap) and we exit.
 
 					if(b == be || b->first + o.first > x.second)
+					{
 						break;
+					}
 
 					do {x.second = mymax(x.second, b->second + o.second);}
 					while(++b != be && b->first + o.first <= x.second);
@@ -395,7 +403,7 @@ namespace ssf
 
 				x = *a;
 
-				a++;
+				++a;
 
 				// A spans don't overlap, so begin merge loop with B first.
 
@@ -406,7 +414,9 @@ namespace ssf
 					// overlap) and we exit.
 
 					if(b == be || b->first + o.first > x.second)
+					{
 						break;
+					}
 
 					do {x.second = mymax(x.second, b->second + o.second);}
 					while(++b != be && b->first + o.first <= x.second);
@@ -416,7 +426,9 @@ namespace ssf
 					// overlap) and we exit.
 
 					if(a == ae || a->first > x.second)
+					{
 						break;
+					}
 
 					do {x.second = mymax(x.second, a->second);}
 					while(++a != ae && a->first <= x.second);
@@ -432,7 +444,7 @@ namespace ssf
 
 		dst.Append(a, ae - a);
 
-		for(; b != be; b++)
+		for(; b != be; ++b)
 		{
 			dst.Add(Span(b->first + o.first, b->second + o.second));
 		}
@@ -440,13 +452,13 @@ namespace ssf
 
 	bool Rasterizer::CreateWidenedRegion(int r)
 	{
-		if(r < 0) r = 0;
+		if(r < 0) { r = 0; }
 
 		r >>= FONT_SCALE;
 
 		for(int y = -r; y <= r; ++y)
 		{
-			int x = (int)(0.5f + sqrt(float(r*r - y*y)));
+			int x = static_cast<int>(0.5f + std::sqrt(float(r*r - y*y)));
 
 			_OverlapRegion(mWideOutline, mOutline, x, y);
 		}
@@ -496,15 +508,15 @@ namespace ssf
 		mOverlayHeight = ((height + ((1<<FONT_AA)-1)) >> FONT_AA) + 1;
 
 		mpOverlayBuffer = new BYTE[4 * mOverlayWidth * mOverlayHeight];
-		memset(mpOverlayBuffer, 0, 4 * mOverlayWidth * mOverlayHeight);
+		std::memset(mpOverlayBuffer, 0, 4 * mOverlayWidth * mOverlayHeight);
 
-		Array<Span>* pOutline[2] = {&mOutline, &mWideOutline};
+		Array<Span>* pOutline[2U] = {&mOutline, &mWideOutline};
 
-		for(int i = 0; i < countof(pOutline); i++)
+		for(std::size_t i{0U}; i < countof(pOutline); ++i)
 		{
 			const Span* s = pOutline[i]->GetData();
 
-			for(size_t j = 0, k = pOutline[i]->GetCount(); j < k; j++)
+			for(std::size_t j{0U}, k{pOutline[i]->GetCount()}; j < k; ++j)
 			{
 				int y = s[j].y1 - 0x40000000 + ysub;
 				int x1 = s[j].x1 - 0x40000000 + xsub;
@@ -519,11 +531,11 @@ namespace ssf
 
 					if(first == last)
 					{
-						*dst += x2 - x1;
+						*dst += static_cast<BYTE>(x2 - x1);
 					}
 					else
 					{
-						*dst += (((first+1) << FONT_AA) - x1) << (6 - FONT_AA*2);
+						*dst += static_cast<BYTE>((((first+1) << FONT_AA) - x1) << (6 - FONT_AA*2));
 						dst += 4;
 
 						while(++first < last)
@@ -532,7 +544,7 @@ namespace ssf
 							dst += 4;
 						}
 
-						*dst += (x2 - (last << FONT_AA)) << (6 - FONT_AA*2);
+						*dst += static_cast<BYTE>((x2 - (last << FONT_AA)) << (6 - FONT_AA*2));
 					}
 				}
 			}
@@ -544,7 +556,7 @@ namespace ssf
 
 			for(int j = 0; j < mOverlayHeight; j++, p += mOverlayWidth*4)
 			{
-				for(int i = 0; i < mOverlayWidth; i++)
+				for(int i = 0; i < mOverlayWidth; ++i)
 				{
 					p[i*4+2] = min(p[i*4+1], (1<<6) - p[i*4]); // TODO: sse2
 				}
@@ -557,24 +569,28 @@ namespace ssf
 	void Rasterizer::Blur(float n, int plane)
 	{
 		if(n <= 0 || !mOverlayWidth || !mOverlayHeight || !mpOverlayBuffer)
+		{
 			return;
+		}
 
 		int w = mOverlayWidth;
 		int h = mOverlayHeight;
 		int pitch = w*4;
 		BYTE* q0 = new BYTE[w*h];
 
-		for(int pass = 0; pass < n; pass++)
+		for(int pass = 0; pass < n; ++pass)
 		{
 			BYTE* p = mpOverlayBuffer + plane;
 			BYTE* q = q0;
 
 			for(int y = 0; y < h; y++, p += pitch, q += w)
 			{
-				q[0] = (2*p[0] + p[4]) >> 2;
+				q[0U] = (2*p[0U] + p[4U]) >> 2;
 				int x = 0;
-				for(x = 1; x < w-1; x++)
+				for(x = 1; x < w-1; ++x)
+				{
 					q[x] = (p[(x-1)*4] + 2*p[x*4] + p[(x+1)*4]) >> 2;
+				}
 				q[x] = (p[(x-1)*4] + 2*p[x*4]) >> 2;
 			}
 
@@ -583,10 +599,12 @@ namespace ssf
 
 			for(int x = 0; x < w; x++, p += 4, q++)
 			{
-				p[0] = (2*q[0] + q[w]) >> 2;
+				p[0U] = (2*q[0U] + q[w]) >> 2;
 				int y = 0, yp, yq;
 				for(y = 1, yp = y*pitch, yq = y*w; y < h-1; y++, yp += pitch, yq += w)
+				{
 					p[yp] = (q[yq-w] + 2*q[yq] + q[yq+w]) >> 2;
+				}
 				p[yp] = (q[yq-w] + 2*q[yq]) >> 2;
 			}
 		}
@@ -608,7 +626,7 @@ namespace ssf
 	///////////////////////////////////////////////////////////////////////////
 
 
-	static __forceinline void pixmix_sse2(DWORD* dst, DWORD color, DWORD alpha)
+	static __forceinline void pixmix_sse2(DWORD *dst, DWORD color, DWORD alpha)
 	{
 		alpha = ((alpha * (color>>24)) >> 6) & 0xff;
 		color &= 0xffffff;
@@ -624,14 +642,14 @@ namespace ssf
 		r = _mm_packs_epi32(r, r);
 		r = _mm_packus_epi16(r, r);
 
-		*dst = (DWORD)_mm_cvtsi128_si32(r);
+		*dst = static_cast<DWORD>(_mm_cvtsi128_si32(r));
 	}
 
-	CRect Rasterizer::Draw(const SubPicDesc& spd, const CRect& clip, int xsub, int ysub, const DWORD* switchpts, int plane)
+	CRect Rasterizer::Draw(const SubPicDesc& spd, const CRect& clip, int xsub, int ysub, const DWORD *switchpts, int plane)
 	{
 		CRect bbox(0, 0, 0, 0);
 
-		if(!switchpts) return bbox;
+		if(!switchpts) { return bbox; }
 
 		// clip
 
@@ -649,10 +667,10 @@ namespace ssf
 
 		if(x < r.left) {xo = r.left - x; w -= r.left - x; x = r.left;}
 		if(y < r.top) {yo = r.top - y; h -= r.top - y; y = r.top;}
-		if(x+w > r.right) w = r.right - x;
-		if(y+h > r.bottom) h = r.bottom - y;
+		if(x+w > r.right) { w = r.right - x; }
+		if(y+h > r.bottom) { h = r.bottom - y; }
 
-		if(w <= 0 || h <= 0) return bbox;
+		if(w <= 0 || h <= 0) { return bbox; }
 
 		bbox.SetRect(x, y, x + w, y + h);
 		bbox &= CRect(0, 0, spd.w, spd.h);
@@ -660,30 +678,40 @@ namespace ssf
 		// draw
 
 		const BYTE* src = mpOverlayBuffer + 4*(mOverlayWidth * yo + xo) + plane;
-		DWORD* dst = (DWORD*)((BYTE*)spd.bits + spd.pitch * y) + x;
+		DWORD *dst{reinterpret_cast<DWORD*>(static_cast<BYTE*>(spd.bits) + spd.pitch * y) + x};
 
-		DWORD color = switchpts[0];
+		DWORD color{switchpts[0U]};
 
 		while(h--)
 		{
-			if(switchpts[1] == 0xffffffff)
+			if(switchpts[1U] == 0xFFFFFFFFU)
 			{
-				for (int wt = 0; wt < w; ++wt)
+				for(int wt{0}; wt < w; ++wt)
+				{
 					pixmix_sse2(&dst[wt], color, src[wt * 4]);
+				}
 			}
 			else
 			{
-				const DWORD* sw = switchpts;
+				const DWORD *sw{switchpts};
 
-				for(int wt=0; wt<w; ++wt)
+				for(int wt{0}; wt < w; ++wt)
 				{
-					if(wt+xo >= sw[1]) {while(wt+xo >= sw[1]) sw += 2; color = sw[-2];}
+					const DWORD sampleX{static_cast<DWORD>(wt + xo)};
+					if(sampleX >= sw[1U])
+					{
+						while(sampleX >= sw[1U])
+						{
+							sw += 2;
+						}
+						color = sw[-2];
+					}
 					pixmix_sse2(&dst[wt], color, src[wt*4]);
 				}
 			}
 
 			src += 4*mOverlayWidth;
-			dst = (DWORD*)((BYTE*)dst + spd.pitch);
+			dst = reinterpret_cast<DWORD*>(reinterpret_cast<BYTE*>(dst) + spd.pitch);
 		}
 
 		return bbox;

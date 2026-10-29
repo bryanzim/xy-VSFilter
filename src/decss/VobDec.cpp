@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "VobDec.h"
 
-static BYTE reverse[0x100], table[0x100] =
+static BYTE reverse[0x100U], table[0x100U] =
 {
 	0x33, 0x73, 0x3B, 0x26, 0x63, 0x23, 0x6B, 0x76, 0x3E, 0x7E, 0x36, 0x2B, 0x6E, 0x2E, 0x66, 0x7B,
 	0xD3, 0x93, 0xDB, 0x06, 0x43, 0x03, 0x4B, 0x96, 0xDE, 0x9E, 0xD6, 0x0B, 0x4E, 0x0E, 0x46, 0x9B,
@@ -25,11 +25,11 @@ CVobDec::CVobDec()
 {
 	m_fFoundKey = false;
 
-	for(DWORD loop0 = 0; loop0 < 0x100; ++loop0)
+	for(DWORD loop0{0U}; loop0 < 0x100U; ++loop0)
 	{
-		BYTE value = 0;
+		BYTE value{0};
 
-		for(DWORD loop1 = 0; loop1 < 8; ++loop1)
+		for(DWORD loop1{0U}; loop1 < 8U; ++loop1)
 		{
 			value |= ((loop0 >> loop1) & 1) << (7 - loop1);
 		}
@@ -65,10 +65,10 @@ void CVobDec::ClockBackward(int &lfsr0, int &lfsr1)
 	lfsr1 = ((lfsr1 << 8) | ((((((temp1 >> 2) ^ temp1) >> 1) ^ temp1) >> 3) ^ temp1 ^ temp0)) & ((1 << 25) - 1);
 }
 
-void CVobDec::Salt(const BYTE salt[5], int &lfsr0, int &lfsr1)
+void CVobDec::Salt(const BYTE salt[5U], int &lfsr0, int &lfsr1)
 {
-	lfsr0 ^= (reverse[salt[0]] << 9) | reverse[salt[1]];
-	lfsr1 ^= ((reverse[salt[2]] & 0xE0) << 17) | ((reverse[salt[2]] & 0x1F) << 16) | (reverse[salt[3]] << 8) | reverse[salt[4]];
+	lfsr0 ^= (reverse[salt[0U]] << 9) | reverse[salt[1U]];
+	lfsr1 ^= ((reverse[salt[2U]] & 0xE0) << 17) | ((reverse[salt[2U]] & 0x1F) << 16) | (reverse[salt[3U]] << 8) | reverse[salt[4U]];
 }
 
 int CVobDec::FindLfsr(const BYTE *crypt, int offset, const BYTE *plain)
@@ -105,7 +105,7 @@ int CVobDec::FindLfsr(const BYTE *crypt, int offset, const BYTE *plain)
 				ClockBackward(lfsr0, lfsr1);
 			}
 			carry = ((lfsr0 >> 9) ^ 0xFF) + (lfsr1 >> 17) + (loop0 & 0x01);
-			if((carry & 0xFF) == (table[crypt[offset]] ^ plain[0]))
+			if((carry & 0xFF) == (table[crypt[offset]] ^ plain[0U]))
 			{
 				for(loop1 = 0; loop1 != offset + 1; ++loop1)
 				{
@@ -126,24 +126,24 @@ int CVobDec::FindLfsr(const BYTE *crypt, int offset, const BYTE *plain)
 
 bool CVobDec::FindKey(BYTE* buff)
 {
-	BYTE plain[7] = {0x00, 0x00, 0x01, 0xBE, 0x00, 0x00, 0xFF};
+	BYTE plain[7U] = {0x00, 0x00, 0x01, 0xBE, 0x00, 0x00, 0xFF};
 	int offset, left, flag = 0, block = 0, count, maxblock = 20000;
 
 	m_fFoundKey = false;
 
-	if(buff[0x14] & 0x30)
+	if(buff[0x14U] & 0x30)
 	{
 		flag |= 0x01;
 
-		if(*(DWORD*)&buff[0x00] == 0xba010000 && (*(DWORD*)&buff[0x0e] & 0xffffff) == 0x010000)
+		if(*reinterpret_cast<DWORD*>(&buff[0x00U]) == 0xba010000 && (*reinterpret_cast<DWORD*>(&buff[0x0eU]) & 0xffffff) == 0x010000)
 		{
-			offset = 0x14 + (buff[0x12] << 8) + buff[0x13];
+			offset = 0x14 + (buff[0x12U] << 8) + buff[0x13U];
 			if(0x80 <= offset && offset <= 0x7F9)
 			{
 				flag |= 0x02;
 				left = 0x800 - offset - 6;
-				plain[4] = (char)(left >> 8);
-				plain[5] = (char)left;
+				plain[4U] = static_cast<char>(left >> 8);
+				plain[5U] = static_cast<char>(left);
 				if((count = FindLfsr(buff + 0x80, offset - 0x80, plain)) == 1)
 				{
 					Salt(buff + 0x54, m_lfsr0, m_lfsr1);
@@ -162,9 +162,9 @@ bool CVobDec::FindKey(BYTE* buff)
 
 void CVobDec::Decrypt(BYTE* buff)
 {
-	if(buff[0x14] & 0x30)
+	if(buff[0x14U] & 0x30)
 	{
-		buff[0x14] &= ~0x30;
+		buff[0x14U] &= ~0x30;
 
 		int lfsr0 = m_lfsr0, lfsr1 = m_lfsr1;
 
@@ -172,7 +172,7 @@ void CVobDec::Decrypt(BYTE* buff)
 		
 		buff += 0x80;
 
-		for(int loop0 = 0, carry = 0; loop0 != 0x800 - 0x80; loop0++, buff++)
+		for(int loop0{0}, carry{0}; loop0 != 0x800 - 0x80; ++loop0, ++buff)
 		{
 			ClockLfsr0Forward(lfsr0);
 			ClockLfsr1Forward(lfsr1);

@@ -45,19 +45,16 @@ extern "C" struct csri_vsfilter_inst {
 static csri_rend csri_vsfilter{"vsfilter"};
 
 
-CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, struct csri_openflag *flags)
+CSRIAPI csri_inst *csri_open_file([[maybe_unused]] csri_rend *renderer, const char *filename, [[maybe_unused]] struct csri_openflag *flags)
 {
     AMTRACE((TEXT(__FUNCTION__),0));
-	int namesize;
-	wchar_t *namebuf;
-
-	namesize = MultiByteToWideChar(CP_UTF8, 0, filename, -1, nullptr, 0);
-	if (!namesize)
+	int namesize{MultiByteToWideChar(CP_UTF8, 0, filename, -1, nullptr, 0)};
+	if (namesize == 0)
 	{
-		return 0;
+		return nullptr;
 	}
 	++namesize;
-	namebuf = new wchar_t[namesize];
+	wchar_t* namebuf{new wchar_t[namesize]};
 	MultiByteToWideChar(CP_UTF8, 0, filename, -1, namebuf, namesize);
 
 	csri_inst *inst{new csri_inst()};
@@ -65,19 +62,19 @@ CSRIAPI csri_inst *csri_open_file(csri_rend *renderer, const char *filename, str
 	inst->rts = new CRenderedTextSubtitle(inst->cs);
 	if (inst->rts->Open(CString(namebuf), DEFAULT_CHARSET)) {
 		delete[] namebuf;
-		inst->readorder = 0;
+		inst->readorder = 0U;
 		return inst;
 	} else {
 		delete[] namebuf;
 		delete inst->rts;
 		delete inst->cs;
 		delete inst;
-		return 0;
+		return nullptr;
 	}
 }
 
 
-CSRIAPI csri_inst *csri_open_mem(csri_rend *renderer, const void *data, const std::size_t length, struct csri_openflag *flags)
+CSRIAPI csri_inst *csri_open_mem([[maybe_unused]] csri_rend *renderer, const void *data, const std::size_t length, [[maybe_unused]] struct csri_openflag *flags)
 {
     AMTRACE((TEXT(__FUNCTION__),0));
 	// This is actually less effecient than opening a file, since this first writes the memory data to a temp file,
@@ -86,14 +83,14 @@ CSRIAPI csri_inst *csri_open_mem(csri_rend *renderer, const void *data, const st
 
 	inst->cs = new CCritSec();
 	inst->rts = new CRenderedTextSubtitle(inst->cs);
-	if (inst->rts->Open((BYTE*)data, (int)length, DEFAULT_CHARSET, _T("CSRI memory subtitles"))) {
-		inst->readorder = 0;
+	if (inst->rts->Open(const_cast<BYTE*>(static_cast<const BYTE*>(data)), static_cast<int>(length), DEFAULT_CHARSET, _T("CSRI memory subtitles"))) {
+		inst->readorder = 0U;
 		return inst;
 	} else {
 		delete inst->rts;
 		delete inst->cs;
 		delete inst;
-		return 0;
+		return nullptr;
 	}
 }
 
@@ -160,15 +157,15 @@ CSRIAPI void csri_render(csri_inst *inst, struct csri_frame *frame, const double
 	}
 	spd.vidrect = inst->video_rect;
 
-	(void)inst->rts->Render(spd, (REFERENCE_TIME)(time*10000000), arbitrary_framerate, inst->video_rect);
+	[[maybe_unused]] const HRESULT rendered{inst->rts->Render(spd, static_cast<REFERENCE_TIME>(time * 10000000), arbitrary_framerate, inst->video_rect)};
 }
 
 
 // No extensions supported
-CSRIAPI void *csri_query_ext(csri_rend *rend, const csri_ext_id extname) { return 0; }
+CSRIAPI void *csri_query_ext([[maybe_unused]] csri_rend *rend, [[maybe_unused]] const csri_ext_id extname) { return nullptr; }
 
 // Get info for renderer
-static struct csri_info csri_vsfilter_info = {
+static const csri_info csri_vsfilter_info{
 #ifdef _DEBUG
 	"pf-xy-vsfilter_textsub_debug", // name
 #else
@@ -180,7 +177,7 @@ static struct csri_info csri_vsfilter_info = {
 	"Copyright (c) 2003-2014 by Gabest et al." // copyright
 };
 
-CSRIAPI struct csri_info *csri_renderer_info(csri_rend *rend) { return &csri_vsfilter_info; }
-CSRIAPI csri_rend *csri_renderer_byname(const char *name, const char *specific) { return &csri_vsfilter; }
+CSRIAPI struct csri_info *csri_renderer_info([[maybe_unused]] csri_rend *rend) { return const_cast<csri_info*>(&csri_vsfilter_info); }
+CSRIAPI csri_rend *csri_renderer_byname([[maybe_unused]] const char *name, [[maybe_unused]] const char *specific) { return &csri_vsfilter; }
 CSRIAPI csri_rend *csri_renderer_default() { return &csri_vsfilter; }
-CSRIAPI csri_rend *csri_renderer_next(csri_rend *prev) { return 0; }
+CSRIAPI csri_rend *csri_renderer_next([[maybe_unused]] csri_rend *prev) { return nullptr; }

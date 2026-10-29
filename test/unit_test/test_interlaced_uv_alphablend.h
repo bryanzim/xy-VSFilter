@@ -93,7 +93,7 @@ struct A_Y_UV_TestData
     [[nodiscard]] std::stringstream& GetBufString(std::stringstream& os, T* buf)
     {        
         os<<std::hex;
-        for (int i{0};i<w;i++)
+        for (int i{0};i<w;++i)
         {
             os<<std::setw(4)<<static_cast<int>(buf[i])<<" ";
         }
@@ -110,25 +110,25 @@ std::ostream& operator<<(std::ostream& os, const A_Y_UV_TestData& test_data)
         <<std::endl;
     os<<std::hex<<std::setw(4);
     os<<"alpha:"<<std::endl;
-    for (int i{0};i<test_data.w;i++)
+    for (int i{0};i<test_data.w;++i)
     {
         os<<static_cast<int>(test_data.alpha[i])<<" ";
     }
     os<<std::endl;
     os<<"dst_a:"<<std::endl;
-    for (int i{0};i<test_data.w;i++)
+    for (int i{0};i<test_data.w;++i)
     {
         os<<static_cast<int>(test_data.dst_a[i])<<" ";
     }
     os<<std::endl;
     os<<"dst_y:"<<std::endl;
-    for (int i{0};i<test_data.w;i++)
+    for (int i{0};i<test_data.w;++i)
     {
         os<<static_cast<int>(test_data.dst_y[i])<<" ";
     }
     os<<std::endl;
     os<<"dst_uv:"<<std::endl;
-    for (int i{0};i<test_data.w;i++)
+    for (int i{0};i<test_data.w;++i)
     {
         os<<static_cast<int>(test_data.dst_uv[i])<<" ";
     }
@@ -163,7 +163,7 @@ protected:
     }
     void FillRandByte(BYTE* buf, const int size)
     {
-        for (int i{0};i<size;i++)
+        for (int i{0};i<size;++i)
         {
             buf[i] = rand() & 0xff;
         }
@@ -193,9 +193,9 @@ TEST_F(InterlacedUvAlphaBlendTest, WhatEver)
     ASSERT_EQ(true, data1==data0);
     ASSERT_EQ(true, data2==data0);
 
-    for (int i{0};i<10000;i++)
+    for (int i{0};i<10000;++i)
     {
-        for (int w{1};w<33;w++)
+        for (int w{1};w<33;++w)
         {            
             data0 = GetRandomData(w);
             data1 = data0;

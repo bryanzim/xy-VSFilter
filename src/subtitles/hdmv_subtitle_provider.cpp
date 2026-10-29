@@ -73,7 +73,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     hr = m_pSub->GetTextureSize(pos, MaxTextureSize, VideoSize, VideoTopLeft);
     if (SUCCEEDED(hr))
     {
-        ASSERT(MaxTextureSize==VideoSize && VideoTopLeft==CPoint(0,0));
+        ASSERT((MaxTextureSize==VideoSize && VideoTopLeft==CPoint(0,0)));
         if (!(MaxTextureSize==VideoSize && VideoTopLeft==CPoint(0,0)))
         {
             XY_LOG_ERROR("We don't know how to deal with this sizes."

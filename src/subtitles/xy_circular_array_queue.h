@@ -1,6 +1,9 @@
 #ifndef __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__ 
 #define __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__
 
+#include <cstddef>
+#include <cstdint>
+
 template <typename ElementType>
 class XYCircularArrayQueue
 {

@@ -45,7 +45,7 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
 	CheckPointer(pPropBag, E_POINTER);
 	CheckPointer(pvarValue, E_POINTER);
 	CheckPointer(phrError, E_POINTER);
-	for(ULONG i{0}; i < cProperties; phrError[i] = S_OK, i++)
+	for(ULONG i{0}; i < cProperties; phrError[i] = S_OK, ++i)
 	{
 		CComVariant(Lookup(pPropBag[i].pstrName)).Detach(pvarValue);
 	}
@@ -74,7 +74,7 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
 {
 	CheckPointer(pPropBag, E_POINTER);
 	CheckPointer(pcProperties, E_POINTER);
-	for(ULONG i{0}; i < cProperties; i++, iProperty++, (*pcProperties)++) 
+	for(ULONG i{0}; i < cProperties; ++i, ++iProperty, (*pcProperties)++) 
 	{
 		CStringW key{GetKeyAt(iProperty)};
 		pPropBag[i].pstrName = (BSTR)CoTaskMemAlloc((key.GetLength()+1)*sizeof(WCHAR));
@@ -82,7 +82,7 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
 		{
 		    return E_FAIL;
 		}
-        wcscpy(pPropBag[i].pstrName, key);
+        std::wcscpy(pPropBag[i].pstrName, key);
 	}
 	return S_OK;
 }
@@ -467,7 +467,7 @@ IDSMChapterBagImpl::IDSMChapterBagImpl()
 	{
 	    return S_FALSE;
 	}
-	qsort(m_chapters.GetData(), m_chapters.GetCount(), sizeof(CDSMChapter), CDSMChapter::Compare);
+	std::qsort(m_chapters.GetData(), m_chapters.GetCount(), sizeof(CDSMChapter), CDSMChapter::Compare);
 	m_fSorted = true;
 	return S_OK;
 }

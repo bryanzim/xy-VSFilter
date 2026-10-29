@@ -214,7 +214,7 @@ void CSystrayWindow::OnDestroy()
         dvs_xy->XyGetString(DirectVobSubXyOptions::STRING_NAME, &name, &chars);
         CStringW str_name{name, chars};
         LocalFree(name);
-        lstrcpyn(tnid.szTip, str_name.GetString(), sizeof(tnid.szTip));
+        lstrcpyn(tnid.szTip, str_name.GetString(), _countof(tnid.szTip));
 
 		BOOL res{Shell_NotifyIcon(NIM_ADD, &tnid)}; 
 
@@ -292,7 +292,7 @@ void CSystrayWindow::OnDestroy()
 				DWORD cStreams{0};
 				pStreams[j]->Count(&cStreams);
 
-				DWORD flags, group, prevgroup = -1;
+				DWORD flags, group, prevgroup{static_cast<DWORD>(-1)};
 				
 				for(UINT i{0}; i < cStreams; ++i)
 				{
@@ -380,7 +380,7 @@ void CSystrayWindow::OnDestroy()
     {
         tbid->WndCreatedEvent.Set();
         XY_LOG_ERROR("Failed to create wnd.");
-        return -1;
+        return static_cast<DWORD>(-1);
     }
     tbid->hSystrayWnd = wnd.m_hWnd;
     tbid->WndCreatedEvent.Set();
@@ -406,7 +406,7 @@ void CSystrayWindow::OnDestroy()
 
 void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 {
-    ASSERT(data&&pSystrayThread);
+    ASSERT((data&&pSystrayThread));
     XY_LOG_INFO(XY_LOG_VAR_2_STR(*pSystrayThread)<<XY_LOG_VAR_2_STR(data->hSystrayWnd));
     if (*pSystrayThread)
     {
@@ -473,9 +473,9 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 		}
 		else
 		{
-			if((ret = DEBUG_NEW TCHAR[wcslen(wstr)+1]))
+			if((ret = DEBUG_NEW TCHAR[std::wcslen(wstr)+1]))
 			{
-				_tcscpy_s(ret, wcslen(wstr)+1, CString(wstr));
+				_tcscpy_s(ret, std::wcslen(wstr)+1, CString(wstr));
 			}
 		}
 	}
@@ -486,7 +486,7 @@ void DeleteSystray(HANDLE *pSystrayThread, SystrayIconData* data )
 	}
 	if(wstr)
 	{
-	    free(wstr);
+	    std::free(wstr);
 	}
 
 	return(ret);

@@ -34,10 +34,13 @@
 #endif
 
 #include <afx.h>
+#include <cctype>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cwchar>
 #include <afxwin.h>         // MFC core and standard components
 #include <crtdefs.h>
 

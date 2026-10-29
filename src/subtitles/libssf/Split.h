@@ -27,12 +27,12 @@ namespace ssf
 	{
 	public:
 		enum SplitType {Min, Def, Max};
-		Split();
-		Split(LPCWSTR sep, CStringW str, size_t limit = 0, SplitType type = Def);
-		Split(WCHAR sep, CStringW str, size_t limit = 0, SplitType type = Def);
-		operator size_t() {return GetCount();}
-		void DoSplit(LPCWSTR sep, CStringW str, size_t limit, SplitType type);
-		int GetAtInt(size_t i);
-		float GetAtFloat(size_t i);
+		explicit Split();
+		Split(LPCWSTR sep, CStringW str, std::size_t limit = 0U, SplitType type = Def);
+		Split(WCHAR sep, CStringW str, std::size_t limit = 0U, SplitType type = Def);
+		operator std::size_t() {return GetCount();}
+		void DoSplit(LPCWSTR sep, CStringW str, std::size_t limit, SplitType type);
+		int GetAtInt(std::size_t i);
+		float GetAtFloat(std::size_t i);
 	};
 }

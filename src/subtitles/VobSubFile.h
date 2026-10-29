@@ -33,17 +33,17 @@
 #define TwoCc(a, b) ((unsigned short)(((unsigned char)(a) << 8) | (unsigned char)(b)))
 
 #define ReadBEb(var)              \
-    f.Read(&((BYTE*)&var)[0], 1);
+    f.Read(&((BYTE*)&var)[0U], 1);
 
 #define ReadBEw(var)              \
-    f.Read(&((BYTE*)&var)[1], 1); \
-    f.Read(&((BYTE*)&var)[0], 1);
+    f.Read(&((BYTE*)&var)[1U], 1); \
+    f.Read(&((BYTE*)&var)[0U], 1);
 
 #define ReadBEdw(var)             \
-    f.Read(&((BYTE*)&var)[3], 1); \
-    f.Read(&((BYTE*)&var)[2], 1); \
-    f.Read(&((BYTE*)&var)[1], 1); \
-    f.Read(&((BYTE*)&var)[0], 1);
+    f.Read(&((BYTE*)&var)[3U], 1); \
+    f.Read(&((BYTE*)&var)[2U], 1); \
+    f.Read(&((BYTE*)&var)[1U], 1); \
+    f.Read(&((BYTE*)&var)[0U], 1);
 
 [[nodiscard]] extern CString FindLangFromId(WORD id);
 

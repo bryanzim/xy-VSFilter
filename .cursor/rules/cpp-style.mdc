@@ -6,7 +6,7 @@ alwaysApply: false
 
 # C++ style
 
-Apply these rules to new and edited first-party C++. Do not restyle third-party code under `src/thirdparty`, `src/filters/BaseClasses`, `src/subtitles/libssf`, `include/winddk`, `include/avisynth`, `include/vd2`, or `csri.h`.
+Apply these rules to checked-in C++ that belongs to this repository, including `src/subtitles/libssf`. Do not restyle imported external code under `src/thirdparty`, `src/filters/BaseClasses`, `include/winddk`, `include/avisynth`, `include/vd2`, `include/dx`, `include/unrar`, or `csri.h`.
 
 - Brace-initialize objects: `Vector{ x, y }`, `std::size_t count{ 0U }`. Keep parentheses when braces change meaning, such as `std::vector<T>(count)` or a constructor that would be narrowed by braces.
 - Suffix unsigned indices, sizes, and unsigned constants by value: `U` through 4294967295, `ULL` above that. Do not suffix signed, floating, or character literals.
@@ -16,6 +16,7 @@ Apply these rules to new and edited first-party C++. Do not restyle third-party 
 - Mark a function `[[nodiscard]]` when ignoring its result is a mistake. Skip `void` functions.
 - Mark a function `noexcept` only when it cannot throw, including through functions it calls. Do not mark functions that allocate, lock, stream, or throw. Do not add `noexcept` to a COM or MFC override; MSVC v145 rejects that mismatch (C2382). Leave `__declspec(nothrow)` and `DECLSPEC_NOTHROW` in place.
 - Put `if`, `for`, `while`, `do`, and `else` bodies in `{}` blocks.
+- Scope a compound boolean argument in parentheses. A compound argument contains `&&` or `||`. Leave a single name, a single `!`, or a single comparison as written.
 - Prefer the C++ library over the C library: `std::memcpy`, `std::memset`, `std::sin`, `std::abs`. Call an OS or C function with `::` only when C++ has no equivalent, as in `::gmtime_s`.
 - Prefer `std::array` to a C-style array. Pass `.data()` when a C interface needs a pointer. Leave binary layouts and COM structs as C arrays.
 - Name fixed-width integers and `size_t` in `std`: `std::uint32_t`, `std::int64_t`, `std::size_t`.
@@ -23,6 +24,8 @@ Apply these rules to new and edited first-party C++. Do not restyle third-party 
 - Cast with `static_cast`, `const_cast`, `reinterpret_cast`, or `dynamic_cast`. Do not use a C-style cast.
 - Prefer preincrement and predecrement: `++index`, `--index`. Keep the postfix form when the previous value is the result, as in `path[depth++] = slot`, `return id++`, or `operator++(int)`.
 - Prefer `nullptr` to `NULL`. A pure virtual stays `= 0`.
+
+`.clang-tidy` enables the checks that match these rules. Brace initialization, unsigned suffixes, `constexpr`, `noexcept`, `std::array`, `[[maybe_unused]]`, preincrement, `std::` integer names, and compound boolean arguments have no matching check.
 
 ```cpp
 explicit constexpr TimePoint() noexcept = default;
@@ -51,4 +54,7 @@ for (std::size_t index{ 0U }; index < count; ++index)
 path[depth++] = slot;
 const Node* node{ nullptr };
 virtual void Render() = 0;
+draw((x > 0 && y > 0));
+draw(((ready && loaded) || forced));
+draw(ready);
 ```

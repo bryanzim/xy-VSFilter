@@ -400,7 +400,7 @@ CRealTextParser::~CRealTextParser()
 
     std::wstring szCurrentPart;
 
-    for (ptrdiff_t i = p_crszTimecode.length() - 1; i >= 0; --i) {
+    for (std::ptrdiff_t i = p_crszTimecode.length() - 1; i >= 0; --i) {
         if (p_crszTimecode.at(i) == '.' || p_crszTimecode.at(i) == ':') {
             if (iMultiplier == 1) {
                 while (szCurrentPart.length() < 3) {

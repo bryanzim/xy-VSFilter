@@ -169,23 +169,23 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
             POSITION pos{sl.GetHeadPosition()};
             while(pos)
             {
-                const CString& fn{sl.GetNext(pos)};
-                int l{fn.ReverseFind('.')};
-                CString ext{fn.Mid(l+1).MakeLower()};
+                const CString& subFileName{sl.GetNext(pos)};
+                int dotPos{subFileName.ReverseFind('.')};
+                CString ext{subFileName.Mid(dotPos+1).MakeLower()};
                 int ext_order{ext_support.ext_support_order(ext)};
                 if (ext_order>-1)
                 {
                     SubFile f;
-                    f.full_file_name = path + fn;
+                    f.full_file_name = path + subFileName;
 
-                    int l2{fn.Find('.')};
-                    if (l2==l)
+                    int firstDotPos{subFileName.Find('.')};
+                    if (firstDotPos==dotPos)
                     {
                         f.extra_name = "";
                     }
                     else
                     {
-                        f.extra_name = fn.Mid(l2+1, l-l2-1);
+                        f.extra_name = subFileName.Mid(firstDotPos+1, dotPos-firstDotPos-1);
                     }
 
                     f.ext_order = ext_order;
@@ -200,12 +200,12 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
         CWebTextFile wtf; // :)
         if(wtf.Open(orgpath + title + WEBSUBEXT))
         {
-            CString fn;
-            while(wtf.ReadString(fn) && fn.Find(_T("://")) >= 0)
+            CString webSubLine;
+            while(wtf.ReadString(webSubLine) && webSubLine.Find(_T("://")) >= 0)
             {
                 SubFile f;
-                f.full_file_name = fn;
-                f.extra_name = fn.Mid(fn.ReverseFind('/')+1);
+                f.full_file_name = webSubLine;
+                f.extra_name = webSubLine.Mid(webSubLine.ReverseFind('/')+1);
                 f.ext_order = MAXINT32;
                 f.path_order = MAXINT32;
                 ret.Add(f);
@@ -215,5 +215,5 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
 
     // sort files, this way the user can define the order (movie.00.English.srt, movie.01.Hungarian.srt, etc)
 
-    qsort(ret.GetData(), ret.GetCount(), sizeof(SubFile), SubFileCompare);
+    std::qsort(ret.GetData(), ret.GetCount(), sizeof(SubFile), SubFileCompare);
 }

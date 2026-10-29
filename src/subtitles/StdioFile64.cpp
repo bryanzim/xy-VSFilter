@@ -70,7 +70,7 @@ ULONGLONG CStdioFile64::GetPosition() const
 [[nodiscard]] ULONGLONG CStdioFile64::Seek(const LONGLONG lOff, const UINT nFrom)
 {
     ASSERT_VALID(this);
-    ASSERT(nFrom == begin || nFrom == end || nFrom == current);
+    ASSERT((nFrom == begin || nFrom == end || nFrom == current));
     ASSERT(m_pStream != nullptr);
 
     if (_fseeki64(m_pStream, lOff, nFrom) != 0) {

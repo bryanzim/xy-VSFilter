@@ -81,7 +81,7 @@ static void SaveNvxx2File(SubPicDesc& spd, const CRect& cRect, const char * file
         BYTE* sY{s + spd.pitch*spd.h};
         BYTE* sU{sY + spd.pitch*spd.h};
         BYTE* sV{sU + 1};
-        for(; s < e; s++, sY++, sU+=2,sV+=2) {
+        for(; s < e; ++s, ++sY, sU+=2,sV+=2) {
             os<<(int)s[0U]<<","<<(int)sY[0U]<<","<<(int)sU[0U]<<","<<(int)sV[0U];
             if(s+1>=e)
             {
@@ -117,7 +117,7 @@ static void SaveNvxx2File(SubPicDesc& spd, const CRect& cRect, const char * file
 #ifndef _WIN64
 static void AlphaBlt_YUY2_MMX(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitch)
 {
-    for(int j{0}; j < h; j++, s += srcpitch, d += dstpitch)
+    for(int j{0}; j < h; ++j, s += srcpitch, d += dstpitch)
     {
         unsigned int ia, c;
         PCUINT8 s2{s};
@@ -125,7 +125,7 @@ static void AlphaBlt_YUY2_MMX(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, in
         DWORD* d2{(DWORD*)d};
         ASSERT(w>0);
         int last_a = w>0?s2[3U]:0;
-        for(; s2 < s2end; s2 += 8, d2++)
+        for(; s2 < s2end; s2 += 8, ++d2)
         {
             ia = (last_a + 2*s2[3U] + s2[7U])>>2;
             last_a = s2[7U];
@@ -165,7 +165,7 @@ static void AlphaBlt_YUY2_MMX(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, in
 
 void AlphaBlt_YUY2_C(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitch)
 {
-    for(int j{0}; j < h; j++, s += srcpitch, d += dstpitch)
+    for(int j{0}; j < h; ++j, s += srcpitch, d += dstpitch)
     {
         DWORD ia;
         PCUINT8 s2{s};
@@ -173,7 +173,7 @@ void AlphaBlt_YUY2_C(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitc
         DWORD* d2{(DWORD*)d};
         ASSERT(w>0);
         int last_a = w>0?s2[3U]:0;
-        for(; s2 < s2end; s2 += 8, d2++)
+        for(; s2 < s2end; s2 += 8, ++d2)
         {
             ia = (last_a + 2*s2[3U] + s2[7U])>>2;
             last_a = s2[7U];
@@ -247,7 +247,7 @@ CMemSubPic::~CMemSubPic()
         int w{cRect.Width()}, h = cRect.Height();
         BYTE* s{(BYTE*)src.bits + src.pitch*cRect.top + cRect.left*4};
         BYTE* d{(BYTE*)dst.bits + dst.pitch*cRect.top + cRect.left*4};
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             std::memcpy(d, s, w*4);
         }
@@ -268,7 +268,7 @@ CMemSubPic::~CMemSubPic()
         int w{dirtyRect.Width()};
         if(m_spd.type!=MSP_AYUV_PLANAR)
         {
-            for(int j{0}, h = dirtyRect.Height(); j < h; j++, p += m_spd.pitch)
+            for(int j{0}, h = dirtyRect.Height(); j < h; ++j, p += m_spd.pitch)
             {
 #ifdef _WIN64
 				memsetd(p, color, w*4); // nya
@@ -289,7 +289,7 @@ CMemSubPic::~CMemSubPic()
         {
             ///TODO:
             ///FIX ME
-            for(int j{0}, h = dirtyRect.Height(); j < h; j++, p += m_spd.pitch)
+            for(int j{0}, h = dirtyRect.Height(); j < h; ++j, p += m_spd.pitch)
             {
                 //        memsetd(p, 0, m_rcDirty.Width());
                 //DbgLog((LOG_TRACE, 3, "w:%d", w));
@@ -691,12 +691,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     switch(dst.type)
     {
     case MSP_RGBA:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
             DWORD* d2{(DWORD*)d};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0xff)
                 {
@@ -711,12 +711,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         break;
     case MSP_RGB32:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
             DWORD* d2{(DWORD*)d};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0xff)
                 {
@@ -727,12 +727,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         break;
     case MSP_AYUV:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
             DWORD* d2{(DWORD*)d};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0xff)
                 {
@@ -744,7 +744,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         break;
     case MSP_RGB24:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
@@ -761,12 +761,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         break;
     case MSP_RGB16:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
             WORD* d2{(WORD*)d};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0x1f)
                 {
@@ -781,12 +781,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         break;
     case MSP_RGB15:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
             WORD* d2{(WORD*)d};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0x1f)
                 {
@@ -967,12 +967,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitch = -dst.pitch;
     }
     
-    for(ptrdiff_t i{0}; i<h; i++, s += src.pitch, d += dst.pitch)
+    for(std::ptrdiff_t i{0}; i<h; ++i, s += src.pitch, d += dst.pitch)
     {
         BYTE* s2{s};
         BYTE* s2end{s2 + w*4};
         WORD* d2{reinterpret_cast<WORD*>(d)};
-        for(; s2 < s2end; s2 += 4, d2++)
+        for(; s2 < s2end; s2 += 4, ++d2)
         {
             if(s2[3U] < 0xff) {
                 d2[0U] = ((d2[0U]*s2[3U])>>8) + (s2[1U]<<8);
@@ -1001,7 +1001,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     s = static_cast<BYTE*>(src.bits) + src.pitch*rs.top + ((rs.left*src.bpp)>>3);
 
     d = ddUV;
-    for(int j{0}; j < h2; j++, s += 2 *src.pitch, d += dst.pitchUV )
+    for(int j{0}; j < h2; ++j, s += 2 *src.pitch, d += dst.pitchUV )
     {        
         BYTE* s2{s};
         WORD* d2{reinterpret_cast<WORD*>(d)};
@@ -1056,12 +1056,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitch = -dst.pitch;
     }
 
-    for (ptrdiff_t i{0}; i < h; i++, s += src.pitch, d += dst.pitch)
+    for (std::ptrdiff_t i{0}; i < h; ++i, s += src.pitch, d += dst.pitch)
     {
         BYTE* s2{s};
         BYTE* s2end{s2 + w * 4};
         WORD* d2{reinterpret_cast<WORD*>(d)};
-        for (; s2 < s2end; s2 += 4, d2++)
+        for (; s2 < s2end; s2 += 4, ++d2)
         {
             if (s2[3U] < 0xff) {
                 d2[0U] = ((d2[0U] * s2[3U]) >> 8) + (s2[1U] << 8);
@@ -1097,7 +1097,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     s = static_cast<BYTE*>(src.bits) + src.pitch * rs.top + ((rs.left * src.bpp) >> 3);
 
     d = ddUV;
-    for (int j{0}; j < h2; j++, s += src.pitch, d += dst.pitchUV)
+    for (int j{0}; j < h2; ++j, s += src.pitch, d += dst.pitchUV)
     {
         BYTE* s2{s};
         WORD* d2{reinterpret_cast<WORD*>(d)};
@@ -1148,11 +1148,11 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitch = -dst.pitch;
     }
 
-    for(ptrdiff_t j{0}; j < h; j++, s += src.pitch, d += dst.pitch) {
+    for(std::ptrdiff_t j{0}; j < h; ++j, s += src.pitch, d += dst.pitch) {
         BYTE* s2{s};
         BYTE* s2end{s2 + w*4};
         BYTE* d2{d};
-        for(; s2 < s2end; s2 += 4, d2++) {
+        for(; s2 < s2end; s2 += 4, ++d2) {
             if(s2[3U] < 0xff) {
                 d2[0U] = ((d2[0U]*s2[3U])>>8) + s2[1U];
             }
@@ -1191,18 +1191,18 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for(ptrdiff_t i{0}; i < 2; ++i) {
+    for(std::ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U]+3};
-        for(ptrdiff_t j{0}; j < h2; j++, s += src.pitch*2, d += dst.pitchUV, a += src.pitch*2) {
+        for(std::ptrdiff_t j{0}; j < h2; ++j, s += src.pitch*2, d += dst.pitchUV, a += src.pitch*2) {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
             BYTE* d2{d};
             BYTE* a2{a};
             
             DWORD last_alpha = a2[0U]+a2[0U+src.pitch];
-            for(; s2 < s2end; s2 += 8, d2++, a2 += 8) {
+            for(; s2 < s2end; s2 += 8, ++d2, a2 += 8) {
                 unsigned int ia{(last_alpha + 2*(a2[0U]+a2[0U+src.pitch]) + a2[4U] + a2[4U+src.pitch] + 4 )>>3};
                 last_alpha = a2[4U] + a2[4U+src.pitch];
                 if(ia < 0xff) {
@@ -1243,11 +1243,11 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitch = -dst.pitch;
     }
 
-    for (ptrdiff_t j{0}; j < h; j++, s += src.pitch, d += dst.pitch) {
+    for (std::ptrdiff_t j{0}; j < h; ++j, s += src.pitch, d += dst.pitch) {
         BYTE* s2{s};
         BYTE* s2end{s2 + w * 4};
         BYTE* d2{d};
-        for (; s2 < s2end; s2 += 4, d2++) {
+        for (; s2 < s2end; s2 += 4, ++d2) {
             if (s2[3U] < 0xff) {
                 d2[0U] = ((d2[0U] * s2[3U]) >> 8) + s2[1U];
             }
@@ -1280,18 +1280,18 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for (ptrdiff_t i{0}; i < 2; ++i) {
+    for (std::ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U] + 3};
-        for (ptrdiff_t j{0}; j < h2; j++, s += src.pitch, d += dst.pitchUV, a += src.pitch) {
+        for (std::ptrdiff_t j{0}; j < h2; ++j, s += src.pitch, d += dst.pitchUV, a += src.pitch) {
             BYTE* s2{s};
             BYTE* s2end{s2 + w * 4};
             BYTE* d2{d};
             BYTE* a2{a};
 
             DWORD last_alpha{a2[0U]};
-            for (; s2 < s2end; s2 += 8, d2++, a2 += 8) {
+            for (; s2 < s2end; s2 += 8, ++d2, a2 += 8) {
                 unsigned int ia{(last_alpha + 2 * a2[0U] + a2[4U] + 2) >> 2};
                 last_alpha = a2[4U];
                 if (ia < 0xff) {
@@ -1332,11 +1332,11 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitch = -dst.pitch;
     }
 
-    for (ptrdiff_t j{0}; j < h; j++, s += src.pitch, d += dst.pitch) {
+    for (std::ptrdiff_t j{0}; j < h; ++j, s += src.pitch, d += dst.pitch) {
         BYTE* s2{s};
         BYTE* s2end{s2 + w * 4};
         BYTE* d2{d};
-        for (; s2 < s2end; s2 += 4, d2++) {
+        for (; s2 < s2end; s2 += 4, ++d2) {
             if (s2[3U] < 0xff) {
                 d2[0U] = ((d2[0U] * s2[3U]) >> 8) + s2[1U];
             }
@@ -1369,11 +1369,11 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for (ptrdiff_t i{0}; i < 2; ++i) {
+    for (std::ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U] + 1};
-        for (ptrdiff_t j{0}; j < h2; j++, s += src.pitch, d += dst.pitchUV, a += src.pitch) {
+        for (std::ptrdiff_t j{0}; j < h2; ++j, s += src.pitch, d += dst.pitchUV, a += src.pitch) {
             BYTE* s2{s};
             // PF:I'm not convinced 100% that s1 and a2 indexes are right for 4:4:4
             BYTE* s2end{s2 + w * 2};
@@ -1381,7 +1381,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             BYTE* a2{a};
 
             DWORD last_alpha{a2[0U]};
-            for (; s2 < s2end; s2 += 4, d2++, a2 += 4) {
+            for (; s2 < s2end; s2 += 4, ++d2, a2 += 4) {
                 unsigned int ia{(last_alpha + 2 * a2[0U] + a2[2U] + 2) >> 2};
                 last_alpha = a2[2U];
                 if (ia < 0xff) {
@@ -1423,11 +1423,11 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitch = -dst.pitch;
     }
 
-    for(ptrdiff_t j{0}; j < h; j++, s += src.pitch, d += dst.pitch) {
+    for(std::ptrdiff_t j{0}; j < h; ++j, s += src.pitch, d += dst.pitch) {
         BYTE* s2{s};
         BYTE* s2end{s2 + w*4};
         BYTE* d2{d};
-        for(; s2 < s2end; s2 += 4, d2++) {
+        for(; s2 < s2end; s2 += 4, ++d2) {
             if(s2[3U] < 0xff) {
                 d2[0U] = ((d2[0U]*s2[3U])>>8) + s2[1U];
             }
@@ -1466,11 +1466,11 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dst.pitchUV = -dst.pitchUV;
     }
 
-    for(ptrdiff_t i{0}; i < 2; ++i) {
+    for(std::ptrdiff_t i{0}; i < 2; ++i) {
         s = ss[i];
         d = dd[i];
         BYTE* a{ss[0U]+3};
-        for(ptrdiff_t j{0}; j < h2; j++, s += src.pitch*2, d += dst.pitchUV, a += src.pitch*2) {
+        for(std::ptrdiff_t j{0}; j < h2; ++j, s += src.pitch*2, d += dst.pitchUV, a += src.pitch*2) {
             BYTE* s2{s};
             BYTE* s2end{s2 + w*4};
             BYTE* d2{d};
@@ -1543,7 +1543,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         dst.pitch = -dst.pitch;
     }
-    ASSERT(dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch));
+    ASSERT((dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch)));
 
     const BYTE* sa{reinterpret_cast<const BYTE*>(src.bits) + src.pitch*rs.top + rs.left};
     const BYTE* sy{sa + src.pitch*src.h};
@@ -1590,7 +1590,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*dst.h + dst.pitch*(rd.top/2-1) + rd.left;
         dst.pitch = -dst.pitch;
     }
-    ASSERT(dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch));
+    ASSERT((dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch)));
 
     const BYTE* sa{reinterpret_cast<const BYTE*>(src.bits) + src.pitch*rs.top + rs.left};            
     const BYTE* sy{sa + src.pitch*src.h};
@@ -1664,16 +1664,16 @@ void CMemSubPic::AlphaBltYv12Luma(byte* dst, const int dst_pitch,
     const byte* sub, const byte* alpha, const int sub_pitch)
 {
     if( (
-         ((reinterpret_cast<intptr_t>(alpha) ^ reinterpret_cast<intptr_t>(sub))
-         |(reinterpret_cast<intptr_t>(alpha) ^ reinterpret_cast<intptr_t>(dst))
-         | static_cast<intptr_t>(sub_pitch)
-         | static_cast<intptr_t>(dst_pitch) ) & 15 )==0
+         ((reinterpret_cast<std::intptr_t>(alpha) ^ reinterpret_cast<std::intptr_t>(sub))
+         |(reinterpret_cast<std::intptr_t>(alpha) ^ reinterpret_cast<std::intptr_t>(dst))
+         | static_cast<std::intptr_t>(sub_pitch)
+         | static_cast<std::intptr_t>(dst_pitch) ) & 15 )==0
         && w > 32)
     {
-        int head{(16 - (reinterpret_cast<intptr_t>(alpha)&15))&15};
+        int head{(16 - (reinterpret_cast<std::intptr_t>(alpha)&15))&15};
         int tail{(w-head) & 15};
         int w1{w - head - tail};
-        for(int i{0}; i<h; i++, dst += dst_pitch, alpha += sub_pitch, sub += sub_pitch)
+        for(int i{0}; i<h; ++i, dst += dst_pitch, alpha += sub_pitch, sub += sub_pitch)
         {
             const BYTE* sa{alpha};
             const BYTE* s2{sub};
@@ -1681,7 +1681,7 @@ void CMemSubPic::AlphaBltYv12Luma(byte* dst, const int dst_pitch,
             const BYTE* s2end{s2 + w};
             BYTE* d2{dst};
 
-            for( ; (reinterpret_cast<intptr_t>(s2)&15) != 0; s2++, sa++, d2++)
+            for( ; (reinterpret_cast<std::intptr_t>(s2)&15) != 0; ++s2, ++sa, ++d2)
             {
                 if(sa[0U] < 0xff)
                 {                    
@@ -1692,7 +1692,7 @@ void CMemSubPic::AlphaBltYv12Luma(byte* dst, const int dst_pitch,
             {
                 pix_alpha_blend_yv12_luma_sse2(d2, sa, s2);                        
             }
-            for(; s2 < s2end; s2++, sa++, d2++)
+            for(; s2 < s2end; ++s2, ++sa, ++d2)
             {
                 if(sa[0U] < 0xff)
                 {                    
@@ -1710,7 +1710,7 @@ void CMemSubPic::AlphaBltYv12Luma(byte* dst, const int dst_pitch,
 void CMemSubPic::AlphaBltYv12LumaC( byte* dst, const int dst_pitch, const int w, const int h, const byte* sub, const byte* alpha, const int sub_pitch )
 
 {
-    for(int i{0}; i<h; i++, dst += dst_pitch, alpha += sub_pitch, sub += sub_pitch)
+    for(int i{0}; i<h; ++i, dst += dst_pitch, alpha += sub_pitch, sub += sub_pitch)
     {
         const BYTE* sa{alpha};
         const BYTE* s2{sub};
@@ -1732,17 +1732,17 @@ void CMemSubPic::AlphaBltYv12Chroma(byte* dst_uv, const int dst_pitch,
     const byte* src_uv, const byte* src_a, const int src_pitch)
 {
     if( (
-        ((reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(src_uv)) 
-        |(reinterpret_cast<intptr_t>(src_a) ^ (2*reinterpret_cast<intptr_t>(dst_uv)))
-        | static_cast<intptr_t>(src_pitch) 
-        | (2*static_cast<intptr_t>(dst_pitch)) ) & 15) ==0 &&
+        ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) 
+        |(reinterpret_cast<std::intptr_t>(src_a) ^ (2*reinterpret_cast<std::intptr_t>(dst_uv)))
+        | static_cast<std::intptr_t>(src_pitch) 
+        | (2*static_cast<std::intptr_t>(dst_pitch)) ) & 15) ==0 &&
         w > 16)
     {
-        int head{(16 - (reinterpret_cast<intptr_t>(src_a)&15))&15};
+        int head{(16 - (reinterpret_cast<std::intptr_t>(src_a)&15))&15};
         int tail{(w-head) & 15};
         int w00{w - head - tail};
 
-        for(int j{0}; j < chroma_h; j++, src_uv += src_pitch*2, src_a += src_pitch*2, dst_uv += dst_pitch)
+        for(int j{0}; j < chroma_h; ++j, src_uv += src_pitch*2, src_a += src_pitch*2, dst_uv += dst_pitch)
         {
             hleft_vmid_mix_uv_yv12_c2(dst_uv, head, src_uv, src_a, src_pitch);
             hleft_vmid_mix_uv_yv12_sse2(dst_uv+(head>>1), w00, src_uv+head, src_a+head, src_pitch, head>0 ? -1 : 0);
@@ -1758,7 +1758,7 @@ void CMemSubPic::AlphaBltYv12Chroma(byte* dst_uv, const int dst_pitch,
 void CMemSubPic::AlphaBltYv12ChromaC( byte* dst, const int dst_pitch, const int w, const int chroma_h, const byte* sub_chroma, const byte* alpha, const int sub_pitch )
 
 {
-    for(int j{0}; j < chroma_h; j++, sub_chroma += sub_pitch*2, alpha += sub_pitch*2, dst += dst_pitch)
+    for(int j{0}; j < chroma_h; ++j, sub_chroma += sub_pitch*2, alpha += sub_pitch*2, dst += dst_pitch)
     {
         hleft_vmid_mix_uv_yv12_c(dst, w, sub_chroma, alpha, sub_pitch);
     }
@@ -1769,17 +1769,17 @@ void CMemSubPic::AlphaBltYv16Chroma(byte* dst_uv, const int dst_pitch,
     const byte* src_uv, const byte* src_a, const int src_pitch)
 {
     if ((
-        ((reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(src_uv))
-            | (reinterpret_cast<intptr_t>(src_a) ^ (2 * reinterpret_cast<intptr_t>(dst_uv)))
-            | static_cast<intptr_t>(src_pitch)
-            | (2 * static_cast<intptr_t>(dst_pitch))) & 15) == 0 &&
+        ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv))
+            | (reinterpret_cast<std::intptr_t>(src_a) ^ (2 * reinterpret_cast<std::intptr_t>(dst_uv)))
+            | static_cast<std::intptr_t>(src_pitch)
+            | (2 * static_cast<std::intptr_t>(dst_pitch))) & 15) == 0 &&
         w > 16)
     {
-        int head{(16 - (reinterpret_cast<intptr_t>(src_a) & 15)) & 15};
+        int head{(16 - (reinterpret_cast<std::intptr_t>(src_a) & 15)) & 15};
         int tail{(w - head) & 15};
         int w00{w - head - tail};
 
-        for (int j{0}; j < chroma_h; j++, src_uv += src_pitch, src_a += src_pitch, dst_uv += dst_pitch)
+        for (int j{0}; j < chroma_h; ++j, src_uv += src_pitch, src_a += src_pitch, dst_uv += dst_pitch)
         {
             mix_uv_yv16_c2(dst_uv, head, src_uv, src_a, src_pitch);
             mix_uv_yv16_sse2(dst_uv + (head >> 1), w00, src_uv + head, src_a + head, src_pitch, head > 0 ? -1 : 0);
@@ -1795,7 +1795,7 @@ void CMemSubPic::AlphaBltYv16Chroma(byte* dst_uv, const int dst_pitch,
 void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w, const int chroma_h, const byte* sub_chroma, const byte* alpha, const int sub_pitch)
 
 {
-    for (int j{0}; j < chroma_h; j++, sub_chroma += sub_pitch, alpha += sub_pitch, dst += dst_pitch)
+    for (int j{0}; j < chroma_h; ++j, sub_chroma += sub_pitch, alpha += sub_pitch, dst += dst_pitch)
     {
         mix_uv_yv16_c(dst, w, sub_chroma, alpha, sub_pitch);
     }
@@ -1806,16 +1806,16 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
 {
     const BYTE* sa{src_a};
     if( (
-        ((reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(src_y))         
-        |(reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(dst_y))
-        | static_cast<intptr_t>(src_pitch)
-        | static_cast<intptr_t>(dst_pitch) ) & 15 )==0 && 
+        ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_y))         
+        |(reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_y))
+        | static_cast<std::intptr_t>(src_pitch)
+        | static_cast<std::intptr_t>(dst_pitch) ) & 15 )==0 && 
         w > 32 )
     {
-        int head{(16 - reinterpret_cast<intptr_t>(src_a)&15)&15};
+        int head{(16 - reinterpret_cast<std::intptr_t>(src_a)&15)&15};
         int tail{(w - head) & 15};
 
-        for(int i{0}; i<h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
+        for(int i{0}; i<h; ++i, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
         {
             const BYTE* sa2{sa};
             const BYTE* s2{src_y};
@@ -1825,7 +1825,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             switch( head )//important: it is safe since w > 16 
             {
             case 15:
-#define _XY_MIX_ONE if(sa2[0] < 0xff) { d_w[0] = ((d_w[0]*sa2[0])>>8) + (s2[0]<<8); } sa2++;d_w++;s2++;
+#define _XY_MIX_ONE if(sa2[0U] < 0xff) { d_w[0U] = ((d_w[0U]*sa2[0U])>>8) + (s2[0U]<<8); } ++sa2;++d_w;++s2;
                 _XY_MIX_ONE
             #if defined(__clang__)
             [[clang::fallthrough]];
@@ -1981,7 +1981,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     }
     else //fix me: only a workaround for non-mod-16 size video
     {
-        for(int i{0}; i<h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
+        for(int i{0}; i<h; ++i, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
         {
             const BYTE* sa2{sa};
             const BYTE* s2{src_y};
@@ -2000,18 +2000,18 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     int h2{h/2}; // 4:2:0 vertical subsampling
     BYTE* d{dst_uv};
     if( (
-        ((reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(src_uv)) 
-        |(reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(dst_uv))
-        | static_cast<intptr_t>(src_pitch) 
-        | static_cast<intptr_t>(dst_pitch) ) & 15) ==0 &&
+        ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) 
+        |(reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_uv))
+        | static_cast<std::intptr_t>(src_pitch) 
+        | static_cast<std::intptr_t>(dst_pitch) ) & 15) ==0 &&
         w > 16 )
     {
-        int head{(16-(reinterpret_cast<intptr_t>(src_a)&15))&15};
+        int head{(16-(reinterpret_cast<std::intptr_t>(src_a)&15))&15};
         int tail{(w-head) & 15};
         int w00{w - head - tail};
 
         ASSERT(w>0);//the calls to mix may failed if w==0
-        for(int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
+        for(int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
         {
             hleft_vmid_mix_uv_p010_c2(d, head, src_uv, src_a, src_pitch);
             hleft_vmid_mix_uv_p010_sse2(d+2*head, w00, src_uv+head, src_a+head, src_pitch, head>0 ? -1 : 0);
@@ -2020,7 +2020,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     }
     else
     {        
-        for(int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
+        for(int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
         {
             hleft_vmid_mix_uv_p010_c(d, w, src_uv, src_a, src_pitch);
         }
@@ -2037,16 +2037,16 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
 {
     const BYTE* sa{src_a};
     if ((
-        ((reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(src_y))
-            | (reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(dst_y))
-            | static_cast<intptr_t>(src_pitch)
-            | static_cast<intptr_t>(dst_pitch)) & 15) == 0 &&
+        ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_y))
+            | (reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_y))
+            | static_cast<std::intptr_t>(src_pitch)
+            | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
         w > 32)
     {
-        int head{(16 - reinterpret_cast<intptr_t>(src_a) & 15) & 15};
+        int head{(16 - reinterpret_cast<std::intptr_t>(src_a) & 15) & 15};
         int tail{(w - head) & 15};
 
-        for (int i{0}; i < h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
+        for (int i{0}; i < h; ++i, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
         {
             const BYTE* sa2{sa};
             const BYTE* s2{src_y};
@@ -2056,7 +2056,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
             switch (head)//important: it is safe since w > 16 
             {
             case 15:
-#define _XY_MIX_ONE if(sa2[0] < 0xff) { d_w[0] = ((d_w[0]*sa2[0])>>8) + (s2[0]<<8); } sa2++;d_w++;s2++;
+#define _XY_MIX_ONE if(sa2[0U] < 0xff) { d_w[0U] = ((d_w[0U]*sa2[0U])>>8) + (s2[0U]<<8); } ++sa2;++d_w;++s2;
                 _XY_MIX_ONE
             #if defined(__clang__)
             [[clang::fallthrough]];
@@ -2212,7 +2212,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     }
     else //fix me: only a workaround for non-mod-16 size video
     {
-        for (int i{0}; i < h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
+        for (int i{0}; i < h; ++i, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
         {
             const BYTE* sa2{sa};
             const BYTE* s2{src_y};
@@ -2232,18 +2232,18 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     int h2{h}; // 4:2:2: no vertical subsampling
     BYTE* d{dst_uv};
     if ((
-        ((reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(src_uv))
-            | (reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(dst_uv))
-            | static_cast<intptr_t>(src_pitch)
-            | static_cast<intptr_t>(dst_pitch)) & 15) == 0 &&
+        ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv))
+            | (reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_uv))
+            | static_cast<std::intptr_t>(src_pitch)
+            | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
         w > 16)
     {
-        int head{(16 - (reinterpret_cast<intptr_t>(src_a) & 15)) & 15};
+        int head{(16 - (reinterpret_cast<std::intptr_t>(src_a) & 15)) & 15};
         int tail{(w - head) & 15};
         int w00{w - head - tail};
 
         ASSERT(w > 0);//the calls to mix may failed if w==0
-        for (int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch, d += dst_pitch)
+        for (int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch, d += dst_pitch)
         {
             mix_uv_p210_c2(d, head, src_uv, src_a, src_pitch);
             mix_uv_p210_sse2(d + 2 * head, w00, src_uv + head, src_a + head, src_pitch, head > 0 ? -1 : 0);
@@ -2252,7 +2252,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     }
     else
     {
-        for (int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch, d += dst_pitch)
+        for (int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch, d += dst_pitch)
         {
             mix_uv_p210_c(d, w, src_uv, src_a, src_pitch);
         }
@@ -2268,7 +2268,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
 
 {
     const BYTE* sa{src_a};
-    for(int i{0}; i<h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
+    for(int i{0}; i<h; ++i, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
     {
         const BYTE* sa2{sa};
         const BYTE* s2{src_y};
@@ -2285,7 +2285,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     //UV
     int h2{h/2};
     BYTE* d{dst_uv};
-    for(int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
+    for(int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
     {
         hleft_vmid_mix_uv_p010_c(d, w, src_uv, src_a, src_pitch);
     }
@@ -2296,7 +2296,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
 
 {
     const BYTE* sa{src_a};
-    for (int i{0}; i < h; i++, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
+    for (int i{0}; i < h; ++i, sa += src_pitch, src_y += src_pitch, dst_y += dst_pitch)
     {
         const BYTE* sa2{sa};
         const BYTE* s2{src_y};
@@ -2313,7 +2313,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     //UV
     int h2{h}; // 4:2:2: no vertical subsampling
     BYTE* d{dst_uv};
-    for (int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch, d += dst_pitch)
+    for (int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch, d += dst_pitch)
     {
         mix_uv_p210_c(d, w, src_uv, src_a, src_pitch);
     }
@@ -2327,20 +2327,20 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
 
     int h2{h/2};
     if( (
-         ((reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(src_uv)) 
-         |(reinterpret_cast<intptr_t>(src_a) ^ reinterpret_cast<intptr_t>(dst_uv))
-         | static_cast<intptr_t>(src_pitch) 
-         | static_cast<intptr_t>(dst_pitch) ) & 15) ==0 &&
+         ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) 
+         |(reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_uv))
+         | static_cast<std::intptr_t>(src_pitch) 
+         | static_cast<std::intptr_t>(dst_pitch) ) & 15) ==0 &&
         w > 16 )
     {
         BYTE* d{dst_uv};
 
-        int head{(16-(reinterpret_cast<intptr_t>(src_a)&15))&15};
+        int head{(16-(reinterpret_cast<std::intptr_t>(src_a)&15))&15};
         int tail{(w-head) & 15};
         int w00{w - head - tail};
 
         ASSERT(w>0);//the calls to mix may failed if w==0
-        for(int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
+        for(int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
         {
             hleft_vmid_mix_uv_nv12_c2(d, head, src_uv, src_a, src_pitch);
             hleft_vmid_mix_uv_nv12_sse2(d+head, w00, src_uv+head, src_a+head, src_pitch, head>0 ? -1 : 0);
@@ -2354,7 +2354,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     else
     {
         BYTE* d{dst_uv};
-        for(int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
+        for(int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
         {
             hleft_vmid_mix_uv_nv12_c(d, w, src_uv, src_a, src_pitch);
         }
@@ -2368,7 +2368,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     AlphaBltYv12LumaC( dst_y, dst_pitch, w, h, src_y, src_a, src_pitch );
     int h2{h/2};
     BYTE* d{dst_uv};
-    for(int j{0}; j < h2; j++, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
+    for(int j{0}; j < h2; ++j, src_uv += src_pitch, src_a += src_pitch*2, d += dst_pitch)
     {
         hleft_vmid_mix_uv_nv12_c(d, w, src_uv, src_a, src_pitch);
     }

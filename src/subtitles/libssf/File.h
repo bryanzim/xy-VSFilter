@@ -29,10 +29,10 @@ namespace ssf
 	class File : public NodeFactory
 	{
 	public:
-		File();
+		explicit File();
 		virtual ~File();
 
-		void Parse(InputStream& s, LPCWSTR predef = NULL);
+		void Parse(InputStream& s, LPCWSTR predef = nullptr);
 
 		void ParseDefs(InputStream& s, Reference* pParentRef);
 		void ParseTypes(InputStream& s, CAtlList<CStringW>& types);

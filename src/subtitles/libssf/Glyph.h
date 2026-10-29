@@ -32,7 +32,7 @@ namespace ssf
 	{
 		void Transform(GlyphPath& path, CPoint org, const CRect& subrect);
 
-		struct SplineCoeffs {float cx[4], cy[4];};
+		struct SplineCoeffs {float cx[4U], cy[4U];};
 
 	public:
 		WCHAR c;
@@ -49,7 +49,7 @@ namespace ssf
 		Rasterizer ras, ras_bkg, ras_shadow;
 
 	public:
-		Glyph();
+		explicit Glyph();
 
 		void CreateBkg();
 		void CreateSplineCoeffs(const CRect& spdrc);

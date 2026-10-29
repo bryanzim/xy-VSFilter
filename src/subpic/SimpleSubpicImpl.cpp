@@ -112,7 +112,7 @@ SimpleSubpic::~SimpleSubpic()
         }
         dst.pitch = -dst.pitch;
     }
-    ASSERT(dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch));
+    ASSERT((dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch)));
 
     enum PLANS{A=0,Y,UV};
     const BYTE* sa{reinterpret_cast<const BYTE*>(src.extra.plans[A])};
@@ -158,7 +158,7 @@ SimpleSubpic::~SimpleSubpic()
         dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*dst.h + dst.pitch*(rd.top/2-1) + rd.left;
         dst.pitch = -dst.pitch;
     }
-    ASSERT(dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch));
+    ASSERT((dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch)));
 
     enum PLANS{A=0,Y,UV};
     const BYTE* sa{reinterpret_cast<const BYTE*>(src.extra.plans[A])};
@@ -205,12 +205,12 @@ SimpleSubpic::~SimpleSubpic()
     switch(dst.type)
     {
     case MSP_RGBA:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{s};
             const BYTE* s2end{s2 + w*4};
             DWORD* d2{reinterpret_cast<DWORD*>(d)};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0xff)
                 {
@@ -225,12 +225,12 @@ SimpleSubpic::~SimpleSubpic()
         }
         break;
     case MSP_RGB32:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{s};
             const BYTE* s2end{s2 + w*4};
             DWORD* d2{(DWORD*)d};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0xff)
                 {
@@ -241,12 +241,12 @@ SimpleSubpic::~SimpleSubpic()
         }
         break;
     case MSP_AYUV:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{s};
             const BYTE* s2end{s2 + w*4};
             DWORD* d2{(DWORD*)d};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0xff)
                 {
@@ -258,7 +258,7 @@ SimpleSubpic::~SimpleSubpic()
         }
         break;
     case MSP_RGB24:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{s};
             const BYTE* s2end{s2 + w*4};
@@ -275,12 +275,12 @@ SimpleSubpic::~SimpleSubpic()
         }
         break;
     case MSP_RGB16:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{s};
             const BYTE* s2end{s2 + w*4};
             WORD* d2{reinterpret_cast<WORD*>(d)};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0x1f)
                 {
@@ -295,12 +295,12 @@ SimpleSubpic::~SimpleSubpic()
         }
         break;
     case MSP_RGB15:
-        for(int j{0}; j < h; j++, s += src.pitch, d += dst.pitch)
+        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{s};
             const BYTE* s2end{s2 + w*4};
             WORD* d2{reinterpret_cast<WORD*>(d)};
-            for(; s2 < s2end; s2 += 4, d2++)
+            for(; s2 < s2end; s2 += 4, ++d2)
             {
                 if(s2[3U] < 0x1f)
                 {
@@ -500,7 +500,7 @@ SimpleSubpic::~SimpleSubpic()
                 const DWORD* s{reinterpret_cast<const DWORD*>(top)};
                 const DWORD* e{s + w};
                 DWORD* dst2{reinterpret_cast<DWORD*>(dst)};
-                for(; s < e; s++, dst2++)
+                for(; s < e; ++s, ++dst2)
                 {
                     *dst2 = ((*s>>3)&0x1f000000)|((*s>>8)&0xf800)|((*s>>5)&0x07e0)|((*s>>3)&0x001f);
                     //				*s = (*s&0xff000000)|((*s>>8)&0xf800)|((*s>>5)&0x07e0)|((*s>>3)&0x001f);
@@ -519,7 +519,7 @@ SimpleSubpic::~SimpleSubpic()
                 const DWORD* s{reinterpret_cast<const DWORD*>(top)};
                 const DWORD* e{s + w};
                 DWORD* dst2{reinterpret_cast<DWORD*>(dst)};
-                for(; s < e; s++, dst2++)
+                for(; s < e; ++s, ++dst2)
                 {
                     *dst2 = ((*s>>3)&0x1f000000)|((*s>>9)&0x7c00)|((*s>>6)&0x03e0)|((*s>>3)&0x001f);
                     //				*s = (*s&0xff000000)|((*s>>9)&0x7c00)|((*s>>6)&0x03e0)|((*s>>3)&0x001f);
@@ -598,7 +598,7 @@ void SimpleSubpic::SubsampleAndInterlace( const int index, Bitmap*bitmap, const 
 
     //Todo: fix me. 
     //Walkarround for alignment
-    if ( ((bitmap->pitch | (intptr_t)u_start | (intptr_t)v_start)&15) == 0 )
+    if ( ((bitmap->pitch | (std::intptr_t)u_start | (std::intptr_t)v_start)&15) == 0 )
     {
         for (int i{0};i<h;i+=2)
         {
@@ -644,7 +644,7 @@ void SimpleSubpic::SubsampleAndInterlace422(const int index, Bitmap* bitmap, con
 
     //Todo: fix me. 
     //Walkarround for alignment
-    if (((bitmap->pitch | (intptr_t)u_start | (intptr_t)v_start) & 15) == 0)
+    if (((bitmap->pitch | (std::intptr_t)u_start | (std::intptr_t)v_start) & 15) == 0)
     {
         for (int i{0}; i < h; i += 1)
         {

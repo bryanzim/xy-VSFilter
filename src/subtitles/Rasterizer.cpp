@@ -91,23 +91,23 @@ public:
     }
 
 private:
-    int init(double sigma)
+    int init(double requestedSigma)
     {
-        double a{-1 / (sigma * sigma * 2)};
+        double a{-1 / (requestedSigma * requestedSigma * 2)};
         double exp_a{std::exp(a)};
 
         double volume{0};
 
-        if (this->sigma == sigma)
+        if (this->sigma == requestedSigma)
         {
             return 0;
         }
         else
         {
-            this->sigma = sigma;
+            this->sigma = requestedSigma;
         }
 
-        this->g_w = (int)std::ceil(sigma*3) | 1;
+        this->g_w = (int)std::ceil(requestedSigma*3) | 1;
         this->g_r = this->g_w / 2;
         this->g_w_ex = (this->g_w + 3) & ~3;
 
@@ -129,7 +129,7 @@ private:
             this->g_f[this->g_r] = exp_0;
             float* p_left{this->g_f+this->g_r-1};
             float* p_right{this->g_f+this->g_r+1};
-            for(int i{0}; i<this->g_r;++i,p_left--,p_right++)
+            for(int i{0}; i<this->g_r;++i,--p_left,++p_right)
             {
                 exp_0 *= exp_1;
                 exp_1 *= exp_2;
@@ -169,7 +169,7 @@ public:
     ass_synth_priv(const ass_synth_priv& priv);
 
     ~ass_synth_priv();
-    [[nodiscard]] int generate_tables(double sigma);
+    [[nodiscard]] int generate_tables(double requestedSigma);
     
     int g_r;
     int g_w;
@@ -206,8 +206,8 @@ ass_synth_priv::ass_synth_priv(const double sigma)
 ass_synth_priv::ass_synth_priv(const ass_synth_priv& priv):g_r(priv.g_r),g_w(priv.g_w),sigma(priv.sigma)
 {
     if (this->g_w > 0 && this != &priv) {
-        this->g = (unsigned*)realloc(this->g, this->g_w * sizeof(unsigned));
-        this->gt2 = (unsigned*)realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));
+        this->g = (unsigned*)std::realloc(this->g, this->g_w * sizeof(unsigned));
+        this->gt2 = (unsigned*)std::realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));
         //if (this->g == null || this->gt2 == null) {
         //    return -1;
         //}
@@ -218,37 +218,37 @@ ass_synth_priv::ass_synth_priv(const ass_synth_priv& priv):g_r(priv.g_r),g_w(pri
 
 ass_synth_priv::~ass_synth_priv()
 {
-    free(g); g=nullptr;
-    free(gt2); gt2=nullptr;
+    std::free(g); g=nullptr;
+    std::free(gt2); gt2=nullptr;
 }
 
-[[nodiscard]] int ass_synth_priv::generate_tables(double sigma)
+[[nodiscard]] int ass_synth_priv::generate_tables(double requestedSigma)
 {
     const int TARGET_VOLUME{1<<VOLUME_BITS};
     const int MAX_VOLUME_ERROR{VOLUME_BITS>=22 ? 16 : 1};
 
-    double a{-1 / (sigma * sigma * 2)};
+    double a{-1 / (requestedSigma * requestedSigma * 2)};
     double exp_a{std::exp(a)};
     
     double volume_factor{0};
     double volume_start{0}, volume_end = 0;
     unsigned volume;
 
-    if (this->sigma == sigma)
+    if (this->sigma == requestedSigma)
     {
         return 0;
     }
     else
     {
-        this->sigma = sigma;
+        this->sigma = requestedSigma;
     }
 
-    this->g_w = (int)std::ceil(sigma*3) | 1;
+    this->g_w = (int)std::ceil(requestedSigma*3) | 1;
     this->g_r = this->g_w / 2;
 
     if (this->g_w > 0) {
-        this->g = (unsigned*)realloc(this->g, this->g_w * sizeof(unsigned));
-        this->gt2 = (unsigned*)realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));        
+        this->g = (unsigned*)std::realloc(this->g, this->g_w * sizeof(unsigned));
+        this->gt2 = (unsigned*)std::realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));        
         if (this->g == nullptr || this->gt2 == nullptr) {
             return -1;
         }
@@ -291,7 +291,7 @@ ass_synth_priv::~ass_synth_priv()
 
             unsigned* p_left{this->g+this->g_r-1};
             unsigned* p_right{this->g+this->g_r+1};
-            for(int i{0}; i<this->g_r;++i,p_left--,p_right++)
+            for(int i{0}; i<this->g_r;++i,--p_left,++p_right)
             {
                 exp_0 *= exp_1;
                 exp_1 *= exp_2;
@@ -340,7 +340,7 @@ ass_synth_priv::~ass_synth_priv()
 
             unsigned* p_left{this->g+this->g_r-1};
             unsigned* p_right{this->g+this->g_r+1};
-            for(int i{0}; i<this->g_r;++i,p_left--,p_right++)
+            for(int i{0}; i<this->g_r;++i,--p_left,++p_right)
             {
                 exp_0 *= exp_1;
                 exp_1 *= exp_2;
@@ -1076,7 +1076,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     //memset(blur_plan, 0, output_overlay->mOverlayPitch * output_overlay->mOverlayHeight);
 
     const BYTE* plan_input{input_overlay.mfWideOutlineEmpty ? input_overlay.mBody.get() : input_overlay.mBorder.get()};    
-    ASSERT(output_overlay->mOverlayWidth>=filter_x.g_w && output_overlay->mOverlayHeight>=filter_y.g_w);
+    ASSERT((output_overlay->mOverlayWidth>=filter_x.g_w && output_overlay->mOverlayHeight>=filter_y.g_w));
     xy_gaussian_blur(blur_plan, output_overlay->mOverlayPitch, 
         plan_input, input_overlay.mOverlayWidth, input_overlay.mOverlayHeight, input_overlay.mOverlayPitch, 
         filter_x.g_f, filter_x.g_r, filter_x.g_w_ex, 
@@ -1119,7 +1119,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     output_overlay->CleanUp();
     output_overlay->mfWideOutlineEmpty = input_overlay.mfWideOutlineEmpty;
 
-    ASSERT(be_strength>0 && target_scale_x>0 && target_scale_y>0);
+    ASSERT((be_strength>0 && target_scale_x>0 && target_scale_y>0));
     int bluradjust_x{static_cast<int>( target_scale_x*std::sqrt(be_strength*0.25f)+0.5 )};//fix me: rounding err?
     bluradjust_x *= 8;
     int bluradjust_y{static_cast<int>(target_scale_y*std::sqrt(be_strength*0.25f)+0.5)};//fix me: rounding err?
@@ -1313,7 +1313,7 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE* alpha, cons
         _mm_storeu_si128(reinterpret_cast<__m128i*>(dst+48), d4);
     }
     DWORD * dst_w{reinterpret_cast<DWORD*>(dst)};
-    for ( ; alpha<alpha_end; alpha++, dst_w++ )
+    for ( ; alpha<alpha_end; ++alpha, ++dst_w )
     {
         pixmix_sse2(dst_w, color, *alpha);
     }
@@ -1428,7 +1428,7 @@ static __forceinline void packed_pix_add_sse2(BYTE* dst, const BYTE* alpha, cons
         _mm_storeu_si128(reinterpret_cast<__m128i*>(dst+48), d4);
     }
     DWORD * dst_w{reinterpret_cast<DWORD*>(dst)};
-    for ( ; alpha<alpha_end; alpha++, dst_w++ )
+    for ( ; alpha<alpha_end; ++alpha, ++dst_w )
     {
         int a{*alpha + 1};
         DWORD r_b{((_r_b * a)&0xff00ff00)>>8};
@@ -1457,13 +1457,13 @@ void AlphaBlt8bppC(byte* pY,
     int h, const int w, const int src_stride, const int dst_stride)
 
 {
-    for( ; h>0; h--, pAlphaMask += src_stride, pY += dst_stride )
+    for( ; h>0; --h, pAlphaMask += src_stride, pY += dst_stride )
     {
         const BYTE* sa{pAlphaMask};
         BYTE* dy{pY};
         const BYTE* dy_end{pY + w};
 
-        for(;dy < dy_end; sa++, dy++)
+        for(;dy < dy_end; ++sa, ++dy)
         {
             *dy = (*dy * (256 - *sa)+ Y*(*sa+1))>>8;
         }
@@ -1489,15 +1489,15 @@ void AlphaBlt8bppSse2(byte* pY,
 
     if( w>16 )//IMPORTANT! The result of the following code is undefined with w<15.
     {
-        for( ; h>0; h--, pAlphaMask += src_stride, pY += dst_stride )
+        for( ; h>0; --h, pAlphaMask += src_stride, pY += dst_stride )
         {
             const BYTE* sa{pAlphaMask};      
             BYTE* dy{pY};
-            const BYTE* dy_first_mod16{reinterpret_cast<BYTE*>((reinterpret_cast<intptr_t>(pY)+15)&~15)};  //IMPORTANT! w must >= 15
-            const BYTE* dy_end_mod16{reinterpret_cast<BYTE*>(reinterpret_cast<intptr_t>(pY+w)&~15)};
+            const BYTE* dy_first_mod16{reinterpret_cast<BYTE*>((reinterpret_cast<std::intptr_t>(pY)+15)&~15)};  //IMPORTANT! w must >= 15
+            const BYTE* dy_end_mod16{reinterpret_cast<BYTE*>(reinterpret_cast<std::intptr_t>(pY+w)&~15)};
             const BYTE* dy_end{pY + w};   
 
-            for(;dy < dy_first_mod16; sa++, dy++)
+            for(;dy < dy_first_mod16; ++sa, ++dy)
             {
                 *dy = (*dy * (256 - *sa)+ Y*(*sa+1))>>8;
             }
@@ -1538,7 +1538,7 @@ void AlphaBlt8bppSse2(byte* pY,
 
                 _mm_store_si128((__m128i*)dy, dl);
             }
-            for(;dy < dy_end; sa++, dy++)
+            for(;dy < dy_end; ++sa, ++dy)
             {
                 *dy = (*dy * (256 - *sa)+ Y*(*sa+1))>>8;
             }
@@ -1564,7 +1564,7 @@ void AlphaBlt8bppSingleAlphaC(byte* pY,
     int yPremul{Y*(alpha+1)};
     int dstAlpha{0x100 - alpha};
 
-    for( ; h>0; h--, pY += dst_stride )
+    for( ; h>0; --h, pY += dst_stride )
     {
         BYTE* dy{pY};
         const BYTE* dy_end{pY + w};
@@ -1592,11 +1592,11 @@ void AlphaBlt8bppSingleAlphaSse2(byte* pY,
         __m128i zero{_mm_setzero_si128()};
         __m128i s{_mm_set1_epi16(yPremul)};    //s = c  0  c  0  c  0  c  0  c  0  c  0  c  0  c  0            
         __m128i ia{_mm_set1_epi16(dstAlpha)};
-        for( ; h>0; h--, pY += dst_stride )
+        for( ; h>0; --h, pY += dst_stride )
         {   
             BYTE* dy{pY};
-            const BYTE* dy_first_mod16{reinterpret_cast<BYTE*>((reinterpret_cast<intptr_t>(pY)+15)&~15)};  //IMPORTANT! w must >= 15
-            const BYTE* dy_end_mod16{reinterpret_cast<BYTE*>(reinterpret_cast<intptr_t>(pY+w)&~15)};
+            const BYTE* dy_first_mod16{reinterpret_cast<BYTE*>((reinterpret_cast<std::intptr_t>(pY)+15)&~15)};  //IMPORTANT! w must >= 15
+            const BYTE* dy_end_mod16{reinterpret_cast<BYTE*>(reinterpret_cast<std::intptr_t>(pY+w)&~15)};
             const BYTE* dy_end{pY + w};   
 
             for(;dy < dy_first_mod16; ++dy)
@@ -1744,6 +1744,19 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
 }
 
 
+constexpr DWORD kSwitchSentinel{0xffffffffU};
+constexpr int kSwitchPointCount{6};
+
+// A negative limit is outside every stored switch point. The sentinel is the end of the list.
+[[nodiscard]] bool SwitchPointBefore(const DWORD point, const int limit)
+{
+    if (limit <= 0 || point == kSwitchSentinel)
+    {
+        return false;
+    }
+    return point < static_cast<DWORD>(limit);
+}
+
 [[nodiscard]] SharedPtrByte Rasterizer::CompositeAlphaMask(const SharedPtrOverlay& overlay, const CRect& clipRect, 
     const GrayImage2* alpha_mask, 
     const int xsub, const int ysub, const DWORD* switchpts, const bool fBody, const bool fBorder, 
@@ -1815,14 +1828,25 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
     {
         int last_x{xo};
         const DWORD *sw{switchpts};
-        while( last_x<w+xo )
-        {   
-            byte alpha{sw[0U]>>24}; 
-            while( sw[3U]<w+xo && (sw[2U]>>24)==alpha )
+        const DWORD* const swLast{switchpts + (kSwitchPointCount - 4)};
+        const long long spanEnd64{static_cast<long long>(w) + xo};
+        const int spanEnd{spanEnd64 > INT_MAX ? INT_MAX : static_cast<int>(spanEnd64)};
+        while(static_cast<long long>(last_x) < spanEnd64)
+        {
+            if (sw > swLast)
+            {
+                break;
+            }
+            byte alpha{static_cast<byte>(sw[0U] >> 24)};
+            while(sw <= swLast && SwitchPointBefore(sw[3U], spanEnd) && static_cast<byte>(sw[2U] >> 24) == alpha)
             {
                 sw += 2;
             }
-            int new_x = sw[3U] < w+xo ? sw[3U] : w+xo;
+            if (sw > swLast)
+            {
+                break;
+            }
+            int new_x{SwitchPointBefore(sw[3U], spanEnd) ? static_cast<int>(sw[3U]) : spanEnd};
             overlay->FillAlphaMash(s_base, fBody, fBorder, 
                 last_x, yo, new_x-last_x, h, 
                 alpha_mask_data, alpha_mask_pitch,
@@ -1870,12 +1894,22 @@ void DrawMultiColorPackPix(     DWORD *dst,
     while(h--)
     {
         const DWORD *sw{switchpts};
+        const DWORD* const swEnd{switchpts + kSwitchPointCount};
         for(int wt{0}; wt<w; ++wt)
         {
-            if(wt+xo >= sw[1U]) {while(wt+xo >= sw[1U])
+            const int sample{wt + xo};
+            if (sample >= 0 && (sw + 1) < swEnd)
             {
-                sw += 2;
-            } color = sw[-2];}
+                const DWORD sampleX{static_cast<DWORD>(sample)};
+                if (sw[1U] != kSwitchSentinel && sampleX >= sw[1U])
+                {
+                    while ((sw + 1) < swEnd && sw[1U] != kSwitchSentinel && sampleX >= sw[1U])
+                    {
+                        sw += 2;
+                    }
+                    color = sw[-2];
+                }
+            }
             pixmix_sse2(&dst[wt], color, src[wt]);
         }
         src += src_pitch;
@@ -1926,7 +1960,7 @@ void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CR
         return;
     }
     // must have enough space to draw into
-    ASSERT(x >= bitmap->x && y >= bitmap->y && x+w <= bitmap->x + bitmap->w && y+h <= bitmap->y + bitmap->h );
+    ASSERT((x >= bitmap->x && y >= bitmap->y && x+w <= bitmap->x + bitmap->w && y+h <= bitmap->y + bitmap->h) );
 
     bool fSingleColor{(switchpts[1U]==0xffffffff)};
     bool PLANAR{(bitmap->type==XyBitmap::PLANNA)};
@@ -1990,11 +2024,18 @@ void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CR
         unsigned char* dst_V{bitmap->plans[3U] + dst_offset};
 
         const DWORD *sw{switchpts};
+        const DWORD* const swEnd{switchpts + kSwitchPointCount};
         int last_x{xo};
         color = sw[0U];
-        while(last_x<w+xo)
+        const long long spanEnd64{static_cast<long long>(w) + xo};
+        const int spanEnd{spanEnd64 > INT_MAX ? INT_MAX : static_cast<int>(spanEnd64)};
+        while(static_cast<long long>(last_x) < spanEnd64)
         {
-            int new_x = sw[3U] < w+xo ? sw[3U] : w+xo;
+            if ((sw + 3) >= swEnd)
+            {
+                break;
+            }
+            int new_x{SwitchPointBefore(sw[3U], spanEnd) ? static_cast<int>(sw[3U]) : spanEnd};
             color = sw[0U];
             sw += 2;
             if( new_x < last_x )
@@ -2092,9 +2133,14 @@ void DoAdditionDrawMultiColor(      BYTE  *dst,
         DWORD *dst1{(DWORD *)dst};
         const BYTE *src1{src};
         DWORD last_x{switchpts[1U]};
-        while(last_x<(DWORD)w)
+        const DWORD* const swEnd{switchpts + kSwitchPointCount};
+        while(w >= 0 && last_x < static_cast<DWORD>(w))
         {
-            DWORD new_x = sw[3U] < (DWORD)w ? sw[3U] : (DWORD)w;
+            if ((sw + 3) >= swEnd)
+            {
+                break;
+            }
+            DWORD new_x{sw[3U] != kSwitchSentinel && sw[3U] < static_cast<DWORD>(w) ? sw[3U] : static_cast<DWORD>(w)};
             DWORD color{sw[0U]};
             sw += 2;
             if( new_x < last_x )
@@ -2203,13 +2249,21 @@ void Rasterizer::AdditionDraw(XyBitmap         *bitmap   ,
         new_switchpts[0U] = switchpts[0U];
         new_switchpts[1U] = 0;
         int i{1};
-        for (;i<MAX_COLOR_NUM;++i)
+        const int pairCount{kSwitchPointCount / 2};
+        for (; i < pairCount; ++i)
         {
-            new_switchpts[2U*i] = switchpts[2U*i];
-            new_switchpts[2U*i+1] = switchpts[2U*i+1] > xo ? switchpts[2U*i+1] - xo : 0;
-            if (new_switchpts[2U*i+1]>= w)
+            const DWORD point{switchpts[2U * i + 1U]};
+            new_switchpts[2U * i] = switchpts[2U * i];
+            if (point == kSwitchSentinel)
             {
-                new_switchpts[2U*i+1] = w;
+                new_switchpts[2U * i + 1U] = static_cast<DWORD>(w);
+                break;
+            }
+            const DWORD adjusted{(xo >= 0 && point > static_cast<DWORD>(xo)) ? point - static_cast<DWORD>(xo) : 0U};
+            new_switchpts[2U * i + 1U] = adjusted;
+            if (w >= 0 && adjusted >= static_cast<DWORD>(w))
+            {
+                new_switchpts[2U * i + 1U] = static_cast<DWORD>(w);
                 break;
             }
         }
@@ -2310,8 +2364,8 @@ void FillAlphaMashBody_sse2(BYTE* dst, const BYTE* src, const int color_alpha, c
         for( ;j<x_end0;j+=4)
         {
             __m64 src1{_mm_cvtsi32_si64(*reinterpret_cast<const int*>(src+j))};
-            __m64 zero{_mm_setzero_si64()};
-            src1 = _mm_unpacklo_pi8(src1, zero);
+            __m64 zero64{_mm_setzero_si64()};
+            src1 = _mm_unpacklo_pi8(src1, zero64);
             src1 = _mm_mullo_pi16(src1, color_alpha_64);
             src1 = _mm_adds_pu16(src1, round_err_64);
             src1 = _mm_srli_pi16(src1, 6);
@@ -2410,8 +2464,8 @@ void FillAlphaMashBorder_sse2( BYTE* dst, const BYTE* border, const BYTE* body, 
             __m64 border1{_mm_cvtsi32_si64(*reinterpret_cast<const int*>(border+j))};
             __m64 body1{_mm_cvtsi32_si64(*reinterpret_cast<const int*>(body+j))};
             border1 = _mm_subs_pu8(border1, body1);
-            __m64 zero{_mm_setzero_si64()};
-            border1 = _mm_unpacklo_pi8(border1, zero);
+            __m64 zero64{_mm_setzero_si64()};
+            border1 = _mm_unpacklo_pi8(border1, zero64);
             border1 = _mm_mullo_pi16(border1, color_alpha_64);
             border1 = _mm_adds_pu16(border1, round_err_64);
             border1 = _mm_srli_pi16(border1, 6);
@@ -2530,10 +2584,10 @@ void FillAlphaMashBodyMasked_sse2(       BYTE* dst        ,
         {
             __m64 src1{_mm_cvtsi32_si64(*reinterpret_cast<const int*>(src+j))};
             __m64 mask{_mm_cvtsi32_si64(*reinterpret_cast<const int*>(am+j))};
-            __m64 zero{_mm_setzero_si64()};
-            src1 = _mm_unpacklo_pi8(src1, zero);
+            __m64 zero64{_mm_setzero_si64()};
+            src1 = _mm_unpacklo_pi8(src1, zero64);
             src1 = _mm_mullo_pi16(src1, color_alpha_64);
-            mask = _mm_unpacklo_pi8(zero, mask); //important!
+            mask = _mm_unpacklo_pi8(zero64, mask); //important!
             src1 = _mm_mulhi_pi16(src1, mask); //important!
             src1 = _mm_adds_pu16(src1, round_err_64);
             src1 = _mm_srli_pi16(src1, 12+8-16); //important!
@@ -2664,10 +2718,10 @@ void FillAlphaMashBorderMasked_sse2(       BYTE* dst        ,
             __m64 body1{_mm_cvtsi32_si64(*reinterpret_cast<const int*>(body  +j))};
             border1 = _mm_subs_pu8(border1, body1);
             __m64 mask{_mm_cvtsi32_si64(*reinterpret_cast<const int*>(am+j))};
-            __m64 zero{_mm_setzero_si64()};
-            border1 = _mm_unpacklo_pi8(border1, zero          );
+            __m64 zero64{_mm_setzero_si64()};
+            border1 = _mm_unpacklo_pi8(border1, zero64          );
             border1 = _mm_mullo_pi16  (border1, color_alpha_64);
-            mask    = _mm_unpacklo_pi8(zero   , mask          ); //important!
+            mask    = _mm_unpacklo_pi8(zero64   , mask          ); //important!
             border1 = _mm_mulhi_pi16  (border1, mask          ); //important!
             border1 = _mm_adds_pu16   (border1, round_err_64  );
             border1 = _mm_srli_pi16   (border1, 12+8-16       ); //important!
@@ -2810,7 +2864,7 @@ void Overlay::FillAlphaMash( byte* outputAlphaMask, const bool fBody, const bool
         }
         if (!overlay->mfWideOutlineEmpty)
         {
-            ASSERT(border && mBorder);
+            ASSERT((border && mBorder));
             dst = border;
             src = mBorder.get();
             for (int i{0};i<mOverlayHeight;++i)
@@ -2844,8 +2898,8 @@ PathData::PathData( const PathData& src ):mpPathTypes(nullptr), mpPathPoints(nul
     //TODO: deal with the case that src.mPathPoints<0 
     if(mPathPoints>0)
     {
-        mpPathTypes = static_cast<BYTE*>(malloc(mPathPoints * sizeof(BYTE)));
-        mpPathPoints = static_cast<POINT*>(malloc(mPathPoints * sizeof(POINT)));
+        mpPathTypes = static_cast<BYTE*>(std::malloc(mPathPoints * sizeof(BYTE)));
+        mpPathPoints = static_cast<POINT*>(std::malloc(mPathPoints * sizeof(POINT)));
     }
     if(mPathPoints>0)
     {
@@ -2862,8 +2916,8 @@ const PathData& PathData::operator=( const PathData& src )
         {
             _TrashPath();
             mPathPoints = src.mPathPoints;
-            mpPathTypes = static_cast<BYTE*>(malloc(mPathPoints * sizeof(BYTE)));
-            mpPathPoints = static_cast<POINT*>(malloc(mPathPoints * sizeof(POINT)));//better than realloc
+            mpPathTypes = static_cast<BYTE*>(std::malloc(mPathPoints * sizeof(BYTE)));
+            mpPathPoints = static_cast<POINT*>(std::malloc(mPathPoints * sizeof(POINT)));//better than realloc
         }
         if(src.mPathPoints>0)
         {
@@ -2894,12 +2948,12 @@ void PathData::_TrashPath()
 {
     if (mpPathTypes)
     {
-        free(mpPathTypes);
+        std::free(mpPathTypes);
         mpPathTypes = nullptr;
     }
     if (mpPathPoints)
     {
-        free(mpPathPoints);
+        std::free(mpPathPoints);
         mpPathPoints = nullptr;
     }
     mPathPoints = 0;
@@ -2925,8 +2979,8 @@ void PathData::_TrashPath()
         {
             return true;
         }
-        mpPathTypes = (BYTE*)malloc(sizeof(BYTE) * mPathPoints);
-        mpPathPoints = (POINT*)malloc(sizeof(POINT) * mPathPoints);
+        mpPathTypes = (BYTE*)std::malloc(sizeof(BYTE) * mPathPoints);
+        mpPathPoints = (POINT*)std::malloc(sizeof(POINT) * mPathPoints);
         if(mPathPoints == GetPath(hdc, mpPathPoints, mpPathTypes, mPathPoints))
         {
             return true;
@@ -2959,8 +3013,8 @@ void PathData::_TrashPath()
         {
             return true;
         }
-        pNewTypes = (BYTE*)realloc(mpPathTypes, (mPathPoints + nPoints) * sizeof(BYTE));
-        pNewPoints = (POINT*)realloc(mpPathPoints, (mPathPoints + nPoints) * sizeof(POINT));
+        pNewTypes = (BYTE*)std::realloc(mpPathTypes, (mPathPoints + nPoints) * sizeof(BYTE));
+        pNewPoints = (POINT*)std::realloc(mpPathPoints, (mPathPoints + nPoints) * sizeof(POINT));
         if(pNewTypes)
         {
             mpPathTypes = pNewTypes;
@@ -3059,7 +3113,7 @@ ScanLineData::~ScanLineData()
 void ScanLineData::_ReallocEdgeBuffer(const unsigned edges)
 {
     mEdgeHeapSize = edges;
-    mpEdgeBuffer = (Edge*)realloc(mpEdgeBuffer, sizeof(Edge)*edges);
+    mpEdgeBuffer = (Edge*)std::realloc(mpEdgeBuffer, sizeof(Edge)*edges);
 }
 
 void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, const bool fBSpline)
@@ -3224,7 +3278,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
     // Initialize edge buffer.  We use edge 0 as a sentinel.
     mEdgeNext = 1;
     mEdgeHeapSize = 2048;
-    mpEdgeBuffer = (Edge*)malloc(sizeof(Edge)*mEdgeHeapSize);
+    mpEdgeBuffer = (Edge*)std::malloc(sizeof(Edge)*mEdgeHeapSize);
     // Initialize scanline list.
     mpScanBuffer = DEBUG_NEW unsigned int[mHeight];
     std::memset(mpScanBuffer, 0, mHeight*sizeof(unsigned int));

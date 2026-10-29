@@ -1,4 +1,4 @@
-# xy-VSFilter (pfmod) v3.2.0.810 (20240123)
+# xy-VSFilter (pfmod) v4.0.0.0 (20261028)
 https://github.com/pinterf/xy-VSFilter/
 
 Active branch: xy_sub_filter_rc5

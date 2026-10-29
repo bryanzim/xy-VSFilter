@@ -62,7 +62,7 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
 
     std::vector<Segment> tempSegments(vertical_breakpoints.size()-1);
     int ptr = 1, prev = vertical_breakpoints[0U], count = 0;
-    for(int i = static_cast<int>(vertical_breakpoints.size()) - 1; i > 0; i--, ptr++)
+    for(int i = static_cast<int>(vertical_breakpoints.size()) - 1; i > 0; --i, ++ptr)
     {
         if(vertical_breakpoints[ptr] != prev)
         {
@@ -118,10 +118,10 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
         {            
             CAtlList<CRect>& upper_line = *tempSegments[i-1].rects;
 
-            POSITION pos{upper_line.GetTailPosition()};                          
-            while(pos)
+            POSITION upperPos{upper_line.GetTailPosition()};
+            while(upperPos)
             {
-                CRect& upper_rect{upper_line.GetPrev(pos)};
+                CRect& upper_rect{upper_line.GetPrev(upperPos)};
                 while( upper_rect.right<cur_rect.right || upper_rect.left<cur_rect.left )
                 {
                     output->AddHead(cur_rect);

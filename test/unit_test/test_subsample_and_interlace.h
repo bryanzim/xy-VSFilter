@@ -35,7 +35,7 @@ protected:
     }
     void FillRandByte(BYTE* buf, const int size)
     {
-        for (int i{0};i<size;i++)
+        for (int i{0};i<size;++i)
         {
             buf[i] = rand() & 0xff;
         }
@@ -52,7 +52,7 @@ TEST_F(SubSampleAndInterlaceTest, Check_subsample_and_interlace_2_line)
 {
     UV_TestData data0,data1,data2;
 
-    for (int i{0};i<10000;i++)
+    for (int i{0};i<10000;++i)
     {        
         for (int w{16};w<33*16;w+=16)
         {            
@@ -106,7 +106,7 @@ TEST_F(SubSampleAndInterlaceTest, Check_hleft_vmid_subsample_and_interlace_2_lin
 {
     UV_TestData data0,data1,data2;
 
-    for (int i{0};i<1000;i++)
+    for (int i{0};i<1000;++i)
     {
         for (int pitch{16};pitch<=160;pitch+=16)
         {

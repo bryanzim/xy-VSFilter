@@ -265,7 +265,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler( CRenderedTextSubtitle 
 
                 CAtlList<CStringW> sl;
                 ExplodeNoTrim(str, sl, ',', fields);
-                if(sl.GetCount() == fields)
+                if(sl.GetCount() == static_cast<std::size_t>(fields))
                 {
                     stse.readorder = wcstol(sl.RemoveHead(), nullptr, 10);
                     stse.layer = wcstol(sl.RemoveHead(), nullptr, 10);
@@ -672,7 +672,7 @@ public IUnknown {
 {
 	return pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_HDMVSUB ||			// Blu ray presentation graphics
 			pmt->subtype == MEDIASUBTYPE_DVB_SUBTITLES ||	// DVB subtitles
-			(pmt->subtype == MEDIASUBTYPE_NULL && pmt->formattype == FORMAT_SubtitleInfo)) // Workaround : support for Haali PGS
+			((pmt->subtype == MEDIASUBTYPE_NULL && pmt->formattype == FORMAT_SubtitleInfo))) // Workaround : support for Haali PGS
 		   ? true
 		   : false;
 }

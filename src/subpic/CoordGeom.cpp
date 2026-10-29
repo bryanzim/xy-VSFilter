@@ -31,19 +31,19 @@
 // Vector
 //
 
-Vector::Vector(float x, float y, float z)
+Vector::Vector(float ax, float ay, float az)
 {
-	this->x = x;
-	this->y = y;
-	this->z = z;
+	x = ax;
+	y = ay;
+	z = az;
 }
 
-void Vector::Set(float x, float y, float z)
+void Vector::Set(float ax, float ay, float az)
 
 {
-	this->x = x;
-	this->y = y;
-	this->z = z;
+	x = ax;
+	y = ay;
+	z = az;
 }
 
 [[nodiscard]] float Vector::Length() const
@@ -354,17 +354,17 @@ Vector& Vector::operator /= (const Vector& v)
 // Ray
 //
 
-Ray::Ray(const Vector& p, const Vector& d)
+Ray::Ray(const Vector& origin, const Vector& direction)
 {
-	this->p = p;
-	this->d = d;
+	p = origin;
+	d = direction;
 }
 
-void Ray::Set(const Vector& p, const Vector& d)
+void Ray::Set(const Vector& origin, const Vector& direction)
 
 {
-	this->p = p;
-	this->d = d;
+	p = origin;
+	d = direction;
 }
 
 [[nodiscard]] float Ray::GetDistanceFrom(const Ray& r) const
@@ -534,7 +534,7 @@ void XForm::Matrix::Initalize()
 	mat[3U][0U] = 0; mat[3U][1U] = 0; mat[3U][2U] = 0; mat[3U][3U] = 1;
 }
 
-[[nodiscard]] XForm::Matrix XForm::Matrix::operator * (const Matrix& m) const
+[[nodiscard]] XForm::Matrix XForm::Matrix::operator * (const Matrix& other) const
 {
 	Matrix ret;
 
@@ -542,10 +542,10 @@ void XForm::Matrix::Initalize()
 	{
 		for(int j{0}; j < 4; ++j)
 		{
-			ret.mat[i][j] = mat[i][0U] * m.mat[0U][j] +
-							mat[i][1U] * m.mat[1U][j] +
-							mat[i][2U] * m.mat[2U][j] +
-							mat[i][3U] * m.mat[3U][j];
+			ret.mat[i][j] = mat[i][0U] * other.mat[0U][j] +
+							mat[i][1U] * other.mat[1U][j] +
+							mat[i][2U] * other.mat[2U][j] +
+							mat[i][3U] * other.mat[3U][j];
 
 			if(IsZero(ret.mat[i][j]))
 			{
@@ -557,7 +557,7 @@ void XForm::Matrix::Initalize()
 	return(ret);
 }
 
-XForm::Matrix& XForm::Matrix::operator *= (const XForm::Matrix& m)
+XForm::Matrix& XForm::Matrix::operator *= (const XForm::Matrix& other)
 {
-	return(*this = *this * m);
+	return(*this = *this * other);
 }

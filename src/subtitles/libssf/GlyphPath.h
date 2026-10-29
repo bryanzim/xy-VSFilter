@@ -28,7 +28,7 @@ namespace ssf
 	class GlyphPath
 	{
 	public:
-		GlyphPath() {}
+		explicit GlyphPath() {}
 		virtual ~GlyphPath() {}
 
 		GlyphPath(const GlyphPath& path);

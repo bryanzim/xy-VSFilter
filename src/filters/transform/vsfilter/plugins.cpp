@@ -424,6 +424,26 @@ public:
 	}
 };
 
+static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name, const bool withCharset, const int charset)
+{
+    if (str == nullptr || maxlen <= 0)
+    {
+        return;
+    }
+    const std::size_t capacity{static_cast<std::size_t>(maxlen)};
+    if (name.IsEmpty())
+    {
+        _snprintf_s(str, capacity, _TRUNCATE, " (empty)");
+        return;
+    }
+    if (withCharset)
+    {
+        _snprintf_s(str, capacity, _TRUNCATE, " (%s, %d)", name.GetString(), charset);
+        return;
+    }
+    _snprintf_s(str, capacity, _TRUNCATE, " (%s)", name.GetString());
+}
+
 #ifndef _WIN64
     //
     // old VirtualDub interface
@@ -460,7 +480,12 @@ public:
             }
 
             [[nodiscard]] virtual int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) = 0;
-            virtual void StringProc(const FilterActivation* fa, const FilterFunctions* ff, char* str) = 0;
+            virtual void FormatLabel(char* str, int maxlen) = 0;
+            // Hosts older than VirtualDub 1.6 pass no length. Their buffer is 128 bytes.
+            void StringProc(const FilterActivation* fa, const FilterFunctions* ff, char* str)
+            {
+                FormatLabel(str, 128);
+            }
             [[nodiscard]] virtual bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) = 0;
         };
 
@@ -470,7 +495,7 @@ public:
             explicit CVobSubVirtualDubFilter(CString fn = _T(""))
                 : CVobSubFilter(fn) {}
 
-            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) {
+            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) override {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY,
@@ -483,11 +508,11 @@ public:
                 return Open(fd.GetPathName()) ? 0 : 1;
             }
 
-            void StringProc(const FilterActivation* fa, const FilterFunctions* ff, char* str) {
-                sprintf(str, " (%s)", !GetFileName().IsEmpty() ? CStringA(GetFileName()).GetString() : " (empty)");
+            void FormatLabel(char* str, int maxlen) override {
+                FormatFilterLabel(str, maxlen, CStringA(GetFileName()), false, 0);
             }
 
-            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) {
+            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) override {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\")", fn.GetString());
@@ -501,7 +526,7 @@ public:
             explicit CTextSubVirtualDubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET)
                 : CTextSubFilter(fn, CharSet) {}
 
-            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) {
+            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) override {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
@@ -520,15 +545,11 @@ public:
                 return Open(fd.GetPathName(), fd.m_pOFN->lCustData) ? 0 : 1;
             }
 
-            void StringProc(const FilterActivation* fa, const FilterFunctions* ff, char* str) {
-                if (!GetFileName().IsEmpty()) {
-                    sprintf(str, " (%s, %d)", CStringA(GetFileName()).GetString(), GetCharSet());
-                } else {
-                    sprintf(str, " (empty)");
-                }
+            void FormatLabel(char* str, int maxlen) override {
+                FormatFilterLabel(str, maxlen, CStringA(GetFileName()), true, GetCharSet());
             }
 
-            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) {
+            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) override {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\", %d)", fn.GetString(), GetCharSet());
@@ -579,6 +600,14 @@ public:
             CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
             if (f) {
                 f->StringProc(fa, ff, str);
+            }
+        }
+
+        void baseStringProc2(const FilterActivation* fa, const FilterFunctions* ff, char* str, const int maxlen)
+        {
+            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            if (f) {
+                f->FormatLabel(str, maxlen);
             }
         }
 
@@ -638,7 +667,7 @@ public:
             nullptr,                       // endProc
             &vobsub_obj,                // script_obj
             baseFssProc,                // fssProc
-            nullptr,                    // stringProc2
+            baseStringProc2,            // stringProc2
             nullptr,                    // serializeProc
             nullptr,                    // deserializeProc
             nullptr,                    // copyProc
@@ -670,7 +699,7 @@ public:
             nullptr,                       // endProc
             &textsub_obj,               // script_obj
             baseFssProc,                // fssProc
-            nullptr,                    // stringProc2
+            baseStringProc2,            // stringProc2
             nullptr,                    // serializeProc
             nullptr,                    // deserializeProc
             nullptr,                    // copyProc
@@ -738,7 +767,12 @@ public:
             }
 
             [[nodiscard]] virtual int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) = 0;
-            virtual void StringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str) = 0;
+            virtual void FormatLabel(char* str, int maxlen) = 0;
+            // Hosts older than VirtualDub 1.6 pass no length. Their buffer is 128 bytes.
+            void StringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str)
+            {
+                FormatLabel(str, 128);
+            }
             [[nodiscard]] virtual bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) = 0;
         };
 
@@ -748,7 +782,7 @@ public:
             explicit CVobSubVirtualDubFilter(CString fn = _T(""))
                 : CVobSubFilter(fn) {}
 
-            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) {
+            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) override {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY,
@@ -761,11 +795,11 @@ public:
                 return Open(fd.GetPathName()) ? 0 : 1;
             }
 
-            void StringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str) {
-                sprintf(str, " (%s)", !GetFileName().IsEmpty() ? CStringA(GetFileName()).GetString() : " (empty)");
+            void FormatLabel(char* str, int maxlen) override {
+                FormatFilterLabel(str, maxlen, CStringA(GetFileName()), false, 0);
             }
 
-            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) {
+            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) override {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\")", fn.GetString());
@@ -779,7 +813,7 @@ public:
             explicit CTextSubVirtualDubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET)
                 : CTextSubFilter(fn, CharSet) {}
 
-            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) {
+            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) override {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 /* off encoding changing */
@@ -804,15 +838,11 @@ public:
                 return Open(fd.GetPathName(), fd.m_pOFN->lCustData) ? 0 : 1;
             }
 
-            void StringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str) {
-                if (!GetFileName().IsEmpty()) {
-                    sprintf(str, " (%s, %d)", CStringA(GetFileName()).GetString(), GetCharSet());
-                } else {
-                    sprintf(str, " (empty)");
-                }
+            void FormatLabel(char* str, int maxlen) override {
+                FormatFilterLabel(str, maxlen, CStringA(GetFileName()), true, GetCharSet());
             }
 
-            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) {
+            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) override {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\", %d)", fn.GetString(), GetCharSet());
@@ -861,6 +891,14 @@ public:
             CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
             if (f) {
                 f->StringProc(fa, ff, str);
+            }
+        }
+
+        void baseStringProc2(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str, const int maxlen)
+        {
+            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            if (f) {
+                f->FormatLabel(str, maxlen);
             }
         }
 
@@ -920,7 +958,7 @@ public:
             nullptr,                       // endProc
             &vobsub_obj,                // script_obj
             baseFssProc,                // fssProc
-            nullptr,                    // stringProc2
+            baseStringProc2,            // stringProc2
             nullptr,                    // serializeProc
             nullptr,                    // deserializeProc
             nullptr,                    // copyProc
@@ -928,6 +966,12 @@ public:
             nullptr,                    // copyProc2
             nullptr,                    // prefetchProc2
             nullptr,                    // eventProc
+            nullptr,                    // accelRunProc
+            0,                          // mSourceCountLowMinus1
+            0,                          // mSourceCountHighMinus1
+            nullptr,                    // mpStaticAboutProc
+            nullptr,                    // mpStaticConfigureProc
+            nullptr,                    // fm
         };
 
         VDXScriptFunctionDef textsub_func_defs[] = {
@@ -956,7 +1000,7 @@ public:
             nullptr,                       // endProc
             &textsub_obj,               // script_obj
             baseFssProc,                // fssProc
-            nullptr,                    // stringProc2
+            baseStringProc2,            // stringProc2
             nullptr,                    // serializeProc
             nullptr,                    // deserializeProc
             nullptr,                    // copyProc
@@ -964,6 +1008,12 @@ public:
             nullptr,                    // copyProc2
             nullptr,                    // prefetchProc2
             nullptr,                    // eventProc
+            nullptr,                    // accelRunProc
+            0,                          // mSourceCountLowMinus1
+            0,                          // mSourceCountHighMinus1
+            nullptr,                    // mpStaticAboutProc
+            nullptr,                    // mpStaticConfigureProc
+            nullptr,                    // fm
         };
 
         static VDXFilterDefinition* fd_vobsub;
@@ -987,12 +1037,17 @@ public:
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4996)
 #endif
-            // VirtualDub2 still calls removeFilter from module teardown.
+            // VirtualDub2 still requires removeFilter during module teardown.
             ff->removeFilter(fd_textsub);
             ff->removeFilter(fd_vobsub);
 #if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
 #endif
         }
     }
@@ -1079,16 +1134,16 @@ public:
                 const int modw{(width / 8) * 8}; // 8 uv pairs at a time
                 for (int y{0}; y < height; ++y) {
                     for (int x{0}; x < modw; x += 8) {
-                        __m128i y{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(src) + x))};
+                        __m128i luma{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(src) + x))};
                         if (before)
                         {
-                            y = _mm_slli_epi16(y, 6);
+                            luma = _mm_slli_epi16(luma, 6);
                         } // make 10->16 bits
                         else
                         {
-                            y = _mm_srli_epi16(y, 6);
+                            luma = _mm_srli_epi16(luma, 6);
                         } // make 16->10 bits
-                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdst) + x), y);
+                        _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdst) + x), luma);
                     }
 
                     for (int x{modw}; x < width; ++x) {
@@ -1764,7 +1819,7 @@ UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lPar
         case WM_INITDIALOG: {
             SetWindowLongPtr(hDlg, GWLP_USERDATA, lParam);
 
-            for (ptrdiff_t i{0}; i < CharSetLen; ++i) {
+            for (std::ptrdiff_t i{0}; i < CharSetLen; ++i) {
                 CString s;
                 s.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
                 SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)(LPCTSTR)s);

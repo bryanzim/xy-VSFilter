@@ -52,7 +52,7 @@ namespace ssf
 		bool IsType(CStringW type);
 
 		virtual void AddTail(Node* pNode);
-		virtual void GetChildDefs(CAtlList<Definition*>& l, LPCWSTR type = NULL, bool fFirst = true);
+		virtual void GetChildDefs(CAtlList<Definition*>& l, LPCWSTR type = nullptr, bool fFirst = true);
 		virtual void Dump(OutputStream& s, int level = 0, bool fLast = false) = 0;
 	};
 
@@ -62,7 +62,7 @@ namespace ssf
 		Reference(NodeFactory* pnf, CStringW name);
 		virtual ~Reference();
 
-		void GetChildDefs(CAtlList<Definition*>& l, LPCWSTR type = NULL, bool fFirst = true);
+		void GetChildDefs(CAtlList<Definition*>& l, LPCWSTR type = nullptr, bool fFirst = true);
 		void Dump(OutputStream& s, int level = 0, bool fLast = false);
 	};
 
@@ -82,10 +82,10 @@ namespace ssf
 		CStringW m_num_string;
 
 		StringMapW<Definition*> m_type2def;
-		void RemoveFromCache(LPCWSTR type = NULL);
+		void RemoveFromCache(LPCWSTR type = nullptr);
 
 		template<typename T> 
-		void GetAsNumber(Number<T>& n, StringMapW<T>* n2n = NULL);
+		void GetAsNumber(Number<T>& n, StringMapW<T>* n2n = nullptr);
 
 	public:
 		Definition(NodeFactory* pnf, CStringW name);
@@ -104,13 +104,13 @@ namespace ssf
 		void SetAsNumber(CStringW v, CStringW u = L"");
 
 		void GetAsString(CStringW& str);
-		void GetAsNumber(Number<int>& n, StringMapW<int>* n2n = NULL);
-		void GetAsNumber(Number<DWORD>& n, StringMapW<DWORD>* n2n = NULL);
-		void GetAsNumber(Number<float>& n, StringMapW<float>* n2n = NULL);
+		void GetAsNumber(Number<int>& n, StringMapW<int>* n2n = nullptr);
+		void GetAsNumber(Number<DWORD>& n, StringMapW<DWORD>* n2n = nullptr);
+		void GetAsNumber(Number<float>& n, StringMapW<float>* n2n = nullptr);
 		template<typename T> 
-		void GetAsNumber(T& t, StringMapW<T>* n2n = NULL) {Number<T> n; GetAsNumber(n, n2n); t = n.value;}
+		void GetAsNumber(T& t, StringMapW<T>* n2n = nullptr) {Number<T> n; GetAsNumber(n, n2n); t = n.value;}
 		void GetAsBoolean(bool& b);
-		bool GetAsTime(Time& t, StringMapW<float>& offset, StringMapW<float>* n2n = NULL, int default_id = 0);
+		bool GetAsTime(Time& t, StringMapW<float>& offset, StringMapW<float>* n2n = nullptr, int default_id = 0);
 
 		operator LPCWSTR();
 		operator float();

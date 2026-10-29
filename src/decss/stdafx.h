@@ -14,5 +14,9 @@
 
 #include <afx.h>
 #include <afxwin.h>         // MFC core and standard components
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 // TODO: reference additional headers your program requires here

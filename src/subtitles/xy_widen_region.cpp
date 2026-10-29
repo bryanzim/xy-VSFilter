@@ -203,7 +203,7 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
         {
             add_line(dst, link_span_list, dst_line, line - ry);
             dst_line = line - ry;
-            ASSERT(!link_span_list.IsEmpty() && !link_span_list.GetTail().left.empty());
+            ASSERT((!link_span_list.IsEmpty() && !link_span_list.GetTail().left.empty()));
             ASSERT(XY_POINT_X(link_span_list.GetTail().left.get_at(0).arc_center)==MAX_X);
             XY_POINT_SET(link_span_list.GetTail().left.get_at(0).arc_center, MAX_X, line-1);//update sentinel
             pos = link_span_list.GetHeadPosition();
@@ -228,10 +228,10 @@ void WidenRegionCreaterImpl::xy_overlap_region(SpanBuffer* dst, const SpanBuffer
             {
                 LinkSpan &new_span{link_span_list.GetAt(link_span_list.InsertBefore(pos, LinkSpan()))};
                 (void)new_span.left.init(2*ry+2);
-                LinkArcItem& item{new_span.left.inc_1_at_tail()};
+                LinkArcItem& leftItem{new_span.left.inc_1_at_tail()};
 
-                item.arc_center = SPAN_PTR_LEFT(it_src);
-                item.dead_line = line+ry+1;
+                leftItem.arc_center = SPAN_PTR_LEFT(it_src);
+                leftItem.dead_line = line+ry+1;
 
                 (void)new_span.right.init(2*ry+2);
                 LinkArcItem& item2{new_span.right.inc_1_at_tail()};
@@ -274,7 +274,7 @@ void WidenRegionCreaterImpl::add_left( LinkArc* arc, const XY_POINT center )
 {
     int ry{m_ellipse->m_ry};
     ASSERT(arc);
-    ASSERT(!arc->empty()&& m_ellipse->cross_left(arc->get_at(0).arc_center, center)>=-ry );
+    ASSERT((!arc->empty()&& m_ellipse->cross_left(arc->get_at(0).arc_center, center)>=-ry) );
     int y{0};
     int i{0};
     int line = XY_POINT_Y(center);
@@ -298,7 +298,7 @@ void WidenRegionCreaterImpl::add_left( LinkArc* arc, const XY_POINT center )
     if (i==0)
     {
         y = m_ellipse->cross_left( arc->get_at(0).arc_center, center );
-        ASSERT(y>=-ry && y+line<=arc->get_at(0).dead_line);
+        ASSERT((y>=-ry && y+line<=arc->get_at(0).dead_line));
         if (y<=-ry)
         {
             arc->pop_back();
@@ -503,7 +503,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
         }
     }
     __int64 last_y_stop{y};
-    ASSERT(y>=-ry && y<=ry);
+    ASSERT((y>=-ry && y<=ry));
     x = 0;
     y = b;
     dx = b*b;
@@ -531,7 +531,7 @@ void WidenRegionCreaterImpl::add_line( SpanBuffer* dst, LinkSpanList& spans, int
             left_arc2[-y] = -x;
         }
     }
-    ASSERT(y>=-ry && y<=ry);
+    ASSERT((y>=-ry && y<=ry));
     while(y>last_y_stop)
     {
         --y;

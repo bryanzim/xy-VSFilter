@@ -45,14 +45,14 @@ namespace ssf
 		CPoint p;
 
 		p.x = frame.left;
-		p.x += placement.pos.auto_x 
+		p.x += static_cast<LONG>(placement.pos.auto_x 
 			? placement.align.h * (frame.Width() - size.cx)
-			: placement.pos.x * scale.cx - placement.align.h * size.cx;
+			: placement.pos.x * scale.cx - placement.align.h * size.cx);
 
 		p.y = frame.top;
-		p.y += placement.pos.auto_y 
+		p.y += static_cast<LONG>(placement.pos.auto_y 
 			? placement.align.v * (frame.Height() - size.cy) 
-			: placement.pos.y * scale.cy - placement.align.v * size.cy;
+			: placement.pos.y * scale.cy - placement.align.v * size.cy);
 
 		return p;
 	}
@@ -67,7 +67,7 @@ namespace ssf
 
 	Renderer::Renderer()
 	{
-		m_hDC = CreateCompatibleDC(NULL);
+		m_hDC = CreateCompatibleDC(nullptr);
 		SetBkMode(m_hDC, TRANSPARENT); 
 		SetTextColor(m_hDC, 0xffffff); 
 		SetMapMode(m_hDC, MM_TEXT);
@@ -82,14 +82,14 @@ namespace ssf
 	{
 		StringMapW<bool> names;
 		POSITION pos = subs.GetHeadPosition();
-		while(pos) names[subs.GetNext(pos)->m_name] = true;
+		while(pos) { names[subs.GetNext(pos)->m_name] = true; }
 
 		pos = m_sra.GetStartPosition();
 		while(pos)
 		{
 			POSITION cur = pos;
 			const CStringW& name = m_sra.GetNextKey(pos);
-			if(!names.Lookup(name)) m_sra.RemoveAtPos(cur);
+			if(!names.Lookup(name)) { m_sra.RemoveAtPos(cur); }
 		}
 	}
 
@@ -98,19 +98,25 @@ namespace ssf
 		m_sra.UpdateTarget(vs, vr);
 
 		if(s->m_text.IsEmpty())
-			return NULL;
+		{
+			return nullptr;
+		}
 
 		CRect spdrc = s->m_frame.reference == _T("video") ? vr : CRect(CPoint(0, 0), vs);
 
 		if(spdrc.IsRectEmpty())
-			return NULL;
+		{
+			return nullptr;
+		}
 
-		RenderedSubtitle* rs = NULL;
+		RenderedSubtitle* rs = nullptr;
 
 		if(m_rsc.Lookup(s->m_name, rs))
 		{
 			if(!s->m_animated && rs->m_spdrc == spdrc)
+			{
 				return rs;
+			}
 
 			m_rsc.Invalidate(s->m_name);
 		}
@@ -119,26 +125,26 @@ namespace ssf
 
 		Size scale;
 
-		scale.cx = (float)spdrc.Width() / s->m_frame.resolution.cx;
-		scale.cy = (float)spdrc.Height() / s->m_frame.resolution.cy;
+		scale.cx = static_cast<float>(spdrc.Width()) / s->m_frame.resolution.cx;
+		scale.cy = static_cast<float>(spdrc.Height()) / s->m_frame.resolution.cy;
 
 		CRect frame;
 
-		frame.left = (int)(64.0f * (spdrc.left + style.placement.margin.l * scale.cx) + 0.5);
-		frame.top = (int)(64.0f * (spdrc.top + style.placement.margin.t * scale.cy) + 0.5);
-		frame.right = (int)(64.0f * (spdrc.right - style.placement.margin.r * scale.cx) + 0.5);
-		frame.bottom = (int)(64.0f * (spdrc.bottom - style.placement.margin.b * scale.cy) + 0.5);
+		frame.left = static_cast<int>(64.0f * (spdrc.left + style.placement.margin.l * scale.cx) + 0.5);
+		frame.top = static_cast<int>(64.0f * (spdrc.top + style.placement.margin.t * scale.cy) + 0.5);
+		frame.right = static_cast<int>(64.0f * (spdrc.right - style.placement.margin.r * scale.cx) + 0.5);
+		frame.bottom = static_cast<int>(64.0f * (spdrc.bottom - style.placement.margin.b * scale.cy) + 0.5);
 
 		CRect clip;
 
-		if(style.placement.clip.l == -1) clip.left = 0;
-		else clip.left = (int)(spdrc.left + style.placement.clip.l * scale.cx);
-		if(style.placement.clip.t == -1) clip.top = 0;
-		else clip.top = (int)(spdrc.top + style.placement.clip.t * scale.cy); 
-		if(style.placement.clip.r == -1) clip.right = vs.cx;
-		else clip.right = (int)(spdrc.left + style.placement.clip.r * scale.cx);
-		if(style.placement.clip.b == -1) clip.bottom = vs.cy;
-		else clip.bottom = (int)(spdrc.top + style.placement.clip.b * scale.cy);
+		if(style.placement.clip.l == -1) { clip.left = 0; }
+		else { clip.left = static_cast<int>(spdrc.left + style.placement.clip.l * scale.cx); }
+		if(style.placement.clip.t == -1) { clip.top = 0; }
+		else { clip.top = static_cast<int>(spdrc.top + style.placement.clip.t * scale.cy); } 
+		if(style.placement.clip.r == -1) { clip.right = vs.cx; }
+		else { clip.right = static_cast<int>(spdrc.left + style.placement.clip.r * scale.cx); }
+		if(style.placement.clip.b == -1) { clip.bottom = vs.cy; }
+		else { clip.bottom = static_cast<int>(spdrc.top + style.placement.clip.b * scale.cy); }
 
 		clip.left = max(clip.left, 0);
 		clip.top = max(clip.top, 0);
@@ -162,11 +168,11 @@ namespace ssf
 			const Text& t = s->m_text.GetNext(pos);
 
 			LOGFONT lf;
-			memset(&lf, 0, sizeof(lf));
+			std::memset(&lf, 0, sizeof(lf));
 			lf.lfCharSet = DEFAULT_CHARSET;
 			_tcscpy_s(lf.lfFaceName, CString(t.style.font.face));
-			lf.lfHeight = (LONG)(t.style.font.size * scale.cy + 0.5);
-			lf.lfWeight = (LONG)(t.style.font.weight + 0.5);
+			lf.lfHeight = static_cast<LONG>(t.style.font.size * scale.cy + 0.5);
+			lf.lfWeight = static_cast<LONG>(t.style.font.weight + 0.5);
 			lf.lfItalic = !!t.style.font.italic;
 			lf.lfUnderline = !!t.style.font.underline;
 			lf.lfStrikeOut = !!t.style.font.strikethrough;
@@ -192,7 +198,7 @@ namespace ssf
 
 			const TEXTMETRIC& tm = font->GetTextMetric();
 
-			for(LPCWSTR c = t.str; *c; c++)
+			for(LPCWSTR c = t.str; *c; ++c)
 			{
 				CAutoPtr<Glyph> g(new Glyph());
 
@@ -202,17 +208,17 @@ namespace ssf
 				g->vertical = vertical;
 				g->font = font;
 
-				c_next = !c[1] && pos ? c_next = s->m_text.GetAt(pos).str[0] : c[1];
+				c_next = !c[1U] && pos ? c_next = s->m_text.GetAt(pos).str[0U] : c[1U];
 				Arabic::Replace(g->c, c_prev, c_next);
-				c_prev = c[0];
+				c_prev = c[0U];
 
 				CSize extent;
 				GetTextExtentPoint32W(m_hDC, &g->c, 1, &extent);
-				ASSERT(extent.cx >= 0 && extent.cy >= 0);
+				ASSERT((extent.cx >= 0 && extent.cy >= 0));
 
 				if(vertical) 
 				{
-					g->spacing = (int)(t.style.font.spacing * scale.cy + 0.5);
+					g->spacing = static_cast<int>(t.style.font.spacing * scale.cy + 0.5);
 					g->ascent = extent.cx / 2;
 					g->descent = extent.cx - g->ascent;
 					g->width = extent.cy;
@@ -225,7 +231,7 @@ namespace ssf
 				}
 				else
 				{
-					g->spacing = (int)(t.style.font.spacing * scale.cx + 0.5);
+					g->spacing = static_cast<int>(t.style.font.spacing * scale.cx + 0.5);
 					g->ascent = tm.tmAscent;
 					g->descent = tm.tmDescent;
 					g->width = extent.cx;
@@ -260,10 +266,10 @@ namespace ssf
 		while(pos)
 		{
 			CAutoPtr<Glyph> g = glyphs.GetNext(pos);
-			if(!row) row.Attach(new Row());
+			if(!row) { row.Attach(new Row()); }
 			WCHAR c = g->c;
 			row->AddTail(g);
-			if(c == Text::LSEP || !pos) rows.AddTail(row);
+			if(c == Text::LSEP || !pos) { rows.AddTail(row); }
 		}
 
 		// kerning
@@ -278,11 +284,13 @@ namespace ssf
 				while(gpos)
 				{
 					Glyph* g1 = r->GetNext(gpos);
-					if(!gpos) break;
+					if(!gpos) { break; }
 
 					Glyph* g2 = r->GetAt(gpos);
 					if(g1->font != g2->font || !g1->style.font.kerning || !g2->style.font.kerning)
+					{
 						continue;
+					}
 
 					if(int size = g1->font->GetKernAmount(g1->c, g2->c))
 					{
@@ -297,14 +305,14 @@ namespace ssf
 
 		if(s->m_wrap == _T("normal") || s->m_wrap == _T("even"))
 		{
-			int maxwidth = abs((int)(vertical ? frame.Height() : frame.Width()));
+			int maxwidth = std::abs(static_cast<int>(vertical ? frame.Height() : frame.Width()));
 			int minwidth = 0;
 
 			for(POSITION rpos = rows.GetHeadPosition(); rpos; rows.GetNext(rpos))
 			{
 				Row* r = rows.GetAt(rpos);
 				
-				POSITION brpos = NULL;
+				POSITION brpos = nullptr;
 
 				if(s->m_wrap == _T("even"))
 				{
@@ -317,7 +325,7 @@ namespace ssf
 						fullwidth += g->width + g->spacing;
 					}
 
-					fullwidth = abs(fullwidth);
+					fullwidth = std::abs(fullwidth);
 					
 					if(fullwidth > maxwidth)
 					{
@@ -334,19 +342,19 @@ namespace ssf
 
 					width += g->width + g->spacing;
 
-					if(brpos && abs(width) > maxwidth && g->c != Text::SP)
+					if(brpos && std::abs(width) > maxwidth && g->c != Text::SP)
 					{
 						row.Attach(new Row());
 						POSITION next = brpos;
 						r->GetNext(next);
 						do {row->AddHead(r->GetPrev(brpos));} while(brpos);
 						rows.InsertBefore(rpos, row);
-						while(!r->IsEmpty() && r->GetHeadPosition() != next) r->RemoveHeadNoReturn();
+						while(!r->IsEmpty() && r->GetHeadPosition() != next) { r->RemoveHeadNoReturn(); }
 						g = r->GetAt(gpos = next);
 						width = g->width + g->spacing;
 					}
 
-					if(abs(width) >= minwidth)
+					if(std::abs(width) >= minwidth)
 					{
 						if(g->style.linebreak == _T("char")
 						|| (g->style.linebreak == _T("word") && g->c == Text::SP))
@@ -360,15 +368,19 @@ namespace ssf
 
 		// trim rows
 
-		for(POSITION pos = rows.GetHeadPosition(); pos; rows.GetNext(pos))
+		for(POSITION rowPos = rows.GetHeadPosition(); rowPos; rows.GetNext(rowPos))
 		{
-			Row* r = rows.GetAt(pos);
+			Row* r = rows.GetAt(rowPos);
 
 			while(!r->IsEmpty() && r->GetHead()->c == Text::SP)
+			{
 				r->RemoveHead();
+			}
 
 			while(!r->IsEmpty() && r->GetTail()->c == Text::SP)
+			{
 				r->RemoveTail();
+			}
 		}
 
 		// calc fill width for each glyph
@@ -377,24 +389,24 @@ namespace ssf
 		int fill_id = 0;
 		int fill_width = 0;
 
-		for(POSITION pos = rows.GetHeadPosition(); pos; rows.GetNext(pos))
+		for(POSITION rowPos = rows.GetHeadPosition(); rowPos; rows.GetNext(rowPos))
 		{
-			Row* r = rows.GetAt(pos);
+			Row* r = rows.GetAt(rowPos);
 
 			POSITION gpos = r->GetHeadPosition();
 			while(gpos)
 			{
 				Glyph* g = r->GetNext(gpos);
 
-				if(!glypsh2fill.IsEmpty() && fill_id && (g->style.fill.id != fill_id || (!pos && !gpos)))
+				if(!glypsh2fill.IsEmpty() && fill_id && (g->style.fill.id != fill_id || (!rowPos && !gpos)))
 				{
-					int w = (int)(g->style.fill.width * fill_width + 0.5);
+					int w = static_cast<int>(g->style.fill.width * fill_width + 0.5);
 
 					while(!glypsh2fill.IsEmpty())
 					{
-						Glyph* g = glypsh2fill.RemoveTail();
-						fill_width -= g->width;
-						g->fill = w - fill_width;
+						Glyph* fillGlyph = glypsh2fill.RemoveTail();
+						fill_width -= fillGlyph->width;
+						fillGlyph->fill = w - fill_width;
 					}
 
 					ASSERT(glypsh2fill.IsEmpty());
@@ -419,14 +431,18 @@ namespace ssf
 		CSize size(0, 0);
 
 		if(s->m_direction.secondary == _T("left") || s->m_direction.secondary == _T("up"))
-			ReverseList(rows);
-
-		for(POSITION pos = rows.GetHeadPosition(); pos; rows.GetNext(pos))
 		{
-			Row* r = rows.GetAt(pos);
+			ReverseList(rows);
+		}
+
+		for(POSITION rowPos = rows.GetHeadPosition(); rowPos; rows.GetNext(rowPos))
+		{
+			Row* r = rows.GetAt(rowPos);
 
 			if(s->m_direction.primary == _T("left") || s->m_direction.primary == _T("up"))
+			{
 				ReverseList(*r);
+			}
 
 			int w = 0, h = 0;
 
@@ -437,14 +453,14 @@ namespace ssf
 				const Glyph* g = r->GetAt(gpos);
 
 				w += g->width;
-				if(gpos) w += g->spacing;
+				if(gpos) { w += g->spacing; }
 				h = max(h, g->ascent + g->descent);
 
 				r->width += g->width;
-				if(gpos) r->width += g->spacing;
+				if(gpos) { r->width += g->spacing; }
 				r->ascent = max(r->ascent, g->ascent);
 				r->descent = max(r->descent, g->descent);
-				r->border = max(r->border, g->GetBackgroundSize());
+				r->border = static_cast<int>(max(r->border, g->GetBackgroundSize()));
 			}
 
 			for(POSITION gpos = r->GetHeadPosition(); gpos; r->GetNext(gpos))
@@ -490,9 +506,9 @@ namespace ssf
 
 		// continue positioning
 
-		for(POSITION pos = rows.GetHeadPosition(); pos; rows.GetNext(pos))
+		for(POSITION rowPos = rows.GetHeadPosition(); rowPos; rows.GetNext(rowPos))
 		{
-			Row* r = rows.GetAt(pos);
+			Row* r = rows.GetAt(rowPos);
 
 			CSize rsize;
 			rsize.cx = rsize.cy = r->width;
@@ -504,8 +520,8 @@ namespace ssf
 				for(POSITION gpos = r->GetHeadPosition(); gpos; r->GetNext(gpos))
 				{
 					CAutoPtr<Glyph> g = r->GetAt(gpos);
-					g->tl.x = p.x + (int)(g->style.placement.offset.x * scale.cx + 0.5) + r->ascent - g->ascent;
-					g->tl.y = p.y + (int)(g->style.placement.offset.y * scale.cy + 0.5);
+					g->tl.x = p.x + static_cast<int>(g->style.placement.offset.x * scale.cx + 0.5) + r->ascent - g->ascent;
+					g->tl.y = p.y + static_cast<int>(g->style.placement.offset.y * scale.cy + 0.5);
 					p.y += g->width + g->spacing;
 					rs->m_glyphs.AddTail(g);
 				}
@@ -519,8 +535,8 @@ namespace ssf
 				for(POSITION gpos = r->GetHeadPosition(); gpos; r->GetNext(gpos))
 				{
 					CAutoPtr<Glyph> g = r->GetAt(gpos);
-					g->tl.x = p.x + (int)(g->style.placement.offset.x * scale.cx + 0.5);
-					g->tl.y = p.y + (int)(g->style.placement.offset.y * scale.cy + 0.5) + r->ascent - g->ascent;
+					g->tl.x = p.x + static_cast<int>(g->style.placement.offset.x * scale.cx + 0.5);
+					g->tl.y = p.y + static_cast<int>(g->style.placement.offset.y * scale.cy + 0.5) + r->ascent - g->ascent;
 					p.x += g->width + g->spacing;
 					rs->m_glyphs.AddTail(g);
 				}
@@ -542,7 +558,7 @@ namespace ssf
 
 		// merge glyphs (TODO: merge 'fill' too)
 
-		Glyph* g0 = NULL;
+		Glyph* g0 = nullptr;
 
 		pos = rs->m_glyphs.GetHeadPosition();
 		while(pos)
@@ -553,10 +569,10 @@ namespace ssf
 
 			CRect r = g->bbox + g->tl;
 
-			int size = (int)(g->GetBackgroundSize() + 0.5);
-			int depth = (int)(g->GetShadowDepth() + 0.5);
+			int backgroundSize = static_cast<int>(g->GetBackgroundSize() + 0.5);
+			int depth = static_cast<int>(g->GetShadowDepth() + 0.5);
 
-			r.InflateRect(size, size);
+			r.InflateRect(backgroundSize, backgroundSize);
 			r.InflateRect(depth, depth);
 
 			r.left >>= 6;
@@ -595,7 +611,7 @@ namespace ssf
 		// rasterize
 
 		pos = rs->m_glyphs.GetHeadPosition();
-		while(pos) rs->m_glyphs.GetNext(pos)->Rasterize();
+		while(pos) { rs->m_glyphs.GetNext(pos)->Rasterize(); }
 
 		// cache
 
@@ -620,10 +636,10 @@ namespace ssf
 		{
 			Glyph* g = m_glyphs.GetNext(pos);
 
-			if(g->style.shadow.depth <= 0) continue;
+			if(g->style.shadow.depth <= 0) { continue; }
 
-			DWORD c = g->style.shadow.color;
-			DWORD sw[6] = {c, 0xFFFFFFFFu};
+			DWORD c{g->style.shadow.color};
+			DWORD sw[6U]{c, 0xFFFFFFFFu};
 
 			bool outline = g->style.background.type == L"outline" && g->style.background.size > 0;
 
@@ -637,8 +653,8 @@ namespace ssf
 		{
 			Glyph* g = m_glyphs.GetNext(pos);
 
-			DWORD c = g->style.background.color;
-			DWORD sw[6] = {c, 0xFFFFFFFFu};
+			DWORD c{g->style.background.color};
+			DWORD sw[6U]{c, 0xFFFFFFFFu};
 
 			if(g->style.background.type == L"outline" && g->style.background.size > 0)
 			{
@@ -658,8 +674,8 @@ namespace ssf
 		{
 			Glyph* g = m_glyphs.GetNext(pos);
 
-			DWORD c = g->style.font.color;
-			DWORD sw[6] = {c, 0xFFFFFFFFu}; // TODO: fill
+			DWORD c{g->style.font.color};
+			DWORD sw[6U]{c, 0xFFFFFFFFu}; // TODO: fill
 
 			bbox |= g->ras.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, 0);
 		}
@@ -671,7 +687,7 @@ namespace ssf
 
 	void SubRectAllocator::UpdateTarget(const CSize& s, const CRect& r)
 	{
-		if(vs != s || vr != r) RemoveAll();
+		if(vs != s || vr != r) { RemoveAll(); }
 		vs = s;
 		vr = r;
 	}
@@ -686,7 +702,7 @@ namespace ssf
 		if(pPair && pPair->m_value.rect != sr.rect)
 		{
 			RemoveKey(s->m_name);
-			pPair = NULL;
+			pPair = nullptr;
 		}
 
 		if(!pPair)
@@ -755,7 +771,7 @@ namespace ssf
 			CStringW(lf.lfFaceName).GetString(), lf.lfHeight, lf.lfWeight, 
 			((lf.lfItalic&1)<<2) | ((lf.lfUnderline&1)<<1) | ((lf.lfStrikeOut&1)<<0));
 
-		FontWrapper* pFW = NULL;
+		FontWrapper* pFW = nullptr;
 
 		if(m_key2obj.Lookup(key, pFW))
 		{
@@ -767,7 +783,7 @@ namespace ssf
 		if (hFont)
 		{
 			ASSERT(0);
-			return NULL;
+			return nullptr;
 		}
 
 		pFW = new FontWrapper(hDC, hFont, key);
@@ -781,9 +797,9 @@ namespace ssf
 
 	GlyphPath* GlyphPathCache::Create(HDC hDC, const FontWrapper* f, WCHAR c)
 	{
-		CStringW key = CStringW((LPCWSTR)*f) + c;
+		CStringW key = CStringW(static_cast<LPCWSTR>(*f)) + c;
 
-		GlyphPath* path = NULL;
+		GlyphPath* path = nullptr;
 
 		if(m_key2obj.Lookup(key, path))
 		{
@@ -793,11 +809,11 @@ namespace ssf
 		BeginPath(hDC);
 		TextOutW(hDC, 0, 0, &c, 1);
 		CloseFigure(hDC);
-		if(!EndPath(hDC)) {AbortPath(hDC); ASSERT(0); return NULL;}
+		if(!EndPath(hDC)) {AbortPath(hDC); ASSERT(0); return nullptr;}
 
 		path = new GlyphPath();
 
-		int count = GetPath(hDC, NULL, NULL, 0);
+		int count = GetPath(hDC, nullptr, nullptr, 0);
 
 		if(count > 0)
 		{
@@ -808,7 +824,7 @@ namespace ssf
 			{
 				ASSERT(0);
 				delete path;
-				return NULL;
+				return nullptr;
 			}
 		}
 

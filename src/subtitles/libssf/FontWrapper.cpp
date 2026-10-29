@@ -32,12 +32,14 @@ namespace ssf
 
 		GetTextMetrics(hDC, &m_tm);
 
-		if(DWORD nNumPairs = GetKerningPairs(hDC, 0, NULL))
+		if(DWORD nNumPairs{GetKerningPairs(hDC, 0U, nullptr)})
 		{
 			KERNINGPAIR* kp = new KERNINGPAIR[nNumPairs];
 			GetKerningPairs(hDC, nNumPairs, kp);
-			for(DWORD i = 0; i < nNumPairs; i++) 
+			for(DWORD i{0U}; i < nNumPairs; ++i)
+			{
 				m_kerning[(kp[i].wFirst<<16)|kp[i].wSecond] = kp[i].iKernAmount;
+			}
 			delete [] kp;
 		}
 

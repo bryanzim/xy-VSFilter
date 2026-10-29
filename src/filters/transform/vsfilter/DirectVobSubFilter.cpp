@@ -68,7 +68,7 @@ CDirectVobSubFilter::CDirectVobSubFilter(LPUNKNOWN punk, HRESULT* phr, const GUI
     , CDirectVobSub(DirectVobFilterOptions, &m_csSubLock)
     , m_fps(25)
     , m_fMSMpeg4Fix(false)
-    , m_nSubtitleId(-1)
+    , m_nSubtitleId(static_cast<DWORD_PTR>(-1))
 {
     m_xy_str_opt[STRING_NAME] = L"DirectVobSubFilter";
 
@@ -432,7 +432,7 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
 
 	n -= __super::GetPinCount();
 
-	if(n >= 0 && n < m_pTextInput.GetCount())
+	if(n >= 0 && static_cast<std::size_t>(n) < m_pTextInput.GetCount())
 	{
 		return m_pTextInput[n];
 	}
@@ -492,7 +492,7 @@ void CDirectVobSubFilter::GetOutputSize(int& w, int& h, int& arx, int& ary)
 		return __super::QueryFilterInfo(pInfo);
 	}
 
-	wcscpy(pInfo->achName, L"DirectVobSub (forced auto-loading version)");
+	std::wcscpy(pInfo->achName, L"DirectVobSub (forced auto-loading version)");
 	if((pInfo->pGraph = m_pGraph))
 	{
 	    m_pGraph->AddRef();
@@ -1245,7 +1245,7 @@ void CDirectVobSubFilter::UpdatePreferedLanguages(CString l)
 			{
 			    return S_FALSE;
 			}
-			wcscpy(*ppszName, str);
+			std::wcscpy(*ppszName, str);
 		}
 	}
 
@@ -1731,7 +1731,7 @@ CDirectVobSubFilter2::CDirectVobSubFilter2(LPUNKNOWN punk, HRESULT* phr, const G
 	}
 	EndEnumFilters
 
-	if((m_fExternalLoad || m_fWebLoad) && (m_fWebLoad || !(wcsstr(fn, L"http://") || wcsstr(fn, L"mms://"))))
+	if((m_fExternalLoad || m_fWebLoad) && (m_fWebLoad || !(std::wcsstr(fn, L"http://") || std::wcsstr(fn, L"mms://"))))
 	{
 		bool fTemp{m_xy_bool_opt[BOOL_HIDE_SUBTITLES]};
 		fRet = (!fn.IsEmpty() && SUCCEEDED(put_FileName((LPWSTR)(LPCWSTR)fn)))
@@ -1926,7 +1926,7 @@ void CDirectVobSubFilter::SetSubtitle(ISubStream* pSubStream, const bool fApplyD
     m_video_yuv_range_decided_by_sub = ColorConvTable::RANGE_NONE;
 	if(pSubStream)
 	{
-		CAutoLock cAutolock(&m_csSubLock);
+		CAutoLock cSubLock(&m_csSubLock);
 
 		CLSID clsid;
 		pSubStream->GetClassID(&clsid);
@@ -2087,7 +2087,7 @@ void CDirectVobSubFilter::InvalidateSubtitle(const REFERENCE_TIME rtInvalidate, 
 
 	if(m_simple_provider)
 	{
-		if(nSubtitleId == -1 || nSubtitleId == m_nSubtitleId)
+		if(nSubtitleId == static_cast<DWORD_PTR>(-1) || nSubtitleId == m_nSubtitleId)
 		{
 			DbgLog((LOG_TRACE, 3, "InvalidateSubtitle::Invalidate"));
 			m_simple_provider->Invalidate(rtInvalidate);
@@ -2151,7 +2151,7 @@ void CDirectVobSubFilter::RemoveSubStream(ISubStream* pSubStream)
 void CDirectVobSubFilter::Post_EC_OLE_EVENT(CString str, const DWORD_PTR nSubtitleId)
 {
     XY_LOG_INFO(XY_LOG_VAR_2_STR(str)<<XY_LOG_VAR_2_STR(nSubtitleId));
-	if(nSubtitleId != -1 && nSubtitleId != m_nSubtitleId)
+	if(nSubtitleId != static_cast<DWORD_PTR>(-1) && nSubtitleId != m_nSubtitleId)
 	{
 		return;
 	}
@@ -2281,7 +2281,7 @@ void CDirectVobSubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handl
 					{
 						if(FILE* f = _tfopen(fn, _T("rb+")))
 						{
-							fclose(f);
+							std::fclose(f);
 							j = 0;
 							break;
 						}
@@ -2302,11 +2302,11 @@ void CDirectVobSubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handl
 			{
 				Sleep(500);
 
-				POSITION pos{m_frd.files.GetHeadPosition()};
-				for(int i{0}; pos; ++i)
+				POSITION reloadPos{m_frd.files.GetHeadPosition()};
+				for(int i{0}; reloadPos; ++i)
 				{
 					CFileStatus status;
-					if(CFileGetStatus(m_frd.files.GetNext(pos), status)
+					if(CFileGetStatus(m_frd.files.GetNext(reloadPos), status)
 						&& m_frd.mtime[i] != status.m_mtime)
 					{
 						(void)Open();
@@ -2563,7 +2563,7 @@ void CDirectVobSubFilter::SetYuvMatrix()
         {
             CAutoLock cAutoLock(&m_csFilter);
             ISubStream *pSubStream{nullptr};
-            if (m_nSubtitleId!=-1)
+            if (m_nSubtitleId != static_cast<DWORD_PTR>(-1))
             {
                 pSubStream = reinterpret_cast<ISubStream *>(m_nSubtitleId);
             }
@@ -2594,14 +2594,14 @@ void CDirectVobSubFilter::SetYuvMatrix()
 {
     CAutoLock cAutoLock(&m_csFilter);
     ISubStream *curSubStream{nullptr};
-    if (m_nSubtitleId!=-1)
+    if (m_nSubtitleId != static_cast<DWORD_PTR>(-1))
     {
         curSubStream = reinterpret_cast<ISubStream *>(m_nSubtitleId);
     }
     if (dynamic_cast<CRenderedTextSubtitle*>(curSubStream)!=nullptr)
     {
         CRenderedTextSubtitle * rts{dynamic_cast<CRenderedTextSubtitle*>(curSubStream)};
-        if (count != rts->m_styles.GetCount())
+        if (static_cast<std::size_t>(count) != rts->m_styles.GetCount())
         {
             return E_INVALIDARG;
         }
@@ -2614,7 +2614,7 @@ void CDirectVobSubFilter::SetYuvMatrix()
             {
                 return E_FAIL;
             }
-            if (pair->m_key.GetLength()>=countof(sub_style[0U].name))
+            if (static_cast<std::size_t>(pair->m_key.GetLength()) >= countof(sub_style[0U].name))
             {
                 return ERROR_BUFFER_OVERFLOW;
             }
@@ -2638,14 +2638,14 @@ void CDirectVobSubFilter::SetYuvMatrix()
     HRESULT hr{NOERROR};
     CAutoLock cAutoLock(&m_csFilter);
     ISubStream *curSubStream{nullptr};
-    if (m_nSubtitleId!=-1)
+    if (m_nSubtitleId != static_cast<DWORD_PTR>(-1))
     {
         curSubStream = reinterpret_cast<ISubStream *>(m_nSubtitleId);
     }
     if (dynamic_cast<CRenderedTextSubtitle*>(curSubStream)!=nullptr)
     {
         CRenderedTextSubtitle * rts{dynamic_cast<CRenderedTextSubtitle*>(curSubStream)};
-        if (count != rts->m_styles.GetCount())
+        if (static_cast<std::size_t>(count) != rts->m_styles.GetCount())
         {
             return E_INVALIDARG;
         }

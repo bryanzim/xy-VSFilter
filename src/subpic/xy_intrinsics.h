@@ -524,7 +524,7 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c(byte* dst, const int w, const
     int last_alpha{(am[last_src_id]+am[last_src_id+src_pitch]+1)/2};
     int last_sub{(src[last_src_id]+src[last_src_id+src_pitch]+1)/2};
     const BYTE* end{src + w};
-    for(; src < end; src += 2, am += 2, dst++)
+    for(; src < end; src += 2, am += 2, ++dst)
     {
         int ia{(am[0U]+am[0U+src_pitch]+1)/2};
         int tmp1{(am[1U]+am[1U+src_pitch]+1)/2};
@@ -552,7 +552,7 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c(byte* dst, const int w, const
 //0<=w15<=15 && w15%2==0
 static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id=0)
 {
-    ASSERT(w15>=0 && w15<=15 && (w15&1)==0 );
+    ASSERT((w15>=0 && w15<=15 && (w15&1)==0) );
 
     int last_alpha{(am[last_src_id]+am[last_src_id+src_pitch]+1)/2};
     int last_sub{(src[last_src_id]+src[last_src_id+src_pitch]+1)/2};
@@ -561,16 +561,16 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, co
     {
     case 14:
 #define _hleft_vmid_mix_uv_yv12_c2_mix_2 \
-    int ia = (am[0]+am[0+src_pitch]+1)/2;\
-    int tmp1 = (am[1]+am[1+src_pitch]+1)/2;\
+    int ia = (am[0U]+am[0+src_pitch]+1)/2;\
+    int tmp1 = (am[1U]+am[1+src_pitch]+1)/2;\
     last_alpha = (last_alpha + tmp1 + 1)/2;\
     ia = (ia + last_alpha + 1)/2;\
     last_alpha = tmp1;\
     \
     if(ia!=0xff)\
     {\
-        tmp1 = (src[0]+src[0+src_pitch]+1)/2;\
-        int tmp2 = (src[1]+src[1+src_pitch]+1)/2;\
+        tmp1 = (src[0U]+src[0+src_pitch]+1)/2;\
+        int tmp2 = (src[1U]+src[1+src_pitch]+1)/2;\
         last_sub = (last_sub+tmp2+1)/2;\
         tmp1 = (tmp1+last_sub+1)/2;\
         last_sub = tmp2;\
@@ -579,7 +579,7 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, co
     }\
     else\
     {\
-        last_sub = (src[1]+src[1+src_pitch]+1)/2;\
+        last_sub = (src[1U]+src[1+src_pitch]+1)/2;\
     }src += 2, am += 2, dst++
 
         { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
@@ -619,7 +619,7 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, co
 // am[last_src_id] valid && w&15=0
 static __forceinline void hleft_vmid_mix_uv_yv12_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id=0)
 {
-    ASSERT( (( (2*(intptr_t)dst) | w00 | (intptr_t)src | (intptr_t)am | src_pitch)&15)==0 );
+    ASSERT( (( (2*(std::intptr_t)dst) | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch)&15)==0 );
 
     __m128i last_src{_mm_cvtsi32_si128( (src[last_src_id]+src[src_pitch+last_src_id]+1)<<7 )};
     __m128i last_alpha{_mm_cvtsi32_si128( (am[last_src_id]+am[src_pitch+last_src_id]+1)<<7 )};
@@ -665,7 +665,7 @@ static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src,
     int last_alpha{am[last_src_id]};
     int last_sub{src[last_src_id]};
     const BYTE* end{src + w};
-    for (; src < end; src += 2, am += 2, dst++)
+    for (; src < end; src += 2, am += 2, ++dst)
     {
         int ia{am[0U]};
         int tmp1{am[1U]};
@@ -693,7 +693,7 @@ static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src,
 //0<=w15<=15 && w15%2==0
 static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT(w15 >= 0 && w15 <= 15 && (w15 & 1) == 0);
+    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
 
     int last_alpha{am[last_src_id]};
     int last_sub{src[last_src_id]};
@@ -702,16 +702,16 @@ static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* s
     {
     case 14:
 #define _mix_uv_yv16_c2_mix_2 \
-    int ia = am[0];\
-    int tmp1 = am[1];\
+    int ia = am[0U];\
+    int tmp1 = am[1U];\
     last_alpha = (last_alpha + tmp1 + 1)/2;\
     ia = (ia + last_alpha + 1)/2;\
     last_alpha = tmp1;\
     \
     if(ia!=0xff)\
     {\
-        tmp1 = src[0];\
-        int tmp2 = src[1];\
+        tmp1 = src[0U];\
+        int tmp2 = src[1U];\
         last_sub = (last_sub+tmp2+1)/2;\
         tmp1 = (tmp1+last_sub+1)/2;\
         last_sub = tmp2;\
@@ -720,7 +720,7 @@ static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* s
     }\
     else\
     {\
-        last_sub = src[1];\
+        last_sub = src[1U];\
     }src += 2, am += 2, dst++
 
     { _mix_uv_yv16_c2_mix_2; }
@@ -760,7 +760,7 @@ static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* s
 // am[last_src_id] valid && w&15=0
 static __forceinline void mix_uv_yv16_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((((2 * (intptr_t)dst) | w00 | (intptr_t)src | (intptr_t)am | src_pitch) & 15) == 0);
+    ASSERT((((2 * (std::intptr_t)dst) | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
 
     __m128i last_src{_mm_cvtsi32_si128(src[last_src_id] << 8)};
     __m128i last_alpha{_mm_cvtsi32_si128(am[last_src_id] << 8)};
@@ -830,7 +830,7 @@ static __forceinline void hleft_vmid_mix_uv_p010_c(BYTE* dst, const int w, const
 //0<=w15<=15
 static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
 {
-    ASSERT(w15>=0 && w15<=15 && (w15&1)==0 );
+    ASSERT((w15>=0 && w15<=15 && (w15&1)==0) );
     int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
     WORD* dst_word{reinterpret_cast<WORD*>(dst)}; 
 
@@ -844,20 +844,20 @@ static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, co
     {
     case 14:
 #define _hleft_vmid_mix_uv_p010_c2_mix_2 \
-    int ia = (am[0]+am[0+src_pitch]+1)/2;\
-    int tmp2 = (am[1]+am[1+src_pitch]+1)/2;\
+    int ia = (am[0U]+am[0+src_pitch]+1)/2;\
+    int tmp2 = (am[1U]+am[1+src_pitch]+1)/2;\
     last_alpha = (last_alpha + tmp2 + 1)/2;\
     ia = (ia + last_alpha + 1)/2;\
     last_alpha = tmp2;\
     \
     if( ia!=0xFF )\
     {\
-        int tmp = (((dst_word[0])*ia)>>8) + (src[0]<<8);\
+        int tmp = (((dst_word[0U])*ia)>>8) + (src[0U]<<8);\
         _hleft_vmid_mix_uv_p010_c2_CLIP(tmp);\
-        dst_word[0] = tmp;\
-        tmp = (((dst_word[1])*ia)>>8) + (src[1]<<8);\
+        dst_word[0U] = tmp;\
+        tmp = (((dst_word[1U])*ia)>>8) + (src[1U]<<8);\
         _hleft_vmid_mix_uv_p010_c2_CLIP(tmp);\
-        dst_word[1] = tmp;\
+        dst_word[1U] = tmp;\
     } src+=2, am+=2, dst_word+=2
 
         { _hleft_vmid_mix_uv_p010_c2_mix_2; }
@@ -897,7 +897,7 @@ static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, co
 // am[last_src_id] valid && w&15=0
 static __forceinline void hleft_vmid_mix_uv_p010_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
 {
-    ASSERT( (((intptr_t)dst | w00 | (intptr_t)src | (intptr_t)am | src_pitch)&15)==0 );
+    ASSERT( (((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch)&15)==0 );
     __m128i last_alpha{_mm_cvtsi32_si128( (am[last_src_id]+am[src_pitch+last_src_id]+1)<<7 )};
     const BYTE* end_mod16{src + w00};
     for(; src < end_mod16; src+=16, am+=16, dst+=32)
@@ -980,22 +980,22 @@ static __forceinline void hleft_vmid_mix_uv_nv12_c(BYTE* dst, const int w, const
 //0<=w15<=15
 static __forceinline void hleft_vmid_mix_uv_nv12_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
 {
-    ASSERT(w15>=0 && w15<=15 && (w15&1)==0 );
+    ASSERT((w15>=0 && w15<=15 && (w15&1)==0) );
     int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
 
     switch(w15)
     {
     case 14:
 #define _hleft_vmid_mix_uv_nv12_c2_mix_2 \
-    int ia = (am[0]+am[0+src_pitch]+1)/2;\
-    int tmp2 = (am[1]+am[1+src_pitch]+1)/2;\
+    int ia = (am[0U]+am[0+src_pitch]+1)/2;\
+    int tmp2 = (am[1U]+am[1+src_pitch]+1)/2;\
     last_alpha = (last_alpha + tmp2 + 1)/2;\
     ia = (ia + last_alpha + 1)/2;\
     last_alpha = tmp2;\
     if ( ia!=0xFF )\
     {\
-        dst[0] = (((dst[0])*ia)>>8) + src[0];\
-        dst[1] = (((dst[1])*ia)>>8) + src[1];\
+        dst[0U] = (((dst[0U])*ia)>>8) + src[0U];\
+        dst[1U] = (((dst[1U])*ia)>>8) + src[1U];\
     }\
     src+=2, am+=2, dst+=2
 
@@ -1036,7 +1036,7 @@ static __forceinline void hleft_vmid_mix_uv_nv12_c2(BYTE* dst, const int w15, co
 // am[last_src_id] valid && w&15=0
 static __forceinline void hleft_vmid_mix_uv_nv12_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
 {
-    ASSERT( (((intptr_t)dst | w00 | (intptr_t)src | (intptr_t)am | src_pitch)&15)==0 );
+    ASSERT( (((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch)&15)==0 );
     __m128i last_alpha{_mm_cvtsi32_si128( (am[last_src_id]+am[src_pitch+last_src_id]+1)<<7 )};
     const BYTE* end_mod16{src + w00};
     for(; src < end_mod16; src+=16, am+=16, dst+=16)
@@ -1115,7 +1115,7 @@ static __forceinline void mix_uv_p210_c(BYTE* dst, const int w, const BYTE* src,
 //0<=w15<=15
 static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT(w15 >= 0 && w15 <= 15 && (w15 & 1) == 0);
+    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
     int last_alpha{am[last_src_id]};
     WORD* dst_word{reinterpret_cast<WORD*>(dst)};
 
@@ -1129,20 +1129,20 @@ static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* s
     {
     case 14:
 #define mix_uv_p210_c2_mix_2 \
-    int ia = am[0];\
-    int tmp2 = am[1];\
+    int ia = am[0U];\
+    int tmp2 = am[1U];\
     last_alpha = (last_alpha + tmp2 + 1)/2;\
     ia = (ia + last_alpha + 1)/2;\
     last_alpha = tmp2;\
     \
     if( ia!=0xFF )\
     {\
-        int tmp = (((dst_word[0])*ia)>>8) + (src[0]<<8);\
+        int tmp = (((dst_word[0U])*ia)>>8) + (src[0U]<<8);\
         mix_uv_p210_c2_CLIP(tmp);\
-        dst_word[0] = tmp;\
-        tmp = (((dst_word[1])*ia)>>8) + (src[1]<<8);\
+        dst_word[0U] = tmp;\
+        tmp = (((dst_word[1U])*ia)>>8) + (src[1U]<<8);\
         mix_uv_p210_c2_CLIP(tmp);\
-        dst_word[1] = tmp;\
+        dst_word[1U] = tmp;\
     } src+=2, am+=2, dst_word+=2
 
     { mix_uv_p210_c2_mix_2; }
@@ -1183,7 +1183,7 @@ static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* s
 // am[last_src_id] valid && w&15=0
 static __forceinline void mix_uv_p210_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((((intptr_t)dst | w00 | (intptr_t)src | (intptr_t)am | src_pitch) & 15) == 0);
+    ASSERT((((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
     __m128i last_alpha{_mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7)};
     const BYTE* end_mod16{src + w00};
     for (; src < end_mod16; src += 16, am += 16, dst += 32)

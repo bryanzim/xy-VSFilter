@@ -32,20 +32,20 @@ namespace ssf
 		: m_pFile(pFile)
 		, m_animated(false)
 	{
-		if(m_n2n.align[0].IsEmpty())
+		if(m_n2n.align[0U].IsEmpty())
 		{
-			m_n2n.align[0][L"left"] = 0;
-			m_n2n.align[0][L"center"] = 0.5;
-			m_n2n.align[0][L"middle"] = 0.5;
-			m_n2n.align[0][L"right"] = 1;
+			m_n2n.align[0U][L"left"] = 0;
+			m_n2n.align[0U][L"center"] = 0.5;
+			m_n2n.align[0U][L"middle"] = 0.5;
+			m_n2n.align[0U][L"right"] = 1;
 		}
 		
-		if(m_n2n.align[1].IsEmpty())
+		if(m_n2n.align[1U].IsEmpty())
 		{
-			m_n2n.align[1][L"top"] = 0;
-			m_n2n.align[1][L"middle"] = 0.5;
-			m_n2n.align[1][L"center"] = 0.5;
-			m_n2n.align[1][L"bottom"] = 1;
+			m_n2n.align[1U][L"top"] = 0;
+			m_n2n.align[1U][L"middle"] = 0.5;
+			m_n2n.align[1U][L"center"] = 0.5;
+			m_n2n.align[1U][L"bottom"] = 1;
 		}
 		
 		if(m_n2n.weight.IsEmpty())
@@ -69,7 +69,7 @@ namespace ssf
 
 	bool Subtitle::Parse(Definition* pDef, float start, float stop, float at)
 	{
-		ASSERT(m_pFile && pDef);
+		ASSERT((m_pFile && pDef));
 
 		m_name = pDef->m_name;
 
@@ -88,16 +88,16 @@ namespace ssf
 		{
 			Definition& frame = (*pDef)[L"frame"];
 
-			m_frame.reference = (LPCWSTR)frame[L"reference"];
+			m_frame.reference = static_cast<LPCWSTR>(frame[L"reference"]);
 			m_frame.resolution.cx = frame[L"resolution"][L"cx"];
 			m_frame.resolution.cy = frame[L"resolution"][L"cy"];
 
 			Definition& direction = (*pDef)[L"direction"];
 
-			m_direction.primary = (LPCWSTR)direction[L"primary"];
-			m_direction.secondary = (LPCWSTR)direction[L"secondary"];
+			m_direction.primary = static_cast<LPCWSTR>(direction[L"primary"]);
+			m_direction.secondary = static_cast<LPCWSTR>(direction[L"secondary"]);
 
-			m_wrap = (LPCWSTR)(*pDef)[L"wrap"];
+			m_wrap = static_cast<LPCWSTR>((*pDef)[L"wrap"]);
 
 			m_layer = (*pDef)[L"layer"];
 
@@ -106,16 +106,20 @@ namespace ssf
 
 			StringMapW<float> offset;
 			Definition& block = (*pDef)[L"@"];
-			WCharInputStream blockStream((LPCWSTR)block);
+			WCharInputStream blockStream(static_cast<LPCWSTR>(block));
 			Parse(blockStream, style, at, offset, dynamic_cast<Reference*>(block.m_parent));
 
 			// TODO: trimming should be done by the renderer later, after breaking the words into lines
 
 			while(!m_text.IsEmpty() && (m_text.GetHead().str == Text::SP || m_text.GetHead().str == Text::LSEP))
+			{
 				m_text.RemoveHead();
+			}
 
 			while(!m_text.IsEmpty() && (m_text.GetTail().str == Text::SP || m_text.GetTail().str == Text::LSEP))
+			{
 				m_text.RemoveTail();
+			}
 
 			for(POSITION pos = m_text.GetHeadPosition(); pos; m_text.GetNext(pos))
 			{
@@ -175,7 +179,7 @@ namespace ssf
 
 		//
 
-		style.linebreak = (LPCWSTR)(*pDef)[L"linebreak"];
+		style.linebreak = static_cast<LPCWSTR>((*pDef)[L"linebreak"]);
 
 		Definition& placement = (*pDef)[L"placement"];
 
@@ -183,37 +187,37 @@ namespace ssf
 
 		if(clip.IsValue(Definition::string))
 		{
-			CStringW str((LPCWSTR)clip);
+			CStringW str(static_cast<LPCWSTR>(clip));
 
-			if(str == L"frame") style.placement.clip = frame;
+			if(str == L"frame") { style.placement.clip = frame; }
 			// else ?
 		}
 		else
 		{
-			if(clip[L"t"].IsValue()) style.placement.clip.t = clip[L"t"];
-			if(clip[L"r"].IsValue()) style.placement.clip.r = clip[L"r"];
-			if(clip[L"b"].IsValue()) style.placement.clip.b = clip[L"b"];
-			if(clip[L"l"].IsValue()) style.placement.clip.l = clip[L"l"];
+			if(clip[L"t"].IsValue()) { style.placement.clip.t = clip[L"t"]; }
+			if(clip[L"r"].IsValue()) { style.placement.clip.r = clip[L"r"]; }
+			if(clip[L"b"].IsValue()) { style.placement.clip.b = clip[L"b"]; }
+			if(clip[L"l"].IsValue()) { style.placement.clip.l = clip[L"l"]; }
 		}
 
-		StringMapW<float> n2n_margin[2];
+		StringMapW<float> n2n_margin[2U];
 
-		n2n_margin[0][L"top"] = 0;
-		n2n_margin[0][L"right"] = 0;
-		n2n_margin[0][L"bottom"] = frame.b - frame.t;
-		n2n_margin[0][L"left"] = frame.r - frame.l;
-		n2n_margin[1][L"top"] = frame.b - frame.t;
-		n2n_margin[1][L"right"] = frame.r - frame.l;
-		n2n_margin[1][L"bottom"] = 0;
-		n2n_margin[1][L"left"] = 0;
+		n2n_margin[0U][L"top"] = 0;
+		n2n_margin[0U][L"right"] = 0;
+		n2n_margin[0U][L"bottom"] = frame.b - frame.t;
+		n2n_margin[0U][L"left"] = frame.r - frame.l;
+		n2n_margin[1U][L"top"] = frame.b - frame.t;
+		n2n_margin[1U][L"right"] = frame.r - frame.l;
+		n2n_margin[1U][L"bottom"] = 0;
+		n2n_margin[1U][L"left"] = 0;
 
-		placement[L"margin"][L"t"].GetAsNumber(style.placement.margin.t, &n2n_margin[0]);
-		placement[L"margin"][L"r"].GetAsNumber(style.placement.margin.r, &n2n_margin[0]);
-		placement[L"margin"][L"b"].GetAsNumber(style.placement.margin.b, &n2n_margin[1]);
-		placement[L"margin"][L"l"].GetAsNumber(style.placement.margin.l, &n2n_margin[1]);
+		placement[L"margin"][L"t"].GetAsNumber(style.placement.margin.t, &n2n_margin[0U]);
+		placement[L"margin"][L"r"].GetAsNumber(style.placement.margin.r, &n2n_margin[0U]);
+		placement[L"margin"][L"b"].GetAsNumber(style.placement.margin.b, &n2n_margin[1U]);
+		placement[L"margin"][L"l"].GetAsNumber(style.placement.margin.l, &n2n_margin[1U]);
 
-		placement[L"align"][L"h"].GetAsNumber(style.placement.align.h, &m_n2n.align[0]);
-		placement[L"align"][L"v"].GetAsNumber(style.placement.align.v, &m_n2n.align[1]);
+		placement[L"align"][L"h"].GetAsNumber(style.placement.align.h, &m_n2n.align[0U]);
+		placement[L"align"][L"v"].GetAsNumber(style.placement.align.v, &m_n2n.align[1U]);
 
 		if(placement[L"pos"][L"x"].IsValue()) {style.placement.pos.x = placement[L"pos"][L"x"]; style.placement.pos.auto_x = false;}
 		if(placement[L"pos"][L"y"].IsValue()) {style.placement.pos.y = placement[L"pos"][L"y"]; style.placement.pos.auto_y = false;}
@@ -228,11 +232,11 @@ namespace ssf
 		if(placement[L"org"][L"x"].IsValue()) {style.placement.org.x = placement[L"org"][L"x"]; style.placement.org.auto_x = false;}
 		if(placement[L"org"][L"y"].IsValue()) {style.placement.org.y = placement[L"org"][L"y"]; style.placement.org.auto_y = false;}
 
-		style.placement.path = (LPCWSTR)placement[L"path"];
+		style.placement.path = static_cast<LPCWSTR>(placement[L"path"]);
 
 		Definition& font = (*pDef)[L"font"];
 
-		style.font.face = (LPCWSTR)font[L"face"];
+		style.font.face = static_cast<LPCWSTR>(font[L"face"]);
 		style.font.size = font[L"size"];
 		font[L"weight"].GetAsNumber(style.font.weight, &m_n2n.weight);
 		style.font.color.a = font[L"color"][L"a"];
@@ -254,7 +258,7 @@ namespace ssf
 		style.background.color.g = background[L"color"][L"g"];
 		style.background.color.b = background[L"color"][L"b"];
 		style.background.size = background[L"size"];
-		style.background.type = (LPCWSTR)background[L"type"];
+		style.background.type = static_cast<LPCWSTR>(background[L"type"]);
 		style.background.blur = background[L"blur"];
 
 		Definition& shadow = (*pDef)[L"shadow"];
@@ -294,39 +298,41 @@ namespace ssf
 
 				float u = t;
 
-				if(t < 0) t = 0;
-				else if(t >= 1) t = 0.99999f; // doh
+				if(t < 0) { t = 0; }
+				else if(t >= 1) { t = 0.99999f; } // doh
 
-				if((*pDef)[L"loop"].IsValue()) t *= (float)(*pDef)[L"loop"];
+				if((*pDef)[L"loop"].IsValue()) { t *= static_cast<float>((*pDef)[L"loop"]); }
 
 				CStringW direction = (*pDef)[L"direction"].IsValue() ? (*pDef)[L"direction"] : L"fw";
-				if(direction == L"fwbw" || direction == L"bwfw") t *= 2;
+				if(direction == L"fwbw" || direction == L"bwfw") { t *= 2; }
 
 				float n;
 				t = modf(t, &n);
 
 				if(direction == L"bw" 
-				|| (direction == L"fwbw" && ((int)n & 1))
-				|| (direction == L"bwfw" && !((int)n & 1))) 
+				|| (direction == L"fwbw" && (static_cast<int>(n) & 1))
+				|| (direction == L"bwfw" && !(static_cast<int>(n) & 1)))
+				{
 					t = 1 - t;
+				}
 
 				float accel = 1;
 
 				if((*pDef)[L"transition"].IsValue())
 				{
-					Definition::Number<float> n;
-					(*pDef)[L"transition"].GetAsNumber(n, &m_n2n.transition);
-					if(n.value >= 0) accel = n.value;
+					Definition::Number<float> transitionNumber;
+					(*pDef)[L"transition"].GetAsNumber(transitionNumber, &m_n2n.transition);
+					if(transitionNumber.value >= 0) { accel = transitionNumber.value; }
 				}
 
-				if(t == 0.99999f) t = 1;
+				if(t == 0.99999f) { t = 1; }
 
 				if(u >= 0 && u < 1)
 				{
 					t = accel == 0 ? 1 : 
 						accel == 1 ? t : 
 						accel >= 1e10 ? 0 :
-						pow(t, accel);
+						std::pow(t, accel);
 				}
 			}
 		}
@@ -354,19 +360,19 @@ namespace ssf
 	template<class T>
 	struct DefinitionCast
 	{
-		static T From(Definition& def) {return (T)def;}
+		static T From(Definition& def) {return static_cast<T>(def);}
 	};
 
 	template<>
 	struct DefinitionCast<CStringW>
 	{
-		static CStringW From(Definition& def) {return (LPCWSTR)def;}
+		static CStringW From(Definition& def) {return static_cast<LPCWSTR>(def);}
 	};
 
 	template<class T>
 	bool Subtitle::MixValue(Definition& def, T& value, float t, StringMapW<T>* n2n)
 	{
-		if(!def.IsValue()) return false;
+		if(!def.IsValue()) { return false; }
 
 		if(t >= 0.5)
 		{
@@ -388,7 +394,7 @@ namespace ssf
 	template<> 
 	bool Subtitle::MixValue(Definition& def, float& value, float t, StringMapW<float>* n2n)
 	{
-		if(!def.IsValue()) return false;
+		if(!def.IsValue()) { return false; }
 
 		if(t > 0)
 		{
@@ -401,7 +407,7 @@ namespace ssf
 				}
 			}
 
-			value += ((float)def - value) * t;
+			value += (static_cast<float>(def) - value) * t;
 		}
 
 		return true;
@@ -410,19 +416,19 @@ namespace ssf
 	template<>
 	bool Subtitle::MixValue(Definition& def, Path& src, float t)
 	{
-		if(!def.IsValue(Definition::string)) return false;
+		if(!def.IsValue(Definition::string)) { return false; }
 
 		if(t >= 1)
 		{
-			src = (LPCWSTR)def;
+			src = static_cast<LPCWSTR>(def);
 		}
 		else if(t > 0)
 		{
-			Path dst = (LPCWSTR)def;
+			Path dst{static_cast<LPCWSTR>(def)};
 
 			if(src.GetCount() == dst.GetCount())
 			{
-				for(size_t i = 0, j = src.GetCount(); i < j; i++)
+				for(std::size_t i{0U}, j{src.GetCount()}; i < j; ++i)
 				{
 					Point& s = src[i];
 					const Point& d = dst[i];
@@ -439,8 +445,8 @@ namespace ssf
 	{
 		const Style src = dst;
 
-		if(t <= 0) return;
-		else if(t > 1) t = 1;
+		if(t <= 0) { return; }
+		else if(t > 1) { t = 1; }
 
 		MixValue((*pDef)[L"linebreak"], dst.linebreak, t);
 
@@ -450,8 +456,8 @@ namespace ssf
 		MixValue(placement[L"clip"][L"r"], dst.placement.clip.r, t);
 		MixValue(placement[L"clip"][L"b"], dst.placement.clip.b, t);
 		MixValue(placement[L"clip"][L"l"], dst.placement.clip.l, t);
-		MixValue(placement[L"align"][L"h"], dst.placement.align.h, t, &m_n2n.align[0]);
-		MixValue(placement[L"align"][L"v"], dst.placement.align.v, t, &m_n2n.align[1]);
+		MixValue(placement[L"align"][L"h"], dst.placement.align.h, t, &m_n2n.align[0U]);
+		MixValue(placement[L"align"][L"v"], dst.placement.align.v, t, &m_n2n.align[1U]);
 		dst.placement.pos.auto_x = !MixValue(placement[L"pos"][L"x"], dst.placement.pos.x, dst.placement.pos.auto_x ? 1 : t);
 		dst.placement.pos.auto_y = !MixValue(placement[L"pos"][L"y"], dst.placement.pos.y, dst.placement.pos.auto_y ? 1 : t);
 		MixValue(placement[L"offset"][L"x"], dst.placement.offset.x, t);
@@ -510,7 +516,7 @@ namespace ssf
 
 		if(fill.m_priority >= PNormal) // this assumes there is no way to set low priority inline overrides
 		{
-			if(dst.fill.id > 0) throw Exception(_T("cannot apply fill more than once on the same text"));
+			if(dst.fill.id > 0) { throw Exception(_T("cannot apply fill more than once on the same text")); }
 			dst.fill.id = ++Fill::gen_id;
 		}
 	}
@@ -540,7 +546,7 @@ namespace ssf
 
 					m_pFile->ParseRefs(s, pDef, L",;]");
 
-					ASSERT(pDef->IsType(L"style") || pDef->IsTypeUnknown());
+					ASSERT((pDef->IsType(L"style") || pDef->IsTypeUnknown()));
 
 					if((*pDef)[L"time"][L"start"].IsValue() && (*pDef)[L"time"][L"stop"].IsValue())
 					{
@@ -552,7 +558,7 @@ namespace ssf
 
 					if((*pDef)[L"@"].IsValue())
 					{
-						WCharInputStream blockStream((LPCWSTR)(*pDef)[L"@"]);
+						WCharInputStream blockStream(static_cast<LPCWSTR>((*pDef)[L"@"]));
 						Parse(blockStream, style, at, offset, pParentRef);
 					}
 
@@ -561,7 +567,7 @@ namespace ssf
 				}
 				while(c == ',' || c == ';');
 
-				if(c != ']') s.ThrowError(_T("unterminated override"));
+				if(c != ']') { s.ThrowError(_T("unterminated override")); }
 
 				bool fWhiteSpaceNext = s.IsWhiteSpace(s.PeekChar());
 				c = s.SkipWhiteSpace();
@@ -573,7 +579,7 @@ namespace ssf
 				}
 				else 
 				{
-					if(fWhiteSpaceNext) text.str += (WCHAR)Text::SP;
+					if(fWhiteSpaceNext) { text.str += static_cast<WCHAR>(Text::SP); }
 					text.style = style;
 				}
 			}
@@ -595,12 +601,12 @@ namespace ssf
 				if(c == '\\')
 				{
 					c = s.GetChar();
-					if(c == Stream::EOS) break;
-					else if(c == 'n') {AddText(text); text.str = (WCHAR)Text::LSEP; AddText(text); continue;}
-					else if(c == 'h') c = Text::NBSP;
+					if(c == Stream::EOS) { break; }
+					else if(c == 'n') {AddText(text); text.str = static_cast<WCHAR>(Text::LSEP); AddText(text); continue;}
+					else if(c == 'h') { c = Text::NBSP; }
 				}
 
-				AddChar(text, (WCHAR)c);
+				AddChar(text, static_cast<WCHAR>(c));
 			}
 		}
 
@@ -611,17 +617,17 @@ namespace ssf
 	{
 		bool f1 = !t.str.IsEmpty() && Stream::IsWhiteSpace(t.str[t.str.GetLength()-1]);
 		bool f2 = Stream::IsWhiteSpace(c);
-		if(f2) c = Text::SP;
-		if(!f1 || !f2) t.str += (WCHAR)c;
+		if(f2) { c = Text::SP; }
+		if(!f1 || !f2) { t.str += static_cast<WCHAR>(c); }
 	}
 
 	void Subtitle::AddText(Text& t)
 	{
-		if(t.str.IsEmpty()) return;
+		if(t.str.IsEmpty()) { return; }
 
 		Split sa(' ', t.str, 0, Split::Max);
 
-		for(size_t i = 0, n = sa; i < n; i++)
+		for(std::size_t i{0U}, n{sa}; i < n; ++i)
 		{
 			CStringW str = sa[i];
 
@@ -633,7 +639,7 @@ namespace ssf
 
 			if(i < n-1 && (m_text.IsEmpty() || m_text.GetTail().str != Text::SP))
 			{
-				t.str = (WCHAR)Text::SP;
+				t.str = static_cast<WCHAR>(Text::SP);
 				m_text.AddTail(t);
 			}
 		}
@@ -647,11 +653,10 @@ namespace ssf
 
 	Color::operator DWORD()
 	{
-		DWORD c = 
-			(min(max((DWORD)b, 0), 255) <<  0) |
-			(min(max((DWORD)g, 0), 255) <<  8) |
-			(min(max((DWORD)r, 0), 255) << 16) |
-			(min(max((DWORD)a, 0), 255) << 24);
+		DWORD c{(min(max(static_cast<DWORD>(b), 0U), 255U) <<  0U) |
+			(min(max(static_cast<DWORD>(g), 0U), 255U) <<  8U) |
+			(min(max(static_cast<DWORD>(r), 0U), 255U) << 16U) |
+			(min(max(static_cast<DWORD>(a), 0U), 255U) << 24U)};
 
 		return c;
 	}
@@ -662,11 +667,11 @@ namespace ssf
 
 		SetCount(s/2);
 
-		for(size_t i = 0, j = GetCount(); i < j; i++)
+		for(std::size_t i{0U}, j{GetCount()}; i < j; ++i)
 		{
 			Point p;
-			p.x = s.GetAtFloat(i*2+0);
-			p.y = s.GetAtFloat(i*2+1);
+			p.x = s.GetAtFloat(i*2U+0);
+			p.y = s.GetAtFloat(i*2U+1);
 			SetAt(i, p);
 		}
 
@@ -677,7 +682,7 @@ namespace ssf
 	{
 		CStringW ret;
 
-		for(size_t i = 0, j = GetCount(); i < j; i++)
+		for(std::size_t i{0U}, j{GetCount()}; i < j; ++i)
 		{
 			const Point& p = GetAt(i);
 

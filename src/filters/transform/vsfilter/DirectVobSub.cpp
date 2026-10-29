@@ -54,7 +54,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     HRESULT hr{XyGetString(STRING_FILE_NAME, &tmp, nullptr)};
     if (SUCCEEDED(hr))
     {
-        wcscpy_s(fn, wcslen(tmp)+1, tmp);
+        wcscpy_s(fn, std::wcslen(tmp)+1, tmp);
         LocalFree(tmp);
     }
     return hr;
@@ -62,7 +62,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_FileName(WCHAR* fn)
 {
-    return XySetString(STRING_FILE_NAME, fn, wcslen(fn));
+    return XySetString(STRING_FILE_NAME, fn, std::wcslen(fn));
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_LanguageCount(int* nLangs)
@@ -1116,7 +1116,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
     switch(field)
     {
     case BIN_OUTPUT_COLOR_FORMAT:
-        if( size!=GetOutputColorSpaceNumber() )
+        if( static_cast<UINT>(size) != GetOutputColorSpaceNumber() )
         {
             return E_INVALIDARG;
         }
@@ -1127,7 +1127,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters( const CAtlArray<CStringW>& filter
         }
         return S_FALSE;
     case BIN_INPUT_COLOR_FORMAT:
-        if( size!=GetInputColorSpaceNumber() )
+        if( static_cast<UINT>(size) != GetInputColorSpaceNumber() )
         {
             return S_FALSE;
         }

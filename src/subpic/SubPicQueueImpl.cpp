@@ -392,6 +392,7 @@ CSubPicQueue::~CSubPicQueue()
             CAutoLock cQueueLock(&m_csQueueLock);
             int count = m_Queue.GetCount();
             if(count>0)
+            {
                 if(WaitForSingleObject(m_QueueEvents[QueueEvents_NOTEMPTY], CSUBPICQUEUE_LOOKUP_WAIT_TIMEOUT)==WAIT_OBJECT_0)
                 {
                     POSITION pos{m_Queue.GetHeadPosition()};
@@ -409,8 +410,8 @@ CSubPicQueue::~CSubPicQueue()
                             break;
                         }
                     }
-                    int count = m_Queue.GetCount();
-                    if(count>0)
+                    const int queueCount{m_Queue.GetCount()};
+                    if(queueCount>0)
                     {
                         SetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);
                     }
@@ -429,6 +430,7 @@ CSubPicQueue::~CSubPicQueue()
 
                     //DbgLog((LOG_TRACE, 3, "CSubPicQueue LookupSubPic return"));
                 }
+            }
         }
     }
 

@@ -41,8 +41,8 @@ namespace ssf
 		{
 		public:
 			float m_start, m_stop; 
-			Segment() {}
-			Segment(float start, float stop, const SegmentItem* si = NULL);
+			explicit Segment() {}
+			Segment(float start, float stop, const SegmentItem* si = nullptr);
 			Segment(const Segment& s);
 			void operator = (const Segment& s);
 		};
@@ -50,20 +50,20 @@ namespace ssf
 		class SegmentList : public CAtlList<Segment> 
 		{
 			CAtlArray<Segment*> m_index;
-			size_t Index(bool fForce = false);
+			std::size_t Index(bool fForce = false);
 
 		public:
 			void RemoveAll();
 			void Insert(float start, float stop, Definition* pDef);
 			void Lookup(float at, CAtlList<SegmentItem>& sis);
-			bool Lookup(float at, size_t& k);
-			const Segment* GetSegment(size_t k);
+			bool Lookup(float at, std::size_t &k);
+			const Segment* GetSegment(std::size_t k);
 		};
 
 		SegmentList m_segments;
 
 	public:
-		SubtitleFile();
+		explicit SubtitleFile();
 		virtual ~SubtitleFile();
 
 		void Parse(InputStream& s);

@@ -91,7 +91,9 @@ namespace ssf
 						StringMapW<float> offset;
 						pDef->GetAsTime(time, offset);
 						if(time.start.value == start && time.stop.value == stop)
+						{
 							continue;
+						}
 					}
 					catch(Exception&)
 					{
@@ -125,11 +127,11 @@ namespace ssf
 
 			if(s->Parse(si.pDef, si.start, si.stop, at))
 			{
-				for(POSITION pos = subs.GetHeadPosition(); pos; subs.GetNext(pos))
+				for(POSITION subPos = subs.GetHeadPosition(); subPos; subs.GetNext(subPos))
 				{
-					if(s->m_layer < subs.GetAt(pos)->m_layer)
+					if(s->m_layer < subs.GetAt(subPos)->m_layer)
 					{
-						subs.InsertBefore(pos, s);
+						subs.InsertBefore(subPos, s);
 						break;
 					}
 				}
@@ -150,7 +152,7 @@ namespace ssf
 	{
 		m_start = start;
 		m_stop = stop;
-		if(si) AddTail(*si);
+		if(si) { AddTail(*si); }
 	}
 
 	SubtitleFile::Segment::Segment(const Segment& s)
@@ -193,12 +195,12 @@ namespace ssf
 		
 		if(start >= tail.m_stop && stop > tail.m_stop)
 		{
-			if(start > tail.m_stop) AddTail(Segment(tail.m_stop, start));
+			if(start > tail.m_stop) { AddTail(Segment(tail.m_stop, start)); }
 			AddTail(Segment(start, stop, &si));
 		}
 		else if(start < head.m_start && stop <= head.m_start)
 		{
-			if(stop < head.m_start) AddHead(Segment(stop, head.m_start));
+			if(stop < head.m_start) { AddHead(Segment(stop, head.m_start)); }
 			AddHead(Segment(start, stop, &si));
 		}
 		else 
@@ -219,8 +221,8 @@ namespace ssf
 			{
 				Segment& s = GetAt(pos);
 
-				if(start >= s.m_stop) continue;
-				if(stop <= s.m_start) break;
+				if(start >= s.m_stop) { continue; }
+				if(stop <= s.m_start) { break; }
 
 				if(s.m_start < start && start < s.m_stop)
 				{
@@ -249,13 +251,13 @@ namespace ssf
 		}
 	}
 
-	size_t SubtitleFile::SegmentList::Index(bool fForce)
+	std::size_t SubtitleFile::SegmentList::Index(bool fForce)
 	{
 		if(m_index.IsEmpty() || fForce)
 		{
 			m_index.RemoveAll();
 			POSITION pos = GetHeadPosition();
-			while(pos) m_index.Add(&GetNext(pos));
+			while(pos) { m_index.Add(&GetNext(pos)); }
 		}
 
 		return m_index.GetCount();
@@ -265,35 +267,37 @@ namespace ssf
 	{
 		sis.RemoveAll();
 
-		size_t k;
+		std::size_t k;
 		if(Lookup(at, k)) 
 		{
 			sis.AddTailList(GetSegment(k));
 		}
 	}
 
-	bool SubtitleFile::SegmentList::Lookup(float at, size_t& k)
+	bool SubtitleFile::SegmentList::Lookup(float at, std::size_t &k)
 	{
-		if(!Index()) return false;
+		if(!Index()) { return false; }
 
-		size_t i = 0, j = m_index.GetCount()-1;
+		std::size_t i{0U}, j{m_index.GetCount()-1U};
 
 		if(m_index[i]->m_start <= at && at < m_index[j]->m_stop)
-		do
+		{
+			do
 		{
 			k = (i+j)/2;
 			if(m_index[k]->m_start <= at && at < m_index[k]->m_stop) {return true;}
-			else if(at < m_index[k]->m_start) {if(j == k) k--; j = k;}
-			else if(at >= m_index[k]->m_stop) {if(i == k) k++; i = k;}
+			else if(at < m_index[k]->m_start) {if(j == k) { --k; } j = k;}
+			else if(at >= m_index[k]->m_stop) {if(i == k) { ++k; } i = k;}
 		}
 		while(i <= j);
+		}
 
 		return false;
 	}
 
-	const SubtitleFile::Segment* SubtitleFile::SegmentList::GetSegment(size_t k)
+	const SubtitleFile::Segment* SubtitleFile::SegmentList::GetSegment(std::size_t k)
 	{
-		return 0 <= k && k < m_index.GetCount() ? m_index[k] : NULL;
+		return 0 <= k && k < m_index.GetCount() ? m_index[k] : nullptr;
 	}
 
 	// TODO: this should be overridable from outside

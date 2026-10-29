@@ -39,7 +39,7 @@ public:
     }
     void FillRandomByte()
     {
-        for (int i{0};i<6*BUF_SIZE;i++)
+        for (int i{0};i<6*BUF_SIZE;++i)
         {
             alpha[i] = rand() & 0xff;
         }
@@ -82,12 +82,12 @@ public:
     [[nodiscard]] std::ostream& GetBufString(std::ostream& os, T* buf) const
     {        
         os<<std::hex;
-        for (int i{0};i<pitch;i++)
+        for (int i{0};i<pitch;++i)
         {
             os<<std::setw(4)<<static_cast<int>(buf[i])<<" ";
         }
         os<<std::endl;
-        for (int i{0};i<pitch;i++)
+        for (int i{0};i<pitch;++i)
         {
             os<<std::setw(4)<<static_cast<int>(buf[pitch+i])<<" ";
         }
@@ -133,7 +133,7 @@ protected:
         data1.pitch = pitch;
         data1.FillRandomByte();
 
-        for (int i{0};i<2*AlphaSrcDstTestData::BUF_SIZE;i++)
+        for (int i{0};i<2*AlphaSrcDstTestData::BUF_SIZE;++i)
         {
             data1.src[i]=rand()%(256-data1.alpha[i]);
         }
@@ -239,7 +239,7 @@ public:
     [[nodiscard]] std::stringstream& GetBufString(std::stringstream& os, T* buf)
     {        
         os<<std::hex;
-        for (int i{0};i<w;i++)
+        for (int i{0};i<w;++i)
         {
             os<<std::setw(4)<<static_cast<int>(buf[i])<<" ";
         }
@@ -255,13 +255,13 @@ static std::ostream& operator<<(std::ostream& os, const UV_TestData& test_data)
         <<"\tw:"<<test_data.w<<std::endl;
     os<<std::hex;
     os<<"\tu:";
-    for (int i{0};i<test_data.w;i++)
+    for (int i{0};i<test_data.w;++i)
     {
         os<<std::setw(2)<<static_cast<int>(test_data.u[i])<<" ";
     }
     os<<std::endl;
     os<<"\tv:";
-    for (int i{0};i<test_data.w;i++)
+    for (int i{0};i<test_data.w;++i)
     {
         os<<std::setw(2)<<static_cast<int>(test_data.v[i])<<" ";
     }

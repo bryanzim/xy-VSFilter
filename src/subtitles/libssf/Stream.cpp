@@ -43,7 +43,7 @@ namespace ssf
 		va_start(args, fmt);
 		int len = _vsctprintf(fmt, args) + 1;
 		CString str;
-		if(len > 0) _vstprintf_s(str.GetBufferSetLength(len), len, fmt, args);
+		if(len > 0) { _vstprintf_s(str.GetBufferSetLength(len), len, fmt, args); }
 		va_end(args);
 
 		throw Exception(_T("Error (Ln %d Col %d): %s"), m_line+1, m_col+1, str.GetString());
@@ -51,7 +51,7 @@ namespace ssf
 
 	bool Stream::IsWhiteSpace(int c, LPCWSTR morechars)
 	{
-		return (c != 0xa0 && iswspace(c)) || (morechars && wcschr(morechars, (WCHAR)c));
+		return (c != 0xa0 && iswspace(static_cast<wint_t>(c))) || (morechars && std::wcschr(morechars, static_cast<WCHAR>(c)));
 	}
 
 	//
@@ -74,13 +74,13 @@ namespace ssf
 			switch(NextByte())
 			{
 			case 0xef: 
-				if(NextByte() == 0xbb && NextByte() == 0xbf) m_encoding = utf8;
+				if(NextByte() == 0xbb && NextByte() == 0xbf) { m_encoding = utf8; }
 				break;
 			case 0xff: 
-				if(NextByte() == 0xfe) m_encoding = utf16le;
+				if(NextByte() == 0xfe) { m_encoding = utf16le; }
 				break;
 			case 0xfe:
-				if(NextByte() == 0xff) m_encoding = utf16be;
+				if(NextByte() == 0xff) { m_encoding = utf16be; }
 				break;
 			}
 		}
@@ -97,7 +97,7 @@ namespace ssf
 		switch(m_encoding)
 		{
 		case utf8: 
-			for(i = 7; i >= 0 && (cur & (1 << i)); i--);
+			for(i = 7; i >= 0 && (cur & (1 << i)); --i) { ; }
 			cur &= (1 << i) - 1;
 			while(++i < 7) {c = NextByte(); if(c == EOS) {cur = EOS; break;} cur = (cur << 6) | (c & 0x3f);}
 			break;
@@ -130,14 +130,14 @@ namespace ssf
 
 	int InputStream::PopChar()
 	{
-		if(m_queue.IsEmpty()) ThrowError(_T("fatal stream error"));
+		if(m_queue.IsEmpty()) { ThrowError(_T("fatal stream error")); }
 
 		int c = m_queue.RemoveHead();
 
 		if(c != EOS)
 		{
-			if(c == '\n') {m_line++; m_col = -1;}
-			m_col++;
+			if(c == '\n') {++m_line; m_col = -1;}
+			++m_col;
 		}
 
 		return c;
@@ -145,20 +145,20 @@ namespace ssf
 
 	int InputStream::PeekChar()
 	{
-		while(m_queue.GetCount() < 2) PushChar();
+		while(m_queue.GetCount() < 2U) { PushChar(); }
 
-		ASSERT(m_queue.GetCount() == 2);
+		ASSERT(m_queue.GetCount() == 2U);
 
 		if(m_queue.GetHead() == '/' && m_queue.GetTail() == '/')
 		{
-			while(!m_queue.IsEmpty()) PopChar();
+			while(!m_queue.IsEmpty()) { PopChar(); }
 			int c;
 			do {PushChar(); c = PopChar();} while(!(c == '\n' || c == EOS));
 			return PeekChar();
 		}
 		else if(m_queue.GetHead() == '/' && m_queue.GetTail() == '*')
 		{
-			while(!m_queue.IsEmpty()) PopChar();
+			while(!m_queue.IsEmpty()) { PopChar(); }
 			int c1, c2;
 			PushChar();
 			do {c2 = PushChar(); c1 = PopChar();} while(!((c1 == '*' && c2 == '/') || c1 == EOS));
@@ -171,48 +171,50 @@ namespace ssf
 
 	int InputStream::GetChar()
 	{
-		if(m_queue.GetCount() < 2) PeekChar();
+		if(m_queue.GetCount() < 2U) { PeekChar(); }
 		return PopChar();
 	}
 
 	int InputStream::SkipWhiteSpace(LPCWSTR morechars)
 	{
 		int c = PeekChar();
-		for(; IsWhiteSpace(c, morechars); c = PeekChar()) 
+		for(; IsWhiteSpace(c, morechars); c = PeekChar())
+		{
 			GetChar();
+		}
 		return c;
 	}
 
 	// FileInputStream
 
 	FileInputStream::FileInputStream(const TCHAR* fn) 
-		: m_file(NULL)
+		: m_file(nullptr)
 	{
-		if(_tfopen_s(&m_file, fn, _T("r")) != 0) ThrowError(_T("cannot open file '%s'"), fn);
+		if(_tfopen_s(&m_file, fn, _T("r")) != 0) { ThrowError(_T("cannot open file '%s'"), fn); }
 	}
 
 	FileInputStream::~FileInputStream()
 	{
-		if(m_file) {fclose(m_file); m_file = NULL;}
+		if(m_file) {std::fclose(m_file); m_file = nullptr;}
 	}
 
 	int FileInputStream::NextByte()
 	{
-		if(!m_file) ThrowError(_T("file pointer is NULL"));
+		if(!m_file) { ThrowError(_T("file pointer is NULL")); }
 		return fgetc(m_file);
 	}
 
 	// MemoryInputStream
 
 	MemoryInputStream::MemoryInputStream(BYTE* pBytes, int len, bool fCopy, bool fFree)
-		: m_pBytes(NULL)
+		: m_pBytes(nullptr)
 		, m_pos(0)
 		, m_len(len)
 	{
 		if(fCopy)
 		{
 			m_pBytes = new BYTE[len];
-			if(m_pBytes) memcpy(m_pBytes, pBytes, len);
+			if(m_pBytes) { std::memcpy(m_pBytes, pBytes, len); }
 			m_fFree = true;
 		}
 		else
@@ -221,20 +223,20 @@ namespace ssf
 			m_fFree = fFree;
 		}
 
-		if(!m_pBytes) ThrowError(_T("memory stream pointer is NULL"));
+		if(!m_pBytes) { ThrowError(_T("memory stream pointer is NULL")); }
 	}
 
 	MemoryInputStream::~MemoryInputStream()
 	{
-		if(m_fFree) delete [] m_pBytes;
-		m_pBytes = NULL;
+		if(m_fFree) { delete [] m_pBytes; }
+		m_pBytes = nullptr;
 	}
 
 	int MemoryInputStream::NextByte()
 	{
-		if(!m_pBytes) ThrowError(_T("memory stream pointer is NULL"));
-		if(m_pos >= m_len) return Stream::EOS;
-		return (int)m_pBytes[m_pos++];
+		if(!m_pBytes) { ThrowError(_T("memory stream pointer is NULL")); }
+		if(m_pos >= m_len) { return Stream::EOS; }
+		return static_cast<int>(m_pBytes[m_pos++]);
 	}
 
 	// WCharInputStream
@@ -248,7 +250,7 @@ namespace ssf
 
 	int WCharInputStream::NextByte()
 	{
-		if(m_pos >= m_str.GetLength()) return Stream::EOS;
+		if(m_pos >= m_str.GetLength()) { return Stream::EOS; }
 		return m_str[m_pos++];
 	}
 
@@ -331,11 +333,11 @@ namespace ssf
 		va_list args;
 		va_start(args, fmt);
 		int len = _vscwprintf(fmt, args) + 1;
-		if(len > 0) vswprintf_s(str.GetBufferSetLength(len), len, fmt, args);
+		if(len > 0) { vswprintf_s(str.GetBufferSetLength(len), len, fmt, args); }
 		va_end(args);
 
 		LPCWSTR s = str;
-		while(*s) PutChar(*s++);
+		while(*s) { PutChar(*s++); }
 	}
 
 	// WCharOutputStream
@@ -347,7 +349,7 @@ namespace ssf
 
 	void WCharOutputStream::NextByte(int b)
 	{
-		m_str += (WCHAR)b;
+		m_str += static_cast<WCHAR>(b);
 	}
 
 	// DebugOutputStream
@@ -365,6 +367,6 @@ namespace ssf
 	void DebugOutputStream::NextByte(int b)
 	{
 		if(b == '\n') {TRACE(_T("%s\n"), m_str); m_str.Empty();}
-		else if(b != '\r') m_str += (WCHAR)b;
+		else if(b != '\r') { m_str += static_cast<WCHAR>(b); }
 	}
 }

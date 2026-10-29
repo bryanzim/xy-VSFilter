@@ -419,7 +419,7 @@ static void LogStyles(const CSTSStyleMap& styles)
 [[nodiscard]] static DWORD SubtitleCharSetToCodePage(const DWORD dwCharSet)
 {
     CHARSETINFO cs{};
-    DWORD_PTR dwcp = intptr_t(dwCharSet);
+    DWORD_PTR dwcp = std::intptr_t(dwCharSet);
     ::TranslateCharsetInfo((DWORD *)dwcp, &cs, TCI_SRCCHARSET);
     return cs.ciACP;
 }
@@ -752,9 +752,9 @@ static void WebVTT2SSA(CStringW& str, CStringW& cueTags, WebVTTcolorMap clrMap)
     }
 
     int tagPos{str.Find(L"<")};
-    while (tagPos != std::wstring::npos) {
+    while (tagPos != -1) {
         int endTag{str.Find(L">", tagPos)};
-        if (endTag == std::wstring::npos)
+        if (endTag == -1)
         {
             break;
         }
@@ -781,7 +781,7 @@ static void WebVTT2SSA(CStringW& str, CStringW& cueTags, WebVTTcolorMap clrMap)
         }
 
         int dotPos{inner.Find(L".")};
-        if (dotPos == std::wstring::npos) {//it's a simple tag, so we can apply a single style to it, if it exists
+        if (dotPos == -1) {//it's a simple tag, so we can apply a single style to it, if it exists
             if (clrMap.count(inner.GetString())) {
                 WebVTTcolorData colorData{clrMap[inner.GetString()]};
                 clr = colorData.color;
@@ -793,10 +793,10 @@ static void WebVTT2SSA(CStringW& str, CStringW& cueTags, WebVTTcolorMap clrMap)
             std::wregex clsPattern(LR"((\.?[^\.]+))");
             (void)RegexUtil::wstringMatch(clsPattern, (const wchar_t*)inner, results);
             if (results.size() > 1) {
-                std::wstring type = results[0][0];
+                std::wstring type = results[0U][0U];
 
                 for (auto iter = results.begin() + 1; iter != results.end(); ++iter) { //loop through all classes--whichever is last gets precedence
-                    std::wstring cls = (*iter)[0];
+                    std::wstring cls = (*iter)[0U];
                     WebVTTcolorData colorData;
                     if (clrMap.count(type + cls)) {
                         colorData = clrMap[type + cls];
@@ -855,10 +855,10 @@ static void WebVTT2SSA(CStringW& str, CStringW& cueTags, WebVTTcolorMap clrMap)
         std::wsmatch match;
 
         if (std::regex_search(stdTmp, match, alignRegex)) {
-            if (match[1] == L"start" || match[1] == L"left") {
+            if (match[1U] == L"start" || match[1U] == L"left") {
                 str = L"{\\an1}" + str;
             }
-            else if (match[1] == L"center" || match[1] == L"middle") {
+            else if (match[1U] == L"center" || match[1U] == L"middle") {
                 str = L"{\\an2}" + str;
             }
             else {
@@ -948,12 +948,12 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet) {
                 std::wsmatch match;
                 std::wstring clrStr = L"";
                 if (std::regex_search(styles, match, clrPat)) {
-                    clrStr = match[1];
+                    clrStr = match[1U];
                 }
                 else if (std::regex_search(styles, match, rgbPat)) {
-                    int r = stoi(match[1]) & 0xff;
-                    int g = stoi(match[2]) & 0xff;
-                    int b = stoi(match[3]) & 0xff;
+                    int r = stoi(match[1U]) & 0xff;
+                    int g = stoi(match[2U]) & 0xff;
+                    int b = stoi(match[3U]) & 0xff;
                     DWORD clr = (r << 16) + (g << 8) + b;
                     std::wstringstream hexClr;
                     hexClr << std::hex << clr;
@@ -968,8 +968,8 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet) {
             if (results.size() > 0) {
                 auto iter = results[results.size() - 1];
                 std::wstring clr, bgClr;
-                clr = parseColor(iter[0]);
-                bgClr = parseColor(iter[0], L"background");
+                clr = parseColor(iter[0U]);
+                bgClr = parseColor(iter[0U], L"background");
                 if (clr != L"" || bgClr != L"") {
                     cueColors[L"::cue"] = WebVTTcolorData({ clr, bgClr });
                 }
@@ -979,10 +979,10 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet) {
             (void)RegexUtil::wstringMatch(cuePattern, (const wchar_t*)styleStr, results);
             for (const auto& iter : results) {
                 std::wstring clr, bgClr;
-                clr = parseColor(iter[1]);
-                bgClr = parseColor(iter[1], L"background");
+                clr = parseColor(iter[1U]);
+                bgClr = parseColor(iter[1U], L"background");
                 if (clr != L"" || bgClr != L"") {
-                    cueColors[iter[0]] = WebVTTcolorData({ clr, bgClr });
+                    cueColors[iter[0U]] = WebVTTcolorData({ clr, bgClr });
                 }
             }
         }
@@ -1055,7 +1055,7 @@ static bool OpenSubRipper(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
 
         WCHAR sep;
         int hh1, mm1, ss1, ms1, hh2, mm2, ss2, ms2;
-        WCHAR msStr1[5] = {0}, msStr2[5] = {0};
+        WCHAR msStr1[5U] = {0}, msStr2[5U] = {0};
         int c = swscanf_s(buff, L"%d%c%d%c%d%4[^-] --> %d%c%d%c%d%4s\n",
                           &hh1, &sep, 1, &mm1, &sep, 1, &ss1, msStr1, (unsigned int)_countof(msStr1),
                           &hh2, &sep, 1, &mm2, &sep, 1, &ss2, msStr2, (unsigned int)_countof(msStr2));
@@ -1168,7 +1168,7 @@ static bool OpenSubViewer(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
             continue;
         }
 
-        if(buff[0] == '[')
+        if(buff[0U] == '[')
         {
             for(int i = 0; i < buff.GetLength() && buff[i]== '['; )
             {
@@ -1201,7 +1201,7 @@ static bool OpenSubViewer(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
                 }
                 else if(tag == L"colf")
                 {
-                    color = def.colors[0] != wcstol(((LPCWSTR)param)+2, 0, 16) ? param : L"";
+                    color = def.colors[0U] != static_cast<COLORREF>(wcstol(((LPCWSTR)param)+2, nullptr, 16)) ? param : L"";
                 }
                 else if(tag == L"size")
                 {
@@ -1316,12 +1316,12 @@ static STSStyle* GetMicroDVDStyle(CString str, int CharSet)
         CString code = str.Mid(j, k-j);
         if(code.GetLength() > 2)
         {
-            code.SetAt(1, (TCHAR)towlower(code[1]));
+            code.SetAt(1, (TCHAR)towlower(code[1U]));
         }
 
         if(!_tcsnicmp(code, _T("{c:$"), 4))
         {
-            _stscanf_s(code, _T("{c:$%x"), &ret->colors[0]);
+            _stscanf_s(code, _T("{c:$%x"), &ret->colors[0U]);
         }
         else if(!_tcsnicmp(code, _T("{f:"), 3))
         {
@@ -1377,7 +1377,7 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
     CStringW ret;
 
     enum {COLOR=0, FONTNAME, FONTSIZE, FONTCHARSET, BOLD, ITALIC, UNDERLINE, STRIKEOUT};
-    bool fRestore[8];
+    bool fRestore[8U];
     int fRestoreLen = 8;
     std::memset(fRestore, 0, sizeof(bool)*fRestoreLen);
 
@@ -1416,7 +1416,7 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
 
                 if(!_wcsnicmp(code, L"{c:$", 4))
                 {
-                    fRestore[COLOR] = (iswupper(code[1]) == 0);
+                    fRestore[COLOR] = (iswupper(code[1U]) == 0);
                     code.MakeLower();
 
                     int color;
@@ -1426,14 +1426,14 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
                 }
                 else if(!_wcsnicmp(code, L"{f:", 3))
                 {
-                    fRestore[FONTNAME] = (iswupper(code[1]) == 0);
+                    fRestore[FONTNAME] = (iswupper(code[1U]) == 0);
 
                     code.Format(L"{\\fn%s}", code.Mid(3).GetString());
                     ret += code;
                 }
                 else if(!_wcsnicmp(code, L"{s:", 3))
                 {
-                    fRestore[FONTSIZE] = (iswupper(code[1]) == 0);
+                    fRestore[FONTSIZE] = (iswupper(code[1U]) == 0);
                     code.MakeLower();
 
                     double size;
@@ -1443,7 +1443,7 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
                 }
                 else if(!_wcsnicmp(code, L"{h:", 3))
                 {
-                    fRestore[COLOR] = (_istupper(code[1]) == 0);
+                    fRestore[COLOR] = (_istupper(code[1U]) == 0);
                     code.MakeLower();
 
                     int iCharSet;
@@ -1453,7 +1453,7 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
                 }
                 else if(!_wcsnicmp(code, L"{y:", 3))
                 {
-                    bool f = (_istupper(code[1]) == 0);
+                    bool f = (_istupper(code[1U]) == 0);
 
                     code.MakeLower();
 
@@ -1968,7 +1968,7 @@ static inline int NextInt(CStringW::PXSTR * buff, WCHAR sep = L',') //throw(...)
     CStringW::PXSTR strEnd;
 
     int ret;
-    if ((str[0] == '&' && (str[1] == 'h' || str[1] == 'H')) || (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))) {
+    if ((str[0U] == '&' && (str[1U] == 'h' || str[1U] == 'H')) || (str[0U] == '0' && (str[1U] == 'x' || str[1U] == 'X'))) {
         str += 2;
         ret = (int)wcstoul(str, &strEnd, 16);
     } else {
@@ -1995,7 +1995,7 @@ static bool LoadFont(CString& font)
 
     const TCHAR* s = font;
     const TCHAR* e = s + len;
-    for(BYTE* p = pData; s < e; s++, p++)
+    for(BYTE* p = pData; s < e; ++s, ++p)
     {
         *p = BYTE(*s - 33);
     }
@@ -2074,7 +2074,7 @@ static bool LoadUUEFont(CTextFile* file)
         {
             break;
         }
-        if(s[0] == '[') // check for standard section headers
+        if(s[0U] == '[') // check for standard section headers
         {
         	if(s.Find(_T("[Script Info]")) == 0)
         	{
@@ -2282,7 +2282,7 @@ if(sver >= 6)
                 style->charSet = encoding < 0 ? DEFAULT_CHARSET : encoding;
 if(sver <= 4)
 {
-    style->colors[2] = style->colors[3];
+    style->colors[2U] = style->colors[3U];
 } // style->colors[2] is used for drawing the outline
 if(sver <= 4)
 {
@@ -2291,8 +2291,8 @@ if(sver <= 4)
 if(sver <= 4)   {for(std::size_t i = 0; i < 3; ++i)
 {
     style->alpha[i] = alpha;
-} style->alpha[3] = 0x80;}
-if(sver >= 5)   for(std::size_t i = 0; i < 4; ++i) {style->alpha[i] = (BYTE)(style->colors[i]>>24); style->colors[i] &= 0xffffff;}
+} style->alpha[3U] = 0x80;}
+if(sver >= 5) { for(std::size_t i = 0; i < 4; ++i) {style->alpha[i] = (BYTE)(style->colors[i]>>24); style->colors[i] &= 0xffffff;} }
 if(sver >= 5)
 {
     style->fontScaleX = max(style->fontScaleX, 0);
@@ -2661,7 +2661,7 @@ static bool OpenUSF(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
 static CStringW MPL22SSA(CStringW str, bool fUnicode, int CharSet)
 {
     // Convert MPL2 italic tags to MicroDVD italic tags
-    if (str[0] == L'/') {
+    if (str[0U] == L'/') {
         str = L"{y:i}" + str.Mid(1);
     }
     str.Replace(L"|/", L"|{y:i}");
@@ -3567,7 +3567,7 @@ static int comp2(const void* a, const void* b)
 
 void CSimpleTextSubtitle::Sort(bool fRestoreReadorder)
 {
-    qsort(m_entries.GetData(), m_entries.GetCount(), sizeof(STSEntry), !fRestoreReadorder ? comp1 : comp2);
+    std::qsort(m_entries.GetData(), m_entries.GetCount(), sizeof(STSEntry), !fRestoreReadorder ? comp1 : comp2);
     CreateSegments();
 }
 
@@ -3592,8 +3592,8 @@ void CSimpleTextSubtitle::CreateSegments()
         std::sort(breakpoints.begin(), breakpoints.end());
 
         int ptr = 1;
-        REFERENCE_TIME prev = breakpoints[0];
-        for(std::size_t i = breakpoints.size()-1; i > 0; i--, ptr++)
+        REFERENCE_TIME prev = breakpoints[0U];
+        for(std::size_t i = breakpoints.size()-1; i > 0; --i, ++ptr)
         {
             if(breakpoints[ptr] != prev)
             {
@@ -3766,14 +3766,14 @@ bool CSimpleTextSubtitle::Open(BYTE* data, int len, int CharSet, CString name)
     int i = 0;
     for(; i <= (len-1024); i += 1024)
     {
-        fwrite(&data[i], 1024, 1, tmp);
+        std::fwrite(&data[i], 1024, 1, tmp);
     }
     if(len > i)
     {
-        fwrite(&data[i], len - i, 1, tmp);
+        std::fwrite(&data[i], len - i, 1, tmp);
     }
 
-    fclose(tmp);
+    std::fclose(tmp);
 
     bool fRet = Open(fn, CharSet, name);
 
@@ -3869,31 +3869,31 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
 
             if(et == EXTSSA)
             {
-                CString str2;
-                str2.Format(str, key.GetString(),
+                CString styleLine;
+                styleLine.Format(str, key.GetString(),
                     s->fontName.GetString(), (int)s->fontSize,
-                    s->colors[0]&0xffffff,
-                    s->colors[1]&0xffffff,
-                    s->colors[2]&0xffffff,
-                    s->colors[3]&0xffffff,
+                    s->colors[0U]&0xffffff,
+                    s->colors[1U]&0xffffff,
+                    s->colors[2U]&0xffffff,
+                    s->colors[3U]&0xffffff,
                     s->fontWeight > FW_NORMAL ? -1 : 0, s->fItalic ? -1 : 0,
                     s->borderStyle == 0 ? 1 : s->borderStyle == 1 ? 3 : 0,
                     (int)s->outlineWidthY, (int)s->shadowDepthY,
                     s->scrAlignment <= 3 ? s->scrAlignment : s->scrAlignment <= 6 ? ((s->scrAlignment-3)|8) : s->scrAlignment <= 9 ? ((s->scrAlignment-6)|4) : 2,
                     s->marginRect.get().left, s->marginRect.get().right, (s->marginRect.get().top + s->marginRect.get().bottom) / 2,
-                    s->alpha[0],
+                    s->alpha[0U],
                     s->charSet);
-                f.WriteString(str2);
+                f.WriteString(styleLine);
             }
             else
             {
-                CString str2;
-                str2.Format(str, key.GetString(),
+                CString styleLine;
+                styleLine.Format(str, key.GetString(),
                     s->fontName.GetString(), (int)s->fontSize,
-                    (s->colors[0]&0xffffff) | (s->alpha[0]<<24),
-                    (s->colors[1]&0xffffff) | (s->alpha[1]<<24),
-                    (s->colors[2]&0xffffff) | (s->alpha[2]<<24),
-                    (s->colors[3]&0xffffff) | (s->alpha[3]<<24),
+                    (s->colors[0U]&0xffffff) | (s->alpha[0U]<<24),
+                    (s->colors[1U]&0xffffff) | (s->alpha[1U]<<24),
+                    (s->colors[2U]&0xffffff) | (s->alpha[2U]<<24),
+                    (s->colors[3U]&0xffffff) | (s->alpha[3U]<<24),
                     s->fontWeight > FW_NORMAL ? -1 : 0,
                     s->fItalic ? -1 : 0, s->fUnderline ? -1 : 0, s->fStrikeOut ? -1 : 0,
                     (int)s->fontScaleX, (int)s->fontScaleY,
@@ -3903,7 +3903,7 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
                     s->scrAlignment,
                     s->marginRect.get().left, s->marginRect.get().right, (s->marginRect.get().top + s->marginRect.get().bottom) / 2,
                     s->charSet);
-                f.WriteString(str2);
+                f.WriteString(styleLine);
             }
         }
 
@@ -3935,7 +3935,7 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
         const int delay = 0;
 
         int t1 = (int)(RT2MS(TranslateStart(i, fps)) + delay);
-        if(t1 < 0) {k++; continue;}
+        if(t1 < 0) {++k; continue;}
 
         int t2 = (int)(RT2MS(TranslateEnd(i, fps)) + delay);
 
@@ -3949,8 +3949,8 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
         int ms2 = (t2)%1000;
 
         CStringW str = f.IsUnicode()
-            ? GetStrW(i, et == EXTSSA || et == EXTASS)
-            : GetStrWA(i, et == EXTSSA || et == EXTASS);
+            ? GetStrW(i, (et == EXTSSA || et == EXTASS))
+            : GetStrWA(i, (et == EXTSSA || et == EXTASS));
 
         CStringW str2;
 
@@ -4008,8 +4008,8 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
     STSStyle* s;
     if (m_styles.Lookup(g_default_style, s) && et != EXTSSA && et != EXTASS)
     {
-        CTextFile f;
-        if(!f.Save(fn + _T(".style"), e))
+        CTextFile styleFile;
+        if(!styleFile.Save(fn + _T(".style"), e))
         {
             return(false);
         }
@@ -4022,15 +4022,15 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
         str += _T("\n");
         str += _T("[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n");
         str2.Format(str, m_dstScreenSize.cx, m_dstScreenSize.cy);
-        f.WriteString(str2);
+        styleFile.WriteString(str2);
 
         str  = _T("Style: Default,%s,%d,&H%08x,&H%08x,&H%08x,&H%08x,%d,%d,%d,%d,%d,%d,%d,%.2f,%d,%d,%d,%d,%d,%d,%d,%d\n");
         str2.Format(str,
             s->fontName.GetString(), (int)s->fontSize,
-            (s->colors[0]&0xffffff) | (s->alpha[0]<<24),
-            (s->colors[1]&0xffffff) | (s->alpha[1]<<24),
-            (s->colors[2]&0xffffff) | (s->alpha[2]<<24),
-            (s->colors[3]&0xffffff) | (s->alpha[3]<<24),
+            (s->colors[0U]&0xffffff) | (s->alpha[0U]<<24),
+            (s->colors[1U]&0xffffff) | (s->alpha[1U]<<24),
+            (s->colors[2U]&0xffffff) | (s->alpha[2U]<<24),
+            (s->colors[3U]&0xffffff) | (s->alpha[3U]<<24),
             s->fontWeight > FW_NORMAL ? -1 : 0,
             s->fItalic ? -1 : 0, s->fUnderline ? -1 : 0, s->fStrikeOut ? -1 : 0,
             (int)s->fontScaleX, (int)s->fontScaleY,
@@ -4040,7 +4040,7 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
             s->scrAlignment,
             s->marginRect.get().left, s->marginRect.get().right, (s->marginRect.get().top + s->marginRect.get().bottom) / 2,
             s->charSet);
-        f.WriteString(str2);
+        styleFile.WriteString(str2);
     }
 
     return(true);
@@ -4081,14 +4081,14 @@ void STSStyle::SetDefault()
     borderStyle   = 0;
     outlineWidthX = outlineWidthY = 2;
     shadowDepthX  = shadowDepthY = 3;
-    colors[0]     = 0x00ffffff;
-    colors[1]     = 0x0000ffff;
-    colors[2]     = 0x00000000;
-    colors[3]     = 0x00000000;
-    alpha[0]      = 0x00;
-    alpha[1]      = 0x00;
-    alpha[2]      = 0x00;
-    alpha[3]      = 0x80;
+    colors[0U]     = 0x00ffffff;
+    colors[1U]     = 0x0000ffff;
+    colors[2U]     = 0x00000000;
+    colors[3U]     = 0x00000000;
+    alpha[0U]      = 0x00;
+    alpha[1U]      = 0x00;
+    alpha[2U]      = 0x00;
+    alpha[3U]      = 0x80;
     charSet       = DEFAULT_CHARSET;
     fontName      = _T("Arial");
     fontSize      = 18;
@@ -4117,14 +4117,14 @@ bool STSStyle::operator == (const STSStyle& s) const
         && outlineWidthY       == s.outlineWidthY
         && shadowDepthX        == s.shadowDepthX
         && shadowDepthY        == s.shadowDepthY
-        && *((int*)&colors[0]) == *((int*)&s.colors[0])
-        && *((int*)&colors[1]) == *((int*)&s.colors[1])
-        && *((int*)&colors[2]) == *((int*)&s.colors[2])
-        && *((int*)&colors[3]) == *((int*)&s.colors[3])
-        && alpha[0]            == s.alpha[0]
-        && alpha[1]            == s.alpha[1]
-        && alpha[2]            == s.alpha[2]
-        && alpha[3]            == s.alpha[3]
+        && *((int*)&colors[0U]) == *((int*)&s.colors[0U])
+        && *((int*)&colors[1U]) == *((int*)&s.colors[1U])
+        && *((int*)&colors[2U]) == *((int*)&s.colors[2U])
+        && *((int*)&colors[3U]) == *((int*)&s.colors[3U])
+        && alpha[0U]            == s.alpha[0U]
+        && alpha[1U]            == s.alpha[1U]
+        && alpha[2U]            == s.alpha[2U]
+        && alpha[3U]            == s.alpha[3U]
         && fBlur               == s.fBlur
         && fGaussianBlur       == s.fGaussianBlur
         && relativeTo          == s.relativeTo
@@ -4206,8 +4206,8 @@ CString& operator <<= (CString& style, const STSStyle& s)
                  _T("%d"),
         s.marginRect.get().left, s.marginRect.get().right, s.marginRect.get().top, s.marginRect.get().bottom,
         s.scrAlignment, s.borderStyle,s.outlineWidthX, s.outlineWidthY, s.shadowDepthX, s.shadowDepthY,
-        s.colors[0], s.colors[1], s.colors[2], s.colors[3],
-        s.alpha[0], s.alpha[1], s.alpha[2], s.alpha[3],
+        s.colors[0U], s.colors[1U], s.colors[2U], s.colors[3U],
+        s.alpha[0U], s.alpha[1U], s.alpha[2U], s.alpha[3U],
         s.charSet,
         s.fontName.GetString(),s.fontSize,s.fontScaleX, s.fontScaleY,s.fontSpacing,s.fontWeight,
         (int)s.fItalic, (int)s.fUnderline, (int)s.fStrikeOut, s.fBlur, s.fGaussianBlur,

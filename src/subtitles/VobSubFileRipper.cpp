@@ -140,7 +140,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
     int len{0};
     ReadBEw(len);
 
-    for (ptrdiff_t i{0}; i < len; ++i) {
+    for (std::ptrdiff_t i{0}; i < len; ++i) {
         f.Seek(2, CFile::current); // 01 00 ?
         ReadBEw(ids[i]);
         if (ids[i] == 0) {
@@ -443,7 +443,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
             default:
                 Reply((DWORD)E_FAIL);
-                return -1;
+                return static_cast<DWORD>(-1);
         }
 
         m_bBreakThread = false;
@@ -640,7 +640,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
             bool hasPTS{false};
 
-            if ((*(DWORD*)&buff[0x0e] == 0xe0010000 || *(DWORD*)&buff[0x0e] == 0xbd010000)
+            if ((*(DWORD*)&buff[0x0eU] == 0xe0010000 || *(DWORD*)&buff[0x0eU] == 0xbd010000)
                     && buff[0x15U] & 0x80) {
                 PTS = (__int64)(buff[0x17U] & 0x0e) << 29            // 32-30 (+marker)
                       | ((__int64)(buff[0x18U]) << 22)               // 29-22
@@ -651,7 +651,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 hasPTS = true;
             }
 
-            if (*((DWORD*)&buff[0x0e]) == 0xbb010000) {
+            if (*((DWORD*)&buff[0x0eU]) == 0xbb010000) {
                 bNavpackFound = true;
 
                 if (vob == buff[0x420U] && cell == buff[0x422U]) {
@@ -712,7 +712,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 bDiscontinuityFixApplied = true;
             }
 
-            if (*(DWORD*)&buff[0x0e] == 0xe0010000) {
+            if (*(DWORD*)&buff[0x0eU] == 0xe0010000) {
                 if (bDiscontinuity) {
                     if (PTS < minPTSframeoffset) {
                         selvcmap[vcid] = PTSframeoffset = (int)PTS;
@@ -724,7 +724,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 if (m_rd.bClosedCaption) {
                     ccdec.ExtractCC(buff, 2048, tOffset + ((PTS - PTSframeoffset) / 90) - tStart);
                 }
-            } else if (*(DWORD*)&buff[0x0e] == 0xbd010000) {
+            } else if (*(DWORD*)&buff[0x0eU] == 0xbd010000) {
                 BYTE id{buff[0x17U + buff[0x16U]]}, iLang = id & 0x1f;
 
                 if ((id & 0xe0) == 0x20 && m_rd.selids.Lookup(iLang)) {
@@ -772,14 +772,14 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
     Progress(1);
 
     for (std::size_t i{0U}; i < m_langs.size(); ++i) {
-        if (m_iLang == -1 && !m_langs[i].subpos.IsEmpty()) {
+        if (m_iLang == static_cast<std::size_t>(-1) && !m_langs[i].subpos.IsEmpty()) {
             m_iLang = i;
         }
         m_langs[i].id = pgc.ids[i];
         m_langs[i].name = m_langs[i].alt = FindLangFromId(m_langs[i].id);
 
         CAtlArray<SubPos>& sp = m_langs[i].subpos;
-        qsort(sp.GetData(), sp.GetCount(), sizeof(SubPos), SubPosSortProc);
+        std::qsort(sp.GetData(), sp.GetCount(), sizeof(SubPos), SubPosSortProc);
 
         if (m_rd.fForcedOnly) {
             Log(LOG_INFO, _T("Searching for forced subs..."));
@@ -803,7 +803,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
     Log(LOG_INFO, _T("Saving files..."));
 
-    if (m_iLang != -1) {
+    if (m_iLang != static_cast<std::size_t>(-1)) {
         if (!Save(m_title)) {
             Log(LOG_ERROR, _T("Could not save output files!"));
             return false;

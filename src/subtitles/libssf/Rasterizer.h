@@ -40,10 +40,10 @@ namespace ssf
 		union Span
 		{
 			struct {int x1, y1, x2, y2;};
-			struct {unsigned __int64 first, second;};
-			Span() {}
+			struct {std::uint64_t first, second;};
+			explicit Span() {}
 			Span(int _x1, int _y1, int _x2, int _y2) {x1 = _x1; y1 = _y1; x2 = _x2; y2 = _y2;}
-			Span(unsigned __int64 _first, unsigned __int64 _second) {first = _first; second = _second;}
+			Span(std::uint64_t _first, std::uint64_t _second) {first = _first; second = _second;}
 		};
 
 		Array<Span> mOutline, mWideOutline, mWideOutlineTmp;
@@ -52,7 +52,7 @@ namespace ssf
 		struct Edge {int next, posandflag;}* mpEdgeBuffer;
 		unsigned int mEdgeHeapSize;
 		unsigned int mEdgeNext;
-		unsigned int* mpScanBuffer;
+		unsigned int *mpScanBuffer;
 
 	protected:
 		BYTE* mpOverlayBuffer;
@@ -68,7 +68,7 @@ namespace ssf
 		void _OverlapRegion(Array<Span>& dst, Array<Span>& src, int dx, int dy);
 
 	public:
-		Rasterizer();
+		explicit Rasterizer();
 		virtual ~Rasterizer();
 
 		bool ScanConvert(GlyphPath& path, const CRect& bbox);
@@ -77,6 +77,6 @@ namespace ssf
 		void Reuse(Rasterizer& r);
 
 		void Blur(float n, int plane);
-		CRect Draw(const SubPicDesc& spd, const CRect& clip, int xsub, int ysub, const DWORD* switchpts, int plane);
+		CRect Draw(const SubPicDesc& spd, const CRect& clip, int xsub, int ysub, const DWORD *switchpts, int plane);
 	};
 }

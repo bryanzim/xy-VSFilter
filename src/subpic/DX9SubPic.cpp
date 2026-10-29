@@ -263,7 +263,7 @@ CDX9SubPic::~CDX9SubPic()
 			{(float)dst.right, (float)dst.bottom, 0.5f, 2.0f, (float)src.right / w, (float)src.bottom / h},
 		};
 
-		for(ptrdiff_t i{0}; i < countof(pVertices); ++i) {
+		for(std::size_t i{0U}; i < countof(pVertices); ++i) {
 			pVertices[i].x -= 0.5;
 			pVertices[i].y -= 0.5;
 		}
@@ -442,7 +442,7 @@ void CDX9SubPicAllocator::ClearCache()
 		}
 	}
 	if (!fStatic) {
-		CAutoLock cAutoLock(&ms_SurfaceQueueLock);
+		CAutoLock cSurfaceLock(&ms_SurfaceQueueLock);
 		POSITION FreeSurf{m_FreeSurfaces.GetHeadPosition()};
 		if (FreeSurf) {
 			pSurface = m_FreeSurfaces.GetHead();
@@ -469,7 +469,7 @@ void CDX9SubPicAllocator::ClearCache()
 	(*ppSubPic)->AddRef();
 
 	if (!fStatic) {
-		CAutoLock cAutoLock(&ms_SurfaceQueueLock);
+		CAutoLock cSurfaceLock(&ms_SurfaceQueueLock);
 		m_AllocatedSurfaces.AddHead((CDX9SubPic *)*ppSubPic);
 	}
 

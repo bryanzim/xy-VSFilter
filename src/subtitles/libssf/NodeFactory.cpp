@@ -26,7 +26,7 @@
 namespace ssf
 {
 	NodeFactory::NodeFactory()
-		: m_root(NULL)
+		: m_root(nullptr)
 		, m_predefined(false)
 		, m_counter(0)
 	{
@@ -46,10 +46,10 @@ namespace ssf
 
 	void NodeFactory::RemoveAll()
 	{
-		m_root = NULL;
+		m_root = nullptr;
 
 		POSITION pos = m_nodes.GetStartPosition();
-		while(pos) delete m_nodes.GetNextValue(pos);
+		while(pos) { delete m_nodes.GetNextValue(pos); }
 		m_nodes.RemoveAll();
 
 		m_newnodes.RemoveAll();
@@ -76,7 +76,7 @@ namespace ssf
 	Reference* NodeFactory::CreateRootRef()
 	{
 		RemoveAll();
-		m_root = CreateRef(NULL);
+		m_root = CreateRef(nullptr);
 		return m_root;
 	}
 
@@ -106,7 +106,7 @@ namespace ssf
 
 	Definition* NodeFactory::CreateDef(Reference* pParentRef, CStringW type, CStringW name, NodePriority priority)
 	{
-		Definition* pDef = NULL;
+		Definition* pDef = nullptr;
 
 		if(name.IsEmpty())
 		{
@@ -153,7 +153,7 @@ namespace ssf
 
 	Definition* NodeFactory::GetDefByName(CStringW name) const
 	{
-		Node* pNode = NULL;
+		Node* pNode = nullptr;
 		m_nodes.Lookup(name, pNode);
 		return dynamic_cast<Definition*>(pNode);
 	}
@@ -174,9 +174,9 @@ namespace ssf
 
 	void NodeFactory::Dump(OutputStream& s) const
 	{
-		if(!m_root) return;
+		if(!m_root) { return; }
 
 		POSITION pos = m_root->m_nodes.GetHeadPosition();
-		while(pos) m_root->m_nodes.GetNext(pos)->Dump(s);
+		while(pos) { m_root->m_nodes.GetNext(pos)->Dump(s); }
 	}
 }

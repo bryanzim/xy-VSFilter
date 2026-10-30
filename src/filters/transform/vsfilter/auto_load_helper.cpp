@@ -7,9 +7,9 @@
 #include "IDirectVobSubXy.h"
 
 #if ENABLE_XY_LOG_TRACE_GRAPH
-#  define XY_DUMP_GRAPH(graph,level) xy_logger::XyDumpGraph(graph,level)
+#define XY_DUMP_GRAPH(graph, level) xy_logger::XyDumpGraph(graph, level)
 #else
-#  define XY_DUMP_GRAPH(graph,level)
+#define XY_DUMP_GRAPH(graph, level)
 #endif
 
 ////////////////////////////////////////////////////////////////////////////
@@ -18,13 +18,12 @@
 // DummyInputPin
 //
 
-XyAutoLoaderDummyInputPin::XyAutoLoaderDummyInputPin( XySubFilterAutoLoader *pFilter, CCritSec *pLock, HRESULT *phr, LPCWSTR pName )
-    : CBaseInputPin(NAME("DummyInputPin"), pFilter, pLock, phr, pName)
-    , m_filter(pFilter)
+XyAutoLoaderDummyInputPin::XyAutoLoaderDummyInputPin(XySubFilterAutoLoader* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName)
+    : CBaseInputPin(NAME("DummyInputPin"), pFilter, pLock, phr, pName), m_filter(pFilter)
 {
 }
 
-[[nodiscard]] HRESULT XyAutoLoaderDummyInputPin::CheckMediaType( const CMediaType * mt)
+[[nodiscard]] HRESULT XyAutoLoaderDummyInputPin::CheckMediaType(const CMediaType* mt)
 {
     return m_filter->CheckInput(mt);
 }
@@ -33,8 +32,7 @@ XyAutoLoaderDummyInputPin::XyAutoLoaderDummyInputPin( XySubFilterAutoLoader *pFi
 //  XySubFilterAutoLoader
 //
 
-XySubFilterAutoLoader::XySubFilterAutoLoader( LPUNKNOWN punk, HRESULT* phr
-    , const GUID& clsid /*= __uuidof(XySubFilterAutoLoader)*/ )
+XySubFilterAutoLoader::XySubFilterAutoLoader(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid /*= __uuidof(XySubFilterAutoLoader)*/)
     : CBaseFilter(NAME("XySubFilterAutoLoader"), punk, &m_pLock, clsid)
 {
     m_pin = DEBUG_NEW XyAutoLoaderDummyInputPin(this, &m_pLock, phr, nullptr);
@@ -50,34 +48,34 @@ XySubFilterAutoLoader::XySubFilterAutoLoader( LPUNKNOWN punk, HRESULT* phr
     m_paths.Add(_T("."));
     m_paths.Add(_T(".\\subtitles"));
     m_paths.Add(_T(".\\subs"));
-    for(int i{3}; i < 10; ++i)
+    for (int i{ 3 }; i < 10; ++i)
     {
         CString pathName;
         pathName.Format(IDS_RP_PATH, i);
-        CString path{theApp.GetProfileString(ResStr(IDS_R_DEFTEXTPATHES), pathName)};
-        if(!path.IsEmpty())
+        CString path{ theApp.GetProfileString(ResStr(IDS_R_DEFTEXTPATHES), pathName) };
+        if (!path.IsEmpty())
         {
             m_paths.Add(path);
         }
     }
 
-    m_load_level    =   CDirectVobSub::LOADLEVEL_WHEN_NEEDED;
-    CString str_load_level{theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOADLEVEL), _T("when_needed"))};
+    m_load_level = CDirectVobSub::LOADLEVEL_WHEN_NEEDED;
+    CString str_load_level{ theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOADLEVEL), _T("when_needed")) };
     str_load_level.MakeLower();
-    if (str_load_level.Compare(_T("always"))==0)
+    if (str_load_level.Compare(_T("always")) == 0)
     {
         m_load_level = CDirectVobSub::LOADLEVEL_ALWAYS;
     }
-    else if (str_load_level.Compare(_T("disabled"))==0)
+    else if (str_load_level.Compare(_T("disabled")) == 0)
     {
         m_load_level = CDirectVobSub::LOADLEVEL_DISABLED;
     }
 
-    m_load_external = !!theApp.GetProfileInt(   ResStr(IDS_R_GENERAL), ResStr(IDS_RG_EXTERNALLOAD ), 1);
-    m_load_web      = !!theApp.GetProfileInt(   ResStr(IDS_R_GENERAL), ResStr(IDS_RG_WEBLOAD      ), 0);
-    m_load_embedded = !!theApp.GetProfileInt(   ResStr(IDS_R_GENERAL), ResStr(IDS_RG_EMBEDDEDLOAD ), 1);
-    m_load_exts  =   theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOAD_EXT_LIST),
-        _T("ass;ssa;srt;idx;sup;txt;usf;xss;ssf;smi;psb;rt;sub"));
+    m_load_external = !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_EXTERNALLOAD), 1);
+    m_load_web = !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_WEBLOAD), 0);
+    m_load_embedded = !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_EMBEDDEDLOAD), 1);
+    m_load_exts = theApp.GetProfileString(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_LOAD_EXT_LIST),
+                                          _T("ass;ssa;srt;idx;sup;txt;usf;xss;ssf;smi;psb;rt;sub"));
 
     m_loaded = false;
 
@@ -90,9 +88,9 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     delete m_pin;
 }
 
-[[nodiscard]] CBasePin* XySubFilterAutoLoader::GetPin( const int n )
+[[nodiscard]] CBasePin* XySubFilterAutoLoader::GetPin(const int n)
 {
-    if (n==0)
+    if (n == 0)
     {
         return m_pin;
     }
@@ -104,25 +102,25 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     return 1;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterAutoLoader::JoinFilterGraph( IFilterGraph* pGraph, const LPCWSTR pName )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterAutoLoader::JoinFilterGraph(IFilterGraph* pGraph, const LPCWSTR pName)
 {
-    XY_LOG_INFO(XY_LOG_VAR_2_STR(this)<<"pGraph:"<<(void*)pGraph);
+    XY_LOG_INFO(XY_LOG_VAR_2_STR(this) << "pGraph:" << (void*)pGraph);
     m_loaded = false;
-    if(pGraph)
+    if (pGraph)
     {
         XY_DUMP_GRAPH(pGraph, 0);
         BeginEnumFilters(pGraph, pEF, pBF)
         {
-            if(pBF != (IBaseFilter*)this)
+            if (pBF != (IBaseFilter*)this)
             {
                 CLSID clsid;
                 pBF->GetClassID(&clsid);
-                if (clsid==__uuidof(XySubFilterAutoLoader))
+                if (clsid == __uuidof(XySubFilterAutoLoader))
                 {
                     XY_LOG_INFO("Another XySubFilterAutoLoader filter has been added to the graph.");
                     return E_FAIL;
                 }
-                if (clsid==__uuidof(XySubFilter))
+                if (clsid == __uuidof(XySubFilter))
                 {
                     return E_FAIL;
                 }
@@ -131,43 +129,45 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         EndEnumFilters;
     }
 
-    return __super::JoinFilterGraph(pGraph, pName);;
+    return __super::JoinFilterGraph(pGraph, pName);
+    ;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterAutoLoader::QueryFilterInfo( FILTER_INFO* pInfo )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterAutoLoader::QueryFilterInfo(FILTER_INFO* pInfo)
 {
     CheckPointer(pInfo, E_POINTER);
     ValidateReadWritePtr(pInfo, sizeof(FILTER_INFO));
 
-    HRESULT hr{__super::QueryFilterInfo(pInfo)};
+    HRESULT hr{ __super::QueryFilterInfo(pInfo) };
     if (SUCCEEDED(hr))
     {
-        wcscpy_s(pInfo->achName, countof(pInfo->achName)-1, L"XySubFilterAutoLoader");
+        wcscpy_s(pInfo->achName, countof(pInfo->achName) - 1, L"XySubFilterAutoLoader");
     }
     return hr;
 }
 
 [[nodiscard]] bool XySubFilterAutoLoader::ShouldWeAutoLoad(IFilterGraph* pGraph)
 {
-    XY_LOG_INFO(_T("pGraph:")<<pGraph);
+    XY_LOG_INFO(_T("pGraph:") << pGraph);
 
-    if(m_load_level < 0 || m_load_level >= DirectVobSubImpl::LOADLEVEL_COUNT || m_load_level==DirectVobSubImpl::LOADLEVEL_DISABLED) {
-        XY_LOG_DEBUG("Disabled by load setting: "<<XY_LOG_VAR_2_STR(m_load_level));
+    if (m_load_level < 0 || m_load_level >= DirectVobSubImpl::LOADLEVEL_COUNT || m_load_level == DirectVobSubImpl::LOADLEVEL_DISABLED)
+    {
+        XY_LOG_DEBUG("Disabled by load setting: " << XY_LOG_VAR_2_STR(m_load_level));
         return false;
     }
 
-    if(m_load_level == DirectVobSubImpl::LOADLEVEL_ALWAYS)
+    if (m_load_level == DirectVobSubImpl::LOADLEVEL_ALWAYS)
     {
         return true;
     }
 
     // find text stream on known splitters
 
-    bool have_subtitle_pin{false};
+    bool have_subtitle_pin{ false };
     CComPtr<IBaseFilter> pBF;
-    if( m_load_embedded )
+    if (m_load_embedded)
     {
-        for (int i{0}, n=m_known_source_filters_guid.GetCount();i<n;++i)
+        for (int i{ 0 }, n = m_known_source_filters_guid.GetCount(); i < n; ++i)
         {
             if ((pBF = FindFilter(m_known_source_filters_guid[i], pGraph)))
             {
@@ -180,16 +180,15 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
             {
                 if (pmt->majortype == MEDIATYPE_Text || pmt->majortype == MEDIATYPE_Subtitle)
                 {
-                    XY_LOG_TRACE("Found subtitle pin on filter "<<CStringFromGUID(GetCLSID(pBF)).GetString());
+                    XY_LOG_TRACE("Found subtitle pin on filter " << CStringFromGUID(GetCLSID(pBF)).GetString());
                     have_subtitle_pin = true;
                     break;
                 }
             }
-            EndEnumMediaTypes(pmt)
-                if (have_subtitle_pin)
-                {
-                    break;
-                }
+            EndEnumMediaTypes(pmt) if (have_subtitle_pin)
+            {
+                break;
+            }
         }
         EndEnumPins
     }
@@ -206,10 +205,10 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
 
         BeginEnumFilters(pGraph, pEF, pGraphFilter)
         {
-            if(CComQIPtr<IFileSourceFilter> pFSF{pGraphFilter})
+            if (CComQIPtr<IFileSourceFilter> pFSF{ pGraphFilter })
             {
-                LPOLESTR fnw{nullptr};
-                if(!pFSF || FAILED(pFSF->GetCurFile(&fnw, nullptr)) || !fnw)
+                LPOLESTR fnw{ nullptr };
+                if (!pFSF || FAILED(pFSF->GetCurFile(&fnw, nullptr)) || !fnw)
                 {
                     continue;
                 }
@@ -219,37 +218,36 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
             }
         }
         EndEnumFilters;
-        XY_LOG_INFO(L"fn:"<<fn.GetString());
+        XY_LOG_INFO(L"fn:" << fn.GetString());
 
-        if((m_load_external || m_load_web) && (m_load_web || !(std::wcsstr(fn, L"http://") || std::wcsstr(fn, L"mms://"))))
+        if ((m_load_external || m_load_web) && (m_load_web || !(std::wcsstr(fn, L"http://") || std::wcsstr(fn, L"mms://"))))
         {
             CAtlArray<SubFile> file_list;
             GetSubFileNames(fn, m_paths, m_load_exts, file_list);
 
             return !file_list.IsEmpty();
         }
-
     }
 
     return false;
 }
 
-[[nodiscard]] HRESULT XySubFilterAutoLoader::CheckInput( const CMediaType * mt )
+[[nodiscard]] HRESULT XySubFilterAutoLoader::CheckInput(const CMediaType* mt)
 {
-    HRESULT hr{NOERROR};
+    HRESULT hr{ NOERROR };
     if (!m_loaded)
     {
         m_loaded = true;
 #if ENABLE_XY_LOG_TRACE_GRAPH
-        if (mt->majortype==MEDIATYPE_Video)
+        if (mt->majortype == MEDIATYPE_Video)
         {
             XY_LOG_TRACE("Connecting Video Pin");
         }
-        else if (mt->majortype==MEDIATYPE_Audio)
+        else if (mt->majortype == MEDIATYPE_Audio)
         {
             XY_LOG_TRACE("Connecting Audio Pin");
         }
-        else if (mt->majortype==MEDIATYPE_Subtitle || mt->majortype==MEDIATYPE_Text)
+        else if (mt->majortype == MEDIATYPE_Subtitle || mt->majortype == MEDIATYPE_Text)
         {
             XY_LOG_TRACE("Connecting Subtitle Pin");
         }
@@ -258,24 +256,21 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
             XY_LOG_TRACE("Connecting Other Pin");
         }
 #endif
-        if (m_load_level==CDirectVobSub::LOADLEVEL_ALWAYS
-            || mt->majortype==MEDIATYPE_Audio
-            || mt->majortype==MEDIATYPE_Subtitle
-            || mt->majortype==MEDIATYPE_Text)//maybe it is better to check if video renderer exists
+        if (m_load_level == CDirectVobSub::LOADLEVEL_ALWAYS || mt->majortype == MEDIATYPE_Audio || mt->majortype == MEDIATYPE_Subtitle || mt->majortype == MEDIATYPE_Text) // maybe it is better to check if video renderer exists
         {
-            bool found_consumer{false};
-            bool found_vsfilter{false};
+            bool found_consumer{ false };
+            bool found_vsfilter{ false };
             BeginEnumFilters(m_pGraph, pEF, pBF)
             {
-                if(pBF != (IBaseFilter*)this)
+                if (pBF != (IBaseFilter*)this)
                 {
                     CLSID clsid;
                     pBF->GetClassID(&clsid);
-                    if (clsid==__uuidof(XySubFilter))
+                    if (clsid == __uuidof(XySubFilter))
                     {
                         return E_FAIL;
                     }
-                    if (clsid==__uuidof(CDirectVobSubFilter) || clsid==__uuidof(CDirectVobSubFilter2))
+                    if (clsid == __uuidof(CDirectVobSubFilter) || clsid == __uuidof(CDirectVobSubFilter2))
                     {
                         XY_LOG_INFO("I see VSFilter");
                         found_vsfilter = true;
@@ -300,11 +295,11 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
                 hr = filter.CoCreateInstance(__uuidof(XySubFilter));
                 if (FAILED(hr))
                 {
-                    XY_LOG_ERROR("Failed to create XySubFilter."<<XY_LOG_VAR_2_STR(hr));
+                    XY_LOG_ERROR("Failed to create XySubFilter." << XY_LOG_VAR_2_STR(hr));
                     return E_FAIL;
                 }
                 CComQIPtr<IXyOptions> xy_sub_filter(filter);
-                hr = xy_sub_filter->XySetBool(DirectVobSubXyOptions::BOOL_BE_AUTO_LOADED     , true);
+                hr = xy_sub_filter->XySetBool(DirectVobSubXyOptions::BOOL_BE_AUTO_LOADED, true);
                 if (FAILED(hr))
                 {
                     XY_LOG_ERROR("Failed to set option BOOL_BE_AUTO_LOADED");
@@ -319,17 +314,17 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
                 hr = m_pGraph->AddFilter(filter, L"XySubFilter(AutoLoad)");
                 if (FAILED(hr))
                 {
-                    XY_LOG_ERROR("Failed to AddFilter. "<<XY_LOG_VAR_2_STR(xy_sub_filter)<<XY_LOG_VAR_2_STR(hr));
+                    XY_LOG_ERROR("Failed to AddFilter. " << XY_LOG_VAR_2_STR(xy_sub_filter) << XY_LOG_VAR_2_STR(hr));
                     return E_FAIL;
                 }
-                if (mt->majortype==MEDIATYPE_Subtitle || mt->majortype==MEDIATYPE_Text)
+                if (mt->majortype == MEDIATYPE_Subtitle || mt->majortype == MEDIATYPE_Text)
                 {
                     hr = CComQIPtr<IGraphConfig>(m_pGraph)->AddFilterToCache(filter);
                     if (FAILED(hr))
                     {
-                        XY_LOG_ERROR("Failed to AddFilterToCache. "<<XY_LOG_VAR_2_STR(xy_sub_filter)
-                                                                   <<XY_LOG_VAR_2_STR(m_pGraph)
-                                                                   <<XY_LOG_VAR_2_STR(hr));
+                        XY_LOG_ERROR("Failed to AddFilterToCache. " << XY_LOG_VAR_2_STR(xy_sub_filter)
+                                                                    << XY_LOG_VAR_2_STR(m_pGraph)
+                                                                    << XY_LOG_VAR_2_STR(hr));
                         return E_FAIL;
                     }
                 }
@@ -343,14 +338,14 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     return E_FAIL;
 }
 
-[[nodiscard]] HRESULT XySubFilterAutoLoader::GetMerit( const GUID& clsid, DWORD *merit )
+[[nodiscard]] HRESULT XySubFilterAutoLoader::GetMerit(const GUID& clsid, DWORD* merit)
 {
     CheckPointer(merit, E_POINTER);
 
-    LPOLESTR    str;
+    LPOLESTR str;
     StringFromCLSID(clsid, &str);
-    CString     str_clsid{str};
-    CString     key_name;
+    CString str_clsid{ str };
+    CString key_name;
     if (str)
     {
         CoTaskMemFree(str);
@@ -363,27 +358,39 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
 
     key_name.Format(_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\%s"), str_clsid.GetString());
     CRegKey key;
-    if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ) == ERROR_SUCCESS) { 
-        ULONG size{256*1024};
-        BYTE  *largebuf{(BYTE*)std::malloc(size)};
-        LONG  lret;
+    if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ) == ERROR_SUCCESS)
+    {
+        ULONG size{ 256 * 1024 };
+        BYTE* largebuf{ (BYTE*)std::malloc(size) };
+        LONG lret;
 
-        if (!largebuf) { XY_LOG_DEBUG("key_name:"<<key_name); key.Close(); return E_FAIL; }
+        if (!largebuf)
+        {
+            XY_LOG_DEBUG("key_name:" << key_name);
+            key.Close();
+            return E_FAIL;
+        }
 
         lret = key.QueryBinaryValue(_T("FilterData"), largebuf, &size);
-        if (lret != ERROR_SUCCESS) { XY_LOG_DEBUG(key_name<<" "<<lret); std::free(largebuf); key.Close(); return E_FAIL; }
+        if (lret != ERROR_SUCCESS)
+        {
+            XY_LOG_DEBUG(key_name << " " << lret);
+            std::free(largebuf);
+            key.Close();
+            return E_FAIL;
+        }
 
         // change the merit
-        DWORD *dwbuf{(DWORD*)largebuf};
+        DWORD* dwbuf{ (DWORD*)largebuf };
         *merit = dwbuf[1U];
 
         std::free(largebuf);
-
-    } else {
+    }
+    else
+    {
         XY_LOG_DEBUG(key_name.GetString());
         return E_FAIL;
     }
     key.Close();
     return S_OK;
 }
-

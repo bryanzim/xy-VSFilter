@@ -40,13 +40,11 @@ class CCDecoder
 public:
     explicit CCDecoder(CString fn = _T(""), CString rawfn = _T(""));
     virtual ~CCDecoder();
-    void DecodeCC(BYTE *buff, int len, __int64 time);
-    void ExtractCC(BYTE *buff, int len, __int64 time);
-    [[nodiscard]] CSimpleTextSubtitle &GetSTS()
+    void DecodeCC(BYTE* buff, int len, __int64 time);
+    void ExtractCC(BYTE* buff, int len, __int64 time);
+    [[nodiscard]] CSimpleTextSubtitle& GetSTS()
 
     {
         return m_sts;
     }
 };
-
-

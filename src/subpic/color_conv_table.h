@@ -13,17 +13,17 @@ struct ColorConvTable
 {
     enum YuvMatrixType
     {
-        NONE
-        , BT601
-        , BT709
-        , BT2020
+        NONE,
+        BT601,
+        BT709,
+        BT2020
     };
 
-    enum YuvRangeType 
+    enum YuvRangeType
     {
-        RANGE_NONE
-        , RANGE_TV
-        , RANGE_PC
+        RANGE_NONE,
+        RANGE_TV,
+        RANGE_PC
     };
 
     static void SetDefaultConvType(YuvMatrixType yuv_type, YuvRangeType range);
@@ -36,29 +36,29 @@ struct ColorConvTable
     [[nodiscard]] static DWORD Argb2Auyv(DWORD argb);
     [[nodiscard]] static DWORD Ayuv2Auyv(DWORD ayuv);
     [[nodiscard]] static DWORD Rgb2Y(int r8, int g8, int b8);
-    [[nodiscard]] static DWORD PreMulArgb2Ayuv( int a8, int r8, int g8, int b8 );
+    [[nodiscard]] static DWORD PreMulArgb2Ayuv(int a8, int r8, int g8, int b8);
 
     [[nodiscard]] static DWORD Ayuv2Argb(DWORD ayuv);
     [[nodiscard]] static DWORD Ayuv2Argb_TV_BT601(DWORD ayuv);
-    static DWORD A8Y8U8V8_To_ARGB_TV_BT601( int a8, int y8, int u8, int v8 );
-    static DWORD A8Y8U8V8_To_ARGB_PC_BT601( int a8, int y8, int u8, int v8 );
+    static DWORD A8Y8U8V8_To_ARGB_TV_BT601(int a8, int y8, int u8, int v8);
+    static DWORD A8Y8U8V8_To_ARGB_PC_BT601(int a8, int y8, int u8, int v8);
     [[nodiscard]] static DWORD Ayuv2Argb_TV_BT709(DWORD ayuv);
-    static DWORD A8Y8U8V8_To_ARGB_TV_BT709( int a8, int y8, int u8, int v8 );
-    static DWORD A8Y8U8V8_To_ARGB_PC_BT709( int a8, int y8, int u8, int v8 );
+    static DWORD A8Y8U8V8_To_ARGB_TV_BT709(int a8, int y8, int u8, int v8);
+    static DWORD A8Y8U8V8_To_ARGB_PC_BT709(int a8, int y8, int u8, int v8);
     [[nodiscard]] static DWORD Ayuv2Argb_TV_BT2020(DWORD ayuv);
-    static DWORD A8Y8U8V8_To_ARGB_TV_BT2020( int a8, int y8, int u8, int v8 );
-    static DWORD A8Y8U8V8_To_ARGB_PC_BT2020( int a8, int y8, int u8, int v8 );
+    static DWORD A8Y8U8V8_To_ARGB_TV_BT2020(int a8, int y8, int u8, int v8);
+    static DWORD A8Y8U8V8_To_ARGB_PC_BT2020(int a8, int y8, int u8, int v8);
 
-    static DWORD A8Y8U8V8_PC_To_TV( int a8, int y8, int u8, int v8 );
-    static DWORD A8Y8U8V8_TV_To_PC( int a8, int y8, int u8, int v8 );
+    static DWORD A8Y8U8V8_PC_To_TV(int a8, int y8, int u8, int v8);
+    static DWORD A8Y8U8V8_TV_To_PC(int a8, int y8, int u8, int v8);
 
-    //should not past NONE into it
+    // should not past NONE into it
     static DWORD A8Y8U8V8_TO_AYUV(
         int a8, int y8, int u8, int v8,
         YuvRangeType in_range, YuvMatrixType in_type,
         YuvRangeType out_range, YuvMatrixType out_type);
     static DWORD A8Y8U8V8_TO_CUR_AYUV(int a8, int y8, int u8, int v8,
-        YuvRangeType in_range, YuvMatrixType in_type);
+                                      YuvRangeType in_range, YuvMatrixType in_type);
     static DWORD A8Y8U8V8_TO_ARGB(
         int a8, int y8, int u8, int v8,
         YuvRangeType in_range, YuvMatrixType in_type,
@@ -67,6 +67,7 @@ struct ColorConvTable
     [[nodiscard]] static DWORD RGB_PC_TO_TV(DWORD argb);
 
     [[nodiscard]] static DWORD VSFilterCompactCorretion(DWORD argb, bool output_tv_level);
+
 private:
     explicit ColorConvTable();
 };

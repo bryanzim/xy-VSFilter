@@ -1,4 +1,4 @@
-#ifndef __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__ 
+#ifndef __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__
 #define __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__
 
 #include <cstddef>
@@ -8,28 +8,29 @@ template <typename ElementType>
 class XYCircularArrayQueue
 {
 public:
-    typedef ElementType                 value_type;
-    typedef ElementType&                reference;
-    typedef const ElementType&          const_reference;
+    typedef ElementType value_type;
+    typedef ElementType& reference;
+    typedef const ElementType& const_reference;
+
 public:
     /***
      *  @brief  Default constructor creates no elements.
      **/
     explicit XYCircularArrayQueue()
-        :_elements(nullptr),
-        _head(0),
-        _tail(0),
-        _CAPACITY(0)
+        : _elements(nullptr),
+          _head(0),
+          _tail(0),
+          _CAPACITY(0)
     {
     }
 
     ~XYCircularArrayQueue()
 
     {
-        delete[]  _elements;
+        delete[] _elements;
     }
 
-    [[nodiscard]] inline int init(const std::size_t  capacity)
+    [[nodiscard]] inline int init(const std::size_t capacity)
     {
         _CAPACITY = capacity;
         _elements = new value_type[_CAPACITY];
@@ -45,7 +46,7 @@ public:
     [[nodiscard]] inline bool full() const
 
     {
-        return size() >= (_CAPACITY -1);
+        return size() >= (_CAPACITY - 1);
     }
 
     [[nodiscard]] inline bool empty() const
@@ -60,16 +61,16 @@ public:
     [[nodiscard]] inline std::size_t size() const
 
     {
-        return (_CAPACITY -_head+_tail) %_CAPACITY;
+        return (_CAPACITY - _head + _tail) % _CAPACITY;
     }
 
     /***
-     * @return: the number of free elements in the @queue. 
+     * @return: the number of free elements in the @queue.
      **/
     [[nodiscard]] inline std::size_t free() const
 
     {
-        return _CAPACITY - (_CAPACITY -_head+_tail) %_CAPACITY;
+        return _CAPACITY - (_CAPACITY - _head + _tail) % _CAPACITY;
     }
 
     /***
@@ -100,7 +101,7 @@ public:
     [[nodiscard]] inline reference back()
 
     {
-        return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
+        return _elements[(_CAPACITY + _tail - 1) % _CAPACITY];
     }
 
     /***
@@ -109,7 +110,7 @@ public:
     [[nodiscard]] inline const_reference back() const
 
     {
-        return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
+        return _elements[(_CAPACITY + _tail - 1) % _CAPACITY];
     }
 
     /***
@@ -118,14 +119,14 @@ public:
     [[nodiscard]] inline int push_back(const_reference value)
 
     {
-        if(size() == (_CAPACITY -1))
+        if (size() == (_CAPACITY - 1))
         {
             return -1;
         }
         else
         {
             _elements[_tail] = value;
-            _tail = (_tail+1) % _CAPACITY;
+            _tail = (_tail + 1) % _CAPACITY;
             return 0;
         }
     }
@@ -136,13 +137,13 @@ public:
         ++_tail;
         _tail += _CAPACITY;
         _tail %= _CAPACITY;
-        return _elements[(_CAPACITY +_tail -1) % _CAPACITY];
+        return _elements[(_CAPACITY + _tail - 1) % _CAPACITY];
     }
 
     inline void pop_front()
 
     {
-        if(empty())
+        if (empty())
         {
             return;
         }
@@ -155,7 +156,7 @@ public:
     inline void pop_back()
 
     {
-        if(empty())
+        if (empty())
         {
             return;
         }
@@ -168,7 +169,7 @@ public:
     inline void pop_last_n(const int n)
 
     {
-        if (size()<n)
+        if (size() < n)
         {
             _head = _tail = 0;
         }
@@ -179,13 +180,12 @@ public:
             _tail %= _CAPACITY;
         }
     }
+
 private:
     value_type* _elements;
-    std::int32_t  _head;
-    std::int32_t  _tail;
-    std::size_t   _CAPACITY;
-
+    std::int32_t _head;
+    std::int32_t _tail;
+    std::size_t _CAPACITY;
 };
 
 #endif /* #ifndef __XY_CIRCULAR_ARRAY_QUEUE_HPP_47831C93_EDAA_44B9_94F2_6FF36839D1A6__ */
-

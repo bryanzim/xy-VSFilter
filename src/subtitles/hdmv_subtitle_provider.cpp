@@ -7,7 +7,7 @@
 #include "IDirectVobSubXy.h"
 
 #if ENABLE_XY_LOG_HDMVSUB
-#define TRACE_SUB_PROVIDER(msg)		XY_LOG_TRACE(msg)
+#define TRACE_SUB_PROVIDER(msg) XY_LOG_TRACE(msg)
 #else
 #define TRACE_SUB_PROVIDER(msg)
 #endif
@@ -15,13 +15,9 @@
 //
 // HdmvSubtitleProviderImpl
 //
-HdmvSubtitleProviderImpl::HdmvSubtitleProviderImpl( CBaseSub* pSub, const bool cleanOld )
-    : m_pSub(pSub)
-    , m_cleanOld(cleanOld)
-    , m_consumer(nullptr)
-    , m_use_dst_alpha(false)
+HdmvSubtitleProviderImpl::HdmvSubtitleProviderImpl(CBaseSub* pSub, const bool cleanOld)
+    : m_pSub(pSub), m_cleanOld(cleanOld), m_consumer(nullptr), m_use_dst_alpha(false)
 {
-
 }
 
 HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
@@ -29,9 +25,9 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
 {
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProviderImpl::Connect( IXyOptions *consumer )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProviderImpl::Connect(IXyOptions* consumer)
 {
-    HRESULT hr{NOERROR};
+    HRESULT hr{ NOERROR };
     if (consumer)
     {
         hr = m_consumer != consumer ? S_OK : S_FALSE;
@@ -44,18 +40,18 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     return hr;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProviderImpl::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProviderImpl::RequestFrame(IXySubRenderFrame** subRenderFrame, const REFERENCE_TIME now)
 {
     CheckPointer(subRenderFrame, E_POINTER);
     *subRenderFrame = nullptr;
 
-    HRESULT hr{NOERROR};
+    HRESULT hr{ NOERROR };
 
     POSITION pos;
     CSize MaxTextureSize, VideoSize;
     CPoint VideoTopLeft;
 
-    if (CHdmvSub* pHdmvSub{dynamic_cast<CHdmvSub*>(m_pSub)})
+    if (CHdmvSub * pHdmvSub{ dynamic_cast<CHdmvSub*>(m_pSub) })
     {
         pos = pHdmvSub->GetStartPosition(now, 0.0, m_cleanOld);
     }
@@ -69,11 +65,11 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
         return S_FALSE;
     }
 
-    bool use_dst_alpha{false};
+    bool use_dst_alpha{ false };
     hr = m_consumer->XyGetBool(DirectVobSubXyOptions::BOOL_SUB_FRAME_USE_DST_ALPHA, &use_dst_alpha);
-    if (m_use_dst_alpha!=use_dst_alpha)
+    if (m_use_dst_alpha != use_dst_alpha)
     {
-        XY_LOG_INFO("Alpha type changed from "<<m_use_dst_alpha<<" to "<<use_dst_alpha);
+        XY_LOG_INFO("Alpha type changed from " << m_use_dst_alpha << " to " << use_dst_alpha);
         (void)Invalidate(-1);
         m_use_dst_alpha = use_dst_alpha;
     }
@@ -81,12 +77,12 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     hr = m_pSub->GetTextureSize(pos, MaxTextureSize, VideoSize, VideoTopLeft);
     if (SUCCEEDED(hr))
     {
-        ASSERT((MaxTextureSize==VideoSize && VideoTopLeft==CPoint(0,0)));
-        if (!(MaxTextureSize==VideoSize && VideoTopLeft==CPoint(0,0)))
+        ASSERT((MaxTextureSize == VideoSize && VideoTopLeft == CPoint(0, 0)));
+        if (!(MaxTextureSize == VideoSize && VideoTopLeft == CPoint(0, 0)))
         {
             XY_LOG_ERROR("We don't know how to deal with this sizes."
-                <<XY_LOG_VAR_2_STR(MaxTextureSize)<<XY_LOG_VAR_2_STR(VideoSize)
-                <<XY_LOG_VAR_2_STR(VideoTopLeft));
+                         << XY_LOG_VAR_2_STR(MaxTextureSize) << XY_LOG_VAR_2_STR(VideoSize)
+                         << XY_LOG_VAR_2_STR(VideoTopLeft));
             return E_FAIL;
         }
     }
@@ -95,22 +91,22 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
         XY_LOG_ERROR("Failed to get sizes info");
         return hr;
     }
-    if (!m_allocator || m_cur_output_size!=MaxTextureSize)
+    if (!m_allocator || m_cur_output_size != MaxTextureSize)
     {
         m_cur_output_size = MaxTextureSize;
-        if (m_cur_output_size.cx!=0 && m_cur_output_size.cy!=0)
+        if (m_cur_output_size.cx != 0 && m_cur_output_size.cy != 0)
         {
             hr = ResetAllocator();
             ASSERT(SUCCEEDED(hr));
         }
         else
         {
-            XY_LOG_WARN("Invalid output size "<<m_cur_output_size);
+            XY_LOG_WARN("Invalid output size " << m_cur_output_size);
             return S_FALSE;
         }
     }
 
-    hr = Render( now, pos );
+    hr = Render(now, pos);
     if (SUCCEEDED(hr) && m_xy_sub_render_frame)
     {
         *subRenderFrame = m_xy_sub_render_frame;
@@ -120,17 +116,18 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     return hr;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProviderImpl::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProviderImpl::Invalidate(const REFERENCE_TIME rtInvalidate /*= -1*/)
 {
-    if (m_pSubPic )
+    if (m_pSubPic)
     {
-        if (m_pSubPic->GetStart()>=rtInvalidate) {
+        if (m_pSubPic->GetStart() >= rtInvalidate)
+        {
             m_pSubPic = nullptr;
 
-            //fix me: important!
+            // fix me: important!
             m_xy_sub_render_frame = nullptr;
         }
-        else if (m_pSubPic->GetStop()>rtInvalidate)
+        else if (m_pSubPic->GetStop() > rtInvalidate)
         {
             m_pSubPic->SetStop(rtInvalidate);
         }
@@ -140,55 +137,56 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
 
 [[nodiscard]] HRESULT HdmvSubtitleProviderImpl::ResetAllocator()
 {
-    const int MAX_SUBPIC_QUEUE_LENGTH{1};
+    const int MAX_SUBPIC_QUEUE_LENGTH{ 1 };
 
     m_allocator = DEBUG_NEW CPooledSubPicAllocator(MSP_RGB32, m_cur_output_size, MAX_SUBPIC_QUEUE_LENGTH + 1);
     ASSERT(m_allocator);
 
     m_allocator->SetCurSize(m_cur_output_size);
-    m_allocator->SetCurVidRect(CRect(CPoint(0,0),m_cur_output_size));
+    m_allocator->SetCurVidRect(CRect(CPoint(0, 0), m_cur_output_size));
     return S_OK;
 }
 
-[[nodiscard]] HRESULT HdmvSubtitleProviderImpl::Render( const REFERENCE_TIME now, POSITION pos )
+[[nodiscard]] HRESULT HdmvSubtitleProviderImpl::Render(const REFERENCE_TIME now, POSITION pos)
 {
-    REFERENCE_TIME start{m_pSub->GetStart(pos)};
-    REFERENCE_TIME stop{m_pSub->GetStop(pos)};
+    REFERENCE_TIME start{ m_pSub->GetStart(pos) };
+    REFERENCE_TIME stop{ m_pSub->GetStop(pos) };
 
     if (!(start <= now && now < stop))
     {
         return S_FALSE;
     }
 
-    if(m_pSubPic && m_pSubPic->GetStart() <= now && now < m_pSubPic->GetStop())
+    if (m_pSubPic && m_pSubPic->GetStart() <= now && now < m_pSubPic->GetStop())
     {
         return S_OK;
     }
 
-    //should always re-alloc one for the old be in used by the consumer
+    // should always re-alloc one for the old be in used by the consumer
     m_pSubPic = nullptr;
     ASSERT(m_allocator);
-    if(FAILED(m_allocator->AllocDynamicEx(&m_pSubPic))) {
+    if (FAILED(m_allocator->AllocDynamicEx(&m_pSubPic)))
+    {
         XY_LOG_ERROR("Failed to allocate subpic");
         return E_FAIL;
     }
 
     ASSERT(m_pSubPic);
 
-    HRESULT hr{E_FAIL};
+    HRESULT hr{ E_FAIL };
 
-    CMemSubPic * mem_subpic{dynamic_cast<CMemSubPic*>((ISubPicEx *)m_pSubPic)};
+    CMemSubPic* mem_subpic{ dynamic_cast<CMemSubPic*>((ISubPicEx*)m_pSubPic) };
     ASSERT(mem_subpic);
     SubPicDesc spd;
-    if(SUCCEEDED(m_pSubPic->Lock(spd)))
+    if (SUCCEEDED(m_pSubPic->Lock(spd)))
     {
         CRect dirty_rect;
-        DWORD color{0xFF000000};
-        if(SUCCEEDED(m_pSubPic->ClearDirtyRect(color)))
+        DWORD color{ 0xFF000000 };
+        if (SUCCEEDED(m_pSubPic->ClearDirtyRect(color)))
         {
             m_pSub->Render(spd, now, dirty_rect);
 
-            TRACE_SUB_PROVIDER(XY_LOG_VAR_2_STR(start)<<XY_LOG_VAR_2_STR(stop));
+            TRACE_SUB_PROVIDER(XY_LOG_VAR_2_STR(start) << XY_LOG_VAR_2_STR(stop));
 
             m_pSubPic->SetStart(start);
             m_pSubPic->SetStop(stop);
@@ -198,7 +196,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
         if (FAILED(hr))
         {
             XY_LOG_ERROR("Failed to unlock subtitle."
-                <<XY_LOG_VAR_2_STR(hr)<<XY_LOG_VAR_2_STR(dirty_rect));
+                         << XY_LOG_VAR_2_STR(hr) << XY_LOG_VAR_2_STR(dirty_rect));
         }
         if (!dirty_rect.IsRectEmpty())
         {
@@ -206,11 +204,11 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
             ASSERT(SUCCEEDED(hr));
             if (!m_use_dst_alpha)
             {
-                hr = mem_subpic->FlipAlphaValue(dirty_rect);//fixme: mem_subpic.type is now MSP_RGBA_F, not MSP_RGBA
+                hr = mem_subpic->FlipAlphaValue(dirty_rect); // fixme: mem_subpic.type is now MSP_RGBA_F, not MSP_RGBA
                 ASSERT(SUCCEEDED(hr));
                 if (FAILED(hr))
                 {
-                    XY_LOG_ERROR("Failed. "<<XY_LOG_VAR_2_STR(hr));
+                    XY_LOG_ERROR("Failed. " << XY_LOG_VAR_2_STR(hr));
                     return hr;
                 }
             }
@@ -223,7 +221,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     }
     if (hr == S_OK)
     {
-        CRect video_rect(CPoint(0,0), m_cur_output_size);
+        CRect video_rect(CPoint(0, 0), m_cur_output_size);
         m_xy_sub_render_frame = DEBUG_NEW XySubRenderFrameWrapper(mem_subpic, video_rect, video_rect, now, &hr);
     }
     else
@@ -236,30 +234,29 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
 //
 // HdmvSubtitleProvider
 //
-HdmvSubtitleProvider::HdmvSubtitleProvider( CCritSec* pLock, SUBTITLE_TYPE nType
-    , const CString& name, LCID lcid )
-    : CUnknown(NAME("HdmvSubtitleProvider"), nullptr)
-    , m_name(name), m_lcid(lcid)
+HdmvSubtitleProvider::HdmvSubtitleProvider(CCritSec* pLock, SUBTITLE_TYPE nType, const CString& name, LCID lcid)
+    : CUnknown(NAME("HdmvSubtitleProvider"), nullptr), m_name(name), m_lcid(lcid)
 {
-    switch (nType) {
-    case ST_DVB :
+    switch (nType)
+    {
+    case ST_DVB:
         m_pSub = DEBUG_NEW CDVBSub{};
         if (name.IsEmpty() || (name == _T("Unknown")))
         {
             m_name = "DVB Embedded Subtitle";
         }
-        m_helper = DEBUG_NEW HdmvSubtitleProviderImpl{m_pSub};
+        m_helper = DEBUG_NEW HdmvSubtitleProviderImpl{ m_pSub };
         break;
-    case ST_HDMV :
+    case ST_HDMV:
         m_pSub = DEBUG_NEW CHdmvSub{};
         if (name.IsEmpty() || (name == _T("Unknown")))
         {
             m_name = "HDMV Embedded Subtitle";
         }
-        m_helper = DEBUG_NEW HdmvSubtitleProviderImpl{m_pSub};
+        m_helper = DEBUG_NEW HdmvSubtitleProviderImpl{ m_pSub };
         break;
-    default :
-        ASSERT (FALSE);
+    default:
+        ASSERT(FALSE);
         m_pSub = nullptr;
         m_helper = nullptr;
     }
@@ -273,33 +270,31 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
     delete m_pSub;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
     CheckPointer(ppv, E_POINTER);
     *ppv = nullptr;
 
-    return
-        QI(IPersist)
+    return QI(IPersist)
         QI(ISubStream)
-        QI(IXySubRenderProvider)
-        __super::NonDelegatingQueryInterface(riid, ppv);
+            QI(IXySubRenderProvider) __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
 // IXySubRenderProvider
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::Connect( IXyOptions *consumer )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::Connect(IXyOptions* consumer)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     return m_helper->Connect(consumer);
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::RequestFrame(IXySubRenderFrame** subRenderFrame, const REFERENCE_TIME now)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     return m_helper->RequestFrame(subRenderFrame, now - m_rtStart);
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::Invalidate(const REFERENCE_TIME rtInvalidate /*= -1*/)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     return m_helper->Invalidate(rtInvalidate);
@@ -321,20 +316,24 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
 {
-    if(iStream != 0) {
+    if (iStream != 0)
+    {
         return E_INVALIDARG;
     }
 
-    if(ppName) {
-        *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength()+1)*sizeof(WCHAR));
-        if(!(*ppName)) {
+    if (ppName)
+    {
+        *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR));
+        if (!(*ppName))
+        {
             return E_OUTOFMEMORY;
         }
 
-        wcscpy_s (*ppName, m_name.GetLength()+1, CStringW(m_name));
+        wcscpy_s(*ppName, m_name.GetLength() + 1, CStringW(m_name));
     }
 
-    if(pLCID) {
+    if (pLCID)
+    {
         *pLCID = m_lcid;
     }
 
@@ -343,7 +342,7 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) HdmvSubtitleProvider::GetStream()
 {
-    return(0);
+    return (0);
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HdmvSubtitleProvider::SetStream(const int iStream)
@@ -356,12 +355,12 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
     return S_OK;
 }
 
-[[nodiscard]] HRESULT HdmvSubtitleProvider::ParseSample (IMediaSample* pSample)
+[[nodiscard]] HRESULT HdmvSubtitleProvider::ParseSample(IMediaSample* pSample)
 {
     CAutoLock cAutoLock(&m_csCritSec);
-    HRESULT		hr;
+    HRESULT hr;
 
-    hr = m_pSub->ParseSample (pSample);
+    hr = m_pSub->ParseSample(pSample);
     return hr;
 }
 
@@ -382,7 +381,7 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
     return S_OK;
 }
 
-[[nodiscard]] HRESULT HdmvSubtitleProvider::SetYuvType( const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType )
+[[nodiscard]] HRESULT HdmvSubtitleProvider::SetYuvType(const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     (void)Invalidate(-1);
@@ -393,9 +392,7 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
 // SupFileSubtitleProvider
 //
 SupFileSubtitleProvider::SupFileSubtitleProvider()
-    : CUnknown(NAME("SupSubFile"), nullptr)
-    , m_pSub(nullptr)
-    , m_helper(nullptr)
+    : CUnknown(NAME("SupSubFile"), nullptr), m_pSub(nullptr), m_helper(nullptr)
 {
 }
 
@@ -409,15 +406,18 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 
 [[nodiscard]] static UINT64 ReadByte(CFile* mfile, const std::size_t count = 1U)
 {
-    if (count <= 0 || count >= 64) {
+    if (count <= 0 || count >= 64)
+    {
         return 0;
     }
-    UINT64 ret{0};
+    UINT64 ret{ 0 };
     BYTE buf[64U];
-    if (mfile->Read(buf, count) != count) {
+    if (mfile->Read(buf, count) != count)
+    {
         return 0;
     }
-    for(std::size_t i{0U}; i<count; ++i) {
+    for (std::size_t i{ 0U }; i < count; ++i)
+    {
         ret = (ret << 8) + (buf[i] & 0xff);
     }
 
@@ -433,23 +433,25 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     }
 
     CFile f;
-    if (!f.Open(fn, CFile::modeRead|CFile::typeBinary|CFile::shareDenyNone)) {
+    if (!f.Open(fn, CFile::modeRead | CFile::typeBinary | CFile::shareDenyNone))
+    {
         return false;
     }
 
-    WORD sync{0};
+    WORD sync{ 0 };
     sync = (WORD)ReadByte(&f, 2);
-    if (sync != TwoCc('P', 'G')) {
+    if (sync != TwoCc('P', 'G'))
+    {
         return false;
     }
 
-    m_fname   = fn;
+    m_fname = fn;
     m_subname = subName;
     if (m_subname.IsEmpty())
     {
         m_subname = fn.Left(fn.ReverseFind('.'));
-        m_subname = m_subname.Mid(m_subname.ReverseFind('/')+1);
-        m_subname = m_subname.Mid(m_subname.ReverseFind('.')+1);
+        m_subname = m_subname.Mid(m_subname.ReverseFind('/') + 1);
+        m_subname = m_subname.Mid(m_subname.ReverseFind('.') + 1);
     }
 
     {
@@ -457,17 +459,18 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 
         delete m_pSub;
         delete m_helper;
-        m_pSub    = DEBUG_NEW CHdmvSub{};
-        m_helper  = DEBUG_NEW HdmvSubtitleProviderImpl{m_pSub, false};
+        m_pSub = DEBUG_NEW CHdmvSub{};
+        m_helper = DEBUG_NEW HdmvSubtitleProviderImpl{ m_pSub, false };
     }
 
-    return CAMThread::Create()==TRUE;
+    return CAMThread::Create() == TRUE;
 }
 
 [[nodiscard]] DWORD SupFileSubtitleProvider::ThreadProc()
 {
     CFile f;
-    if (!f.Open(m_fname, CFile::modeRead|CFile::typeBinary|CFile::shareDenyNone)) {
+    if (!f.Open(m_fname, CFile::modeRead | CFile::typeBinary | CFile::shareDenyNone))
+    {
         return 1;
     }
 
@@ -479,29 +482,34 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 
     int len;
     BYTE buff[65536U];
-    while ((len = f.Read(buff, sizeof(buff))) > 0) {
+    while ((len = f.Read(buff, sizeof(buff))) > 0)
+    {
         sub.Write(buff, len);
     }
     f.Close();
     sub.SeekToBegin();
 
-    WORD sync{0};
-    USHORT size{0};
-    REFERENCE_TIME rtStart{0};
-    REFERENCE_TIME rtStop{0};
+    WORD sync{ 0 };
+    USHORT size{ 0 };
+    REFERENCE_TIME rtStart{ 0 };
+    REFERENCE_TIME rtStop{ 0 };
 
     CAutoLock cAutoLock(&m_csCritSec);
-    while (sub.GetPosition() < (sub.GetLength() - 10)) {
+    while (sub.GetPosition() < (sub.GetLength() - 10))
+    {
         sync = (WORD)ReadByte(&sub, 2);
-        if (sync == TwoCc('P', 'G')) {
+        if (sync == TwoCc('P', 'G'))
+        {
             rtStart = UINT64(ReadByte(&sub, 4) * 1000 / 9);
             rtStop = UINT64(ReadByte(&sub, 4) * 1000 / 9);
-            sub.Seek(1, CFile::current); // Segment type
-            size = ReadByte(&sub, 2) + 3;    // Segment size
+            sub.Seek(1, CFile::current);  // Segment type
+            size = ReadByte(&sub, 2) + 3; // Segment size
             sub.Seek(-3, CFile::current);
             sub.Read(buff, size);
             (void)m_pSub->ParseSample(buff, size, rtStart, rtStop);
-        } else {
+        }
+        else
+        {
             break;
         }
     }
@@ -516,28 +524,26 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     CheckPointer(ppv, E_POINTER);
     *ppv = nullptr;
 
-    return
-        QI(IPersist)
+    return QI(IPersist)
         QI(ISubStream)
-        QI(IXySubRenderProvider)
-        __super::NonDelegatingQueryInterface(riid, ppv);
+            QI(IXySubRenderProvider) __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
 // IXySubRenderProvider
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::Connect( IXyOptions *consumer )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::Connect(IXyOptions* consumer)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     return m_helper->Connect(consumer);
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::RequestFrame( IXySubRenderFrame**subRenderFrame, const REFERENCE_TIME now )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::RequestFrame(IXySubRenderFrame** subRenderFrame, const REFERENCE_TIME now)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     return m_helper->RequestFrame(subRenderFrame, now);
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::Invalidate( const REFERENCE_TIME rtInvalidate /*= -1*/ )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::Invalidate(const REFERENCE_TIME rtInvalidate /*= -1*/)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     return m_helper->Invalidate(rtInvalidate);
@@ -559,20 +565,24 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SupFileSubtitleProvider::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
 {
-    if (iStream != 0) {
+    if (iStream != 0)
+    {
         return E_INVALIDARG;
     }
 
-    if (ppName) {
-        *ppName = (WCHAR*)CoTaskMemAlloc((m_subname.GetLength()+1)*sizeof(WCHAR));
-        if (!(*ppName)) {
+    if (ppName)
+    {
+        *ppName = (WCHAR*)CoTaskMemAlloc((m_subname.GetLength() + 1) * sizeof(WCHAR));
+        if (!(*ppName))
+        {
             return E_OUTOFMEMORY;
         }
 
-        wcscpy_s (*ppName, m_subname.GetLength()+1, CStringW(m_subname));
+        wcscpy_s(*ppName, m_subname.GetLength() + 1, CStringW(m_subname));
     }
 
-    if (pLCID) {
+    if (pLCID)
+    {
         *pLCID = 0;
     }
 
@@ -595,10 +605,9 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     return Open(m_fname, m_subname) ? S_OK : E_FAIL;
 }
 
-[[nodiscard]] HRESULT SupFileSubtitleProvider::SetYuvType( const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType )
+[[nodiscard]] HRESULT SupFileSubtitleProvider::SetYuvType(const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType)
 {
     CAutoLock cAutoLock(&m_csCritSec);
     (void)Invalidate(-1);
     return m_pSub->SetYuvType(colorType, yuvRangeType);
 }
-

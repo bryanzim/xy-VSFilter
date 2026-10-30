@@ -8,12 +8,12 @@ interface IXyOptions;
 //////////////////////////////////////////////////////////////////////////
 //
 // SimpleSubPicProvider
-// 
+//
 
-class SimpleSubPicProvider: public CUnknown, public ISimpleSubPicProvider
+class SimpleSubPicProvider : public CUnknown, public ISimpleSubPicProvider
 {
 public:
-    SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IXyOptions *consumer, HRESULT* phr=nullptr);
+    SimpleSubPicProvider(int alpha_blt_dst_type, SIZE spd_size, RECT video_rect, IXyOptions* consumer, HRESULT* phr = nullptr);
     virtual ~SimpleSubPicProvider();
 
     DECLARE_IUNKNOWN
@@ -23,6 +23,7 @@ public:
     [[nodiscard]] HRESULT GetSubPicProviderEx(ISubPicProviderEx2** pSubPicProviderEx);
     [[nodiscard]] HRESULT RenderTo(IXySubRenderFrame** pSubPic, REFERENCE_TIME rtStart, REFERENCE_TIME rtStop, double fps, BOOL bIsAnimated);
     [[nodiscard]] bool IsSpdColorTypeSupported(int type);
+
 public:
     // ISimpleSubPicProvider
 
@@ -33,15 +34,17 @@ public:
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/);
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
+
 private:
     CCritSec m_csSubPicProvider;
     CComPtr<ISubPicProviderEx2> m_pSubPicProviderEx;
 
     CAtlList<int> m_prefered_colortype;
+
 protected:
     int m_alpha_blt_dst_type;
     SIZE m_spd_size;
@@ -53,29 +56,30 @@ protected:
     CComPtr<ISubPicExAllocator> m_pAllocator;
 
     CCritSec m_csLock;
-    REFERENCE_TIME m_subpic_start,m_subpic_stop;
+    REFERENCE_TIME m_subpic_start, m_subpic_stop;
     CComPtr<IXySubRenderFrame> m_pSubPic;
 
-    IXyOptions *m_consumer;
+    IXyOptions* m_consumer;
 };
 
 //////////////////////////////////////////////////////////////////////////
 //
 // SimpleSubPicProvider2
-// 
+//
 
-class SimpleSubPicProvider2: public CUnknown, public ISimpleSubPicProvider
+class SimpleSubPicProvider2 : public CUnknown, public ISimpleSubPicProvider
 {
 public:
-    SimpleSubPicProvider2(int alpha_blt_dst_type, SIZE max_size, SIZE cur_size, RECT video_rect, 
-        IXyOptions *consumer, HRESULT* phr=nullptr);
+    SimpleSubPicProvider2(int alpha_blt_dst_type, SIZE max_size, SIZE cur_size, RECT video_rect,
+                          IXyOptions* consumer, HRESULT* phr = nullptr);
     virtual ~SimpleSubPicProvider2();
 
     DECLARE_IUNKNOWN
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+
 public:
     SimpleSubPicProvider2(const SimpleSubPicProvider2&);
-    void operator=(const SimpleSubPicProvider2&)const;
+    void operator=(const SimpleSubPicProvider2&) const;
 
     // ISimpleSubPicProvider
 
@@ -86,7 +90,7 @@ public:
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetTime(REFERENCE_TIME rtNow);
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Invalidate(REFERENCE_TIME rtInvalidate = -1);
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic/*[out]*/);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) LookupSubPic(REFERENCE_TIME now /*[in]*/, ISimpleSubPic** output_subpic /*[out]*/);
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int& nSubPics, REFERENCE_TIME& rtNow, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStats(int nSubPic, REFERENCE_TIME& rtStart, REFERENCE_TIME& rtStop);
@@ -100,9 +104,9 @@ protected:
     double m_fps;
     REFERENCE_TIME m_now;
 
-    ISimpleSubPicProvider *m_cur_provider;
-    SimpleSubPicProvider *m_ex_provider;
-    CSubPicQueueNoThread *m_old_provider;
+    ISimpleSubPicProvider* m_cur_provider;
+    SimpleSubPicProvider* m_ex_provider;
+    CSubPicQueueNoThread* m_old_provider;
 
-    IXyOptions *m_consumer;
+    IXyOptions* m_consumer;
 };

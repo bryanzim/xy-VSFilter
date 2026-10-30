@@ -23,10 +23,18 @@
 
 #pragma once
 
-class CCpuID {
+class CCpuID
+{
 public:
     explicit CCpuID();
-    enum flag_t {mmx=1, ssemmx=2, ssefpu=4, sse2=8, _3dnow=16} m_flags;
+    enum flag_t
+    {
+        mmx = 1,
+        ssemmx = 2,
+        ssefpu = 4,
+        sse2 = 8,
+        _3dnow = 16
+    } m_flags;
 };
 extern CCpuID g_cpuid;
 

@@ -30,47 +30,50 @@
 
 
 class __declspec(uuid("FCA68599-C83E-4ea5-94A3-C2E1B0E326B9"))
-	CRenderedHdmvSubtitle : public CSubPicProviderImpl, public ISubStream
+CRenderedHdmvSubtitle : public CSubPicProviderImpl,
+                        public ISubStream
 {
 public:
-	CRenderedHdmvSubtitle(CCritSec* pLock, SUBTITLE_TYPE nType, const CString& name, LCID lcid);
-	~CRenderedHdmvSubtitle(void);
+    CRenderedHdmvSubtitle(CCritSec* pLock, SUBTITLE_TYPE nType, const CString& name, LCID lcid);
+    ~CRenderedHdmvSubtitle(void);
 
-	[[nodiscard]] DECLARE_IUNKNOWN
-	DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+    [[nodiscard]] DECLARE_IUNKNOWN
+        DECLSPEC_NOTHROW STDMETHODIMP
+        NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
-	// ISubPicProvider
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetTextureSize (POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
+    // ISubPicProvider
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECT& bbox);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VirtualSize, POINT& VirtualTopLeft);
 
     // ISubPicProviderEx
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsColorTypeSupported(int type);
 
-	// IPersist
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
+    // IPersist
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClassID);
 
-	// ISubStream
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
-	DECLSPEC_NOTHROW STDMETHODIMP Reload();
+    // ISubStream
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStreamCount();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetStreamInfo(int i, WCHAR** ppName, LCID* pLCID);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) GetStream();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetStream(int iStream);
+    DECLSPEC_NOTHROW STDMETHODIMP Reload();
 
-	[[nodiscard]] HRESULT ParseSample (IMediaSample* pSample);
+    [[nodiscard]] HRESULT ParseSample(IMediaSample* pSample);
     [[nodiscard]] HRESULT NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
     void EndOfStream();
 
     [[nodiscard]] HRESULT SetYuvType(CBaseSub::ColorType colorType, CBaseSub::YuvRangeType yuvRangeType);
-private :
-	CString			m_name;
-	LCID			m_lcid;
-	REFERENCE_TIME	m_rtStart;
 
-	CBaseSub*		m_pSub;
-	CCritSec		m_csCritSec;
+private:
+    CString m_name;
+    LCID m_lcid;
+    REFERENCE_TIME m_rtStart;
+
+    CBaseSub* m_pSub;
+    CCritSec m_csCritSec;
 };

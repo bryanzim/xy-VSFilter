@@ -27,20 +27,22 @@
 #include "VobSubFile.h"
 
 #pragma pack(push, 1)
-struct vidinfo {
-    WORD perm_displ  : 2;
-    WORD ratio       : 2;
-    WORD system      : 2;
+struct vidinfo
+{
+    WORD perm_displ : 2;
+    WORD ratio : 2;
+    WORD system : 2;
     WORD compression : 2;
-    WORD mode        : 1;
+    WORD mode : 1;
     WORD letterboxed : 1;
-    WORD source_res  : 2;
-    WORD cbrvbr      : 2;
-    WORD line21_2    : 1;
-    WORD line21_1    : 1;
+    WORD source_res : 2;
+    WORD cbrvbr : 2;
+    WORD line21_2 : 1;
+    WORD line21_1 : 1;
 };
 
-struct vc_t {
+struct vc_t
+{
     BYTE vob, cell;
     DWORD tTime, tOffset, tTotal;
     DWORD start, end;
@@ -48,7 +50,8 @@ struct vc_t {
     bool bDiscontinuity;
 };
 
-struct PGC {
+struct PGC
+{
     int nAngles;
     CAtlArray<vc_t> angles[10U];
     int iSelAngle;
@@ -56,7 +59,8 @@ struct PGC {
     WORD ids[32U];
 };
 
-struct VSFRipperData {
+struct VSFRipperData
+{
     CSize vidsize;
     vidinfo vidinfo;
     CAtlArray<PGC> pgcs;
@@ -73,7 +77,8 @@ struct VSFRipperData {
     void Copy(struct VSFRipperData& rd);
 };
 
-struct vcchunk {
+struct vcchunk
+{
     __int64 start, end;
     DWORD vc;
 };
@@ -87,8 +92,8 @@ struct vcchunk {
 //
 
 interface __declspec(uuid("9E2EBB5C-AD7C-452f-A48B-38685716AC46"))
-IVSFRipperCallback :
-public IUnknown {
+IVSFRipperCallback : public IUnknown
+{
     STDMETHOD(OnMessage)(LPCTSTR msg) PURE;
     STDMETHOD(OnProgress)(double progress /*0.0 -> 1.0*/) PURE;
     STDMETHOD(OnFinished)(bool bSucceeded) PURE;
@@ -100,10 +105,9 @@ class IVSFRipperCallbackImpl : public CUnknown, public IVSFRipperCallback
 {
 protected:
     DECLARE_IUNKNOWN
-    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv) {
-        return
-            QI(IVSFRipperCallback)
-            __super::NonDelegatingQueryInterface(riid, ppv);
+    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv)
+    {
+        return QI(IVSFRipperCallback) __super::NonDelegatingQueryInterface(riid, ppv);
     }
 
     // IVSFRipperCallback
@@ -120,8 +124,8 @@ public:
 //
 
 interface __declspec(uuid("69F935BB-B8D0-43f5-AA2E-BBD0851CC9A6"))
-IVSFRipper :
-public IUnknown {
+IVSFRipper : public IUnknown
+{
     STDMETHOD(SetCallBack)(IVSFRipperCallback * pCallback) PURE;
     STDMETHOD(LoadParamFile)(CString fn) PURE;
     STDMETHOD(SetInput)(CString infn) PURE;
@@ -137,13 +141,18 @@ class CVobSubFileRipper : public CVobSubFile, protected CAMThread, public IVSFRi
 {
 private:
     bool m_bThreadActive, m_bBreakThread, m_bIndexing;
-    enum { CMD_EXIT, CMD_INDEX };
+    enum
+    {
+        CMD_EXIT,
+        CMD_INDEX
+    };
     DWORD ThreadProc();
     [[nodiscard]] bool Create();
 
     //
 
-    enum log_t {
+    enum log_t
+    {
         LOG_INFO,
         LOG_WARNING,
         LOG_ERROR
@@ -174,7 +183,8 @@ public:
     virtual ~CVobSubFileRipper();
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+        DECLSPEC_NOTHROW STDMETHODIMP
+        NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // IVSFRipper
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetCallBack(IVSFRipperCallback* pCallback);

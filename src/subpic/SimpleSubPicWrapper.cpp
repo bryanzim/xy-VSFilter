@@ -4,27 +4,21 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // SimpleSubPicWrapper
-// 
+//
 
-SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPicEx * inner_obj )
-    : CUnknown(NAME("SimpleSubPicWrapper"), nullptr)
-    , m_inner_obj(inner_obj)
+SimpleSubPicWrapper::SimpleSubPicWrapper(ISubPicEx* inner_obj)
+    : CUnknown(NAME("SimpleSubPicWrapper"), nullptr), m_inner_obj(inner_obj)
 {
-
 }
 
-SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPic* inner_obj )
-    : CUnknown(NAME("SimpleSubPicWrapper"), nullptr)
-    , m_inner_obj2(inner_obj)
+SimpleSubPicWrapper::SimpleSubPicWrapper(ISubPic* inner_obj)
+    : CUnknown(NAME("SimpleSubPicWrapper"), nullptr), m_inner_obj2(inner_obj)
 {
-    
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubPicWrapper::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubPicWrapper::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
-    return
-        QI(ISimpleSubPic)
-        __super::NonDelegatingQueryInterface(riid, ppv);    
+    return QI(ISimpleSubPic) __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubPicWrapper::AlphaBlt(SubPicDesc* target)
@@ -34,10 +28,10 @@ SimpleSubPicWrapper::SimpleSubPicWrapper( ISubPic* inner_obj )
         CAtlList<const CRect> rect_list;
         m_inner_obj->GetDirtyRects(rect_list);
 
-        POSITION pos{rect_list.GetHeadPosition()};
-        while(pos!=nullptr)
+        POSITION pos{ rect_list.GetHeadPosition() };
+        while (pos != nullptr)
         {
-            const CRect& rect{rect_list.GetNext(pos)};
+            const CRect& rect{ rect_list.GetNext(pos) };
             m_inner_obj->AlphaBlt(rect, rect, target);
         }
     }

@@ -4,7 +4,7 @@
 #ifdef LINUX
 #include <pmmintrin.h>
 #else
-#include<intrin.h>
+#include <intrin.h>
 #endif
 
 #include <WTypes.h>
@@ -18,136 +18,136 @@ inline unsigned char& xy_m128i_u8(__m128i& value, const int index)
 #endif
 }
 
-//out: m128_1 = avg(m128_1.u8[0],m128_1.u8[1]) 
-//              0 
-//              avg(...) 
-//              0 
-//              ...
+// out: m128_1 = avg(m128_1.u8[0],m128_1.u8[1])
+//               0
+//               avg(...)
+//               0
+//               ...
 #define AVERAGE_4_PIX_INTRINSICS_0(m128_1, m128_tmp) \
-    m128_tmp = _mm_slli_epi16(m128_1, 8); \
-    m128_1 = _mm_srli_epi16(m128_1, 8); \
-    m128_tmp = _mm_srli_epi16(m128_tmp, 8); \
+    m128_tmp = _mm_slli_epi16(m128_1, 8);            \
+    m128_1 = _mm_srli_epi16(m128_1, 8);              \
+    m128_tmp = _mm_srli_epi16(m128_tmp, 8);          \
     m128_1 = _mm_avg_epu8(m128_1, m128_tmp);
 
-//out: m128_1 = avg(m128_1.u8[0],m128_1.u8[1],m128_2.u8[0],m128_2.u8[1]) 
-//              0 
-//              avg(...) 
-//              0 
-//              ...
+// out: m128_1 = avg(m128_1.u8[0],m128_1.u8[1],m128_2.u8[0],m128_2.u8[1])
+//               0
+//               avg(...)
+//               0
+//               ...
 #define AVERAGE_4_PIX_INTRINSICS(m128_1, m128_2) \
-    m128_1 = _mm_avg_epu8(m128_1, m128_2); \
-    m128_2 = _mm_slli_epi16(m128_1, 8); \
-    m128_1 = _mm_srli_epi16(m128_1, 8); \
-    m128_2 = _mm_srli_epi16(m128_2, 8); \
+    m128_1 = _mm_avg_epu8(m128_1, m128_2);       \
+    m128_2 = _mm_slli_epi16(m128_1, 8);          \
+    m128_1 = _mm_srli_epi16(m128_1, 8);          \
+    m128_2 = _mm_srli_epi16(m128_2, 8);          \
     m128_1 = _mm_avg_epu8(m128_1, m128_2);
 
-//out: m128_1 = avg(m128_1.u8[0],m128_1.u8[1],m128_2.u8[0],m128_2.u8[1]) 
-//              avg(m128_1.u8[0],m128_1.u8[1],m128_2.u8[0],m128_2.u8[1]) 
-//              avg(...) 
-//              avg(...)
-//              ...
-#define AVERAGE_4_PIX_INTRINSICS_2(m128_1, m128_2) \
-    {\
-    m128_1 = _mm_avg_epu8(m128_1, m128_2); \
-    m128_2 = _mm_slli_epi16(m128_1, 8); \
-    __m128i m128_3 = _mm_srli_epi16(m128_1, 8); \
-    m128_2 = _mm_or_si128(m128_2, m128_3);\
-    m128_1 = _mm_avg_epu8(m128_1, m128_2);\
+// out: m128_1 = avg(m128_1.u8[0],m128_1.u8[1],m128_2.u8[0],m128_2.u8[1])
+//               avg(m128_1.u8[0],m128_1.u8[1],m128_2.u8[0],m128_2.u8[1])
+//               avg(...)
+//               avg(...)
+//               ...
+#define AVERAGE_4_PIX_INTRINSICS_2(m128_1, m128_2)  \
+    {                                               \
+        m128_1 = _mm_avg_epu8(m128_1, m128_2);      \
+        m128_2 = _mm_slli_epi16(m128_1, 8);         \
+        __m128i m128_3 = _mm_srli_epi16(m128_1, 8); \
+        m128_2 = _mm_or_si128(m128_2, m128_3);      \
+        m128_1 = _mm_avg_epu8(m128_1, m128_2);      \
     }
 
-//in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
-//out: m128_1 = avg(U_last, u8[0], u8[1]) 
-//              0 
-//              avg(u8[1], u8[2], u8[3]) 
-//              0
-//              ...
-//     m128_last = m128_1.u8[14] m128_1.u8[15] 0 0 0 ... 0
+// in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
+// out: m128_1 = avg(U_last, u8[0], u8[1])
+//               0
+//               avg(u8[1], u8[2], u8[3])
+//               0
+//               ...
+//      m128_last = m128_1.u8[14] m128_1.u8[15] 0 0 0 ... 0
 #define AVERAGE_4_PIX_INTRINSICS_3(m128_1, m128_last) \
-    {\
-    __m128i m128_2 = _mm_slli_si128(m128_1,2);\
-    m128_2 = _mm_or_si128(m128_2, m128_last);\
-    m128_2 = _mm_avg_epu8(m128_2, m128_1);\
-    m128_last = _mm_srli_si128(m128_1,14);\
-    m128_1 = _mm_slli_epi16(m128_1, 8);\
-    m128_1 = _mm_avg_epu8(m128_1, m128_2);\
-    m128_1 = _mm_srli_epi16(m128_1, 8);\
+    {                                                 \
+        __m128i m128_2 = _mm_slli_si128(m128_1, 2);   \
+        m128_2 = _mm_or_si128(m128_2, m128_last);     \
+        m128_2 = _mm_avg_epu8(m128_2, m128_1);        \
+        m128_last = _mm_srli_si128(m128_1, 14);       \
+        m128_1 = _mm_slli_epi16(m128_1, 8);           \
+        m128_1 = _mm_avg_epu8(m128_1, m128_2);        \
+        m128_1 = _mm_srli_epi16(m128_1, 8);           \
     }
 
 
-//in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
-//out: m128_1 = 0
-//              avg(U_last, u8[0], u8[1]) 
-//              0
-//              avg(u8[1], u8[2], u8[3]) 
-//              ...
-//     m128_last = m128_1.u8[14] m128_1.u8[15] 0 0 0 ... 0
+// in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
+// out: m128_1 = 0
+//               avg(U_last, u8[0], u8[1])
+//               0
+//               avg(u8[1], u8[2], u8[3])
+//               ...
+//      m128_last = m128_1.u8[14] m128_1.u8[15] 0 0 0 ... 0
 #define AVERAGE_4_PIX_INTRINSICS_4(m128_1, m128_last) \
-    {\
-    __m128i m128_2 = _mm_slli_si128(m128_1,2);\
-    m128_2 = _mm_or_si128(m128_2, m128_last);\
-    m128_2 = _mm_avg_epu8(m128_2, m128_1);\
-    m128_last = _mm_srli_si128(m128_1,14);\
-    m128_2 = _mm_srli_epi16(m128_2, 8);\
-    m128_1 = _mm_avg_epu8(m128_1, m128_2);\
-    m128_1 = _mm_slli_epi16(m128_1, 8);\
+    {                                                 \
+        __m128i m128_2 = _mm_slli_si128(m128_1, 2);   \
+        m128_2 = _mm_or_si128(m128_2, m128_last);     \
+        m128_2 = _mm_avg_epu8(m128_2, m128_1);        \
+        m128_last = _mm_srli_si128(m128_1, 14);       \
+        m128_2 = _mm_srli_epi16(m128_2, 8);           \
+        m128_1 = _mm_avg_epu8(m128_1, m128_2);        \
+        m128_1 = _mm_slli_epi16(m128_1, 8);           \
     }
 
-//in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
-//out: m128_1 = avg(U_last, u8[0], u8[1]) 
-//              avg(U_last, u8[0], u8[1]) 
-//              avg(u8[1], u8[2], u8[3]) 
-//              avg(u8[1], u8[2], u8[3])
-//              ...
-//     m128_last = m128_1.u8[14] m128_1.u8[15] 0 0 0 ... 0
+// in : m128_1 = whatever, m128_last = u8 U_last 0 0 0 ... 0
+// out: m128_1 = avg(U_last, u8[0], u8[1])
+//               avg(U_last, u8[0], u8[1])
+//               avg(u8[1], u8[2], u8[3])
+//               avg(u8[1], u8[2], u8[3])
+//               ...
+//      m128_last = m128_1.u8[14] m128_1.u8[15] 0 0 0 ... 0
 #define AVERAGE_4_PIX_INTRINSICS_5(m128_1, m128_last) \
-    {\
-    __m128i m128_2 = _mm_slli_si128(m128_1,2);\
-    m128_2 = _mm_or_si128(m128_2, m128_last);\
-    m128_2 = _mm_avg_epu8(m128_2, m128_1);\
-    m128_last = _mm_srli_si128(m128_1,14);\
-    m128_2 = _mm_srli_epi16(m128_2, 8);\
-    m128_1 = _mm_avg_epu8(m128_1, m128_2);\
-    m128_1 = _mm_slli_epi16(m128_1, 8);\
-    m128_2 = _mm_srli_epi16(m128_1, 8);\
-    m128_1 = _mm_or_si128(m128_1, m128_2);\
+    {                                                 \
+        __m128i m128_2 = _mm_slli_si128(m128_1, 2);   \
+        m128_2 = _mm_or_si128(m128_2, m128_last);     \
+        m128_2 = _mm_avg_epu8(m128_2, m128_1);        \
+        m128_last = _mm_srli_si128(m128_1, 14);       \
+        m128_2 = _mm_srli_epi16(m128_2, 8);           \
+        m128_1 = _mm_avg_epu8(m128_1, m128_2);        \
+        m128_1 = _mm_slli_epi16(m128_1, 8);           \
+        m128_2 = _mm_srli_epi16(m128_1, 8);           \
+        m128_1 = _mm_or_si128(m128_1, m128_2);        \
     }
 
 
 
 static __forceinline void subsample_and_interlace_2_line_sse2(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch)
 {
-    const BYTE* end{u + w};
-    for (;u<end;dst+=16,u+=16,v+=16)
+    const BYTE* end{ u + w };
+    for (; u < end; dst += 16, u += 16, v += 16)
     {
-        __m128i u_1{_mm_load_si128( reinterpret_cast<const __m128i*>(u) )};    
-        __m128i u_2{_mm_load_si128( reinterpret_cast<const __m128i*>(u+pitch) )};
-        __m128i v_1{_mm_load_si128( reinterpret_cast<const __m128i*>(v) )};    
-        __m128i v_2{_mm_load_si128( reinterpret_cast<const __m128i*>(v+pitch) )};
+        __m128i u_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(u)) };
+        __m128i u_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(u + pitch)) };
+        __m128i v_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(v)) };
+        __m128i v_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(v + pitch)) };
         AVERAGE_4_PIX_INTRINSICS(u_1, u_2);
         AVERAGE_4_PIX_INTRINSICS(v_1, v_2);
         u_1 = _mm_packus_epi16(u_1, u_1);
         v_1 = _mm_packus_epi16(v_1, v_1);
         u_1 = _mm_unpacklo_epi8(u_1, v_1);
 
-        _mm_store_si128( reinterpret_cast<__m128i*>(dst), u_1 );
+        _mm_store_si128(reinterpret_cast<__m128i*>(dst), u_1);
     }
 }
 
 static __forceinline void pix_alpha_blend_yv12_luma_sse2(byte* dst, const byte* alpha, const byte* sub)
 {
-    __m128i dst128{_mm_load_si128( reinterpret_cast<const __m128i*>(dst) )};
-    __m128i alpha128{_mm_load_si128( reinterpret_cast<const __m128i*>(alpha) )};
-    __m128i sub128{_mm_load_si128( reinterpret_cast<const __m128i*>(sub) )};
-    __m128i zero{_mm_setzero_si128()};
+    __m128i dst128{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
+    __m128i alpha128{ _mm_load_si128(reinterpret_cast<const __m128i*>(alpha)) };
+    __m128i sub128{ _mm_load_si128(reinterpret_cast<const __m128i*>(sub)) };
+    __m128i zero{ _mm_setzero_si128() };
 
-    __m128i ones{_mm_setzero_si128()};
+    __m128i ones{ _mm_setzero_si128() };
     ones = _mm_cmpeq_epi32(ones, ones);
-    ones = _mm_cmpeq_epi8(ones,alpha128);
+    ones = _mm_cmpeq_epi8(ones, alpha128);
 
-    __m128i dst_lo128{_mm_unpacklo_epi8(dst128, zero)};
-    __m128i alpha_lo128{_mm_unpacklo_epi8(alpha128, zero)};
+    __m128i dst_lo128{ _mm_unpacklo_epi8(dst128, zero) };
+    __m128i alpha_lo128{ _mm_unpacklo_epi8(alpha128, zero) };
 
-    __m128i ones2{_mm_unpacklo_epi8(ones, zero)};    
+    __m128i ones2{ _mm_unpacklo_epi8(ones, zero) };
 
     dst_lo128 = _mm_mullo_epi16(dst_lo128, alpha_lo128);
     dst_lo128 = _mm_adds_epu16(dst_lo128, ones2);
@@ -164,7 +164,7 @@ static __forceinline void pix_alpha_blend_yv12_luma_sse2(byte* dst, const byte* 
     dst_lo128 = _mm_packus_epi16(dst_lo128, dst128);
 
     dst_lo128 = _mm_adds_epu8(dst_lo128, sub128);
-    _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_lo128 );
+    _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_lo128);
 }
 
 /***
@@ -172,189 +172,191 @@ static __forceinline void pix_alpha_blend_yv12_luma_sse2(byte* dst, const byte* 
  */
 static __forceinline void pix_alpha_blend_yv12_chroma_sse2(byte* dst, const byte* src, const byte* alpha, const int src_pitch)
 {
-    __m128i zero{_mm_setzero_si128()};
-    __m128i alpha128_1{_mm_load_si128( reinterpret_cast<const __m128i*>(alpha) )};
-    __m128i alpha128_2{_mm_load_si128( reinterpret_cast<const __m128i*>(alpha+src_pitch) )};
-    __m128i dst128{_mm_loadl_epi64( reinterpret_cast<const __m128i*>(dst) )};
+    __m128i zero{ _mm_setzero_si128() };
+    __m128i alpha128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(alpha)) };
+    __m128i alpha128_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(alpha + src_pitch)) };
+    __m128i dst128{ _mm_loadl_epi64(reinterpret_cast<const __m128i*>(dst)) };
 
-    __m128i sub128_1{_mm_load_si128( reinterpret_cast<const __m128i*>(src) )};
-    __m128i sub128_2{_mm_load_si128( reinterpret_cast<const __m128i*>(src+src_pitch) )};
+    __m128i sub128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+    __m128i sub128_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(src + src_pitch)) };
 
     AVERAGE_4_PIX_INTRINSICS(alpha128_1, alpha128_2);
 
-    __m128i ones{_mm_setzero_si128()};
+    __m128i ones{ _mm_setzero_si128() };
     ones = _mm_cmpeq_epi32(ones, ones);
     ones = _mm_cmpeq_epi8(ones, alpha128_1);
-    
+
     dst128 = _mm_unpacklo_epi8(dst128, zero);
-    __m128i dst128_2{_mm_and_si128(dst128, ones)};
-    
+    __m128i dst128_2{ _mm_and_si128(dst128, ones) };
+
     dst128 = _mm_mullo_epi16(dst128, alpha128_1);
     dst128 = _mm_adds_epu16(dst128, dst128_2);
-    
+
     dst128 = _mm_srli_epi16(dst128, 8);
-        
+
     AVERAGE_4_PIX_INTRINSICS(sub128_1, sub128_2);
 
-    dst128 = _mm_adds_epi16(dst128, sub128_1);    
+    dst128 = _mm_adds_epi16(dst128, sub128_1);
     dst128 = _mm_packus_epi16(dst128, dst128);
-    
-    _mm_storel_epi64( reinterpret_cast<__m128i*>(dst), dst128 );
+
+    _mm_storel_epi64(reinterpret_cast<__m128i*>(dst), dst128);
 }
 
 static __forceinline void mix_16_y_p010_P210_sse2(BYTE* dst, const BYTE* src, const BYTE* src_alpha)
 {
-    //important!
-    __m128i alpha{_mm_load_si128( reinterpret_cast<const __m128i*>(src_alpha) )};
-    __m128i src_y{_mm_load_si128( reinterpret_cast<const __m128i*>(src) )};
-    __m128i dst_y{_mm_load_si128( reinterpret_cast<const __m128i*>(dst) )};                        
+    // important!
+    __m128i alpha{ _mm_load_si128(reinterpret_cast<const __m128i*>(src_alpha)) };
+    __m128i src_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+    __m128i dst_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
 
-    __m128i alpha_ff{_mm_setzero_si128()};
+    __m128i alpha_ff{ _mm_setzero_si128() };
     alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
 
-    alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);                                           
+    alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);
 
-    __m128i lo{_mm_unpacklo_epi8(alpha_ff, alpha)};//(alpha<<8)+0x100 will overflow
-    //so we do it another way
-    //first, (alpha<<8)+0xff
-    __m128i ones{_mm_setzero_si128()};
+    __m128i lo{ _mm_unpacklo_epi8(alpha_ff, alpha) }; //(alpha<<8)+0x100 will overflow
+    // so we do it another way
+    // first, (alpha<<8)+0xff
+    __m128i ones{ _mm_setzero_si128() };
     ones = _mm_cmpeq_epi16(dst_y, ones);
 
-    __m128i ones2{_mm_setzero_si128()};
+    __m128i ones2{ _mm_setzero_si128() };
     ones2 = _mm_cmpeq_epi32(ones2, ones2);
 
-    ones = _mm_xor_si128(ones, ones2);                            
+    ones = _mm_xor_si128(ones, ones2);
     ones = _mm_srli_epi16(ones, 15);
     ones = _mm_and_si128(ones, lo);
 
     dst_y = _mm_mulhi_epu16(dst_y, lo);
-    dst_y = _mm_adds_epu16(dst_y, ones);//then add one if necessary
+    dst_y = _mm_adds_epu16(dst_y, ones); // then add one if necessary
 
     lo = _mm_setzero_si128();
     lo = _mm_unpacklo_epi8(lo, src_y);
-    dst_y = _mm_adds_epu16(dst_y, lo);                        
-    _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_y );
+    dst_y = _mm_adds_epu16(dst_y, lo);
+    _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_y);
 
     dst += 16;
-    dst_y = _mm_load_si128( reinterpret_cast<const __m128i*>(dst) );
+    dst_y = _mm_load_si128(reinterpret_cast<const __m128i*>(dst));
 
     lo = _mm_unpackhi_epi8(alpha_ff, alpha);
 
     ones = _mm_setzero_si128();
     ones = _mm_cmpeq_epi16(dst_y, ones);
-    ones = _mm_xor_si128(ones, ones2);  
+    ones = _mm_xor_si128(ones, ones2);
     ones = _mm_srli_epi16(ones, 15);
-    ones = _mm_and_si128(ones, lo);    
+    ones = _mm_and_si128(ones, lo);
 
-    dst_y = _mm_mulhi_epu16(dst_y, lo); 
+    dst_y = _mm_mulhi_epu16(dst_y, lo);
     dst_y = _mm_adds_epu16(dst_y, ones);
 
     lo = _mm_setzero_si128();
     lo = _mm_unpackhi_epi8(lo, src_y);
     dst_y = _mm_adds_epu16(dst_y, lo);
-    _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_y );
+    _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_y);
 }
 
 
 static __forceinline void pix_alpha_blend_yv12_chroma(byte* dst, const byte* src, const byte* alpha, const int src_pitch)
 
 {
-    unsigned int ia = (alpha[0U]+alpha[1U]+
-        alpha[0U+src_pitch]+alpha[1U+src_pitch])>>2;
-    if(ia!=0xff)
+    unsigned int ia = (alpha[0U] + alpha[1U] +
+                       alpha[0U + src_pitch] + alpha[1U + src_pitch]) >>
+                      2;
+    if (ia != 0xff)
     {
-        *dst= (((*dst)*ia)>>8) + ((src[0U]        +src[1U]+
-            src[src_pitch]+src[1U+src_pitch] )>>2);
-    }    
+        *dst = (((*dst) * ia) >> 8) + ((src[0U] + src[1U] +
+                                        src[src_pitch] + src[1U + src_pitch]) >>
+                                       2);
+    }
 }
 static __forceinline void mix_16_uv_p010_sse2(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
 {
-    //important!
-    __m128i alpha{_mm_load_si128( reinterpret_cast<const __m128i*>(src_alpha) )};
-    __m128i alpha2{_mm_load_si128( reinterpret_cast<const __m128i*>(src_alpha+pitch) )};
+    // important!
+    __m128i alpha{ _mm_load_si128(reinterpret_cast<const __m128i*>(src_alpha)) };
+    __m128i alpha2{ _mm_load_si128(reinterpret_cast<const __m128i*>(src_alpha + pitch)) };
 
-    __m128i src_y{_mm_load_si128( reinterpret_cast<const __m128i*>(src) )};
-    __m128i dst_y{_mm_load_si128( reinterpret_cast<const __m128i*>(dst) )};                        
+    __m128i src_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+    __m128i dst_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
 
     AVERAGE_4_PIX_INTRINSICS_2(alpha, alpha2);
 
-    __m128i alpha_ff{_mm_setzero_si128()};
-    alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
-
-    alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);                                           
-
-    __m128i lo{_mm_unpacklo_epi8(alpha_ff, alpha)};//(alpha<<8)+0x100 will overflow
-    //so we do it another way
-    //first, (alpha<<8)+0xff
-    __m128i ones{_mm_setzero_si128()};
-    ones = _mm_cmpeq_epi16(dst_y, ones);
-
-    __m128i ones2{_mm_setzero_si128()};
-    ones2 = _mm_cmpeq_epi32(ones2, ones2);
-    ones = _mm_xor_si128(ones, ones2);                            
-    ones = _mm_srli_epi16(ones, 15);
-    ones = _mm_and_si128(ones, lo);
-
-    dst_y = _mm_mulhi_epu16(dst_y, lo);
-    dst_y = _mm_adds_epu16(dst_y, ones);//then add one if necessary
-
-    lo = _mm_setzero_si128();
-    lo = _mm_unpacklo_epi8(lo, src_y);
-    dst_y = _mm_adds_epu16(dst_y, lo);                        
-    _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_y );
-
-    dst += 16;
-    dst_y = _mm_load_si128( reinterpret_cast<const __m128i*>(dst) );
-
-    lo = _mm_unpackhi_epi8(alpha_ff, alpha);
-
-    ones = _mm_setzero_si128();
-    ones = _mm_cmpeq_epi16(dst_y, ones);
-    ones = _mm_xor_si128(ones, ones2);  
-    ones = _mm_srli_epi16(ones, 15);
-    ones = _mm_and_si128(ones, lo);    
-
-    dst_y = _mm_mulhi_epu16(dst_y, lo); 
-    dst_y = _mm_adds_epu16(dst_y, ones);
-
-    lo = _mm_setzero_si128();
-    lo = _mm_unpackhi_epi8(lo, src_y);
-    dst_y = _mm_adds_epu16(dst_y, lo);
-    _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_y );
-}
-
-static __forceinline void mix_16_uv_p210_sse2(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
-{
-    // 4:2:2 only horizontal subsampling
-
-    //important!
-    __m128i alpha{_mm_load_si128(reinterpret_cast<const __m128i*>(src_alpha))};
-
-    __m128i src_y{_mm_load_si128(reinterpret_cast<const __m128i*>(src))};
-    __m128i dst_y{_mm_load_si128(reinterpret_cast<const __m128i*>(dst))};
-
-    __m128i tmp;
-    AVERAGE_4_PIX_INTRINSICS_0(alpha, tmp); // average two horizontally
-
-    __m128i alpha_ff{_mm_setzero_si128()};
+    __m128i alpha_ff{ _mm_setzero_si128() };
     alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
 
     alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);
 
-    __m128i lo{_mm_unpacklo_epi8(alpha_ff, alpha)};//(alpha<<8)+0x100 will overflow
-    //so we do it another way
-    //first, (alpha<<8)+0xff
-    __m128i ones{_mm_setzero_si128()};
+    __m128i lo{ _mm_unpacklo_epi8(alpha_ff, alpha) }; //(alpha<<8)+0x100 will overflow
+    // so we do it another way
+    // first, (alpha<<8)+0xff
+    __m128i ones{ _mm_setzero_si128() };
     ones = _mm_cmpeq_epi16(dst_y, ones);
 
-    __m128i ones2{_mm_setzero_si128()};
+    __m128i ones2{ _mm_setzero_si128() };
     ones2 = _mm_cmpeq_epi32(ones2, ones2);
     ones = _mm_xor_si128(ones, ones2);
     ones = _mm_srli_epi16(ones, 15);
     ones = _mm_and_si128(ones, lo);
 
     dst_y = _mm_mulhi_epu16(dst_y, lo);
-    dst_y = _mm_adds_epu16(dst_y, ones);//then add one if necessary
+    dst_y = _mm_adds_epu16(dst_y, ones); // then add one if necessary
+
+    lo = _mm_setzero_si128();
+    lo = _mm_unpacklo_epi8(lo, src_y);
+    dst_y = _mm_adds_epu16(dst_y, lo);
+    _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_y);
+
+    dst += 16;
+    dst_y = _mm_load_si128(reinterpret_cast<const __m128i*>(dst));
+
+    lo = _mm_unpackhi_epi8(alpha_ff, alpha);
+
+    ones = _mm_setzero_si128();
+    ones = _mm_cmpeq_epi16(dst_y, ones);
+    ones = _mm_xor_si128(ones, ones2);
+    ones = _mm_srli_epi16(ones, 15);
+    ones = _mm_and_si128(ones, lo);
+
+    dst_y = _mm_mulhi_epu16(dst_y, lo);
+    dst_y = _mm_adds_epu16(dst_y, ones);
+
+    lo = _mm_setzero_si128();
+    lo = _mm_unpackhi_epi8(lo, src_y);
+    dst_y = _mm_adds_epu16(dst_y, lo);
+    _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_y);
+}
+
+static __forceinline void mix_16_uv_p210_sse2(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
+{
+    // 4:2:2 only horizontal subsampling
+
+    // important!
+    __m128i alpha{ _mm_load_si128(reinterpret_cast<const __m128i*>(src_alpha)) };
+
+    __m128i src_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+    __m128i dst_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
+
+    __m128i tmp;
+    AVERAGE_4_PIX_INTRINSICS_0(alpha, tmp); // average two horizontally
+
+    __m128i alpha_ff{ _mm_setzero_si128() };
+    alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
+
+    alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);
+
+    __m128i lo{ _mm_unpacklo_epi8(alpha_ff, alpha) }; //(alpha<<8)+0x100 will overflow
+    // so we do it another way
+    // first, (alpha<<8)+0xff
+    __m128i ones{ _mm_setzero_si128() };
+    ones = _mm_cmpeq_epi16(dst_y, ones);
+
+    __m128i ones2{ _mm_setzero_si128() };
+    ones2 = _mm_cmpeq_epi32(ones2, ones2);
+    ones = _mm_xor_si128(ones, ones2);
+    ones = _mm_srli_epi16(ones, 15);
+    ones = _mm_and_si128(ones, lo);
+
+    dst_y = _mm_mulhi_epu16(dst_y, lo);
+    dst_y = _mm_adds_epu16(dst_y, ones); // then add one if necessary
 
     lo = _mm_setzero_si128();
     lo = _mm_unpacklo_epi8(lo, src_y);
@@ -385,22 +387,22 @@ static __forceinline void mix_16_uv_p210_sse2(BYTE* dst, const BYTE* src, const 
 
 static __forceinline void mix_16_uv_nvxx_sse2(BYTE* dst, const BYTE* src, const BYTE* src_alpha, const int pitch)
 {
-    __m128i dst128{_mm_load_si128( reinterpret_cast<const __m128i*>(dst) )};
-    __m128i alpha128_1{_mm_load_si128( reinterpret_cast<const __m128i*>(src_alpha) )};
-    __m128i alpha128_2{_mm_load_si128( reinterpret_cast<const __m128i*>(src_alpha+pitch) )};
-    __m128i sub128{_mm_load_si128( reinterpret_cast<const __m128i*>(src) )};
+    __m128i dst128{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
+    __m128i alpha128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(src_alpha)) };
+    __m128i alpha128_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(src_alpha + pitch)) };
+    __m128i sub128{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
 
     AVERAGE_4_PIX_INTRINSICS_2(alpha128_1, alpha128_2);
-    __m128i zero{_mm_setzero_si128()};
+    __m128i zero{ _mm_setzero_si128() };
 
-    __m128i ones{_mm_setzero_si128()};
+    __m128i ones{ _mm_setzero_si128() };
     ones = _mm_cmpeq_epi32(ones, ones);
-    ones = _mm_cmpeq_epi8(ones,alpha128_1);
+    ones = _mm_cmpeq_epi8(ones, alpha128_1);
 
-    __m128i dst_lo128{_mm_unpacklo_epi8(dst128, zero)};
+    __m128i dst_lo128{ _mm_unpacklo_epi8(dst128, zero) };
     alpha128_2 = _mm_unpacklo_epi8(alpha128_1, zero);
 
-    __m128i ones2{_mm_unpacklo_epi8(ones, zero)};    
+    __m128i ones2{ _mm_unpacklo_epi8(ones, zero) };
 
     dst_lo128 = _mm_mullo_epi16(dst_lo128, alpha128_2);
     dst_lo128 = _mm_adds_epu16(dst_lo128, ones2);
@@ -417,12 +419,12 @@ static __forceinline void mix_16_uv_nvxx_sse2(BYTE* dst, const BYTE* src, const 
     dst_lo128 = _mm_packus_epi16(dst_lo128, dst128);
 
     dst_lo128 = _mm_adds_epu8(dst_lo128, sub128);
-    _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_lo128 );
+    _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_lo128);
 }
 
 
 /******
- * hleft_vmid: 
+ * hleft_vmid:
  *   chroma placement(x=Y, o=U,V):
  *     x  x  x  x ...
  *     o     o    ...
@@ -430,62 +432,62 @@ static __forceinline void mix_16_uv_nvxx_sse2(BYTE* dst, const BYTE* src, const 
  *     o     o    ...
  *     x  x  x  x ...
  ******/
-static __forceinline void hleft_vmid_subsample_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id=0)
+static __forceinline void hleft_vmid_subsample_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id = 0)
 
 {
-    const BYTE* end{u + w};
-    BYTE last_u = (u[last_src_id]+u[last_src_id+pitch]+1)/2;
-    BYTE last_v = (v[last_src_id]+v[last_src_id+pitch]+1)/2;
-    for (;u<end;dst+=2,u+=2,v+=2)
+    const BYTE* end{ u + w };
+    BYTE last_u = (u[last_src_id] + u[last_src_id + pitch] + 1) / 2;
+    BYTE last_v = (v[last_src_id] + v[last_src_id + pitch] + 1) / 2;
+    for (; u < end; dst += 2, u += 2, v += 2)
     {
-        dst[0U] = (u[0U] + u[0U+pitch] + 1)/2;
-        int tmp1{(u[1U] + u[1U+pitch] + 1)/2};
-        last_u = (tmp1+last_u+1)/2;
-        dst[0U] = (dst[0U] + last_u + 1)/2;
+        dst[0U] = (u[0U] + u[0U + pitch] + 1) / 2;
+        int tmp1{ (u[1U] + u[1U + pitch] + 1) / 2 };
+        last_u = (tmp1 + last_u + 1) / 2;
+        dst[0U] = (dst[0U] + last_u + 1) / 2;
         last_u = tmp1;
 
-        dst[1U] = (v[0U] + v[0U+pitch] + 1)/2;
-        tmp1 = (v[1U] + v[1U+pitch] + 1)/2;
-        last_v = (tmp1+last_v+1)/2;
-        dst[1U] = (last_v + dst[1U] + 1)/2;
+        dst[1U] = (v[0U] + v[0U + pitch] + 1) / 2;
+        tmp1 = (v[1U] + v[1U + pitch] + 1) / 2;
+        last_v = (tmp1 + last_v + 1) / 2;
+        dst[1U] = (last_v + dst[1U] + 1) / 2;
         last_v = tmp1;
     }
 }
 
 // @w : w % 16 must == 0!
-static __forceinline void hleft_vmid_subsample_and_interlace_2_line_sse2(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id=0)
+static __forceinline void hleft_vmid_subsample_and_interlace_2_line_sse2(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id = 0)
 {
-    const BYTE* end_mod16{u + (w&~15)};
+    const BYTE* end_mod16{ u + (w & ~15) };
 
-    __m128i u_last{_mm_cvtsi32_si128( (u[last_src_id]+u[pitch+last_src_id]+1)<<7 )};
-    __m128i v_last{_mm_cvtsi32_si128( (v[last_src_id]+v[pitch+last_src_id]+1)<<7 )};
-    for (;u<end_mod16;dst+=16,u+=16,v+=16)
+    __m128i u_last{ _mm_cvtsi32_si128((u[last_src_id] + u[pitch + last_src_id] + 1) << 7) };
+    __m128i v_last{ _mm_cvtsi32_si128((v[last_src_id] + v[pitch + last_src_id] + 1) << 7) };
+    for (; u < end_mod16; dst += 16, u += 16, v += 16)
     {
-        __m128i u_1{_mm_load_si128( reinterpret_cast<const __m128i*>(u) )};
-        __m128i u_2{_mm_load_si128( reinterpret_cast<const __m128i*>(u+pitch) )};
-        __m128i v_1{_mm_load_si128( reinterpret_cast<const __m128i*>(v) )};    
-        __m128i v_2{_mm_load_si128( reinterpret_cast<const __m128i*>(v+pitch) )};
+        __m128i u_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(u)) };
+        __m128i u_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(u + pitch)) };
+        __m128i v_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(v)) };
+        __m128i v_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(v + pitch)) };
         u_1 = _mm_avg_epu8(u_1, u_2);
         AVERAGE_4_PIX_INTRINSICS_3(u_1, u_last);
         v_1 = _mm_avg_epu8(v_1, v_2);
         AVERAGE_4_PIX_INTRINSICS_4(v_1, v_last);
         u_1 = _mm_or_si128(u_1, v_1);
-        _mm_store_si128( reinterpret_cast<__m128i*>(dst), u_1 );
+        _mm_store_si128(reinterpret_cast<__m128i*>(dst), u_1);
     }
-    //The following fails if dst==u
-    //hleft_vmid_subsample_and_interlace_2_line_c(dst, u, v, w&15, pitch, w>15?-1:0);
+    // The following fails if dst==u
+    // hleft_vmid_subsample_and_interlace_2_line_c(dst, u, v, w&15, pitch, w>15?-1:0);
 }
 
 static __forceinline void subsample_422_and_interlace_2_line_c(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id = 0)
 
 {
-    const BYTE* end{u + w};
-    BYTE last_u{u[last_src_id]};
-    BYTE last_v{v[last_src_id]};
+    const BYTE* end{ u + w };
+    BYTE last_u{ u[last_src_id] };
+    BYTE last_v{ v[last_src_id] };
     for (; u < end; dst += 2, u += 2, v += 2)
     {
         dst[0U] = u[0U];
-        int tmp1{u[1U]};
+        int tmp1{ u[1U] };
         last_u = (tmp1 + last_u + 1) / 2;
         dst[0U] = (dst[0U] + last_u + 1) / 2;
         last_u = tmp1;
@@ -501,182 +503,41 @@ static __forceinline void subsample_422_and_interlace_2_line_c(BYTE* dst, const 
 // @w : w % 16 must == 0!
 static __forceinline void subsample_422_and_interlace_2_line_sse2(BYTE* dst, const BYTE* u, const BYTE* v, const int w, const int pitch, const int last_src_id = 0)
 {
-    const BYTE* end_mod16{u + (w & ~15)};
+    const BYTE* end_mod16{ u + (w & ~15) };
 
-    __m128i u_last{_mm_cvtsi32_si128(u[last_src_id] << 8)};
-    __m128i v_last{_mm_cvtsi32_si128(v[last_src_id] << 8)};
+    __m128i u_last{ _mm_cvtsi32_si128(u[last_src_id] << 8) };
+    __m128i v_last{ _mm_cvtsi32_si128(v[last_src_id] << 8) };
     for (; u < end_mod16; dst += 16, u += 16, v += 16)
     {
-        __m128i u_1{_mm_load_si128(reinterpret_cast<const __m128i*>(u))};
-        __m128i v_1{_mm_load_si128(reinterpret_cast<const __m128i*>(v))};
+        __m128i u_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(u)) };
+        __m128i v_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(v)) };
         AVERAGE_4_PIX_INTRINSICS_3(u_1, u_last);
         AVERAGE_4_PIX_INTRINSICS_4(v_1, v_last);
         u_1 = _mm_or_si128(u_1, v_1);
         _mm_store_si128(reinterpret_cast<__m128i*>(dst), u_1);
     }
-    //The following fails if dst==u
-    //hleft_vmid_subsample_and_interlace_2_line_c(dst, u, v, w&15, pitch, w>15?-1:0);
+    // The following fails if dst==u
+    // hleft_vmid_subsample_and_interlace_2_line_c(dst, u, v, w&15, pitch, w>15?-1:0);
 }
 
-static __forceinline void hleft_vmid_mix_uv_yv12_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id=0)
+static __forceinline void hleft_vmid_mix_uv_yv12_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 
 {
-    int last_alpha{(am[last_src_id]+am[last_src_id+src_pitch]+1)/2};
-    int last_sub{(src[last_src_id]+src[last_src_id+src_pitch]+1)/2};
-    const BYTE* end{src + w};
-    for(; src < end; src += 2, am += 2, ++dst)
-    {
-        int ia{(am[0U]+am[0U+src_pitch]+1)/2};
-        int tmp1{(am[1U]+am[1U+src_pitch]+1)/2};
-        last_alpha = (last_alpha + tmp1 + 1)/2;
-        ia = (ia + last_alpha + 1)/2;
-        last_alpha = tmp1;
-
-        if(ia!=0xff)
-        {
-            tmp1 = (src[0U]+src[0U+src_pitch]+1)/2;
-            int tmp2{(src[1U]+src[1U+src_pitch]+1)/2};
-            last_sub = (last_sub+tmp2+1)/2;
-            tmp1 = (tmp1+last_sub+1)/2;
-            last_sub = tmp2;
-
-            *dst= (((*dst)*ia)>>8) + tmp1;
-        }
-        else
-        {
-            last_sub = (src[1U]+src[1U+src_pitch]+1)/2;
-        }
-    }
-}
-
-//0<=w15<=15 && w15%2==0
-static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id=0)
-{
-    ASSERT((w15>=0 && w15<=15 && (w15&1)==0) );
-
-    int last_alpha{(am[last_src_id]+am[last_src_id+src_pitch]+1)/2};
-    int last_sub{(src[last_src_id]+src[last_src_id+src_pitch]+1)/2};
-
-    switch(w15)
-    {
-    case 14:
-#define _hleft_vmid_mix_uv_yv12_c2_mix_2 \
-    int ia = (am[0U]+am[0+src_pitch]+1)/2;\
-    int tmp1 = (am[1U]+am[1+src_pitch]+1)/2;\
-    last_alpha = (last_alpha + tmp1 + 1)/2;\
-    ia = (ia + last_alpha + 1)/2;\
-    last_alpha = tmp1;\
-    \
-    if(ia!=0xff)\
-    {\
-        tmp1 = (src[0U]+src[0+src_pitch]+1)/2;\
-        int tmp2 = (src[1U]+src[1+src_pitch]+1)/2;\
-        last_sub = (last_sub+tmp2+1)/2;\
-        tmp1 = (tmp1+last_sub+1)/2;\
-        last_sub = tmp2;\
-        \
-        *dst= (((*dst)*ia)>>8) + tmp1;\
-    }\
-    else\
-    {\
-        last_sub = (src[1U]+src[1+src_pitch]+1)/2;\
-    }src += 2, am += 2, dst++
-
-        { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 12:
-        { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 10:
-        { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 8:
-        { _hleft_vmid_mix_uv_yv12_c2_mix_2 ; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 6:
-        { _hleft_vmid_mix_uv_yv12_c2_mix_2 ; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 4:
-        { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 2:
-        { _hleft_vmid_mix_uv_yv12_c2_mix_2; }
-    }
-}
-
-// am[last_src_id] valid && w&15=0
-static __forceinline void hleft_vmid_mix_uv_yv12_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id=0)
-{
-    ASSERT( (( (2*(std::intptr_t)dst) | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch)&15)==0 );
-
-    __m128i last_src{_mm_cvtsi32_si128( (src[last_src_id]+src[src_pitch+last_src_id]+1)<<7 )};
-    __m128i last_alpha{_mm_cvtsi32_si128( (am[last_src_id]+am[src_pitch+last_src_id]+1)<<7 )};
-    const BYTE* end_mod16{src + (w00&~15)};
-    for(; src < end_mod16; src += 16, am += 16, dst+=8)
-    {
-        __m128i zero{_mm_setzero_si128()};
-
-        __m128i alpha128_1{_mm_load_si128( reinterpret_cast<const __m128i*>(am) )};
-        __m128i tmp{_mm_load_si128( reinterpret_cast<const __m128i*>(am+src_pitch) )};
-        alpha128_1 = _mm_avg_epu8(alpha128_1, tmp);
-        AVERAGE_4_PIX_INTRINSICS_3(alpha128_1, last_alpha);
-
-        __m128i dst128{_mm_loadl_epi64( reinterpret_cast<const __m128i*>(dst) )};
-
-        __m128i sub128_1{_mm_load_si128( reinterpret_cast<const __m128i*>(src) )};
-        tmp = _mm_load_si128( reinterpret_cast<const __m128i*>(src+src_pitch) );
-        sub128_1 = _mm_avg_epu8(sub128_1, tmp);
-        AVERAGE_4_PIX_INTRINSICS_3(sub128_1, last_src);
-
-        __m128i ones{_mm_setzero_si128()};
-        ones = _mm_cmpeq_epi32(ones, ones);
-        ones = _mm_cmpeq_epi8(ones, alpha128_1);
-
-        dst128 = _mm_unpacklo_epi8(dst128, zero);
-        __m128i dst128_2{_mm_and_si128(dst128, ones)};
-
-        dst128 = _mm_mullo_epi16(dst128, alpha128_1);
-        dst128 = _mm_adds_epu16(dst128, dst128_2);
-
-        dst128 = _mm_srli_epi16(dst128, 8);
-
-        dst128 = _mm_adds_epi16(dst128, sub128_1);    
-        dst128 = _mm_packus_epi16(dst128, dst128);
-
-        _mm_storel_epi64( reinterpret_cast<__m128i*>(dst), dst128 );
-    }
-}
-
-static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
-
-{
-    int last_alpha{am[last_src_id]};
-    int last_sub{src[last_src_id]};
-    const BYTE* end{src + w};
+    int last_alpha{ (am[last_src_id] + am[last_src_id + src_pitch] + 1) / 2 };
+    int last_sub{ (src[last_src_id] + src[last_src_id + src_pitch] + 1) / 2 };
+    const BYTE* end{ src + w };
     for (; src < end; src += 2, am += 2, ++dst)
     {
-        int ia{am[0U]};
-        int tmp1{am[1U]};
+        int ia{ (am[0U] + am[0U + src_pitch] + 1) / 2 };
+        int tmp1{ (am[1U] + am[1U + src_pitch] + 1) / 2 };
         last_alpha = (last_alpha + tmp1 + 1) / 2;
         ia = (ia + last_alpha + 1) / 2;
         last_alpha = tmp1;
 
         if (ia != 0xff)
         {
-            tmp1 = src[0U];
-            int tmp2{src[1U]};
+            tmp1 = (src[0U] + src[0U + src_pitch] + 1) / 2;
+            int tmp2{ (src[1U] + src[1U + src_pitch] + 1) / 2 };
             last_sub = (last_sub + tmp2 + 1) / 2;
             tmp1 = (tmp1 + last_sub + 1) / 2;
             last_sub = tmp2;
@@ -685,104 +546,117 @@ static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src,
         }
         else
         {
-            last_sub = src[1U];
+            last_sub = (src[1U] + src[1U + src_pitch] + 1) / 2;
         }
     }
 }
 
-//0<=w15<=15 && w15%2==0
-static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
+// 0<=w15<=15 && w15%2==0
+static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
     ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
 
-    int last_alpha{am[last_src_id]};
-    int last_sub{src[last_src_id]};
+    int last_alpha{ (am[last_src_id] + am[last_src_id + src_pitch] + 1) / 2 };
+    int last_sub{ (src[last_src_id] + src[last_src_id + src_pitch] + 1) / 2 };
 
     switch (w15)
     {
     case 14:
-#define _mix_uv_yv16_c2_mix_2 \
-    int ia = am[0U];\
-    int tmp1 = am[1U];\
-    last_alpha = (last_alpha + tmp1 + 1)/2;\
-    ia = (ia + last_alpha + 1)/2;\
-    last_alpha = tmp1;\
-    \
-    if(ia!=0xff)\
-    {\
-        tmp1 = src[0U];\
-        int tmp2 = src[1U];\
-        last_sub = (last_sub+tmp2+1)/2;\
-        tmp1 = (tmp1+last_sub+1)/2;\
-        last_sub = tmp2;\
-        \
-        *dst= (((*dst)*ia)>>8) + tmp1;\
-    }\
-    else\
-    {\
-        last_sub = src[1U];\
-    }src += 2, am += 2, dst++
+#define _hleft_vmid_mix_uv_yv12_c2_mix_2                   \
+    int ia = (am[0U] + am[0 + src_pitch] + 1) / 2;         \
+    int tmp1 = (am[1U] + am[1 + src_pitch] + 1) / 2;       \
+    last_alpha = (last_alpha + tmp1 + 1) / 2;              \
+    ia = (ia + last_alpha + 1) / 2;                        \
+    last_alpha = tmp1;                                     \
+                                                           \
+    if (ia != 0xff)                                        \
+    {                                                      \
+        tmp1 = (src[0U] + src[0 + src_pitch] + 1) / 2;     \
+        int tmp2 = (src[1U] + src[1 + src_pitch] + 1) / 2; \
+        last_sub = (last_sub + tmp2 + 1) / 2;              \
+        tmp1 = (tmp1 + last_sub + 1) / 2;                  \
+        last_sub = tmp2;                                   \
+                                                           \
+        *dst = (((*dst) * ia) >> 8) + tmp1;                \
+    }                                                      \
+    else                                                   \
+    {                                                      \
+        last_sub = (src[1U] + src[1 + src_pitch] + 1) / 2; \
+    }                                                      \
+    src += 2, am += 2, dst++
 
-    { _mix_uv_yv16_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 12:
-    { _mix_uv_yv16_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 10:
-    { _mix_uv_yv16_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 8:
-    { _mix_uv_yv16_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 6:
-    { _mix_uv_yv16_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 4:
-    { _mix_uv_yv16_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 2:
-    { _mix_uv_yv16_c2_mix_2; }
+    {
+        _hleft_vmid_mix_uv_yv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 12: {
+        _hleft_vmid_mix_uv_yv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 10: {
+        _hleft_vmid_mix_uv_yv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 8: {
+        _hleft_vmid_mix_uv_yv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 6: {
+        _hleft_vmid_mix_uv_yv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 4: {
+        _hleft_vmid_mix_uv_yv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 2: {
+        _hleft_vmid_mix_uv_yv12_c2_mix_2;
+    }
     }
 }
 
 // am[last_src_id] valid && w&15=0
-static __forceinline void mix_uv_yv16_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
+static __forceinline void hleft_vmid_mix_uv_yv12_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
     ASSERT((((2 * (std::intptr_t)dst) | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
 
-    __m128i last_src{_mm_cvtsi32_si128(src[last_src_id] << 8)};
-    __m128i last_alpha{_mm_cvtsi32_si128(am[last_src_id] << 8)};
-    const BYTE* end_mod16{src + (w00 & ~15)};
+    __m128i last_src{ _mm_cvtsi32_si128((src[last_src_id] + src[src_pitch + last_src_id] + 1) << 7) };
+    __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
+    const BYTE* end_mod16{ src + (w00 & ~15) };
     for (; src < end_mod16; src += 16, am += 16, dst += 8)
     {
-        __m128i zero{_mm_setzero_si128()};
+        __m128i zero{ _mm_setzero_si128() };
 
-        __m128i alpha128_1{_mm_load_si128(reinterpret_cast<const __m128i*>(am))};
+        __m128i alpha128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(am)) };
+        __m128i tmp{ _mm_load_si128(reinterpret_cast<const __m128i*>(am + src_pitch)) };
+        alpha128_1 = _mm_avg_epu8(alpha128_1, tmp);
         AVERAGE_4_PIX_INTRINSICS_3(alpha128_1, last_alpha);
 
-        __m128i dst128{_mm_loadl_epi64(reinterpret_cast<const __m128i*>(dst))};
+        __m128i dst128{ _mm_loadl_epi64(reinterpret_cast<const __m128i*>(dst)) };
 
-        __m128i sub128_1{_mm_load_si128(reinterpret_cast<const __m128i*>(src))};
+        __m128i sub128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+        tmp = _mm_load_si128(reinterpret_cast<const __m128i*>(src + src_pitch));
+        sub128_1 = _mm_avg_epu8(sub128_1, tmp);
         AVERAGE_4_PIX_INTRINSICS_3(sub128_1, last_src);
 
-        __m128i ones{_mm_setzero_si128()};
+        __m128i ones{ _mm_setzero_si128() };
         ones = _mm_cmpeq_epi32(ones, ones);
         ones = _mm_cmpeq_epi8(ones, alpha128_1);
 
         dst128 = _mm_unpacklo_epi8(dst128, zero);
-        __m128i dst128_2{_mm_and_si128(dst128, ones)};
+        __m128i dst128_2{ _mm_and_si128(dst128, ones) };
 
         dst128 = _mm_mullo_epi16(dst128, alpha128_1);
         dst128 = _mm_adds_epu16(dst128, dst128_2);
@@ -796,269 +670,431 @@ static __forceinline void mix_uv_yv16_sse2(byte* dst, const int w00, const byte*
     }
 }
 
-static __forceinline void hleft_vmid_mix_uv_p010_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
+static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 
 {
-    int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
-    const BYTE* end{src + w};
-    WORD* dst_word{reinterpret_cast<WORD*>(dst)}; 
-    for(; src < end; src+=2, am+=2, dst_word+=2)
+    int last_alpha{ am[last_src_id] };
+    int last_sub{ src[last_src_id] };
+    const BYTE* end{ src + w };
+    for (; src < end; src += 2, am += 2, ++dst)
     {
-        int ia{(am[0U]+am[0U+src_pitch]+1)/2};
-        int tmp2{(am[1U]+am[1U+src_pitch]+1)/2};
-        last_alpha = (last_alpha + tmp2 + 1)/2;
-        ia = (ia + last_alpha + 1)/2;
-        last_alpha = tmp2;
+        int ia{ am[0U] };
+        int tmp1{ am[1U] };
+        last_alpha = (last_alpha + tmp1 + 1) / 2;
+        ia = (ia + last_alpha + 1) / 2;
+        last_alpha = tmp1;
 
-        if( ia!=0xFF )
+        if (ia != 0xff)
         {
-            int tmp{(((dst_word[0U])*ia)>>8) + (src[0U]<<8)};
-#ifdef XY_UNIT_TEST
-            tmp ^= (tmp^0xffff)&((0xffff-tmp)>>31);//if(tmp>0xffff) tmp = 0xffff;
-#endif
-            dst_word[0U] = tmp;
-            tmp = (((dst_word[1U])*ia)>>8) + (src[1U]<<8);
-#ifdef XY_UNIT_TEST
-            tmp ^= (tmp^0xffff)&((0xffff-tmp)>>31);//if(tmp>0xffff) tmp = 0xffff;
-#endif
-            dst_word[1U] = tmp;
-        }
+            tmp1 = src[0U];
+            int tmp2{ src[1U] };
+            last_sub = (last_sub + tmp2 + 1) / 2;
+            tmp1 = (tmp1 + last_sub + 1) / 2;
+            last_sub = tmp2;
 
+            *dst = (((*dst) * ia) >> 8) + tmp1;
+        }
+        else
+        {
+            last_sub = src[1U];
+        }
     }
 }
 
-//0<=w15<=15
-static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
+// 0<=w15<=15 && w15%2==0
+static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((w15>=0 && w15<=15 && (w15&1)==0) );
-    int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
-    WORD* dst_word{reinterpret_cast<WORD*>(dst)}; 
+    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
 
-#ifdef XY_UNIT_TEST 
-#  define  _hleft_vmid_mix_uv_p010_c2_CLIP(tmp) tmp ^= (tmp^0xffff)&((0xffff-tmp)>>31);/*if(tmp>0xffff) tmp = 0xffff;*/
-#else
-#  define  _hleft_vmid_mix_uv_p010_c2_CLIP(tmp) 
-#endif
+    int last_alpha{ am[last_src_id] };
+    int last_sub{ src[last_src_id] };
 
-    switch(w15)
+    switch (w15)
     {
     case 14:
-#define _hleft_vmid_mix_uv_p010_c2_mix_2 \
-    int ia = (am[0U]+am[0+src_pitch]+1)/2;\
-    int tmp2 = (am[1U]+am[1+src_pitch]+1)/2;\
-    last_alpha = (last_alpha + tmp2 + 1)/2;\
-    ia = (ia + last_alpha + 1)/2;\
-    last_alpha = tmp2;\
-    \
-    if( ia!=0xFF )\
-    {\
-        int tmp = (((dst_word[0U])*ia)>>8) + (src[0U]<<8);\
-        _hleft_vmid_mix_uv_p010_c2_CLIP(tmp);\
-        dst_word[0U] = tmp;\
-        tmp = (((dst_word[1U])*ia)>>8) + (src[1U]<<8);\
-        _hleft_vmid_mix_uv_p010_c2_CLIP(tmp);\
-        dst_word[1U] = tmp;\
-    } src+=2, am+=2, dst_word+=2
+#define _mix_uv_yv16_c2_mix_2                 \
+    int ia = am[0U];                          \
+    int tmp1 = am[1U];                        \
+    last_alpha = (last_alpha + tmp1 + 1) / 2; \
+    ia = (ia + last_alpha + 1) / 2;           \
+    last_alpha = tmp1;                        \
+                                              \
+    if (ia != 0xff)                           \
+    {                                         \
+        tmp1 = src[0U];                       \
+        int tmp2 = src[1U];                   \
+        last_sub = (last_sub + tmp2 + 1) / 2; \
+        tmp1 = (tmp1 + last_sub + 1) / 2;     \
+        last_sub = tmp2;                      \
+                                              \
+        *dst = (((*dst) * ia) >> 8) + tmp1;   \
+    }                                         \
+    else                                      \
+    {                                         \
+        last_sub = src[1U];                   \
+    }                                         \
+    src += 2, am += 2, dst++
 
-        { _hleft_vmid_mix_uv_p010_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 12:
-        { _hleft_vmid_mix_uv_p010_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 10:
-        { _hleft_vmid_mix_uv_p010_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 8:
-        { _hleft_vmid_mix_uv_p010_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 6:
-        { _hleft_vmid_mix_uv_p010_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 4:
-        { _hleft_vmid_mix_uv_p010_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 2:
-        { _hleft_vmid_mix_uv_p010_c2_mix_2; }
+    {
+        _mix_uv_yv16_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 12: {
+        _mix_uv_yv16_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 10: {
+        _mix_uv_yv16_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 8: {
+        _mix_uv_yv16_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 6: {
+        _mix_uv_yv16_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 4: {
+        _mix_uv_yv16_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 2: {
+        _mix_uv_yv16_c2_mix_2;
+    }
     }
 }
 
 // am[last_src_id] valid && w&15=0
-static __forceinline void hleft_vmid_mix_uv_p010_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
+static __forceinline void mix_uv_yv16_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT( (((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch)&15)==0 );
-    __m128i last_alpha{_mm_cvtsi32_si128( (am[last_src_id]+am[src_pitch+last_src_id]+1)<<7 )};
-    const BYTE* end_mod16{src + w00};
-    for(; src < end_mod16; src+=16, am+=16, dst+=32)
-    {
-        //important!
-        __m128i alpha{_mm_load_si128( reinterpret_cast<const __m128i*>(am) )};
-        __m128i alpha2{_mm_load_si128( reinterpret_cast<const __m128i*>(am+src_pitch) )};
+    ASSERT((((2 * (std::intptr_t)dst) | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
 
-        __m128i src_y{_mm_load_si128( reinterpret_cast<const __m128i*>(src) )};
-        __m128i dst_y{_mm_load_si128( reinterpret_cast<const __m128i*>(dst) )};                        
+    __m128i last_src{ _mm_cvtsi32_si128(src[last_src_id] << 8) };
+    __m128i last_alpha{ _mm_cvtsi32_si128(am[last_src_id] << 8) };
+    const BYTE* end_mod16{ src + (w00 & ~15) };
+    for (; src < end_mod16; src += 16, am += 16, dst += 8)
+    {
+        __m128i zero{ _mm_setzero_si128() };
+
+        __m128i alpha128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(am)) };
+        AVERAGE_4_PIX_INTRINSICS_3(alpha128_1, last_alpha);
+
+        __m128i dst128{ _mm_loadl_epi64(reinterpret_cast<const __m128i*>(dst)) };
+
+        __m128i sub128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+        AVERAGE_4_PIX_INTRINSICS_3(sub128_1, last_src);
+
+        __m128i ones{ _mm_setzero_si128() };
+        ones = _mm_cmpeq_epi32(ones, ones);
+        ones = _mm_cmpeq_epi8(ones, alpha128_1);
+
+        dst128 = _mm_unpacklo_epi8(dst128, zero);
+        __m128i dst128_2{ _mm_and_si128(dst128, ones) };
+
+        dst128 = _mm_mullo_epi16(dst128, alpha128_1);
+        dst128 = _mm_adds_epu16(dst128, dst128_2);
+
+        dst128 = _mm_srli_epi16(dst128, 8);
+
+        dst128 = _mm_adds_epi16(dst128, sub128_1);
+        dst128 = _mm_packus_epi16(dst128, dst128);
+
+        _mm_storel_epi64(reinterpret_cast<__m128i*>(dst), dst128);
+    }
+}
+
+static __forceinline void hleft_vmid_mix_uv_p010_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
+
+{
+    int last_alpha{ (am[last_src_id] + am[src_pitch + last_src_id] + 1) / 2 };
+    const BYTE* end{ src + w };
+    WORD* dst_word{ reinterpret_cast<WORD*>(dst) };
+    for (; src < end; src += 2, am += 2, dst_word += 2)
+    {
+        int ia{ (am[0U] + am[0U + src_pitch] + 1) / 2 };
+        int tmp2{ (am[1U] + am[1U + src_pitch] + 1) / 2 };
+        last_alpha = (last_alpha + tmp2 + 1) / 2;
+        ia = (ia + last_alpha + 1) / 2;
+        last_alpha = tmp2;
+
+        if (ia != 0xFF)
+        {
+            int tmp{ (((dst_word[0U]) * ia) >> 8) + (src[0U] << 8) };
+#ifdef XY_UNIT_TEST
+            tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31); // if(tmp>0xffff) tmp = 0xffff;
+#endif
+            dst_word[0U] = tmp;
+            tmp = (((dst_word[1U]) * ia) >> 8) + (src[1U] << 8);
+#ifdef XY_UNIT_TEST
+            tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31); // if(tmp>0xffff) tmp = 0xffff;
+#endif
+            dst_word[1U] = tmp;
+        }
+    }
+}
+
+// 0<=w15<=15
+static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
+{
+    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
+    int last_alpha{ (am[last_src_id] + am[src_pitch + last_src_id] + 1) / 2 };
+    WORD* dst_word{ reinterpret_cast<WORD*>(dst) };
+
+#ifdef XY_UNIT_TEST
+#define _hleft_vmid_mix_uv_p010_c2_CLIP(tmp) tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31); /*if(tmp>0xffff) tmp = 0xffff;*/
+#else
+#define _hleft_vmid_mix_uv_p010_c2_CLIP(tmp)
+#endif
+
+    switch (w15)
+    {
+    case 14:
+#define _hleft_vmid_mix_uv_p010_c2_mix_2                         \
+    int ia = (am[0U] + am[0 + src_pitch] + 1) / 2;               \
+    int tmp2 = (am[1U] + am[1 + src_pitch] + 1) / 2;             \
+    last_alpha = (last_alpha + tmp2 + 1) / 2;                    \
+    ia = (ia + last_alpha + 1) / 2;                              \
+    last_alpha = tmp2;                                           \
+                                                                 \
+    if (ia != 0xFF)                                              \
+    {                                                            \
+        int tmp = (((dst_word[0U]) * ia) >> 8) + (src[0U] << 8); \
+        _hleft_vmid_mix_uv_p010_c2_CLIP(tmp);                    \
+        dst_word[0U] = tmp;                                      \
+        tmp = (((dst_word[1U]) * ia) >> 8) + (src[1U] << 8);     \
+        _hleft_vmid_mix_uv_p010_c2_CLIP(tmp);                    \
+        dst_word[1U] = tmp;                                      \
+    }                                                            \
+    src += 2, am += 2, dst_word += 2
+
+    {
+        _hleft_vmid_mix_uv_p010_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 12: {
+        _hleft_vmid_mix_uv_p010_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 10: {
+        _hleft_vmid_mix_uv_p010_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 8: {
+        _hleft_vmid_mix_uv_p010_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 6: {
+        _hleft_vmid_mix_uv_p010_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 4: {
+        _hleft_vmid_mix_uv_p010_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 2: {
+        _hleft_vmid_mix_uv_p010_c2_mix_2;
+    }
+    }
+}
+
+// am[last_src_id] valid && w&15=0
+static __forceinline void hleft_vmid_mix_uv_p010_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
+{
+    ASSERT((((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
+    __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
+    const BYTE* end_mod16{ src + w00 };
+    for (; src < end_mod16; src += 16, am += 16, dst += 32)
+    {
+        // important!
+        __m128i alpha{ _mm_load_si128(reinterpret_cast<const __m128i*>(am)) };
+        __m128i alpha2{ _mm_load_si128(reinterpret_cast<const __m128i*>(am + src_pitch)) };
+
+        __m128i src_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+        __m128i dst_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
 
         alpha = _mm_avg_epu8(alpha, alpha2);
         AVERAGE_4_PIX_INTRINSICS_5(alpha, last_alpha);
 
-        __m128i alpha_ff{_mm_setzero_si128()};
+        __m128i alpha_ff{ _mm_setzero_si128() };
         alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
 
-        alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);                                           
+        alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);
 
-        __m128i lo{_mm_unpacklo_epi8(alpha_ff, alpha)};//(alpha<<8)+0x100 will overflow
-        //so we do it another way
-        //first, (alpha<<8)+0xff
-        __m128i ones{_mm_setzero_si128()};
+        __m128i lo{ _mm_unpacklo_epi8(alpha_ff, alpha) }; //(alpha<<8)+0x100 will overflow
+        // so we do it another way
+        // first, (alpha<<8)+0xff
+        __m128i ones{ _mm_setzero_si128() };
         ones = _mm_cmpeq_epi16(dst_y, ones);
 
-        __m128i ones2{_mm_setzero_si128()};
+        __m128i ones2{ _mm_setzero_si128() };
         ones2 = _mm_cmpeq_epi32(ones2, ones2);
-        ones = _mm_xor_si128(ones, ones2);                            
+        ones = _mm_xor_si128(ones, ones2);
         ones = _mm_srli_epi16(ones, 15);
         ones = _mm_and_si128(ones, lo);
 
         dst_y = _mm_mulhi_epu16(dst_y, lo);
-        dst_y = _mm_adds_epu16(dst_y, ones);//then add one if necessary
+        dst_y = _mm_adds_epu16(dst_y, ones); // then add one if necessary
 
         lo = _mm_setzero_si128();
         lo = _mm_unpacklo_epi8(lo, src_y);
-        dst_y = _mm_adds_epu16(dst_y, lo);                        
-        _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_y );
+        dst_y = _mm_adds_epu16(dst_y, lo);
+        _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_y);
 
-        dst_y = _mm_load_si128( reinterpret_cast<const __m128i*>(dst+16) );
+        dst_y = _mm_load_si128(reinterpret_cast<const __m128i*>(dst + 16));
 
         lo = _mm_unpackhi_epi8(alpha_ff, alpha);
 
         ones = _mm_setzero_si128();
         ones = _mm_cmpeq_epi16(dst_y, ones);
-        ones = _mm_xor_si128(ones, ones2);  
+        ones = _mm_xor_si128(ones, ones2);
         ones = _mm_srli_epi16(ones, 15);
-        ones = _mm_and_si128(ones, lo);    
+        ones = _mm_and_si128(ones, lo);
 
-        dst_y = _mm_mulhi_epu16(dst_y, lo); 
+        dst_y = _mm_mulhi_epu16(dst_y, lo);
         dst_y = _mm_adds_epu16(dst_y, ones);
 
         lo = _mm_setzero_si128();
         lo = _mm_unpackhi_epi8(lo, src_y);
         dst_y = _mm_adds_epu16(dst_y, lo);
-        _mm_store_si128( reinterpret_cast<__m128i*>(dst+16), dst_y );
+        _mm_store_si128(reinterpret_cast<__m128i*>(dst + 16), dst_y);
     }
 }
 
-static __forceinline void hleft_vmid_mix_uv_nv12_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
+static __forceinline void hleft_vmid_mix_uv_nv12_c(BYTE* dst, const int w, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 
 {
-    int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
-    const BYTE* end{src + w};
-    for(; src < end; src+=2, am+=2, dst+=2)
+    int last_alpha{ (am[last_src_id] + am[src_pitch + last_src_id] + 1) / 2 };
+    const BYTE* end{ src + w };
+    for (; src < end; src += 2, am += 2, dst += 2)
     {
-        int ia{(am[0U]+am[0U+src_pitch]+1)/2};
-        int tmp2{(am[1U]+am[1U+src_pitch]+1)/2};
-        last_alpha = (last_alpha + tmp2 + 1)/2;
-        ia = (ia + last_alpha + 1)/2;
+        int ia{ (am[0U] + am[0U + src_pitch] + 1) / 2 };
+        int tmp2{ (am[1U] + am[1U + src_pitch] + 1) / 2 };
+        last_alpha = (last_alpha + tmp2 + 1) / 2;
+        ia = (ia + last_alpha + 1) / 2;
         last_alpha = tmp2;
-        if ( ia!=0xFF )
+        if (ia != 0xFF)
         {
-            dst[0U] = (((dst[0U])*ia)>>8) + src[0U];            
-            dst[1U] = (((dst[1U])*ia)>>8) + src[1U];
+            dst[0U] = (((dst[0U]) * ia) >> 8) + src[0U];
+            dst[1U] = (((dst[1U]) * ia) >> 8) + src[1U];
         }
     }
 }
 
-//0<=w15<=15
-static __forceinline void hleft_vmid_mix_uv_nv12_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
+// 0<=w15<=15
+static __forceinline void hleft_vmid_mix_uv_nv12_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((w15>=0 && w15<=15 && (w15&1)==0) );
-    int last_alpha{(am[last_src_id]+am[src_pitch+last_src_id]+1)/2};
+    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
+    int last_alpha{ (am[last_src_id] + am[src_pitch + last_src_id] + 1) / 2 };
 
-    switch(w15)
+    switch (w15)
     {
     case 14:
-#define _hleft_vmid_mix_uv_nv12_c2_mix_2 \
-    int ia = (am[0U]+am[0+src_pitch]+1)/2;\
-    int tmp2 = (am[1U]+am[1+src_pitch]+1)/2;\
-    last_alpha = (last_alpha + tmp2 + 1)/2;\
-    ia = (ia + last_alpha + 1)/2;\
-    last_alpha = tmp2;\
-    if ( ia!=0xFF )\
-    {\
-        dst[0U] = (((dst[0U])*ia)>>8) + src[0U];\
-        dst[1U] = (((dst[1U])*ia)>>8) + src[1U];\
-    }\
-    src+=2, am+=2, dst+=2
+#define _hleft_vmid_mix_uv_nv12_c2_mix_2             \
+    int ia = (am[0U] + am[0 + src_pitch] + 1) / 2;   \
+    int tmp2 = (am[1U] + am[1 + src_pitch] + 1) / 2; \
+    last_alpha = (last_alpha + tmp2 + 1) / 2;        \
+    ia = (ia + last_alpha + 1) / 2;                  \
+    last_alpha = tmp2;                               \
+    if (ia != 0xFF)                                  \
+    {                                                \
+        dst[0U] = (((dst[0U]) * ia) >> 8) + src[0U]; \
+        dst[1U] = (((dst[1U]) * ia) >> 8) + src[1U]; \
+    }                                                \
+    src += 2, am += 2, dst += 2
 
-        { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 12:
-        { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 10:
-        { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 8:
-        { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 6:
-        { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 4:
-        { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 2:
-        { _hleft_vmid_mix_uv_nv12_c2_mix_2; }
+    {
+        _hleft_vmid_mix_uv_nv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 12: {
+        _hleft_vmid_mix_uv_nv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 10: {
+        _hleft_vmid_mix_uv_nv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 8: {
+        _hleft_vmid_mix_uv_nv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 6: {
+        _hleft_vmid_mix_uv_nv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 4: {
+        _hleft_vmid_mix_uv_nv12_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 2: {
+        _hleft_vmid_mix_uv_nv12_c2_mix_2;
+    }
     }
 }
 
 // am[last_src_id] valid && w&15=0
-static __forceinline void hleft_vmid_mix_uv_nv12_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id=0)
+static __forceinline void hleft_vmid_mix_uv_nv12_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT( (((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch)&15)==0 );
-    __m128i last_alpha{_mm_cvtsi32_si128( (am[last_src_id]+am[src_pitch+last_src_id]+1)<<7 )};
-    const BYTE* end_mod16{src + w00};
-    for(; src < end_mod16; src+=16, am+=16, dst+=16)
+    ASSERT((((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
+    __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
+    const BYTE* end_mod16{ src + w00 };
+    for (; src < end_mod16; src += 16, am += 16, dst += 16)
     {
-        __m128i dst128{_mm_load_si128( reinterpret_cast<const __m128i*>(dst) )};
-        __m128i alpha128_1{_mm_load_si128( reinterpret_cast<const __m128i*>(am) )};
-        __m128i alpha128_2{_mm_load_si128( reinterpret_cast<const __m128i*>(am+src_pitch) )};
-        __m128i sub128{_mm_load_si128( reinterpret_cast<const __m128i*>(src) )};
+        __m128i dst128{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
+        __m128i alpha128_1{ _mm_load_si128(reinterpret_cast<const __m128i*>(am)) };
+        __m128i alpha128_2{ _mm_load_si128(reinterpret_cast<const __m128i*>(am + src_pitch)) };
+        __m128i sub128{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
 
         alpha128_1 = _mm_avg_epu8(alpha128_1, alpha128_2);
         AVERAGE_4_PIX_INTRINSICS_5(alpha128_1, last_alpha);
 
-        __m128i zero{_mm_setzero_si128()};
+        __m128i zero{ _mm_setzero_si128() };
 
-        __m128i ones{_mm_setzero_si128()};
+        __m128i ones{ _mm_setzero_si128() };
         ones = _mm_cmpeq_epi32(ones, ones);
-        ones = _mm_cmpeq_epi8(ones,alpha128_1);
+        ones = _mm_cmpeq_epi8(ones, alpha128_1);
 
-        __m128i dst_lo128{_mm_unpacklo_epi8(dst128, zero)};
+        __m128i dst_lo128{ _mm_unpacklo_epi8(dst128, zero) };
         alpha128_2 = _mm_unpacklo_epi8(alpha128_1, zero);
 
-        __m128i ones2{_mm_unpacklo_epi8(ones, zero)};    
+        __m128i ones2{ _mm_unpacklo_epi8(ones, zero) };
 
         dst_lo128 = _mm_mullo_epi16(dst_lo128, alpha128_2);
         dst_lo128 = _mm_adds_epu16(dst_lo128, ones2);
@@ -1075,7 +1111,7 @@ static __forceinline void hleft_vmid_mix_uv_nv12_sse2(BYTE* dst, const int w00, 
         dst_lo128 = _mm_packus_epi16(dst_lo128, dst128);
 
         dst_lo128 = _mm_adds_epu8(dst_lo128, sub128);
-        _mm_store_si128( reinterpret_cast<__m128i*>(dst), dst_lo128 );
+        _mm_store_si128(reinterpret_cast<__m128i*>(dst), dst_lo128);
     }
 }
 
@@ -1083,99 +1119,107 @@ static __forceinline void mix_uv_p210_c(BYTE* dst, const int w, const BYTE* src,
 
 {
     // no vertical subsampling
-    int last_alpha{am[last_src_id]};
-    const BYTE* end{src + w};
-    WORD* dst_word{reinterpret_cast<WORD*>(dst)};
+    int last_alpha{ am[last_src_id] };
+    const BYTE* end{ src + w };
+    WORD* dst_word{ reinterpret_cast<WORD*>(dst) };
     // P210: UVUVUVUVUV
     for (; src < end; src += 2, am += 2, dst_word += 2)
     {
-        int ia{am[0U]};
-        int tmp2{am[1U]};
+        int ia{ am[0U] };
+        int tmp2{ am[1U] };
         last_alpha = (last_alpha + tmp2 + 1) / 2;
         ia = (ia + last_alpha + 1) / 2;
         last_alpha = tmp2;
 
         if (ia != 0xFF)
         {
-            int tmp{(((dst_word[0U]) * ia) >> 8) + (src[0U] << 8)};
+            int tmp{ (((dst_word[0U]) * ia) >> 8) + (src[0U] << 8) };
 #ifdef XY_UNIT_TEST
-            tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31);//if(tmp>0xffff) tmp = 0xffff;
+            tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31); // if(tmp>0xffff) tmp = 0xffff;
 #endif
             dst_word[0U] = tmp;
             tmp = (((dst_word[1U]) * ia) >> 8) + (src[1U] << 8);
 #ifdef XY_UNIT_TEST
-            tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31);//if(tmp>0xffff) tmp = 0xffff;
+            tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31); // if(tmp>0xffff) tmp = 0xffff;
 #endif
             dst_word[1U] = tmp;
         }
-
     }
 }
 
-//0<=w15<=15
+// 0<=w15<=15
 static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
     ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
-    int last_alpha{am[last_src_id]};
-    WORD* dst_word{reinterpret_cast<WORD*>(dst)};
+    int last_alpha{ am[last_src_id] };
+    WORD* dst_word{ reinterpret_cast<WORD*>(dst) };
 
-#ifdef XY_UNIT_TEST 
-#  define  mix_uv_p210_c2_CLIP(tmp) tmp ^= (tmp^0xffff)&((0xffff-tmp)>>31);/*if(tmp>0xffff) tmp = 0xffff;*/
+#ifdef XY_UNIT_TEST
+#define mix_uv_p210_c2_CLIP(tmp) tmp ^= (tmp ^ 0xffff) & ((0xffff - tmp) >> 31); /*if(tmp>0xffff) tmp = 0xffff;*/
 #else
-#  define  mix_uv_p210_c2_CLIP(tmp) 
+#define mix_uv_p210_c2_CLIP(tmp)
 #endif
 
     switch (w15)
     {
     case 14:
-#define mix_uv_p210_c2_mix_2 \
-    int ia = am[0U];\
-    int tmp2 = am[1U];\
-    last_alpha = (last_alpha + tmp2 + 1)/2;\
-    ia = (ia + last_alpha + 1)/2;\
-    last_alpha = tmp2;\
-    \
-    if( ia!=0xFF )\
-    {\
-        int tmp = (((dst_word[0U])*ia)>>8) + (src[0U]<<8);\
-        mix_uv_p210_c2_CLIP(tmp);\
-        dst_word[0U] = tmp;\
-        tmp = (((dst_word[1U])*ia)>>8) + (src[1U]<<8);\
-        mix_uv_p210_c2_CLIP(tmp);\
-        dst_word[1U] = tmp;\
-    } src+=2, am+=2, dst_word+=2
+#define mix_uv_p210_c2_mix_2                                     \
+    int ia = am[0U];                                             \
+    int tmp2 = am[1U];                                           \
+    last_alpha = (last_alpha + tmp2 + 1) / 2;                    \
+    ia = (ia + last_alpha + 1) / 2;                              \
+    last_alpha = tmp2;                                           \
+                                                                 \
+    if (ia != 0xFF)                                              \
+    {                                                            \
+        int tmp = (((dst_word[0U]) * ia) >> 8) + (src[0U] << 8); \
+        mix_uv_p210_c2_CLIP(tmp);                                \
+        dst_word[0U] = tmp;                                      \
+        tmp = (((dst_word[1U]) * ia) >> 8) + (src[1U] << 8);     \
+        mix_uv_p210_c2_CLIP(tmp);                                \
+        dst_word[1U] = tmp;                                      \
+    }                                                            \
+    src += 2, am += 2, dst_word += 2
 
-    { mix_uv_p210_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 12:
-    { mix_uv_p210_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 10:
-    { mix_uv_p210_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 8:
-    { mix_uv_p210_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 6:
-    { mix_uv_p210_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 4:
-    { mix_uv_p210_c2_mix_2; }
-    #if defined(__clang__)
-    [[clang::fallthrough]];
-    #endif
-    case 2:
-    { mix_uv_p210_c2_mix_2; }
+    {
+        mix_uv_p210_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 12: {
+        mix_uv_p210_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 10: {
+        mix_uv_p210_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 8: {
+        mix_uv_p210_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 6: {
+        mix_uv_p210_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 4: {
+        mix_uv_p210_c2_mix_2;
+    }
+#if defined(__clang__)
+        [[clang::fallthrough]];
+#endif
+    case 2: {
+        mix_uv_p210_c2_mix_2;
+    }
     }
 }
 
@@ -1184,37 +1228,37 @@ static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* s
 static __forceinline void mix_uv_p210_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
     ASSERT((((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
-    __m128i last_alpha{_mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7)};
-    const BYTE* end_mod16{src + w00};
+    __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
+    const BYTE* end_mod16{ src + w00 };
     for (; src < end_mod16; src += 16, am += 16, dst += 32)
     {
-        //important!
-        __m128i alpha{_mm_load_si128(reinterpret_cast<const __m128i*>(am))};
+        // important!
+        __m128i alpha{ _mm_load_si128(reinterpret_cast<const __m128i*>(am)) };
 
-        __m128i src_y{_mm_load_si128(reinterpret_cast<const __m128i*>(src))};
-        __m128i dst_y{_mm_load_si128(reinterpret_cast<const __m128i*>(dst))};
+        __m128i src_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(src)) };
+        __m128i dst_y{ _mm_load_si128(reinterpret_cast<const __m128i*>(dst)) };
 
         AVERAGE_4_PIX_INTRINSICS_5(alpha, last_alpha);
 
-        __m128i alpha_ff{_mm_setzero_si128()};
+        __m128i alpha_ff{ _mm_setzero_si128() };
         alpha_ff = _mm_cmpeq_epi32(alpha_ff, alpha_ff);
 
         alpha_ff = _mm_cmpeq_epi8(alpha_ff, alpha);
 
-        __m128i lo{_mm_unpacklo_epi8(alpha_ff, alpha)};//(alpha<<8)+0x100 will overflow
-        //so we do it another way
-        //first, (alpha<<8)+0xff
-        __m128i ones{_mm_setzero_si128()};
+        __m128i lo{ _mm_unpacklo_epi8(alpha_ff, alpha) }; //(alpha<<8)+0x100 will overflow
+        // so we do it another way
+        // first, (alpha<<8)+0xff
+        __m128i ones{ _mm_setzero_si128() };
         ones = _mm_cmpeq_epi16(dst_y, ones);
 
-        __m128i ones2{_mm_setzero_si128()};
+        __m128i ones2{ _mm_setzero_si128() };
         ones2 = _mm_cmpeq_epi32(ones2, ones2);
         ones = _mm_xor_si128(ones, ones2);
         ones = _mm_srli_epi16(ones, 15);
         ones = _mm_and_si128(ones, lo);
 
         dst_y = _mm_mulhi_epu16(dst_y, lo);
-        dst_y = _mm_adds_epu16(dst_y, ones);//then add one if necessary
+        dst_y = _mm_adds_epu16(dst_y, ones); // then add one if necessary
 
         lo = _mm_setzero_si128();
         lo = _mm_unpacklo_epi8(lo, src_y);

@@ -30,7 +30,7 @@
 #ifndef _WIN64
 void __declspec(naked) yuvtoyuy2row_MMX(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
 {
-	__asm {
+    __asm {
 		push	ebp
 		push	edi
 		push	esi
@@ -70,14 +70,15 @@ yuvtoyuy2row_loop:
 		pop		edi
 		pop		ebp
 		ret
-	};
+    }
+    ;
 }
 
-static const __int64 yuvtoyuy2row_avg_mask{0x7f7f7f7f7f7f7f7fi64};
+static const __int64 yuvtoyuy2row_avg_mask{ 0x7f7f7f7f7f7f7f7fi64 };
 
 void __declspec(naked) yuvtoyuy2row_avg_MMX(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, const DWORD width, const DWORD pitchuv)
 {
-	__asm {
+    __asm {
 		push	ebp
 		push	edi
 		push	esi
@@ -104,7 +105,7 @@ yuvtoyuy2row_avg_loop:
 		punpcklbw	mm2, [esi + eax]
 		movq		mm3, mm2
 
-		// (x+y)>>1 == (x&y)+((x^y)>>1)
+                                                   // (x+y)>>1 == (x&y)+((x^y)>>1)
 
 		pand		mm0, mm2
 		pxor		mm1, mm3
@@ -133,147 +134,154 @@ yuvtoyuy2row_avg_loop:
 		pop		edi
 		pop		ebp
 		ret
-	};
+    }
+    ;
 }
 
-void __declspec(naked) yv12_yuy2_row_sse2() {
-	__asm {
-		// ebx - Y
-		// edx - U
-		// esi - V
-		// edi - dest
-		// ecx - halfwidth
-		xor		eax, eax
-
-one:
-		movdqa		xmm0, [ebx + eax*2]			// YYYYYYYY
-		movdqa		xmm1, [ebx + eax*2 + 16]	// YYYYYYYY
-
-		movdqa		xmm2, [edx + eax]			// UUUUUUUU
-		movdqa		xmm3, [esi + eax]			// VVVVVVVV
-
-		movdqa		xmm4, xmm2
-		movdqa		xmm5, xmm0
-		movdqa		xmm6, xmm1
-		punpcklbw	xmm2, xmm3					// VUVUVUVU
-		punpckhbw	xmm4, xmm3					// VUVUVUVU
-
-		punpcklbw	xmm0, xmm2					// VYUYVYUY
-		punpcklbw	xmm1, xmm4
-		punpckhbw	xmm5, xmm2
-		punpckhbw	xmm6, xmm4
-
-		movntdq		[edi + eax*4], xmm0
-		movntdq		[edi + eax*4 + 16], xmm5
-		movntdq		[edi + eax*4 + 32], xmm1
-		movntdq		[edi + eax*4 + 48], xmm6
-
-		add		eax, 16
-		cmp		eax, ecx
-
-		jb		one
-
-		ret
-	};
-}
-
-void __declspec(naked) yv12_yuy2_row_sse2_linear() {
-	__asm {
-		// ebx - Y
-		// edx - U
-		// esi - V
-		// edi - dest
-		// ecx - width
-		// ebp - uv_stride
-		xor		eax, eax
-
-one:
-		movdqa		xmm0, [ebx + eax*2]			// YYYYYYYY
-		movdqa		xmm1, [ebx + eax*2 + 16]	// YYYYYYYY
-
-		movdqa		xmm2, [edx]
-		movdqa		xmm3, [esi]
-		pavgb		xmm2, [edx + ebp]		// UUUUUUUU
-		pavgb		xmm3, [esi + ebp]		// VVVVVVVV
-
-		movdqa		xmm4, xmm2
-		movdqa		xmm5, xmm0
-		movdqa		xmm6, xmm1
-		punpcklbw	xmm2, xmm3			// VUVUVUVU
-		punpckhbw	xmm4, xmm3			// VUVUVUVU
-
-		punpcklbw	xmm0, xmm2			// VYUYVYUY
-		punpcklbw	xmm1, xmm4
-		punpckhbw	xmm5, xmm2
-		punpckhbw	xmm6, xmm4
-
-		movntdq		[edi + eax*4], xmm0
-		movntdq		[edi + eax*4 + 16], xmm5
-		movntdq		[edi + eax*4 + 32], xmm1
-		movntdq		[edi + eax*4 + 48], xmm6
-
-		add		eax, 16
-		add		edx, 16
-		add		esi, 16
-		cmp		eax, ecx
-
-		jb		one
-
-		ret
-	};
-}
-
-void __declspec(naked) yv12_yuy2_row_sse2_linear_interlaced() {
-	__asm {
-		// ebx - Y
-		// edx - U
-		// esi - V
-		// edi - dest
-		// ecx - width
-		// ebp - uv_stride
-		xor		eax, eax
-
-one:
-		movdqa		xmm0, [ebx + eax*2]			// YYYYYYYY
-		movdqa		xmm1, [ebx + eax*2 + 16]	// YYYYYYYY
-
-		movdqa		xmm2, [edx]
-		movdqa		xmm3, [esi]
-		pavgb		xmm2, [edx + ebp*2]			// UUUUUUUU
-		pavgb		xmm3, [esi + ebp*2]			// VVVVVVVV
-
-		movdqa		xmm4, xmm2
-		movdqa		xmm5, xmm0
-		movdqa		xmm6, xmm1
-		punpcklbw	xmm2, xmm3				// VUVUVUVU
-		punpckhbw	xmm4, xmm3				// VUVUVUVU
-
-		punpcklbw	xmm0, xmm2				// VYUYVYUY
-		punpcklbw	xmm1, xmm4
-		punpckhbw	xmm5, xmm2
-		punpckhbw	xmm6, xmm4
-
-		movntdq		[edi + eax*4], xmm0
-		movntdq		[edi + eax*4 + 16], xmm5
-		movntdq		[edi + eax*4 + 32], xmm1
-		movntdq		[edi + eax*4 + 48], xmm6
-
-		add		eax, 16
-		add		edx, 16
-		add		esi, 16
-		cmp		eax, ecx
-
-		jb		one
-
-		ret
-	};
-}
-
-void __declspec(naked) yv12_yuy2_sse2(const BYTE *Y, const BYTE *U, const BYTE *V,
-									  const int halfstride, const unsigned halfwidth, const unsigned height,
-									  BYTE *YUY2, const int d_stride)
+void __declspec(naked) yv12_yuy2_row_sse2()
 {
-	__asm {
+    __asm {
+        // ebx - Y
+        // edx - U
+        // esi - V
+        // edi - dest
+        // ecx - halfwidth
+		xor		eax, eax
+
+one:
+		movdqa		xmm0, [ebx + eax*2] // YYYYYYYY
+		movdqa		xmm1, [ebx + eax*2 + 16] // YYYYYYYY
+
+		movdqa		xmm2, [edx + eax] // UUUUUUUU
+		movdqa		xmm3, [esi + eax] // VVVVVVVV
+
+		movdqa		xmm4, xmm2
+		movdqa		xmm5, xmm0
+		movdqa		xmm6, xmm1
+		punpcklbw	xmm2, xmm3 // VUVUVUVU
+		punpckhbw	xmm4, xmm3 // VUVUVUVU
+
+		punpcklbw	xmm0, xmm2 // VYUYVYUY
+		punpcklbw	xmm1, xmm4
+		punpckhbw	xmm5, xmm2
+		punpckhbw	xmm6, xmm4
+
+		movntdq		[edi + eax*4], xmm0
+		movntdq		[edi + eax*4 + 16], xmm5
+		movntdq		[edi + eax*4 + 32], xmm1
+		movntdq		[edi + eax*4 + 48], xmm6
+
+		add		eax, 16
+		cmp		eax, ecx
+
+		jb		one
+
+		ret
+    }
+    ;
+}
+
+void __declspec(naked) yv12_yuy2_row_sse2_linear()
+{
+    __asm {
+        // ebx - Y
+        // edx - U
+        // esi - V
+        // edi - dest
+        // ecx - width
+        // ebp - uv_stride
+		xor		eax, eax
+
+one:
+		movdqa		xmm0, [ebx + eax*2] // YYYYYYYY
+		movdqa		xmm1, [ebx + eax*2 + 16] // YYYYYYYY
+
+		movdqa		xmm2, [edx]
+		movdqa		xmm3, [esi]
+		pavgb		xmm2, [edx + ebp] // UUUUUUUU
+		pavgb		xmm3, [esi + ebp] // VVVVVVVV
+
+		movdqa		xmm4, xmm2
+		movdqa		xmm5, xmm0
+		movdqa		xmm6, xmm1
+		punpcklbw	xmm2, xmm3 // VUVUVUVU
+		punpckhbw	xmm4, xmm3 // VUVUVUVU
+
+		punpcklbw	xmm0, xmm2 // VYUYVYUY
+		punpcklbw	xmm1, xmm4
+		punpckhbw	xmm5, xmm2
+		punpckhbw	xmm6, xmm4
+
+		movntdq		[edi + eax*4], xmm0
+		movntdq		[edi + eax*4 + 16], xmm5
+		movntdq		[edi + eax*4 + 32], xmm1
+		movntdq		[edi + eax*4 + 48], xmm6
+
+		add		eax, 16
+		add		edx, 16
+		add		esi, 16
+		cmp		eax, ecx
+
+		jb		one
+
+		ret
+    }
+    ;
+}
+
+void __declspec(naked) yv12_yuy2_row_sse2_linear_interlaced()
+{
+    __asm {
+        // ebx - Y
+        // edx - U
+        // esi - V
+        // edi - dest
+        // ecx - width
+        // ebp - uv_stride
+		xor		eax, eax
+
+one:
+		movdqa		xmm0, [ebx + eax*2] // YYYYYYYY
+		movdqa		xmm1, [ebx + eax*2 + 16] // YYYYYYYY
+
+		movdqa		xmm2, [edx]
+		movdqa		xmm3, [esi]
+		pavgb		xmm2, [edx + ebp*2] // UUUUUUUU
+		pavgb		xmm3, [esi + ebp*2] // VVVVVVVV
+
+		movdqa		xmm4, xmm2
+		movdqa		xmm5, xmm0
+		movdqa		xmm6, xmm1
+		punpcklbw	xmm2, xmm3 // VUVUVUVU
+		punpckhbw	xmm4, xmm3 // VUVUVUVU
+
+		punpcklbw	xmm0, xmm2 // VYUYVYUY
+		punpcklbw	xmm1, xmm4
+		punpckhbw	xmm5, xmm2
+		punpckhbw	xmm6, xmm4
+
+		movntdq		[edi + eax*4], xmm0
+		movntdq		[edi + eax*4 + 16], xmm5
+		movntdq		[edi + eax*4 + 32], xmm1
+		movntdq		[edi + eax*4 + 48], xmm6
+
+		add		eax, 16
+		add		edx, 16
+		add		esi, 16
+		cmp		eax, ecx
+
+		jb		one
+
+		ret
+    }
+    ;
+}
+
+void __declspec(naked) yv12_yuy2_sse2(const BYTE* Y, const BYTE* U, const BYTE* V,
+                                      const int halfstride, const unsigned halfwidth, const unsigned height,
+                                      BYTE* YUY2, const int d_stride)
+{
+    __asm {
 		push	ebx
 		push	esi
 		push	edi
@@ -329,14 +337,15 @@ done:
 		pop		ebx
 
 		ret
-	};
+    }
+    ;
 }
 
-void __declspec(naked) yv12_yuy2_sse2_interlaced(const BYTE *Y, const BYTE *U, const BYTE *V,
-		const int halfstride, const unsigned halfwidth, const unsigned height,
-		BYTE *YUY2, const int d_stride)
+void __declspec(naked) yv12_yuy2_sse2_interlaced(const BYTE* Y, const BYTE* U, const BYTE* V,
+                                                 const int halfstride, const unsigned halfwidth, const unsigned height,
+                                                 BYTE* YUY2, const int d_stride)
 {
-	__asm {
+    __asm {
 		push	ebx
 		push	esi
 		push	edi
@@ -359,7 +368,7 @@ void __declspec(naked) yv12_yuy2_sse2_interlaced(const BYTE *Y, const BYTE *U, c
 
 row:
 		sub		dword ptr [esp + 40], 4
-		call	yv12_yuy2_row_sse2						// first row, first field
+		call	yv12_yuy2_row_sse2 // first row, first field
 
 		lea		ebx, [ebx + ebp*2]
 		add		edi, [esp + 48]
@@ -367,7 +376,7 @@ row:
 		add		edx, ebp
 		add		esi, ebp
 
-		call	yv12_yuy2_row_sse2						// first row, second field
+		call	yv12_yuy2_row_sse2 // first row, second field
 
 		lea		ebx, [ebx + ebp*2]
 		add		edi, [esp + 48]
@@ -375,7 +384,7 @@ row:
 		sub		edx, ebp
 		sub		esi, ebp
 
-		call	yv12_yuy2_row_sse2_linear_interlaced	// second row, first field
+		call	yv12_yuy2_row_sse2_linear_interlaced // second row, first field
 
 		add		edx, [esp + 32]
 		add		esi, [esp + 32]
@@ -383,7 +392,7 @@ row:
 		lea		ebx, [ebx + ebp*2]
 		add		edi, [esp + 48]
 
-		call	yv12_yuy2_row_sse2_linear_interlaced	// second row, second field
+		call	yv12_yuy2_row_sse2_linear_interlaced // second row, second field
 
 		add		edx, [esp + 32]
 		add		esi, [esp + 32]
@@ -427,6 +436,7 @@ last4:
 		pop		ebx
 
 		ret
-	};
+    }
+    ;
 }
 #endif

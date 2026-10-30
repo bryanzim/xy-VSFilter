@@ -47,7 +47,7 @@ DEFINE_GUID(MEDIASUBTYPE_LATM_AAC,
 
 // {53544441-0000-0010-8000-00AA00389B71}
 // Specific to LAV Splitter and LAV Audio Decoder, can be AAC or AAC-ADTS
-#define FOURCC_AAC_ADTS      mmioFOURCC('A','D','T','S')
+#define FOURCC_AAC_ADTS mmioFOURCC('A', 'D', 'T', 'S')
 #define WAVE_FORMAT_AAC_ADTS (FOURCC_AAC_ADTS & 0xFFFF)
 DEFINE_GUID(MEDIASUBTYPE_AAC_ADTS,
             FOURCC_AAC_ADTS, 0x000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
@@ -92,11 +92,11 @@ DEFINE_GUID(MEDIASUBTYPE_SAMR,
             0x726D6173, 0x000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
 // {30385056-0000-0010-8000-00AA00389B71}
-DEFINE_GUID(MEDIASUBTYPE_VP80 ,
+DEFINE_GUID(MEDIASUBTYPE_VP80,
             0x30385056, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
 // {30395056-0000-0010-8000-00AA00389B71}
-DEFINE_GUID(MEDIASUBTYPE_VP90 ,
+DEFINE_GUID(MEDIASUBTYPE_VP90,
             0x30395056, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
 DEFINE_GUID(MEDIASUBTYPE_IMA4,
@@ -142,7 +142,8 @@ DEFINE_GUID(MEDIASUBTYPE_DiracVideo,
 DEFINE_GUID(FORMAT_DiracVideoInfo,
             0xd2667a7e, 0x4055, 0x4244, 0xa6, 0x5f, 0xdd, 0xdd, 0xf2, 0xb7, 0x4b, 0xd7);
 
-struct DIRACINFOHEADER {
+struct DIRACINFOHEADER
+{
     VIDEOINFOHEADER2 hdr;
     DWORD cbSequenceHeader;
     DWORD dwSequenceHeader[1U];
@@ -342,15 +343,16 @@ DEFINE_GUID(MEDIASUBTYPE_PCM_FL64_le,
             0x666C3634, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71);
 */
 
-enum {
+enum
+{
     WAVE_FORMAT_14_4 = 0x2002,
     WAVE_FORMAT_28_8 = 0x2003,
-    WAVE_FORMAT_ATRC = 0x0270,  //WAVE_FORMAT_SONY_SCX
+    WAVE_FORMAT_ATRC = 0x0270, // WAVE_FORMAT_SONY_SCX
     WAVE_FORMAT_COOK = 0x2004,
     WAVE_FORMAT_DNET = 0x2005,
     WAVE_FORMAT_RAAC = 0x2006,
     WAVE_FORMAT_RACP = 0x2007,
-    WAVE_FORMAT_SIPR = 0x0130   //WAVE_FORMAT_SIPROLAB_ACEPLNET
+    WAVE_FORMAT_SIPR = 0x0130 // WAVE_FORMAT_SIPROLAB_ACEPLNET
 };
 
 //
@@ -377,10 +379,12 @@ DEFINE_GUID(MEDIASUBTYPE_ADPCM_AMV,
             0x41564D41, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
 
-struct WAVEFORMATEXPS2 : public WAVEFORMATEX {
+struct WAVEFORMATEXPS2 : public WAVEFORMATEX
+{
     DWORD dwInterleave;
 
-    WAVEFORMATEXPS2() {
+    WAVEFORMATEXPS2()
+    {
         ZeroMemory(this, sizeof(*this));
         cbSize = sizeof(WAVEFORMATEXPS2) - sizeof(WAVEFORMATEX);
     }
@@ -447,7 +451,8 @@ DEFINE_GUID(MEDIASUBTYPE_Vorbis,
 DEFINE_GUID(FORMAT_VorbisFormat,
             0x6bddfa7e, 0x9f22, 0x46a9, 0xab, 0x5e, 0x88, 0x4e, 0xff, 0x29, 0x4d, 0x9f);
 
-typedef struct tagVORBISFORMAT {
+typedef struct tagVORBISFORMAT
+{
     WORD nChannels;
     DWORD nSamplesPerSec;
     DWORD nMinBitsPerSec;
@@ -464,7 +469,8 @@ DEFINE_GUID(MEDIASUBTYPE_Vorbis2,
 DEFINE_GUID(FORMAT_VorbisFormat2,
             0xb36e107f, 0xa938, 0x4387, 0x93, 0xc7, 0x55, 0xe9, 0x66, 0x75, 0x74, 0x73);
 
-typedef struct tagVORBISFORMAT2 {
+typedef struct tagVORBISFORMAT2
+{
     DWORD Channels;
     DWORD SamplesPerSec;
     DWORD BitsPerSample;
@@ -524,9 +530,10 @@ DEFINE_GUID(MEDIASUBTYPE_WEBVTT,
             0xc886d215, 0xf485, 0x40bb, 0x8d, 0xb6, 0xfa, 0xdb, 0xc6, 0x19, 0xa4, 0x5d);
 
 #pragma pack(push, 1)
-typedef struct {
+typedef struct
+{
     DWORD dwOffset;
-    CHAR  IsoLang[4U];     // three letter lang code + terminating zero
+    CHAR IsoLang[4U];      // three letter lang code + terminating zero
     WCHAR TrackName[256U]; // 256 chars ought to be enough for everyone :)
 } SUBTITLEINFO;
 #pragma pack(pop)
@@ -1053,22 +1060,24 @@ DEFINE_GUID(MEDIASUBTYPE_QDM2,
 DEFINE_GUID(MEDIASUBTYPE_HDMV_LPCM_AUDIO,
             0x949f97fd, 0x56f6, 0x4527, 0xb4, 0xae, 0xdd, 0xeb, 0x37, 0x5a, 0xb8, 0xf);
 
-struct WAVEFORMATEX_HDMV_LPCM : public WAVEFORMATEX {
+struct WAVEFORMATEX_HDMV_LPCM : public WAVEFORMATEX
+{
     BYTE channel_conf;
 
-    WAVEFORMATEX_HDMV_LPCM() {
+    WAVEFORMATEX_HDMV_LPCM()
+    {
         ZeroMemory(this, sizeof(*this));
         cbSize = sizeof(WAVEFORMATEX_HDMV_LPCM) - sizeof(WAVEFORMATEX);
     }
 };
 
-#define WAVE_FORMAT_MLP       mmioFOURCC('M','L','P',' ')
+#define WAVE_FORMAT_MLP mmioFOURCC('M', 'L', 'P', ' ')
 // {20504C4D-0000-0010-8000-00AA00389B71}
 DEFINE_GUID(MEDIASUBTYPE_MLP,
             WAVE_FORMAT_MLP, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71);
 
 // mmreg.h defines WAVE_FORMAT_OPUS as 0x704F. Media subtype GUIDs use the FOURCC.
-#define XY_OPUS_FOURCC mmioFOURCC('O','P','U','S')
+#define XY_OPUS_FOURCC mmioFOURCC('O', 'P', 'U', 'S')
 DEFINE_GUID(MEDIASUBTYPE_OPUS,
             XY_OPUS_FOURCC, 0x000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
@@ -1081,11 +1090,13 @@ DEFINE_GUID(MEDIASUBTYPE_FFMPEG_AUDIO,
 DEFINE_GUID(FORMAT_WaveFormatExFFMPEG,
             0x35189950, 0xcac9, 0x4c8d, 0x81, 0x9d, 0xb6, 0xfa, 0xee, 0x15, 0xdd, 0x9d);
 
-struct WAVEFORMATEXFFMPEG {
+struct WAVEFORMATEXFFMPEG
+{
     int nCodecId;
     WAVEFORMATEX wfex;
 
-    WAVEFORMATEXFFMPEG() {
+    WAVEFORMATEXFFMPEG()
+    {
         nCodecId = 0;
     }
 };
@@ -1109,45 +1120,45 @@ DEFINE_GUID(CLSID_AC3Filter, 0xA753A1EC, 0x973E, 0x4718, 0xAF, 0x8E, 0xA3, 0xF5,
 
 // uncompressed
 #define DEFINE_GUID_FOURCC(FOURCC) \
- DEFINE_GUID(MEDIASUBTYPE_##FOURCC,FOURCC_##FOURCC, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+    DEFINE_GUID(MEDIASUBTYPE_##FOURCC, FOURCC_##FOURCC, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
-//uncompressed
-#define FOURCC_YUY2 mmioFOURCC('Y','U','Y','2')
-#define FOURCC_V422 mmioFOURCC('V','4','2','2')
-#define FOURCC_YV12 mmioFOURCC('Y','V','1','2')
-#define FOURCC_YVYU mmioFOURCC('Y','V','Y','U')
-#define FOURCC_UYVY mmioFOURCC('U','Y','V','Y')
-#define FOURCC_YUYV mmioFOURCC('Y','U','Y','V')
-#define FOURCC_VYUY mmioFOURCC('V','Y','U','Y')
-#define FOURCC_I420 mmioFOURCC('I','4','2','0')
-#define FOURCC_IYUV mmioFOURCC('I','Y','U','V')
-#define FOURCC_444P mmioFOURCC('4','4','4','P')
-#define FOURCC_YV24 mmioFOURCC('Y','V','2','4') // YUV 4:4:4
-#define FOURCC_422P mmioFOURCC('4','2','2','P')
-#define FOURCC_YV16 mmioFOURCC('Y','V','1','6') // YUV 4:2:2
-#define FOURCC_411P mmioFOURCC('4','1','1','P')
-#define FOURCC_Y41B mmioFOURCC('Y','4','1','B') // YUV 4:1:1
-#define FOURCC_410P mmioFOURCC('4','1','0','P')
-#define FOURCC_PAL1 mmioFOURCC('P','A','L','1')
-#define FOURCC_PAL4 mmioFOURCC('P','A','L','4')
-#define FOURCC_PAL8 mmioFOURCC('P','A','L','8')
-#define FOURCC_RGB2 mmioFOURCC('R','G','B','2')
-#define FOURCC_RGB3 mmioFOURCC('R','G','B','3')
-#define FOURCC_RGB5 mmioFOURCC('R','G','B','5')
-#define FOURCC_RGB6 mmioFOURCC('R','G','B','6')
-#define FOURCC_CLJR mmioFOURCC('C','L','J','R')
-#define FOURCC_Y800 mmioFOURCC('Y','8','0','0')
-#define FOURCC_NV12 mmioFOURCC('N','V','1','2')
-#define FOURCC_NV21 mmioFOURCC('N','V','2','1')
-#define FOURCC_420R mmioFOURCC('4','2','0','R')
-#define FOURCC_422R mmioFOURCC('4','2','2','R')
-#define FOURCC_444R mmioFOURCC('4','4','4','R')
-#define FOURCC_P016 mmioFOURCC('P','0','1','6')
-#define FOURCC_P010 mmioFOURCC('P','0','1','0')
-#define FOURCC_P210 mmioFOURCC('P','2','1','0')
-#define FOURCC_P216 mmioFOURCC('P','2','1','6')
-#define FOURCC_AYUV mmioFOURCC('A','Y','U','V')
-#define FOURCC_Y416 mmioFOURCC('Y','4','1','6')
+// uncompressed
+#define FOURCC_YUY2 mmioFOURCC('Y', 'U', 'Y', '2')
+#define FOURCC_V422 mmioFOURCC('V', '4', '2', '2')
+#define FOURCC_YV12 mmioFOURCC('Y', 'V', '1', '2')
+#define FOURCC_YVYU mmioFOURCC('Y', 'V', 'Y', 'U')
+#define FOURCC_UYVY mmioFOURCC('U', 'Y', 'V', 'Y')
+#define FOURCC_YUYV mmioFOURCC('Y', 'U', 'Y', 'V')
+#define FOURCC_VYUY mmioFOURCC('V', 'Y', 'U', 'Y')
+#define FOURCC_I420 mmioFOURCC('I', '4', '2', '0')
+#define FOURCC_IYUV mmioFOURCC('I', 'Y', 'U', 'V')
+#define FOURCC_444P mmioFOURCC('4', '4', '4', 'P')
+#define FOURCC_YV24 mmioFOURCC('Y', 'V', '2', '4') // YUV 4:4:4
+#define FOURCC_422P mmioFOURCC('4', '2', '2', 'P')
+#define FOURCC_YV16 mmioFOURCC('Y', 'V', '1', '6') // YUV 4:2:2
+#define FOURCC_411P mmioFOURCC('4', '1', '1', 'P')
+#define FOURCC_Y41B mmioFOURCC('Y', '4', '1', 'B') // YUV 4:1:1
+#define FOURCC_410P mmioFOURCC('4', '1', '0', 'P')
+#define FOURCC_PAL1 mmioFOURCC('P', 'A', 'L', '1')
+#define FOURCC_PAL4 mmioFOURCC('P', 'A', 'L', '4')
+#define FOURCC_PAL8 mmioFOURCC('P', 'A', 'L', '8')
+#define FOURCC_RGB2 mmioFOURCC('R', 'G', 'B', '2')
+#define FOURCC_RGB3 mmioFOURCC('R', 'G', 'B', '3')
+#define FOURCC_RGB5 mmioFOURCC('R', 'G', 'B', '5')
+#define FOURCC_RGB6 mmioFOURCC('R', 'G', 'B', '6')
+#define FOURCC_CLJR mmioFOURCC('C', 'L', 'J', 'R')
+#define FOURCC_Y800 mmioFOURCC('Y', '8', '0', '0')
+#define FOURCC_NV12 mmioFOURCC('N', 'V', '1', '2')
+#define FOURCC_NV21 mmioFOURCC('N', 'V', '2', '1')
+#define FOURCC_420R mmioFOURCC('4', '2', '0', 'R')
+#define FOURCC_422R mmioFOURCC('4', '2', '2', 'R')
+#define FOURCC_444R mmioFOURCC('4', '4', '4', 'R')
+#define FOURCC_P016 mmioFOURCC('P', '0', '1', '6')
+#define FOURCC_P010 mmioFOURCC('P', '0', '1', '0')
+#define FOURCC_P210 mmioFOURCC('P', '2', '1', '0')
+#define FOURCC_P216 mmioFOURCC('P', '2', '1', '6')
+#define FOURCC_AYUV mmioFOURCC('A', 'Y', 'U', 'V')
+#define FOURCC_Y416 mmioFOURCC('Y', '4', '1', '6')
 
 DEFINE_GUID_FOURCC(422P)
 DEFINE_GUID_FOURCC(444P)

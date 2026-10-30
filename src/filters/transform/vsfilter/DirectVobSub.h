@@ -1,4 +1,4 @@
-/* 
+/*
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *
@@ -6,15 +6,15 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -35,17 +35,17 @@ public:
 
     enum ColorSpaceOption
     {
-        YuvMatrix_AUTO = 0
-        ,BT_601
-        ,BT_709
-        ,BT_2020
-        ,GUESS
+        YuvMatrix_AUTO = 0,
+        BT_601,
+        BT_709,
+        BT_2020,
+        GUESS
     };
     enum YuvRange
     {
-        YuvRange_Auto = 0
-        ,YuvRange_TV
-        ,YuvRange_PC
+        YuvRange_Auto = 0,
+        YuvRange_TV,
+        YuvRange_PC
     };
     enum LoadLevel
     {
@@ -55,8 +55,8 @@ public:
         LOADLEVEL_COUNT
     };
 
-    static const int REQUIRED_CONFIG_VERSION{706};
-    static const int CUR_SUPPORTED_FILTER_VERSION{39};
+    static const int REQUIRED_CONFIG_VERSION{ 706 };
+    static const int CUR_SUPPORTED_FILTER_VERSION{ 39 };
 
     typedef DirectVobSubXyOptions::CachesInfo CachesInfo;
     typedef DirectVobSubXyOptions::XyFlyWeightInfo XyFlyWeightInfo;
@@ -66,8 +66,9 @@ public:
     {
         CStringW guid, friendly_name;
     };
+
 protected:
-    DirectVobSubImpl(const Option *options, CCritSec * pLock);
+    DirectVobSubImpl(const Option* options, CCritSec* pLock);
     virtual ~DirectVobSubImpl();
 
     [[nodiscard]] bool is_compatible();
@@ -76,26 +77,27 @@ protected:
 
     [[nodiscard]] virtual HRESULT GetCurStyles(SubStyle sub_style[], const int count) { return E_NOTIMPL; }
     [[nodiscard]] virtual HRESULT SetCurStyles(const SubStyle sub_style[], const int count) { return E_NOTIMPL; }
+
 protected:
-    CCritSec *m_propsLock;
+    CCritSec* m_propsLock;
 
-    int m_bt601Width, m_bt601Height;//for AUTO_GUESS
+    int m_bt601Width, m_bt601Height; // for AUTO_GUESS
 
-    static int const MAX_COLOR_SPACE{256};
+    static int const MAX_COLOR_SPACE{ 256 };
     ColorSpaceOpt m_outputColorSpace[MAX_COLOR_SPACE];
     ColorSpaceOpt m_inputColorSpace[MAX_COLOR_SPACE];
 
-	STSStyle m_defStyle;
+    STSStyle m_defStyle;
 
-	bool m_fAdvancedRenderer;
-	int m_nReloaderDisableCount;
-	int m_SubtitleDelay, m_SubtitleSpeedMul, m_SubtitleSpeedDiv;
+    bool m_fAdvancedRenderer;
+    int m_nReloaderDisableCount;
+    int m_SubtitleDelay, m_SubtitleSpeedMul, m_SubtitleSpeedDiv;
     // User could specify any values for m_SubtitleSpeedMul and m_SubtitleSpeedDiv.
-    // We want to normalize the user input with their greatest common divisor to minimize 
+    // We want to normalize the user input with their greatest common divisor to minimize
     // the chance of overflow later when we do calculations.
     int m_SubtitleSpeedNormalizedMul, m_SubtitleSpeedNormalizedDiv;
 
-	NORMALIZEDRECT m_ZoomRect;
+    NORMALIZEDRECT m_ZoomRect;
 
     CAtlArray<CStringW> m_known_source_filters_guid;
     CAtlArray<CStringW> m_known_source_filters_name;
@@ -103,25 +105,26 @@ protected:
     int m_supported_filter_verion;
     int m_config_info_version;
 
-	CComPtr<ISubClock> m_pSubClock;
+    CComPtr<ISubClock> m_pSubClock;
 
 public:
-    static void LoadKnownSourceFilters( CAtlArray<CStringW> *filter_guid,
-                                        CAtlArray<CStringW> *filter_name );
-    static void SaveKnownSourceFilters( const CAtlArray<CStringW>& filter_guid, 
-                                        const CAtlArray<CStringW>& filter_name );
+    static void LoadKnownSourceFilters(CAtlArray<CStringW>* filter_guid,
+                                       CAtlArray<CStringW>* filter_name);
+    static void SaveKnownSourceFilters(const CAtlArray<CStringW>& filter_guid,
+                                       const CAtlArray<CStringW>& filter_name);
+
 public:
     // XyOptionsImpl
-    HRESULT DoGetField(unsigned field, void *value);
-    [[nodiscard]] HRESULT DoSetField(unsigned field, void const *value);
+    HRESULT DoGetField(unsigned field, void* value);
+    [[nodiscard]] HRESULT DoSetField(unsigned field, void const* value);
 
     // IXyOptions
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBin      (unsigned field, LPVOID    *value, int *size );
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBin2     (unsigned field, void      *value, int size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBin(unsigned field, LPVOID* value, int* size);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyGetBin2(unsigned field, void* value, int size);
 
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBin      (unsigned field, LPVOID    value, int size );
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBin(unsigned field, LPVOID value, int size);
 
-	// IDirectVobSub
+    // IDirectVobSub
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_FileName(WCHAR* fn);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_FileName(WCHAR* fn);
@@ -134,7 +137,7 @@ public:
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_PreBuffering(bool* fDoPreBuffering);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_PreBuffering(bool fDoPreBuffering);
 
-    
+
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_SubPictToBuffer(unsigned int* uSubPictToBuffer)
 
     {
@@ -165,67 +168,67 @@ public:
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_Flip(bool fPicture, bool fSubtitles);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_OSD(bool* fShowOSD);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_OSD(bool fShowOSD);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_SaveFullPath(bool* fSaveFullPath);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_SaveFullPath(bool fSaveFullPath);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_SaveFullPath(bool* fSaveFullPath);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_SaveFullPath(bool fSaveFullPath);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_SubtitleTiming(int* delay, int* speedmul, int* speeddiv);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_SubtitleTiming(int delay, int speedmul, int speeddiv);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_MediaFPS(bool* fEnabled, double* fps);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_MediaFPS(bool fEnabled, double fps);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ZoomRect(NORMALIZEDRECT* rect);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ZoomRect(NORMALIZEDRECT* rect);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ZoomRect(NORMALIZEDRECT* rect);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ColorFormat(int* iPosition) {return E_NOTIMPL;}
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ColorFormat(int iPosition) {return E_NOTIMPL;}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ColorFormat(int* iPosition) { return E_NOTIMPL; }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ColorFormat(int iPosition) { return E_NOTIMPL; }
 
-    STDMETHOD (get_CachesInfo)(CachesInfo* caches_info);
-    STDMETHOD (get_XyFlyWeightInfo)(XyFlyWeightInfo* xy_fw_info);
+    STDMETHOD(get_CachesInfo)(CachesInfo* caches_info);
+    STDMETHOD(get_XyFlyWeightInfo)(XyFlyWeightInfo* xy_fw_info);
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HasConfigDialog(int iSelected);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP HasConfigDialog(int iSelected);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ShowConfigDialog(int iSelected, HWND hWndParent);
 
-	// settings for the rest are stored in the registry
+    // settings for the rest are stored in the registry
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP IsSubtitleReloaderLocked(bool* fLocked);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP IsSubtitleReloaderLocked(bool* fLocked);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP LockSubtitleReloader(bool fLock);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_SubtitleReloader(bool* fDisabled);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_SubtitleReloader(bool* fDisabled);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_SubtitleReloader(bool fDisable);
 
-	// the followings need a partial or full reloading of the filter
+    // the followings need a partial or full reloading of the filter
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ExtendPicture(int horizontal, int vertical, int resx2, int resx2minw, int resx2minh);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_LoadSettings(int level, bool fExternalLoad, bool fWebLoad, bool fEmbeddedLoad);
-        
-	// IDirectVobSub2
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_ExtendPicture(int* horizontal, int* vertical, int* resx2, int* resx2minw, int* resx2minh);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_ExtendPicture(int horizontal, int vertical, int resx2, int resx2minw, int resx2minh);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_LoadSettings(int level, bool fExternalLoad, bool fWebLoad, bool fEmbeddedLoad);
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AdviseSubClock(ISubClock* pSubClock);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) get_Forced();
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_Forced(bool fForced);
+    // IDirectVobSub2
+
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AdviseSubClock(ISubClock* pSubClock);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) get_Forced();
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_Forced(bool fForced);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_TextSettings(STSStyle* pDefStyle);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_TextSettings(STSStyle* pDefStyle);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType);
 
-	// IFilterVersion
-	
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(DWORD) GetFilterVersion();
+    // IFilterVersion
+
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(DWORD) GetFilterVersion();
 };
 
 // For DirectVobSubFilter
-class CDirectVobSub: public DirectVobSubImpl
+class CDirectVobSub : public DirectVobSubImpl
 {
 public:
-    CDirectVobSub(const Option *options, CCritSec * pLock);
+    CDirectVobSub(const Option* options, CCritSec* pLock);
 
 protected:
     DECLSPEC_NOTHROW STDMETHODIMP UpdateRegistry();
 };
 
 // For XySubFilter
-class CDVS4XySubFilter: public DirectVobSubImpl
+class CDVS4XySubFilter : public DirectVobSubImpl
 {
 public:
-    CDVS4XySubFilter(const Option *options, CCritSec * pLock);
+    CDVS4XySubFilter(const Option* options, CCritSec* pLock);
 
 protected:
     DECLSPEC_NOTHROW STDMETHODIMP UpdateRegistry();

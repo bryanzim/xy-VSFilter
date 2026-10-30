@@ -15,6 +15,7 @@ private:
     const int _level;
     int _start;
     int _end;
+
 public:
     explicit CAutoTiming(const TCHAR* szBlkName, const int level = 15)
         : _szBlkName(szBlkName), _level(level)
@@ -28,7 +29,7 @@ public:
     ~CAutoTiming()
     {
         _end = GetTickCount();
-        DbgLog((LOG_TIMING, _level, TEXT("%s:(%d,%d)total %d ms"), _szBlkName, _start, _end, _end-_start));
+        DbgLog((LOG_TIMING, _level, TEXT("%s:(%d,%d)total %d ms"), _szBlkName, _start, _end, _end - _start));
     }
 };
 

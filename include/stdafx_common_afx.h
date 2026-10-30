@@ -5,7 +5,7 @@
 #include <afx.h>
 #endif
 
-#include <afxwin.h>         // MFC core and standard components
+#include <afxwin.h> // MFC core and standard components
 
 #if (_MSC_VER >= 1600)
 #include "afxpriv.h"

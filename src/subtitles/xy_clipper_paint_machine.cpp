@@ -10,16 +10,16 @@
 // CClipperPaintMachine
 //
 
-void CClipperPaintMachine::Paint(SharedPtrGrayImage2 *output)
+void CClipperPaintMachine::Paint(SharedPtrGrayImage2* output)
 {
     ASSERT(output);
-    if (m_clipper!=nullptr)
+    if (m_clipper != nullptr)
     {
-        ClipperAlphaMaskCacheKey key{m_clipper};
+        ClipperAlphaMaskCacheKey key{ m_clipper };
         key.UpdateHashValue();
-        ClipperAlphaMaskMruCache * cache{CacheManager::GetClipperAlphaMaskMruCache()};
-        POSITION pos{cache->Lookup(key)};
-        if( pos!=nullptr )
+        ClipperAlphaMaskMruCache* cache{ CacheManager::GetClipperAlphaMaskMruCache() };
+        POSITION pos{ cache->Lookup(key) };
+        if (pos != nullptr)
         {
             *output = cache->GetAt(pos);
             (void)cache->UpdateCache(pos);
@@ -34,7 +34,7 @@ void CClipperPaintMachine::Paint(SharedPtrGrayImage2 *output)
 
 [[nodiscard]] CRect CClipperPaintMachine::CalcDirtyRect()
 {
-    return CRect(0,0,INT_MAX, INT_MAX);//fix me: not a decent state machine yet
+    return CRect(0, 0, INT_MAX, INT_MAX); // fix me: not a decent state machine yet
 }
 
 [[nodiscard]] const ClipperAlphaMaskCacheKey& CClipperPaintMachine::GetHashKey()

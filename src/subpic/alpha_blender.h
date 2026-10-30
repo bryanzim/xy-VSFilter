@@ -27,25 +27,27 @@
 
 typedef const UINT8 CUINT8, *PCUINT8;
 
-struct XySubPicPlan {
+struct XySubPicPlan
+{
     int w, h, pitch;
-    BYTE *bits;
+    BYTE* bits;
 };
 
 class BaseAlphaBlender
 {
 public:
-    virtual void AlphaBlendNoClip(const XySubPicPlan src_plans[], const CRect& src_rect, 
-        const XySubPicPlan dst_plans[], CPoint dst_pos) = 0;
+    virtual void AlphaBlendNoClip(const XySubPicPlan src_plans[], const CRect& src_rect,
+                                  const XySubPicPlan dst_plans[], CPoint dst_pos) = 0;
     virtual ~BaseAlphaBlender() {}
 
-    void AlphaBlend(const XySubPicPlan src_plans[], CRect src_rect, 
-        const XySubPicPlan dst_plans[], CPoint dst_pos);
+    void AlphaBlend(const XySubPicPlan src_plans[], CRect src_rect,
+                    const XySubPicPlan dst_plans[], CPoint dst_pos);
     void AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], POINT dst_pos);
     void AlphaBlend(const XySubPicPlan src_plans[], const XySubPicPlan dst_plans[], POINT dst_pos, SIZE size);
+
 public:
-    static void DefaultAlphaBlend(const XySubPicPlan src_plans[], const CRect& src_rect, 
-        const XySubPicPlan dst_plans[], const CPoint& dst_pos)
+    static void DefaultAlphaBlend(const XySubPicPlan src_plans[], const CRect& src_rect,
+                                  const XySubPicPlan dst_plans[], const CPoint& dst_pos)
     {
         return s_default_alpha_blender->AlphaBlend(src_plans, src_rect, dst_plans, dst_pos);
     }
@@ -60,9 +62,10 @@ public:
     [[nodiscard]] static BaseAlphaBlender* SetupDefaultAlphaBlender(int src_type, int dst_type, int cpu_flags);
     [[nodiscard]] static BaseAlphaBlender* CreateAlphaBlender(int src_type, int dst_type, int cpu_flags);
 
-    static inline void ClipTopLeftToZero(CPoint *src_point, CPoint *dst_point);
-    static inline void LimitPoint( int limit_x, int limit_y, CPoint &p );
-    static void ClipRect(int src_w, int src_h, int dst_w, int dst_h, CRect *src_point, CPoint *dst_point);
+    static inline void ClipTopLeftToZero(CPoint* src_point, CPoint* dst_point);
+    static inline void LimitPoint(int limit_x, int limit_y, CPoint& p);
+    static void ClipRect(int src_w, int src_h, int dst_w, int dst_h, CRect* src_point, CPoint* dst_point);
+
 private:
     static BaseAlphaBlender* s_default_alpha_blender;
 };
@@ -70,9 +73,9 @@ private:
 class AlphaBlenderArgbC : public BaseAlphaBlender
 {
 public:
-    explicit AlphaBlenderArgbC(){}
+    explicit AlphaBlenderArgbC() {}
     ~AlphaBlenderArgbC() {}
-    void AlphaBlendNoClip(const XySubPicPlan src_plans[], const CRect& src_rect, 
-        const XySubPicPlan dst_plans[], CPoint dst_pos);
-    virtual void AlphaBlend( const BYTE *src, int w, int h, int pitch, BYTE *dst, int dst_pitch );
+    void AlphaBlendNoClip(const XySubPicPlan src_plans[], const CRect& src_rect,
+                          const XySubPicPlan dst_plans[], CPoint dst_pos);
+    virtual void AlphaBlend(const BYTE* src, int w, int h, int pitch, BYTE* dst, int dst_pitch);
 };

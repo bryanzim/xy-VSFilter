@@ -1,4 +1,4 @@
-/* 
+/*
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *
@@ -6,15 +6,15 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -29,55 +29,51 @@
 #include <initguid.h>
 #include "..\..\..\..\include\moreuuids.h"
 
-const AMOVIESETUP_MEDIATYPE sudPinTypesIn[] =
-{
-    {&MEDIATYPE_Text, &MEDIASUBTYPE_None},
-    {&MEDIATYPE_Text, &GUID_NULL},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_None},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_UTF8},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_SSA},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_ASS},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_ASS2},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_SSF},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_VOBSUB},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_HDMVSUB},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_WEBVTT},
-    {&MEDIATYPE_Subtitle, &MEDIASUBTYPE_DVB_SUBTITLES}
+const AMOVIESETUP_MEDIATYPE sudPinTypesIn[] = {
+    {     &MEDIATYPE_Text,          &MEDIASUBTYPE_None },
+    {     &MEDIATYPE_Text,                  &GUID_NULL },
+    { &MEDIATYPE_Subtitle,          &MEDIASUBTYPE_None },
+    { &MEDIATYPE_Subtitle,          &MEDIASUBTYPE_UTF8 },
+    { &MEDIATYPE_Subtitle,           &MEDIASUBTYPE_SSA },
+    { &MEDIATYPE_Subtitle,           &MEDIASUBTYPE_ASS },
+    { &MEDIATYPE_Subtitle,          &MEDIASUBTYPE_ASS2 },
+    { &MEDIATYPE_Subtitle,           &MEDIASUBTYPE_SSF },
+    { &MEDIATYPE_Subtitle,        &MEDIASUBTYPE_VOBSUB },
+    { &MEDIATYPE_Subtitle,       &MEDIASUBTYPE_HDMVSUB },
+    { &MEDIATYPE_Subtitle,        &MEDIASUBTYPE_WEBVTT },
+    { &MEDIATYPE_Subtitle, &MEDIASUBTYPE_DVB_SUBTITLES }
 };
 
 static WCHAR sudNameIn[] = L"Input";
 
-const AMOVIESETUP_PIN sudpPins[] =
-{
-    {sudNameIn, TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, nullptr, countof(sudPinTypesIn), sudPinTypesIn}
+const AMOVIESETUP_PIN sudpPins[] = {
+    { sudNameIn, TRUE, FALSE, FALSE, TRUE, &CLSID_NULL, nullptr, countof(sudPinTypesIn), sudPinTypesIn }
 };
 
 
 const AMOVIESETUP_MEDIATYPE sudPinTypeIn2[] = {
-    {&GUID_NULL, &GUID_NULL}
+    { &GUID_NULL, &GUID_NULL }
 };
 static WCHAR sudNameIn2[] = L"Input";
-const AMOVIESETUP_PIN sudpPin2 = {sudNameIn2, FALSE, FALSE, TRUE, FALSE, &CLSID_NULL, nullptr, countof(sudPinTypeIn2), sudPinTypeIn2};
+const AMOVIESETUP_PIN sudpPin2 = { sudNameIn2, FALSE, FALSE, TRUE, FALSE, &CLSID_NULL, nullptr, countof(sudPinTypeIn2), sudPinTypeIn2 };
 
-/*const*/ AMOVIESETUP_FILTER sudFilter[] =
-{
-     /* merit should larger than InternalScriptRenderer */
-    {&__uuidof(XySubFilter), L"XySubFilter", MERIT_PREFERRED+2, countof(sudpPins), sudpPins},
-    {&__uuidof(XySubFilterAutoLoader), L"XySubFilterAutoLoader", 0xffffffff, 1, &sudpPin2}
+/*const*/ AMOVIESETUP_FILTER sudFilter[] = {
+    /* merit should larger than InternalScriptRenderer */
+    {           &__uuidof(XySubFilter),           L"XySubFilter", MERIT_PREFERRED + 2, countof(sudpPins),  sudpPins },
+    { &__uuidof(XySubFilterAutoLoader), L"XySubFilterAutoLoader",          0xffffffff,                 1, &sudpPin2 }
 };
 
-CFactoryTemplate g_Templates[] =
-{
-    {sudFilter[0U].strName, sudFilter[0U].clsID, CreateInstance<XySubFilter>, nullptr, &sudFilter[0U]},
-    {sudFilter[1U].strName, sudFilter[1U].clsID, CreateInstance<XySubFilterAutoLoader>, nullptr, &sudFilter[1U]},
-    {L"XySubFilterMainPPage", &__uuidof(CXySubFilterMainPPage), CreateInstance<CXySubFilterMainPPage>, nullptr, nullptr},
-    {L"XySubFilterMorePPage", &__uuidof(CXySubFilterMorePPage), CreateInstance<CXySubFilterMorePPage>, nullptr, nullptr},
-    {L"XySubFilterTimingPPage", &__uuidof(CXySubFilterTimingPPage), CreateInstance<CXySubFilterTimingPPage>, nullptr, nullptr},
-    {L"XySubFilterPathsPPage", &__uuidof(CXySubFilterPathsPPage), CreateInstance<CXySubFilterPathsPPage>, nullptr, nullptr},
-    {L"XySubFilterAboutPPage", &__uuidof(CXySubFilterAboutPPage), CreateInstance<CXySubFilterAboutPPage>, nullptr, nullptr},
+CFactoryTemplate g_Templates[] = {
+    {     sudFilter[0U].strName,                sudFilter[0U].clsID,             CreateInstance<XySubFilter>, nullptr, &sudFilter[0U] },
+    {     sudFilter[1U].strName,                sudFilter[1U].clsID,   CreateInstance<XySubFilterAutoLoader>, nullptr, &sudFilter[1U] },
+    {   L"XySubFilterMainPPage",   &__uuidof(CXySubFilterMainPPage),   CreateInstance<CXySubFilterMainPPage>, nullptr,        nullptr },
+    {   L"XySubFilterMorePPage",   &__uuidof(CXySubFilterMorePPage),   CreateInstance<CXySubFilterMorePPage>, nullptr,        nullptr },
+    { L"XySubFilterTimingPPage", &__uuidof(CXySubFilterTimingPPage), CreateInstance<CXySubFilterTimingPPage>, nullptr,        nullptr },
+    {  L"XySubFilterPathsPPage",  &__uuidof(CXySubFilterPathsPPage),  CreateInstance<CXySubFilterPathsPPage>, nullptr,        nullptr },
+    {  L"XySubFilterAboutPPage",  &__uuidof(CXySubFilterAboutPPage),  CreateInstance<CXySubFilterAboutPPage>, nullptr,        nullptr },
 };
 
-int g_cTemplates{countof(g_Templates)};
+int g_cTemplates{ countof(g_Templates) };
 
 //////////////////////////////
 
@@ -95,7 +91,7 @@ STDAPI DllUnregisterServer()
 
 void CALLBACK XySubFilterConfiguration(const HWND hwnd, const HINSTANCE hinst, const LPSTR lpszCmdLine, const int nCmdShow)
 {
-    if(FAILED(::CoInitialize(0)))
+    if (FAILED(::CoInitialize(0)))
     {
         return;
     }
@@ -103,7 +99,7 @@ void CALLBACK XySubFilterConfiguration(const HWND hwnd, const HINSTANCE hinst, c
     CComPtr<IBaseFilter> pFilter;
     CComQIPtr<ISpecifyPropertyPages> pSpecify;
 
-    if(SUCCEEDED(pFilter.CoCreateInstance(__uuidof(XySubFilter))) && (pSpecify = pFilter))
+    if (SUCCEEDED(pFilter.CoCreateInstance(__uuidof(XySubFilter))) && (pSpecify = pFilter))
     {
         ShowPPage(pFilter, hwnd);
     }

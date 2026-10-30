@@ -1,4 +1,4 @@
-/* 
+/*
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *
@@ -6,15 +6,15 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -25,119 +25,130 @@
 
 namespace ssf
 {
-	class Stream
-	{
-	public:
-		enum {EOS = -1};
-		enum encoding_t {none, unknown, utf8, utf16le, utf16be, wchar};
+    class Stream
+    {
+    public:
+        enum
+        {
+            EOS = -1
+        };
+        enum encoding_t
+        {
+            none,
+            unknown,
+            utf8,
+            utf16le,
+            utf16be,
+            wchar
+        };
 
-	protected:
-		int m_line, m_col;
-		encoding_t m_encoding;
+    protected:
+        int m_line, m_col;
+        encoding_t m_encoding;
 
-	public:
-		explicit Stream();
-		virtual ~Stream();
+    public:
+        explicit Stream();
+        virtual ~Stream();
 
-		static bool IsWhiteSpace(int c, LPCWSTR morechars = nullptr);
+        static bool IsWhiteSpace(int c, LPCWSTR morechars = nullptr);
 
-		void ThrowError(LPCTSTR fmt, ...);
-	};
+        void ThrowError(LPCTSTR fmt, ...);
+    };
 
-	class InputStream : public Stream
-	{
-		CAtlList<int> m_queue;
-		int PushChar(), PopChar();
+    class InputStream : public Stream
+    {
+        CAtlList<int> m_queue;
+        int PushChar(), PopChar();
 
-		int NextChar();
+        int NextChar();
 
-	protected:
-		virtual int NextByte() = 0;
+    protected:
+        virtual int NextByte() = 0;
 
-	public:
-		explicit InputStream();
-		~InputStream();
+    public:
+        explicit InputStream();
+        ~InputStream();
 
-		int PeekChar(), GetChar();
+        int PeekChar(), GetChar();
 
-		int SkipWhiteSpace(LPCWSTR morechars = nullptr);
-	};
+        int SkipWhiteSpace(LPCWSTR morechars = nullptr);
+    };
 
-	class FileInputStream : public InputStream
-	{
-		FILE* m_file;
+    class FileInputStream : public InputStream
+    {
+        FILE* m_file;
 
-	protected:
-		int NextByte();
+    protected:
+        int NextByte();
 
-	public:
-		explicit FileInputStream(const TCHAR* fn);
-		~FileInputStream();
-	};
+    public:
+        explicit FileInputStream(const TCHAR* fn);
+        ~FileInputStream();
+    };
 
-	class MemoryInputStream : public InputStream
-	{
-		BYTE* m_pBytes;
-		int m_pos, m_len;
-		bool m_fFree;
+    class MemoryInputStream : public InputStream
+    {
+        BYTE* m_pBytes;
+        int m_pos, m_len;
+        bool m_fFree;
 
-	protected:
-		int NextByte();
+    protected:
+        int NextByte();
 
-	public:
-		MemoryInputStream(BYTE* pBytes, int len, bool fCopy, bool fFree);
-		~MemoryInputStream();
-	};
+    public:
+        MemoryInputStream(BYTE* pBytes, int len, bool fCopy, bool fFree);
+        ~MemoryInputStream();
+    };
 
-	class WCharInputStream : public InputStream
-	{
-		CStringW m_str;
-		int m_pos;
+    class WCharInputStream : public InputStream
+    {
+        CStringW m_str;
+        int m_pos;
 
-	protected:
-		int NextByte();
+    protected:
+        int NextByte();
 
-	public:
-		explicit WCharInputStream(CStringW str);
-	};
+    public:
+        explicit WCharInputStream(CStringW str);
+    };
 
-	class OutputStream : public Stream
-	{
-		bool m_bof;
+    class OutputStream : public Stream
+    {
+        bool m_bof;
 
-	protected:
-		virtual void NextByte(int b) = 0;
+    protected:
+        virtual void NextByte(int b) = 0;
 
-	public:
-		explicit OutputStream(encoding_t e);
-		virtual ~OutputStream();
+    public:
+        explicit OutputStream(encoding_t e);
+        virtual ~OutputStream();
 
-		void PutChar(WCHAR c);
-		void PutString(LPCWSTR fmt, ...);
-	};
+        void PutChar(WCHAR c);
+        void PutString(LPCWSTR fmt, ...);
+    };
 
-	class WCharOutputStream : public OutputStream
-	{
-		CStringW m_str;
+    class WCharOutputStream : public OutputStream
+    {
+        CStringW m_str;
 
-	protected:
-		void NextByte(int b);
+    protected:
+        void NextByte(int b);
 
-	public:
-		explicit WCharOutputStream();
+    public:
+        explicit WCharOutputStream();
 
-		const CStringW& GetString() {return m_str;}
-	};
+        const CStringW& GetString() { return m_str; }
+    };
 
-	class DebugOutputStream : public OutputStream
-	{
-		CStringW m_str;
+    class DebugOutputStream : public OutputStream
+    {
+        CStringW m_str;
 
-	protected:
-		void NextByte(int b);
+    protected:
+        void NextByte(int b);
 
-	public:
-		explicit DebugOutputStream();
-		~DebugOutputStream();
-	};
+    public:
+        explicit DebugOutputStream();
+        ~DebugOutputStream();
+    };
 }

@@ -22,57 +22,63 @@
 
 #include "Mpeg2Def.h"
 
-enum BDVM_VideoFormat {
+enum BDVM_VideoFormat
+{
     BDVM_VideoFormat_Unknown = 0,
-    BDVM_VideoFormat_480i    = 1,
-    BDVM_VideoFormat_576i    = 2,
-    BDVM_VideoFormat_480p    = 3,
-    BDVM_VideoFormat_1080i   = 4,
-    BDVM_VideoFormat_720p    = 5,
-    BDVM_VideoFormat_1080p   = 6,
-    BDVM_VideoFormat_576p    = 7
+    BDVM_VideoFormat_480i = 1,
+    BDVM_VideoFormat_576i = 2,
+    BDVM_VideoFormat_480p = 3,
+    BDVM_VideoFormat_1080i = 4,
+    BDVM_VideoFormat_720p = 5,
+    BDVM_VideoFormat_1080p = 6,
+    BDVM_VideoFormat_576p = 7
 };
 
-enum BDVM_FrameRate {
+enum BDVM_FrameRate
+{
     BDVM_FrameRate_Unknown = 0,
-    BDVM_FrameRate_23_976  = 1,
-    BDVM_FrameRate_24      = 2,
-    BDVM_FrameRate_25      = 3,
-    BDVM_FrameRate_29_97   = 4,
-    BDVM_FrameRate_50      = 6,
-    BDVM_FrameRate_59_94   = 7
+    BDVM_FrameRate_23_976 = 1,
+    BDVM_FrameRate_24 = 2,
+    BDVM_FrameRate_25 = 3,
+    BDVM_FrameRate_29_97 = 4,
+    BDVM_FrameRate_50 = 6,
+    BDVM_FrameRate_59_94 = 7
 };
 
-enum BDVM_AspectRatio {
+enum BDVM_AspectRatio
+{
     BDVM_AspectRatio_Unknown = 0,
-    BDVM_AspectRatio_4_3     = 2,
-    BDVM_AspectRatio_16_9    = 3,
-    BDVM_AspectRatio_2_21    = 4
+    BDVM_AspectRatio_4_3 = 2,
+    BDVM_AspectRatio_16_9 = 3,
+    BDVM_AspectRatio_2_21 = 4
 };
 
-enum BDVM_ChannelLayout {
+enum BDVM_ChannelLayout
+{
     BDVM_ChannelLayout_Unknown = 0,
-    BDVM_ChannelLayout_MONO    = 1,
-    BDVM_ChannelLayout_STEREO  = 3,
-    BDVM_ChannelLayout_MULTI   = 6,
-    BDVM_ChannelLayout_COMBO   = 12
+    BDVM_ChannelLayout_MONO = 1,
+    BDVM_ChannelLayout_STEREO = 3,
+    BDVM_ChannelLayout_MULTI = 6,
+    BDVM_ChannelLayout_COMBO = 12
 };
 
-enum BDVM_SampleRate {
+enum BDVM_SampleRate
+{
     BDVM_SampleRate_Unknown = 0,
-    BDVM_SampleRate_48      = 1,
-    BDVM_SampleRate_96      = 4,
-    BDVM_SampleRate_192     = 5,
-    BDVM_SampleRate_48_192  = 12,
-    BDVM_SampleRate_48_96   = 14
+    BDVM_SampleRate_48 = 1,
+    BDVM_SampleRate_96 = 4,
+    BDVM_SampleRate_192 = 5,
+    BDVM_SampleRate_48_192 = 12,
+    BDVM_SampleRate_48_96 = 14
 };
 
 class CHdmvClipInfo
 {
 public:
-
-    struct Stream {
-        explicit Stream() {
+    struct Stream
+    {
+        explicit Stream()
+        {
             std::memset(this, 0, sizeof(*this));
         }
         short m_PID;
@@ -91,30 +97,34 @@ public:
         LPCTSTR Format();
     };
 
-    struct PlaylistItem {
+    struct PlaylistItem
+    {
         CString m_strFileName;
         REFERENCE_TIME m_rtIn;
         REFERENCE_TIME m_rtOut;
 
         [[nodiscard]] REFERENCE_TIME Duration() const { return m_rtOut - m_rtIn; }
 
-        [[nodiscard]] bool operator == (const PlaylistItem& pi) const {
+        [[nodiscard]] bool operator==(const PlaylistItem& pi) const
+        {
             return pi.m_strFileName == m_strFileName;
         }
     };
 
-    enum PlaylistMarkType {
-        Reserved  = 0x00,
+    enum PlaylistMarkType
+    {
+        Reserved = 0x00,
         EntryMark = 0x01,
         LinkPoint = 0x02
     };
 
-    struct PlaylistChapter {
-        short            m_nPlayItemId;
+    struct PlaylistChapter
+    {
+        short m_nPlayItemId;
         PlaylistMarkType m_nMarkType;
-        REFERENCE_TIME   m_rtTimestamp;
-        short            m_nEntryPID;
-        REFERENCE_TIME   m_rtDuration;
+        REFERENCE_TIME m_rtTimestamp;
+        short m_nEntryPID;
+        REFERENCE_TIME m_rtDuration;
     };
 
     explicit CHdmvClipInfo(void);

@@ -33,8 +33,9 @@ public:
     explicit CRealTextParser();
     virtual ~CRealTextParser();
 
-    struct Tag {
-        explicit Tag(): m_bOpen(false), m_bClose(false), m_bComment(false), m_bText(false) {}
+    struct Tag
+    {
+        explicit Tag() : m_bOpen(false), m_bClose(false), m_bComment(false), m_bText(false) {}
 
         std::wstring m_szName;
 
@@ -47,8 +48,9 @@ public:
         std::map<std::wstring, std::wstring> m_mapAttributes;
     };
 
-    struct Subtitles {
-        explicit Subtitles(): m_WindowTag(), m_FontTag(), m_bCenter(false) {}
+    struct Subtitles
+    {
+        explicit Subtitles() : m_WindowTag(), m_FontTag(), m_bCenter(false) {}
 
         Tag m_WindowTag;
         Tag m_FontTag;
@@ -74,10 +76,10 @@ private:
 
     [[nodiscard]] int GetTimecode(const std::wstring& p_crszTimecode);
     [[nodiscard]] std::wstring FormatTimecode(int iTimecode,
-                                int iMillisecondPrecision = 3,
-                                bool p_bPadZeroes = true,
-                                const std::wstring& p_crszSeparator = L":",
-                                const std::wstring& p_crszMillisecondSeparator = L".");
+                                              int iMillisecondPrecision = 3,
+                                              bool p_bPadZeroes = true,
+                                              const std::wstring& p_crszSeparator = L":",
+                                              const std::wstring& p_crszMillisecondSeparator = L".");
 
     [[nodiscard]] std::wstring StringToLower(const std::wstring& p_crszString);
 
@@ -87,7 +89,7 @@ private:
 
     // Filter out for example multiple font tags opened previously
     // (font tags are not always terminated properly in realtext and can build up)
-    //void FilterReduntantTags(list<Tag>& p_rlistTags);
+    // void FilterReduntantTags(list<Tag>& p_rlistTags);
 
     Subtitles m_RealText;
 

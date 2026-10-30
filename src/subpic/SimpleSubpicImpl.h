@@ -7,13 +7,15 @@ struct IXySubRenderFrame;
 class SimpleSubpic : public CUnknown, public ISimpleSubPic
 {
 public:
-    SimpleSubpic(IXySubRenderFrame*sub_render_frame, int alpha_blt_dst_type);
+    SimpleSubpic(IXySubRenderFrame* sub_render_frame, int alpha_blt_dst_type);
     ~SimpleSubpic();
+
 public:
     DECLARE_IUNKNOWN
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AlphaBlt(SubPicDesc* target);
+
 private:
     struct Bitmap
     {
@@ -24,16 +26,18 @@ private:
         int pitch;
         XyPlannerFormatExtra extra;
     };
+
 private:
     SimpleSubpic(const SimpleSubpic&);
-    void operator=(const SimpleSubpic&)const;
+    void operator=(const SimpleSubpic&) const;
 
-    [[nodiscard]] HRESULT AlphaBltAnv12_P010_P210( SubPicDesc* target, const Bitmap& src, bool is422);
+    [[nodiscard]] HRESULT AlphaBltAnv12_P010_P210(SubPicDesc* target, const Bitmap& src, bool is422);
     [[nodiscard]] HRESULT AlphaBltAnv12_Nv12(SubPicDesc* target, const Bitmap& src);
     [[nodiscard]] HRESULT AlphaBlt(SubPicDesc* target, const Bitmap& src);
     HRESULT ConvertColorSpace();
-    void SubsampleAndInterlace(int index, Bitmap*bitmap, bool u_first );
+    void SubsampleAndInterlace(int index, Bitmap* bitmap, bool u_first);
     void SubsampleAndInterlace422(int index, Bitmap* bitmap, bool u_first);
+
 private:
     CComPtr<IXySubRenderFrame> m_sub_render_frame;
 

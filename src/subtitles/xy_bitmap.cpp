@@ -5,25 +5,25 @@
 #include "../subpic/color_conv_table.h"
 
 #if ENABLE_XY_LOG_SUB_RENDER_FRAME
-#  define TRACE_SUB_RENDER_FRAME(msg) XY_LOG_TRACE(msg)
+#define TRACE_SUB_RENDER_FRAME(msg) XY_LOG_TRACE(msg)
 #else
-#  define TRACE_SUB_RENDER_FRAME(msg)
+#define TRACE_SUB_RENDER_FRAME(msg)
 #endif
 
-static inline void FlipAlphaValueSSE(BYTE *data, int w)
+static inline void FlipAlphaValueSSE(BYTE* data, int w)
 {
-    int w00{w&~3};
-    __m128i mask{_mm_set1_epi32(0xff000000)};
-    DWORD *data_w{reinterpret_cast<DWORD*>(data)};
-    for (int i{0};i<w00;i+=4)
+    int w00{ w & ~3 };
+    __m128i mask{ _mm_set1_epi32(0xff000000) };
+    DWORD* data_w{ reinterpret_cast<DWORD*>(data) };
+    for (int i{ 0 }; i < w00; i += 4)
     {
-        __m128i argb{_mm_loadu_si128(reinterpret_cast<const __m128i*>(data_w+i))};
+        __m128i argb{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(data_w + i)) };
         argb = _mm_xor_si128(argb, mask);
-        _mm_storeu_si128(reinterpret_cast<__m128i*>(data_w+i), argb);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(data_w + i), argb);
     }
-    for (int i{w00};i<w;++i)
+    for (int i{ w00 }; i < w; ++i)
     {
-        *(data_w+i) = *(data_w+i) ^ 0xFF000000;
+        *(data_w + i) = *(data_w + i) ^ 0xFF000000;
     }
 }
 
@@ -33,10 +33,10 @@ XyBitmap::~XyBitmap()
     xy_free(bits);
 }
 
-[[nodiscard]] XyBitmap * XyBitmap::CreateBitmap( const CRect& target_rect, const MemLayout layout )
+[[nodiscard]] XyBitmap* XyBitmap::CreateBitmap(const CRect& target_rect, const MemLayout layout)
 {
-    XyBitmap *result{DEBUG_NEW XyBitmap()};
-    if (result==nullptr)
+    XyBitmap* result{ DEBUG_NEW XyBitmap() };
+    if (result == nullptr)
     {
         ASSERT(0);
         return result;
@@ -46,17 +46,17 @@ XyBitmap::~XyBitmap()
     result->y = target_rect.top;
     result->w = target_rect.Width();
     result->h = target_rect.Height();
-    int w16{(result->w + 15) & ~15};
-        
+    int w16{ (result->w + 15) & ~15 };
+
     switch (result->type)
     {
     case PACK:
-        result->pitch = w16*4;
-        result->bits = xy_malloc(4*w16*result->h, (result->x*4)&15);
+        result->pitch = w16 * 4;
+        result->bits = xy_malloc(4 * w16 * result->h, (result->x * 4) & 15);
         result->plans[0U] = reinterpret_cast<BYTE*>(result->bits);
         break;
     case PLANNA:
-        result->bits = xy_malloc(4*w16*result->h, result->x&15);
+        result->bits = xy_malloc(4 * w16 * result->h, result->x & 15);
         result->pitch = w16;
         result->plans[0U] = reinterpret_cast<BYTE*>(result->bits);
         result->plans[1U] = result->plans[0U] + result->pitch * result->h;
@@ -72,198 +72,226 @@ XyBitmap::~XyBitmap()
     return result;
 }
 
-void XyBitmap::ClearBitmap( XyBitmap *bitmap )
+void XyBitmap::ClearBitmap(XyBitmap* bitmap)
 {
     if (!bitmap)
     {
         return;
     }
-    if (bitmap->type==XyBitmap::PLANNA)
+    if (bitmap->type == XyBitmap::PLANNA)
     {
         std::memset(bitmap->plans[0U], 0xFF, bitmap->h * bitmap->pitch);
-        std::memset(bitmap->plans[1U], 0, bitmap->h * bitmap->pitch * 3);//assuming the other 2 plans lied right after plan 1
+        std::memset(bitmap->plans[1U], 0, bitmap->h * bitmap->pitch * 3); // assuming the other 2 plans lied right after plan 1
     }
     else
     {
-        BYTE * p{bitmap->plans[0U]};
-        for (int i{0};i<bitmap->h;++i, p+=bitmap->pitch)
+        BYTE* p{ bitmap->plans[0U] };
+        for (int i{ 0 }; i < bitmap->h; ++i, p += bitmap->pitch)
         {
-            memsetd(p, 0xFF000000, bitmap->w*4);
-        }        
+            memsetd(p, 0xFF000000, bitmap->w * 4);
+        }
     }
 }
 
-void XyBitmap::AlphaBltPack( SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pixels, const int pitch )
+void XyBitmap::AlphaBltPack(SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pixels, const int pitch)
 {
-    ASSERT( spd.type!=MSP_AYUV_PLANAR );
-    CRect r{0, 0, spd.w, spd.h};
+    ASSERT(spd.type != MSP_AYUV_PLANAR);
+    CRect r{ 0, 0, spd.w, spd.h };
 
-    int x{pos.x};
-    int y{pos.y};
-    int w{size.cx};
-    int h{size.cy};
-    int x_src{0}, y_src = 0;
+    int x{ pos.x };
+    int y{ pos.y };
+    int w{ size.cx };
+    int h{ size.cy };
+    int x_src{ 0 }, y_src = 0;
 
-    if(x < r.left) {x_src = r.left-x; w -= r.left-x; x = r.left;}
-    if(y < r.top) {y_src = r.top-y; h -= r.top-y; y = r.top;}
-    if(x+w > r.right)
+    if (x < r.left)
     {
-        w = r.right-x;
+        x_src = r.left - x;
+        w -= r.left - x;
+        x = r.left;
     }
-    if(y+h > r.bottom)
+    if (y < r.top)
     {
-        h = r.bottom-y;
+        y_src = r.top - y;
+        h -= r.top - y;
+        y = r.top;
+    }
+    if (x + w > r.right)
+    {
+        w = r.right - x;
+    }
+    if (y + h > r.bottom)
+    {
+        h = r.bottom - y;
     }
 
-    const BYTE* src{reinterpret_cast<const BYTE*>(pixels) + y_src*pitch + x_src*4};
+    const BYTE* src{ reinterpret_cast<const BYTE*>(pixels) + y_src * pitch + x_src * 4 };
 
-    BYTE* dst{reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x*spd.bpp)>>3)};
+    BYTE* dst{ reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x * spd.bpp) >> 3) };
 
-    for(int i{0};i<h;++i, src += pitch, dst += spd.pitch)
+    for (int i{ 0 }; i < h; ++i, src += pitch, dst += spd.pitch)
     {
-        const BYTE* s2{src};
-        const BYTE* s2end{s2 + w*4};
-        DWORD* d2{(DWORD*)dst};
-        for(; s2 < s2end; s2 += 4, ++d2)
+        const BYTE* s2{ src };
+        const BYTE* s2end{ s2 + w * 4 };
+        DWORD* d2{ (DWORD*)dst };
+        for (; s2 < s2end; s2 += 4, ++d2)
         {
-            int tmp{s2[3U]+1};
-            *d2 = (((((*d2&0x00ff00ff)*tmp)>>8) + (*((DWORD*)s2)&0x00ff00ff))&0x00ff00ff)
-                | (((((*d2&0x0000ff00)*tmp)>>8) + (*((DWORD*)s2)&0x0000ff00))&0x0000ff00);
+            int tmp{ s2[3U] + 1 };
+            *d2 = (((((*d2 & 0x00ff00ff) * tmp) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * tmp) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00);
         }
     }
 }
 
-void XyBitmap::AlphaBltPlannar( SubPicDesc& spd, POINT pos, SIZE size, const XyPlannerFormatExtra& pixels, const int pitch )
+void XyBitmap::AlphaBltPlannar(SubPicDesc& spd, POINT pos, SIZE size, const XyPlannerFormatExtra& pixels, const int pitch)
 {
-    ASSERT( spd.type==MSP_AYUV_PLANAR );
+    ASSERT(spd.type == MSP_AYUV_PLANAR);
 
-    CRect r{0, 0, spd.w, spd.h};
+    CRect r{ 0, 0, spd.w, spd.h };
 
-    int x{pos.x};
-    int y{pos.y};
-    int w{size.cx};
-    int h{size.cy};
-    int x_src{0}, y_src = 0;
+    int x{ pos.x };
+    int y{ pos.y };
+    int w{ size.cx };
+    int h{ size.cy };
+    int x_src{ 0 }, y_src = 0;
 
-    if(x < r.left) {x_src = r.left-x; w -= r.left-x; x = r.left;}
-    if(y < r.top) {y_src = r.top-y; h -= r.top-y; y = r.top;}
-    if(x+w > r.right)
+    if (x < r.left)
     {
-        w = r.right-x;
+        x_src = r.left - x;
+        w -= r.left - x;
+        x = r.left;
     }
-    if(y+h > r.bottom)
+    if (y < r.top)
     {
-        h = r.bottom-y;
+        y_src = r.top - y;
+        h -= r.top - y;
+        y = r.top;
+    }
+    if (x + w > r.right)
+    {
+        w = r.right - x;
+    }
+    if (y + h > r.bottom)
+    {
+        h = r.bottom - y;
     }
 
-    BYTE* dst{reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x*spd.bpp)>>3)};
+    BYTE* dst{ reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x * spd.bpp) >> 3) };
 
-    const BYTE* src_A{reinterpret_cast<const BYTE*>(pixels.plans[0U]) + y_src*pitch + x_src};
-    const BYTE* src_Y{reinterpret_cast<const BYTE*>(pixels.plans[1U]) + y_src*pitch + x_src};
-    const BYTE* src_U{reinterpret_cast<const BYTE*>(pixels.plans[2U]) + y_src*pitch + x_src};
-    const BYTE* src_V{reinterpret_cast<const BYTE*>(pixels.plans[3U]) + y_src*pitch + x_src};
+    const BYTE* src_A{ reinterpret_cast<const BYTE*>(pixels.plans[0U]) + y_src * pitch + x_src };
+    const BYTE* src_Y{ reinterpret_cast<const BYTE*>(pixels.plans[1U]) + y_src * pitch + x_src };
+    const BYTE* src_U{ reinterpret_cast<const BYTE*>(pixels.plans[2U]) + y_src * pitch + x_src };
+    const BYTE* src_V{ reinterpret_cast<const BYTE*>(pixels.plans[3U]) + y_src * pitch + x_src };
 
-    BYTE* dst_A{dst};
-    BYTE* dst_Y{dst_A + spd.pitch*spd.h};
-    BYTE* dst_U{dst_Y + spd.pitch*spd.h};
-    BYTE* dst_V{dst_U + spd.pitch*spd.h};
+    BYTE* dst_A{ dst };
+    BYTE* dst_Y{ dst_A + spd.pitch * spd.h };
+    BYTE* dst_U{ dst_Y + spd.pitch * spd.h };
+    BYTE* dst_V{ dst_U + spd.pitch * spd.h };
 
-    const BYTE*  src_A1{src_A};
-    for (int i{0};i<h;++i, src_A += pitch, dst_A += spd.pitch)
+    const BYTE* src_A1{ src_A };
+    for (int i{ 0 }; i < h; ++i, src_A += pitch, dst_A += spd.pitch)
     {
-        for (int j{0};j<w;++j)
+        for (int j{ 0 }; j < w; ++j)
         {
-            dst_A[j] = (dst_A[j]*(src_A[j]+1))>>8;
+            dst_A[j] = (dst_A[j] * (src_A[j] + 1)) >> 8;
         }
     }
 
     src_A = src_A1;
-    for (int i{0};i<h;++i, src_A += pitch, src_Y += pitch, dst_Y += spd.pitch)
+    for (int i{ 0 }; i < h; ++i, src_A += pitch, src_Y += pitch, dst_Y += spd.pitch)
     {
-        for (int j{0};j<w;++j)
+        for (int j{ 0 }; j < w; ++j)
         {
-            dst_Y[j] = ((dst_Y[j]*(src_A[j]+1))>>8) + src_Y[j];
+            dst_Y[j] = ((dst_Y[j] * (src_A[j] + 1)) >> 8) + src_Y[j];
         }
     }
     src_A = src_A1;
-    for (int i{0};i<h;++i, src_A += pitch, src_U += pitch, dst_U += spd.pitch)
+    for (int i{ 0 }; i < h; ++i, src_A += pitch, src_U += pitch, dst_U += spd.pitch)
     {
-        for (int j{0};j<w;++j)
+        for (int j{ 0 }; j < w; ++j)
         {
-            dst_U[j] = ((dst_U[j]*(src_A[j]+1))>>8) + src_U[j];
+            dst_U[j] = ((dst_U[j] * (src_A[j] + 1)) >> 8) + src_U[j];
         }
     }
     src_A = src_A1;
-    for (int i{0};i<h;++i, src_A += pitch, src_V += pitch, dst_V += spd.pitch)
+    for (int i{ 0 }; i < h; ++i, src_A += pitch, src_V += pitch, dst_V += spd.pitch)
     {
-        for (int j{0};j<w;++j)
+        for (int j{ 0 }; j < w; ++j)
         {
-            dst_V[j] = ((dst_V[j]*(src_A[j]+1))>>8) + src_V[j];
+            dst_V[j] = ((dst_V[j] * (src_A[j] + 1)) >> 8) + src_V[j];
         }
     }
 }
 
-void XyBitmap::FlipAlphaValue( const LPVOID pixels, const int w, const int h, const int pitch )
+void XyBitmap::FlipAlphaValue(const LPVOID pixels, const int w, const int h, const int pitch)
 {
     ASSERT(pixels);
 
-    if (w<=0 || h<=0)
+    if (w <= 0 || h <= 0)
     {
         return;
     }
 
-    BYTE* top{static_cast<BYTE*>(pixels)};
-    BYTE* bottom{top + pitch*h};
+    BYTE* top{ static_cast<BYTE*>(pixels) };
+    BYTE* bottom{ top + pitch * h };
 
-    for(; top < bottom ; top += pitch)
+    for (; top < bottom; top += pitch)
     {
-            FlipAlphaValueSSE(top, w);
+        FlipAlphaValueSSE(top, w);
     }
 
     return;
 }
 
-void XyBitmap::BltPack( SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pixels, const int pitch )
+void XyBitmap::BltPack(SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pixels, const int pitch)
 {
-    ASSERT( spd.type!=MSP_AYUV_PLANAR );
-    CRect r{0, 0, spd.w, spd.h};
+    ASSERT(spd.type != MSP_AYUV_PLANAR);
+    CRect r{ 0, 0, spd.w, spd.h };
 
-    int x{pos.x};
-    int y{pos.y};
-    int w{size.cx};
-    int h{size.cy};
-    int x_src{0}, y_src = 0;
+    int x{ pos.x };
+    int y{ pos.y };
+    int w{ size.cx };
+    int h{ size.cy };
+    int x_src{ 0 }, y_src = 0;
 
-    if(x < r.left) {x_src = r.left-x; w -= r.left-x; x = r.left;}
-    if(y < r.top) {y_src = r.top-y; h -= r.top-y; y = r.top;}
-    if(x+w > r.right)
+    if (x < r.left)
     {
-        w = r.right-x;
+        x_src = r.left - x;
+        w -= r.left - x;
+        x = r.left;
     }
-    if(y+h > r.bottom)
+    if (y < r.top)
     {
-        h = r.bottom-y;
+        y_src = r.top - y;
+        h -= r.top - y;
+        y = r.top;
+    }
+    if (x + w > r.right)
+    {
+        w = r.right - x;
+    }
+    if (y + h > r.bottom)
+    {
+        h = r.bottom - y;
     }
 
-    const BYTE* src{reinterpret_cast<const BYTE*>(pixels) + y_src*pitch + x_src*4};
+    const BYTE* src{ reinterpret_cast<const BYTE*>(pixels) + y_src * pitch + x_src * 4 };
 
-    BYTE* dst{reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x*spd.bpp)>>3)};
+    BYTE* dst{ reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y + ((x * spd.bpp) >> 3) };
 
-    for(int i{0};i<h;++i, src += pitch, dst += spd.pitch)
+    for (int i{ 0 }; i < h; ++i, src += pitch, dst += spd.pitch)
     {
-        std::memcpy(dst, src, w*4);
+        std::memcpy(dst, src, w * 4);
     }
 }
 
 //////////////////////////////////////////////////////////////////////////
 //
 // SubRenderFrame
-// 
+//
 
 XySubRenderFrame::XySubRenderFrame()
     : CUnknown(NAME("XySubRenderFrameWrapper"), nullptr)
 {
-
 }
 
 XySubRenderFrame::~XySubRenderFrame()
@@ -271,16 +299,14 @@ XySubRenderFrame::~XySubRenderFrame()
 {
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
-    return
-        QI(IXySubRenderFrame)
-        __super::NonDelegatingQueryInterface(riid, ppv);
+    return QI(IXySubRenderFrame) __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetOutputRect( RECT *outputRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetOutputRect(RECT* outputRect)
 {
-    TRACE_SUB_RENDER_FRAME(outputRect<<" "<<m_output_rect);
+    TRACE_SUB_RENDER_FRAME(outputRect << " " << m_output_rect);
     if (!outputRect)
     {
         return E_POINTER;
@@ -289,9 +315,9 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetClipRect( RECT *clipRect )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetClipRect(RECT* clipRect)
 {
-    TRACE_SUB_RENDER_FRAME(clipRect<<" "<<m_clip_rect);
+    TRACE_SUB_RENDER_FRAME(clipRect << " " << m_clip_rect);
     if (!clipRect)
     {
         return E_POINTER;
@@ -300,9 +326,9 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetXyColorSpace( int *xyColorSpace )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetXyColorSpace(int* xyColorSpace)
 {
-    TRACE_SUB_RENDER_FRAME(xyColorSpace<<" "<<m_xy_color_space);
+    TRACE_SUB_RENDER_FRAME(xyColorSpace << " " << m_xy_color_space);
     if (!xyColorSpace)
     {
         return E_POINTER;
@@ -311,9 +337,9 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmapCount( int *count )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmapCount(int* count)
 {
-    TRACE_SUB_RENDER_FRAME(count<<" "<<m_bitmaps.GetCount());
+    TRACE_SUB_RENDER_FRAME(count << " " << m_bitmaps.GetCount());
     if (!count)
     {
         return E_POINTER;
@@ -322,9 +348,9 @@ XySubRenderFrame::~XySubRenderFrame()
     return S_OK;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmap( const int index, ULONGLONG *id, POINT *position, SIZE *size, LPCVOID *pixels, int *pitch )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmap(const int index, ULONGLONG* id, POINT* position, SIZE* size, LPCVOID* pixels, int* pitch)
 {
-    if (index<0 || index>=(int)m_bitmaps.GetCount())
+    if (index < 0 || index >= (int)m_bitmaps.GetCount())
     {
         return E_INVALIDARG;
     }
@@ -332,7 +358,7 @@ XySubRenderFrame::~XySubRenderFrame()
     {
         *id = m_bitmap_ids.GetAt(index);
     }
-    const XyBitmap& bitmap{*(m_bitmaps.GetAt(index))};
+    const XyBitmap& bitmap{ *(m_bitmaps.GetAt(index)) };
     if (position)
     {
         position->x = bitmap.x + m_output_rect.left;
@@ -351,41 +377,41 @@ XySubRenderFrame::~XySubRenderFrame()
     {
         *pitch = bitmap.pitch;
     }
-    TRACE_SUB_RENDER_FRAME(index<<" id: "<<m_bitmap_ids.GetAt(index)
-        <<" dirty_rect: x "<<bitmap.x+m_output_rect.left<<", y "<<bitmap.y + m_output_rect.top
-        <<", w "<<bitmap.w<<", h "<<bitmap.h
-        <<" pitch:"<<bitmap.pitch<<" pixels:"<<(void*)bitmap.plans[0U]);
+    TRACE_SUB_RENDER_FRAME(index << " id: " << m_bitmap_ids.GetAt(index)
+                                 << " dirty_rect: x " << bitmap.x + m_output_rect.left << ", y " << bitmap.y + m_output_rect.top
+                                 << ", w " << bitmap.w << ", h " << bitmap.h
+                                 << " pitch:" << bitmap.pitch << " pixels:" << (void*)bitmap.plans[0U]);
     return S_OK;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmapExtra( const int index, const LPVOID extra_info )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmapExtra(const int index, const LPVOID extra_info)
 {
-    if (index<0 || index>=(int)m_bitmaps.GetCount())
+    if (index < 0 || index >= (int)m_bitmaps.GetCount())
     {
         return E_INVALIDARG;
     }
     if (extra_info && m_xy_color_space == XY_CS_AYUV_PLANAR)
     {
-        const XyBitmap& bitmap{*(m_bitmaps.GetAt(index))};
-        XyPlannerFormatExtra *output{reinterpret_cast<XyPlannerFormatExtra*>(extra_info)};
+        const XyBitmap& bitmap{ *(m_bitmaps.GetAt(index)) };
+        XyPlannerFormatExtra* output{ reinterpret_cast<XyPlannerFormatExtra*>(extra_info) };
 
         output->plans[0U] = bitmap.plans[0U];
         output->plans[1U] = bitmap.plans[1U];
         output->plans[2U] = bitmap.plans[2U];
         output->plans[3U] = bitmap.plans[3U];
 
-        TRACE_SUB_RENDER_FRAME(index<<" "<<(void*)bitmap.plans[0U]<<" "
-            <<(void*)bitmap.plans[1U]<<" "
-            <<(void*)bitmap.plans[2U]<<" "
-            <<(void*)bitmap.plans[3U]);
+        TRACE_SUB_RENDER_FRAME(index << " " << (void*)bitmap.plans[0U] << " "
+                                     << (void*)bitmap.plans[1U] << " "
+                                     << (void*)bitmap.plans[2U] << " "
+                                     << (void*)bitmap.plans[3U]);
     }
     return S_OK;
 }
 
-void XySubRenderFrame::MoveTo( const int x, const int y )
+void XySubRenderFrame::MoveTo(const int x, const int y)
 {
     m_left = x;
-    m_top  = y;
+    m_top = y;
     m_output_rect.MoveToXY(x, y);
     m_clip_rect.MoveToXY(x, y);
 }
@@ -393,7 +419,7 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
 //////////////////////////////////////////////////////////////////////////
 //
 // XySubRenderFrameCreater
-// 
+//
 
 [[nodiscard]] XySubRenderFrameCreater* XySubRenderFrameCreater::GetDefaultCreater()
 
@@ -402,21 +428,21 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
     return &s_default_creater;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::SetOutputRect( const RECT& output_rect )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetOutputRect(const RECT& output_rect)
 
 {
     m_output_rect = output_rect;
     return S_OK;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::SetClipRect( const RECT& clip_rect )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetClipRect(const RECT& clip_rect)
 
 {
     m_clip_rect = clip_rect;
     return S_OK;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::SetColorSpace( const XyColorSpace color_space )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetColorSpace(const XyColorSpace color_space)
 
 {
     m_xy_color_space = color_space;
@@ -432,20 +458,21 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
     return S_OK;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::SetVsfilterCompactRgbCorrection( const bool value )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetVsfilterCompactRgbCorrection(const bool value)
 
 {
-    if (m_vsfilter_compact_rgb_correction != value) {
+    if (m_vsfilter_compact_rgb_correction != value)
+    {
         m_vsfilter_compact_rgb_correction = value;
         return S_OK;
     }
     return S_FALSE;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::SetRgbOutputTvLevel( const bool value )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::SetRgbOutputTvLevel(const bool value)
 
 {
-    if (m_rgb_output_tv_level!=value)
+    if (m_rgb_output_tv_level != value)
     {
         m_rgb_output_tv_level = value;
         return S_OK;
@@ -453,7 +480,7 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
     return S_FALSE;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::GetOutputRect( RECT *output_rect )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::GetOutputRect(RECT* output_rect)
 {
     if (!output_rect)
     {
@@ -463,7 +490,7 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
     return S_OK;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::GetClipRect( RECT *clip_rect )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::GetClipRect(RECT* clip_rect)
 {
     if (!clip_rect)
     {
@@ -473,7 +500,7 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
     return S_OK;
 }
 
-[[nodiscard]] HRESULT XySubRenderFrameCreater::GetColorSpace( XyColorSpace *color_space )
+[[nodiscard]] HRESULT XySubRenderFrameCreater::GetColorSpace(XyColorSpace* color_space)
 
 {
     if (!color_space)
@@ -484,9 +511,9 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
     return S_OK;
 }
 
-[[nodiscard]] XySubRenderFrame* XySubRenderFrameCreater::NewXySubRenderFrame( const UINT bitmap_count )
+[[nodiscard]] XySubRenderFrame* XySubRenderFrameCreater::NewXySubRenderFrame(const UINT bitmap_count)
 {
-    XySubRenderFrame *result{DEBUG_NEW XySubRenderFrame()};
+    XySubRenderFrame* result{ DEBUG_NEW XySubRenderFrame() };
     ASSERT(result);
     result->m_output_rect = m_output_rect;
     result->m_clip_rect = m_clip_rect;
@@ -496,14 +523,14 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
     return result;
 }
 
-[[nodiscard]] XyBitmap* XySubRenderFrameCreater::CreateBitmap( const RECT& target_rect )
+[[nodiscard]] XyBitmap* XySubRenderFrameCreater::CreateBitmap(const RECT& target_rect)
 {
     return XyBitmap::CreateBitmap(target_rect, m_bitmap_layout);
 }
 
-[[nodiscard]] DWORD XySubRenderFrameCreater::TransColor( const DWORD argb )
+[[nodiscard]] DWORD XySubRenderFrameCreater::TransColor(const DWORD argb)
 {
-    switch(m_xy_color_space)
+    switch (m_xy_color_space)
     {
     case XY_CS_AYUV_PLANAR:
     case XY_CS_AYUV:
@@ -514,7 +541,8 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
         break;
     case XY_CS_ARGB:
     case XY_CS_ARGB_F:
-        if (m_vsfilter_compact_rgb_correction) {
+        if (m_vsfilter_compact_rgb_correction)
+        {
             return ColorConvTable::VSFilterCompactCorretion(argb, m_rgb_output_tv_level);
         }
         else
@@ -544,5 +572,3 @@ void XySubRenderFrame::MoveTo( const int x, const int y )
 {
     return m_rgb_output_tv_level;
 }
-
-

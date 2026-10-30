@@ -23,14 +23,17 @@
 
 #include <atlcoll.h>
 
-struct COutline {
+struct COutline
+{
     CAtlArray<CPoint> pa;
     CAtlArray<int> da;
-    void RemoveAll() {
+    void RemoveAll()
+    {
         pa.RemoveAll();
         da.RemoveAll();
     }
-    void Add(CPoint p, const int d) {
+    void Add(CPoint p, const int d)
+    {
         pa.Add(p);
         da.Add(d);
     }
@@ -49,7 +52,7 @@ private:
     bool fCustomPal;
     bool fAligned;
     int tridx;
-    RGBQUAD* orgpal /*[16]*/, * cuspal /*[4]*/;
+    RGBQUAD *orgpal /*[16]*/, *cuspal /*[4]*/;
 
     [[nodiscard]] bool Alloc(int w, int h);
     void Free();
@@ -64,8 +67,9 @@ public:
     int tCurrent;
     __int64 start, delay;
     CRect rect;
-    struct SubPal {
-        BYTE pal: 4, tr: 4;
+    struct SubPal
+    {
+        BYTE pal : 4, tr : 4;
     };
     SubPal pal[4U];
     RGBQUAD* lpPixels;
@@ -77,14 +81,14 @@ public:
 
     void GetPacketInfo(const BYTE* lpData, std::size_t packetSize, std::size_t dataSize, int t = INT_MAX);
     [[nodiscard]] bool Decode(BYTE* lpData, std::size_t packetSize, std::size_t dataSize, int t,
-                bool useCustomPal,
-                int transparencyIndex,
-                RGBQUAD* originalPal /*[16]*/, RGBQUAD* cuspal /*[4]*/,
-                bool fTrim);
+                              bool useCustomPal,
+                              int transparencyIndex,
+                              RGBQUAD* originalPal /*[16]*/, RGBQUAD* cuspal /*[4]*/,
+                              bool fTrim);
 
 private:
     CAutoPtrList<COutline>* GetOutlineList(CPoint& topleft);
-    [[nodiscard]] int  GrabSegment(int segmentStart, const COutline& o, COutline& ret);
+    [[nodiscard]] int GrabSegment(int segmentStart, const COutline& o, COutline& ret);
     void SplitOutline(const COutline& o, COutline& o1, COutline& o2);
     void AddSegment(COutline& o, CAtlArray<BYTE>& pathTypes, CAtlArray<CPoint>& pathPoints);
 

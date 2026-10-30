@@ -1,4 +1,4 @@
-/* 
+/*
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *
@@ -6,15 +6,15 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -32,11 +32,11 @@
 
 
 class __declspec(uuid("db6974b5-9bd1-45f5-8462-27a88019b352")) XySubFilterConsumer
-    : public CBaseVideoFilter
-    , public CDirectVobSub
-    , public ISpecifyPropertyPages
-    , public SubRenderOptionsImpl
-    , public ISubRenderConsumer
+    : public CBaseVideoFilter,
+      public CDirectVobSub,
+      public ISpecifyPropertyPages,
+      public SubRenderOptionsImpl,
+      public ISubRenderConsumer
 {
     CComPtr<ISubRenderProvider> m_provider;
     CComPtr<ISubRenderFrame> m_sub_render_frame;
@@ -46,17 +46,19 @@ class __declspec(uuid("db6974b5-9bd1-45f5-8462-27a88019b352")) XySubFilterConsum
 
     [[nodiscard]] bool AdjustFrameSize(CSize& s);
 
-    [[nodiscard]] HRESULT TryNotCopy( IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn );
+    [[nodiscard]] HRESULT TryNotCopy(IMediaSample* pIn, const CMediaType& mt, const BITMAPINFOHEADER& bihIn);
 
     ColorConvTable::YuvMatrixType m_video_yuv_matrix_decided_by_sub;
     ColorConvTable::YuvRangeType m_video_yuv_range_decided_by_sub;
 
     void SetYuvMatrix();
+
 protected:
     void GetOutputSize(int& w, int& h, int& arx, int& ary);
     [[nodiscard]] HRESULT Transform(IMediaSample* pIn);
 
     [[nodiscard]] HRESULT AlphaBlt(SubPicDesc& spd);
+
 public:
     XySubFilterConsumer(LPUNKNOWN punk, HRESULT* phr, const GUID& clsid = __uuidof(XySubFilterConsumer));
     virtual ~XySubFilterConsumer();
@@ -72,26 +74,26 @@ public:
 
     // CTransformFilter
     HRESULT SetMediaType(PIN_DIRECTION dir, const CMediaType* pMediaType),
-            CheckConnect(PIN_DIRECTION dir, IPin* pPin),
-            CompleteConnect(PIN_DIRECTION dir, IPin* pReceivePin),
-            BreakConnect(PIN_DIRECTION dir),
-            StartStreaming(), 
-            StopStreaming(),
-            NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
+        CheckConnect(PIN_DIRECTION dir, IPin* pPin),
+        CompleteConnect(PIN_DIRECTION dir, IPin* pReceivePin),
+        BreakConnect(PIN_DIRECTION dir),
+        StartStreaming(),
+        StopStreaming(),
+        NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate);
 
-    //CBaseVideoFilter
-    void GetInputColorspaces(ColorSpaceId *preferredOrder, UINT *count);
-    void GetOutputColorspaces(ColorSpaceId *preferredOrder, UINT *count);
+    // CBaseVideoFilter
+    void GetInputColorspaces(ColorSpaceId* preferredOrder, UINT* count);
+    void GetOutputColorspaces(ColorSpaceId* preferredOrder, UINT* count);
 
-    //ISubRenderConsumer
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetMerit(ULONG *merit);
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect(ISubRenderProvider *subtitleRenderer);
+    // ISubRenderConsumer
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetMerit(ULONG* merit);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Connect(ISubRenderProvider* subtitleRenderer);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Disconnect(void);
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DeliverFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context, ISubRenderFrame *subtitleFrame);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DeliverFrame(REFERENCE_TIME start, REFERENCE_TIME stop, LPVOID context, ISubRenderFrame* subtitleFrame);
 
     // IXyOptions
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBool     (unsigned field, bool      value);
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetInt      (unsigned field, int       value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetBool(unsigned field, bool value);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySetInt(unsigned field, int value);
 
     // ISpecifyPropertyPages
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetPages(CAUUID* pPages);
@@ -100,7 +102,7 @@ public:
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetClassID(CLSID* pClsid);
 
 protected:
-    //OSD
+    // OSD
     void ZeroObj4OSD();
     void DeleteObj4OSD();
     void InitObj4OSD();

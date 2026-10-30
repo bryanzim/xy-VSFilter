@@ -29,15 +29,15 @@
 #include "CoordGeom.h"
 
 class CSubPicAllocatorPresenterImpl
-    : public CUnknown
-    , public CCritSec
-	, public ISubPicAllocatorPresenter2
+    : public CUnknown,
+      public CCritSec,
+      public ISubPicAllocatorPresenter2
 {
 protected:
     HWND m_hWnd;
     CSize m_spMaxSize; // TODO:
     int m_spMaxQueued; // TODO:
-	REFERENCE_TIME m_rtSubtitleDelay;
+    REFERENCE_TIME m_rtSubtitleDelay;
 
     CSize m_NativeVideoSize, m_AspectRatio;
     CRect m_VideoRect, m_WindowRect;
@@ -49,15 +49,15 @@ protected:
     CComPtr<ISubPicAllocator> m_pAllocator;
     CComPtr<ISubPicQueue> m_pSubPicQueue;
 
-	bool m_bDeviceResetRequested;
-	bool m_bPendingResetDevice;
+    bool m_bDeviceResetRequested;
+    bool m_bPendingResetDevice;
     void AlphaBltSubPic(CSize size, SubPicDesc* pTarget = nullptr);
 
     XForm m_xform;
     void Transform(CRect r, Vector v[4U]);
 
 public:
-	CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT& hr, CString *_pError);
+    CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT& hr, CString* _pError);
     virtual ~CSubPicAllocatorPresenterImpl();
 
     DECLARE_IUNKNOWN
@@ -68,9 +68,10 @@ public:
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CreateRenderer(IUnknown** ppRenderer) = 0;
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(SIZE) GetVideoSize(bool fCorrectAR = true);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(SIZE) GetVisibleVideoSize() {
-		return m_NativeVideoSize;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(SIZE) GetVisibleVideoSize()
+    {
+        return m_NativeVideoSize;
+    }
     DECLSPEC_NOTHROW STDMETHODIMP_(void) SetPosition(RECT w, RECT v);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) Paint(bool fAll) = 0;
 
@@ -82,25 +83,30 @@ public:
     DECLSPEC_NOTHROW STDMETHODIMP_(void) SetSubPicProvider(ISubPicProvider* pSubPicProvider);
     DECLSPEC_NOTHROW STDMETHODIMP_(void) Invalidate(REFERENCE_TIME rtInvalidate = -1);
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size) {
-		return E_NOTIMPL;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDIB(BYTE* lpDib, DWORD* size)
+    {
+        return E_NOTIMPL;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) ResetDevice() {
-		return false;
-	}
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) DisplayChange() {
-		return false;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) ResetDevice()
+    {
+        return false;
+    }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) DisplayChange()
+    {
+        return false;
+    }
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetVideoAngle(Vector v, bool fRepaint = true);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader(LPCSTR pSrcData, LPCSTR pTarget) {
-		return E_NOTIMPL;
-	}
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader2(LPCSTR pSrcData, LPCSTR pTarget, bool bScreenSpace) {
-		if (!bScreenSpace) {
-			return SetPixelShader(pSrcData, pTarget);
-		}
-		return E_NOTIMPL;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader(LPCSTR pSrcData, LPCSTR pTarget)
+    {
+        return E_NOTIMPL;
+    }
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetPixelShader2(LPCSTR pSrcData, LPCSTR pTarget, bool bScreenSpace)
+    {
+        if (!bScreenSpace)
+        {
+            return SetPixelShader(pSrcData, pTarget);
+        }
+        return E_NOTIMPL;
+    }
 };
-

@@ -32,7 +32,7 @@
 #include "mru_cache.h"
 #include "xy_int_map.h"
 
-//how hard positioned is the ass cmd 
+// how hard positioned is the ass cmd
 enum AssCmdPosLevel
 {
     POS_LVL_NONE,
@@ -72,47 +72,47 @@ interface IXySubRenderFrame;
 
 class CWord
 {
-    [[nodiscard]] bool NeedTransform  ();
-    void Transform      (PathData* path_data, const CPointCoor2& org);
-//  void Transform_C    (PathData* path_data, const CPointCoor2 &org );
-//  void Transform_SSE2 (PathData* path_data, const CPointCoor2 &org );
+    [[nodiscard]] bool NeedTransform();
+    void Transform(PathData* path_data, const CPointCoor2& org);
+    //  void Transform_C    (PathData* path_data, const CPointCoor2 &org );
+    //  void Transform_SSE2 (PathData* path_data, const CPointCoor2 &org );
     [[nodiscard]] bool CreateOpaqueBox();
 
 protected:
     virtual bool CreatePath(PathData* path_data) = 0;
 
     [[nodiscard]] bool DoPaint(const CPointCoor2& p, const CPointCoor2& trans_org, SharedPtrOverlay* overlay, const OverlayKey& key);
+
 public:
     // str[0] = 0 -> m_fLineBreak = true (in this case we only need and use the height of m_font from the whole class)
-    CWord(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend
-        , double target_scale_x=1.0, double target_scale_y=1.0
-        , bool round_to_whole_pixel_after_scale_to_target = false);
+    CWord(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend, double target_scale_x = 1.0, double target_scale_y = 1.0, bool round_to_whole_pixel_after_scale_to_target = false);
     CWord(const CWord&);
     virtual ~CWord();
 
     [[nodiscard]] virtual SharedPtrCWord Copy() = 0;
     [[nodiscard]] virtual bool Append(const SharedPtrCWord& w);
-    
-    [[nodiscard]] bool operator==(const CWord& rhs)const;
 
-    static void PaintFromOverlay   (const CPointCoor2& p, const CPointCoor2& trans_org2, OverlayKey &subpixel_variance_key, SharedPtrOverlay& overlay);
+    [[nodiscard]] bool operator==(const CWord& rhs) const;
+
+    static void PaintFromOverlay(const CPointCoor2& p, const CPointCoor2& trans_org2, OverlayKey& subpixel_variance_key, SharedPtrOverlay& overlay);
     void PaintFromNoneBluredOverlay(SharedPtrOverlay raterize_result, const OverlayKey& overlay_key, SharedPtrOverlay* overlay);
-    [[nodiscard]] bool PaintFromScanLineData2    (const CPointCoor2& psub, const ScanLineData2& scan_line_data2, const OverlayKey& key    , SharedPtrOverlay* overlay);
-    [[nodiscard]] bool PaintFromPathData         (const CPointCoor2& psub, const CPointCoor2& trans_org, const PathData& path_data, const OverlayKey& key, SharedPtrOverlay* overlay );
-    [[nodiscard]] bool PaintFromRawData          (const CPointCoor2& psub, const CPointCoor2& trans_org, const OverlayKey& key    , SharedPtrOverlay* overlay );
+    [[nodiscard]] bool PaintFromScanLineData2(const CPointCoor2& psub, const ScanLineData2& scan_line_data2, const OverlayKey& key, SharedPtrOverlay* overlay);
+    [[nodiscard]] bool PaintFromPathData(const CPointCoor2& psub, const CPointCoor2& trans_org, const PathData& path_data, const OverlayKey& key, SharedPtrOverlay* overlay);
+    [[nodiscard]] bool PaintFromRawData(const CPointCoor2& psub, const CPointCoor2& trans_org, const OverlayKey& key, SharedPtrOverlay* overlay);
 
 protected:
-    XyFwStringW       m_str;
-public:
-    bool              m_fWhiteSpaceChar, m_fLineBreak;
-    FwSTSStyle        m_style;
-    SharedPtrCPolygon m_pOpaqueBox;
-    int               m_ktype, m_kstart, m_kend;
-    int               m_width, m_ascent, m_descent;
-    double            m_target_scale_x, m_target_scale_y;
-    bool              m_round_to_whole_pixel_after_scale_to_target;//it is necessary to avoid some artifacts
+    XyFwStringW m_str;
 
-    //friend class CWordCache;
+public:
+    bool m_fWhiteSpaceChar, m_fLineBreak;
+    FwSTSStyle m_style;
+    SharedPtrCPolygon m_pOpaqueBox;
+    int m_ktype, m_kstart, m_kend;
+    int m_width, m_ascent, m_descent;
+    double m_target_scale_x, m_target_scale_y;
+    bool m_round_to_whole_pixel_after_scale_to_target; // it is necessary to avoid some artifacts
+
+    // friend class CWordCache;
     friend class PathDataCacheKey;
     friend class ClipperTraits;
     friend class ClipperAlphaMaskCacheKey;
@@ -129,22 +129,22 @@ public:
         int m_width, m_ascent, m_descent;
     };
     typedef ::boost::shared_ptr<TextInfo> SharedPtrTextInfo;
+
 protected:
     virtual bool CreatePath(PathData* path_data);
 
-    static void GetTextInfo(TextInfo *output, const FwSTSStyle& style, const CStringW& str,
-        TextRendererMode text_renderer_mode);
+    static void GetTextInfo(TextInfo* output, const FwSTSStyle& style, const CStringW& str,
+                            TextRendererMode text_renderer_mode);
+
 public:
-    CText(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend
-        , double target_scale_x=1.0, double target_scale_y=1.0
-        , TextRendererMode text_renderer_mode = TEXT_RENDERER_LEGACY_GDI);
+    CText(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend, double target_scale_x = 1.0, double target_scale_y = 1.0, TextRendererMode text_renderer_mode = TEXT_RENDERER_LEGACY_GDI);
     CText(const CText& src);
 
     virtual SharedPtrCWord Copy();
     [[nodiscard]] virtual bool Append(const SharedPtrCWord& w);
 
 private:
-    TextRendererMode m_text_renderer_mode{TEXT_RENDERER_LEGACY_GDI};
+    TextRendererMode m_text_renderer_mode{ TEXT_RENDERER_LEGACY_GDI };
 
     friend class PathDataCacheKey;
 };
@@ -156,20 +156,17 @@ class CPolygon : public CWord
     [[nodiscard]] bool ParseStr();
 
 protected:
-    double            m_scalex, m_scaley;
-    int               m_baseline;
-    CAtlArray<BYTE>   m_pathTypesOrg;
+    double m_scalex, m_scaley;
+    int m_baseline;
+    CAtlArray<BYTE> m_pathTypesOrg;
     CAtlArray<CPoint> m_pathPointsOrg;
 
     [[nodiscard]] virtual bool CreatePath(PathData* path_data);
 
 public:
-    CPolygon(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend
-        , double scalex, double scaley, int baseline
-        , double target_scale_x=1.0, double target_scale_y=1.0
-        , bool round_to_whole_pixel_after_scale_to_target = false);
-	// can't use a const reference because we need to use CAtlArray::Copy which expects a non-const reference
-    CPolygon(CPolygon&); 
+    CPolygon(const FwSTSStyle& style, const CStringW& str, int ktype, int kstart, int kend, double scalex, double scaley, int baseline, double target_scale_x = 1.0, double target_scale_y = 1.0, bool round_to_whole_pixel_after_scale_to_target = false);
+    // can't use a const reference because we need to use CAtlArray::Copy which expects a non-const reference
+    CPolygon(CPolygon&);
     virtual ~CPolygon();
 
     virtual SharedPtrCWord Copy();
@@ -182,11 +179,11 @@ public:
 
 enum eftype
 {
-    EF_MOVE = 0,    // {\move(x1=param[0], y1=param[1], x2=param[2], y2=param[3], t1=t[0], t2=t[1])} or {\pos(x=param[0], y=param[1])}
-    EF_ORG,         // {\org(x=param[0], y=param[1])}
-    EF_FADE,        // {\fade(a1=param[0], a2=param[1], a3=param[2], t1=t[0], t2=t[1], t3=t[2], t4=t[3])} or {\fad(t1=t[1], t2=t[2])
-    EF_BANNER,      // Banner;delay=param[0][;lefttoright=param[1];fadeawaywidth=param[2]]
-    EF_SCROLL,      // Scroll up/down=param[3];top=param[0];bottom=param[1];delay=param[2][;fadeawayheight=param[4]]
+    EF_MOVE = 0, // {\move(x1=param[0], y1=param[1], x2=param[2], y2=param[3], t1=t[0], t2=t[1])} or {\pos(x=param[0], y=param[1])}
+    EF_ORG,      // {\org(x=param[0], y=param[1])}
+    EF_FADE,     // {\fade(a1=param[0], a2=param[1], a3=param[2], t1=t[0], t2=t[1], t3=t[2], t4=t[3])} or {\fad(t1=t[1], t2=t[2])
+    EF_BANNER,   // Banner;delay=param[0][;lefttoright=param[1];fadeawaywidth=param[2]]
+    EF_SCROLL,   // Scroll up/down=param[3];top=param[0];bottom=param[1];delay=param[2][;fadeawayheight=param[4]]
 };
 
 #define EF_NUMBEROFEFFECTS 5
@@ -199,12 +196,11 @@ public:
         std::memset(param, 0, sizeof(param));
         std::memset(t, 0, sizeof(t));
     }
-    [[nodiscard]] bool operator==(const Effect& rhs)const
+    [[nodiscard]] bool operator==(const Effect& rhs) const
     {
-        return type==rhs.type 
-            && !std::memcmp(param, rhs.param, sizeof(param))
-            && !std::memcmp(t, rhs.t, sizeof(t));
+        return type == rhs.type && !std::memcmp(param, rhs.param, sizeof(param)) && !std::memcmp(t, rhs.t, sizeof(t));
     }
+
 public:
     enum eftype type;
     int param[8U];
@@ -215,21 +211,21 @@ class CClipper
 {
 private:
     SharedPtrCPolygon m_polygon;
-    CSizeCoor2        m_size;
-    bool              m_inverse;
-    Effect            m_effect;
-    int               m_effectType;
-    bool              m_painted;
+    CSizeCoor2 m_size;
+    bool m_inverse;
+    Effect m_effect;
+    int m_effectType;
+    bool m_painted;
 
     [[nodiscard]] GrayImage2* PaintSimpleClipper();
     [[nodiscard]] GrayImage2* PaintBaseClipper();
     [[nodiscard]] GrayImage2* PaintBannerClipper();
     [[nodiscard]] GrayImage2* PaintScrollClipper();
-    
+
     [[nodiscard]] GrayImage2* Paint();
+
 public:
-    CClipper(CStringW str, CSizeCoor2 size, double scalex, double scaley, bool inverse
-        , double target_scale_x=1.0, double target_scale_y=1.0);
+    CClipper(CStringW str, CSizeCoor2 size, double scalex, double scaley, bool inverse, double target_scale_x = 1.0, double target_scale_y = 1.0);
     void SetEffect(const Effect& effect, int effectType);
     virtual ~CClipper();
 
@@ -240,7 +236,7 @@ public:
     friend class CClipperPaintMachine;
 };
 
-class CLine: private CAtlList<SharedPtrCWord>
+class CLine : private CAtlList<SharedPtrCWord>
 {
 public:
     int m_width, m_ascent, m_descent, m_borderX, m_borderY;
@@ -253,13 +249,13 @@ public:
     void AddWord2Tail(SharedPtrCWord words);
     [[nodiscard]] bool IsEmpty();
 
-    [[nodiscard]] CRectCoor2 PaintAll(CompositeDrawItemList* output, const CRectCoor2& clipRect, 
-        const CPointCoor2& margin,
-        const SharedPtrCClipperPaintMachine &clipper, 
-        CPoint p, const CPoint& org, const int time, const int alpha);
+    [[nodiscard]] CRectCoor2 PaintAll(CompositeDrawItemList* output, const CRectCoor2& clipRect,
+                                      const CPointCoor2& margin,
+                                      const SharedPtrCClipperPaintMachine& clipper,
+                                      CPoint p, const CPoint& org, const int time, const int alpha);
 };
 
-class CSubtitle: private CAtlList<CLine*>
+class CSubtitle : private CAtlList<CLine*>
 {
     [[nodiscard]] int GetFullWidth();
     [[nodiscard]] int GetFullLineWidth(POSITION pos);
@@ -267,20 +263,20 @@ class CSubtitle: private CAtlList<CLine*>
     [[nodiscard]] CLine* GetNextLine(POSITION& pos, int maxwidth);
 
 public:
-    int                      m_scrAlignment;
-    int                      m_wrapStyle;
-    bool                     m_fAnimated;
-    bool                     m_fAnimated2; //If this Subtitle has animate effect
-    int                      m_relativeTo;
-    Effect*                  m_effects[EF_NUMBEROFEFFECTS];
+    int m_scrAlignment;
+    int m_wrapStyle;
+    bool m_fAnimated;
+    bool m_fAnimated2; // If this Subtitle has animate effect
+    int m_relativeTo;
+    Effect* m_effects[EF_NUMBEROFEFFECTS];
     CAtlList<SharedPtrCWord> m_words;
-    SharedPtrCClipper        m_pClipper;
-    CRect                    m_rect, m_clip;
-    int                      m_topborder, m_bottomborder;
-    bool                     m_clipInverse;
-    double                   m_scalex, m_scaley;
-    double                   m_target_scale_x, m_target_scale_y;
-    int                      m_hard_position_level;//-1: for no style override at all, others see @AssCmdPosLevel
+    SharedPtrCClipper m_pClipper;
+    CRect m_rect, m_clip;
+    int m_topborder, m_bottomborder;
+    bool m_clipInverse;
+    double m_scalex, m_scaley;
+    double m_target_scale_x, m_target_scale_y;
+    int m_hard_position_level; //-1: for no style override at all, others see @AssCmdPosLevel
 public:
     explicit CSubtitle();
     virtual ~CSubtitle();
@@ -296,22 +292,20 @@ public:
 
 struct CSubtitle2
 {
-    explicit CSubtitle2():s(nullptr){}
+    explicit CSubtitle2() : s(nullptr) {}
 
-    CSubtitle2(CSubtitle* s_,const CRectCoor2& clipRect_, const CPoint& org_, const CPoint& org2_
-        , const CPoint& p_, int alpha_, int time_)
+    CSubtitle2(CSubtitle* s_, const CRectCoor2& clipRect_, const CPoint& org_, const CPoint& org2_, const CPoint& p_, int alpha_, int time_)
         : s(s_), clipRect(clipRect_), org(org_), org2(org2_), p(p_), alpha(alpha_), time(time_)
     {
-
     }
 
-    CSubtitle       *s;
+    CSubtitle* s;
     const CRectCoor2 clipRect;
-    CPoint     org;
-    CPoint     org2;
-    CPoint     p;
-    int              alpha;
-    int              time;
+    CPoint org;
+    CPoint org2;
+    CPoint p;
+    int alpha;
+    int time;
 };
 
 typedef CAtlList<CSubtitle2> CSubtitle2List;
@@ -394,8 +388,8 @@ public:
         CMD_yshad,
         CMD_COUNT
     };
-    static const int MIN_CMD_LENGTH{1};//c etc
-    static const int MAX_CMD_LENGTH{5};//alpha, iclip, xbord, xshad, ybord, yshad
+    static const int MIN_CMD_LENGTH{ 1 }; // c etc
+    static const int MAX_CMD_LENGTH{ 5 }; // alpha, iclip, xbord, xshad, ybord, yshad
     static CAtlMap<CStringW, AssCmdType, CStringElementTraits<CStringW>> m_cmdMap;
 
     static CAtlArray<AssCmdPosLevel> m_cmd_pos_level;
@@ -409,39 +403,41 @@ public:
         CAtlArray<CStringW> strParams;
         AssTagList embeded;
     };
+
 public:
     static std::size_t SetMaxCacheSize(std::size_t max_cache_size);
+
 private:
-    XyIntMap<CSubtitle*>     m_subtitleCache;
-    CAtlList<int>            m_subtitleCacheEntry;
+    XyIntMap<CSubtitle*> m_subtitleCache;
+    CAtlList<int> m_subtitleCacheEntry;
 
-    CScreenLayoutAllocator   m_sla;
+    CScreenLayoutAllocator m_sla;
 
-    CRectCoor2               m_video_rect;//scaled video rect
-    CRectCoor2               m_subtitle_target_rect;//NOT really supported yet
+    CRectCoor2 m_video_rect;           // scaled video rect
+    CRectCoor2 m_subtitle_target_rect; // NOT really supported yet
 
-    CSize                    m_size;
+    CSize m_size;
 
     // temp variables, used when parsing the script
-    int                      m_time, m_delay;
-    int                      m_animStart, m_animEnd;
-    double                   m_animAccel;
-    int                      m_ktype, m_kstart, m_kend;
-    int                      m_nPolygon;
-    int                      m_polygonBaselineOffset;
-    double                   m_fps;
-    int                      m_period;//1000/m_fps
-    double                   m_target_scale_x, m_target_scale_y;
-    bool                     m_movable;
-    TextRendererMode         m_text_renderer_mode{TEXT_RENDERER_LEGACY_GDI};
+    int m_time, m_delay;
+    int m_animStart, m_animEnd;
+    double m_animAccel;
+    int m_ktype, m_kstart, m_kend;
+    int m_nPolygon;
+    int m_polygonBaselineOffset;
+    double m_fps;
+    int m_period; // 1000/m_fps
+    double m_target_scale_x, m_target_scale_y;
+    bool m_movable;
+    TextRendererMode m_text_renderer_mode{ TEXT_RENDERER_LEGACY_GDI };
 
     static void InitCmdMap();
 
-    void ParseEffect (CSubtitle* sub, const CString& str);
-    void ParseString (CSubtitle* sub, CStringW str, const FwSTSStyle& style);
+    void ParseEffect(CSubtitle* sub, const CString& str);
+    void ParseString(CSubtitle* sub, CStringW str, const FwSTSStyle& style);
     void ParsePolygon(CSubtitle* sub, const CStringW& str, const FwSTSStyle& style);
 
-    [[nodiscard]] static bool ParseSSATag(AssTagList *assTags, const CStringW& str);
+    [[nodiscard]] static bool ParseSSATag(AssTagList* assTags, const CStringW& str);
     [[nodiscard]] bool ParseSSATag(CSubtitle* sub, const AssTagList& assTags, STSStyle& style, const STSStyle& org, bool fAnimate = false);
     [[nodiscard]] bool ParseSSATag(CSubtitle* sub, const CStringW& str, STSStyle& style, const STSStyle& org, bool fAnimate = false);
 
@@ -453,11 +449,13 @@ private:
 
     void ClearUnCachedSubtitle(CSubtitle2List& sub2List);
     void ShrinkCache();
+
 private:
     static std::size_t s_max_cache_size;
+
 protected:
     virtual void OnChanged();
-    
+
 public:
     explicit CRenderedTextSubtitle(CCritSec* pLock);
     virtual ~CRenderedTextSubtitle();
@@ -473,40 +471,42 @@ private:
      * Will call Deinit()
      */
     bool Init(const CRectCoor2& video_rect, const CRectCoor2& subtitle_target_rect,
-        const SIZE& layout_size);
+              const SIZE& layout_size);
+
 public:
     void Deinit();
     void SetTextRendererMode(TextRendererMode mode);
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+        DECLSPEC_NOTHROW STDMETHODIMP
+        NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProviderEx2
     DECLSPEC_NOTHROW STDMETHODIMP Lock();
     DECLSPEC_NOTHROW STDMETHODIMP Unlock();
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RenderEx(IXySubRenderFrame**subRenderFrame, int spd_type, 
-        const RECT& video_rect, const RECT& subtitle_target_rect,
-        const SIZE& original_video_size,
-        REFERENCE_TIME rt, double fps);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RenderEx(IXySubRenderFrame** subRenderFrame, int spd_type,
+                                                         const RECT& video_rect, const RECT& subtitle_target_rect,
+                                                         const SIZE& original_video_size,
+                                                         REFERENCE_TIME rt, double fps);
 
     // ISubPicProviderEx && ISubPicProviderEx2
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetNext(POSITION pos);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStart(POSITION pos, double fps);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) GetStop(POSITION pos, double fps);
-    DECLSPEC_NOTHROW STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/REFERENCE_TIME &start, /*out*/REFERENCE_TIME &stop);
+    DECLSPEC_NOTHROW STDMETHODIMP_(VOID) GetStartStop(POSITION pos, double fps, /*out*/ REFERENCE_TIME& start, /*out*/ REFERENCE_TIME& stop);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsAnimated(POSITION pos);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Render(SubPicDesc& spd, REFERENCE_TIME rt, double fps, RECTCoor2& bbox);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP RenderEx(SubPicDesc& spd, REFERENCE_TIME rt, double fps, CAtlList<CRectCoor2>& rectList);
-    [[nodiscard]] HRESULT ParseScript(REFERENCE_TIME rt, double fps, CSubtitle2List *outputSub2List );
-    static void DoRender( const SIZECoor2& output_size, 
-        const POINTCoor2& video_org, const RECTCoor2& margin_rect, 
-        const CSubtitle2List& sub2List, 
-        CompositeDrawItemListList *compDrawItemListList /*output*/);
-    static void RenderOneSubtitle(const SIZECoor2& output_size, 
-        const POINTCoor2& video_org, const RECTCoor2& margin_rect, 
-        const CSubtitle2& sub2, 
-        CompositeDrawItemList* compDrawItemList /*output*/);
+    [[nodiscard]] HRESULT ParseScript(REFERENCE_TIME rt, double fps, CSubtitle2List* outputSub2List);
+    static void DoRender(const SIZECoor2& output_size,
+                         const POINTCoor2& video_org, const RECTCoor2& margin_rect,
+                         const CSubtitle2List& sub2List,
+                         CompositeDrawItemListList* compDrawItemListList /*output*/);
+    static void RenderOneSubtitle(const SIZECoor2& output_size,
+                                  const POINTCoor2& video_org, const RECTCoor2& margin_rect,
+                                  const CSubtitle2& sub2,
+                                  CompositeDrawItemList* compDrawItemList /*output*/);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsColorTypeSupported(int type);
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsMovable();
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) IsSimple();

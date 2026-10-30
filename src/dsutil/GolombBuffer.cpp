@@ -22,8 +22,7 @@
 #include "GolombBuffer.h"
 
 CGolombBuffer::CGolombBuffer(BYTE* pBuffer, int nSize)
-    : m_pBuffer(pBuffer)
-    , m_nSize(nSize)
+    : m_pBuffer(pBuffer), m_nSize(nSize)
 {
     Reset();
 }
@@ -36,12 +35,14 @@ CGolombBuffer::~CGolombBuffer()
 [[nodiscard]] UINT64 CGolombBuffer::BitRead(const int nBits, const bool fPeek)
 
 {
-    //ASSERT(nBits >= 0 && nBits <= 64);
+    // ASSERT(nBits >= 0 && nBits <= 64);
 
-    while (m_bitlen < nBits) {
+    while (m_bitlen < nBits)
+    {
         m_bitbuff <<= 8;
 
-        if (m_nBitPos >= m_nSize) {
+        if (m_nBitPos >= m_nSize)
+        {
             return 0;
         }
 
@@ -49,18 +50,22 @@ CGolombBuffer::~CGolombBuffer()
         m_bitlen += 8;
     }
 
-    int bitlen{m_bitlen - nBits};
+    int bitlen{ m_bitlen - nBits };
 
     UINT64 ret;
     // The shift to 64 bits can give incorrect results.
     // "The behavior is undefined if the right operand is negative, or greater than or equal to the length in bits of the promoted left operand."
-    if (nBits == 64) {
+    if (nBits == 64)
+    {
         ret = m_bitbuff;
-    } else {
+    }
+    else
+    {
         ret = (m_bitbuff >> bitlen) & ((1ui64 << nBits) - 1);
     }
 
-    if (!fPeek) {
+    if (!fPeek)
+    {
         m_bitbuff &= ((1ui64 << bitlen) - 1);
         m_bitlen = bitlen;
     }
@@ -71,8 +76,9 @@ CGolombBuffer::~CGolombBuffer()
 [[nodiscard]] UINT64 CGolombBuffer::UExpGolombRead()
 
 {
-    int n{-1};
-    for (BYTE b{0}; !b; ++n) {
+    int n{ -1 };
+    for (BYTE b{ 0 }; !b; ++n)
+    {
         b = (BYTE)BitRead(1);
     }
     return (1ui64 << n) - 1 + BitRead(n);
@@ -81,7 +87,7 @@ CGolombBuffer::~CGolombBuffer()
 [[nodiscard]] INT64 CGolombBuffer::SExpGolombRead()
 
 {
-    UINT64 k{UExpGolombRead()};
+    UINT64 k{ UExpGolombRead() };
     return ((k & 1) ? 1 : -1) * ((k + 1) >> 1);
 }
 
@@ -110,14 +116,14 @@ void CGolombBuffer::ReadBuffer(BYTE* pDest, int nSize)
 void CGolombBuffer::Reset()
 {
     m_nBitPos = 0;
-    m_bitlen  = 0;
+    m_bitlen = 0;
     m_bitbuff = 0;
 }
 
 void CGolombBuffer::Reset(BYTE* pNewBuffer, const int nNewSize)
 {
     m_pBuffer = pNewBuffer;
-    m_nSize   = nNewSize;
+    m_nSize = nNewSize;
 
     Reset();
 }
@@ -126,6 +132,6 @@ void CGolombBuffer::SkipBytes(const int nCount)
 
 {
     m_nBitPos += nCount;
-    m_bitlen   = 0;
-    m_bitbuff  = 0;
+    m_bitlen = 0;
+    m_bitbuff = 0;
 }

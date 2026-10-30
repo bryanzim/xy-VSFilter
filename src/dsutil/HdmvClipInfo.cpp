@@ -25,10 +25,7 @@
 extern LCID ISO6392ToLcid(LPCSTR code);
 
 CHdmvClipInfo::CHdmvClipInfo()
-    : SequenceInfo_start_address(0)
-    , ProgramInfo_start_address(0)
-    , m_hFile(INVALID_HANDLE_VALUE)
-    , m_bIsHdmv(false)
+    : SequenceInfo_start_address(0), ProgramInfo_start_address(0), m_hFile(INVALID_HANDLE_VALUE), m_bIsHdmv(false)
 {
 }
 
@@ -39,7 +36,8 @@ CHdmvClipInfo::~CHdmvClipInfo()
 
 [[nodiscard]] HRESULT CHdmvClipInfo::CloseFile(const HRESULT hr)
 {
-    if (m_hFile != INVALID_HANDLE_VALUE) {
+    if (m_hFile != INVALID_HANDLE_VALUE)
+    {
         CloseHandle(m_hFile);
         m_hFile = INVALID_HANDLE_VALUE;
     }
@@ -58,7 +56,7 @@ CHdmvClipInfo::~CHdmvClipInfo()
 
 [[nodiscard]] BYTE CHdmvClipInfo::ReadByte()
 {
-    BYTE  bVal;
+    BYTE bVal;
     DWORD dwRead;
     ReadFile(m_hFile, &bVal, sizeof(bVal), &dwRead, nullptr);
 
@@ -81,19 +79,21 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     Pos.QuadPart = ProgramInfo_start_address;
     SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
 
-    (void)ReadDword();    //length
-    (void)ReadByte();     //reserved_for_word_align
+    (void)ReadDword(); // length
+    (void)ReadByte();  // reserved_for_word_align
     number_of_program_sequences = (BYTE)ReadByte();
-    int iStream{0};
-    for (std::size_t i{0U}; i < number_of_program_sequences; ++i) {
-        (void)ReadDword();    //SPN_program_sequence_start
-        (void)ReadShort();    //program_map_PID
-        number_of_streams_in_ps = (BYTE)ReadByte(); //number_of_streams_in_ps
-        (void)ReadByte();     //reserved_for_future_use
+    int iStream{ 0 };
+    for (std::size_t i{ 0U }; i < number_of_program_sequences; ++i)
+    {
+        (void)ReadDword();                          // SPN_program_sequence_start
+        (void)ReadShort();                          // program_map_PID
+        number_of_streams_in_ps = (BYTE)ReadByte(); // number_of_streams_in_ps
+        (void)ReadByte();                           // reserved_for_future_use
 
-        for (std::size_t stream_index{0U}; stream_index < number_of_streams_in_ps; ++stream_index) {
+        for (std::size_t stream_index{ 0U }; stream_index < number_of_streams_in_ps; ++stream_index)
+        {
             m_Streams.SetCount(iStream + 1);
-            m_Streams[iStream].m_PID = ReadShort();  // stream_PID
+            m_Streams[iStream].m_PID = ReadShort(); // stream_PID
 
             // == StreamCodingInfo
             Pos.QuadPart = 0;
@@ -101,60 +101,61 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             Pos.QuadPart += ReadByte() + 1; // length
             m_Streams[iStream].m_Type = (PES_STREAM_TYPE)ReadByte();
 
-            switch (m_Streams[iStream].m_Type) {
-                case VIDEO_STREAM_MPEG1:
-                case VIDEO_STREAM_MPEG2:
-                case VIDEO_STREAM_H264:
-                case VIDEO_STREAM_VC1: {
-                    UINT8 Temp{ReadByte()};
-                    BDVM_VideoFormat VideoFormat{(BDVM_VideoFormat)(Temp >> 4)};
-                    BDVM_FrameRate FrameRate{(BDVM_FrameRate)(Temp & 0xf)};
-                    Temp = ReadByte();
-                    BDVM_AspectRatio AspectRatio{(BDVM_AspectRatio)(Temp >> 4)};
+            switch (m_Streams[iStream].m_Type)
+            {
+            case VIDEO_STREAM_MPEG1:
+            case VIDEO_STREAM_MPEG2:
+            case VIDEO_STREAM_H264:
+            case VIDEO_STREAM_VC1: {
+                UINT8 Temp{ ReadByte() };
+                BDVM_VideoFormat VideoFormat{ (BDVM_VideoFormat)(Temp >> 4) };
+                BDVM_FrameRate FrameRate{ (BDVM_FrameRate)(Temp & 0xf) };
+                Temp = ReadByte();
+                BDVM_AspectRatio AspectRatio{ (BDVM_AspectRatio)(Temp >> 4) };
 
-                    m_Streams[iStream].m_VideoFormat = VideoFormat;
-                    m_Streams[iStream].m_FrameRate = FrameRate;
-                    m_Streams[iStream].m_AspectRatio = AspectRatio;
-                }
-                break;
-                case AUDIO_STREAM_MPEG1:
-                case AUDIO_STREAM_MPEG2:
-                case AUDIO_STREAM_LPCM:
-                case AUDIO_STREAM_AC3:
-                case AUDIO_STREAM_DTS:
-                case AUDIO_STREAM_AC3_TRUE_HD:
-                case AUDIO_STREAM_AC3_PLUS:
-                case AUDIO_STREAM_DTS_HD:
-                case AUDIO_STREAM_DTS_HD_MASTER_AUDIO:
-                case SECONDARY_AUDIO_AC3_PLUS:
-                case SECONDARY_AUDIO_DTS_HD: {
-                    UINT8 Temp{ReadByte()};
-                    BDVM_ChannelLayout ChannelLayout{(BDVM_ChannelLayout)(Temp >> 4)};
-                    BDVM_SampleRate SampleRate{(BDVM_SampleRate)(Temp & 0xF)};
+                m_Streams[iStream].m_VideoFormat = VideoFormat;
+                m_Streams[iStream].m_FrameRate = FrameRate;
+                m_Streams[iStream].m_AspectRatio = AspectRatio;
+            }
+            break;
+            case AUDIO_STREAM_MPEG1:
+            case AUDIO_STREAM_MPEG2:
+            case AUDIO_STREAM_LPCM:
+            case AUDIO_STREAM_AC3:
+            case AUDIO_STREAM_DTS:
+            case AUDIO_STREAM_AC3_TRUE_HD:
+            case AUDIO_STREAM_AC3_PLUS:
+            case AUDIO_STREAM_DTS_HD:
+            case AUDIO_STREAM_DTS_HD_MASTER_AUDIO:
+            case SECONDARY_AUDIO_AC3_PLUS:
+            case SECONDARY_AUDIO_DTS_HD: {
+                UINT8 Temp{ ReadByte() };
+                BDVM_ChannelLayout ChannelLayout{ (BDVM_ChannelLayout)(Temp >> 4) };
+                BDVM_SampleRate SampleRate{ (BDVM_SampleRate)(Temp & 0xF) };
 
-                    ReadBuffer((BYTE*)m_Streams[iStream].m_LanguageCode, 3);
-                    m_Streams[iStream].m_LanguageCode[3U] = '\0';
-                    m_Streams[iStream].m_LCID = ISO6392ToLcid(m_Streams[iStream].m_LanguageCode);
-                    m_Streams[iStream].m_ChannelLayout = ChannelLayout;
-                    m_Streams[iStream].m_SampleRate = SampleRate;
-                }
+                ReadBuffer((BYTE*)m_Streams[iStream].m_LanguageCode, 3);
+                m_Streams[iStream].m_LanguageCode[3U] = '\0';
+                m_Streams[iStream].m_LCID = ISO6392ToLcid(m_Streams[iStream].m_LanguageCode);
+                m_Streams[iStream].m_ChannelLayout = ChannelLayout;
+                m_Streams[iStream].m_SampleRate = SampleRate;
+            }
+            break;
+            case PRESENTATION_GRAPHICS_STREAM:
+            case INTERACTIVE_GRAPHICS_STREAM: {
+                ReadBuffer((BYTE*)m_Streams[iStream].m_LanguageCode, 3);
+                m_Streams[iStream].m_LanguageCode[3U] = '\0';
+                m_Streams[iStream].m_LCID = ISO6392ToLcid(m_Streams[iStream].m_LanguageCode);
+            }
+            break;
+            case SUBTITLE_STREAM: {
+                (void)ReadByte(); // Should this really be here?
+                ReadBuffer((BYTE*)m_Streams[iStream].m_LanguageCode, 3);
+                m_Streams[iStream].m_LanguageCode[3U] = '\0';
+                m_Streams[iStream].m_LCID = ISO6392ToLcid(m_Streams[iStream].m_LanguageCode);
+            }
+            break;
+            default:
                 break;
-                case PRESENTATION_GRAPHICS_STREAM:
-                case INTERACTIVE_GRAPHICS_STREAM: {
-                    ReadBuffer((BYTE*)m_Streams[iStream].m_LanguageCode, 3);
-                    m_Streams[iStream].m_LanguageCode[3U] = '\0';
-                    m_Streams[iStream].m_LCID = ISO6392ToLcid(m_Streams[iStream].m_LanguageCode);
-                }
-                break;
-                case SUBTITLE_STREAM: {
-                    (void)ReadByte(); // Should this really be here?
-                    ReadBuffer((BYTE*)m_Streams[iStream].m_LanguageCode, 3);
-                    m_Streams[iStream].m_LanguageCode[3U] = '\0';
-                    m_Streams[iStream].m_LCID = ISO6392ToLcid(m_Streams[iStream].m_LanguageCode);
-                }
-                break;
-                default:
-                    break;
             }
 
             ++iStream;
@@ -170,20 +171,23 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     m_hFile = CreateFile(strFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
                          OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
-    if (m_hFile != INVALID_HANDLE_VALUE) {
+    if (m_hFile != INVALID_HANDLE_VALUE)
+    {
         BYTE Buff[100U];
         ReadBuffer(Buff, 4);
-        if (std::memcmp(Buff, "HDMV", 4)) {
+        if (std::memcmp(Buff, "HDMV", 4))
+        {
             return CloseFile(VFW_E_INVALID_FILE_FORMAT);
         }
 
         ReadBuffer(Buff, 4);
-        if ((std::memcmp(Buff, "0200", 4) != 0) && (std::memcmp(Buff, "0100", 4) != 0)) {
+        if ((std::memcmp(Buff, "0200", 4) != 0) && (std::memcmp(Buff, "0100", 4) != 0))
+        {
             return CloseFile(VFW_E_INVALID_FILE_FORMAT);
         }
 
         SequenceInfo_start_address = ReadDword();
-        ProgramInfo_start_address  = ReadDword();
+        ProgramInfo_start_address = ReadDword();
 
         (void)ReadProgramInfo();
 
@@ -197,9 +201,11 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
 [[nodiscard]] CHdmvClipInfo::Stream* CHdmvClipInfo::FindStream(const short wPID)
 {
-    std::size_t nStreams{m_Streams.GetCount()};
-    for (std::size_t i{0U}; i < nStreams; ++i) {
-        if (m_Streams[i].m_PID == wPID) {
+    std::size_t nStreams{ m_Streams.GetCount() };
+    for (std::size_t i{ 0U }; i < nStreams; ++i)
+    {
+        if (m_Streams[i].m_PID == wPID)
+        {
             return &m_Streams[i];
         }
     }
@@ -209,51 +215,52 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
 [[nodiscard]] LPCTSTR CHdmvClipInfo::Stream::Format()
 {
-    switch (m_Type) {
-        case VIDEO_STREAM_MPEG1:
-            return _T("Mpeg1");
-        case VIDEO_STREAM_MPEG2:
-            return _T("Mpeg2");
-        case VIDEO_STREAM_H264:
-            return _T("H264");
-        case VIDEO_STREAM_VC1:
-            return _T("VC1");
-        case AUDIO_STREAM_MPEG1:
-            return _T("MPEG1");
-        case AUDIO_STREAM_MPEG2:
-            return _T("MPEG2");
-        case AUDIO_STREAM_LPCM:
-            return _T("LPCM");
-        case AUDIO_STREAM_AC3:
-            return _T("AC3");
-        case AUDIO_STREAM_DTS:
-            return _T("DTS");
-        case AUDIO_STREAM_AC3_TRUE_HD:
-            return _T("MLP");
-        case AUDIO_STREAM_AC3_PLUS:
-            return _T("DD+");
-        case AUDIO_STREAM_DTS_HD:
-            return _T("DTS-HD");
-        case AUDIO_STREAM_DTS_HD_MASTER_AUDIO:
-            return _T("DTS-HD XLL");
-        case SECONDARY_AUDIO_AC3_PLUS:
-            return _T("Sec DD+");
-        case SECONDARY_AUDIO_DTS_HD:
-            return _T("Sec DTS-HD");
-        case PRESENTATION_GRAPHICS_STREAM:
-            return _T("PG");
-        case INTERACTIVE_GRAPHICS_STREAM:
-            return _T("IG");
-        case SUBTITLE_STREAM:
-            return _T("Text");
-        default:
-            return _T("Unknown");
+    switch (m_Type)
+    {
+    case VIDEO_STREAM_MPEG1:
+        return _T("Mpeg1");
+    case VIDEO_STREAM_MPEG2:
+        return _T("Mpeg2");
+    case VIDEO_STREAM_H264:
+        return _T("H264");
+    case VIDEO_STREAM_VC1:
+        return _T("VC1");
+    case AUDIO_STREAM_MPEG1:
+        return _T("MPEG1");
+    case AUDIO_STREAM_MPEG2:
+        return _T("MPEG2");
+    case AUDIO_STREAM_LPCM:
+        return _T("LPCM");
+    case AUDIO_STREAM_AC3:
+        return _T("AC3");
+    case AUDIO_STREAM_DTS:
+        return _T("DTS");
+    case AUDIO_STREAM_AC3_TRUE_HD:
+        return _T("MLP");
+    case AUDIO_STREAM_AC3_PLUS:
+        return _T("DD+");
+    case AUDIO_STREAM_DTS_HD:
+        return _T("DTS-HD");
+    case AUDIO_STREAM_DTS_HD_MASTER_AUDIO:
+        return _T("DTS-HD XLL");
+    case SECONDARY_AUDIO_AC3_PLUS:
+        return _T("Sec DD+");
+    case SECONDARY_AUDIO_DTS_HD:
+        return _T("Sec DTS-HD");
+    case PRESENTATION_GRAPHICS_STREAM:
+        return _T("PG");
+    case INTERACTIVE_GRAPHICS_STREAM:
+        return _T("IG");
+    case SUBTITLE_STREAM:
+        return _T("Text");
+    default:
+        return _T("Unknown");
     }
 }
 
 [[nodiscard]] HRESULT CHdmvClipInfo::ReadPlaylist(CString strPlaylistFile, REFERENCE_TIME& rtDuration, CAtlList<PlaylistItem>& Playlist)
 {
-    CPath Path{strPlaylistFile};
+    CPath Path{ strPlaylistFile };
     rtDuration = 0;
 
     // Get BDMV folder
@@ -263,35 +270,39 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     m_hFile = CreateFile(strPlaylistFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
                          OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
-    if (m_hFile != INVALID_HANDLE_VALUE) {
+    if (m_hFile != INVALID_HANDLE_VALUE)
+    {
         BYTE Buff[100U];
-        bool bDuplicate{false};
+        bool bDuplicate{ false };
         ReadBuffer(Buff, 4);
-        if (std::memcmp(Buff, "MPLS", 4)) {
+        if (std::memcmp(Buff, "MPLS", 4))
+        {
             return CloseFile(VFW_E_INVALID_FILE_FORMAT);
         }
 
         ReadBuffer(Buff, 4);
-        if ((std::memcmp(Buff, "0200", 4) != 0) && (std::memcmp(Buff, "0100", 4) != 0)) {
+        if ((std::memcmp(Buff, "0200", 4) != 0) && (std::memcmp(Buff, "0100", 4) != 0))
+        {
             return CloseFile(VFW_E_INVALID_FILE_FORMAT);
         }
 
         LARGE_INTEGER Pos;
-        DWORD  dwTemp;
+        DWORD dwTemp;
         unsigned short nPlaylistItems;
 
         Pos.QuadPart = ReadDword(); // PlayList_start_address
-        (void)ReadDword();                // PlayListMark_start_address
+        (void)ReadDword();          // PlayListMark_start_address
 
         // PlayList()
         SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
-        (void)ReadDword();                   // length
-        (void)ReadShort();                   // reserved_for_future_use
-        nPlaylistItems = ReadShort();  // number_of_PlayItems
-        (void)ReadShort();                   // number_of_SubPaths
+        (void)ReadDword();            // length
+        (void)ReadShort();            // reserved_for_future_use
+        nPlaylistItems = ReadShort(); // number_of_PlayItems
+        (void)ReadShort();            // number_of_SubPaths
 
         Pos.QuadPart += 10;
-        for (std::size_t i{0U}; i < nPlaylistItems; ++i) {
+        for (std::size_t i{ 0U }; i < nPlaylistItems; ++i)
+        {
             PlaylistItem Item;
             SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
             Pos.QuadPart += ReadShort() + 2;
@@ -299,7 +310,8 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             Item.m_strFileName.Format(_T("%s\\STREAM\\%c%c%c%c%c.M2TS"), static_cast<LPCTSTR>(Path), Buff[0U], Buff[1U], Buff[2U], Buff[3U], Buff[4U]);
 
             ReadBuffer(Buff, 4);
-            if (std::memcmp(Buff, "M2TS", 4)) {
+            if (std::memcmp(Buff, "M2TS", 4))
+            {
                 return CloseFile(VFW_E_INVALID_FILE_FORMAT);
             }
             ReadBuffer(Buff, 3);
@@ -312,12 +324,13 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
             rtDuration += (Item.m_rtOut - Item.m_rtIn);
 
-            if (Playlist.Find(Item) != nullptr) {
+            if (Playlist.Find(Item) != nullptr)
+            {
                 bDuplicate = true;
             }
             Playlist.AddTail(Item);
 
-            //TRACE(_T("File : %s, Duration : %s, Total duration  : %s\n"), strTemp, ReftimeToString (rtOut - rtIn), ReftimeToString (rtDuration));
+            // TRACE(_T("File : %s, Duration : %s, Total duration  : %s\n"), strTemp, ReftimeToString (rtOut - rtIn), ReftimeToString (rtDuration));
         }
 
         (void)CloseFile(S_OK);
@@ -329,7 +342,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
 [[nodiscard]] HRESULT CHdmvClipInfo::ReadChapters(CString strPlaylistFile, CAtlList<CHdmvClipInfo::PlaylistItem>& PlaylistItems, CAtlList<PlaylistChapter>& Chapters)
 {
-    CPath Path{strPlaylistFile};
+    CPath Path{ strPlaylistFile };
 
     // Get BDMV folder
     Path.RemoveFileSpec();
@@ -338,16 +351,18 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     m_hFile = CreateFile(strPlaylistFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
                          OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
-    if (m_hFile != INVALID_HANDLE_VALUE) {
-        REFERENCE_TIME* rtOffset{DEBUG_NEW REFERENCE_TIME[PlaylistItems.GetCount()]};
-        REFERENCE_TIME rtSum{0};
-        int nIndex{0};
+    if (m_hFile != INVALID_HANDLE_VALUE)
+    {
+        REFERENCE_TIME* rtOffset{ DEBUG_NEW REFERENCE_TIME[PlaylistItems.GetCount()] };
+        REFERENCE_TIME rtSum{ 0 };
+        int nIndex{ 0 };
         BYTE Buff[100U];
-        bool bDuplicate{false};
+        bool bDuplicate{ false };
 
-        POSITION pos{PlaylistItems.GetHeadPosition()};
-        while (pos) {
-            CHdmvClipInfo::PlaylistItem& PI{PlaylistItems.GetNext(pos)};
+        POSITION pos{ PlaylistItems.GetHeadPosition() };
+        while (pos)
+        {
+            CHdmvClipInfo::PlaylistItem& PI{ PlaylistItems.GetNext(pos) };
 
             rtOffset[nIndex] = rtSum - PI.m_rtIn;
             rtSum = rtSum + PI.Duration();
@@ -355,40 +370,43 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         }
 
         ReadBuffer(Buff, 4);
-        if (std::memcmp(Buff, "MPLS", 4)) {
+        if (std::memcmp(Buff, "MPLS", 4))
+        {
             SAFE_DELETE_ARRAY(rtOffset);
             return CloseFile(VFW_E_INVALID_FILE_FORMAT);
         }
 
         ReadBuffer(Buff, 4);
-        if ((std::memcmp(Buff, "0200", 4) != 0) && (std::memcmp(Buff, "0100", 4) != 0)) {
+        if ((std::memcmp(Buff, "0200", 4) != 0) && (std::memcmp(Buff, "0100", 4) != 0))
+        {
             SAFE_DELETE_ARRAY(rtOffset);
             return CloseFile(VFW_E_INVALID_FILE_FORMAT);
         }
 
-        LARGE_INTEGER  Pos;
+        LARGE_INTEGER Pos;
         unsigned short nMarkCount;
 
-        (void)ReadDword();                // PlayList_start_address
+        (void)ReadDword();          // PlayList_start_address
         Pos.QuadPart = ReadDword(); // PlayListMark_start_address
 
         // PlayListMark()
         SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
-        (void)ReadDword();                // length
-        nMarkCount = ReadShort();   // number_of_PlayList_marks
-        for (std::size_t i{0U}; i < nMarkCount; ++i) {
+        (void)ReadDword();        // length
+        nMarkCount = ReadShort(); // number_of_PlayList_marks
+        for (std::size_t i{ 0U }; i < nMarkCount; ++i)
+        {
             PlaylistChapter Chapter;
 
-            (void)ReadByte();                                           // reserved_for_future_use
-            Chapter.m_nMarkType   = (PlaylistMarkType)ReadByte(); // mark_type
-            Chapter.m_nPlayItemId = ReadShort();                  // ref_to_PlayItem_id
-            Chapter.m_rtTimestamp = 20000i64 * ReadDword() / 90 + rtOffset[Chapter.m_nPlayItemId];    // mark_time_stamp
-            Chapter.m_nEntryPID   = ReadShort();                  // entry_ES_PID
-            Chapter.m_rtDuration  = 20000i64 * ReadDword() / 90;  // duration
+            (void)ReadByte();                                                                      // reserved_for_future_use
+            Chapter.m_nMarkType = (PlaylistMarkType)ReadByte();                                    // mark_type
+            Chapter.m_nPlayItemId = ReadShort();                                                   // ref_to_PlayItem_id
+            Chapter.m_rtTimestamp = 20000i64 * ReadDword() / 90 + rtOffset[Chapter.m_nPlayItemId]; // mark_time_stamp
+            Chapter.m_nEntryPID = ReadShort();                                                     // entry_ES_PID
+            Chapter.m_rtDuration = 20000i64 * ReadDword() / 90;                                    // duration
 
             Chapters.AddTail(Chapter);
 
-            //TRACE(_T("Chapter %d : %s\n"), i, ReftimeToString(Chapter.m_rtTimestamp));
+            // TRACE(_T("Chapter %d : %s\n"), i, ReftimeToString(Chapter.m_rtTimestamp));
         }
 
         (void)CloseFile(S_OK);
@@ -403,9 +421,9 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
 
 HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile, CAtlList<PlaylistItem>& MainPlaylist, CAtlList<PlaylistItem>& MPLSPlaylists)
 {
-    HRESULT hr{E_FAIL};
+    HRESULT hr{ E_FAIL };
 
-    CString strPath{strFolder};
+    CString strPath{ strFolder };
     CString strFilter;
 
     MPLSPlaylists.RemoveAll();
@@ -418,46 +436,55 @@ HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile
     strPath += _T("\\BDMV\\");
     strFilter.Format(_T("%sPLAYLIST\\*.mpls"), strPath.GetString());
 
-    HANDLE hFind{FindFirstFile(strFilter, &fd)};
-    if (hFind != INVALID_HANDLE_VALUE) {
-        REFERENCE_TIME rtMax{0};
+    HANDLE hFind{ FindFirstFile(strFilter, &fd) };
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        REFERENCE_TIME rtMax{ 0 };
         REFERENCE_TIME rtCurrent;
         CString strCurrentPlaylist;
-        do {
+        do
+        {
             strCurrentPlaylist.Format(_T("%sPLAYLIST\\%s"), strPath.GetString(), fd.cFileName);
             Playlist.RemoveAll();
 
             // Main movie shouldn't have duplicate M2TS filename...
-            if (ReadPlaylist(strCurrentPlaylist, rtCurrent, Playlist) == S_OK) {
-                if (rtCurrent > rtMax) {
+            if (ReadPlaylist(strCurrentPlaylist, rtCurrent, Playlist) == S_OK)
+            {
+                if (rtCurrent > rtMax)
+                {
                     rtMax = rtCurrent;
                     strPlaylistFile = strCurrentPlaylist;
                     MainPlaylist.RemoveAll();
-                    POSITION pos{Playlist.GetHeadPosition()};
-                    while (pos) {
+                    POSITION pos{ Playlist.GetHeadPosition() };
+                    while (pos)
+                    {
                         MainPlaylist.AddTail(Playlist.GetNext(pos));
                     }
                     hr = S_OK;
                 }
-                if (rtCurrent >= (REFERENCE_TIME)MIN_LIMIT * 600000000) {
+                if (rtCurrent >= (REFERENCE_TIME)MIN_LIMIT * 600000000)
+                {
                     PlaylistItem Item;
                     Item.m_strFileName = strCurrentPlaylist;
                     Item.m_rtIn = 0;
                     Item.m_rtOut = rtCurrent;
                     MPLSPlaylists.AddTail(Item);
                 }
-
             }
         } while (FindNextFile(hFind, &fd));
 
         FindClose(hFind);
     }
 
-    if (MPLSPlaylists.GetCount() > 1) {
+    if (MPLSPlaylists.GetCount() > 1)
+    {
         // bubble sort
-        for (std::size_t j{0U}; j < MPLSPlaylists.GetCount(); ++j) {
-            for (std::size_t i{0U}; i < MPLSPlaylists.GetCount() - 1; ++i) {
-                if (MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i)).Duration() < MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i + 1)).Duration()) {
+        for (std::size_t j{ 0U }; j < MPLSPlaylists.GetCount(); ++j)
+        {
+            for (std::size_t i{ 0U }; i < MPLSPlaylists.GetCount() - 1; ++i)
+            {
+                if (MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i)).Duration() < MPLSPlaylists.GetAt(MPLSPlaylists.FindIndex(i + 1)).Duration())
+                {
                     MPLSPlaylists.SwapElements(MPLSPlaylists.FindIndex(i), MPLSPlaylists.FindIndex(i + 1));
                 }
             }

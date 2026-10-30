@@ -23,18 +23,22 @@
 
 #include <atlcoll.h>
 
-template<class T, typename SEP>
+template <class T, typename SEP>
 T Explode(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     sl.RemoveAll();
 
-    for (int i{0}, j = 0; ; i = j + 1) {
+    for (int i{ 0 }, j = 0;; i = j + 1)
+    {
         j = str.Find(sep, i);
 
-        if (j < 0 || sl.GetCount() == limit - 1) {
+        if (j < 0 || sl.GetCount() == limit - 1)
+        {
             sl.AddTail(str.Mid(i).Trim());
             break;
-        } else {
+        }
+        else
+        {
             sl.AddTail(str.Mid(i, j - i).Trim());
         }
     }
@@ -42,19 +46,22 @@ T Explode(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
     return sl.GetHead();
 }
 
-template<class T, typename SEP>
+template <class T, typename SEP>
 T ExplodeNoTrim(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     sl.RemoveAll();
 
-    for (int i{0}, j = 0; ; i = j + 1) {
+    for (int i{ 0 }, j = 0;; i = j + 1)
+    {
         j = str.Find(sep, i);
 
-        if (j < 0 || sl.GetCount() == limit - 1) {
+        if (j < 0 || sl.GetCount() == limit - 1)
+        {
             sl.AddTail(str.Mid(i));
             break;
         }
-        else {
+        else
+        {
             sl.AddTail(str.Mid(i, j - i));
         }
     }
@@ -62,44 +69,51 @@ T ExplodeNoTrim(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
     return sl.GetHead();
 }
 
-template<class T, typename SEP>
+template <class T, typename SEP>
 T ExplodeMin(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     Explode(str, sl, sep, limit);
-    POSITION pos{sl.GetHeadPosition()};
-    while (pos) {
-        POSITION tmp{pos};
-        if (sl.GetNext(pos).IsEmpty()) {
+    POSITION pos{ sl.GetHeadPosition() };
+    while (pos)
+    {
+        POSITION tmp{ pos };
+        if (sl.GetNext(pos).IsEmpty())
+        {
             sl.RemoveAt(tmp);
         }
     }
-    if (sl.IsEmpty()) {
-        sl.AddTail(T());    // eh
+    if (sl.IsEmpty())
+    {
+        sl.AddTail(T()); // eh
     }
 
     return sl.GetHead();
 }
 
-template<class T, typename SEP>
+template <class T, typename SEP>
 T ExplodeEsc(T str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U, SEP esc = _T('\\'))
 {
     sl.RemoveAll();
 
-    int split{0};
-    for (int i{0}, j = 0; ; i = j + 1) {
+    int split{ 0 };
+    for (int i{ 0 }, j = 0;; i = j + 1)
+    {
         j = str.Find(sep, i);
-        if (j < 0) {
+        if (j < 0)
+        {
             break;
         }
 
         // Skip this seperator if it is escaped
-        if (str.GetAt(j - 1) == esc) {
+        if (str.GetAt(j - 1) == esc)
+        {
             // Delete the escape character
             str.Delete(j - 1);
             continue;
         }
 
-        if (sl.GetCount() < limit - 1) {
+        if (sl.GetCount() < limit - 1)
+        {
             sl.AddTail(str.Mid(split, j - split).Trim());
 
             // Save new splitting position
@@ -111,31 +125,35 @@ T ExplodeEsc(T str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U, SEP esc = 
     return sl.GetHead();
 }
 
-template<class T, typename SEP>
+template <class T, typename SEP>
 T Implode(const CAtlList<T>& sl, SEP sep)
 {
     T ret;
-    POSITION pos{sl.GetHeadPosition()};
-    while (pos) {
+    POSITION pos{ sl.GetHeadPosition() };
+    while (pos)
+    {
         ret += sl.GetNext(pos);
-        if (pos) {
+        if (pos)
+        {
             ret += sep;
         }
     }
     return ret;
 }
 
-template<class T, typename SEP>
+template <class T, typename SEP>
 T ImplodeEsc(const CAtlList<T>& sl, SEP sep, SEP esc = _T('\\'))
 {
     T ret;
-    T escsep{explicit T(esc) + explicit T(sep)};
-    POSITION pos{sl.GetHeadPosition()};
-    while (pos) {
-        T str{sl.GetNext(pos)};
+    T escsep{ explicit T(esc) + explicit T(sep) };
+    POSITION pos{ sl.GetHeadPosition() };
+    while (pos)
+    {
+        T str{ sl.GetNext(pos) };
         str.Replace(T(sep), escsep);
         ret += str;
-        if (pos) {
+        if (pos)
+        {
             ret += sep;
         }
     }
@@ -153,20 +171,24 @@ T ImplodeEsc(const CAtlList<T>& sl, SEP sep, SEP esc = _T('\\'))
 
 [[nodiscard]] CString FormatNumber(CString szNumber, bool bNoFractionalDigits = true);
 
-template<class T>
+template <class T>
 [[nodiscard]] T& FastTrimRight(T& str)
 {
-    if (!str.IsEmpty()) {
-        typename T::PCXSTR szStart{str};
-        typename T::PCXSTR szEnd{szStart + str.GetLength() - 1};
-        typename T::PCXSTR szCur{szEnd};
-        for (; szCur >= szStart; --szCur) {
-            if (!T::StrTraits::IsSpace(*szCur)) {
+    if (!str.IsEmpty())
+    {
+        typename T::PCXSTR szStart{ str };
+        typename T::PCXSTR szEnd{ szStart + str.GetLength() - 1 };
+        typename T::PCXSTR szCur{ szEnd };
+        for (; szCur >= szStart; --szCur)
+        {
+            if (!T::StrTraits::IsSpace(*szCur))
+            {
                 break;
             }
         }
 
-        if (szCur != szEnd) {
+        if (szCur != szEnd)
+        {
             str.Truncate(int(szCur - szStart + 1));
         }
     }
@@ -174,7 +196,7 @@ template<class T>
     return str;
 }
 
-template<class T>
+template <class T>
 [[nodiscard]] T& FastTrim(T& str)
 {
     return FastTrimRight(str).TrimLeft();

@@ -30,8 +30,7 @@
 //
 
 CSubPicProviderImpl::CSubPicProviderImpl(CCritSec* pLock)
-    : CUnknown(NAME("CSubPicProviderImpl"), nullptr)
-    , m_pLock(pLock)
+    : CUnknown(NAME("CSubPicProviderImpl"), nullptr), m_pLock(pLock)
 {
 }
 
@@ -42,10 +41,8 @@ CSubPicProviderImpl::~CSubPicProviderImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicProviderImpl::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
-    return
-        QI(ISubPicProvider)
-        QI(ISubPicProviderEx)
-        __super::NonDelegatingQueryInterface(riid, ppv);
+    return QI(ISubPicProvider)
+        QI(ISubPicProviderEx) __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
 // ISubPicProvider
@@ -62,26 +59,25 @@ CSubPicProviderImpl::~CSubPicProviderImpl()
 
 // ISubPicProviderEx
 
-DECLSPEC_NOTHROW STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop( POSITION pos, const double fps, /*out*/REFERENCE_TIME& start, /*out*/REFERENCE_TIME& stop )
+DECLSPEC_NOTHROW STDMETHODIMP_(VOID) CSubPicProviderImpl::GetStartStop(POSITION pos, const double fps, /*out*/ REFERENCE_TIME& start, /*out*/ REFERENCE_TIME& stop)
 {
     start = GetStart(pos, fps);
     stop = GetStop(pos, fps);
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicProviderImpl::RenderEx( SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, CAtlList<CRect>& rectList )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CSubPicProviderImpl::RenderEx(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, CAtlList<CRect>& rectList)
 {
     CRect cRect;
-    HRESULT hr{Render(spd, rt, fps, cRect)};
-    if(SUCCEEDED(hr))
+    HRESULT hr{ Render(spd, rt, fps, cRect) };
+    if (SUCCEEDED(hr))
     {
         rectList.AddTail(cRect);
     }
     return hr;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported( const int type )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CSubPicProviderImpl::IsColorTypeSupported(const int type)
 
 {
-    return type==MSP_RGBA;
+    return type == MSP_RGBA;
 }
-

@@ -22,8 +22,9 @@
 
 #include "CompositionObject.h"
 
-#define  ReftimeToCString(rt) ReftimeToString(rt).GetString()
-enum SUBTITLE_TYPE {
+#define ReftimeToCString(rt) ReftimeToString(rt).GetString()
+enum SUBTITLE_TYPE
+{
     ST_DVB,
     ST_HDMV
 };
@@ -34,23 +35,24 @@ public:
     typedef CompositionObject::ColorType ColorType;
     typedef CompositionObject::YuvRangeType YuvRangeType;
 
-    static const REFERENCE_TIME INVALID_TIME{_I64_MIN};
+    static const REFERENCE_TIME INVALID_TIME{ _I64_MIN };
 
     explicit CBaseSub(SUBTITLE_TYPE nType);
     virtual ~CBaseSub();
 
-    [[nodiscard]] virtual HRESULT         ParseSample(IMediaSample* pSample) = 0;
-    virtual void            EndOfStream() { /* Nothing to do */ }
-    virtual void            Reset() = 0;
-    [[nodiscard]] virtual POSITION        GetStartPosition(REFERENCE_TIME rt, double fps = 0) = 0;
-    [[nodiscard]] virtual POSITION        GetNext(POSITION pos) = 0;
-    [[nodiscard]] virtual REFERENCE_TIME  GetStart(POSITION nPos) = 0;
-    [[nodiscard]] virtual REFERENCE_TIME  GetStop(POSITION nPos) = 0;
-    virtual void            Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox) = 0;
-    [[nodiscard]] virtual HRESULT         GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft) = 0;
-    [[nodiscard]] virtual HRESULT         SetYuvType(ColorType colorType, YuvRangeType yuvRangeType) = 0;
+    [[nodiscard]] virtual HRESULT ParseSample(IMediaSample* pSample) = 0;
+    virtual void EndOfStream() { /* Nothing to do */ }
+    virtual void Reset() = 0;
+    [[nodiscard]] virtual POSITION GetStartPosition(REFERENCE_TIME rt, double fps = 0) = 0;
+    [[nodiscard]] virtual POSITION GetNext(POSITION pos) = 0;
+    [[nodiscard]] virtual REFERENCE_TIME GetStart(POSITION nPos) = 0;
+    [[nodiscard]] virtual REFERENCE_TIME GetStop(POSITION nPos) = 0;
+    virtual void Render(SubPicDesc& spd, REFERENCE_TIME rt, RECT& bbox) = 0;
+    [[nodiscard]] virtual HRESULT GetTextureSize(POSITION pos, SIZE& MaxTextureSize, SIZE& VideoSize, POINT& VideoTopLeft) = 0;
+    [[nodiscard]] virtual HRESULT SetYuvType(ColorType colorType, YuvRangeType yuvRangeType) = 0;
+
 protected:
-    SUBTITLE_TYPE           m_nType;
-    ColorType               m_colorTypeSetting;
-    YuvRangeType            m_yuvRangeSetting;
+    SUBTITLE_TYPE m_nType;
+    ColorType m_colorTypeSetting;
+    YuvRangeType m_yuvRangeSetting;
 };

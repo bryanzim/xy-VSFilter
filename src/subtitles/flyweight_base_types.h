@@ -9,29 +9,28 @@
 
 #include "mru_cache.h"
 
-template<>
+template <>
 struct std::equal_to<CRect>
-{	// functor for operator==
+{ // functor for operator==
     bool operator()(const CRect& _Left, const CRect& _Right) const
-    {	// apply operator== to operands
-        return (_Left == _Right)==TRUE;
+    { // apply operator== to operands
+        return (_Left == _Right) == TRUE;
     }
 };
 
 typedef ::boost::flyweights::flyweight<CRect, ::boost::flyweights::no_locking> FwRect;
 
-template<
+template <
     typename V,
     int DEFAULT_CACHE_SIZE = 1024,
-    class VTraits=CElementTraits<V>
->
+    class VTraits = CElementTraits<V>>
 class XyFlyWeight
 {
 public:
     typedef std::size_t IdType;
     typedef ::boost::shared_ptr<const V> SharedConstV;
 
-    class SharedVElementTraits:public CElementTraits<SharedConstV>
+    class SharedVElementTraits : public CElementTraits<SharedConstV>
     {
     public:
         static inline ULONG Hash(const SharedConstV& v)
@@ -52,18 +51,20 @@ public:
         }
     };
 
-    typedef EnhancedXyMru<SharedConstV, IdType, SharedVElementTraits> Cacher;    
+    typedef EnhancedXyMru<SharedConstV, IdType, SharedVElementTraits> Cacher;
+
 public:
-    static const int INVALID_ID{0};
+    static const int INVALID_ID{ 0 };
+
 public:
     // v will be assigned to a shared pointer
-    explicit XyFlyWeight(const V *v):_v(v)
+    explicit XyFlyWeight(const V* v) : _v(v)
     {
-        Cacher * cacher{GetCacher()};
-        ASSERT( cacher );
-        bool new_item_added{false};
-        POSITION pos{cacher->AddHeadIfNotExists(_v, INVALID_ID, &new_item_added)};
-        if ( !new_item_added )
+        Cacher* cacher{ GetCacher() };
+        ASSERT(cacher);
+        bool new_item_added{ false };
+        POSITION pos{ cacher->AddHeadIfNotExists(_v, INVALID_ID, &new_item_added) };
+        if (!new_item_added)
         {
             (void)cacher->UpdateCache(pos);
             _v = cacher->GetKeyAt(pos);
@@ -79,6 +80,7 @@ public:
     [[nodiscard]] inline IdType GetId() const { return _id; }
 
     [[nodiscard]] static inline Cacher* GetCacher();
+
 private:
     SharedConstV _v;
     IdType _id;
@@ -86,36 +88,38 @@ private:
     static inline IdType AllocId();
 };
 
-template<typename V, int DEFAULT_CACHE_SIZE, class VTraits>
+template <typename V, int DEFAULT_CACHE_SIZE, class VTraits>
 inline
-typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::Cacher* XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::GetCacher()
+    typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::Cacher*
+    XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::GetCacher()
 {
     static Cacher cacher(DEFAULT_CACHE_SIZE);
     return &cacher;
 }
 
-template<typename V, int DEFAULT_CACHE_SIZE, class VTraits>
+template <typename V, int DEFAULT_CACHE_SIZE, class VTraits>
 inline
-typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::IdType XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::AllocId()
+    typename XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::IdType
+    XyFlyWeight<V, DEFAULT_CACHE_SIZE, VTraits>::AllocId()
 {
-    static IdType cur_id{INVALID_ID};
+    static IdType cur_id{ INVALID_ID };
     ++cur_id;
-    if (cur_id==INVALID_ID)
+    if (cur_id == INVALID_ID)
     {
         ++cur_id;
     }
-    return cur_id; 
+    return cur_id;
 }
 
-typedef XyFlyWeight<CStringW, 16*1024, CStringElementTraits<CStringW>> XyFwStringW;
+typedef XyFlyWeight<CStringW, 16 * 1024, CStringElementTraits<CStringW>> XyFwStringW;
 
 [[nodiscard]] static inline std::size_t hash_value(const double& d)
 {
-    std::size_t hash{515U};
-    const std::int32_t* tmp{reinterpret_cast<const std::int32_t*>(&d)};
-    hash += (hash<<5);
+    std::size_t hash{ 515U };
+    const std::int32_t* tmp{ reinterpret_cast<const std::int32_t*>(&d) };
+    hash += (hash << 5);
     hash += *(tmp++);
-    hash += (hash<<5);
+    hash += (hash << 5);
     hash += *(tmp++);
     return hash;
 }
@@ -127,14 +131,14 @@ typedef XyFlyWeight<CStringW, 16*1024, CStringElementTraits<CStringW>> XyFwStrin
 
 [[nodiscard]] static inline std::size_t hash_value(const CRect& s)
 {
-    std::size_t hash{515U};
-    hash += (hash<<5);
+    std::size_t hash{ 515U };
+    hash += (hash << 5);
     hash += s.left;
-    hash += (hash<<5);
+    hash += (hash << 5);
     hash += s.right;
-    hash += (hash<<5);
+    hash += (hash << 5);
     hash += s.bottom;
-    hash += (hash<<5);
+    hash += (hash << 5);
     hash += s.top;
     return hash;
 }

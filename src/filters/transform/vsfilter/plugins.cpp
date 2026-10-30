@@ -1,4 +1,4 @@
-/* 
+/*
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *
@@ -6,15 +6,15 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -53,419 +53,425 @@ using namespace DirectVobSubXyOptions;
 namespace Plugin
 {
 
-class CFilter : public CUnknown, public CDirectVobSub, public CAMThread, public CCritSec
-{
-private:
-	CString m_fn;
-
-protected:
-	float m_fps;
-	CCritSec m_csSubLock;
-	CComPtr<ISimpleSubPicProvider> m_simple_provider;
-	CComPtr<ISubPicProvider> m_pSubPicProvider;
-	DWORD_PTR m_SubPicProviderId;
-
-    CSimpleTextSubtitle::YCbCrMatrix m_script_selected_yuv;
-    CSimpleTextSubtitle::YCbCrRange m_script_selected_range;
-    bool m_frame_matrix_valid{false};
-    bool m_frame_range_valid{false};
-    ColorConvTable::YuvMatrixType m_frame_matrix{ColorConvTable::BT601};
-    ColorConvTable::YuvRangeType m_frame_range{ColorConvTable::RANGE_TV};
-
-    bool m_fLazyInit;
-public:
-    explicit CFilter() 
-        : CUnknown(NAME("CFilter"), nullptr)
-        , CDirectVobSub(DirectVobFilterOptions, &m_csSubLock)
-        , m_fps(-1), m_SubPicProviderId(0), m_fLazyInit(false)
+    class CFilter : public CUnknown, public CDirectVobSub, public CAMThread, public CCritSec
     {
-        m_xy_str_opt[STRING_NAME] = L"CFilter";
+    private:
+        CString m_fn;
 
-        //fix me: should not do init here
-        (void)CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
-        (void)CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]);
-        (void)CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]);
-        (void)CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]);
+    protected:
+        float m_fps;
+        CCritSec m_csSubLock;
+        CComPtr<ISimpleSubPicProvider> m_simple_provider;
+        CComPtr<ISubPicProvider> m_pSubPicProvider;
+        DWORD_PTR m_SubPicProviderId;
 
-        (void)XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
-        (void)CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+        CSimpleTextSubtitle::YCbCrMatrix m_script_selected_yuv;
+        CSimpleTextSubtitle::YCbCrRange m_script_selected_range;
+        bool m_frame_matrix_valid{ false };
+        bool m_frame_range_valid{ false };
+        ColorConvTable::YuvMatrixType m_frame_matrix{ ColorConvTable::BT601 };
+        ColorConvTable::YuvRangeType m_frame_range{ ColorConvTable::RANGE_TV };
 
-        (void)CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]);
-        (void)CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
-        (void)CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
+        bool m_fLazyInit;
 
-        (void)SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel( static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]) );
-        
-        m_script_selected_yuv = CSimpleTextSubtitle::YCbCrMatrix_AUTO;
-        m_script_selected_range = CSimpleTextSubtitle::YCbCrRange_AUTO;
-
-        CAMThread::Create();
-    }
-	virtual ~CFilter() {CAMThread::CallWorker(0);}
-
-    DECLARE_IUNKNOWN
-    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv)
-    {
-        CheckPointer(ppv, E_POINTER);
-        
-        return QI(IDirectVobSub)
-            QI(IDirectVobSub2)
-            QI(IXyOptions)
-            QI(IFilterVersion)
-            __super::NonDelegatingQueryInterface(riid, ppv);
-    }
-    
-	[[nodiscard]] CString GetFileName() {CAutoLock cAutoLock{this}; return m_fn;}
-	void SetFileName(CString fn) {CAutoLock cAutoLock{this}; m_fn = fn;}
-
-    void SetYuvMatrix(SubPicDesc& dst)
-    {
-        ColorConvTable::YuvMatrixType yuv_matrix{ColorConvTable::BT601};
-        ColorConvTable::YuvRangeType yuv_range{ColorConvTable::RANGE_TV};
-
-        if ( m_xy_int_opt[INT_COLOR_SPACE]==CDirectVobSub::YuvMatrix_AUTO )
+    public:
+        explicit CFilter()
+            : CUnknown(NAME("CFilter"), nullptr), CDirectVobSub(DirectVobFilterOptions, &m_csSubLock), m_fps(-1), m_SubPicProviderId(0), m_fLazyInit(false)
         {
-            switch(m_script_selected_yuv)
+            m_xy_str_opt[STRING_NAME] = L"CFilter";
+
+            // fix me: should not do init here
+            (void)CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
+            (void)CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]);
+            (void)CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]);
+            (void)CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]);
+
+            (void)XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+            (void)CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+
+            (void)CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]);
+            (void)CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
+            (void)CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
+
+            (void)SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel(static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]));
+
+            m_script_selected_yuv = CSimpleTextSubtitle::YCbCrMatrix_AUTO;
+            m_script_selected_range = CSimpleTextSubtitle::YCbCrRange_AUTO;
+
+            CAMThread::Create();
+        }
+        virtual ~CFilter() { CAMThread::CallWorker(0); }
+
+        DECLARE_IUNKNOWN
+        [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv)
+        {
+            CheckPointer(ppv, E_POINTER);
+
+            return QI(IDirectVobSub)
+                QI(IDirectVobSub2)
+                    QI(IXyOptions)
+                        QI(IFilterVersion) __super::NonDelegatingQueryInterface(riid, ppv);
+        }
+
+        [[nodiscard]] CString GetFileName()
+        {
+            CAutoLock cAutoLock{ this };
+            return m_fn;
+        }
+        void SetFileName(CString fn)
+        {
+            CAutoLock cAutoLock{ this };
+            m_fn = fn;
+        }
+
+        void SetYuvMatrix(SubPicDesc& dst)
+        {
+            ColorConvTable::YuvMatrixType yuv_matrix{ ColorConvTable::BT601 };
+            ColorConvTable::YuvRangeType yuv_range{ ColorConvTable::RANGE_TV };
+
+            if (m_xy_int_opt[INT_COLOR_SPACE] == CDirectVobSub::YuvMatrix_AUTO)
             {
-            case CSimpleTextSubtitle::YCbCrMatrix_BT601:
-                yuv_matrix = ColorConvTable::BT601;
-                break;
-            case CSimpleTextSubtitle::YCbCrMatrix_BT709:
-                yuv_matrix = ColorConvTable::BT709;
-                break;
-            case CSimpleTextSubtitle::YCbCrMatrix_BT2020:
-                yuv_matrix = ColorConvTable::BT2020;
-                break;
-            case CSimpleTextSubtitle::YCbCrMatrix_AUTO:
-            default:
-                if (m_frame_matrix_valid)
+                switch (m_script_selected_yuv)
                 {
-                    yuv_matrix = m_frame_matrix;
+                case CSimpleTextSubtitle::YCbCrMatrix_BT601:
+                    yuv_matrix = ColorConvTable::BT601;
+                    break;
+                case CSimpleTextSubtitle::YCbCrMatrix_BT709:
+                    yuv_matrix = ColorConvTable::BT709;
+                    break;
+                case CSimpleTextSubtitle::YCbCrMatrix_BT2020:
+                    yuv_matrix = ColorConvTable::BT2020;
+                    break;
+                case CSimpleTextSubtitle::YCbCrMatrix_AUTO:
+                default:
+                    if (m_frame_matrix_valid)
+                    {
+                        yuv_matrix = m_frame_matrix;
+                    }
+                    else
+                    {
+                        yuv_matrix = ((dst.w > m_bt601Width) || (dst.h > m_bt601Height))
+                                         ? ColorConvTable::BT709
+                                         : ColorConvTable::BT601;
+                    }
+                    break;
                 }
-                else
+            }
+            else
+            {
+                switch (m_xy_int_opt[INT_COLOR_SPACE])
                 {
-                    yuv_matrix = ((dst.w > m_bt601Width) || (dst.h > m_bt601Height))
-                        ? ColorConvTable::BT709
-                        : ColorConvTable::BT601;
+                case CDirectVobSub::BT_601:
+                    yuv_matrix = ColorConvTable::BT601;
+                    break;
+                case CDirectVobSub::BT_709:
+                    yuv_matrix = ColorConvTable::BT709;
+                    break;
+                case CDirectVobSub::BT_2020:
+                    yuv_matrix = ColorConvTable::BT2020;
+                    break;
+                case CDirectVobSub::GUESS:
+                    if (m_frame_matrix_valid)
+                    {
+                        yuv_matrix = m_frame_matrix;
+                    }
+                    else
+                    {
+                        yuv_matrix = ((dst.w > m_bt601Width) || (dst.h > m_bt601Height))
+                                         ? ColorConvTable::BT709
+                                         : ColorConvTable::BT601;
+                    }
+                    break;
                 }
-                break;
             }
-        }
-        else
-        {
-            switch(m_xy_int_opt[INT_COLOR_SPACE])
+
+            if (m_xy_int_opt[INT_YUV_RANGE] == CDirectVobSub::YuvRange_Auto)
             {
-            case CDirectVobSub::BT_601:
-                yuv_matrix = ColorConvTable::BT601;
-                break;
-            case CDirectVobSub::BT_709:
-                yuv_matrix = ColorConvTable::BT709;
-                break;
-            case CDirectVobSub::BT_2020:
-                yuv_matrix = ColorConvTable::BT2020;
-                break;
-            case CDirectVobSub::GUESS:
-                if (m_frame_matrix_valid)
+                switch (m_script_selected_range)
                 {
-                    yuv_matrix = m_frame_matrix;
+                case CSimpleTextSubtitle::YCbCrRange_PC:
+                    yuv_range = ColorConvTable::RANGE_PC;
+                    break;
+                case CSimpleTextSubtitle::YCbCrRange_TV:
+                    yuv_range = ColorConvTable::RANGE_TV;
+                    break;
+                case CSimpleTextSubtitle::YCbCrRange_AUTO:
+                default:
+                    yuv_range = m_frame_range_valid ? m_frame_range : ColorConvTable::RANGE_TV;
+                    break;
                 }
-                else
+            }
+            else
+            {
+                switch (m_xy_int_opt[INT_YUV_RANGE])
                 {
-                    yuv_matrix = ((dst.w > m_bt601Width) || (dst.h > m_bt601Height))
-                        ? ColorConvTable::BT709
-                        : ColorConvTable::BT601;
+                case CDirectVobSub::YuvRange_TV:
+                    yuv_range = ColorConvTable::RANGE_TV;
+                    break;
+                case CDirectVobSub::YuvRange_PC:
+                    yuv_range = ColorConvTable::RANGE_PC;
+                    break;
+                case CDirectVobSub::YuvRange_Auto:
+                    yuv_range = ColorConvTable::RANGE_TV;
+                    break;
                 }
-                break;
             }
+
+            ColorConvTable::SetDefaultConvType(yuv_matrix, yuv_range);
         }
 
-        if( m_xy_int_opt[INT_YUV_RANGE]==CDirectVobSub::YuvRange_Auto )
+        [[nodiscard]] bool Render(SubPicDesc& dst, const REFERENCE_TIME rt, const float fps)
         {
-            switch(m_script_selected_range)
+            HRESULT hr{ NOERROR };
+            if (!m_pSubPicProvider)
             {
-            case CSimpleTextSubtitle::YCbCrRange_PC:
-                yuv_range = ColorConvTable::RANGE_PC;
-                break;
-            case CSimpleTextSubtitle::YCbCrRange_TV:
-                yuv_range = ColorConvTable::RANGE_TV;
-                break;
-            case CSimpleTextSubtitle::YCbCrRange_AUTO:
-            default:
-                yuv_range = m_frame_range_valid ? m_frame_range : ColorConvTable::RANGE_TV;
-                break;
+                return (false);
             }
-        }
-        else
-        {
-            switch(m_xy_int_opt[INT_YUV_RANGE])
+
+            if (!m_fLazyInit)
             {
-            case CDirectVobSub::YuvRange_TV:
-                yuv_range = ColorConvTable::RANGE_TV;
-                break;
-            case CDirectVobSub::YuvRange_PC:
-                yuv_range = ColorConvTable::RANGE_PC;
-                break;
-            case CDirectVobSub::YuvRange_Auto:
-                yuv_range = ColorConvTable::RANGE_TV;
-                break;
+                m_fLazyInit = true;
+
+                SetYuvMatrix(dst);
             }
-        }
+            CSize size{ dst.w, dst.h };
 
-        ColorConvTable::SetDefaultConvType(yuv_matrix, yuv_range);
-    }
-
-    [[nodiscard]] bool Render(SubPicDesc& dst, const REFERENCE_TIME rt, const float fps)
-    {
-        HRESULT hr{NOERROR};
-        if(!m_pSubPicProvider)
-        {
-            return(false);
-        }
-
-        if(!m_fLazyInit)
-        {
-            m_fLazyInit = true;
-
-            SetYuvMatrix(dst);
-        }
-        CSize size{dst.w, dst.h};
-
-        if(!m_simple_provider)
-        {
-            if(!(m_simple_provider = new SimpleSubPicProvider2(dst.type, size, size, CRect(CPoint(0,0), size), this, &hr)) || FAILED(hr))
+            if (!m_simple_provider)
             {
-                m_simple_provider = nullptr;
-                return(false);
-            }
+                if (!(m_simple_provider = new SimpleSubPicProvider2(dst.type, size, size, CRect(CPoint(0, 0), size), this, &hr)) || FAILED(hr))
+                {
+                    m_simple_provider = nullptr;
+                    return (false);
+                }
 #if 0
             hr = XySetSize(SIZE_ORIGINAL_VIDEO, size); // E_INVALID_ARG
             CHECK_N_LOG(hr, "Failed to set option");
 #endif
-            m_xy_size_opt[SIZE_ORIGINAL_VIDEO] = size; // PF20180411 readonly property, set here
-        }
-
-        if(m_SubPicProviderId != (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider)
-        {
-            CSize playres{0,0};
-            CLSID clsid;
-            CComQIPtr<IPersist> tmp{m_pSubPicProvider};
-            tmp->GetClassID(&clsid);
-            if(clsid == __uuidof(CRenderedTextSubtitle))
-            {
-                CRenderedTextSubtitle* pRTS{dynamic_cast<CRenderedTextSubtitle*>((ISubPicProvider*)m_pSubPicProvider)};
-                playres = pRTS->m_dstScreenSize;
+                m_xy_size_opt[SIZE_ORIGINAL_VIDEO] = size; // PF20180411 readonly property, set here
             }
-            m_xy_size_opt[SIZE_ASS_PLAY_RESOLUTION] = playres;
 
-            m_simple_provider->SetSubPicProvider(m_pSubPicProvider);
-            m_SubPicProviderId = (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider;
+            if (m_SubPicProviderId != (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider)
+            {
+                CSize playres{ 0, 0 };
+                CLSID clsid;
+                CComQIPtr<IPersist> tmp{ m_pSubPicProvider };
+                tmp->GetClassID(&clsid);
+                if (clsid == __uuidof(CRenderedTextSubtitle))
+                {
+                    CRenderedTextSubtitle* pRTS{ dynamic_cast<CRenderedTextSubtitle*>((ISubPicProvider*)m_pSubPicProvider) };
+                    playres = pRTS->m_dstScreenSize;
+                }
+                m_xy_size_opt[SIZE_ASS_PLAY_RESOLUTION] = playres;
+
+                m_simple_provider->SetSubPicProvider(m_pSubPicProvider);
+                m_SubPicProviderId = (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider;
+            }
+
+            CComPtr<ISimpleSubPic> pSubPic;
+            if (!m_simple_provider->LookupSubPic(rt, &pSubPic))
+            {
+                return (false);
+            }
+
+            if (dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15)
+            {
+                dst.h = -dst.h;
+            }
+            pSubPic->AlphaBlt(&dst);
+
+            return (true);
         }
 
-		CComPtr<ISimpleSubPic> pSubPic;
-		if(!m_simple_provider->LookupSubPic(rt, &pSubPic))
-		{
-			return(false);
-		}
-
-        if(dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15)
+        [[nodiscard]] DWORD ThreadProc()
         {
-            dst.h = -dst.h;
+            SetThreadPriority(m_hThread, THREAD_PRIORITY_LOWEST);
+
+            CAtlArray<HANDLE> handles;
+            handles.Add(GetRequestHandle());
+
+            CString fn{ GetFileName() };
+            CFileStatus fs;
+            fs.m_mtime = 0;
+            (void)CFileGetStatus(fn, fs);
+
+            while (1)
+            {
+                DWORD i{ WaitForMultipleObjects(handles.GetCount(), handles.GetData(), FALSE, 1000) };
+
+                if (WAIT_OBJECT_0 == i)
+                {
+                    Reply(S_OK);
+                    break;
+                }
+                else if (WAIT_OBJECT_0 + 1 >= i && i <= WAIT_OBJECT_0 + handles.GetCount())
+                {
+                    if (FindNextChangeNotification(handles[i - WAIT_OBJECT_0]))
+                    {
+                        CFileStatus fs2;
+                        fs2.m_mtime = 0;
+                        (void)CFileGetStatus(fn, fs2);
+
+                        if (fs.m_mtime < fs2.m_mtime)
+                        {
+                            fs.m_mtime = fs2.m_mtime;
+
+                            if (CComQIPtr<ISubStream> pSubStream{ m_pSubPicProvider })
+                            {
+                                CAutoLock cAutoLock(&m_csSubLock);
+                                pSubStream->Reload();
+                            }
+                        }
+                    }
+                }
+                else if (WAIT_TIMEOUT == i)
+                {
+                    CString fn2{ GetFileName() };
+
+                    if (fn != fn2)
+                    {
+                        CPath p{ fn2 };
+                        p.RemoveFileSpec();
+                        HANDLE h{ FindFirstChangeNotification(p, FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE) };
+                        if (h != INVALID_HANDLE_VALUE)
+                        {
+                            fn = fn2;
+                            handles.SetCount(1);
+                            handles.Add(h);
+                            (void)CFileGetStatus(fn, fs);
+                        }
+                    }
+                }
+                else // if(WAIT_ABANDONED_0 == i || WAIT_FAILED == i)
+                {
+                    break;
+                }
+            }
+
+            m_hThread = 0;
+
+            for (std::size_t i{ 1U }; i < handles.GetCount(); ++i)
+            {
+                FindCloseChangeNotification(handles[i]);
+            }
+
+            return 0;
         }
-        pSubPic->AlphaBlt(&dst);
+    };
 
-        return(true);
-    }
-
-	[[nodiscard]] DWORD ThreadProc()
-	{
-		SetThreadPriority(m_hThread, THREAD_PRIORITY_LOWEST);
-
-		CAtlArray<HANDLE> handles;
-		handles.Add(GetRequestHandle());
-
-		CString fn{GetFileName()};
-		CFileStatus fs;
-		fs.m_mtime = 0;
-		(void)CFileGetStatus(fn, fs);
-
-		while(1)
-		{
-			DWORD i{WaitForMultipleObjects(handles.GetCount(), handles.GetData(), FALSE, 1000)};
-
-			if(WAIT_OBJECT_0 == i)
-			{
-				Reply(S_OK);
-				break;
-			}
-			else if(WAIT_OBJECT_0 + 1 >= i && i <= WAIT_OBJECT_0 + handles.GetCount())
-			{
-				if(FindNextChangeNotification(handles[i - WAIT_OBJECT_0]))
-				{
-					CFileStatus fs2;
-					fs2.m_mtime = 0;
-					(void)CFileGetStatus(fn, fs2);
-
-					if(fs.m_mtime < fs2.m_mtime)
-					{
-						fs.m_mtime = fs2.m_mtime;
-
-						if(CComQIPtr<ISubStream> pSubStream{m_pSubPicProvider})
-						{
-							CAutoLock cAutoLock(&m_csSubLock);
-							pSubStream->Reload();
-						}
-					}
-				}
-			}
-			else if(WAIT_TIMEOUT == i)
-			{
-				CString fn2{GetFileName()};
-
-				if(fn != fn2)
-				{
-					CPath p{fn2};
-					p.RemoveFileSpec();
-					HANDLE h{FindFirstChangeNotification(p, FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE)}; 
-					if(h != INVALID_HANDLE_VALUE)
-					{
-						fn = fn2;
-						handles.SetCount(1);
-						handles.Add(h);
-						(void)CFileGetStatus(fn, fs);
-					}
-				}
-			}
-			else // if(WAIT_ABANDONED_0 == i || WAIT_FAILED == i)
-			{
-				break;
-			}
-		}
-
-		m_hThread = 0;
-
-		for(std::size_t i{1U}; i < handles.GetCount(); ++i)
-		{
-			FindCloseChangeNotification(handles[i]);
-		}
-
-		return 0;
-	}
-};
-
-class CVobSubFilter : virtual public CFilter
-{
-public:
-	explicit CVobSubFilter(CString fn = _T(""))
-	{
-		if(!fn.IsEmpty())
-		{
-		    (void)Open(fn);
-		}
-	}
-
-	[[nodiscard]] bool Open(CString fn)
-	{
-		SetFileName(_T(""));
-		m_pSubPicProvider = nullptr;
-
-		if(CVobSubFile* vsf = new CVobSubFile(&m_csSubLock))
-		{
-			m_pSubPicProvider = (ISubPicProvider*)vsf;
-			if(vsf->Open(CString(fn)))
-			{
-			    SetFileName(fn);
-			}
-			else
-			{
-			    m_pSubPicProvider = nullptr;
-			}
-		}
-
-		return !!m_pSubPicProvider;
-	}
-};
-
-class CTextSubFilter : virtual public CFilter
-{
-	int m_CharSet;
-
-public:
-	explicit CTextSubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET, float fps = -1)
-		: m_CharSet(CharSet)
-	{
-		m_fps = fps;
-		if(!fn.IsEmpty())
-		{
-		    (void)Open(fn, CharSet);
-		}
-	}
-
-	[[nodiscard]] int GetCharSet() {return(m_CharSet);}
-
-	[[nodiscard]] bool Open(CString fn, const int CharSet = DEFAULT_CHARSET)
-	{
-		SetFileName(_T(""));
-		m_pSubPicProvider = nullptr;
-
-		if(!m_pSubPicProvider)
-		{
-			if(ssf::CRenderer* ssf = new ssf::CRenderer(&m_csSubLock))
-			{
-				m_pSubPicProvider = (ISubPicProvider*)ssf;
-				if(ssf->Open(CString(fn)))
-				{
-				    SetFileName(fn);
-				}
-				else
-				{
-				    m_pSubPicProvider = nullptr;
-				}
-			}
-		}
-
-		if(!m_pSubPicProvider)
-		{
-			if(CRenderedTextSubtitle* rts = new CRenderedTextSubtitle(&m_csSubLock))
-			{
-				rts->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
-				m_pSubPicProvider = (ISubPicProvider*)rts;
-				if(rts->Open(CString(fn), CharSet))
-				{
-				    SetFileName(fn);
-				}
-				else
-				{
-				    m_pSubPicProvider = nullptr;
-				}
-
-                m_script_selected_yuv = rts->m_eYCbCrMatrix;
-                m_script_selected_range = rts->m_eYCbCrRange;
-			}
-		}
-
-		return !!m_pSubPicProvider;
-	}
-};
-
-static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name, const bool withCharset, const int charset)
-{
-    if (str == nullptr || maxlen <= 0)
+    class CVobSubFilter : virtual public CFilter
     {
-        return;
-    }
-    const std::size_t capacity{static_cast<std::size_t>(maxlen)};
-    if (name.IsEmpty())
+    public:
+        explicit CVobSubFilter(CString fn = _T(""))
+        {
+            if (!fn.IsEmpty())
+            {
+                (void)Open(fn);
+            }
+        }
+
+        [[nodiscard]] bool Open(CString fn)
+        {
+            SetFileName(_T(""));
+            m_pSubPicProvider = nullptr;
+
+            if (CVobSubFile* vsf = new CVobSubFile(&m_csSubLock))
+            {
+                m_pSubPicProvider = (ISubPicProvider*)vsf;
+                if (vsf->Open(CString(fn)))
+                {
+                    SetFileName(fn);
+                }
+                else
+                {
+                    m_pSubPicProvider = nullptr;
+                }
+            }
+
+            return !!m_pSubPicProvider;
+        }
+    };
+
+    class CTextSubFilter : virtual public CFilter
     {
-        _snprintf_s(str, capacity, _TRUNCATE, " (empty)");
-        return;
-    }
-    if (withCharset)
+        int m_CharSet;
+
+    public:
+        explicit CTextSubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET, float fps = -1)
+            : m_CharSet(CharSet)
+        {
+            m_fps = fps;
+            if (!fn.IsEmpty())
+            {
+                (void)Open(fn, CharSet);
+            }
+        }
+
+        [[nodiscard]] int GetCharSet() { return (m_CharSet); }
+
+        [[nodiscard]] bool Open(CString fn, const int CharSet = DEFAULT_CHARSET)
+        {
+            SetFileName(_T(""));
+            m_pSubPicProvider = nullptr;
+
+            if (!m_pSubPicProvider)
+            {
+                if (ssf::CRenderer* ssf = new ssf::CRenderer(&m_csSubLock))
+                {
+                    m_pSubPicProvider = (ISubPicProvider*)ssf;
+                    if (ssf->Open(CString(fn)))
+                    {
+                        SetFileName(fn);
+                    }
+                    else
+                    {
+                        m_pSubPicProvider = nullptr;
+                    }
+                }
+            }
+
+            if (!m_pSubPicProvider)
+            {
+                if (CRenderedTextSubtitle* rts = new CRenderedTextSubtitle(&m_csSubLock))
+                {
+                    rts->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
+                    m_pSubPicProvider = (ISubPicProvider*)rts;
+                    if (rts->Open(CString(fn), CharSet))
+                    {
+                        SetFileName(fn);
+                    }
+                    else
+                    {
+                        m_pSubPicProvider = nullptr;
+                    }
+
+                    m_script_selected_yuv = rts->m_eYCbCrMatrix;
+                    m_script_selected_range = rts->m_eYCbCrRange;
+                }
+            }
+
+            return !!m_pSubPicProvider;
+        }
+    };
+
+    static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name, const bool withCharset, const int charset)
     {
-        _snprintf_s(str, capacity, _TRUNCATE, " (%s, %d)", name.GetString(), charset);
-        return;
+        if (str == nullptr || maxlen <= 0)
+        {
+            return;
+        }
+        const std::size_t capacity{ static_cast<std::size_t>(maxlen) };
+        if (name.IsEmpty())
+        {
+            _snprintf_s(str, capacity, _TRUNCATE, " (empty)");
+            return;
+        }
+        if (withCharset)
+        {
+            _snprintf_s(str, capacity, _TRUNCATE, " (%s, %d)", name.GetString(), charset);
+            return;
+        }
+        _snprintf_s(str, capacity, _TRUNCATE, " (%s)", name.GetString());
     }
-    _snprintf_s(str, capacity, _TRUNCATE, " (%s)", name.GetString());
-}
 
 #ifndef _WIN64
     //
@@ -480,7 +486,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             explicit CVirtualDubFilter() {}
             virtual ~CVirtualDubFilter() {}
 
-            [[nodiscard]] virtual int RunProc(const FilterActivation* fa, const FilterFunctions* ff) {
+            [[nodiscard]] virtual int RunProc(const FilterActivation* fa, const FilterFunctions* ff)
+            {
                 SubPicDesc dst;
                 dst.type = MSP_RGB32;
                 dst.w = fa->src.w;
@@ -494,10 +501,11 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 return 0;
             }
 
-            [[nodiscard]] virtual long ParamProc(FilterActivation* fa, const FilterFunctions* ff) {
-                fa->dst.offset  = fa->src.offset;
-                fa->dst.modulo  = fa->src.modulo;
-                fa->dst.pitch   = fa->src.pitch;
+            [[nodiscard]] virtual long ParamProc(FilterActivation* fa, const FilterFunctions* ff)
+            {
+                fa->dst.offset = fa->src.offset;
+                fa->dst.modulo = fa->src.modulo;
+                fa->dst.pitch = fa->src.pitch;
 
                 return 0;
             }
@@ -518,24 +526,28 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             explicit CVobSubVirtualDubFilter(CString fn = _T(""))
                 : CVobSubFilter(fn) {}
 
-            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) override {
+            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) override
+            {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY,
                                _T("VobSub files (*.idx;*.sub)|*.idx;*.sub||"), CWnd::FromHandle(hwnd), 0);
 
-                if (fd.DoModal() != IDOK) {
+                if (fd.DoModal() != IDOK)
+                {
                     return 1;
                 }
 
                 return Open(fd.GetPathName()) ? 0 : 1;
             }
 
-            void FormatLabel(char* str, int maxlen) override {
+            void FormatLabel(char* str, int maxlen) override
+            {
                 FormatFilterLabel(str, maxlen, CStringA(GetFileName()), false, 0);
             }
 
-            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) override {
+            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) override
+            {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\")", fn.GetString());
@@ -549,7 +561,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             explicit CTextSubVirtualDubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET)
                 : CTextSubFilter(fn, CharSet) {}
 
-            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) override {
+            [[nodiscard]] int ConfigProc(FilterActivation* fa, const FilterFunctions* ff, HWND hwnd) override
+            {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
@@ -561,18 +574,21 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 fd.m_pOFN->lpfnHook = (LPOFNHOOKPROC)OpenHookProc;
                 fd.m_pOFN->lCustData = (LPARAM)DEFAULT_CHARSET;
 
-                if (fd.DoModal() != IDOK) {
+                if (fd.DoModal() != IDOK)
+                {
                     return 1;
                 }
 
                 return Open(fd.GetPathName(), fd.m_pOFN->lCustData) ? 0 : 1;
             }
 
-            void FormatLabel(char* str, int maxlen) override {
+            void FormatLabel(char* str, int maxlen) override
+            {
                 FormatFilterLabel(str, maxlen, CStringA(GetFileName()), true, GetCharSet());
             }
 
-            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) override {
+            [[nodiscard]] bool FssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, int buflen) override
+            {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\", %d)", fn.GetString(), GetCharSet());
@@ -595,56 +611,59 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         void baseDeinitProc(FilterActivation* fa, const FilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             SAFE_DELETE(f);
         }
 
         [[nodiscard]] int baseRunProc(const FilterActivation* fa, const FilterFunctions* ff)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->RunProc(fa, ff) : 1;
         }
 
         [[nodiscard]] long baseParamProc(FilterActivation* fa, const FilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->ParamProc(fa, ff) : 1;
         }
 
         [[nodiscard]] int baseConfigProc(FilterActivation* fa, const FilterFunctions* ff, const HWND hwnd)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->ConfigProc(fa, ff, hwnd) : 1;
         }
 
         void baseStringProc(const FilterActivation* fa, const FilterFunctions* ff, char* str)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 f->StringProc(fa, ff, str);
             }
         }
 
         void baseStringProc2(const FilterActivation* fa, const FilterFunctions* ff, char* str, const int maxlen)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 f->FormatLabel(str, maxlen);
             }
         }
 
         [[nodiscard]] bool baseFssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, const int buflen)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->FssProc(fa, ff, buf, buflen) : false;
         }
 
         CScriptValue vobsubScriptConfig(IScriptInterpreter* isi, void* lpVoid, CScriptValue* argv, const int argc)
         {
-            FilterActivation* fa{(FilterActivation*)lpVoid};
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            FilterActivation* fa{ (FilterActivation*)lpVoid };
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 delete f;
             }
             f = DEBUG_NEW CVobSubVirtualDubFilter(CString(*argv[0U].asString()));
@@ -654,9 +673,10 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         CScriptValue textsubScriptConfig(IScriptInterpreter* isi, void* lpVoid, CScriptValue* argv, const int argc)
         {
-            FilterActivation* fa{(FilterActivation*)lpVoid};
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            FilterActivation* fa{ (FilterActivation*)lpVoid };
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 delete f;
             }
             f = DEBUG_NEW CTextSubVirtualDubFilter(CString(*argv[0U].asString()), argv[1U].asInt());
@@ -666,7 +686,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         ScriptFunctionDef vobsub_func_defs[] = {
             { (ScriptFunctionPtr)vobsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0s") },
-            { nullptr, nullptr, nullptr },
+            {                               nullptr,                     nullptr,                 nullptr },
         };
 
         CScriptObject vobsub_obj = {
@@ -674,31 +694,31 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         };
 
         struct FilterDefinition filterDef_vobsub = {
-            nullptr, nullptr, nullptr,           // next, prev, module
-            "VobSub",                   // name
+            nullptr, nullptr, nullptr,             // next, prev, module
+            "VobSub",                              // name
             "Adds subtitles from a vob sequence.", // desc
-            "Gabest",                   // maker
-            nullptr,                       // private_data
-            sizeof(CVirtualDubFilter**), // inst_data_size
-            vobsubInitProc,             // initProc
-            baseDeinitProc,             // deinitProc
-            baseRunProc,                // runProc
-            baseParamProc,              // paramProc
-            baseConfigProc,             // configProc
-            baseStringProc,             // stringProc
-            nullptr,                       // startProc
-            nullptr,                       // endProc
-            &vobsub_obj,                // script_obj
-            baseFssProc,                // fssProc
-            baseStringProc2,            // stringProc2
-            nullptr,                    // serializeProc
-            nullptr,                    // deserializeProc
-            nullptr,                    // copyProc
+            "Gabest",                              // maker
+            nullptr,                               // private_data
+            sizeof(CVirtualDubFilter**),           // inst_data_size
+            vobsubInitProc,                        // initProc
+            baseDeinitProc,                        // deinitProc
+            baseRunProc,                           // runProc
+            baseParamProc,                         // paramProc
+            baseConfigProc,                        // configProc
+            baseStringProc,                        // stringProc
+            nullptr,                               // startProc
+            nullptr,                               // endProc
+            &vobsub_obj,                           // script_obj
+            baseFssProc,                           // fssProc
+            baseStringProc2,                       // stringProc2
+            nullptr,                               // serializeProc
+            nullptr,                               // deserializeProc
+            nullptr,                               // copyProc
         };
 
         ScriptFunctionDef textsub_func_defs[] = {
             { (ScriptFunctionPtr)textsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0si") },
-            { nullptr, nullptr, nullptr },
+            {                                nullptr,                     nullptr,                  nullptr },
         };
 
         CScriptObject textsub_obj = {
@@ -706,26 +726,26 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         };
 
         struct FilterDefinition filterDef_textsub = {
-            nullptr, nullptr, nullptr,           // next, prev, module
-            "TextSub",                  // name
+            nullptr, nullptr, nullptr,                                        // next, prev, module
+            "TextSub",                                                        // name
             "Adds subtitles from srt, sub, psb, smi, ssa, ass file formats.", // desc
-            "Gabest",                   // maker
-            nullptr,                       // private_data
-            sizeof(CVirtualDubFilter**), // inst_data_size
-            textsubInitProc,            // initProc
-            baseDeinitProc,             // deinitProc
-            baseRunProc,                // runProc
-            baseParamProc,              // paramProc
-            baseConfigProc,             // configProc
-            baseStringProc,             // stringProc
-            nullptr,                       // startProc
-            nullptr,                       // endProc
-            &textsub_obj,               // script_obj
-            baseFssProc,                // fssProc
-            baseStringProc2,            // stringProc2
-            nullptr,                    // serializeProc
-            nullptr,                    // deserializeProc
-            nullptr,                    // copyProc
+            "Gabest",                                                         // maker
+            nullptr,                                                          // private_data
+            sizeof(CVirtualDubFilter**),                                      // inst_data_size
+            textsubInitProc,                                                  // initProc
+            baseDeinitProc,                                                   // deinitProc
+            baseRunProc,                                                      // runProc
+            baseParamProc,                                                    // paramProc
+            baseConfigProc,                                                   // configProc
+            baseStringProc,                                                   // stringProc
+            nullptr,                                                          // startProc
+            nullptr,                                                          // endProc
+            &textsub_obj,                                                     // script_obj
+            baseFssProc,                                                      // fssProc
+            baseStringProc2,                                                  // stringProc2
+            nullptr,                                                          // serializeProc
+            nullptr,                                                          // deserializeProc
+            nullptr,                                                          // copyProc
         };
 
         static FilterDefinition* fd_vobsub;
@@ -734,11 +754,13 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         extern "C" __declspec(dllexport) int __cdecl VirtualdubFilterModuleInit2(FilterModule* fm, const FilterFunctions* ff, int& vdfd_ver, int& vdfd_compat)
         {
             fd_vobsub = ff->addFilter(fm, &filterDef_vobsub, sizeof(FilterDefinition));
-            if (!fd_vobsub) {
+            if (!fd_vobsub)
+            {
                 return 1;
             }
             fd_textsub = ff->addFilter(fm, &filterDef_textsub, sizeof(FilterDefinition));
-            if (!fd_textsub) {
+            if (!fd_textsub)
+            {
                 return 1;
             }
 
@@ -753,7 +775,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             ff->removeFilter(fd_textsub);
             ff->removeFilter(fd_vobsub);
         }
-    }/**/
+    } /**/
 
 #else
     //
@@ -767,7 +789,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             explicit CVirtualDubFilter() {}
             virtual ~CVirtualDubFilter() {}
 
-            [[nodiscard]] virtual int RunProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff) {
+            [[nodiscard]] virtual int RunProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff)
+            {
                 SubPicDesc dst;
                 dst.type = MSP_RGB32;
                 dst.w = fa->src.w;
@@ -781,10 +804,11 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 return 0;
             }
 
-            [[nodiscard]] virtual long ParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff) {
-                fa->dst.offset  = fa->src.offset;
-                fa->dst.modulo  = fa->src.modulo;
-                fa->dst.pitch   = fa->src.pitch;
+            [[nodiscard]] virtual long ParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
+            {
+                fa->dst.offset = fa->src.offset;
+                fa->dst.modulo = fa->src.modulo;
+                fa->dst.pitch = fa->src.pitch;
 
                 return 0;
             }
@@ -805,24 +829,28 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             explicit CVobSubVirtualDubFilter(CString fn = _T(""))
                 : CVobSubFilter(fn) {}
 
-            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) override {
+            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) override
+            {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY,
                                _T("VobSub files (*.idx;*.sub)|*.idx;*.sub||"), CWnd::FromHandle((HWND)hwnd), 0);
 
-                if (fd.DoModal() != IDOK) {
+                if (fd.DoModal() != IDOK)
+                {
                     return 1;
                 }
 
                 return Open(fd.GetPathName()) ? 0 : 1;
             }
 
-            void FormatLabel(char* str, int maxlen) override {
+            void FormatLabel(char* str, int maxlen) override
+            {
                 FormatFilterLabel(str, maxlen, CStringA(GetFileName()), false, 0);
             }
 
-            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) override {
+            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) override
+            {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\")", fn.GetString());
@@ -836,7 +864,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             explicit CTextSubVirtualDubFilter(CString fn = _T(""), int CharSet = DEFAULT_CHARSET)
                 : CTextSubFilter(fn, CharSet) {}
 
-            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) override {
+            [[nodiscard]] int ConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, VDXHWND hwnd) override
+            {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 /* off encoding changing */
@@ -854,18 +883,21 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_ENABLESIZING | OFN_HIDEREADONLY,
                                formats, CWnd::FromHandle((HWND)hwnd), sizeof(OPENFILENAME));
 #endif
-                if (fd.DoModal() != IDOK) {
+                if (fd.DoModal() != IDOK)
+                {
                     return 1;
                 }
 
                 return Open(fd.GetPathName(), fd.m_pOFN->lCustData) ? 0 : 1;
             }
 
-            void FormatLabel(char* str, int maxlen) override {
+            void FormatLabel(char* str, int maxlen) override
+            {
                 FormatFilterLabel(str, maxlen, CStringA(GetFileName()), true, GetCharSet());
             }
 
-            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) override {
+            [[nodiscard]] bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen) override
+            {
                 CStringA fn(GetFileName());
                 fn.Replace("\\", "\\\\");
                 _snprintf_s(buf, buflen, buflen, "Config(\"%s\", %d)", fn.GetString(), GetCharSet());
@@ -886,56 +918,59 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         void baseDeinitProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             SAFE_DELETE(f);
         }
 
         [[nodiscard]] int baseRunProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->RunProc(fa, ff) : 1;
         }
 
         [[nodiscard]] long baseParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->ParamProc(fa, ff) : 1;
         }
 
         [[nodiscard]] int baseConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, const VDXHWND hwnd)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->ConfigProc(fa, ff, hwnd) : 1;
         }
 
         void baseStringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 f->StringProc(fa, ff, str);
             }
         }
 
         void baseStringProc2(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str, const int maxlen)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 f->FormatLabel(str, maxlen);
             }
         }
 
         [[nodiscard]] bool baseFssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, const int buflen)
         {
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
             return f ? f->FssProc(fa, ff, buf, buflen) : false;
         }
 
         VDXScriptValue vobsubScriptConfig(IVDXScriptInterpreter* isi, void* lpVoid, VDXScriptValue* argv, const int argc)
         {
-            VDXFilterActivation* fa{(VDXFilterActivation*)lpVoid};
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            VDXFilterActivation* fa{ (VDXFilterActivation*)lpVoid };
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 delete f;
             }
             f = DEBUG_NEW CVobSubVirtualDubFilter(CString(*argv[0U].asString()));
@@ -945,9 +980,10 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         VDXScriptValue textsubScriptConfig(IVDXScriptInterpreter* isi, void* lpVoid, VDXScriptValue* argv, const int argc)
         {
-            VDXFilterActivation* fa{(VDXFilterActivation*)lpVoid};
-            CVirtualDubFilter* f{*(CVirtualDubFilter**)fa->filter_data};
-            if (f) {
+            VDXFilterActivation* fa{ (VDXFilterActivation*)lpVoid };
+            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            if (f)
+            {
                 delete f;
             }
             f = DEBUG_NEW CTextSubVirtualDubFilter(CString(*argv[0U].asString()), argv[1U].asInt());
@@ -957,7 +993,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         VDXScriptFunctionDef vobsub_func_defs[] = {
             { (VDXScriptFunctionPtr)vobsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0s") },
-            { nullptr, nullptr, nullptr },
+            {                                  nullptr,                     nullptr,                 nullptr },
         };
 
         VDXScriptObject vobsub_obj = {
@@ -965,41 +1001,41 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         };
 
         struct VDXFilterDefinition filterDef_vobsub = {
-            nullptr, nullptr, nullptr,           // next, prev, module
-            "VobSub",                   // name
+            nullptr, nullptr, nullptr,             // next, prev, module
+            "VobSub",                              // name
             "Adds subtitles from a vob sequence.", // desc
-            "Gabest",                   // maker
-            nullptr,                       // private_data
-            sizeof(CVirtualDubFilter**), // inst_data_size
-            vobsubInitProc,             // initProc
-            baseDeinitProc,             // deinitProc
-            baseRunProc,                // runProc
-            baseParamProc,              // paramProc
-            baseConfigProc,             // configProc
-            baseStringProc,             // stringProc
-            nullptr,                       // startProc
-            nullptr,                       // endProc
-            &vobsub_obj,                // script_obj
-            baseFssProc,                // fssProc
-            baseStringProc2,            // stringProc2
-            nullptr,                    // serializeProc
-            nullptr,                    // deserializeProc
-            nullptr,                    // copyProc
-            nullptr,                    // prefetchProc
-            nullptr,                    // copyProc2
-            nullptr,                    // prefetchProc2
-            nullptr,                    // eventProc
-            nullptr,                    // accelRunProc
-            0,                          // mSourceCountLowMinus1
-            0,                          // mSourceCountHighMinus1
-            nullptr,                    // mpStaticAboutProc
-            nullptr,                    // mpStaticConfigureProc
-            nullptr,                    // fm
+            "Gabest",                              // maker
+            nullptr,                               // private_data
+            sizeof(CVirtualDubFilter**),           // inst_data_size
+            vobsubInitProc,                        // initProc
+            baseDeinitProc,                        // deinitProc
+            baseRunProc,                           // runProc
+            baseParamProc,                         // paramProc
+            baseConfigProc,                        // configProc
+            baseStringProc,                        // stringProc
+            nullptr,                               // startProc
+            nullptr,                               // endProc
+            &vobsub_obj,                           // script_obj
+            baseFssProc,                           // fssProc
+            baseStringProc2,                       // stringProc2
+            nullptr,                               // serializeProc
+            nullptr,                               // deserializeProc
+            nullptr,                               // copyProc
+            nullptr,                               // prefetchProc
+            nullptr,                               // copyProc2
+            nullptr,                               // prefetchProc2
+            nullptr,                               // eventProc
+            nullptr,                               // accelRunProc
+            0,                                     // mSourceCountLowMinus1
+            0,                                     // mSourceCountHighMinus1
+            nullptr,                               // mpStaticAboutProc
+            nullptr,                               // mpStaticConfigureProc
+            nullptr,                               // fm
         };
 
         VDXScriptFunctionDef textsub_func_defs[] = {
             { (VDXScriptFunctionPtr)textsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0si") },
-            { nullptr, nullptr, nullptr },
+            {                                   nullptr,                     nullptr,                  nullptr },
         };
 
         VDXScriptObject textsub_obj = {
@@ -1007,36 +1043,36 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         };
 
         struct VDXFilterDefinition filterDef_textsub = {
-            nullptr, nullptr, nullptr,           // next, prev, module
-            "TextSub",                  // name
+            nullptr, nullptr, nullptr,                                        // next, prev, module
+            "TextSub",                                                        // name
             "Adds subtitles from srt, sub, psb, smi, ssa, ass file formats.", // desc
-            "Gabest",                   // maker
-            nullptr,                       // private_data
-            sizeof(CVirtualDubFilter**), // inst_data_size
-            textsubInitProc,            // initProc
-            baseDeinitProc,             // deinitProc
-            baseRunProc,                // runProc
-            baseParamProc,              // paramProc
-            baseConfigProc,             // configProc
-            baseStringProc,             // stringProc
-            nullptr,                       // startProc
-            nullptr,                       // endProc
-            &textsub_obj,               // script_obj
-            baseFssProc,                // fssProc
-            baseStringProc2,            // stringProc2
-            nullptr,                    // serializeProc
-            nullptr,                    // deserializeProc
-            nullptr,                    // copyProc
-            nullptr,                    // prefetchProc
-            nullptr,                    // copyProc2
-            nullptr,                    // prefetchProc2
-            nullptr,                    // eventProc
-            nullptr,                    // accelRunProc
-            0,                          // mSourceCountLowMinus1
-            0,                          // mSourceCountHighMinus1
-            nullptr,                    // mpStaticAboutProc
-            nullptr,                    // mpStaticConfigureProc
-            nullptr,                    // fm
+            "Gabest",                                                         // maker
+            nullptr,                                                          // private_data
+            sizeof(CVirtualDubFilter**),                                      // inst_data_size
+            textsubInitProc,                                                  // initProc
+            baseDeinitProc,                                                   // deinitProc
+            baseRunProc,                                                      // runProc
+            baseParamProc,                                                    // paramProc
+            baseConfigProc,                                                   // configProc
+            baseStringProc,                                                   // stringProc
+            nullptr,                                                          // startProc
+            nullptr,                                                          // endProc
+            &textsub_obj,                                                     // script_obj
+            baseFssProc,                                                      // fssProc
+            baseStringProc2,                                                  // stringProc2
+            nullptr,                                                          // serializeProc
+            nullptr,                                                          // deserializeProc
+            nullptr,                                                          // copyProc
+            nullptr,                                                          // prefetchProc
+            nullptr,                                                          // copyProc2
+            nullptr,                                                          // prefetchProc2
+            nullptr,                                                          // eventProc
+            nullptr,                                                          // accelRunProc
+            0,                                                                // mSourceCountLowMinus1
+            0,                                                                // mSourceCountHighMinus1
+            nullptr,                                                          // mpStaticAboutProc
+            nullptr,                                                          // mpStaticConfigureProc
+            nullptr,                                                          // fm
         };
 
         static VDXFilterDefinition* fd_vobsub;
@@ -1044,8 +1080,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         extern "C" __declspec(dllexport) int __cdecl VirtualdubFilterModuleInit2(VDXFilterModule* fm, const VDXFilterFunctions* ff, int& vdfd_ver, int& vdfd_compat)
         {
-            if (((fd_vobsub = ff->addFilter(fm, &filterDef_vobsub, sizeof(VDXFilterDefinition))) == nullptr)
-                    || ((fd_textsub = ff->addFilter(fm, &filterDef_textsub, sizeof(VDXFilterDefinition))) == nullptr)) {
+            if (((fd_vobsub = ff->addFilter(fm, &filterDef_vobsub, sizeof(VDXFilterDefinition))) == nullptr) || ((fd_textsub = ff->addFilter(fm, &filterDef_textsub, sizeof(VDXFilterDefinition))) == nullptr))
+            {
                 return 1;
             }
 
@@ -1062,7 +1098,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #elif defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning(disable: 4996)
+#pragma warning(disable : 4996)
 #endif
             // VirtualDub2 still requires removeFilter during module teardown.
             ff->removeFilter(fd_textsub);
@@ -1084,59 +1120,70 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
     {
 #include "avisynth/avisynth.h"
 
-        static bool s_fSwapUV{false}; // set by TextSubSwapUV, not quite MT friendly
+        static bool s_fSwapUV{ false }; // set by TextSubSwapUV, not quite MT friendly
 
         class CAvisynthFilter : public GenericVideoFilter, virtual public CFilter
         {
             int msp_type;
-            bool has_at_least_v8; // avs interface version check
+            bool has_at_least_v8;  // avs interface version check
             bool useRGBAwhenRGB32; // instead of old method: bool "RGBA" Avisynth variable. default false for TextSub, true for MaskSub
             bool YV16asYUY2;
-        public:
 
+        public:
             VFRTranslator* vfr;
 
             CAvisynthFilter(PClip c, IScriptEnvironment* env, bool _useRGBAwhenRGB32, VFRTranslator* _vfr = 0)
-                : GenericVideoFilter(c)
-                , useRGBAwhenRGB32(_useRGBAwhenRGB32)
-                , vfr(_vfr)
+                : GenericVideoFilter(c), useRGBAwhenRGB32(_useRGBAwhenRGB32), vfr(_vfr)
             {
-                const bool doYV16asYUY2{false}; // hey, we have native YV16 now
+                const bool doYV16asYUY2{ false };         // hey, we have native YV16 now
                 YV16asYUY2 = doYV16asYUY2 && vi.IsYV16(); // must use single YUY2 buffer internally
 
                 msp_type =
-                    vi.IsRGB32() ? (useRGBAwhenRGB32 ? MSP_RGBA : MSP_RGB32) :
-                    vi.IsRGB24() ? MSP_RGB24 :
-                    vi.IsYUY2() ? MSP_YUY2 :
-                    doYV16asYUY2 && vi.IsYV16() ? MSP_YUY2 :
-                    /*vi.IsYV12()*/ vi.pixel_type == VideoInfo::CS_YV12 ? (s_fSwapUV ? MSP_IYUV : MSP_YV12) :
-                    /*vi.IsIYUV()*/ vi.pixel_type == VideoInfo::CS_IYUV ? (s_fSwapUV ? MSP_YV12 : MSP_IYUV) :
-                    vi.pixel_type == VideoInfo::CS_YUV420P10 ? MSP_P010 : // P.F. 180224 10 bit support
-                    vi.pixel_type == VideoInfo::CS_YUV420P16 ? MSP_P016 : // P.F. 180224 16 bit support
-                    // 20210305
-                    vi.pixel_type == VideoInfo::CS_YUV422P10 ? MSP_P210 :
-                    vi.pixel_type == VideoInfo::CS_YUV422P16 ? MSP_P216 :
-                    vi.IsYV16() ? MSP_YV16 : // not natively yet. converted to YUY2 on the fly
-                    vi.IsYV24() ? MSP_YV24 :
-                    -1;
+                    vi.IsRGB32() ? (useRGBAwhenRGB32 ? MSP_RGBA : MSP_RGB32) : vi.IsRGB24()              ? MSP_RGB24
+                                                                           : vi.IsYUY2()                 ? MSP_YUY2
+                                                                           : doYV16asYUY2 && vi.IsYV16() ? MSP_YUY2
+                                                                           :
+                                                                           /*vi.IsYV12()*/ vi.pixel_type == VideoInfo::CS_YV12 ? (s_fSwapUV ? MSP_IYUV : MSP_YV12)
+                                                                           :
+                                                                           /*vi.IsIYUV()*/ vi.pixel_type == VideoInfo::CS_IYUV ? (s_fSwapUV ? MSP_YV12 : MSP_IYUV)
+                                                                           : vi.pixel_type == VideoInfo::CS_YUV420P10          ? MSP_P010
+                                                                                                                               : // P.F. 180224 10 bit support
+                                                                               vi.pixel_type == VideoInfo::CS_YUV420P16 ? MSP_P016
+                                                                                                                                 : // P.F. 180224 16 bit support
+                                                                               // 20210305
+                                                                               vi.pixel_type == VideoInfo::CS_YUV422P10 ? MSP_P210
+                                                                                    : vi.pixel_type == VideoInfo::CS_YUV422P16   ? MSP_P216
+                                                                                    : vi.IsYV16()                                ? MSP_YV16
+                                                                                                                                 : // not natively yet. converted to YUY2 on the fly
+                                                                               vi.IsYV24() ? MSP_YV24
+                                                                                                                                   : -1;
 
-                if (msp_type == -1) {
+                if (msp_type == -1)
+                {
                     env->ThrowError("Format not supported. Use RGB24,RGB32,YUY2,YV12,YV16,YV24,YUV420P10/P16,YUV422P10/P16.");
                 }
 
                 has_at_least_v8 = true;
-                try { env->CheckVersion(8); }
-                catch (const AvisynthError&) { has_at_least_v8 = false; }
+                try
+                {
+                    env->CheckVersion(8);
+                }
+                catch (const AvisynthError&)
+                {
+                    has_at_least_v8 = false;
+                }
             }
 
             // Helpers for YUV420P10<->P010 and YUV420P16<->P016 conversion
 
-            template<bool before>
+            template <bool before>
             static void prepare_luma_shift6_c(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
 
             {
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < width; ++x) {
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < width; ++x)
+                    {
                         if (before)
                         {
                             reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] << 6;
@@ -1151,13 +1198,15 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 }
             }
 
-            template<bool before>
+            template <bool before>
             static void prepare_luma_shift6_sse2(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
             {
-                const int modw{(width / 8) * 8}; // 8 uv pairs at a time
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < modw; x += 8) {
-                        __m128i luma{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(src) + x))};
+                const int modw{ (width / 8) * 8 }; // 8 uv pairs at a time
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < modw; x += 8)
+                    {
+                        __m128i luma{ _mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(src) + x)) };
                         if (before)
                         {
                             luma = _mm_slli_epi16(luma, 6);
@@ -1169,7 +1218,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdst) + x), luma);
                     }
 
-                    for (int x{modw}; x < width; ++x) {
+                    for (int x{ modw }; x < width; ++x)
+                    {
                         if (before)
                         {
                             reinterpret_cast<::std::uint16_t*>(pdst)[x] = reinterpret_cast<const ::std::uint16_t*>(src)[x] << 6;
@@ -1184,18 +1234,22 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 }
             }
 
-            template<bool shift6>
+            template <bool shift6>
             static void prepare_to_interleaved_uv_c(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* srcu, const ::std::uint8_t* srcv, const int pitchUV, const int width, const int height)
 
             {
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < width; ++x) {
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < width; ++x)
+                    {
                         ::std::uint16_t u, v;
-                        if (shift6) {
+                        if (shift6)
+                        {
                             u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
                             v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x] << 6; // make 10->16 bits
                         }
-                        else {
+                        else
+                        {
                             u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x];
                             v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x];
                         }
@@ -1208,15 +1262,18 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 }
             }
 
-            template<bool shift6>
+            template <bool shift6>
             static void prepare_to_interleaved_uv_sse2(::std::uint8_t* pdst, const int dstpitch, const ::std::uint8_t* srcu, const ::std::uint8_t* srcv, const int pitchUV, const int width, const int height)
             {
-                const int modw{(width / 8) * 8}; // 8 uv pairs at a time
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < modw; x += 8) {
-                        __m128i u{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcu) + x))};
-                        __m128i v{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcv) + x))};
-                        if (shift6) {
+                const int modw{ (width / 8) * 8 }; // 8 uv pairs at a time
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < modw; x += 8)
+                    {
+                        __m128i u{ _mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcu) + x)) };
+                        __m128i v{ _mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint16_t*>(srcv) + x)) };
+                        if (shift6)
+                        {
                             u = _mm_slli_epi16(u, 6); // make 10->16 bits
                             v = _mm_slli_epi16(v, 6);
                         }
@@ -1227,13 +1284,16 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint32_t*>(pdst) + x + 4), uv);
                     }
 
-                    for (int x{modw}; x < width; ++x) {
+                    for (int x{ modw }; x < width; ++x)
+                    {
                         ::std::uint16_t u, v;
-                        if (shift6) {
+                        if (shift6)
+                        {
                             u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x] << 6; // make 10->16 bits
                             v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x] << 6; // make 10->16 bits
                         }
-                        else {
+                        else
+                        {
                             u = reinterpret_cast<const ::std::uint16_t*>(srcu)[x];
                             v = reinterpret_cast<const ::std::uint16_t*>(srcv)[x];
                         }
@@ -1247,16 +1307,19 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             }
 
 
-            template<bool shift6>
+            template <bool shift6>
             static void prepare_from_interleaved_uv_c(::std::uint8_t* pdstu, ::std::uint8_t* pdstv, const int pitchUV, const ::std::uint8_t* src, const int srcpitch, const int width, const int height)
 
             {
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < width; ++x) {
-                        ::std::uint32_t uv{reinterpret_cast<const ::std::uint32_t*>(src)[x]};
-                        ::std::uint16_t u{uv & 0xFFFF};
-                        ::std::uint16_t v{uv >> 16};
-                        if (shift6) {
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < width; ++x)
+                    {
+                        ::std::uint32_t uv{ reinterpret_cast<const ::std::uint32_t*>(src)[x] };
+                        ::std::uint16_t u{ uv & 0xFFFF };
+                        ::std::uint16_t v{ uv >> 16 };
+                        if (shift6)
+                        {
                             u >>= 6;
                             v >>= 6;
                         }
@@ -1271,13 +1334,13 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable: 4309)
+#pragma warning(disable : 4309)
 #endif
             // fake _mm_packus_epi32 (orig is SSE4.1 only)
             static __forceinline __m128i _MM_PACKUS_EPI32(__m128i a, __m128i b)
             {
-                const __m128i val_32{_mm_set1_epi32(0x8000)};
-                const __m128i val_16{_mm_set1_epi16(0x8000)};
+                const __m128i val_32{ _mm_set1_epi32(0x8000) };
+                const __m128i val_16{ _mm_set1_epi16(0x8000) };
 
                 a = _mm_sub_epi32(a, val_32);
                 b = _mm_sub_epi32(b, val_32);
@@ -1292,40 +1355,46 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 #if defined(__clang__)
             __attribute__((target("sse4.1"), noinline))
 #endif
-            static __m128i packus_epi32_sse41(const __m128i a, const __m128i b)
+            static __m128i
+            packus_epi32_sse41(const __m128i a, const __m128i b)
             {
                 return _mm_packus_epi32(a, b);
             }
 
-            template<bool shift6, bool hasSSE41>
+            template <bool shift6, bool hasSSE41>
             static void prepare_from_interleaved_uv_sse2(::std::uint8_t* pdstu, ::std::uint8_t* pdstv, int pitchUV, const ::std::uint8_t* src, int srcpitch, int width, int height)
             {
-                const int modw{(width / 8) * 8};
-                auto mask0000FFFF{_mm_set1_epi32(0x0000FFFF)};
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < modw; x += 8) {
-                        auto uv_lo{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x))};
-                        auto uv_hi{_mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x + 4))};
-                        if (shift6) {
+                const int modw{ (width / 8) * 8 };
+                auto mask0000FFFF{ _mm_set1_epi32(0x0000FFFF) };
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < modw; x += 8)
+                    {
+                        auto uv_lo{ _mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x)) };
+                        auto uv_hi{ _mm_load_si128(reinterpret_cast<const __m128i*>(reinterpret_cast<const ::std::uint32_t*>(src) + x + 4)) };
+                        if (shift6)
+                        {
                             uv_lo = _mm_srli_epi16(uv_lo, 6);
                             uv_hi = _mm_srli_epi16(uv_hi, 6);
                         }
-                        auto u_lo{_mm_and_si128(uv_lo, mask0000FFFF)};
-                        auto u_hi{_mm_and_si128(uv_hi, mask0000FFFF)};
-                        auto u{shift6 ? _mm_packs_epi32(u_lo, u_hi) : (hasSSE41 ? packus_epi32_sse41(u_lo, u_hi) : _MM_PACKUS_EPI32(u_lo, u_hi))};
+                        auto u_lo{ _mm_and_si128(uv_lo, mask0000FFFF) };
+                        auto u_hi{ _mm_and_si128(uv_hi, mask0000FFFF) };
+                        auto u{ shift6 ? _mm_packs_epi32(u_lo, u_hi) : (hasSSE41 ? packus_epi32_sse41(u_lo, u_hi) : _MM_PACKUS_EPI32(u_lo, u_hi)) };
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdstu) + x), u);
 
-                        auto v_lo{_mm_srli_epi32(uv_lo, 16)};
-                        auto v_hi{_mm_srli_epi32(uv_hi, 16)};
-                        auto v{shift6 ? _mm_packs_epi32(v_lo, v_hi) : (hasSSE41 ? packus_epi32_sse41(v_lo, v_hi) : _MM_PACKUS_EPI32(v_lo, v_hi))};
+                        auto v_lo{ _mm_srli_epi32(uv_lo, 16) };
+                        auto v_hi{ _mm_srli_epi32(uv_hi, 16) };
+                        auto v{ shift6 ? _mm_packs_epi32(v_lo, v_hi) : (hasSSE41 ? packus_epi32_sse41(v_lo, v_hi) : _MM_PACKUS_EPI32(v_lo, v_hi)) };
                         _mm_store_si128(reinterpret_cast<__m128i*>(reinterpret_cast<::std::uint16_t*>(pdstv) + x), v);
                     }
 
-                    for (int x{modw}; x < width; ++x) {
-                        ::std::uint32_t uv{reinterpret_cast<const ::std::uint32_t*>(src)[x]};
-                        ::std::uint16_t u{uv & 0xFFFF};
-                        ::std::uint16_t v{uv >> 16};
-                        if (shift6) {
+                    for (int x{ modw }; x < width; ++x)
+                    {
+                        ::std::uint32_t uv{ reinterpret_cast<const ::std::uint32_t*>(src)[x] };
+                        ::std::uint16_t u{ uv & 0xFFFF };
+                        ::std::uint16_t v{ uv >> 16 };
+                        if (shift6)
+                        {
                             u >>= 6;
                             v >>= 6;
                         }
@@ -1343,9 +1412,9 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
             {
                 width >>= 1;
-                for (int y{0}; y < height; ++y)
+                for (int y{ 0 }; y < height; ++y)
                 {
-                    for (int x{0}; x < width; ++x)
+                    for (int x{ 0 }; x < width; ++x)
                     {
                         py[x << 1] = src[x << 2];
                         pu[x] = src[(x << 2) + 1];
@@ -1360,21 +1429,23 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             }
 
             void convYUY2to422_SSE2(const ::std::uint8_t* src, ::std::uint8_t* py, ::std::uint8_t* pu,
-                ::std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, int width, const int height)
+                                    ::std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, int width, const int height)
             {
                 width >>= 1;
-                __m128i Ymask{_mm_set1_epi16(0x00FF)};
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < width; x += 4) {
-                        __m128i fullsrc{_mm_load_si128(reinterpret_cast<const __m128i*>(src + x * 4))}; // VYUYVYUYVYUYVYUY
-                        __m128i yy{_mm_and_si128(fullsrc, Ymask)}; // 0Y0Y0Y0Y0Y0Y0Y0Y
-                        __m128i uvuv{_mm_srli_epi16(fullsrc, 8)}; // 0V0U0V0U0V0U0V0U
-                        yy = _mm_packus_epi16(yy, yy); // xxxxxxxxYYYYYYYY
-                        uvuv = _mm_packus_epi16(uvuv, uvuv); // xxxxxxxxVUVUVUVU
-                        __m128i uu{_mm_and_si128(uvuv, Ymask)}; // xxxxxxxx0U0U0U0U
-                        __m128i vv{_mm_srli_epi16(uvuv, 8)}; // xxxxxxxx0V0V0V0V
-                        uu = _mm_packus_epi16(uu, uu); // xxxxxxxxxxxxUUUU
-                        vv = _mm_packus_epi16(vv, vv); // xxxxxxxxxxxxVVVV
+                __m128i Ymask{ _mm_set1_epi16(0x00FF) };
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < width; x += 4)
+                    {
+                        __m128i fullsrc{ _mm_load_si128(reinterpret_cast<const __m128i*>(src + x * 4)) }; // VYUYVYUYVYUYVYUY
+                        __m128i yy{ _mm_and_si128(fullsrc, Ymask) };                                      // 0Y0Y0Y0Y0Y0Y0Y0Y
+                        __m128i uvuv{ _mm_srli_epi16(fullsrc, 8) };                                       // 0V0U0V0U0V0U0V0U
+                        yy = _mm_packus_epi16(yy, yy);                                                    // xxxxxxxxYYYYYYYY
+                        uvuv = _mm_packus_epi16(uvuv, uvuv);                                              // xxxxxxxxVUVUVUVU
+                        __m128i uu{ _mm_and_si128(uvuv, Ymask) };                                         // xxxxxxxx0U0U0U0U
+                        __m128i vv{ _mm_srli_epi16(uvuv, 8) };                                            // xxxxxxxx0V0V0V0V
+                        uu = _mm_packus_epi16(uu, uu);                                                    // xxxxxxxxxxxxUUUU
+                        vv = _mm_packus_epi16(vv, vv);                                                    // xxxxxxxxxxxxVVVV
                         _mm_storel_epi64(reinterpret_cast<__m128i*>(py + x * 2), yy);
                         *(::std::uint32_t*)(pu + x) = _mm_cvtsi128_si32(uu);
                         *(::std::uint32_t*)(pv + x) = _mm_cvtsi128_si32(vv);
@@ -1387,13 +1458,13 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             }
 
             void conv422toYUY2_c(const ::std::uint8_t* py, const ::std::uint8_t* pu, const ::std::uint8_t* pv,
-                ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, int width, const int height)
+                                 ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, int width, const int height)
 
             {
                 width >>= 1;
-                for (int y{0}; y < height; ++y)
+                for (int y{ 0 }; y < height; ++y)
                 {
-                    for (int x{0}; x < width; ++x)
+                    for (int x{ 0 }; x < width; ++x)
                     {
                         dst[x << 2] = py[x << 1];
                         dst[(x << 2) + 1] = pu[x];
@@ -1408,16 +1479,18 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             }
 
             void conv422toYUY2_SSE2(const ::std::uint8_t* py, const ::std::uint8_t* pu, const ::std::uint8_t* pv,
-                ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, int width, const int height)
+                                    ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, int width, const int height)
             {
                 width >>= 1;
-                for (int y{0}; y < height; ++y) {
-                    for (int x{0}; x < width; x += 4) {
-                        __m128i yy{_mm_loadl_epi64(reinterpret_cast<const __m128i*>(py + x * 2))}; // YYYYYYYY
-                        __m128i uu{_mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pu + x)))}; // 000000000000UUUU
-                        __m128i vv{_mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pv + x)))}; // 000000000000VVVV
-                        __m128i uvuv{_mm_unpacklo_epi8(uu, vv)}; // 00000000VUVUVUVU
-                        __m128i yuyv{_mm_unpacklo_epi8(yy, uvuv)}; // VYUYVYUYVYUYVYUY
+                for (int y{ 0 }; y < height; ++y)
+                {
+                    for (int x{ 0 }; x < width; x += 4)
+                    {
+                        __m128i yy{ _mm_loadl_epi64(reinterpret_cast<const __m128i*>(py + x * 2)) };         // YYYYYYYY
+                        __m128i uu{ _mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pu + x))) }; // 000000000000UUUU
+                        __m128i vv{ _mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pv + x))) }; // 000000000000VVVV
+                        __m128i uvuv{ _mm_unpacklo_epi8(uu, vv) };                                           // 00000000VUVUVUVU
+                        __m128i yuyv{ _mm_unpacklo_epi8(yy, uvuv) };                                         // VYUYVYUYVYUYVYUY
                         _mm_store_si128(reinterpret_cast<__m128i*>(dst + x * 4), yuyv);
                     }
                     dst += pitch2;
@@ -1428,7 +1501,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             }
 
             void convYUY2to422(const ::std::uint8_t* src, ::std::uint8_t* py, ::std::uint8_t* pu,
-                ::std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, const int width, const int height, const bool useSSE2)
+                               ::std::uint8_t* pv, const int pitch1, const int pitch2Y, const int pitch2UV, const int width, const int height, const bool useSSE2)
             {
                 if (useSSE2)
                 {
@@ -1441,7 +1514,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             }
 
             void conv422toYUY2(const ::std::uint8_t* py, const ::std::uint8_t* pu, const ::std::uint8_t* pv,
-                ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, const int width, const int height, const bool useSSE2)
+                               ::std::uint8_t* dst, const int pitch1Y, const int pitch1UV, const int pitch2, const int width, const int height, const bool useSSE2)
             {
                 if (useSSE2)
                 {
@@ -1462,14 +1535,14 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     return;
                 }
 
-                const AVSMap* props{env->getFramePropsRO(frame)};
+                const AVSMap* props{ env->getFramePropsRO(frame) };
                 if (props == nullptr)
                 {
                     return;
                 }
 
-                int error{0};
-                const ::std::int64_t matrix{env->propGetInt(props, "_Matrix", 0, &error)};
+                int error{ 0 };
+                const ::std::int64_t matrix{ env->propGetInt(props, "_Matrix", 0, &error) };
                 if (error == 0)
                 {
                     switch (matrix)
@@ -1496,7 +1569,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 }
 
                 error = 0;
-                const ::std::int64_t range{env->propGetInt(props, "_ColorRange", 0, &error)};
+                const ::std::int64_t range{ env->propGetInt(props, "_ColorRange", 0, &error) };
                 if (error == 0)
                 {
                     if (range == 0)
@@ -1513,15 +1586,17 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             }
 
             // Crash and/or corruption if MT. To be tested, why
-            [[nodiscard]] int __stdcall SetCacheHints(const int cachehints, const int frame_range) override {
+            [[nodiscard]] int __stdcall SetCacheHints(const int cachehints, const int frame_range) override
+            {
                 return cachehints == CACHE_GET_MTMODE ? MT_SERIALIZED : 0;
             }
 
-            [[nodiscard]] PVideoFrame __stdcall GetFrame(const int n, IScriptEnvironment* env) override {
-                PVideoFrame frame{child->GetFrame(n, env)};
+            [[nodiscard]] PVideoFrame __stdcall GetFrame(const int n, IScriptEnvironment* env) override
+            {
+                PVideoFrame frame{ child->GetFrame(n, env) };
 
-                const bool sse2{(env->GetCPUFlags() & CPUF_SSE2) != 0};
-                const bool sse41{(env->GetCPUFlags() & CPUF_SSE4_1) != 0};
+                const bool sse2{ (env->GetCPUFlags() & CPUF_SSE2) != 0 };
+                const bool sse41{ (env->GetCPUFlags() & CPUF_SSE4_1) != 0 };
 
                 SubPicDesc dst;
                 // dst pointers: later
@@ -1530,10 +1605,10 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
                 dst.type = msp_type;
 
-                bool semi_packed_p10{(vi.pixel_type == VideoInfo::CS_YUV420P10) || (vi.pixel_type == VideoInfo::CS_YUV422P10)};
-                bool semi_packed_p16{(vi.pixel_type == VideoInfo::CS_YUV420P16) || (vi.pixel_type == VideoInfo::CS_YUV422P16)};
+                bool semi_packed_p10{ (vi.pixel_type == VideoInfo::CS_YUV420P10) || (vi.pixel_type == VideoInfo::CS_YUV422P10) };
+                bool semi_packed_p16{ (vi.pixel_type == VideoInfo::CS_YUV420P16) || (vi.pixel_type == VideoInfo::CS_YUV422P16) };
 
-                // PF todo: check what to put here for 10 bits? 10 or 16? Now pitch/dst.w would 
+                // PF todo: check what to put here for 10 bits? 10 or 16? Now pitch/dst.w would
                 // dst.bpp = dst.pitch / dst.w * 8; //vi.BitsPerPixel();
                 if (vi.BitsPerComponent() == 10)
                 {
@@ -1543,7 +1618,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 {
                     dst.bpp = 16;
                 }
-                else if(YV16asYUY2)
+                else if (YV16asYUY2)
                 {
                     dst.bpp = 2 * frame->GetRowSize() / dst.w * 8;
                 }
@@ -1552,7 +1627,7 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     dst.bpp = frame->GetRowSize() / dst.w * 8;
                 }
 
-                BYTE* pdst_save{nullptr};
+                BYTE* pdst_save{ nullptr };
                 PVideoFrame buffer;
 
                 // P010/P016/P210/P216 format:
@@ -1562,25 +1637,28 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 // or n lines UVUVUVUVUVUVUV (4:2:2)
                 // Pitch is common. P010/P210 is upshifted to 16 bits
 
-                if (semi_packed_p10 || semi_packed_p16) {
-                    VideoInfo vi2{vi};
-                    int cheight{vi.height >> vi.GetPlaneHeightSubsampling(PLANAR_U)};
-                    int cwidth{vi.width >> vi.GetPlaneWidthSubsampling(PLANAR_U)};
+                if (semi_packed_p10 || semi_packed_p16)
+                {
+                    VideoInfo vi2{ vi };
+                    int cheight{ vi.height >> vi.GetPlaneHeightSubsampling(PLANAR_U) };
+                    int cwidth{ vi.width >> vi.GetPlaneWidthSubsampling(PLANAR_U) };
                     vi2.height = vi.height + cheight;
                     vi2.pixel_type = semi_packed_p16 ? VideoInfo::CS_Y16 : VideoInfo::CS_Y10;
                     buffer = env->NewVideoFrame(vi2);
-                    BYTE* pdst{buffer->GetWritePtr()};
+                    BYTE* pdst{ buffer->GetWritePtr() };
                     pdst_save = pdst;
 
                     // luma
-                    int pitch{buffer->GetPitch()};
-                    int srcpitch{frame->GetPitch()};
-                    const BYTE* src{frame->GetReadPtr()};
-                    if (semi_packed_p16) {
+                    int pitch{ buffer->GetPitch() };
+                    int srcpitch{ frame->GetPitch() };
+                    const BYTE* src{ frame->GetReadPtr() };
+                    if (semi_packed_p16)
+                    {
                         // no shift, native copy
                         env->BitBlt(pdst, pitch, src, srcpitch, frame->GetRowSize(), vi.height);
                     }
-                    else {
+                    else
+                    {
                         // shift by 6 make 10->16 bits
                         if (sse2)
                         {
@@ -1595,11 +1673,12 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     pdst += pitch * vi.height;
 
                     // Chroma
-                    int pitchUV{frame->GetPitch(PLANAR_U)};
-                    const BYTE* srcu{frame->GetReadPtr(PLANAR_U)};
-                    const BYTE* srcv{frame->GetReadPtr(PLANAR_V)};
+                    int pitchUV{ frame->GetPitch(PLANAR_U) };
+                    const BYTE* srcu{ frame->GetReadPtr(PLANAR_U) };
+                    const BYTE* srcv{ frame->GetReadPtr(PLANAR_V) };
 
-                    if (sse2) {
+                    if (sse2)
+                    {
                         if (semi_packed_p16)
                         {
                             prepare_to_interleaved_uv_sse2<false>(pdst, pitch, srcu, srcv, pitchUV, cwidth, cheight);
@@ -1609,7 +1688,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                             prepare_to_interleaved_uv_sse2<true>(pdst, pitch, srcu, srcv, pitchUV, cwidth, cheight);
                         } // shift6 inside
                     }
-                    else {
+                    else
+                    {
                         if (semi_packed_p16)
                         {
                             prepare_to_interleaved_uv_c<false>(pdst, pitch, srcu, srcv, pitchUV, cwidth, cheight);
@@ -1627,23 +1707,24 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     dst.bitsU = pdst_save + pitch * vi.height; // ? in P010 no separate pointers
                     dst.bitsV = pdst_save + pitch * vi.height;
                 }
-                else if (YV16asYUY2) {
+                else if (YV16asYUY2)
+                {
                     // for 8 bit YUV 4:2:2 only YUY2 is supported in xy
                     // converting to internal format
-                    VideoInfo vi2{vi};
-                    vi2.width = vi.width * 2; // YUYV
+                    VideoInfo vi2{ vi };
+                    vi2.width = vi.width * 2;          // YUYV
                     vi2.pixel_type = VideoInfo::CS_Y8; // single YUY2 buffer
                     buffer = env->NewVideoFrame(vi2);
-                    BYTE* pdst{buffer->GetWritePtr()};
+                    BYTE* pdst{ buffer->GetWritePtr() };
                     pdst_save = pdst;
 
                     // luma
-                    int dstpitch{buffer->GetPitch()};
+                    int dstpitch{ buffer->GetPitch() };
                     conv422toYUY2(frame->GetReadPtr(PLANAR_Y), frame->GetReadPtr(PLANAR_U), frame->GetReadPtr(PLANAR_V),
-                        buffer->GetWritePtr(),
-                        frame->GetPitch(PLANAR_Y), frame->GetPitch(PLANAR_U), dstpitch,
-                        vi.width, vi.height,
-                        sse2);
+                                  buffer->GetWritePtr(),
+                                  frame->GetPitch(PLANAR_Y), frame->GetPitch(PLANAR_U), dstpitch,
+                                  vi.width, vi.height,
+                                  sse2);
 
                     // buffer is ready.
                     // Fill dst pointers
@@ -1653,7 +1734,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     dst.bitsU = nullptr;
                     dst.bitsV = nullptr;
                 }
-                else {
+                else
+                {
                     // 8 bit classic
                     env->MakeWritable(&frame);
 
@@ -1662,7 +1744,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     dst.bits = frame->GetWritePtr();
                     dst.bitsU = frame->GetWritePtr(PLANAR_U); // n/a for RGB
                     dst.bitsV = frame->GetWritePtr(PLANAR_V); // n/a for RGB
-                    if (vi.IsRGB32() && useRGBAwhenRGB32) {
+                    if (vi.IsRGB32() && useRGBAwhenRGB32)
+                    {
                         // MSP_RGB32 is flipped, MSP_RGBA is not flipped
                         // but since both is RGB32 in Avisynth, it must be adjusted here
                         dst.bits += (vi.height - 1) * dst.pitch;
@@ -1675,10 +1758,12 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
                 REFERENCE_TIME timestamp;
 
-                if (!vfr) {
+                if (!vfr)
+                {
                     timestamp = (REFERENCE_TIME)(10000000i64 * n / fps);
                 }
-                else {
+                else
+                {
                     timestamp = (REFERENCE_TIME)(10000000 * vfr->TimeStampFromFrameNumber(n));
                 }
 
@@ -1688,19 +1773,22 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                 }
                 (void)Render(dst, timestamp, fps);
 
-                if (semi_packed_p10 || semi_packed_p16) {
+                if (semi_packed_p10 || semi_packed_p16)
+                {
                     // convert semi packed formats back to Avisynth YUV420P10 and P16 formats
-                    BYTE* src{pdst_save}; // dst.bits;
-                    PVideoFrame dst_frame{has_at_least_v8 ? env->NewVideoFrameP(vi, &frame) : env->NewVideoFrame(vi)};
-                    BYTE* pdst{dst_frame->GetWritePtr()};
+                    BYTE* src{ pdst_save }; // dst.bits;
+                    PVideoFrame dst_frame{ has_at_least_v8 ? env->NewVideoFrameP(vi, &frame) : env->NewVideoFrame(vi) };
+                    BYTE* pdst{ dst_frame->GetWritePtr() };
 
-                    int pitch{dst_frame->GetPitch()};
+                    int pitch{ dst_frame->GetPitch() };
 
                     // Luma
-                    if (semi_packed_p16) {
+                    if (semi_packed_p16)
+                    {
                         env->BitBlt(pdst, pitch, src, dst.pitch, vi.width * sizeof(::std::uint16_t), vi.height);
                     }
-                    else {
+                    else
+                    {
                         // shift by 6 make 10->16 bits
                         if (sse2)
                         {
@@ -1714,12 +1802,13 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     src += dst.pitch * vi.height;
 
                     // Chroma
-                    int cheight{vi.height >> vi.GetPlaneHeightSubsampling(PLANAR_U)};
-                    int cwidth{vi.width >> vi.GetPlaneWidthSubsampling(PLANAR_U)};
-                    int pitchUV{dst_frame->GetPitch(PLANAR_U)};
-                    BYTE* pdstu{dst_frame->GetWritePtr(PLANAR_U)};
-                    BYTE* pdstv{dst_frame->GetWritePtr(PLANAR_V)};
-                    if (sse41) {
+                    int cheight{ vi.height >> vi.GetPlaneHeightSubsampling(PLANAR_U) };
+                    int cwidth{ vi.width >> vi.GetPlaneWidthSubsampling(PLANAR_U) };
+                    int pitchUV{ dst_frame->GetPitch(PLANAR_U) };
+                    BYTE* pdstu{ dst_frame->GetWritePtr(PLANAR_U) };
+                    BYTE* pdstv{ dst_frame->GetWritePtr(PLANAR_V) };
+                    if (sse41)
+                    {
                         if (semi_packed_p16)
                         {
                             prepare_from_interleaved_uv_sse2<false, true>(pdstu, pdstv, pitchUV, src, dst.pitch, cwidth, cheight);
@@ -1729,7 +1818,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                             prepare_from_interleaved_uv_sse2<true, true>(pdstu, pdstv, pitchUV, src, dst.pitch, cwidth, cheight);
                         } // true: shift 6
                     }
-                    else if (sse2) {
+                    else if (sse2)
+                    {
                         if (semi_packed_p16)
                         {
                             prepare_from_interleaved_uv_sse2<false, false>(pdstu, pdstv, pitchUV, src, dst.pitch, cwidth, cheight);
@@ -1739,7 +1829,8 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                             prepare_from_interleaved_uv_sse2<true, false>(pdstu, pdstv, pitchUV, src, dst.pitch, cwidth, cheight);
                         } // true: shift 6
                     }
-                    else {
+                    else
+                    {
                         if (semi_packed_p16)
                         {
                             prepare_from_interleaved_uv_c<false>(pdstu, pdstv, pitchUV, src, dst.pitch, cwidth, cheight);
@@ -1751,15 +1842,17 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
                     }
                     return dst_frame;
                 }
-                else if (YV16asYUY2) {
+                else if (YV16asYUY2)
+                {
                     // YV16 was handled as YUY2 buffer internally, convert back
-                    PVideoFrame dst_frame{has_at_least_v8 ? env->NewVideoFrameP(vi, &frame) : env->NewVideoFrame(vi)};
+                    PVideoFrame dst_frame{ has_at_least_v8 ? env->NewVideoFrameP(vi, &frame) : env->NewVideoFrame(vi) };
                     convYUY2to422(buffer->GetReadPtr(), dst_frame->GetWritePtr(PLANAR_Y), dst_frame->GetWritePtr(PLANAR_U), dst_frame->GetWritePtr(PLANAR_V),
-                        buffer->GetPitch(), dst_frame->GetPitch(PLANAR_Y), dst_frame->GetPitch(PLANAR_U),
-                        vi.width, vi.height, sse2);
+                                  buffer->GetPitch(), dst_frame->GetPitch(PLANAR_Y), dst_frame->GetPitch(PLANAR_U),
+                                  vi.width, vi.height, sse2);
                     return dst_frame;
                 }
-                else {
+                else
+                {
                     return frame;
                 }
             }
@@ -1770,9 +1863,10 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
         {
         public:
             CVobSubAvisynthFilter(PClip c, const char* fn, bool useRGBAwhenRGB32, IScriptEnvironment* env)
-                : CVobSubFilter(CString(fn))
-                , CAvisynthFilter(c, env, useRGBAwhenRGB32) {
-                if (!m_pSubPicProvider) {
+                : CVobSubFilter(CString(fn)), CAvisynthFilter(c, env, useRGBAwhenRGB32)
+            {
+                if (!m_pSubPicProvider)
+                {
                     env->ThrowError("VobSub: Can't open \"%s\"", fn);
                 }
             }
@@ -1780,17 +1874,18 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         [[nodiscard]] AVSValue __cdecl VobSubCreateS(const AVSValue args, void* user_data, IScriptEnvironment* env)
         {
-            const bool useRGBAwhenRGB32{false}; // ex-"RGBA" variable
+            const bool useRGBAwhenRGB32{ false }; // ex-"RGBA" variable
             return (DEBUG_NEW CVobSubAvisynthFilter(args[0U].AsClip(), args[1U].AsString(), useRGBAwhenRGB32, env));
         }
 
         class CTextSubAvisynthFilter : public CTextSubFilter, public CAvisynthFilter
         {
         public:
-            CTextSubAvisynthFilter(PClip c, IScriptEnvironment* env, const char* fn, bool useRGBAwhenRGB32, int CharSet = DEFAULT_CHARSET, float fps = -1, VFRTranslator* vfr = 0) //vfr patch
-                : CTextSubFilter(CString(fn), CharSet, fps)
-                , CAvisynthFilter(c, env, useRGBAwhenRGB32, vfr) {
-                if (!m_pSubPicProvider) {
+            CTextSubAvisynthFilter(PClip c, IScriptEnvironment* env, const char* fn, bool useRGBAwhenRGB32, int CharSet = DEFAULT_CHARSET, float fps = -1, VFRTranslator* vfr = 0) // vfr patch
+                : CTextSubFilter(CString(fn), CharSet, fps), CAvisynthFilter(c, env, useRGBAwhenRGB32, vfr)
+            {
+                if (!m_pSubPicProvider)
+                {
                     env->ThrowError("TextSub: Can't open \"%s\"", fn);
                 }
             }
@@ -1798,15 +1893,17 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         [[nodiscard]] AVSValue __cdecl TextSubCreateGeneral(const AVSValue args, void* user_data, IScriptEnvironment* env)
         {
-            if (!args[1U].Defined()) {
+            if (!args[1U].Defined())
+            {
                 env->ThrowError("TextSub: You must specify a subtitle file to use");
             }
-            VFRTranslator* vfr{0};
-            if (args[4U].Defined()) {
+            VFRTranslator* vfr{ 0 };
+            if (args[4U].Defined())
+            {
                 vfr = GetVFRTranslator(args[4U].AsString());
             }
 
-            const bool useRGBAwhenRGB32{false}; // ex-"RGBA" variable
+            const bool useRGBAwhenRGB32{ false }; // ex-"RGBA" variable
 
             return (DEBUG_NEW CTextSubAvisynthFilter(
                 args[0U].AsClip(),
@@ -1824,39 +1921,42 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
             return AVSValue();
         }
 
-        [[nodiscard]] AVSValue __cdecl MaskSubCreate(const AVSValue args, void* user_data, IScriptEnvironment* env)/*SIIFI*/
+        [[nodiscard]] AVSValue __cdecl MaskSubCreate(const AVSValue args, void* user_data, IScriptEnvironment* env) /*SIIFI*/
         {
-            if (!args[0U].Defined()) {
+            if (!args[0U].Defined())
+            {
                 env->ThrowError("MaskSub: You must specify a subtitle file to use");
             }
-            if (!args[3U].Defined() && !args[6U].Defined()) {
+            if (!args[3U].Defined() && !args[6U].Defined())
+            {
                 env->ThrowError("MaskSub: You must specify either FPS or a VFR timecodes file");
             }
-            VFRTranslator* vfr{0};
-            if (args[6U].Defined()) {
+            VFRTranslator* vfr{ 0 };
+            if (args[6U].Defined())
+            {
                 vfr = GetVFRTranslator(args[6U].AsString());
             }
 
             // well, its a source filter
             AVSValue fps(args[3U].AsFloat(25));
-            AVSValue  tab[5U] = {
-              args[1U],
-              args[2U],
-              args[3U],
-              args[4U],
-              args[7U].AsString("RGB32") // PF 180224 new! pixel_type parameter defaulting to RGB32
+            AVSValue tab[5U] = {
+                args[1U],
+                args[2U],
+                args[3U],
+                args[4U],
+                args[7U].AsString("RGB32") // PF 180224 new! pixel_type parameter defaulting to RGB32
             };
-            AVSValue value{tab, 5};
+            AVSValue value{ tab, 5 };
             const char* nom[5U] = {
-              "width",
-              "height",
-              "fps",
-              "length",
-              "pixel_type"
+                "width",
+                "height",
+                "fps",
+                "length",
+                "pixel_type"
             };
             AVSValue clip(env->Invoke("Blackness", value, nom));
-            const bool useRGBAwhenRGB32{true};
-            //return (DNew CTextSubAvisynthFilter(clip.AsClip(), env, args[0].AsString()));
+            const bool useRGBAwhenRGB32{ true };
+            // return (DNew CTextSubAvisynthFilter(clip.AsClip(), env, args[0].AsString()));
             return (DEBUG_NEW CTextSubAvisynthFilter(
                 clip.AsClip(),
                 env,
@@ -1869,12 +1969,12 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
         /* New 2.6 requirement!!! */
         // Declare and initialise server pointers static storage.
-        const AVS_Linkage* AVS_linkage{0};
+        const AVS_Linkage* AVS_linkage{ 0 };
 
         /* New 2.6 requirement!!! */
         // DLL entry point called from LoadPlugin() to setup a user plugin.
-        extern "C" __declspec(dllexport) const char* __stdcall
-            AvisynthPluginInit3(IScriptEnvironment * env, const AVS_Linkage* const vectors) {
+        extern "C" __declspec(dllexport) const char* __stdcall AvisynthPluginInit3(IScriptEnvironment* env, const AVS_Linkage* const vectors)
+        {
 
             /* New 2.6 requirement!!! */
             // Save the server pointers.
@@ -1891,34 +1991,38 @@ static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name,
 
 UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uiMsg) {
-        case WM_NOTIFY: {
-            OPENFILENAME* ofn{((OFNOTIFY*)lParam)->lpOFN};
+    switch (uiMsg)
+    {
+    case WM_NOTIFY: {
+        OPENFILENAME* ofn{ ((OFNOTIFY*)lParam)->lpOFN };
 
-            if (((NMHDR*)lParam)->code == CDN_FILEOK) {
-                ofn->lCustData = (LPARAM)CharSetList[SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_GETCURSEL, 0, 0)];
-            }
-
-            break;
+        if (((NMHDR*)lParam)->code == CDN_FILEOK)
+        {
+            ofn->lCustData = (LPARAM)CharSetList[SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_GETCURSEL, 0, 0)];
         }
 
-        case WM_INITDIALOG: {
-            SetWindowLongPtr(hDlg, GWLP_USERDATA, lParam);
+        break;
+    }
 
-            for (std::ptrdiff_t i{0}; i < CharSetLen; ++i) {
-                CString s;
-                s.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
-                SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)(LPCTSTR)s);
-                if (CharSetList[i] == (int)((OPENFILENAME*)lParam)->lCustData) {
-                    SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_SETCURSEL, i, 0);
-                }
+    case WM_INITDIALOG: {
+        SetWindowLongPtr(hDlg, GWLP_USERDATA, lParam);
+
+        for (std::ptrdiff_t i{ 0 }; i < CharSetLen; ++i)
+        {
+            CString s;
+            s.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
+            SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)(LPCTSTR)s);
+            if (CharSetList[i] == (int)((OPENFILENAME*)lParam)->lCustData)
+            {
+                SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_SETCURSEL, i, 0);
             }
-
-            break;
         }
 
-        default:
-            break;
+        break;
+    }
+
+    default:
+        break;
     }
 
     return FALSE;

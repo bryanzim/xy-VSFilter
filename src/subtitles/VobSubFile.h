@@ -32,14 +32,14 @@
 // MSVC packs a two-character literal with the last character in the low byte.
 #define TwoCc(a, b) ((unsigned short)(((unsigned char)(a) << 8) | (unsigned char)(b)))
 
-#define ReadBEb(var)              \
+#define ReadBEb(var) \
     f.Read(&((BYTE*)&var)[0U], 1);
 
-#define ReadBEw(var)              \
+#define ReadBEw(var)               \
     f.Read(&((BYTE*)&var)[1U], 1); \
     f.Read(&((BYTE*)&var)[0U], 1);
 
-#define ReadBEdw(var)             \
+#define ReadBEdw(var)              \
     f.Read(&((BYTE*)&var)[3U], 1); \
     f.Read(&((BYTE*)&var)[2U], 1); \
     f.Read(&((BYTE*)&var)[1U], 1); \
@@ -56,10 +56,10 @@ public:
     CSize m_size;
     int m_x, m_y;
     CPoint m_org;
-    int m_scale_x, m_scale_y;   // % (don't set it to unsigned because as a side effect it will mess up negative coordinates in GetDestrect())
-    int m_alpha;                // %
-    int m_fSmooth;              // 0: OFF, 1: ON, 2: OLD (means no filtering at all)
-    int m_fadein, m_fadeout;    // ms
+    int m_scale_x, m_scale_y; // % (don't set it to unsigned because as a side effect it will mess up negative coordinates in GetDestrect())
+    int m_alpha;              // %
+    int m_fSmooth;            // 0: OFF, 1: ON, 2: OLD (means no filtering at all)
+    int m_fadein, m_fadeout;  // ms
     bool m_fAlign;
     int m_alignhor, m_alignver; // 0: left/top, 1: center, 2: right/bottom
     unsigned int m_toff;        // ms
@@ -76,17 +76,20 @@ public:
     [[nodiscard]] bool GetCustomPal(RGBQUAD* cuspal, int& tridx);
     void SetCustomPal(const RGBQUAD* cuspal, int tridx);
 
-    void GetDestrect(CRect& r); // destrect of m_img, considering the current alignment mode
+    void GetDestrect(CRect& r);               // destrect of m_img, considering the current alignment mode
     void GetDestrect(CRect& r, int w, int h); // this will scale it to the frame size of (w, h)
 
     void SetAlignment(bool fAlign, int x, int y, int hor = 1, int ver = 1);
 };
 
 class __declspec(uuid("998D4C9A-460F-4de6-BDCD-35AB24F94ADF"))
-    CVobSubFile : public CVobSubSettings, public ISubStream, public CSubPicProviderImpl
+CVobSubFile : public CVobSubSettings,
+              public ISubStream,
+              public CSubPicProviderImpl
 {
 public:
-    struct SubPos {
+    struct SubPos
+    {
         __int64 filepos;
         __int64 start;
         __int64 stop;
@@ -98,7 +101,8 @@ public:
         bool fValid;
     };
 
-    struct SubLang {
+    struct SubLang
+    {
         WORD id;
         CString name, alt;
         CAtlArray<SubPos> subpos;
@@ -133,7 +137,8 @@ public:
 
     [[nodiscard]] bool Copy(CVobSubFile& vsf);
 
-    enum SubFormat {
+    enum SubFormat
+    {
         None,
         VobSub,
         WinSubMux,
@@ -148,7 +153,8 @@ public:
     [[nodiscard]] CString GetTitle() { return m_title; }
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+        DECLSPEC_NOTHROW STDMETHODIMP
+        NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);
@@ -170,12 +176,15 @@ public:
 };
 
 class __declspec(uuid("D7FBFB45-2D13-494F-9B3D-FFC9557D5C45"))
-    CVobSubStream : public CVobSubSettings, public ISubStream, public CSubPicProviderImpl
+CVobSubStream : public CVobSubSettings,
+                public ISubStream,
+                public CSubPicProviderImpl
 {
     CString m_name;
 
     CCritSec m_csSubPics;
-    struct SubPic {
+    struct SubPic
+    {
         REFERENCE_TIME tStart, tStop;
         bool fAnimated;
         CAtlArray<BYTE> pData;
@@ -192,7 +201,8 @@ public:
     void RemoveAll();
 
     [[nodiscard]] DECLARE_IUNKNOWN
-    DECLSPEC_NOTHROW STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
+        DECLSPEC_NOTHROW STDMETHODIMP
+        NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
     // ISubPicProvider
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) GetStartPosition(REFERENCE_TIME rt, double fps);

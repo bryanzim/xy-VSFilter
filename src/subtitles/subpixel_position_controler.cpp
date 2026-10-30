@@ -7,12 +7,12 @@
 
 SubpixelPositionControler SubpixelPositionControler::s_subpixel_position_controler;
 
-[[nodiscard]] SubpixelPositionControler::SUBPIXEL_LEVEL SubpixelPositionControler::SetSubpixelLevel( const SUBPIXEL_LEVEL subpixel_level )
+[[nodiscard]] SubpixelPositionControler::SUBPIXEL_LEVEL SubpixelPositionControler::SetSubpixelLevel(const SUBPIXEL_LEVEL subpixel_level)
 
 {
-    if(subpixel_level!=_subpixel_level)
+    if (subpixel_level != _subpixel_level)
     {
-        switch(subpixel_level)
+        switch (subpixel_level)
         {
         case NONE:
             _subpixel_mask = NONE_MASK;

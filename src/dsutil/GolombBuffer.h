@@ -50,8 +50,8 @@ public:
 
 private:
     BYTE* m_pBuffer;
-    int   m_nSize;
-    int   m_nBitPos;
-    int   m_bitlen;
+    int m_nSize;
+    int m_nBitPos;
+    int m_bitlen;
     INT64 m_bitbuff;
 };

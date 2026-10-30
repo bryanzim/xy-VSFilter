@@ -1,4 +1,4 @@
-/* 
+/*
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *
@@ -6,15 +6,15 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
@@ -25,56 +25,72 @@
 
 namespace ssf
 {
-	Split::Split(LPCWSTR sep, CStringW str, std::size_t limit, SplitType type)
-	{
-		DoSplit(sep, str, limit, type);
-	}
+    Split::Split(LPCWSTR sep, CStringW str, std::size_t limit, SplitType type)
+    {
+        DoSplit(sep, str, limit, type);
+    }
 
-	Split::Split(WCHAR sep, CStringW str, std::size_t limit, SplitType type)
-	{
-		DoSplit(CStringW(sep), str, limit, type);
-	}
+    Split::Split(WCHAR sep, CStringW str, std::size_t limit, SplitType type)
+    {
+        DoSplit(CStringW(sep), str, limit, type);
+    }
 
-	void Split::DoSplit(LPCWSTR sep, CStringW str, std::size_t limit, SplitType type)
-	{
-		RemoveAll();
+    void Split::DoSplit(LPCWSTR sep, CStringW str, std::size_t limit, SplitType type)
+    {
+        RemoveAll();
 
-		if(std::size_t seplen{std::wcslen(sep)})
-		{
-			for(int i = 0, j = 0, len = str.GetLength(); 
-				i <= len && (limit == 0U || GetCount() < limit); 
-				i = j + static_cast<int>(seplen))
-			{
-				j = str.Find(sep, i);
-				if(j < 0) { j = len; }
+        if (std::size_t seplen{ std::wcslen(sep) })
+        {
+            for (int i = 0, j = 0, len = str.GetLength();
+                 i <= len && (limit == 0U || GetCount() < limit);
+                 i = j + static_cast<int>(seplen))
+            {
+                j = str.Find(sep, i);
+                if (j < 0)
+                {
+                    j = len;
+                }
 
-				CStringW s = i < j ? str.Mid(i, j - i) : L"";
+                CStringW s = i < j ? str.Mid(i, j - i) : L"";
 
-				switch(type)
-				{
-				case Min: s.Trim();
+                switch (type)
+                {
+                case Min:
+                    s.Trim();
 #if defined(__clang__)
-				[[clang::fallthrough]];
+                    [[clang::fallthrough]];
 #endif
-				case Def: if(s.IsEmpty()) { break; }
+                case Def:
+                    if (s.IsEmpty())
+                    {
+                        break;
+                    }
 #if defined(__clang__)
-				[[clang::fallthrough]];
+                    [[clang::fallthrough]];
 #endif
-				case Max: Add(s); break;
-				}
-			}
-		}
-	}
+                case Max:
+                    Add(s);
+                    break;
+                }
+            }
+        }
+    }
 
-	int Split::GetAtInt(std::size_t i)
-	{
-		if(i >= GetCount()) { throw Exception(_T("Index out of bounds")); }
-		return _wtoi(GetAt(i));
-	}
+    int Split::GetAtInt(std::size_t i)
+    {
+        if (i >= GetCount())
+        {
+            throw Exception(_T("Index out of bounds"));
+        }
+        return _wtoi(GetAt(i));
+    }
 
-	float Split::GetAtFloat(std::size_t i)
-	{
-		if(i >= GetCount()) { throw Exception(_T("Index out of bounds")); }
-		return static_cast<float>(_wtof(GetAt(i)));
-	}
+    float Split::GetAtFloat(std::size_t i)
+    {
+        if (i >= GetCount())
+        {
+            throw Exception(_T("Index out of bounds"));
+        }
+        return static_cast<float>(_wtof(GetAt(i)));
+    }
 }

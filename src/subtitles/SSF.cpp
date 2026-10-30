@@ -1,4 +1,4 @@
-/* 
+/*
  *	Copyright (C) 2003-2006 Gabest
  *	http://www.gabest.org
  *
@@ -6,18 +6,18 @@
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2, or (at your option)
  *  any later version.
- *   
+ *
  *  This Program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *   
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with GNU Make; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *  http://www.gnu.org/copyleft/gpl.html
  *
- *  TODO: 
+ *  TODO:
  *  - fill effect
  *  - outline bkg still very slow
  *
@@ -30,227 +30,225 @@
 
 namespace ssf
 {
-	CRenderer::CRenderer(CCritSec* pLock)
-		: CSubPicProviderImpl(pLock)
-	{
-	}
+    CRenderer::CRenderer(CCritSec* pLock)
+        : CSubPicProviderImpl(pLock)
+    {
+    }
 
-	CRenderer::~CRenderer()
+    CRenderer::~CRenderer()
 
-	{
-	}
+    {
+    }
 
-	[[nodiscard]] bool CRenderer::Open(CString fn, CString name)
-	{
-		m_fn.Empty();
-		m_name.Empty();
-		m_file.Free();
-		m_renderer.Free();
+    [[nodiscard]] bool CRenderer::Open(CString fn, CString name)
+    {
+        m_fn.Empty();
+        m_name.Empty();
+        m_file.Free();
+        m_renderer.Free();
 
-		if(name.IsEmpty())
-		{
-			CString str{fn};
-			str.Replace('\\', '/');
-			name = str.Left(str.ReverseFind('.'));
-			name = name.Mid(name.ReverseFind('/')+1);
-			name = name.Mid(name.ReverseFind('.')+1);
-		}
+        if (name.IsEmpty())
+        {
+            CString str{ fn };
+            str.Replace('\\', '/');
+            name = str.Left(str.ReverseFind('.'));
+            name = name.Mid(name.ReverseFind('/') + 1);
+            name = name.Mid(name.ReverseFind('.') + 1);
+        }
 
-		try
-		{
-			FileInputStream stream(fn);
-			if(Open(stream, name)) 
-			{
-				m_fn = fn;
-				return true;
-			}
-		}
-		catch(Exception& e)
-		{
-			TRACE(_T("%s\n"), e.ToString());
-		}
+        try
+        {
+            FileInputStream stream(fn);
+            if (Open(stream, name))
+            {
+                m_fn = fn;
+                return true;
+            }
+        }
+        catch (Exception& e)
+        {
+            TRACE(_T("%s\n"), e.ToString());
+        }
 
-		return false;	
-	}
+        return false;
+    }
 
-	[[nodiscard]] bool CRenderer::Open(InputStream& s, CString name)
-	{
-		m_fn.Empty();
-		m_name.Empty();
-		m_file.Free();
-		m_renderer.Free();
+    [[nodiscard]] bool CRenderer::Open(InputStream& s, CString name)
+    {
+        m_fn.Empty();
+        m_name.Empty();
+        m_file.Free();
+        m_renderer.Free();
 
-		try
-		{
-			m_file.Attach(new SubtitleFile());
-			m_file->Parse(s);
-			m_renderer.Attach(new Renderer());
-			m_name = name;
-			return true;
-		}
-		catch(Exception& e)
-		{
-			TRACE(_T("%s\n"), e.ToString());
-		}
+        try
+        {
+            m_file.Attach(new SubtitleFile());
+            m_file->Parse(s);
+            m_renderer.Attach(new Renderer());
+            m_name = name;
+            return true;
+        }
+        catch (Exception& e)
+        {
+            TRACE(_T("%s\n"), e.ToString());
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	void CRenderer::Append(const REFERENCE_TIME rtStart, const REFERENCE_TIME rtStop, const LPCWSTR str)
-	{
-		if(!m_file)
-		{
-		    return;
-		}
+    void CRenderer::Append(const REFERENCE_TIME rtStart, const REFERENCE_TIME rtStop, const LPCWSTR str)
+    {
+        if (!m_file)
+        {
+            return;
+        }
 
-		try
-		{
-			ssf::WCharInputStream stream(str);
-			m_file->Append(stream, (float)rtStart / 10000000, (float)rtStop / 10000000);
-		}
-		catch(Exception& e)
-		{
-			TRACE(_T("%s\n"), e.ToString());
-		}
-	}
+        try
+        {
+            ssf::WCharInputStream stream(str);
+            m_file->Append(stream, (float)rtStart / 10000000, (float)rtStop / 10000000);
+        }
+        catch (Exception& e)
+        {
+            TRACE(_T("%s\n"), e.ToString());
+        }
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
-	{
-		CheckPointer(ppv, E_POINTER);
-		*ppv = nullptr;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
+    {
+        CheckPointer(ppv, E_POINTER);
+        *ppv = nullptr;
 
-		return 
-			QI(IPersist)
-			QI(ISubStream)
-			QI(ISubPicProvider)
-			__super::NonDelegatingQueryInterface(riid, ppv);
-	}
+        return QI(IPersist)
+            QI(ISubStream)
+                QI(ISubPicProvider) __super::NonDelegatingQueryInterface(riid, ppv);
+    }
 
-	// ISubPicProvider
+    // ISubPicProvider
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(const REFERENCE_TIME rt, const double fps)
-	{
-		std::size_t k;
-		return m_file && m_file->m_segments.Lookup((float)rt/10000000, k) ? (POSITION)(++k) : nullptr;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(const REFERENCE_TIME rt, const double fps)
+    {
+        std::size_t k;
+        return m_file && m_file->m_segments.Lookup((float)rt / 10000000, k) ? (POSITION)(++k) : nullptr;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
-	{
-		std::size_t k{(std::size_t)pos};
-		return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : nullptr;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
+    {
+        std::size_t k{ (std::size_t)pos };
+        return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : nullptr;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, const double fps)
-	{
-		std::size_t k{(std::size_t)pos-1};
-		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : nullptr};
-		return s ? (REFERENCE_TIME)(s->m_start*10000000) : 0;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, const double fps)
+    {
+        std::size_t k{ (std::size_t)pos - 1 };
+        const SubtitleFile::Segment* s{ m_file ? m_file->m_segments.GetSegment(k) : nullptr };
+        return s ? (REFERENCE_TIME)(s->m_start * 10000000) : 0;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(POSITION pos, const double fps)
-	{
-		CheckPointer(m_file, 0);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(POSITION pos, const double fps)
+    {
+        CheckPointer(m_file, 0);
 
-		std::size_t k{(std::size_t)pos-1};
-		const SubtitleFile::Segment* s{m_file ? m_file->m_segments.GetSegment(k) : nullptr};
-		return s ? (REFERENCE_TIME)(s->m_stop*10000000) : 0;
-	}
+        std::size_t k{ (std::size_t)pos - 1 };
+        const SubtitleFile::Segment* s{ m_file ? m_file->m_segments.GetSegment(k) : nullptr };
+        return s ? (REFERENCE_TIME)(s->m_stop * 10000000) : 0;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CRenderer::IsAnimated(POSITION pos)
-	{
-		return true;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CRenderer::IsAnimated(POSITION pos)
+    {
+        return true;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::Render(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox)
-	{
-		CheckPointer(m_file, E_UNEXPECTED);
-		CheckPointer(m_renderer, E_UNEXPECTED);	
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::Render(SubPicDesc& spd, const REFERENCE_TIME rt, const double fps, RECT& bbox)
+    {
+        CheckPointer(m_file, E_UNEXPECTED);
+        CheckPointer(m_renderer, E_UNEXPECTED);
 
-		if(spd.type != MSP_RGBA)
-		{
-		    return E_INVALIDARG;
-		}
+        if (spd.type != MSP_RGBA)
+        {
+            return E_INVALIDARG;
+        }
 
-		CAutoLock csAutoLock{m_pLock};
+        CAutoLock csAutoLock{ m_pLock };
 
-		CRect bbox2;
-		bbox2.SetRectEmpty();
+        CRect bbox2;
+        bbox2.SetRectEmpty();
 
-		CAutoPtrList<Subtitle> subs;
-		m_file->Lookup((float)rt/10000000, subs);
+        CAutoPtrList<Subtitle> subs;
+        m_file->Lookup((float)rt / 10000000, subs);
 
-		m_renderer->NextSegment(subs);
+        m_renderer->NextSegment(subs);
 
-		POSITION pos{subs.GetHeadPosition()};
-		while(pos)
-		{
-			const Subtitle* s{subs.GetNext(pos)};
-			const RenderedSubtitle* rs{m_renderer->Lookup(s, CSize(spd.w, spd.h), spd.vidrect)};
-			if(rs)
-			{
-			    bbox2 |= rs->Draw(spd);
-			}
-		}
+        POSITION pos{ subs.GetHeadPosition() };
+        while (pos)
+        {
+            const Subtitle* s{ subs.GetNext(pos) };
+            const RenderedSubtitle* rs{ m_renderer->Lookup(s, CSize(spd.w, spd.h), spd.vidrect) };
+            if (rs)
+            {
+                bbox2 |= rs->Draw(spd);
+            }
+        }
 
-		bbox = bbox2 & CRect(0, 0, spd.w, spd.h);
+        bbox = bbox2 & CRect(0, 0, spd.w, spd.h);
 
-		return S_OK;
-	}
+        return S_OK;
+    }
 
-	// IPersist
+    // IPersist
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::GetClassID(CLSID* pClassID)
-	{
-		return pClassID ? *pClassID = __uuidof(this), S_OK : E_POINTER;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::GetClassID(CLSID* pClassID)
+    {
+        return pClassID ? *pClassID = __uuidof(this), S_OK : E_POINTER;
+    }
 
-	// ISubStream
+    // ISubStream
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderer::GetStreamCount()
-	{
-		return 1;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderer::GetStreamCount()
+    {
+        return 1;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
-	{
-		if(iStream != 0)
-		{
-		    return E_INVALIDARG;
-		}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::GetStreamInfo(const int iStream, WCHAR** ppName, LCID* pLCID)
+    {
+        if (iStream != 0)
+        {
+            return E_INVALIDARG;
+        }
 
-		if(ppName)
-		{
-            *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength()+1)*sizeof(WCHAR));
-			if(!(*ppName))
-			{
-				return E_OUTOFMEMORY;
-			}
+        if (ppName)
+        {
+            *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR));
+            if (!(*ppName))
+            {
+                return E_OUTOFMEMORY;
+            }
 
-			std::wcscpy(*ppName, CStringW(m_name));
-		}
+            std::wcscpy(*ppName, CStringW(m_name));
+        }
 
-		if(pLCID)
-		{
-			*pLCID = 0; // TODO
-		}
+        if (pLCID)
+        {
+            *pLCID = 0; // TODO
+        }
 
-		return S_OK;
-	}
+        return S_OK;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderer::GetStream()
-	{
-		return 0;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CRenderer::GetStream()
+    {
+        return 0;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::SetStream(const int iStream)
-	{
-		return iStream == 0 ? S_OK : E_FAIL;
-	}
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::SetStream(const int iStream)
+    {
+        return iStream == 0 ? S_OK : E_FAIL;
+    }
 
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::Reload()
-	{
-		CAutoLock csAutoLock{m_pLock};
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CRenderer::Reload()
+    {
+        CAutoLock csAutoLock{ m_pLock };
 
-		return !m_fn.IsEmpty() && Open(m_fn, m_name) ? S_OK : E_FAIL;
-	}
+        return !m_fn.IsEmpty() && Open(m_fn, m_name) ? S_OK : E_FAIL;
+    }
 }

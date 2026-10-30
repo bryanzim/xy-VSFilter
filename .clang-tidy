@@ -1,57 +1,40 @@
----
-# Checked-in project C++ only. Run clang-tidy on translation units under
-# src/dsutil, src/decss, src/subpic, src/subtitles (including libssf),
-# src/filters/transform, and test. Skip src/thirdparty, src/filters/BaseClasses,
-# include/winddk, include/avisynth, include/vd2,
-# include/dx, include/unrar, and csri.h.
-#
-# Enabled checks are the ones that match an explicit rule in
-# .cursor/rules/cpp-style.mdc:
-#   google-explicit-constructor
-#       single-argument constructors. Default constructors and copy/move stay manual.
-#   misc-const-correctness
-#       const on unmodified parameters and locals.
-#   modernize-use-nodiscard
-#       [[nodiscard]] on const observers whose result should not be ignored.
-#   readability-braces-around-statements
-#       braces on if, for, while, do, and else.
-#   cppcoreguidelines-pro-type-cstyle-cast
-#       C++ casts.
-#   modernize-use-nullptr
-#       nullptr. A pure-specifier `= 0` is not a null pointer constant.
-#
-# No matching check, so these stay manual:
-#   brace initialization (braces change meaning for some constructors)
-#   unsigned suffixes by literal magnitude (readability-integer-suffix is type-based)
-#   constexpr, noexcept (modernize-use-noexcept would mark COM and MFC overrides)
-#   std::array (modernize-avoid-c-arrays would rewrite binary layouts and COM structs)
-#   [[maybe_unused]] (misc-unused-parameters drops the name)
-#   preincrement, std:: fixed-width integer names, C++ library calls
-#   compound boolean arguments scoped in parentheses
-Checks: >
-  -*,
-  cppcoreguidelines-pro-type-cstyle-cast,
-  google-explicit-constructor,
-  misc-const-correctness,
-  modernize-use-nodiscard,
-  modernize-use-nullptr,
-  readability-braces-around-statements
-WarningsAsErrors: ''
-HeaderFilterRegex: '(src[/\\](dsutil|decss|subpic)[/\\]|src[/\\]subtitles[/\\]libssf[/\\]|src[/\\]subtitles[/\\][^/\\]+[.]|src[/\\]filters[/\\]transform[/\\]|include[/\\][^/\\]+[.]|test[/\\])'
-FormatStyle: none
-SystemHeaders: false
+Checks: '-*,
+         bugprone-*,-bugprone-easily-swappable-parameters,
+         cert-*,
+         clang-analyzer-*,
+         concurrency-*,
+         cppcoreguidelines-*,-cppcoreguidelines-avoid-magic-numbers,-cppcoreguidelines-pro-type-const-cast,-cppcoreguidelines-pro-type-reinterpret-cast,
+         hicpp-*,
+         misc-const-correctness,
+         modernize-*,-modernize-use-trailing-return-type,
+         performance-*,
+         readability-*,-readability-avoid-const-params-in-decls,-readability-redundant-parentheses'
+WarningsAsErrors:    ''
+HeaderFileExtensions:         ['', 'h','hh','hpp','hxx','ipp']
+ImplementationFileExtensions: ['c','cc','cpp','cxx']
+HeaderFilterRegex:   ''
+FormatStyle:         none
+InheritParentConfig: true
 CheckOptions:
-  - key: readability-braces-around-statements.ShortStatementLines
-    value: '0'
-  - key: misc-const-correctness.AnalyzeValues
-    value: 'true'
-  - key: misc-const-correctness.AnalyzePointers
-    value: 'true'
-  - key: misc-const-correctness.AnalyzeReferences
-    value: 'true'
-  - key: misc-const-correctness.WarnPointersAsValues
-    value: 'true'
-  - key: modernize-use-nodiscard.ReplacementString
-    value: '[[nodiscard]]'
-  - key: modernize-use-nullptr.NullMacros
-    value: 'NULL'
+    - key: bugprone-argument-comment.StrictMode
+      value: 1
+    - key: bugprone-exception-escape.FunctionsThatShouldNotThrow
+      value: WinMain,SDL_main
+    - key: misc-const-correctness.WarnPointersAsValues
+      value: true
+    - key: misc-const-correctness.WarnPointersAsPointers
+      value: false
+    - key: misc-const-correctness.TransformPointersAsPointers
+      value: false
+    - key: readability-braces-around-statements.ShortStatementLines
+      value: 0
+    - key: readability-uppercase-literal-suffix.NewSuffixes
+      value: 'U;UL;ULL;L;LL;LU;LLU'
+    - key: hicpp-uppercase-literal-suffix.NewSuffixes
+      value: 'U;UL;ULL;L;LL;LU;LLU'
+    - key: cert-dcl16-c.NewSuffixes
+      value: 'U;UL;ULL;L;LL;LU;LLU'
+    - key: cert-err33-c.AllowCastToVoid
+      value: false
+    - key: hicpp-ignored-remove-result.AllowCastToVoid
+      value: false

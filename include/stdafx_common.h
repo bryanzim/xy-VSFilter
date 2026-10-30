@@ -2,10 +2,10 @@
 #define _SECURE_ATL 1
 #endif
 
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 
 #ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#define VC_EXTRALEAN // Exclude rarely-used stuff from Windows headers
 #endif
 
 #include <SDKDDKVer.h>
@@ -17,4 +17,4 @@
 #include <cstring>
 #include <cwchar>
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS // some CString constructors will be explicit

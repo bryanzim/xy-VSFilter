@@ -38,7 +38,7 @@ public:
         CPoint result(p.x & _subpixel_mask, p.y & _subpixel_mask);
         return result;
     }
-    [[nodiscard]] inline bool UseBilinearShift() { return _subpixel_level==EIGHT_X_EIGHT_INTERPOLATE; }
+    [[nodiscard]] inline bool UseBilinearShift() { return _subpixel_level == EIGHT_X_EIGHT_INTERPOLATE; }
 
     [[nodiscard]] static SubpixelPositionControler& GetGlobalControler()
 
@@ -50,7 +50,7 @@ private:
     explicit SubpixelPositionControler()
     {
         _subpixel_level = EIGHT_X_EIGHT;
-        _subpixel_mask = EIGHT_X_EIGHT_MASK;    
+        _subpixel_mask = EIGHT_X_EIGHT_MASK;
     }
     SUBPIXEL_LEVEL _subpixel_level;
     SUBPIXEL_MASK _subpixel_mask;

@@ -30,78 +30,81 @@
 class CVirtualLock
 {
 public:
-	virtual void Lock() = 0;
-	virtual void Unlock() = 0;
+    virtual void Lock() = 0;
+    virtual void Unlock() = 0;
 };
-typedef void (FLock)(void *_pLock);
+typedef void(FLock)(void* _pLock);
 class CScopeLock
 {
-	void *m_pLock;
-	FLock *m_pUnlockFunc;
+    void* m_pLock;
+    FLock* m_pUnlockFunc;
+
 public:
-	explicit CScopeLock() {} // let's make cppcheck happy
-	template <typename t_Lock>
-	class TCLocker
-	{
-	public:
-		static void fs_Locker(void *_pLock) {
-			((t_Lock *)_pLock)->Unlock();
-		}
-	};
-	template <typename t_Lock>
-	explicit CScopeLock(t_Lock &_Lock) {
-		_Lock.Lock();
-		m_pLock = &_Lock;
-		m_pUnlockFunc = TCLocker<t_Lock>::fs_Locker;
-	}
-	~CScopeLock() {
-		m_pUnlockFunc(m_pLock);
-	}
+    explicit CScopeLock() {} // let's make cppcheck happy
+    template <typename t_Lock>
+    class TCLocker
+    {
+    public:
+        static void fs_Locker(void* _pLock)
+        {
+            ((t_Lock*)_pLock)->Unlock();
+        }
+    };
+    template <typename t_Lock>
+    explicit CScopeLock(t_Lock& _Lock)
+    {
+        _Lock.Lock();
+        m_pLock = &_Lock;
+        m_pUnlockFunc = TCLocker<t_Lock>::fs_Locker;
+    }
+    ~CScopeLock()
+    {
+        m_pUnlockFunc(m_pLock);
+    }
 };
 class CDX9SubPicAllocator;
 class CDX9SubPic : public CSubPicImpl
 {
-	CComPtr<IDirect3DSurface9> m_pSurface;
+    CComPtr<IDirect3DSurface9> m_pSurface;
 
 protected:
-	DECLSPEC_NOTHROW STDMETHODIMP_(void*) GetObject() const; // returns IDirect3DTexture9*
+    DECLSPEC_NOTHROW STDMETHODIMP_(void*) GetObject() const; // returns IDirect3DTexture9*
 
 public:
-	CDX9SubPicAllocator *m_pAllocator;
-	bool m_bExternalRenderer;
-	CDX9SubPic(IDirect3DSurface9* pSurface, CDX9SubPicAllocator *pAllocator, bool bExternalRenderer);
-	~CDX9SubPic();
+    CDX9SubPicAllocator* m_pAllocator;
+    bool m_bExternalRenderer;
+    CDX9SubPic(IDirect3DSurface9* pSurface, CDX9SubPicAllocator* pAllocator, bool bExternalRenderer);
+    ~CDX9SubPic();
 
-	// ISubPic
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDesc(SubPicDesc& spd) const;
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CopyTo(ISubPic* pSubPic);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ClearDirtyRect(DWORD color);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Lock(SubPicDesc& spd);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Unlock(RECT* pDirtyRect);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
+    // ISubPic
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP GetDesc(SubPicDesc& spd) const;
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CopyTo(ISubPic* pSubPic);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ClearDirtyRect(DWORD color);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Lock(SubPicDesc& spd);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP Unlock(RECT* pDirtyRect);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP AlphaBlt(const RECT* pSrc, const RECT* pDst, SubPicDesc* pTarget);
 };
 
 // CDX9SubPicAllocator
 
 class CDX9SubPicAllocator : public CSubPicAllocatorImpl, public CCritSec
 {
-	CComPtr<IDirect3DDevice9> m_pD3DDev;
-	CSize m_maxsize;
-	bool m_bExternalRenderer;
+    CComPtr<IDirect3DDevice9> m_pD3DDev;
+    CSize m_maxsize;
+    bool m_bExternalRenderer;
 
-	[[nodiscard]] bool Alloc(bool fStatic, ISubPic** ppSubPic);
+    [[nodiscard]] bool Alloc(bool fStatic, ISubPic** ppSubPic);
 
 public:
-	static CCritSec ms_SurfaceQueueLock;
-	CAtlList<CComPtr<IDirect3DSurface9> > m_FreeSurfaces;
-	CAtlList<CDX9SubPic *> m_AllocatedSurfaces;
-	void GetStats(int &_nFree, int &_nAlloc);
-	CDX9SubPicAllocator(IDirect3DDevice9* pD3DDev, SIZE maxsize, bool fPow2Textures, bool bExternalRenderer);
-	~CDX9SubPicAllocator();
-	void ClearCache();
+    static CCritSec ms_SurfaceQueueLock;
+    CAtlList<CComPtr<IDirect3DSurface9>> m_FreeSurfaces;
+    CAtlList<CDX9SubPic*> m_AllocatedSurfaces;
+    void GetStats(int& _nFree, int& _nAlloc);
+    CDX9SubPicAllocator(IDirect3DDevice9* pD3DDev, SIZE maxsize, bool fPow2Textures, bool bExternalRenderer);
+    ~CDX9SubPicAllocator();
+    void ClearCache();
 
-	// ISubPicAllocator
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChangeDevice(IUnknown* pDev);
-	[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize);
+    // ISubPicAllocator
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP ChangeDevice(IUnknown* pDev);
+    [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SetMaxTextureSize(SIZE MaxTextureSize);
 };
-

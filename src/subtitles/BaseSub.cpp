@@ -22,9 +22,7 @@
 #include "BaseSub.h"
 
 CBaseSub::CBaseSub(SUBTITLE_TYPE nType)
-    : m_nType(nType)
-    , m_colorTypeSetting(CompositionObject::NONE)
-    , m_yuvRangeSetting(CompositionObject::RANGE_NONE)
+    : m_nType(nType), m_colorTypeSetting(CompositionObject::NONE), m_yuvRangeSetting(CompositionObject::RANGE_NONE)
 {
 }
 

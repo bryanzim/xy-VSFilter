@@ -10,37 +10,33 @@
 // SimpleSubpic
 //
 
-SimpleSubpic::SimpleSubpic( IXySubRenderFrame*sub_render_frame, int alpha_blt_dst_type )
-    : CUnknown(NAME("SimpleSubpic"), nullptr)
-    , m_sub_render_frame(sub_render_frame)
-    , m_alpha_blt_dst_type(alpha_blt_dst_type)
+SimpleSubpic::SimpleSubpic(IXySubRenderFrame* sub_render_frame, int alpha_blt_dst_type)
+    : CUnknown(NAME("SimpleSubpic"), nullptr), m_sub_render_frame(sub_render_frame), m_alpha_blt_dst_type(alpha_blt_dst_type)
 {
     ConvertColorSpace();
 }
 
 SimpleSubpic::~SimpleSubpic()
 {
-    for(unsigned i{0U};i<m_buffers.GetCount();++i)
+    for (unsigned i{ 0U }; i < m_buffers.GetCount(); ++i)
     {
         xy_free(m_buffers.GetAt(i));
     }
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubpic::NonDelegatingQueryInterface( REFIID riid, void** ppv )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubpic::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 {
-    return
-        QI(ISimpleSubPic)
-        __super::NonDelegatingQueryInterface(riid, ppv); 
+    return QI(ISimpleSubPic) __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubpic::AlphaBlt( SubPicDesc* target )
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SimpleSubpic::AlphaBlt(SubPicDesc* target)
 {
-    ASSERT(target!=nullptr);
-    HRESULT hr{S_FALSE};
+    ASSERT(target != nullptr);
+    HRESULT hr{ S_FALSE };
     int count = m_bitmap.GetCount();
-    for(int i{0};i<count;++i)
+    for (int i{ 0 }; i < count; ++i)
     {
-        switch(target->type)
+        switch (target->type)
         {
         case MSP_NV12:
         case MSP_NV21:
@@ -58,7 +54,7 @@ SimpleSubpic::~SimpleSubpic()
             hr = AlphaBlt(target, m_bitmap.GetAt(i));
             break;
         }
-        
+
         if (FAILED(hr))
         {
             return hr;
@@ -68,56 +64,61 @@ SimpleSubpic::~SimpleSubpic()
     return hr;
 }
 
-[[nodiscard]] HRESULT SimpleSubpic::AlphaBltAnv12_P010_P210( SubPicDesc* target, const Bitmap& src, const bool is422)
+[[nodiscard]] HRESULT SimpleSubpic::AlphaBltAnv12_P010_P210(SubPicDesc* target, const Bitmap& src, const bool is422)
 {
-    //fix me: check colorspace and log error
-    SubPicDesc dst{*target}; // copy, because we might modify it
+    // fix me: check colorspace and log error
+    SubPicDesc dst{ *target }; // copy, because we might modify it
 
-    CRect rd{src.pos, src.size};
-    if(dst.h < 0)
+    CRect rd{ src.pos, src.size };
+    if (dst.h < 0)
     {
         dst.h = -dst.h;
         rd.bottom = dst.h - rd.bottom;
         rd.top = dst.h - rd.top;
     }
 
-    int w{src.size.cx}, h = src.size.cy;
+    int w{ src.size.cx }, h = src.size.cy;
     bool bottom_down = rd.top > rd.bottom;
 
-    BYTE* d{nullptr};
-    BYTE* dUV{nullptr};
-    if(!bottom_down)
+    BYTE* d{ nullptr };
+    BYTE* dUV{ nullptr };
+    if (!bottom_down)
     {
-        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*rd.top + rd.left*2; // 2: sizeof(uint16_t)
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + rd.left * 2; // 2: sizeof(uint16_t)
         // UV left*2: rd.left / subsampling_2 * (UandVSideBySide_2) * sizeof(uint16_t) = rd_left/2*2*2
         if (is422)
-        {  // P210 P216
+        { // P210 P216
             dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h + dst.pitch * rd.top + rd.left * 2;
         }
         else
         { // P010 P016
-            dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*dst.h + dst.pitch*rd.top/2 + rd.left*2;
+            dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h + dst.pitch * rd.top / 2 + rd.left * 2;
         }
     }
     else
     {
-        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*(rd.top-1) + rd.left*2;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left * 2;
         if (is422)
-        {  // P210 P216
+        { // P210 P216
             dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h + dst.pitch * (rd.top - 1) + rd.left * 2;
         }
         else
         { // P010 P016
-            dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*dst.h + dst.pitch*(rd.top/2-1) + rd.left*2;
+            dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h + dst.pitch * (rd.top / 2 - 1) + rd.left * 2;
         }
         dst.pitch = -dst.pitch;
     }
-    ASSERT((dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch)));
+    ASSERT((dst.pitchUV == 0 || dst.pitchUV == std::abs(dst.pitch)));
 
-    enum PLANS{A=0,Y,UV};
-    const BYTE* sa{reinterpret_cast<const BYTE*>(src.extra.plans[A])};
-    const BYTE* sy{reinterpret_cast<const BYTE*>(src.extra.plans[Y])};
-    const BYTE* s_uv{reinterpret_cast<const BYTE*>(src.extra.plans[UV])};
+    enum PLANS
+    {
+        A = 0,
+        Y,
+        UV
+    };
+    const BYTE* sa{ reinterpret_cast<const BYTE*>(src.extra.plans[A]) };
+    const BYTE* sy{ reinterpret_cast<const BYTE*>(src.extra.plans[Y]) };
+    const BYTE* s_uv{ reinterpret_cast<const BYTE*>(src.extra.plans[UV]) };
     if (is422)
     {
         return CMemSubPic::AlphaBltAnv12_P210(sa, sy, s_uv, src.pitch, d, dUV, dst.pitch, w, h);
@@ -129,71 +130,74 @@ SimpleSubpic::~SimpleSubpic()
 }
 
 
-[[nodiscard]] HRESULT SimpleSubpic::AlphaBltAnv12_Nv12( SubPicDesc* target, const Bitmap& src )
+[[nodiscard]] HRESULT SimpleSubpic::AlphaBltAnv12_Nv12(SubPicDesc* target, const Bitmap& src)
 {
-    //fix me: check colorspace and log error
-    SubPicDesc dst{*target}; // copy, because we might modify it
+    // fix me: check colorspace and log error
+    SubPicDesc dst{ *target }; // copy, because we might modify it
 
-    CRect rd{src.pos, src.size};
-    if(dst.h < 0)
+    CRect rd{ src.pos, src.size };
+    if (dst.h < 0)
     {
         dst.h = -dst.h;
         rd.bottom = dst.h - rd.bottom;
         rd.top = dst.h - rd.top;
     }
 
-    int w{src.size.cx}, h = src.size.cy;
+    int w{ src.size.cx }, h = src.size.cy;
     bool bottom_down = rd.top > rd.bottom;
 
-    BYTE* d{nullptr};
-    BYTE* dUV{nullptr};
+    BYTE* d{ nullptr };
+    BYTE* dUV{ nullptr };
     if (!bottom_down)
     {
-        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*rd.top + rd.left;
-        dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*dst.h + dst.pitch*rd.top/2 + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + rd.left;
+        dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h + dst.pitch * rd.top / 2 + rd.left;
     }
     else
     {
-        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*(rd.top-1) + rd.left;
-        dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*dst.h + dst.pitch*(rd.top/2-1) + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left;
+        dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h + dst.pitch * (rd.top / 2 - 1) + rd.left;
         dst.pitch = -dst.pitch;
     }
-    ASSERT((dst.pitchUV==0 || dst.pitchUV==std::abs(dst.pitch)));
+    ASSERT((dst.pitchUV == 0 || dst.pitchUV == std::abs(dst.pitch)));
 
-    enum PLANS{A=0,Y,UV};
-    const BYTE* sa{reinterpret_cast<const BYTE*>(src.extra.plans[A])};
-    const BYTE* sy{reinterpret_cast<const BYTE*>(src.extra.plans[Y])};
-    const BYTE* s_uv{reinterpret_cast<const BYTE*>(src.extra.plans[UV])};
+    enum PLANS
+    {
+        A = 0,
+        Y,
+        UV
+    };
+    const BYTE* sa{ reinterpret_cast<const BYTE*>(src.extra.plans[A]) };
+    const BYTE* sy{ reinterpret_cast<const BYTE*>(src.extra.plans[Y]) };
+    const BYTE* s_uv{ reinterpret_cast<const BYTE*>(src.extra.plans[UV]) };
     return CMemSubPic::AlphaBltAnv12_Nv12(sa, sy, s_uv, src.pitch, d, dUV, dst.pitch, w, h);
 }
 
-[[nodiscard]] HRESULT SimpleSubpic::AlphaBlt( SubPicDesc* target, const Bitmap& src )
+[[nodiscard]] HRESULT SimpleSubpic::AlphaBlt(SubPicDesc* target, const Bitmap& src)
 {
-    SubPicDesc dst{*target}; // copy, because we might modify it
+    SubPicDesc dst{ *target }; // copy, because we might modify it
 
-    CRect rd{src.pos, src.size};
-    if(dst.h < 0)
+    CRect rd{ src.pos, src.size };
+    if (dst.h < 0)
     {
         dst.h = -dst.h;
         rd.bottom = dst.h - rd.bottom;
         rd.top = dst.h - rd.top;
     }
 
-    int w{src.size.cx}, h = src.size.cy;
-    const BYTE* s{reinterpret_cast<const BYTE*>(src.pixels)};
-    BYTE* d{reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*rd.top + ((rd.left*dst.bpp)>>3)};
+    int w{ src.size.cx }, h = src.size.cy;
+    const BYTE* s{ reinterpret_cast<const BYTE*>(src.pixels) };
+    BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + ((rd.left * dst.bpp) >> 3) };
 
-    if(rd.top > rd.bottom)
+    if (rd.top > rd.bottom)
     {
-        if(dst.type == MSP_RGB32 || dst.type == MSP_RGB24
-            || dst.type == MSP_RGB16 || dst.type == MSP_RGB15
-            || dst.type == MSP_YUY2 || dst.type == MSP_AYUV)
+        if (dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15 || dst.type == MSP_YUY2 || dst.type == MSP_AYUV)
         {
-            d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*(rd.top-1) + (rd.left*dst.bpp>>3);
+            d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + (rd.left * dst.bpp >> 3);
         }
-        else if(dst.type == MSP_YV12 || dst.type == MSP_IYUV || dst.type == MSP_YV16 || dst.type == MSP_YV24)
+        else if (dst.type == MSP_YV12 || dst.type == MSP_IYUV || dst.type == MSP_YV16 || dst.type == MSP_YV24)
         {
-            d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch*(rd.top-1) + (rd.left*8>>3);
+            d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + (rd.left * 8 >> 3);
         }
         else
         {
@@ -202,90 +206,85 @@ SimpleSubpic::~SimpleSubpic()
         dst.pitch = -dst.pitch;
     }
     DbgLog((LOG_TRACE, 5, TEXT("w=%d h=%d"), w, h));
-    switch(dst.type)
+    switch (dst.type)
     {
     case MSP_RGBA:
-        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
+        for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
-            const BYTE* s2{s};
-            const BYTE* s2end{s2 + w*4};
-            DWORD* d2{reinterpret_cast<DWORD*>(d)};
-            for(; s2 < s2end; s2 += 4, ++d2)
+            const BYTE* s2{ s };
+            const BYTE* s2end{ s2 + w * 4 };
+            DWORD* d2{ reinterpret_cast<DWORD*>(d) };
+            for (; s2 < s2end; s2 += 4, ++d2)
             {
-                if(s2[3U] < 0xff)
+                if (s2[3U] < 0xff)
                 {
-                    DWORD bd{0x00000100 -( (DWORD) s2[3U])};
-                    DWORD B{((*((DWORD*)s2)&0x000000ff)<<8)/bd};
-                    DWORD V{((*((DWORD*)s2)&0x0000ff00)/bd)<<8};
-                    DWORD R{(((*((DWORD*)s2)&0x00ff0000)>>8)/bd)<<16};
-                    *d2 = B | V | R
-                        | ((0xff000000-(*((DWORD*)s2)&0xff000000))&0xff000000);
+                    DWORD bd{ 0x00000100 - ((DWORD)s2[3U]) };
+                    DWORD B{ ((*((DWORD*)s2) & 0x000000ff) << 8) / bd };
+                    DWORD V{ ((*((DWORD*)s2) & 0x0000ff00) / bd) << 8 };
+                    DWORD R{ (((*((DWORD*)s2) & 0x00ff0000) >> 8) / bd) << 16 };
+                    *d2 = B | V | R | ((0xff000000 - (*((DWORD*)s2) & 0xff000000)) & 0xff000000);
                 }
             }
         }
         break;
     case MSP_RGB32:
-        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
+        for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
-            const BYTE* s2{s};
-            const BYTE* s2end{s2 + w*4};
-            DWORD* d2{(DWORD*)d};
-            for(; s2 < s2end; s2 += 4, ++d2)
+            const BYTE* s2{ s };
+            const BYTE* s2end{ s2 + w * 4 };
+            DWORD* d2{ (DWORD*)d };
+            for (; s2 < s2end; s2 += 4, ++d2)
             {
-                if(s2[3U] < 0xff)
+                if (s2[3U] < 0xff)
                 {
-                    *d2 = (((((*d2&0x00ff00ff)*s2[3U])>>8) + (*((DWORD*)s2)&0x00ff00ff))&0x00ff00ff)
-                        | (((((*d2&0x0000ff00)*s2[3U])>>8) + (*((DWORD*)s2)&0x0000ff00))&0x0000ff00);
+                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00);
                 }
             }
         }
         break;
     case MSP_AYUV:
-        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
+        for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
-            const BYTE* s2{s};
-            const BYTE* s2end{s2 + w*4};
-            DWORD* d2{(DWORD*)d};
-            for(; s2 < s2end; s2 += 4, ++d2)
+            const BYTE* s2{ s };
+            const BYTE* s2end{ s2 + w * 4 };
+            DWORD* d2{ (DWORD*)d };
+            for (; s2 < s2end; s2 += 4, ++d2)
             {
-                if(s2[3U] < 0xff)
+                if (s2[3U] < 0xff)
                 {
-                    *d2 = (((((*d2&0x00ff00ff)*s2[3U])>>8) + (*((DWORD*)s2)&0x00ff00ff))&0x00ff00ff)
-                        | (((((*d2&0x0000ff00)*s2[3U])>>8) + (*((DWORD*)s2)&0x0000ff00))&0x0000ff00)
-                        | (*d2&0xff000000);
+                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00) | (*d2 & 0xff000000);
                 }
             }
         }
         break;
     case MSP_RGB24:
-        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
+        for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
-            const BYTE* s2{s};
-            const BYTE* s2end{s2 + w*4};
-            BYTE* d2{d};
-            for(; s2 < s2end; s2 += 4, d2 += 3)
+            const BYTE* s2{ s };
+            const BYTE* s2end{ s2 + w * 4 };
+            BYTE* d2{ d };
+            for (; s2 < s2end; s2 += 4, d2 += 3)
             {
-                if(s2[3U] < 0xff)
+                if (s2[3U] < 0xff)
                 {
-                    d2[0U] = ((d2[0U]*s2[3U])>>8) + s2[0U];
-                    d2[1U] = ((d2[1U]*s2[3U])>>8) + s2[1U];
-                    d2[2U] = ((d2[2U]*s2[3U])>>8) + s2[2U];
+                    d2[0U] = ((d2[0U] * s2[3U]) >> 8) + s2[0U];
+                    d2[1U] = ((d2[1U] * s2[3U]) >> 8) + s2[1U];
+                    d2[2U] = ((d2[2U] * s2[3U]) >> 8) + s2[2U];
                 }
             }
         }
         break;
     case MSP_RGB16:
-        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
+        for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
-            const BYTE* s2{s};
-            const BYTE* s2end{s2 + w*4};
-            WORD* d2{reinterpret_cast<WORD*>(d)};
-            for(; s2 < s2end; s2 += 4, ++d2)
+            const BYTE* s2{ s };
+            const BYTE* s2end{ s2 + w * 4 };
+            WORD* d2{ reinterpret_cast<WORD*>(d) };
+            for (; s2 < s2end; s2 += 4, ++d2)
             {
-                if(s2[3U] < 0x1f)
+                if (s2[3U] < 0x1f)
                 {
-                    *d2 = (WORD)((((((*d2&0xf81f)*s2[3U])>>5) + (*(DWORD*)s2&0xf81f))&0xf81f)
-                        | (((((*d2&0x07e0)*s2[3U])>>5) + (*(DWORD*)s2&0x07e0))&0x07e0));
+                    *d2 = (WORD)((((((*d2 & 0xf81f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0xf81f)) & 0xf81f) | (((((*d2 & 0x07e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x07e0)) & 0x07e0));
                     /*					*d2 = (WORD)((((((*d2&0xf800)*s2[3])>>8) + (*(DWORD*)s2&0xf800))&0xf800)
                     | (((((*d2&0x07e0)*s2[3])>>8) + (*(DWORD*)s2&0x07e0))&0x07e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -295,17 +294,16 @@ SimpleSubpic::~SimpleSubpic()
         }
         break;
     case MSP_RGB15:
-        for(int j{0}; j < h; ++j, s += src.pitch, d += dst.pitch)
+        for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
-            const BYTE* s2{s};
-            const BYTE* s2end{s2 + w*4};
-            WORD* d2{reinterpret_cast<WORD*>(d)};
-            for(; s2 < s2end; s2 += 4, ++d2)
+            const BYTE* s2{ s };
+            const BYTE* s2end{ s2 + w * 4 };
+            WORD* d2{ reinterpret_cast<WORD*>(d) };
+            for (; s2 < s2end; s2 += 4, ++d2)
             {
-                if(s2[3U] < 0x1f)
+                if (s2[3U] < 0x1f)
                 {
-                    *d2 = (WORD)((((((*d2&0x7c1f)*s2[3U])>>5) + (*(DWORD*)s2&0x7c1f))&0x7c1f)
-                        | (((((*d2&0x03e0)*s2[3U])>>5) + (*(DWORD*)s2&0x03e0))&0x03e0));
+                    *d2 = (WORD)((((((*d2 & 0x7c1f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x7c1f)) & 0x7c1f) | (((((*d2 & 0x03e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x03e0)) & 0x03e0));
                     /*					*d2 = (WORD)((((((*d2&0x7c00)*s2[3])>>8) + (*(DWORD*)s2&0x7c00))&0x7c00)
                     | (((((*d2&0x03e0)*s2[3])>>8) + (*(DWORD*)s2&0x03e0))&0x03e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -315,56 +313,60 @@ SimpleSubpic::~SimpleSubpic()
         }
         break;
     case MSP_YUY2:
-        CMemSubPic::AlphaBlt_YUY2(w,h,d,dst.pitch,s, src.pitch);
+        CMemSubPic::AlphaBlt_YUY2(w, h, d, dst.pitch, s, src.pitch);
         break;
     case MSP_YV12:
-    case MSP_IYUV:
+    case MSP_IYUV: {
+        // dst.pitch = abs(dst.pitch);
+        int h2{ h / 2 };
+        if (!dst.pitchUV)
         {
-            //dst.pitch = abs(dst.pitch);
-            int h2{h/2};
-            if(!dst.pitchUV)
-            {
-                dst.pitchUV = std::abs(dst.pitch)/2;
-            }
-            if(!dst.bitsU || !dst.bitsV)
-            {
-                dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + std::abs(dst.pitch)*dst.h;
-                dst.bitsV = dst.bitsU + dst.pitchUV*dst.h/2;
-                if(dst.type == MSP_YV12)
-                {
-                    BYTE* p{dst.bitsU};
-                    dst.bitsU = dst.bitsV;
-                    dst.bitsV = p;
-                }
-            }
-            BYTE* dd[2U];
-            dd[0U] = dst.bitsU + dst.pitchUV*rd.top/2 + rd.left/2;
-            dd[1U] = dst.bitsV + dst.pitchUV*rd.top/2 + rd.left/2;
-            if(rd.top > rd.bottom)
-            {
-                dd[0U] = dst.bitsU + dst.pitchUV*(rd.top/2-1) + rd.left/2;
-                dd[1U] = dst.bitsV + dst.pitchUV*(rd.top/2-1) + rd.left/2;
-                dst.pitchUV = -dst.pitchUV;
-            }
-
-            enum PLANS{A=0,Y,U,V};
-            const BYTE* sa{reinterpret_cast<const BYTE*>(src.extra.plans[A])};
-            const BYTE* sy{reinterpret_cast<const BYTE*>(src.extra.plans[Y])};
-            const BYTE* su{reinterpret_cast<const BYTE*>(src.extra.plans[U])};
-            const BYTE* sv{reinterpret_cast<const BYTE*>(src.extra.plans[V])};
-            CMemSubPic::AlphaBltYv12Luma( d, dst.pitch, w, h, sy, sa, src.pitch );
-            CMemSubPic::AlphaBltYv12Chroma( dd[0U], dst.pitchUV, w, h2, su, sa, src.pitch);
-            CMemSubPic::AlphaBltYv12Chroma( dd[1U], dst.pitchUV, w, h2, sv, sa, src.pitch);
-#ifndef _WIN64
-            // TODOX64 : fixme!
-            _mm_empty();
-#endif
+            dst.pitchUV = std::abs(dst.pitch) / 2;
         }
-        break;
-    case MSP_YV16:
-    {
-        //dst.pitch = abs(dst.pitch);
-        int h2{h};
+        if (!dst.bitsU || !dst.bitsV)
+        {
+            dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + std::abs(dst.pitch) * dst.h;
+            dst.bitsV = dst.bitsU + dst.pitchUV * dst.h / 2;
+            if (dst.type == MSP_YV12)
+            {
+                BYTE* p{ dst.bitsU };
+                dst.bitsU = dst.bitsV;
+                dst.bitsV = p;
+            }
+        }
+        BYTE* dd[2U];
+        dd[0U] = dst.bitsU + dst.pitchUV * rd.top / 2 + rd.left / 2;
+        dd[1U] = dst.bitsV + dst.pitchUV * rd.top / 2 + rd.left / 2;
+        if (rd.top > rd.bottom)
+        {
+            dd[0U] = dst.bitsU + dst.pitchUV * (rd.top / 2 - 1) + rd.left / 2;
+            dd[1U] = dst.bitsV + dst.pitchUV * (rd.top / 2 - 1) + rd.left / 2;
+            dst.pitchUV = -dst.pitchUV;
+        }
+
+        enum PLANS
+        {
+            A = 0,
+            Y,
+            U,
+            V
+        };
+        const BYTE* sa{ reinterpret_cast<const BYTE*>(src.extra.plans[A]) };
+        const BYTE* sy{ reinterpret_cast<const BYTE*>(src.extra.plans[Y]) };
+        const BYTE* su{ reinterpret_cast<const BYTE*>(src.extra.plans[U]) };
+        const BYTE* sv{ reinterpret_cast<const BYTE*>(src.extra.plans[V]) };
+        CMemSubPic::AlphaBltYv12Luma(d, dst.pitch, w, h, sy, sa, src.pitch);
+        CMemSubPic::AlphaBltYv12Chroma(dd[0U], dst.pitchUV, w, h2, su, sa, src.pitch);
+        CMemSubPic::AlphaBltYv12Chroma(dd[1U], dst.pitchUV, w, h2, sv, sa, src.pitch);
+#ifndef _WIN64
+        // TODOX64 : fixme!
+        _mm_empty();
+#endif
+    }
+    break;
+    case MSP_YV16: {
+        // dst.pitch = abs(dst.pitch);
+        int h2{ h };
         if (!dst.pitchUV)
         {
             dst.pitchUV = std::abs(dst.pitch);
@@ -384,11 +386,17 @@ SimpleSubpic::~SimpleSubpic()
             dst.pitchUV = -dst.pitchUV;
         }
 
-        enum PLANS { A = 0, Y, U, V };
-        const BYTE* sa{reinterpret_cast<const BYTE*>(src.extra.plans[A])};
-        const BYTE* sy{reinterpret_cast<const BYTE*>(src.extra.plans[Y])};
-        const BYTE* su{reinterpret_cast<const BYTE*>(src.extra.plans[U])};
-        const BYTE* sv{reinterpret_cast<const BYTE*>(src.extra.plans[V])};
+        enum PLANS
+        {
+            A = 0,
+            Y,
+            U,
+            V
+        };
+        const BYTE* sa{ reinterpret_cast<const BYTE*>(src.extra.plans[A]) };
+        const BYTE* sy{ reinterpret_cast<const BYTE*>(src.extra.plans[Y]) };
+        const BYTE* su{ reinterpret_cast<const BYTE*>(src.extra.plans[U]) };
+        const BYTE* sv{ reinterpret_cast<const BYTE*>(src.extra.plans[V]) };
         CMemSubPic::AlphaBltYv12Luma(d, dst.pitch, w, h, sy, sa, src.pitch); // good for YV16
         CMemSubPic::AlphaBltYv16Chroma(dd[0U], dst.pitchUV, w, h2, su, sa, src.pitch);
         CMemSubPic::AlphaBltYv16Chroma(dd[1U], dst.pitchUV, w, h2, sv, sa, src.pitch);
@@ -398,10 +406,9 @@ SimpleSubpic::~SimpleSubpic()
 #endif
     }
     break;
-    case MSP_YV24:
-    {
-        //dst.pitch = abs(dst.pitch);
-        int h2{h};
+    case MSP_YV24: {
+        // dst.pitch = abs(dst.pitch);
+        int h2{ h };
         if (!dst.pitchUV)
         {
             dst.pitchUV = std::abs(dst.pitch);
@@ -421,13 +428,19 @@ SimpleSubpic::~SimpleSubpic()
             dst.pitchUV = -dst.pitchUV;
         }
 
-        enum PLANS { A = 0, Y, U, V };
-        const BYTE* sa{reinterpret_cast<const BYTE*>(src.extra.plans[A])};
-        const BYTE* sy{reinterpret_cast<const BYTE*>(src.extra.plans[Y])};
-        const BYTE* su{reinterpret_cast<const BYTE*>(src.extra.plans[U])};
-        const BYTE* sv{reinterpret_cast<const BYTE*>(src.extra.plans[V])};
-        CMemSubPic::AlphaBltYv12Luma(d, dst.pitch, w, h, sy, sa, src.pitch); // good for YV16,YV24
-        CMemSubPic::AlphaBltYv12Luma(dd[0U], dst.pitchUV, w, h2, su, sa, src.pitch);// good for YV24 luma
+        enum PLANS
+        {
+            A = 0,
+            Y,
+            U,
+            V
+        };
+        const BYTE* sa{ reinterpret_cast<const BYTE*>(src.extra.plans[A]) };
+        const BYTE* sy{ reinterpret_cast<const BYTE*>(src.extra.plans[Y]) };
+        const BYTE* su{ reinterpret_cast<const BYTE*>(src.extra.plans[U]) };
+        const BYTE* sv{ reinterpret_cast<const BYTE*>(src.extra.plans[V]) };
+        CMemSubPic::AlphaBltYv12Luma(d, dst.pitch, w, h, sy, sa, src.pitch);         // good for YV16,YV24
+        CMemSubPic::AlphaBltYv12Luma(dd[0U], dst.pitchUV, w, h2, su, sa, src.pitch); // good for YV24 luma
         CMemSubPic::AlphaBltYv12Luma(dd[1U], dst.pitchUV, w, h2, sv, sa, src.pitch);
 #ifndef _WIN64
         // TODOX64 : fixme!
@@ -440,20 +453,20 @@ SimpleSubpic::~SimpleSubpic()
         break;
     }
 
-    //emmsҪ40��cpu����
+    // emmsҪ40��cpu����
     //__asm emms;
     return S_OK;
 }
 
 [[nodiscard]] HRESULT SimpleSubpic::ConvertColorSpace()
 {
-    int count{0};
-    HRESULT hr{m_sub_render_frame->GetBitmapCount(&count)};
-    if (FAILED(hr) || count==0)
+    int count{ 0 };
+    HRESULT hr{ m_sub_render_frame->GetBitmapCount(&count) };
+    if (FAILED(hr) || count == 0)
     {
         return hr;
     }
-    int xy_color_space{0};
+    int xy_color_space{ 0 };
     hr = m_sub_render_frame->GetXyColorSpace(&xy_color_space);
     if (FAILED(hr))
     {
@@ -461,17 +474,17 @@ SimpleSubpic::~SimpleSubpic()
     }
     m_bitmap.SetCount(count);
     m_buffers.SetCount(count);
-    for (int i{0};i<count;++i)
+    for (int i{ 0 }; i < count; ++i)
     {
-        m_buffers.GetAt(i) = nullptr;//safe
+        m_buffers.GetAt(i) = nullptr; // safe
 
-        Bitmap &bitmap{m_bitmap.GetAt(i)};
+        Bitmap& bitmap{ m_bitmap.GetAt(i) };
         hr = m_sub_render_frame->GetBitmap(i, &bitmap.id, &bitmap.pos, &bitmap.size, &bitmap.pixels, &bitmap.pitch);
         if (FAILED(hr))
         {
             return hr;
         }
-        if (xy_color_space==XY_CS_AYUV_PLANAR)
+        if (xy_color_space == XY_CS_AYUV_PLANAR)
         {
             hr = m_sub_render_frame->GetBitmapExtra(i, &bitmap.extra);
             if (FAILED(hr))
@@ -480,86 +493,85 @@ SimpleSubpic::~SimpleSubpic()
             }
         }
 
-        int w{bitmap.size.cx}, h = bitmap.size.cy;
-        if (w<=0 || h<=0)
+        int w{ bitmap.size.cx }, h = bitmap.size.cy;
+        if (w <= 0 || h <= 0)
         {
             continue;
         }
 
-        const BYTE* top{reinterpret_cast<const BYTE*>(bitmap.pixels)};
-        const BYTE* bottom{top + bitmap.pitch*h};
-        if(m_alpha_blt_dst_type == MSP_RGB16)
+        const BYTE* top{ reinterpret_cast<const BYTE*>(bitmap.pixels) };
+        const BYTE* bottom{ top + bitmap.pitch * h };
+        if (m_alpha_blt_dst_type == MSP_RGB16)
         {
-            ASSERT(xy_color_space==XY_CS_ARGB);
+            ASSERT(xy_color_space == XY_CS_ARGB);
 
-            BYTE* dst{reinterpret_cast<BYTE*>(xy_malloc(bitmap.pitch*h, (bitmap.pos.x*4)&15))};
+            BYTE* dst{ reinterpret_cast<BYTE*>(xy_malloc(bitmap.pitch * h, (bitmap.pos.x * 4) & 15)) };
             m_buffers.GetAt(i) = dst;
             bitmap.pixels = dst;
-            for(; top < bottom ; top += bitmap.pitch, dst += bitmap.pitch)
+            for (; top < bottom; top += bitmap.pitch, dst += bitmap.pitch)
             {
-                const DWORD* s{reinterpret_cast<const DWORD*>(top)};
-                const DWORD* e{s + w};
-                DWORD* dst2{reinterpret_cast<DWORD*>(dst)};
-                for(; s < e; ++s, ++dst2)
+                const DWORD* s{ reinterpret_cast<const DWORD*>(top) };
+                const DWORD* e{ s + w };
+                DWORD* dst2{ reinterpret_cast<DWORD*>(dst) };
+                for (; s < e; ++s, ++dst2)
                 {
-                    *dst2 = ((*s>>3)&0x1f000000)|((*s>>8)&0xf800)|((*s>>5)&0x07e0)|((*s>>3)&0x001f);
+                    *dst2 = ((*s >> 3) & 0x1f000000) | ((*s >> 8) & 0xf800) | ((*s >> 5) & 0x07e0) | ((*s >> 3) & 0x001f);
                     //				*s = (*s&0xff000000)|((*s>>8)&0xf800)|((*s>>5)&0x07e0)|((*s>>3)&0x001f);
                 }
-            }            
+            }
         }
-        else if(m_alpha_blt_dst_type == MSP_RGB15)
+        else if (m_alpha_blt_dst_type == MSP_RGB15)
         {
-            ASSERT(xy_color_space==XY_CS_ARGB);
-            
-            BYTE* dst{reinterpret_cast<BYTE*>(xy_malloc(bitmap.pitch*h, (bitmap.pos.x*4)&15))};
+            ASSERT(xy_color_space == XY_CS_ARGB);
+
+            BYTE* dst{ reinterpret_cast<BYTE*>(xy_malloc(bitmap.pitch * h, (bitmap.pos.x * 4) & 15)) };
             m_buffers.GetAt(i) = dst;
             bitmap.pixels = dst;
-            for(; top < bottom; top += bitmap.pitch, dst += bitmap.pitch)
+            for (; top < bottom; top += bitmap.pitch, dst += bitmap.pitch)
             {
-                const DWORD* s{reinterpret_cast<const DWORD*>(top)};
-                const DWORD* e{s + w};
-                DWORD* dst2{reinterpret_cast<DWORD*>(dst)};
-                for(; s < e; ++s, ++dst2)
+                const DWORD* s{ reinterpret_cast<const DWORD*>(top) };
+                const DWORD* e{ s + w };
+                DWORD* dst2{ reinterpret_cast<DWORD*>(dst) };
+                for (; s < e; ++s, ++dst2)
                 {
-                    *dst2 = ((*s>>3)&0x1f000000)|((*s>>9)&0x7c00)|((*s>>6)&0x03e0)|((*s>>3)&0x001f);
+                    *dst2 = ((*s >> 3) & 0x1f000000) | ((*s >> 9) & 0x7c00) | ((*s >> 6) & 0x03e0) | ((*s >> 3) & 0x001f);
                     //				*s = (*s&0xff000000)|((*s>>9)&0x7c00)|((*s>>6)&0x03e0)|((*s>>3)&0x001f);
                 }
-            }            
+            }
         }
-        else if(m_alpha_blt_dst_type == MSP_YUY2)
+        else if (m_alpha_blt_dst_type == MSP_YUY2)
         {
-            ASSERT(xy_color_space==XY_CS_AUYV);
+            ASSERT(xy_color_space == XY_CS_AUYV);
 
-            BYTE* dst{reinterpret_cast<BYTE*>(xy_malloc(bitmap.pitch*h, (bitmap.pos.x*4)&15))};
-            m_buffers.GetAt(i) = dst;            
-            std::memcpy(dst, bitmap.pixels, bitmap.pitch*h);
+            BYTE* dst{ reinterpret_cast<BYTE*>(xy_malloc(bitmap.pitch * h, (bitmap.pos.x * 4) & 15)) };
+            m_buffers.GetAt(i) = dst;
+            std::memcpy(dst, bitmap.pixels, bitmap.pitch * h);
             bitmap.pixels = dst;
-            for(BYTE* tempTop{dst}; tempTop < dst+bitmap.pitch*h ; tempTop += bitmap.pitch)
+            for (BYTE* tempTop{ dst }; tempTop < dst + bitmap.pitch * h; tempTop += bitmap.pitch)
             {
-                BYTE* s{tempTop};
-                BYTE* e{s + w*4};
-                BYTE last_v{s[0U]}, last_u=s[2U];
-                for(; s < e; s+=8) // AUYV AUYV -> AxYU AxYV
+                BYTE* s{ tempTop };
+                BYTE* e{ s + w * 4 };
+                BYTE last_v{ s[0U] }, last_u = s[2U];
+                for (; s < e; s += 8) // AUYV AUYV -> AxYU AxYV
                 {
-                    BYTE tmp{s[4U]};
-                    s[4U] = (last_v + 2*s[0U] + s[4U] + 2)>>2;
+                    BYTE tmp{ s[4U] };
+                    s[4U] = (last_v + 2 * s[0U] + s[4U] + 2) >> 2;
                     last_v = tmp;
 
-                    s[0U] = (last_u + 2*s[2U] + s[6U] + 2)>>2;                    
+                    s[0U] = (last_u + 2 * s[2U] + s[6U] + 2) >> 2;
                     last_u = s[6U];
                 }
             }
         }
-        else if(m_alpha_blt_dst_type == MSP_YV12 || m_alpha_blt_dst_type == MSP_IYUV ||
-            m_alpha_blt_dst_type == MSP_YV16 || m_alpha_blt_dst_type == MSP_YV24)
+        else if (m_alpha_blt_dst_type == MSP_YV12 || m_alpha_blt_dst_type == MSP_IYUV ||
+                 m_alpha_blt_dst_type == MSP_YV16 || m_alpha_blt_dst_type == MSP_YV24)
         {
-            ASSERT(xy_color_space==XY_CS_AYUV_PLANAR);
-            //nothing to do
+            ASSERT(xy_color_space == XY_CS_AYUV_PLANAR);
+            // nothing to do
         }
-        else if ( m_alpha_blt_dst_type == MSP_P010 || m_alpha_blt_dst_type == MSP_P016
-            || m_alpha_blt_dst_type == MSP_NV12 )
+        else if (m_alpha_blt_dst_type == MSP_P010 || m_alpha_blt_dst_type == MSP_P016 || m_alpha_blt_dst_type == MSP_NV12)
         {
-            ASSERT(xy_color_space==XY_CS_AYUV_PLANAR);
+            ASSERT(xy_color_space == XY_CS_AYUV_PLANAR);
             SubsampleAndInterlace(i, &bitmap, true);
         }
         else if (m_alpha_blt_dst_type == MSP_P210 || m_alpha_blt_dst_type == MSP_P216)
@@ -567,57 +579,57 @@ SimpleSubpic::~SimpleSubpic()
             ASSERT(xy_color_space == XY_CS_AYUV_PLANAR);
             SubsampleAndInterlace422(i, &bitmap, true);
         }
-        else if( m_alpha_blt_dst_type == MSP_NV21 )
+        else if (m_alpha_blt_dst_type == MSP_NV21)
         {
-            ASSERT(xy_color_space==XY_CS_AYUV_PLANAR);
+            ASSERT(xy_color_space == XY_CS_AYUV_PLANAR);
             SubsampleAndInterlace(i, &bitmap, false);
         }
     }
     return S_OK;
 }
 
-void SimpleSubpic::SubsampleAndInterlace( const int index, Bitmap*bitmap, const bool u_first )
+void SimpleSubpic::SubsampleAndInterlace(const int index, Bitmap* bitmap, const bool u_first)
 {
-    ASSERT(bitmap!=nullptr);
-    //fix me: check alignment and log error
-    int w{bitmap->size.cx}, h = bitmap->size.cy;
-    ASSERT(h%2==0);
-    const BYTE* u_start{reinterpret_cast<const BYTE*>(bitmap->extra.plans[2U])};
-    const BYTE* v_start{reinterpret_cast<const BYTE*>(bitmap->extra.plans[3U])};
+    ASSERT(bitmap != nullptr);
+    // fix me: check alignment and log error
+    int w{ bitmap->size.cx }, h = bitmap->size.cy;
+    ASSERT(h % 2 == 0);
+    const BYTE* u_start{ reinterpret_cast<const BYTE*>(bitmap->extra.plans[2U]) };
+    const BYTE* v_start{ reinterpret_cast<const BYTE*>(bitmap->extra.plans[3U]) };
 
-    BYTE* dst{reinterpret_cast<BYTE*>(xy_malloc(bitmap->pitch*h / 4 * 2, bitmap->pos.x&15))};
+    BYTE* dst{ reinterpret_cast<BYTE*>(xy_malloc(bitmap->pitch * h / 4 * 2, bitmap->pos.x & 15)) };
     m_buffers.GetAt(index) = dst;
     bitmap->extra.plans[2U] = dst;
 
-    if(!u_first)
+    if (!u_first)
     {
-        const BYTE* tmp{v_start};
+        const BYTE* tmp{ v_start };
         v_start = u_start;
         u_start = tmp;
     }
 
-    //Todo: fix me. 
-    //Walkarround for alignment
-    if ( ((bitmap->pitch | (std::intptr_t)u_start | (std::intptr_t)v_start)&15) == 0 )
+    // Todo: fix me.
+    // Walkarround for alignment
+    if (((bitmap->pitch | (std::intptr_t)u_start | (std::intptr_t)v_start) & 15) == 0)
     {
-        for (int i{0};i<h;i+=2)
+        for (int i{ 0 }; i < h; i += 2)
         {
-            int w16{w&~15};
+            int w16{ w & ~15 };
             hleft_vmid_subsample_and_interlace_2_line_sse2(dst, u_start, v_start, w16, bitmap->pitch);
-            ASSERT(w>0);
-            hleft_vmid_subsample_and_interlace_2_line_c(dst+w16, u_start+w16, v_start+w16, w&15, bitmap->pitch, -1);
-            u_start += 2*bitmap->pitch;
-            v_start += 2*bitmap->pitch;
+            ASSERT(w > 0);
+            hleft_vmid_subsample_and_interlace_2_line_c(dst + w16, u_start + w16, v_start + w16, w & 15, bitmap->pitch, -1);
+            u_start += 2 * bitmap->pitch;
+            v_start += 2 * bitmap->pitch;
             dst += bitmap->pitch;
         }
     }
     else
     {
-        for (int i{0};i<h;i+=2)
+        for (int i{ 0 }; i < h; i += 2)
         {
             hleft_vmid_subsample_and_interlace_2_line_c(dst, u_start, v_start, w, bitmap->pitch);
-            u_start += 2*bitmap->pitch;
-            v_start += 2*bitmap->pitch;
+            u_start += 2 * bitmap->pitch;
+            v_start += 2 * bitmap->pitch;
             dst += bitmap->pitch;
         }
     }
@@ -625,47 +637,46 @@ void SimpleSubpic::SubsampleAndInterlace( const int index, Bitmap*bitmap, const 
 void SimpleSubpic::SubsampleAndInterlace422(const int index, Bitmap* bitmap, const bool u_first)
 {
     ASSERT(bitmap != nullptr);
-    //fix me: check alignment and log error
-    int w{bitmap->size.cx}, h = bitmap->size.cy;
+    // fix me: check alignment and log error
+    int w{ bitmap->size.cx }, h = bitmap->size.cy;
     // ASSERT(h % 2 == 0); no vertical subsampling
-    const BYTE* u_start{reinterpret_cast<const BYTE*>(bitmap->extra.plans[2U])};
-    const BYTE* v_start{reinterpret_cast<const BYTE*>(bitmap->extra.plans[3U])};
+    const BYTE* u_start{ reinterpret_cast<const BYTE*>(bitmap->extra.plans[2U]) };
+    const BYTE* v_start{ reinterpret_cast<const BYTE*>(bitmap->extra.plans[3U]) };
     // alloc for UV
-    BYTE* dst{reinterpret_cast<BYTE*>(xy_malloc(bitmap->pitch * h / 2 * 2, bitmap->pos.x & 15))};
+    BYTE* dst{ reinterpret_cast<BYTE*>(xy_malloc(bitmap->pitch * h / 2 * 2, bitmap->pos.x & 15)) };
     m_buffers.GetAt(index) = dst;
     bitmap->extra.plans[2U] = dst;
 
     if (!u_first)
     {
-        const BYTE* tmp{v_start};
+        const BYTE* tmp{ v_start };
         v_start = u_start;
         u_start = tmp;
     }
 
-    //Todo: fix me. 
-    //Walkarround for alignment
+    // Todo: fix me.
+    // Walkarround for alignment
     if (((bitmap->pitch | (std::intptr_t)u_start | (std::intptr_t)v_start) & 15) == 0)
     {
-        for (int i{0}; i < h; i += 1)
+        for (int i{ 0 }; i < h; i += 1)
         {
-            int w16{w & ~15};
+            int w16{ w & ~15 };
             subsample_422_and_interlace_2_line_sse2(dst, u_start, v_start, w16, bitmap->pitch);
             ASSERT(w > 0);
             subsample_422_and_interlace_2_line_c(dst + w16, u_start + w16, v_start + w16, w & 15, bitmap->pitch, -1);
-            u_start += 1*bitmap->pitch;
-            v_start += 1*bitmap->pitch;
+            u_start += 1 * bitmap->pitch;
+            v_start += 1 * bitmap->pitch;
             dst += bitmap->pitch;
         }
     }
     else
     {
-        for (int i{0}; i < h; i += 1)
+        for (int i{ 0 }; i < h; i += 1)
         {
             subsample_422_and_interlace_2_line_c(dst, u_start, v_start, w, bitmap->pitch);
-            u_start += 1*bitmap->pitch;
-            v_start += 1*bitmap->pitch;
+            u_start += 1 * bitmap->pitch;
+            v_start += 1 * bitmap->pitch;
             dst += bitmap->pitch;
         }
     }
 }
-

@@ -37,431 +37,433 @@
 
 #pragma warning(disable : 4799) // no emms... blahblahblah
 
-void VDCPUTest() {
-	SYSTEM_INFO si;
+void VDCPUTest()
+{
+    SYSTEM_INFO si;
 
-	long lEnableFlags{CPUCheckForExtensions()};
+    long lEnableFlags{ CPUCheckForExtensions() };
 
-	GetSystemInfo(&si);
+    GetSystemInfo(&si);
 
-	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-	{
-		if (si.wProcessorLevel < 4)
-		{
-			lEnableFlags &= ~CPUF_SUPPORTS_FPU;
-		}
-	}		// Not strictly true, but very slow anyway
+    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+    {
+        if (si.wProcessorLevel < 4)
+        {
+            lEnableFlags &= ~CPUF_SUPPORTS_FPU;
+        }
+    } // Not strictly true, but very slow anyway
 
-	// Enable FPU support...
+    // Enable FPU support...
 
-	CPUEnableExtensions(lEnableFlags);
+    CPUEnableExtensions(lEnableFlags);
 
-	VDFastMemcpyAutodetect();
+    VDFastMemcpyAutodetect();
 }
 
 CCpuID g_cpuid;
 
 CCpuID::CCpuID()
 {
-	VDCPUTest();
+    VDCPUTest();
 
-	long lEnableFlags{CPUGetEnabledExtensions()};
+    long lEnableFlags{ CPUGetEnabledExtensions() };
 
-	int flags{0};
-	flags |= !!(lEnableFlags & CPUF_SUPPORTS_MMX)			? mmx		: 0;			// STD MMX
-	flags |= !!(lEnableFlags & CPUF_SUPPORTS_INTEGER_SSE)	? ssemmx	: 0;			// SSE MMX
-	flags |= !!(lEnableFlags & CPUF_SUPPORTS_SSE)			? ssefpu	: 0;			// STD SSE
-	flags |= !!(lEnableFlags & CPUF_SUPPORTS_SSE2)			? sse2		: 0;			// SSE2
-	flags |= !!(lEnableFlags & CPUF_SUPPORTS_3DNOW)			? _3dnow	: 0;			// 3DNow
+    int flags{ 0 };
+    flags |= !!(lEnableFlags & CPUF_SUPPORTS_MMX) ? mmx : 0;            // STD MMX
+    flags |= !!(lEnableFlags & CPUF_SUPPORTS_INTEGER_SSE) ? ssemmx : 0; // SSE MMX
+    flags |= !!(lEnableFlags & CPUF_SUPPORTS_SSE) ? ssefpu : 0;         // STD SSE
+    flags |= !!(lEnableFlags & CPUF_SUPPORTS_SSE2) ? sse2 : 0;          // SSE2
+    flags |= !!(lEnableFlags & CPUF_SUPPORTS_3DNOW) ? _3dnow : 0;       // 3DNow
 
-	// result
-	m_flags = (flag_t)flags;
+    // result
+    m_flags = (flag_t)flags;
 }
 
 [[nodiscard]] bool BitBltFromI420ToI420(int w, int h, BYTE* dsty, BYTE* dstu, BYTE* dstv, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, const int srcpitch)
 {
-	VDPixmap srcbm{};
+    VDPixmap srcbm{};
 
-	srcbm.data		= srcy;
-	srcbm.pitch		= srcpitch;
-	srcbm.w			= w;
-	srcbm.h			= h;
-	srcbm.format	= nsVDPixmap::kPixFormat_YUV420_Planar;
-	srcbm.data2		= srcu;
-	srcbm.pitch2	= srcpitch / 2;
-	srcbm.data3		= srcv;
-	srcbm.pitch3	= srcpitch / 2;
+    srcbm.data = srcy;
+    srcbm.pitch = srcpitch;
+    srcbm.w = w;
+    srcbm.h = h;
+    srcbm.format = nsVDPixmap::kPixFormat_YUV420_Planar;
+    srcbm.data2 = srcu;
+    srcbm.pitch2 = srcpitch / 2;
+    srcbm.data3 = srcv;
+    srcbm.pitch3 = srcpitch / 2;
 
-	VDPixmap dstpxm{};
+    VDPixmap dstpxm{};
 
-	dstpxm.data		= dsty;
-	dstpxm.pitch	= dstpitch;
-	dstpxm.w		= w;
-	dstpxm.h		= h;
-	dstpxm.format	= nsVDPixmap::kPixFormat_YUV420_Planar;
-	dstpxm.data2	= dstu;
-	dstpxm.pitch2	= dstpitch / 2;
-	dstpxm.data3	= dstv;
-	dstpxm.pitch3	= dstpitch / 2;
+    dstpxm.data = dsty;
+    dstpxm.pitch = dstpitch;
+    dstpxm.w = w;
+    dstpxm.h = h;
+    dstpxm.format = nsVDPixmap::kPixFormat_YUV420_Planar;
+    dstpxm.data2 = dstu;
+    dstpxm.pitch2 = dstpitch / 2;
+    dstpxm.data3 = dstv;
+    dstpxm.pitch3 = dstpitch / 2;
 
-	return VDPixmapBlt(dstpxm, srcbm);
+    return VDPixmapBlt(dstpxm, srcbm);
 }
 
 [[nodiscard]] bool BitBltFromYUY2ToYUY2(int w, int h, BYTE* dst, const int dstpitch, BYTE* src, const int srcpitch)
 {
-	VDPixmap srcbm{};
+    VDPixmap srcbm{};
 
-	srcbm.data		= src;
-	srcbm.pitch		= srcpitch;
-	srcbm.w			= w;
-	srcbm.h			= h;
-	srcbm.format	= nsVDPixmap::kPixFormat_YUV422_YUYV;
+    srcbm.data = src;
+    srcbm.pitch = srcpitch;
+    srcbm.w = w;
+    srcbm.h = h;
+    srcbm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
 
-	VDPixmap dstpxm = {
-		dst,
-		nullptr,
-		w,
-		h,
-		dstpitch,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		{}
-	};
+    VDPixmap dstpxm = {
+        dst,
+        nullptr,
+        w,
+        h,
+        dstpitch,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        {}
+    };
 
-	dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
+    dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
 
-	return VDPixmapBlt(dstpxm, srcbm);
+    return VDPixmapBlt(dstpxm, srcbm);
 }
 
 [[nodiscard]] bool BitBltFromI420ToRGB(int w, int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* srcy, BYTE* srcu, BYTE* srcv, const int srcpitch)
 {
-	VDPixmap srcbm{};
+    VDPixmap srcbm{};
 
-	srcbm.data		= srcy;
-	srcbm.pitch		= srcpitch;
-	srcbm.w			= w;
-	srcbm.h			= h;
-	srcbm.format	= nsVDPixmap::kPixFormat_YUV420_Planar;
-	srcbm.data2		= srcu;
-	srcbm.pitch2	= srcpitch/2;
-	srcbm.data3		= srcv;
-	srcbm.pitch3	= srcpitch/2;
+    srcbm.data = srcy;
+    srcbm.pitch = srcpitch;
+    srcbm.w = w;
+    srcbm.h = h;
+    srcbm.format = nsVDPixmap::kPixFormat_YUV420_Planar;
+    srcbm.data2 = srcu;
+    srcbm.pitch2 = srcpitch / 2;
+    srcbm.data3 = srcv;
+    srcbm.pitch3 = srcpitch / 2;
 
-	VDPixmap dstpxm = {
-		reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
-		nullptr,
-		w,
-		h,
-		-dstpitch,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		{}
-	};
+    VDPixmap dstpxm = {
+        reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
+        nullptr,
+        w,
+        h,
+        -dstpitch,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        {}
+    };
 
-	switch(dbpp) {
-	case 16:
-		dstpxm.format = nsVDPixmap::kPixFormat_RGB565;
-		break;
-	case 24:
-		dstpxm.format = nsVDPixmap::kPixFormat_RGB888;
-		break;
-	case 32:
-		dstpxm.format = nsVDPixmap::kPixFormat_XRGB8888;
-		break;
-	default:
-		VDASSERT(false);
-	}
+    switch (dbpp)
+    {
+    case 16:
+        dstpxm.format = nsVDPixmap::kPixFormat_RGB565;
+        break;
+    case 24:
+        dstpxm.format = nsVDPixmap::kPixFormat_RGB888;
+        break;
+    case 32:
+        dstpxm.format = nsVDPixmap::kPixFormat_XRGB8888;
+        break;
+    default:
+        VDASSERT(false);
+    }
 
-	return VDPixmapBlt(dstpxm, srcbm);
+    return VDPixmapBlt(dstpxm, srcbm);
 }
 
 [[nodiscard]] bool BitBltFromI420ToYUY2(int w, int h, BYTE* dst, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
 {
-	if(srcpitch == 0)
-	{
-	    srcpitch = w;
-	}
+    if (srcpitch == 0)
+    {
+        srcpitch = w;
+    }
 
 #ifndef _WIN64
-	if((g_cpuid.m_flags & CCpuID::sse2)
-		&& !((DWORD_PTR)srcy&15) && !((DWORD_PTR)srcu&15) && !((DWORD_PTR)srcv&15) && !(srcpitch&31) 
-		&& !((DWORD_PTR)dst&15) && !(dstpitch&15))
-	{
-		if(w<=0 || h<=0 || (w&1) || (h&1))
-		{
-			return false;
-		}
+    if ((g_cpuid.m_flags & CCpuID::sse2) && !((DWORD_PTR)srcy & 15) && !((DWORD_PTR)srcu & 15) && !((DWORD_PTR)srcv & 15) && !(srcpitch & 31) && !((DWORD_PTR)dst & 15) && !(dstpitch & 15))
+    {
+        if (w <= 0 || h <= 0 || (w & 1) || (h & 1))
+        {
+            return false;
+        }
 
-		yv12_yuy2_sse2(srcy, srcu, srcv, srcpitch/2, w/2, h, dst, dstpitch);
-		return true;
-	}
+        yv12_yuy2_sse2(srcy, srcu, srcv, srcpitch / 2, w / 2, h, dst, dstpitch);
+        return true;
+    }
 #endif
 
-	VDPixmap srcbm{};
+    VDPixmap srcbm{};
 
-	srcbm.data		= srcy;
-	srcbm.pitch		= srcpitch;
-	srcbm.w			= w;
-	srcbm.h			= h;
-	srcbm.format	= nsVDPixmap::kPixFormat_YUV420_Planar;
-	srcbm.data2		= srcu;
-	srcbm.pitch2	= srcpitch/2;
-	srcbm.data3		= srcv;
-	srcbm.pitch3	= srcpitch/2;
+    srcbm.data = srcy;
+    srcbm.pitch = srcpitch;
+    srcbm.w = w;
+    srcbm.h = h;
+    srcbm.format = nsVDPixmap::kPixFormat_YUV420_Planar;
+    srcbm.data2 = srcu;
+    srcbm.pitch2 = srcpitch / 2;
+    srcbm.data3 = srcv;
+    srcbm.pitch3 = srcpitch / 2;
 
-	VDPixmap dstpxm = {
-		dst,
-		nullptr,
-		w,
-		h,
-		dstpitch,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		{}
-	};
+    VDPixmap dstpxm = {
+        dst,
+        nullptr,
+        w,
+        h,
+        dstpitch,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        {}
+    };
 
-	dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
+    dstpxm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
 
-	return VDPixmapBlt(dstpxm, srcbm);
+    return VDPixmapBlt(dstpxm, srcbm);
 }
 
 [[nodiscard]] bool BitBltFromRGBToRGB(const int w, const int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* src, const int srcpitch, const int sbpp)
 {
-	VDPixmap srcbm = {
-		reinterpret_cast<char*>(src) + srcpitch * (h - 1),
-		nullptr,
-		w,
-		h,
-		-srcpitch,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		{}
-	};
+    VDPixmap srcbm = {
+        reinterpret_cast<char*>(src) + srcpitch * (h - 1),
+        nullptr,
+        w,
+        h,
+        -srcpitch,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        {}
+    };
 
-	switch(dbpp) {
-	case 8:
-		srcbm.format = nsVDPixmap::kPixFormat_Pal8;
-		break;
-	case 16:
-		srcbm.format = nsVDPixmap::kPixFormat_RGB565;
-		break;
-	case 24:
-		srcbm.format = nsVDPixmap::kPixFormat_RGB888;
-		break;
-	case 32:
-		srcbm.format = nsVDPixmap::kPixFormat_XRGB8888;
-		break;
-	default:
-		VDASSERT(false);
-	}
+    switch (dbpp)
+    {
+    case 8:
+        srcbm.format = nsVDPixmap::kPixFormat_Pal8;
+        break;
+    case 16:
+        srcbm.format = nsVDPixmap::kPixFormat_RGB565;
+        break;
+    case 24:
+        srcbm.format = nsVDPixmap::kPixFormat_RGB888;
+        break;
+    case 32:
+        srcbm.format = nsVDPixmap::kPixFormat_XRGB8888;
+        break;
+    default:
+        VDASSERT(false);
+    }
 
-	VDPixmap dstpxm = {
-		reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
-		nullptr,
-		w,
-		h,
-		-dstpitch,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		{}
-	};
+    VDPixmap dstpxm = {
+        reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
+        nullptr,
+        w,
+        h,
+        -dstpitch,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        {}
+    };
 
-	switch(dbpp) {
-	case 8:
-		dstpxm.format = nsVDPixmap::kPixFormat_Pal8;
-		break;
-	case 16:
-		dstpxm.format = nsVDPixmap::kPixFormat_RGB565;
-		break;
-	case 24:
-		dstpxm.format = nsVDPixmap::kPixFormat_RGB888;
-		break;
-	case 32:
-		dstpxm.format = nsVDPixmap::kPixFormat_XRGB8888;
-		break;
-	default:
-		VDASSERT(false);
-	}
+    switch (dbpp)
+    {
+    case 8:
+        dstpxm.format = nsVDPixmap::kPixFormat_Pal8;
+        break;
+    case 16:
+        dstpxm.format = nsVDPixmap::kPixFormat_RGB565;
+        break;
+    case 24:
+        dstpxm.format = nsVDPixmap::kPixFormat_RGB888;
+        break;
+    case 32:
+        dstpxm.format = nsVDPixmap::kPixFormat_XRGB8888;
+        break;
+    default:
+        VDASSERT(false);
+    }
 
-	return VDPixmapBlt(dstpxm, srcbm);
+    return VDPixmapBlt(dstpxm, srcbm);
 }
 
 [[nodiscard]] bool BitBltFromYUY2ToRGB(int w, int h, BYTE* dst, const int dstpitch, const int dbpp, BYTE* src, int srcpitch)
 {
-	if(srcpitch == 0)
-	{
-	    srcpitch = w;
-	}
+    if (srcpitch == 0)
+    {
+        srcpitch = w;
+    }
 
-	VDPixmap srcbm{};
+    VDPixmap srcbm{};
 
-	srcbm.data		= src;
-	srcbm.pitch		= srcpitch;
-	srcbm.w			= w;
-	srcbm.h			= h;
-	srcbm.format	= nsVDPixmap::kPixFormat_YUV422_YUYV;
+    srcbm.data = src;
+    srcbm.pitch = srcpitch;
+    srcbm.w = w;
+    srcbm.h = h;
+    srcbm.format = nsVDPixmap::kPixFormat_YUV422_YUYV;
 
-	VDPixmap dstpxm = {
-		reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
-		nullptr,
-		w,
-		h,
-		-dstpitch,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		{}
-	};
+    VDPixmap dstpxm = {
+        reinterpret_cast<char*>(dst) + dstpitch * (h - 1),
+        nullptr,
+        w,
+        h,
+        -dstpitch,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        0,
+        {}
+    };
 
-	switch(dbpp) {
-	case 16:
-		dstpxm.format = nsVDPixmap::kPixFormat_RGB565;
-		break;
-	case 24:
-		dstpxm.format = nsVDPixmap::kPixFormat_RGB888;
-		break;
-	case 32:
-		dstpxm.format = nsVDPixmap::kPixFormat_XRGB8888;
-		break;
-	default:
-		VDASSERT(false);
-	}
+    switch (dbpp)
+    {
+    case 16:
+        dstpxm.format = nsVDPixmap::kPixFormat_RGB565;
+        break;
+    case 24:
+        dstpxm.format = nsVDPixmap::kPixFormat_RGB888;
+        break;
+    case 32:
+        dstpxm.format = nsVDPixmap::kPixFormat_XRGB8888;
+        break;
+    default:
+        VDASSERT(false);
+    }
 
-	return VDPixmapBlt(dstpxm, srcbm);
+    return VDPixmapBlt(dstpxm, srcbm);
 }
 
 static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
 
 {
-	WORD* dstw{(WORD*)dst};
-	for(; width > 1; width -= 2)
-	{
-		*dstw++ = (*srcu++<<8)|*srcy++;
-		*dstw++ = (*srcv++<<8)|*srcy++;
-	}
+    WORD* dstw{ (WORD*)dst };
+    for (; width > 1; width -= 2)
+    {
+        *dstw++ = (*srcu++ << 8) | *srcy++;
+        *dstw++ = (*srcv++ << 8) | *srcy++;
+    }
 }
 
 static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, const DWORD pitchuv)
 
 {
-	WORD* dstw{(WORD*)dst};
-	for(; width > 1; width -= 2, ++srcu, ++srcv)
-	{
-		*dstw++ = (((srcu[0U]+srcu[pitchuv])>>1)<<8)|*srcy++;
-		*dstw++ = (((srcv[0U]+srcv[pitchuv])>>1)<<8)|*srcy++;
-	}
+    WORD* dstw{ (WORD*)dst };
+    for (; width > 1; width -= 2, ++srcu, ++srcv)
+    {
+        *dstw++ = (((srcu[0U] + srcu[pitchuv]) >> 1) << 8) | *srcy++;
+        *dstw++ = (((srcv[0U] + srcv[pitchuv]) >> 1) << 8) | *srcy++;
+    }
 }
 
 [[nodiscard]] bool BitBltFromI420ToYUY2Interlaced(const int w, int h, BYTE* dst, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
 {
-	if(w<=0 || h<=0 || (w&1) || (h&1))
-	{
-		return false;
-	}
+    if (w <= 0 || h <= 0 || (w & 1) || (h & 1))
+    {
+        return false;
+    }
 
-	if(srcpitch == 0)
-	{
-	    srcpitch = w;
-	}
+    if (srcpitch == 0)
+    {
+        srcpitch = w;
+    }
 
-	void (*yuvtoyuy2row)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width) = nullptr;
-	void (*yuvtoyuy2row_avg)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, DWORD pitchuv) = nullptr;
-
-#ifndef _WIN64
-	if((g_cpuid.m_flags & CCpuID::sse2)
-		&& !((DWORD_PTR)srcy&15) && !((DWORD_PTR)srcu&15) && !((DWORD_PTR)srcv&15) && !(srcpitch&31) 
-		&& !((DWORD_PTR)dst&15) && !(dstpitch&15))
-	{
-		yv12_yuy2_sse2_interlaced(srcy, srcu, srcv, srcpitch/2, w/2, h, dst, dstpitch);
-		return true;
-	}
-
-	if((g_cpuid.m_flags & CCpuID::mmx) && !(w&7))
-	{
-		yuvtoyuy2row = yuvtoyuy2row_MMX;
-		yuvtoyuy2row_avg = yuvtoyuy2row_avg_MMX;
-	}
-	else
-#endif
-	{
-		yuvtoyuy2row = yuvtoyuy2row_c;
-		yuvtoyuy2row_avg = yuvtoyuy2row_avg_c;
-	}
-
-	if(!yuvtoyuy2row)
-	{
-		return false;
-	}
-
-	const int halfsrcpitch{srcpitch/2};
-	do
-	{
-		yuvtoyuy2row(dst, srcy, srcu, srcv, w);
-		yuvtoyuy2row_avg(dst + dstpitch, srcy + srcpitch, srcu, srcv, w, halfsrcpitch);
-
-		dst += 2*dstpitch;
-		srcy += 2*srcpitch;
-		srcu += halfsrcpitch;
-		srcv += halfsrcpitch;
-	}
-	while((h -= 2) > 2);
-
-	yuvtoyuy2row(dst, srcy, srcu, srcv, w);
-	yuvtoyuy2row(dst + dstpitch, srcy + srcpitch, srcu, srcv, w);
+    void (*yuvtoyuy2row)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width) = nullptr;
+    void (*yuvtoyuy2row_avg)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, DWORD pitchuv) = nullptr;
 
 #ifndef _WIN64
-	if(g_cpuid.m_flags & CCpuID::mmx)
-	{
-		__asm emms
-	}
+    if ((g_cpuid.m_flags & CCpuID::sse2) && !((DWORD_PTR)srcy & 15) && !((DWORD_PTR)srcu & 15) && !((DWORD_PTR)srcv & 15) && !(srcpitch & 31) && !((DWORD_PTR)dst & 15) && !(dstpitch & 15))
+    {
+        yv12_yuy2_sse2_interlaced(srcy, srcu, srcv, srcpitch / 2, w / 2, h, dst, dstpitch);
+        return true;
+    }
+
+    if ((g_cpuid.m_flags & CCpuID::mmx) && !(w & 7))
+    {
+        yuvtoyuy2row = yuvtoyuy2row_MMX;
+        yuvtoyuy2row_avg = yuvtoyuy2row_avg_MMX;
+    }
+    else
+#endif
+    {
+        yuvtoyuy2row = yuvtoyuy2row_c;
+        yuvtoyuy2row_avg = yuvtoyuy2row_avg_c;
+    }
+
+    if (!yuvtoyuy2row)
+    {
+        return false;
+    }
+
+    const int halfsrcpitch{ srcpitch / 2 };
+    do
+    {
+        yuvtoyuy2row(dst, srcy, srcu, srcv, w);
+        yuvtoyuy2row_avg(dst + dstpitch, srcy + srcpitch, srcu, srcv, w, halfsrcpitch);
+
+        dst += 2 * dstpitch;
+        srcy += 2 * srcpitch;
+        srcu += halfsrcpitch;
+        srcv += halfsrcpitch;
+    } while ((h -= 2) > 2);
+
+    yuvtoyuy2row(dst, srcy, srcu, srcv, w);
+    yuvtoyuy2row(dst + dstpitch, srcy + srcpitch, srcu, srcv, w);
+
+#ifndef _WIN64
+    if (g_cpuid.m_flags & CCpuID::mmx)
+    {
+        __asm emms
+    }
 #endif
 
-	return true;
+    return true;
 }
 
 [[nodiscard]] bool BitBltFromP010ToP010(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
-    if (w <= 0 || h <= 0) {
+    if (w <= 0 || h <= 0)
+    {
         return true;
     }
-    ASSERT((dst && src && w*2<=srcpitch && w*2<=dstpitch && ((h&1)==0)));
-    VDMemcpyRect(dst, dstpitch, src, srcpitch, w*2, h+h/2);
+    ASSERT((dst && src && w * 2 <= srcpitch && w * 2 <= dstpitch && ((h & 1) == 0)));
+    VDMemcpyRect(dst, dstpitch, src, srcpitch, w * 2, h + h / 2);
 
     return true;
 }
 
 [[nodiscard]] bool BitBltFromP210ToP210(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
-    if (w <= 0 || h <= 0) {
+    if (w <= 0 || h <= 0)
+    {
         return true;
     }
     ASSERT((dst && src && w * 2 <= srcpitch && w * 2 <= dstpitch));
@@ -472,11 +474,12 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 
 [[nodiscard]] bool BitBltFromNV12ToNV12(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
-    if (w <= 0 || h <= 0) {
+    if (w <= 0 || h <= 0)
+    {
         return true;
     }
-    ASSERT((dst && src && w<=srcpitch && w<=dstpitch && ((h&1)==0)));
-    VDMemcpyRect(dst, dstpitch, src, srcpitch, w, h+h/2);
+    ASSERT((dst && src && w <= srcpitch && w <= dstpitch && ((h & 1) == 0)));
+    VDMemcpyRect(dst, dstpitch, src, srcpitch, w, h + h / 2);
 
     return true;
 }

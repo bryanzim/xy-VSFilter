@@ -20,19 +20,20 @@
 
 #pragma once
 
-typedef enum {
-    NALU_TYPE_SLICE    = 1,
-    NALU_TYPE_DPA      = 2,
-    NALU_TYPE_DPB      = 3,
-    NALU_TYPE_DPC      = 4,
-    NALU_TYPE_IDR      = 5,
-    NALU_TYPE_SEI      = 6,
-    NALU_TYPE_SPS      = 7,
-    NALU_TYPE_PPS      = 8,
-    NALU_TYPE_AUD      = 9,
-    NALU_TYPE_EOSEQ    = 10,
+typedef enum
+{
+    NALU_TYPE_SLICE = 1,
+    NALU_TYPE_DPA = 2,
+    NALU_TYPE_DPB = 3,
+    NALU_TYPE_DPC = 4,
+    NALU_TYPE_IDR = 5,
+    NALU_TYPE_SEI = 6,
+    NALU_TYPE_SPS = 7,
+    NALU_TYPE_PPS = 8,
+    NALU_TYPE_AUD = 9,
+    NALU_TYPE_EOSEQ = 10,
     NALU_TYPE_EOSTREAM = 11,
-    NALU_TYPE_FILL     = 12
+    NALU_TYPE_FILL = 12
 } NALU_TYPE;
 
 class CH264Nalu
@@ -42,8 +43,8 @@ private:
     int nal_reference_idc;   //! NALU_PRIORITY_xxxx
     NALU_TYPE nal_unit_type; //! NALU_TYPE_xxxx
 
-    int m_nNALStartPos;      //! NALU start (including startcode / size)
-    int m_nNALDataPos;       //! Useful part
+    int m_nNALStartPos; //! NALU start (including startcode / size)
+    int m_nNALDataPos;  //! Useful part
 
     BYTE* m_pBuffer;
     int m_nCurPos;
@@ -55,10 +56,10 @@ private:
     [[nodiscard]] bool MoveToNextRTPStartcode();
 
 public:
-    explicit CH264Nalu() :
-        forbidden_bit(0),
-        nal_reference_idc(0),
-        nal_unit_type() {
+    explicit CH264Nalu() : forbidden_bit(0),
+                           nal_reference_idc(0),
+                           nal_unit_type()
+    {
         SetBuffer(nullptr, 0, 0);
     }
 
@@ -67,8 +68,9 @@ public:
 
     [[nodiscard]] int GetDataLength() const { return m_nCurPos - m_nNALDataPos; }
     [[nodiscard]] BYTE* GetDataBuffer() { return m_pBuffer + m_nNALDataPos; }
-    [[nodiscard]] int GetRoundedDataLength() const {
-        int nSize{m_nCurPos - m_nNALDataPos};
+    [[nodiscard]] int GetRoundedDataLength() const
+    {
+        int nSize{ m_nCurPos - m_nNALDataPos };
         return nSize + 128 - (nSize % 128);
     }
 

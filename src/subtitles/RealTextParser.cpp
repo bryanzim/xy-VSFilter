@@ -22,15 +22,7 @@
 #include "RealTextParser.h"
 
 CRealTextParser::CRealTextParser()
-    : m_bIgnoreFont(false)
-    , m_bIgnoreFontSize(false)
-    , m_bIgnoreFontColor(false)
-    , m_bIgnoreFontWeight(false)
-    , m_bIgnoreFontFace(false)
-    , m_iMinFontSize(14)
-    , m_iMaxFontSize(25)
-    , m_iDefaultSubtitleDurationInMillisecs(4000)
-    , m_bTryToIgnoreErrors(true)
+    : m_bIgnoreFont(false), m_bIgnoreFontSize(false), m_bIgnoreFontColor(false), m_bIgnoreFontWeight(false), m_bIgnoreFontFace(false), m_iMinFontSize(14), m_iMaxFontSize(25), m_iDefaultSubtitleDurationInMillisecs(4000), m_bTryToIgnoreErrors(true)
 {
 }
 
@@ -43,95 +35,131 @@ CRealTextParser::~CRealTextParser()
 {
     std::vector<int> vStartTimecodes;
     std::vector<int> vEndTimecodes;
-    bool bPrevEndTimeMissing{false};
+    bool bPrevEndTimeMissing{ false };
     std::list<Tag> listTags;
     std::list<Tag> listPreviousOpenTags;
 
-    while (!p_szFile.empty()) {
-        if (p_szFile.at(0) == '<') {
+    while (!p_szFile.empty())
+    {
+        if (p_szFile.at(0) == '<')
+        {
             Tag oTag;
-            if (!ExtractTag(p_szFile, oTag)) {
+            if (!ExtractTag(p_szFile, oTag))
+            {
                 return false;
             }
 
-            if (oTag.m_bComment) {
+            if (oTag.m_bComment)
+            {
                 continue;
             }
 
-            if (oTag.m_szName == L"time") {
-                int iStartTimecode{GetTimecode(oTag.m_mapAttributes[L"begin"])};
-                int iEndTimecode{GetTimecode(oTag.m_mapAttributes[L"end"])};
+            if (oTag.m_szName == L"time")
+            {
+                int iStartTimecode{ GetTimecode(oTag.m_mapAttributes[L"begin"]) };
+                int iEndTimecode{ GetTimecode(oTag.m_mapAttributes[L"end"]) };
 
-                //FilterReduntantTags(listTags);
-                std::wstring szLine{RenderTags(listTags)};
+                // FilterReduntantTags(listTags);
+                std::wstring szLine{ RenderTags(listTags) };
 
-                if (bPrevEndTimeMissing) {
+                if (bPrevEndTimeMissing)
+                {
                     std::pair<int, int> pairTimecodes(vStartTimecodes.back(), iStartTimecode);
 
                     // Fix issues where the next time code isn't valid end time code for the previous subtitle
-                    if (pairTimecodes.first >= pairTimecodes.second) {
+                    if (pairTimecodes.first >= pairTimecodes.second)
+                    {
                         pairTimecodes.second = pairTimecodes.first + m_iDefaultSubtitleDurationInMillisecs;
                     }
 
-                    if (!szLine.empty()) {
+                    if (!szLine.empty())
+                    {
                         m_RealText.m_mapLines[pairTimecodes] = szLine;
                     }
 
                     bPrevEndTimeMissing = false;
-                } else if (!vStartTimecodes.empty() && !vEndTimecodes.empty()) {
+                }
+                else if (!vStartTimecodes.empty() && !vEndTimecodes.empty())
+                {
                     std::pair<int, int> pairTimecodes(vStartTimecodes.back(), vEndTimecodes.back());
 
-                    if (!szLine.empty()) {
+                    if (!szLine.empty())
+                    {
                         m_RealText.m_mapLines[pairTimecodes] = szLine;
                     }
-
-                } else if (vStartTimecodes.empty() && vEndTimecodes.empty() && m_RealText.m_mapLines.empty() && iStartTimecode > 0) {
+                }
+                else if (vStartTimecodes.empty() && vEndTimecodes.empty() && m_RealText.m_mapLines.empty() && iStartTimecode > 0)
+                {
                     // Handle first line
-                    if (!szLine.empty()) {
+                    if (!szLine.empty())
+                    {
                         m_RealText.m_mapLines[std::make_pair(0, iStartTimecode)] = szLine;
                     }
                 }
 
                 vStartTimecodes.push_back(iStartTimecode);
-                if (iEndTimecode <= 0) {
+                if (iEndTimecode <= 0)
+                {
                     bPrevEndTimeMissing = true;
-                } else {
+                }
+                else
+                {
                     vEndTimecodes.push_back(iEndTimecode);
                 }
-            } else if (oTag.m_szName == L"b" || oTag.m_szName == L"i" || oTag.m_szName == L"font") {
-                if (oTag.m_bOpen) {
+            }
+            else if (oTag.m_szName == L"b" || oTag.m_szName == L"i" || oTag.m_szName == L"font")
+            {
+                if (oTag.m_bOpen)
+                {
                     listPreviousOpenTags.push_back(oTag);
                 }
 
-                if (oTag.m_bClose) {
+                if (oTag.m_bClose)
+                {
                     PopTag(listPreviousOpenTags, oTag.m_szName);
                 }
 
                 listTags.push_back(oTag);
-            } else if (oTag.m_szName == L"clear") {
+            }
+            else if (oTag.m_szName == L"clear")
+            {
                 listTags.clear();
 
                 // set existing tags
                 listTags.insert(listTags.end(), listPreviousOpenTags.begin(), listPreviousOpenTags.end());
-            } else if (oTag.m_szName == L"window") {
-                if (oTag.m_bOpen) {
+            }
+            else if (oTag.m_szName == L"window")
+            {
+                if (oTag.m_bOpen)
+                {
                     m_RealText.m_WindowTag = oTag;
                 }
 
                 // Ignore close
-            } else if (oTag.m_szName == L"center") {
+            }
+            else if (oTag.m_szName == L"center")
+            {
                 m_RealText.m_bCenter = true;
-            } else if (oTag.m_szName == L"required") {
+            }
+            else if (oTag.m_szName == L"required")
+            {
                 // Ignore
-            } else if (oTag.m_szName.empty()) {
+            }
+            else if (oTag.m_szName.empty())
+            {
                 // Ignore
-            } else {
+            }
+            else
+            {
                 // assume formating tag (handled later)
                 listTags.push_back(oTag);
             }
-        } else {
+        }
+        else
+        {
             Tag oTextTag;
-            if (!ExtractTextTag(p_szFile, oTextTag)) {
+            if (!ExtractTextTag(p_szFile, oTextTag))
+            {
                 return false;
             }
 
@@ -140,23 +168,26 @@ CRealTextParser::~CRealTextParser()
     }
 
     // Handle final line
-    //FilterReduntantTags(listTags);
-    std::wstring szLine{RenderTags(listTags)};
+    // FilterReduntantTags(listTags);
+    std::wstring szLine{ RenderTags(listTags) };
 
-    if (bPrevEndTimeMissing) {
+    if (bPrevEndTimeMissing)
+    {
         std::pair<int, int> pairTimecodes(vStartTimecodes.back(), vStartTimecodes.back() + m_iDefaultSubtitleDurationInMillisecs);
 
-        if (!szLine.empty()) {
+        if (!szLine.empty())
+        {
             m_RealText.m_mapLines[pairTimecodes] = szLine;
         }
-
-    } else if (!vStartTimecodes.empty() && !vEndTimecodes.empty()) {
+    }
+    else if (!vStartTimecodes.empty() && !vEndTimecodes.empty())
+    {
         std::pair<int, int> pairTimecodes(vStartTimecodes.back(), vEndTimecodes.back());
 
-        if (!szLine.empty()) {
+        if (!szLine.empty())
+        {
             m_RealText.m_mapLines[pairTimecodes] = szLine;
         }
-
     }
 
     return true;
@@ -170,27 +201,33 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::ExtractTag(std::wstring& p_rszLine, Tag& p_rTag)
 {
-    if (p_rszLine.length() < 2 || p_rszLine.at(0) != '<') {
-        if (m_bTryToIgnoreErrors) {
-            std::size_t iTempPos{p_rszLine.find_first_of('<')};
+    if (p_rszLine.length() < 2 || p_rszLine.at(0) != '<')
+    {
+        if (m_bTryToIgnoreErrors)
+        {
+            std::size_t iTempPos{ p_rszLine.find_first_of('<') };
 
-            if (iTempPos != std::wstring::npos) {
+            if (iTempPos != std::wstring::npos)
+            {
                 p_rszLine = p_rszLine.substr(iTempPos);
 
-                if (p_rszLine.length() < 2) {
+                if (p_rszLine.length() < 2)
+                {
                     return false;
                 }
             }
-
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
 
-    unsigned int iPos{1};
+    unsigned int iPos{ 1 };
 
     // skip comments
-    if (p_rszLine.at(iPos) == '!') {
+    if (p_rszLine.at(iPos) == '!')
+    {
         p_rTag.m_bComment = true;
 
         std::wstring szComment;
@@ -198,67 +235,89 @@ CRealTextParser::~CRealTextParser()
         p_rTag.m_szName = szComment;
 
         ++iPos; // Skip >
-        if (iPos < p_rszLine.length()) {
+        if (iPos < p_rszLine.length())
+        {
             p_rszLine = p_rszLine.substr(iPos);
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
-    } else {
+    }
+    else
+    {
         p_rTag.m_bComment = false;
     }
 
-    if (!SkipSpaces(p_rszLine, iPos)) {
+    if (!SkipSpaces(p_rszLine, iPos))
+    {
         return false;
     }
 
-    if (p_rszLine.at(iPos) == '/') {
+    if (p_rszLine.at(iPos) == '/')
+    {
         p_rTag.m_bOpen = false;
         p_rTag.m_bClose = true;
         ++iPos;
-    } else {
+    }
+    else
+    {
         p_rTag.m_bOpen = true;
         p_rTag.m_bClose = false;
     }
 
-    if (!GetString(p_rszLine, iPos, p_rTag.m_szName, L"\r\n\t />")) {
+    if (!GetString(p_rszLine, iPos, p_rTag.m_szName, L"\r\n\t />"))
+    {
         return false;
     }
 
     p_rTag.m_szName = StringToLower(p_rTag.m_szName);
 
-    if (!GetAttributes(p_rszLine, iPos, p_rTag.m_mapAttributes)) {
+    if (!GetAttributes(p_rszLine, iPos, p_rTag.m_mapAttributes))
+    {
         return false;
     }
 
-    if (p_rszLine.at(iPos) == '/') {
+    if (p_rszLine.at(iPos) == '/')
+    {
         ++iPos;
         p_rTag.m_bClose = true;
-        if (iPos >= p_rszLine.length()) {
+        if (iPos >= p_rszLine.length())
+        {
             return false;
         }
     }
 
-    if (p_rszLine.at(iPos) == '>') {
+    if (p_rszLine.at(iPos) == '>')
+    {
         ++iPos;
         p_rszLine = p_rszLine.substr(iPos);
         return true;
-    } else {
-        if (m_bTryToIgnoreErrors) {
-            std::size_t iTempPos{p_rszLine.find_first_of('>')};
+    }
+    else
+    {
+        if (m_bTryToIgnoreErrors)
+        {
+            std::size_t iTempPos{ p_rszLine.find_first_of('>') };
 
-            if (iTempPos != std::wstring::npos) {
-                if (iTempPos - 1 >= p_rszLine.length()) {
+            if (iTempPos != std::wstring::npos)
+            {
+                if (iTempPos - 1 >= p_rszLine.length())
+                {
                     return false;
                 }
 
                 p_rszLine = p_rszLine.substr(iTempPos + 1);
                 return true;
-            } else {
+            }
+            else
+            {
                 return false;
             }
-
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -272,22 +331,28 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::ExtractString(std::wstring& p_rszLine, std::wstring& p_rszString)
 {
-    if (p_rszLine.empty() || p_rszLine.at(0) == '<') {
-        if (m_bTryToIgnoreErrors) {
+    if (p_rszLine.empty() || p_rszLine.at(0) == '<')
+    {
+        if (m_bTryToIgnoreErrors)
+        {
             p_rszString = L"";
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
 
-    unsigned int iPos{0};
+    unsigned int iPos{ 0 };
 
-    if (!SkipSpaces(p_rszLine, iPos)) {
+    if (!SkipSpaces(p_rszLine, iPos))
+    {
         return false;
     }
 
-    if (!GetString(p_rszLine, iPos, p_rszString, L"<")) {
+    if (!GetString(p_rszLine, iPos, p_rszString, L"<"))
+    {
         return false;
     }
 
@@ -297,7 +362,8 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::SkipSpaces(std::wstring& p_rszLine, unsigned int& p_riPos)
 {
-    while (p_rszLine.length() > p_riPos && iswspace(p_rszLine.at(p_riPos))) {
+    while (p_rszLine.length() > p_riPos && iswspace(p_rszLine.at(p_riPos)))
+    {
         ++p_riPos;
     }
 
@@ -306,7 +372,8 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::GetString(std::wstring& p_rszLine, unsigned int& p_riPos, std::wstring& p_rszString, const std::wstring& p_crszEndChars)
 {
-    while (p_rszLine.length() > p_riPos && p_crszEndChars.find(p_rszLine.at(p_riPos)) == std::wstring::npos) {
+    while (p_rszLine.length() > p_riPos && p_crszEndChars.find(p_rszLine.at(p_riPos)) == std::wstring::npos)
+    {
         p_rszString += p_rszLine.at(p_riPos);
         ++p_riPos;
     }
@@ -316,71 +383,93 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::GetAttributes(std::wstring& p_rszLine, unsigned int& p_riPos, std::map<std::wstring, std::wstring>& p_rmapAttributes)
 {
-    if (!SkipSpaces(p_rszLine, p_riPos)) {
+    if (!SkipSpaces(p_rszLine, p_riPos))
+    {
         return false;
     }
 
-    while (p_riPos < p_rszLine.length() && p_rszLine.at(p_riPos) != '/' && p_rszLine.at(p_riPos) != '>') {
+    while (p_riPos < p_rszLine.length() && p_rszLine.at(p_riPos) != '/' && p_rszLine.at(p_riPos) != '>')
+    {
         std::wstring szName;
-        if (!GetString(p_rszLine, p_riPos, szName, L"\r\n\t =")) {
+        if (!GetString(p_rszLine, p_riPos, szName, L"\r\n\t ="))
+        {
             return false;
         }
 
-        if (!SkipSpaces(p_rszLine, p_riPos)) {
+        if (!SkipSpaces(p_rszLine, p_riPos))
+        {
             return false;
         }
 
-        if (p_rszLine.at(p_riPos) != '=') {
-            if (m_bTryToIgnoreErrors) {
-                std::size_t pos{p_rszLine.find_first_of('=', p_riPos)};
-                if (pos == std::wstring::npos) {
+        if (p_rszLine.at(p_riPos) != '=')
+        {
+            if (m_bTryToIgnoreErrors)
+            {
+                std::size_t pos{ p_rszLine.find_first_of('=', p_riPos) };
+                if (pos == std::wstring::npos)
+                {
                     return false;
-                } else {
+                }
+                else
+                {
                     p_riPos = (unsigned int)pos;
                 }
-            } else {
+            }
+            else
+            {
                 return false;
             }
         }
 
         ++p_riPos;
 
-        if (!SkipSpaces(p_rszLine, p_riPos)) {
+        if (!SkipSpaces(p_rszLine, p_riPos))
+        {
             return false;
         }
 
-        bool bUsesQuotes{false};
-        if (p_rszLine.at(p_riPos) == '\'' || p_rszLine.at(p_riPos) == '\"') {
+        bool bUsesQuotes{ false };
+        if (p_rszLine.at(p_riPos) == '\'' || p_rszLine.at(p_riPos) == '\"')
+        {
             ++p_riPos;
             bUsesQuotes = true;
         }
 
-        if (!SkipSpaces(p_rszLine, p_riPos)) {
+        if (!SkipSpaces(p_rszLine, p_riPos))
+        {
             return false;
         }
 
         std::wstring szValue;
-        if (bUsesQuotes) {
-            if (!GetString(p_rszLine, p_riPos, szValue, L"\"\'/>")) {
+        if (bUsesQuotes)
+        {
+            if (!GetString(p_rszLine, p_riPos, szValue, L"\"\'/>"))
+            {
                 return false;
             }
-        } else {
-            if (!GetString(p_rszLine, p_riPos, szValue, L" \t/>")) {
+        }
+        else
+        {
+            if (!GetString(p_rszLine, p_riPos, szValue, L" \t/>"))
+            {
                 return false;
             }
         }
 
         p_rmapAttributes[StringToLower(szName)] = szValue;
 
-        if (!SkipSpaces(p_rszLine, p_riPos)) {
+        if (!SkipSpaces(p_rszLine, p_riPos))
+        {
             return false;
         }
 
-        if (p_rszLine.at(p_riPos) == '\'' || p_rszLine.at(p_riPos) == '\"') {
+        if (p_rszLine.at(p_riPos) == '\'' || p_rszLine.at(p_riPos) == '\"')
+        {
             ++p_riPos;
         }
 
-        if (!SkipSpaces(p_rszLine, p_riPos)) {
+        if (!SkipSpaces(p_rszLine, p_riPos))
+        {
             return false;
         }
     }
@@ -390,34 +479,44 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] int CRealTextParser::GetTimecode(const std::wstring& p_crszTimecode)
 {
-    int iTimecode{0};
-    int iMultiplier{1};
+    int iTimecode{ 0 };
+    int iMultiplier{ 1 };
 
     // Exception: if the timecode doesn't contain any separators, assume the time code is in seconds (and change multiplier to reflect that)
-    if (p_crszTimecode.find_first_of('.') == std::wstring::npos && p_crszTimecode.find_first_of(':') == std::wstring::npos) {
+    if (p_crszTimecode.find_first_of('.') == std::wstring::npos && p_crszTimecode.find_first_of(':') == std::wstring::npos)
+    {
         iMultiplier = 1000;
     }
 
     std::wstring szCurrentPart;
 
-    for (std::ptrdiff_t i = p_crszTimecode.length() - 1; i >= 0; --i) {
-        if (p_crszTimecode.at(i) == '.' || p_crszTimecode.at(i) == ':') {
-            if (iMultiplier == 1) {
-                while (szCurrentPart.length() < 3) {
+    for (std::ptrdiff_t i = p_crszTimecode.length() - 1; i >= 0; --i)
+    {
+        if (p_crszTimecode.at(i) == '.' || p_crszTimecode.at(i) == ':')
+        {
+            if (iMultiplier == 1)
+            {
+                while (szCurrentPart.length() < 3)
+                {
                     szCurrentPart += L"0";
                 }
             }
 
             iTimecode += iMultiplier * ::_wtoi(szCurrentPart.c_str());
 
-            if (iMultiplier == 1) {
+            if (iMultiplier == 1)
+            {
                 iMultiplier = 1000;
-            } else {
+            }
+            else
+            {
                 iMultiplier *= 60;
             }
 
             szCurrentPart = L"";
-        } else {
+        }
+        else
+        {
             szCurrentPart = p_crszTimecode.substr(i, 1) + szCurrentPart;
         }
     }
@@ -428,30 +527,31 @@ CRealTextParser::~CRealTextParser()
 }
 
 [[nodiscard]] std::wstring CRealTextParser::FormatTimecode(const int iTimecode,
-                                             const int iMillisecondPrecision/* = 3*/,
-                                             const bool p_bPadZeroes/* = true*/,
-                                             const std::wstring& p_crszSeparator/* = ":"*/,
-                                             const std::wstring& p_crszMillisecondSeparator/* = "."*/)
+                                                           const int iMillisecondPrecision /* = 3*/,
+                                                           const bool p_bPadZeroes /* = true*/,
+                                                           const std::wstring& p_crszSeparator /* = ":"*/,
+                                                           const std::wstring& p_crszMillisecondSeparator /* = "."*/)
 {
     std::wostringstream ossTimecode;
 
-    int iHours{iTimecode / 1000 / 60 / 60};
+    int iHours{ iTimecode / 1000 / 60 / 60 };
 
     ossTimecode << iHours;
 
-    int iMinutes{(iTimecode / 1000 / 60) % 60};
+    int iMinutes{ (iTimecode / 1000 / 60) % 60 };
 
     ossTimecode << p_crszSeparator;
     ossTimecode << iMinutes;
 
-    int iSeconds{(iTimecode / 1000) % 60};
+    int iSeconds{ (iTimecode / 1000) % 60 };
 
     ossTimecode << p_crszSeparator;
     ossTimecode << iSeconds;
 
-    int iMilliSeconds{iTimecode % 1000};
+    int iMilliSeconds{ iTimecode % 1000 };
 
-    if (iMillisecondPrecision < 3) {
+    if (iMillisecondPrecision < 3)
+    {
         iMilliSeconds /= 10 * (3 - iMillisecondPrecision);
     }
 
@@ -464,7 +564,8 @@ CRealTextParser::~CRealTextParser()
 [[nodiscard]] std::wstring CRealTextParser::StringToLower(const std::wstring& p_crszString)
 {
     std::wstring szLowercaseString;
-    for (unsigned int i{0}; i < p_crszString.length(); ++i) {
+    for (unsigned int i{ 0 }; i < p_crszString.length(); ++i)
+    {
         szLowercaseString += towlower(p_crszString.at(i));
     }
     return szLowercaseString;
@@ -472,55 +573,80 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] std::wstring CRealTextParser::RenderTags(const std::list<Tag>& p_crlTags)
 {
-    bool bEmpty{true};
+    bool bEmpty{ true };
     std::wstring szString;
 
-    for (auto iter{p_crlTags.cbegin()}; iter != p_crlTags.cend(); ++iter) {
+    for (auto iter{ p_crlTags.cbegin() }; iter != p_crlTags.cend(); ++iter)
+    {
         Tag oTag(*iter);
 
-        if (oTag.m_szName == L"br") {
+        if (oTag.m_szName == L"br")
+        {
             szString += L"\n";
-        } else if (oTag.m_szName == L"b") {
-            if (!m_bIgnoreFontWeight) {
-                if (oTag.m_bOpen) {
+        }
+        else if (oTag.m_szName == L"b")
+        {
+            if (!m_bIgnoreFontWeight)
+            {
+                if (oTag.m_bOpen)
+                {
                     szString += L"<b>";
-                } else if (oTag.m_bClose) {
+                }
+                else if (oTag.m_bClose)
+                {
                     szString += L"</b>";
                 }
             }
-        } else if (oTag.m_szName == L"i") {
-            if (!m_bIgnoreFontWeight) {
-                if (oTag.m_bOpen) {
+        }
+        else if (oTag.m_szName == L"i")
+        {
+            if (!m_bIgnoreFontWeight)
+            {
+                if (oTag.m_bOpen)
+                {
                     szString += L"<i>";
-                } else if (oTag.m_bClose) {
+                }
+                else if (oTag.m_bClose)
+                {
                     szString += L"</i>";
                 }
             }
-        } else if (oTag.m_szName == L"font") {
-            if (!m_bIgnoreFont) {
-                if (oTag.m_bOpen) {
+        }
+        else if (oTag.m_szName == L"font")
+        {
+            if (!m_bIgnoreFont)
+            {
+                if (oTag.m_bOpen)
+                {
                     szString += L"<font";
-                    for (std::map<std::wstring, std::wstring>:: iterator i{oTag.m_mapAttributes.begin()}; i != oTag.m_mapAttributes.end(); ++i) {
-                        if (m_bIgnoreFontSize && i->first == L"size") {
+                    for (std::map<std::wstring, std::wstring>::iterator i{ oTag.m_mapAttributes.begin() }; i != oTag.m_mapAttributes.end(); ++i)
+                    {
+                        if (m_bIgnoreFontSize && i->first == L"size")
+                        {
                             continue;
                         }
 
-                        if (m_bIgnoreFontColor && i->first == L"color") {
+                        if (m_bIgnoreFontColor && i->first == L"color")
+                        {
                             continue;
                         }
 
-                        if (m_bIgnoreFontFace && i->first == L"face") {
+                        if (m_bIgnoreFontFace && i->first == L"face")
+                        {
                             continue;
                         }
 
-                        if (i->first == L"size" && !i->second.empty() && ::iswdigit(i->second.at(0))) {
-                            int iSize{::_wtoi(i->second.c_str())};
+                        if (i->first == L"size" && !i->second.empty() && ::iswdigit(i->second.at(0)))
+                        {
+                            int iSize{ ::_wtoi(i->second.c_str()) };
 
-                            if (iSize > 0 && iSize < m_iMinFontSize) {
+                            if (iSize > 0 && iSize < m_iMinFontSize)
+                            {
                                 continue;
                             }
 
-                            if (iSize > m_iMaxFontSize) {
+                            if (iSize > m_iMaxFontSize)
+                            {
                                 continue;
                             }
                         }
@@ -534,32 +660,42 @@ CRealTextParser::~CRealTextParser()
                     szString += L">";
                 }
 
-                if (oTag.m_bClose) {
+                if (oTag.m_bClose)
+                {
                     szString += L"</font>";
                 }
             }
-        } else if (oTag.m_bText) {
+        }
+        else if (oTag.m_bText)
+        {
             szString += oTag.m_szName;
 
-            if (!oTag.m_szName.empty()) {
+            if (!oTag.m_szName.empty())
+            {
                 bEmpty = false;
             }
-        } else {
-            //AfxMessageBox(CString(_T("Unknown RealText-tag: ")) + oTag.m_szName.c_str());
+        }
+        else
+        {
+            // AfxMessageBox(CString(_T("Unknown RealText-tag: ")) + oTag.m_szName.c_str());
         }
     }
 
-    if (bEmpty) {
+    if (bEmpty)
+    {
         return L"";
-    } else {
+    }
+    else
+    {
         return szString;
     }
 }
 
 [[nodiscard]] bool CRealTextParser::OutputSRT(std::wostream& p_rOutput)
 {
-    int iCounter{1};
-    for (auto i{m_RealText.m_mapLines.cbegin()}; i != m_RealText.m_mapLines.cend(); ++i) {
+    int iCounter{ 1 };
+    for (auto i{ m_RealText.m_mapLines.cbegin() }; i != m_RealText.m_mapLines.cend(); ++i)
+    {
         p_rOutput << iCounter++;
         p_rOutput << std::endl;
 
@@ -578,8 +714,10 @@ CRealTextParser::~CRealTextParser()
 
 void CRealTextParser::PopTag(std::list<Tag>& p_rlistTags, const std::wstring& p_crszTagName)
 {
-    for (auto riter{p_rlistTags.crbegin()}; riter != p_rlistTags.crend(); ++riter) {
-        if (riter->m_szName == p_crszTagName) {
+    for (auto riter{ p_rlistTags.crbegin() }; riter != p_rlistTags.crend(); ++riter)
+    {
+        if (riter->m_szName == p_crszTagName)
+        {
             p_rlistTags.erase((++riter).base());
             return;
         }

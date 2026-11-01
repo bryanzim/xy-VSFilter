@@ -67,14 +67,13 @@ extern void ShowPPage(IUnknown* pUnknown, HWND hParentWnd);
 [[nodiscard]] extern bool IsCLSIDRegistered(const CLSID& clsid);
 extern void CStringToBin(CString str, CAtlArray<BYTE>& data);
 [[nodiscard]] extern CString BinToCString(BYTE* ptr, int len);
-typedef enum
-{
+using cdrom_t = enum {
     CDROM_NotFound,
     CDROM_Audio,
     CDROM_VideoCD,
     CDROM_DVDVideo,
     CDROM_Unknown
-} cdrom_t;
+};
 [[nodiscard]] extern cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files);
 [[nodiscard]] extern CString GetDriveLabel(TCHAR drive);
 [[nodiscard]] extern bool GetKeyFrames(CString fn, CUIntArray& kfs);

@@ -121,7 +121,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
         {
             urlstr += "%2B";
         }
-        else if (c > 0x20 && c < 0x7f && c != '&')
+        else if ((c > 0x20) && (c < 0x7f) && (c != '&'))
         {
             urlstr += c;
         }
@@ -132,7 +132,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
         else
         {
             CStringA tmp;
-            tmp.Format("%%%02x", (BYTE)c);
+            tmp.Format("%%%02x", static_cast<BYTE>(c));
             urlstr += tmp;
         }
     }
@@ -153,25 +153,25 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
         CHAR s11 = (s1 < e - 1) ? (__isascii(s1[1U]) && std::isupper(s1[1U]) ? std::tolower(s1[1U]) : s1[1U]) : 0;
         CHAR s12 = (s1 < e - 2) ? (__isascii(s1[2U]) && std::isupper(s1[2U]) ? std::tolower(s1[2U]) : s1[2U]) : 0;
 
-        if (*s1 == '%' && s1 < e - 2 && ((s1[1U] >= '0' && s1[1U] <= '9') || (s11 >= 'a' && s11 <= 'f')) && ((s1[2U] >= '0' && s1[2U] <= '9') || (s12 >= 'a' && s12 <= 'f')))
+        if (*s1 == '%' && (s1 < e - 2) && (((s1[1U] >= '0') && (s1[1U] <= '9')) || ((s11 >= 'a') && (s11 <= 'f'))) && (((s1[2U] >= '0') && (s1[2U] <= '9')) || ((s12 >= 'a') && (s12 <= 'f'))))
         {
             s1[1U] = s11;
             s1[2U] = s12;
             *s2 = 0;
-            if (s1[1U] >= '0' && s1[1U] <= '9')
+            if ((s1[1U] >= '0') && (s1[1U] <= '9'))
             {
                 *s2 |= s1[1U] - '0';
             }
-            else if (s1[1U] >= 'a' && s1[1U] <= 'f')
+            else if ((s1[1U] >= 'a') && (s1[1U] <= 'f'))
             {
                 *s2 |= s1[1U] - 'a' + 10;
             }
             *s2 <<= 4;
-            if (s1[2U] >= '0' && s1[2U] <= '9')
+            if ((s1[2U] >= '0') && (s1[2U] <= '9'))
             {
                 *s2 |= s1[2U] - '0';
             }
-            else if (s1[2U] >= 'a' && s1[2U] <= 'f')
+            else if ((s1[2U] >= 'a') && (s1[2U] <= 'f'))
             {
                 *s2 |= s1[2U] - 'a' + 10;
             }
@@ -211,7 +211,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
     {
         CString attrib{ tag.Left(i).Trim().MakeLower() };
         tag = tag.Mid(i + 1);
-        for (i = 0; i < tag.GetLength() && _istspace(tag[i]); ++i)
+        for (i = 0; (i < tag.GetLength()) && _istspace(tag[i]); ++i)
         {
             ;
         }
@@ -268,7 +268,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
         POSITION tmp{ pos };
         CString& str{ sl.GetNext(pos) };
         int len{ str.GetLength() };
-        if (len < minlen || len > maxlen)
+        if ((len < minlen) || (len > maxlen))
         {
             sl.RemoveAt(tmp);
         }

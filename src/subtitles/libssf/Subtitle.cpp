@@ -322,7 +322,7 @@ namespace ssf
             n2n[L"stop"] = m_time.stop - m_time.start;
 
             Definition::Time time;
-            if (pDef->GetAsTime(time, offset, &n2n, default_id) && time.start.value < time.stop.value)
+            if (pDef->GetAsTime(time, offset, &n2n, default_id) && (time.start.value < time.stop.value))
             {
                 t = (at - time.start.value) / (time.stop.value - time.start.value);
 
@@ -373,7 +373,7 @@ namespace ssf
                     t = 1;
                 }
 
-                if (u >= 0 && u < 1)
+                if ((u >= 0) && (u < 1))
                 {
                     t = accel == 0 ? 1 : accel == 1  ? t
                                      : accel >= 1e10 ? 0
@@ -726,7 +726,7 @@ namespace ssf
                 m_text.AddTail(t);
             }
 
-            if (i < n - 1 && (m_text.IsEmpty() || m_text.GetTail().str != Text::SP))
+            if ((i < n - 1) && (m_text.IsEmpty() || (m_text.GetTail().str != Text::SP)))
             {
                 t.str = static_cast<WCHAR>(Text::SP);
                 m_text.AddTail(t);

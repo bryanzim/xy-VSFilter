@@ -92,7 +92,7 @@ public:
             [[clang::fallthrough]];
 #endif
         case 1:
-            if (data && i < IND0_SIZE * IND1_SIZE)
+            if (data && (i < IND0_SIZE * IND1_SIZE))
             {
                 data = reinterpret_cast<T**>(data)[i / IND0_SIZE];
                 i %= IND0_SIZE;
@@ -101,7 +101,7 @@ public:
             [[clang::fallthrough]];
 #endif
         case 0:
-            if (data && i < IND0_SIZE)
+            if (data && (i < IND0_SIZE))
             {
                 return reinterpret_cast<T*>(data)[i];
             }

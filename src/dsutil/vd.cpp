@@ -197,7 +197,7 @@ CCpuID::CCpuID()
 #ifndef _WIN64
     if ((g_cpuid.m_flags & CCpuID::sse2) && !((DWORD_PTR)srcy & 15) && !((DWORD_PTR)srcu & 15) && !((DWORD_PTR)srcv & 15) && !(srcpitch & 31) && !((DWORD_PTR)dst & 15) && !(dstpitch & 15))
     {
-        if (w <= 0 || h <= 0 || (w & 1) || (h & 1))
+        if ((w <= 0) || (h <= 0) || (w & 1) || (h & 1))
         {
             return false;
         }
@@ -365,7 +365,7 @@ CCpuID::CCpuID()
 static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width)
 
 {
-    WORD* dstw{ (WORD*)dst };
+    WORD* dstw{ reinterpret_cast<WORD*>(dst) };
     for (; width > 1; width -= 2)
     {
         *dstw++ = (*srcu++ << 8) | *srcy++;
@@ -376,7 +376,7 @@ static void yuvtoyuy2row_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD 
 static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, const DWORD pitchuv)
 
 {
-    WORD* dstw{ (WORD*)dst };
+    WORD* dstw{ reinterpret_cast<WORD*>(dst) };
     for (; width > 1; width -= 2, ++srcu, ++srcv)
     {
         *dstw++ = (((srcu[0U] + srcu[pitchuv]) >> 1) << 8) | *srcy++;
@@ -386,7 +386,7 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 
 [[nodiscard]] bool BitBltFromI420ToYUY2Interlaced(const int w, int h, BYTE* dst, const int dstpitch, BYTE* srcy, BYTE* srcu, BYTE* srcv, int srcpitch)
 {
-    if (w <= 0 || h <= 0 || (w & 1) || (h & 1))
+    if ((w <= 0) || (h <= 0) || (w & 1) || (h & 1))
     {
         return false;
     }
@@ -450,11 +450,11 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 
 [[nodiscard]] bool BitBltFromP010ToP010(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return true;
     }
-    ASSERT((dst && src && w * 2 <= srcpitch && w * 2 <= dstpitch && ((h & 1) == 0)));
+    ASSERT((dst && src && (w * 2 <= srcpitch) && (w * 2 <= dstpitch) && ((h & 1) == 0)));
     VDMemcpyRect(dst, dstpitch, src, srcpitch, w * 2, h + h / 2);
 
     return true;
@@ -462,11 +462,11 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 
 [[nodiscard]] bool BitBltFromP210ToP210(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return true;
     }
-    ASSERT((dst && src && w * 2 <= srcpitch && w * 2 <= dstpitch));
+    ASSERT((dst && src && (w * 2 <= srcpitch) && (w * 2 <= dstpitch)));
     VDMemcpyRect(dst, dstpitch, src, srcpitch, w * 2, h + h);
 
     return true;
@@ -474,11 +474,11 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
 
 [[nodiscard]] bool BitBltFromNV12ToNV12(const int w, const int h, BYTE* dst, const int dstpitch, const BYTE* src, const int srcpitch)
 {
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return true;
     }
-    ASSERT((dst && src && w <= srcpitch && w <= dstpitch && ((h & 1) == 0)));
+    ASSERT((dst && src && (w <= srcpitch) && (w <= dstpitch) && ((h & 1) == 0)));
     VDMemcpyRect(dst, dstpitch, src, srcpitch, w, h + h / 2);
 
     return true;

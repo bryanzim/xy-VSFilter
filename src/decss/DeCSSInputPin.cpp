@@ -61,7 +61,7 @@ DECLSPEC_NOTHROW STDMETHODIMP CDeCSSInputPin::Receive(IMediaSample* pSample)
     long len = pSample->GetActualDataLength();
 
     BYTE* p = nullptr;
-    if (SUCCEEDED(pSample->GetPointer(&p)) && len > 0)
+    if (SUCCEEDED(pSample->GetPointer(&p)) && (len > 0))
     {
         BYTE* base = p;
 
@@ -95,7 +95,7 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
 
     if (majortype == MEDIATYPE_MPEG2_PACK || majortype == MEDIATYPE_DVD_ENCRYPTED_PACK)
     {
-        if (len > 0 && *reinterpret_cast<DWORD*>(p) == 0xba010000) // MEDIATYPE_*_PACK
+        if ((len > 0) && (*reinterpret_cast<DWORD*>(p)) == 0xba010000) // MEDIATYPE_*_PACK
         {
             len -= 14;
             p += 14;
@@ -110,7 +110,7 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
 
     if (majortype == MEDIATYPE_MPEG2_PES)
     {
-        if (len > 0 && *reinterpret_cast<DWORD*>(p) == 0xbb010000)
+        if ((len > 0) && (*reinterpret_cast<DWORD*>(p)) == 0xbb010000)
         {
             len -= 4;
             p += 4;
@@ -122,7 +122,7 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
 
     if (majortype == MEDIATYPE_MPEG2_PES)
     {
-        if (len > 0 && ((*reinterpret_cast<DWORD*>(p) & 0xf0ffffff) == 0xe0010000 || (*reinterpret_cast<DWORD*>(p) & 0xe0ffffff) == 0xc0010000 || (*reinterpret_cast<DWORD*>(p) & 0xbdffffff) == 0xbd010000)) // PES
+        if ((len > 0) && ((*reinterpret_cast<DWORD*>(p) & 0xf0ffffff) == 0xe0010000 || (*reinterpret_cast<DWORD*>(p) & 0xe0ffffff) == 0xc0010000 || (*reinterpret_cast<DWORD*>(p) & 0xbdffffff) == 0xbd010000)) // PES
         {
             bool ps1 = (*reinterpret_cast<DWORD*>(p) & 0xbdffffff) == 0xbd010000;
 
@@ -133,7 +133,7 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
             p += 2;
             BYTE* p0 = p;
 
-            for (int i{ 0 }; i < 16 && *p == 0xff; ++i, --len, ++p)
+            for (int i{ 0 }; (i < 16) && *p == 0xff; ++i, --len, ++p)
             {
                 ;
             }

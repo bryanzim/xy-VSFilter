@@ -12,7 +12,7 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
         m_xy_bool_opt[i] = false;
         m_xy_double_opt[i] = 0;
     }
-    for (const Option* op{ option_list }; op && op->type != OPTION_TYPE_END_FLAG; ++op)
+    for (const Option* op{ option_list }; op && (op->type != OPTION_TYPE_END_FLAG); ++op)
     {
         ASSERT(op->option_id < MAX_OPTION_ID);
         m_option_type[op->option_id] = op->type | op->rw_mode;
@@ -257,10 +257,10 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
     switch (m_option_type[field] & ~OPTION_MODE_RW)
     {
     case OPTION_TYPE_BOOL:
-        *(bool*)value = m_xy_bool_opt[field];
+        *reinterpret_cast<bool*>(value) = m_xy_bool_opt[field];
         break;
     case OPTION_TYPE_INT:
-        *(int*)value = m_xy_int_opt[field];
+        *reinterpret_cast<int*>(value) = m_xy_int_opt[field];
         break;
     case OPTION_TYPE_SIZE:
         *(SIZE*)value = m_xy_size_opt[field];
@@ -269,10 +269,10 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
         *(RECT*)value = m_xy_rect_opt[field];
         break;
     case OPTION_TYPE_ULONGLONG:
-        *(ULONGLONG*)value = m_xy_ulonglong_opt[field];
+        *reinterpret_cast<ULONGLONG*>(value) = m_xy_ulonglong_opt[field];
         break;
     case OPTION_TYPE_DOUBLE:
-        *(double*)value = m_xy_double_opt[field];
+        *reinterpret_cast<double*>(value) = m_xy_double_opt[field];
         break;
     case OPTION_TYPE_STRING:
         *(CStringW*)value = m_xy_str_opt[field];
@@ -290,16 +290,16 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
     switch (m_option_type[field] & ~OPTION_MODE_RW)
     {
     case OPTION_TYPE_BOOL:
-        if (m_xy_bool_opt[field] != *(bool*)value)
+        if (m_xy_bool_opt[field] != *reinterpret_cast<const bool*>(value))
         {
-            m_xy_bool_opt[field] = *(bool*)value;
+            m_xy_bool_opt[field] = *reinterpret_cast<const bool*>(value);
             hr = OnOptionChanged(field);
         }
         break;
     case OPTION_TYPE_INT:
-        if (m_xy_int_opt[field] != *(int*)value)
+        if (m_xy_int_opt[field] != *reinterpret_cast<const int*>(value))
         {
-            m_xy_int_opt[field] = *(int*)value;
+            m_xy_int_opt[field] = *reinterpret_cast<const int*>(value);
             hr = OnOptionChanged(field);
         }
         break;
@@ -318,16 +318,16 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
         }
         break;
     case OPTION_TYPE_ULONGLONG:
-        if (m_xy_ulonglong_opt[field] != *(ULONGLONG*)value)
+        if (m_xy_ulonglong_opt[field] != *reinterpret_cast<const ULONGLONG*>(value))
         {
-            m_xy_ulonglong_opt[field] = *(ULONGLONG*)value;
+            m_xy_ulonglong_opt[field] = *reinterpret_cast<const ULONGLONG*>(value);
             hr = OnOptionChanged(field);
         }
         break;
     case OPTION_TYPE_DOUBLE:
-        if (m_xy_double_opt[field] != *(double*)value)
+        if (m_xy_double_opt[field] != *reinterpret_cast<const double*>(value))
         {
-            m_xy_double_opt[field] = *(double*)value;
+            m_xy_double_opt[field] = *reinterpret_cast<const double*>(value);
             hr = OnOptionChanged(field);
         }
         break;

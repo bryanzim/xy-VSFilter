@@ -244,7 +244,7 @@ namespace ssf
 
                 CSize extent;
                 GetTextExtentPoint32W(m_hDC, &g->c, 1, &extent);
-                ASSERT((extent.cx >= 0 && extent.cy >= 0));
+                ASSERT(((extent.cx >= 0) && (extent.cy >= 0)));
 
                 if (vertical)
                 {
@@ -330,7 +330,7 @@ namespace ssf
                     }
 
                     Glyph* g2 = r->GetAt(gpos);
-                    if (g1->font != g2->font || !g1->style.font.kerning || !g2->style.font.kerning)
+                    if ((g1->font != g2->font) || !g1->style.font.kerning || !g2->style.font.kerning)
                     {
                         continue;
                     }
@@ -385,7 +385,7 @@ namespace ssf
 
                     width += g->width + g->spacing;
 
-                    if (brpos && std::abs(width) > maxwidth && g->c != Text::SP)
+                    if (brpos && (std::abs(width) > maxwidth) && (g->c != Text::SP))
                     {
                         row.Attach(new Row());
                         POSITION next = brpos;
@@ -395,7 +395,7 @@ namespace ssf
                             row->AddHead(r->GetPrev(brpos));
                         } while (brpos);
                         rows.InsertBefore(rpos, row);
-                        while (!r->IsEmpty() && r->GetHeadPosition() != next)
+                        while (!r->IsEmpty() && (r->GetHeadPosition() != next))
                         {
                             r->RemoveHeadNoReturn();
                         }
@@ -446,7 +446,7 @@ namespace ssf
             {
                 Glyph* g = r->GetNext(gpos);
 
-                if (!glypsh2fill.IsEmpty() && fill_id && (g->style.fill.id != fill_id || (!rowPos && !gpos)))
+                if (!glypsh2fill.IsEmpty() && fill_id && ((g->style.fill.id != fill_id) || (!rowPos && !gpos)))
                 {
                     int w = static_cast<int>(g->style.fill.width * fill_width + 0.5);
 
@@ -701,7 +701,7 @@ namespace ssf
             DWORD c{ g->style.shadow.color };
             DWORD sw[6U]{ c, 0xFFFFFFFFu };
 
-            bool outline = g->style.background.type == L"outline" && g->style.background.size > 0;
+            bool outline = g->style.background.type == L"outline" && (g->style.background.size > 0);
 
             bbox |= g->ras_shadow.Draw(spd, m_clip, g->tls.x, g->tls.y, sw, outline ? 1 : 0);
         }
@@ -716,11 +716,11 @@ namespace ssf
             DWORD c{ g->style.background.color };
             DWORD sw[6U]{ c, 0xFFFFFFFFu };
 
-            if (g->style.background.type == L"outline" && g->style.background.size > 0)
+            if (g->style.background.type == L"outline" && (g->style.background.size > 0))
             {
                 bbox |= g->ras.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, g->style.font.color.a < 255 ? 2 : 1);
             }
-            else if ((g->style.background.type == L"enlarge" && g->style.background.size > 0) || (g->style.background.type == L"box" && g->style.background.size >= 0))
+            else if ((g->style.background.type == L"enlarge" && (g->style.background.size > 0)) || (g->style.background.type == L"box" && (g->style.background.size >= 0)))
             {
                 bbox |= g->ras_bkg.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, 0);
             }
@@ -746,7 +746,7 @@ namespace ssf
 
     void SubRectAllocator::UpdateTarget(const CSize& s, const CRect& r)
     {
-        if (vs != s || vr != r)
+        if ((vs != s) || (vr != r))
         {
             RemoveAll();
         }
@@ -761,7 +761,7 @@ namespace ssf
 
         StringMapW<SubRect>::CPair* pPair = Lookup(s->m_name);
 
-        if (pPair && pPair->m_value.rect != sr.rect)
+        if (pPair && (pPair->m_value.rect != sr.rect))
         {
             RemoveKey(s->m_name);
             pPair = nullptr;

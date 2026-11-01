@@ -34,9 +34,9 @@ template <typename T>
 
     // default NAN won't compare as equal to anything.
 
-    assert((maxUlps > 0 && maxUlps < 4 * 1024 * 1024));
+    assert(((maxUlps > 0) && (maxUlps < 4 * 1024 * 1024)));
 
-    int aInt{ *(int*)&A };
+    int aInt{ *reinterpret_cast<int*>(&A) };
 
     // Make aInt lexicographically ordered as a twos-complement int
 
@@ -48,7 +48,7 @@ template <typename T>
 
     // Make bInt lexicographically ordered as a twos-complement int
 
-    int bInt{ *(int*)&B };
+    int bInt{ *reinterpret_cast<int*>(&B) };
 
     if (bInt < 0)
     {
@@ -83,7 +83,7 @@ public:
 
     explicit XyFilterTestData() : buff_base(nullptr), filter_f(nullptr), data(nullptr)
     {
-        buff_base = (float*)xy_malloc(MAX_BUFF_SIZE * sizeof(float));
+        buff_base = reinterpret_cast<float*>(xy_malloc(MAX_BUFF_SIZE * sizeof(float)));
         data = buff_base + MAX_FILTER_LENGTH;
         filter_f = data + MAX_DATA_BUFF_SIZE;
     }
@@ -134,7 +134,7 @@ public:
 
         for (int i{ 0 }; i < h; ++i)
         {
-            float* data2{ (float*)((PUINT8)data + i * pitch) };
+            float* data2{ reinterpret_cast<float*>(((PUINT8)data + i * pitch)) };
             for (int j{ 0 }; j < w + filter_width; ++j)
             {
                 data2[j] = rand() & 0xFF;

@@ -7,7 +7,7 @@
 #include "..\..\include\moreuuids.h"
 
 #pragma pack(push, 1)
-typedef struct
+using DOLBYAC3WAVEFORMAT = struct
 {
     WAVEFORMATEX Format;
     BYTE bBigEndian;
@@ -15,7 +15,7 @@ typedef struct
     BYTE lfeon;
     BYTE copyrightb;
     BYTE nAuxBitsCode; //  Aux bits per frame
-} DOLBYAC3WAVEFORMAT;
+};
 #pragma pack(pop)
 
 CMediaTypeEx::CMediaTypeEx()
@@ -122,9 +122,10 @@ CMediaTypeEx::CMediaTypeEx()
         {
             WAVEFORMATEX* wfe{ (WAVEFORMATEX*)Format() };
 
-            if (wfe->wFormatTag /* > WAVE_FORMAT_PCM && wfe->wFormatTag < WAVE_FORMAT_EXTENSIBLE
+            if ((wfe->wFormatTag /* > WAVE_FORMAT_PCM && wfe->wFormatTag < WAVE_FORMAT_EXTENSIBLE
               && wfe->wFormatTag != WAVE_FORMAT_IEEE_FLOAT*/
-                || subtype != GUID_NULL)
+                 ) ||
+                (subtype != GUID_NULL))
             {
                 codec = GetAudioCodecName(subtype, wfe->wFormatTag);
                 dim.Format(_T("%dHz"), wfe->nSamplesPerSec);
@@ -286,11 +287,11 @@ CMediaTypeEx::CMediaTypeEx()
 
     if (biCompression)
     {
-        BYTE* b{ (BYTE*)&biCompression };
+        BYTE* b{ reinterpret_cast<BYTE*>(const_cast<DWORD*>(&biCompression)) };
 
         for (int i{ 0 }; i < 4; ++i)
         {
-            if (b[i] >= 'a' && b[i] <= 'z')
+            if ((b[i] >= 'a') && (b[i] <= 'z'))
             {
                 b[i] = std::toupper(b[i]);
             }
@@ -635,7 +636,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
         sl.AddTail(_T(""));
 
-        if (wfe.wFormatTag != WAVE_FORMAT_PCM && wfe.cbSize > 0)
+        if ((wfe.wFormatTag != WAVE_FORMAT_PCM) && (wfe.cbSize > 0))
         {
             if (wfe.wFormatTag == WAVE_FORMAT_EXTENSIBLE && wfe.cbSize == sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
             {
@@ -750,7 +751,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
             for (ULONG k{ i }, l{ min(i + 16U, cbFormat) }; k < l; ++k)
             {
                 CString byte;
-                byte.Format(_T("%c%02x"), (fmtsize > 0 && static_cast<ULONG>(fmtsize) == k ? '|' : ' '), pbFormat[k]);
+                byte.Format(_T("%c%02x"), ((fmtsize > 0) && (static_cast<ULONG>(fmtsize)) == k ? '|' : ' '), pbFormat[k]);
                 str += byte;
             }
 
@@ -763,7 +764,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
             for (ULONG k{ i }, l{ min(i + 16U, cbFormat) }; k < l; ++k)
             {
-                unsigned char c{ (unsigned char)pbFormat[k] };
+                unsigned char c{ static_cast<unsigned char>(pbFormat[k]) };
                 CStringA ch;
                 ch.Format("%c", c >= 0x20 ? c : '.');
                 str += ch;

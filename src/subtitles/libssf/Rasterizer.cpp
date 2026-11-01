@@ -213,7 +213,7 @@ namespace ssf
 
         path.MovePoints(CPoint(-minx * (1 << FONT_SCALE), -miny * (1 << FONT_SCALE)));
 
-        if (minx > maxx || miny > maxy)
+        if ((minx > maxx) || (miny > maxy))
         {
             mWidth = mHeight = 0;
             mPathOffsetX = mPathOffsetY = 0;
@@ -257,7 +257,7 @@ namespace ssf
             switch (type[i] & ~PT_CLOSEFIGURE)
             {
             case PT_MOVETO:
-                if (lastmoveto >= 0 && firstp != lastp)
+                if ((lastmoveto >= 0) && (firstp != lastp))
                 {
                     _EvaluateLine(lastp, firstp);
                 }
@@ -281,7 +281,7 @@ namespace ssf
             }
         }
 
-        if (lastmoveto >= 0 && firstp != lastp)
+        if ((lastmoveto >= 0) && (firstp != lastp))
         {
             _EvaluateLine(lastp, firstp);
         }
@@ -379,7 +379,7 @@ namespace ssf
         o.first -= dx;
         o.second += dx;
 
-        while (a != ae && b != be)
+        while ((a != ae) && (b != be))
         {
             Span x;
 
@@ -400,7 +400,7 @@ namespace ssf
                     // then the next B span can't either (because B spans don't
                     // overlap) and we exit.
 
-                    if (a == ae || a->first > x.second)
+                    if (a == ae || (a->first > x.second))
                     {
                         break;
                     }
@@ -408,13 +408,13 @@ namespace ssf
                     do
                     {
                         x.second = mymax(x.second, a->second);
-                    } while (++a != ae && a->first <= x.second);
+                    } while ((++a != ae) && (a->first <= x.second));
 
                     // If we run out of B spans or the B span doesn't overlap,
                     // then the next A span can't either (because A spans don't
                     // overlap) and we exit.
 
-                    if (b == be || b->first + o.first > x.second)
+                    if (b == be || (b->first + o.first > x.second))
                     {
                         break;
                     }
@@ -422,7 +422,7 @@ namespace ssf
                     do
                     {
                         x.second = mymax(x.second, b->second + o.second);
-                    } while (++b != be && b->first + o.first <= x.second);
+                    } while ((++b != be) && (b->first + o.first <= x.second));
                 }
             }
             else
@@ -441,7 +441,7 @@ namespace ssf
                     // then the next A span can't either (because A spans don't
                     // overlap) and we exit.
 
-                    if (b == be || b->first + o.first > x.second)
+                    if (b == be || (b->first + o.first > x.second))
                     {
                         break;
                     }
@@ -449,13 +449,13 @@ namespace ssf
                     do
                     {
                         x.second = mymax(x.second, b->second + o.second);
-                    } while (++b != be && b->first + o.first <= x.second);
+                    } while ((++b != be) && (b->first + o.first <= x.second));
 
                     // If we run out of A spans or the A span doesn't overlap,
                     // then the next B span can't either (because B spans don't
                     // overlap) and we exit.
 
-                    if (a == ae || a->first > x.second)
+                    if (a == ae || (a->first > x.second))
                     {
                         break;
                     }
@@ -463,7 +463,7 @@ namespace ssf
                     do
                     {
                         x.second = mymax(x.second, a->second);
-                    } while (++a != ae && a->first <= x.second);
+                    } while ((++a != ae) && (a->first <= x.second));
                 }
             }
 
@@ -589,7 +589,7 @@ namespace ssf
         {
             BYTE* p = mpOverlayBuffer;
 
-            for (int j = 0; j < mOverlayHeight; j++, p += mOverlayWidth * 4)
+            for (int j = 0; j < mOverlayHeight; ++j, p += mOverlayWidth * 4)
             {
                 for (int i = 0; i < mOverlayWidth; ++i)
                 {
@@ -603,7 +603,7 @@ namespace ssf
 
     void Rasterizer::Blur(float n, int plane)
     {
-        if (n <= 0 || !mOverlayWidth || !mOverlayHeight || !mpOverlayBuffer)
+        if ((n <= 0) || !mOverlayWidth || !mOverlayHeight || !mpOverlayBuffer)
         {
             return;
         }
@@ -618,7 +618,7 @@ namespace ssf
             BYTE* p = mpOverlayBuffer + plane;
             BYTE* q = q0;
 
-            for (int y = 0; y < h; y++, p += pitch, q += w)
+            for (int y = 0; y < h; ++y, p += pitch, q += w)
             {
                 q[0U] = (2 * p[0U] + p[4U]) >> 2;
                 int x = 0;
@@ -632,11 +632,11 @@ namespace ssf
             p = mpOverlayBuffer + plane;
             q = q0;
 
-            for (int x = 0; x < w; x++, p += 4, q++)
+            for (int x = 0; x < w; ++x, p += 4, ++q)
             {
                 p[0U] = (2 * q[0U] + q[w]) >> 2;
                 int y = 0, yp, yq;
-                for (y = 1, yp = y * pitch, yq = y * w; y < h - 1; y++, yp += pitch, yq += w)
+                for (y = 1, yp = y * pitch, yq = y * w; y < h - 1; ++y, yp += pitch, yq += w)
                 {
                     p[yp] = (q[yq - w] + 2 * q[yq] + q[yq + w]) >> 2;
                 }
@@ -724,7 +724,7 @@ namespace ssf
             h = r.bottom - y;
         }
 
-        if (w <= 0 || h <= 0)
+        if ((w <= 0) || (h <= 0))
         {
             return bbox;
         }

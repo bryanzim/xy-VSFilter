@@ -293,7 +293,7 @@ namespace ssf
 
     bool Arabic::IsArabic(WCHAR c)
     {
-        return c >= 0x600 && c <= 0x6ff;
+        return (c >= 0x600) && (c <= 0x6ff);
     }
 
     bool Arabic::Replace(WCHAR& c, pres_form_t pf)

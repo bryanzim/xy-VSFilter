@@ -68,9 +68,9 @@ CDX9SubPic::~CDX9SubPic()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(void*) CDX9SubPic::GetObject() const
 {
     CComPtr<IDirect3DTexture9> pTexture;
-    if (SUCCEEDED(m_pSurface->GetContainer(IID_IDirect3DTexture9, (void**)&pTexture)))
+    if (SUCCEEDED(m_pSurface->GetContainer(IID_IDirect3DTexture9, reinterpret_cast<void**>(&pTexture))))
     {
-        return (void*)(IDirect3DTexture9*)pTexture;
+        return static_cast<void*>(static_cast<IDirect3DTexture9*>(pTexture));
     }
 
     return nullptr;
@@ -156,7 +156,7 @@ CDX9SubPic::~CDX9SubPic()
     {
         int h{ m_rcDirty.Height() };
 
-        BYTE* ptr{ (BYTE*)spd.bits + spd.pitch * m_rcDirty.top + (m_rcDirty.left * spd.bpp >> 3) };
+        BYTE* ptr{ reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * m_rcDirty.top + (m_rcDirty.left * spd.bpp >> 3) };
 
         if (spd.bpp == 16)
         {
@@ -179,7 +179,7 @@ CDX9SubPic::~CDX9SubPic()
                 DWORD* end = ptr + bm.h*bm.wBytes/4;
                 while(ptr < end) *ptr++ = color;
         */
-        (void)Unlock(nullptr);
+        static_cast<void>(Unlock(nullptr));
     }
 
     //		HRESULT hr = pD3DDev->ColorFill(m_pSurface, m_rcDirty, color);
@@ -212,7 +212,7 @@ CDX9SubPic::~CDX9SubPic()
         d3dsd.Format == D3DFMT_A8R8G8B8 ? 32 : d3dsd.Format == D3DFMT_A4R4G4B4 ? 16
                                                                                : 0;
     spd.pitch = LockedRect.Pitch;
-    spd.bits = (BYTE*)LockedRect.pBits;
+    spd.bits = reinterpret_cast<BYTE*>(LockedRect.pBits);
     spd.vidrect = m_vidrect;
 
     return S_OK;
@@ -277,18 +277,18 @@ CDX9SubPic::~CDX9SubPic()
             break;
         }
 
-        float w{ (float)d3dsd.Width };
-        float h{ (float)d3dsd.Height };
+        float w{ static_cast<float>(d3dsd.Width) };
+        float h{ static_cast<float>(d3dsd.Height) };
 
         struct
         {
             float x, y, z, rhw;
             float tu, tv;
         } pVertices[] = {
-            {  (float)dst.left,    (float)dst.top, 0.5f, 2.0f,  (float)src.left / w,    (float)src.top / h },
-            { (float)dst.right,    (float)dst.top, 0.5f, 2.0f, (float)src.right / w,    (float)src.top / h },
-            {  (float)dst.left, (float)dst.bottom, 0.5f, 2.0f,  (float)src.left / w, (float)src.bottom / h },
-            { (float)dst.right, (float)dst.bottom, 0.5f, 2.0f, (float)src.right / w, (float)src.bottom / h },
+            {  static_cast<float>(dst.left),    static_cast<float>(dst.top), 0.5f, 2.0f,  static_cast<float>(src.left) / w,    static_cast<float>(src.top) / h },
+            { static_cast<float>(dst.right),    static_cast<float>(dst.top), 0.5f, 2.0f, static_cast<float>(src.right) / w,    static_cast<float>(src.top) / h },
+            {  static_cast<float>(dst.left), static_cast<float>(dst.bottom), 0.5f, 2.0f,  static_cast<float>(src.left) / w, static_cast<float>(src.bottom) / h },
+            { static_cast<float>(dst.right), static_cast<float>(dst.bottom), 0.5f, 2.0f, static_cast<float>(src.right) / w, static_cast<float>(src.bottom) / h },
         };
 
         for (std::size_t i{ 0U }; i < countof(pVertices); ++i)
@@ -444,7 +444,7 @@ void CDX9SubPicAllocator::ClearCache()
 {
     ClearCache();
     m_maxsize = MaxTextureSize;
-    (void)SetCurSize(MaxTextureSize);
+    static_cast<void>(SetCurSize(MaxTextureSize));
     return S_OK;
 }
 

@@ -247,9 +247,9 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
                 y = (y - 16) * 255 / 219;
 
-                pgc.pal[j].rgbRed = (BYTE)min(max(1.0 * y + 1.4022 * (u - 128), 0), 255);
-                pgc.pal[j].rgbGreen = (BYTE)min(max(1.0 * y - 0.3456 * (u - 128) - 0.7145 * (v - 128), 0), 255);
-                pgc.pal[j].rgbBlue = (BYTE)min(max(1.0 * y + 1.7710 * (v - 128), 0), 255);
+                pgc.pal[j].rgbRed = static_cast<BYTE>(min(max(1.0 * y + 1.4022 * (u - 128), 0), 255));
+                pgc.pal[j].rgbGreen = static_cast<BYTE>(min(max(1.0 * y - 0.3456 * (u - 128) - 0.7145 * (v - 128), 0), 255));
+                pgc.pal[j].rgbBlue = static_cast<BYTE>(min(max(1.0 * y + 1.7710 * (v - 128), 0), 255));
             }
 
             //
@@ -336,8 +336,8 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 int hh{ ((t >> 28) & 0xf) * 10 + ((t >> 24) & 0xf) };
                 int mm{ ((t >> 20) & 0xf) * 10 + ((t >> 16) & 0xf) };
                 int ss{ ((t >> 12) & 0xf) * 10 + ((t >> 8) & 0xf) };
-                int ms{ (int)(1000.0 * (((t >> 4) & 0x3) * 10 + ((t >> 0) & 0xf)) / fps) };
-                pgc.angles[0U][j].tTime = (DWORD)((((hh * 60 + mm) * 60 + ss) * 1000 + ms) * rate);
+                int ms{ static_cast<int>((1000.0 * (((t >> 4) & 0x3) * 10 + ((t >> 0) & 0xf)) / fps)) };
+                pgc.angles[0U][j].tTime = static_cast<DWORD>(((((hh * 60 + mm) * 60 + ss) * 1000 + ms) * rate));
 
                 // time discontinuity
                 if (b & 0x02)
@@ -358,7 +358,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
                 for (std::size_t j{ 0U }, k = 0; j < nCells; ++j)
                 {
-                    if (pgc.angles[0U][j].iAngle != 0 && pgc.angles[0U][j].iAngle != iAngle)
+                    if ((pgc.angles[0U][j].iAngle != 0) && (pgc.angles[0U][j].iAngle != iAngle))
                     {
                         continue;
                     }
@@ -474,7 +474,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
             break;
 
         default:
-            Reply((DWORD)E_FAIL);
+            Reply(static_cast<DWORD>(E_FAIL));
             return static_cast<DWORD>(-1);
         }
 
@@ -488,14 +488,14 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 [[nodiscard]] static int SubPosSortProc(const void* e1, const void* e2)
 
 {
-    return ((int)(((CVobSubFile::SubPos*)e1)->start - ((CVobSubFile::SubPos*)e2)->start));
+    return (static_cast<int>((((CVobSubFile::SubPos*)e1)->start - ((CVobSubFile::SubPos*)e2)->start)));
 }
 
 [[nodiscard]] bool CVobSubFileRipper::Create()
 {
     CAutoLock cAutoLock(&m_csAccessLock);
 
-    if (m_rd.iSelPGC < 0 || (std::size_t)m_rd.iSelPGC >= m_rd.pgcs.GetCount())
+    if ((m_rd.iSelPGC < 0) || (static_cast<std::size_t>(m_rd.iSelPGC) >= m_rd.pgcs.GetCount()))
     {
         Log(LOG_ERROR, _T("Invalid program chain number (%d)!"), m_rd.iSelPGC);
         return false;
@@ -503,7 +503,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
     PGC& pgc{ m_rd.pgcs[m_rd.iSelPGC] };
 
-    if (pgc.iSelAngle < 0 || pgc.iSelAngle > 9 || pgc.angles[pgc.iSelAngle].IsEmpty())
+    if ((pgc.iSelAngle < 0) || (pgc.iSelAngle > 9) || pgc.angles[pgc.iSelAngle].IsEmpty())
     {
         Log(LOG_ERROR, _T("Invalid angle number (%d)!"), pgc.iSelAngle);
         return false;
@@ -546,7 +546,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
     if (m_rd.bResetTime)
     {
-        for (std::size_t i{ 0U }; i < angle.GetCount() && (UINT)((angle[i].vob << 16) | angle[i].cell) != m_rd.selvcs[0U]; ++i)
+        for (std::size_t i{ 0U }; (i < angle.GetCount()) && (static_cast<UINT>(((angle[i].vob << 16) | angle[i].cell)) != m_rd.selvcs[0U]); ++i)
         {
             tStart += angle[i].tTime;
         }
@@ -615,13 +615,13 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
         sizetotal += chunks[i].end - chunks[i].start;
     }
 
-    for (std::size_t i{ 0U }; !m_bBreakThread && i < chunks.GetCount(); ++i)
+    for (std::size_t i{ 0U }; !m_bBreakThread && (i < chunks.GetCount()); ++i)
     {
         __int64 curpos{ chunks[i].start }, endpos = chunks[i].end;
 
         vcchunk curchunk = { curpos, curpos, chunks[i].vc };
 
-        for (m_vob.Seek((int)(curpos / 2048)); !m_bBreakThread && curpos < endpos; curpos += 2048, sizedone += 2048)
+        for (m_vob.Seek(static_cast<int>((curpos / 2048))); !m_bBreakThread && (curpos < endpos); curpos += 2048, sizedone += 2048)
         {
             if (!(curpos & 0x7ffff))
             {
@@ -647,7 +647,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                     __int64 savepos{ curpos };
 
                     m_vob.Seek(0);
-                    for (__int64 pos{ 0 }; !m_bBreakThread && pos < endpos; pos += 2048)
+                    for (__int64 pos{ 0 }; !m_bBreakThread && (pos < endpos); pos += 2048)
                     {
                         if (!m_vob.Read(buff))
                         {
@@ -674,16 +674,16 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
                     Log(LOG_INFO, _T("Key found, continuing extraction..."));
 
-                    m_vob.Seek((int)((curpos = savepos) / 2048));
+                    m_vob.Seek(static_cast<int>(((curpos = savepos) / 2048)));
                     m_vob.Read(buff);
                 }
 
                 vd.Decrypt(buff);
             }
 
-            if (*((DWORD*)&buff[0U]) != 0xba010000)
+            if (*(reinterpret_cast<DWORD*>(&buff[0U])) != 0xba010000)
             {
-                Log(LOG_WARNING, _T("Bad sector header at block %08d!"), (int)(curpos / 2048));
+                Log(LOG_WARNING, _T("Bad sector header at block %08d!"), static_cast<int>((curpos / 2048)));
 
                 if (AfxMessageBox(_T("Bad packet header found, do you want to continue?"), MB_YESNO) == IDNO)
                 {
@@ -702,7 +702,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
             bool hasPTS{ false };
 
-            if ((*(DWORD*)&buff[0x0eU] == 0xe0010000 || *(DWORD*)&buff[0x0eU] == 0xbd010000) && buff[0x15U] & 0x80)
+            if ((*reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xe0010000 || *reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xbd010000) && buff[0x15U] & 0x80)
             {
                 PTS = (__int64)(buff[0x17U] & 0x0e) << 29     // 32-30 (+marker)
                       | ((__int64)(buff[0x18U]) << 22)        // 29-22
@@ -713,7 +713,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 hasPTS = true;
             }
 
-            if (*((DWORD*)&buff[0x0eU]) == 0xbb010000)
+            if (*(reinterpret_cast<DWORD*>(&buff[0x0eU])) == 0xbb010000)
             {
                 bNavpackFound = true;
 
@@ -740,7 +740,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                     }
                 }
 
-                if (curchunk.vc != (DWORD)((vob << 16) | cell))
+                if (curchunk.vc != static_cast<DWORD>(((vob << 16) | cell)))
                 {
                     if (curchunk.vc != 0)
                     {
@@ -751,7 +751,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 }
 
                 CString str, str2;
-                str.Format(_T("v%02d c%02d lba%08d"), vob, cell, (int)(curpos / 2048));
+                str.Format(_T("v%02d c%02d lba%08d"), vob, cell, static_cast<int>((curpos / 2048)));
                 UINT vcid = (vob << 16) | cell;
                 if (!selvcmap.Lookup(vcid, minPTSframeoffset))
                 {
@@ -760,7 +760,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 else
                 {
                     str2.Format(_T(", total=%I64dms, off=%I64dms, corr=%I64dms, discont.:%d"),
-                                tTotal, tOffset, -tStart, (int)bDiscontinuity);
+                                tTotal, tOffset, -tStart, static_cast<int>(bDiscontinuity));
                 }
                 Log(LOG_INFO, str + str2);
             }
@@ -774,7 +774,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
             if (hasPTS && bDiscontinuity && !bDiscontinuityFixApplied)
             {
                 __int64 tDiff{ tOffset - tPrevOffset };
-                if (tDiff > 0 && tDiff < (PTS / 90 + 1000))
+                if ((tDiff > 0) && (tDiff < (PTS / 90 + 1000)))
                 {
                     CString str;
                     str.Format(_T("False discontinuity detected, correcting time by %I64dms"), -tDiff);
@@ -785,13 +785,13 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 bDiscontinuityFixApplied = true;
             }
 
-            if (*(DWORD*)&buff[0x0eU] == 0xe0010000)
+            if (*reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xe0010000)
             {
                 if (bDiscontinuity)
                 {
                     if (PTS < minPTSframeoffset)
                     {
-                        selvcmap[vcid] = PTSframeoffset = (int)PTS;
+                        selvcmap[vcid] = PTSframeoffset = static_cast<int>(PTS);
                     }
 
                     bDiscontinuity = false;
@@ -802,7 +802,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                     ccdec.ExtractCC(buff, 2048, tOffset + ((PTS - PTSframeoffset) / 90) - tStart);
                 }
             }
-            else if (*(DWORD*)&buff[0x0eU] == 0xbd010000)
+            else if (*reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xbd010000)
             {
                 BYTE id{ buff[0x17U + buff[0x16U]] }, iLang = id & 0x1f;
 
@@ -813,8 +813,8 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                         SubPos sb;
                         sb.filepos = m_sub.GetPosition();
                         sb.start = tOffset + ((PTS - PTSframeoffset) / 90) - tStart;
-                        sb.vobid = (char)vob;
-                        sb.cellid = (char)cell;
+                        sb.vobid = static_cast<char>(vob);
+                        sb.cellid = static_cast<char>(cell);
                         sb.celltimestamp = tTotal;
                         sb.fValid = true;
                         m_langs[iLang].subpos.Add(sb);
@@ -825,7 +825,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
             }
         }
 
-        if (curchunk.vc != (DWORD)((vob << 16) | cell))
+        if (curchunk.vc != static_cast<DWORD>(((vob << 16) | cell)))
         {
             if (curchunk.vc != 0)
             {
@@ -859,7 +859,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
     for (std::size_t i{ 0U }; i < m_langs.size(); ++i)
     {
-        if (m_iLang == static_cast<std::size_t>(-1) && !m_langs[i].subpos.IsEmpty())
+        if ((m_iLang == static_cast<std::size_t>(-1)) && !m_langs[i].subpos.IsEmpty())
         {
             m_iLang = i;
         }
@@ -980,7 +980,7 @@ static const DWORD s_version{ 1 };
     TrimExtension(fn);
     fn += _T(".chunks");
 
-    DWORD chksum{ 0 }, chunklen = (DWORD)chunks.GetCount();
+    DWORD chksum{ 0 }, chunklen = static_cast<DWORD>(chunks.GetCount());
     __int64 voblen{ m_vob.GetLength() };
 
     if (!f.Open(m_infn, CFile::modeRead | CFile::typeBinary | CFile::shareDenyNone))
@@ -1069,7 +1069,7 @@ static const DWORD s_version{ 1 };
         else if (phase == P_PGC)
         {
             m_rd.iSelPGC = _tcstol(line, nullptr, 10) - 1;
-            if (m_rd.iSelPGC < 0 || (std::size_t)m_rd.iSelPGC >= m_rd.pgcs.GetCount())
+            if ((m_rd.iSelPGC < 0) || (static_cast<std::size_t>(m_rd.iSelPGC) >= m_rd.pgcs.GetCount()))
             {
                 break;
             }
@@ -1080,7 +1080,7 @@ static const DWORD s_version{ 1 };
             PGC& pgc{ m_rd.pgcs[m_rd.iSelPGC] };
 
             pgc.iSelAngle = _tcstol(line, nullptr, 10);
-            if (pgc.iSelAngle < 0 || pgc.iSelAngle > max(1, pgc.nAngles) || pgc.iSelAngle > 9)
+            if ((pgc.iSelAngle < 0) || (pgc.iSelAngle > max(1, pgc.nAngles)) || (pgc.iSelAngle > 9))
             {
                 break;
             }
@@ -1100,7 +1100,7 @@ static const DWORD s_version{ 1 };
                     if (*s == 'v' || s == e - 1)
                     {
                         ++s;
-                        if (vob != 0 && cell == 0)
+                        if ((vob != 0) && cell == 0)
                         {
                             for (std::size_t i{ 0U }; i < angle.GetCount(); ++i)
                             {
@@ -1114,7 +1114,7 @@ static const DWORD s_version{ 1 };
                         vob = _tcstol(s, &s, 10);
                         cell = 0;
                     }
-                    else if (*s == 'c' && vob > 0)
+                    else if (*s == 'c' && (vob > 0))
                     {
                         ++s;
                         cell = _tcstol(s, &s, 10);
@@ -1178,11 +1178,11 @@ static const DWORD s_version{ 1 };
                             break;
                         }
 
-                        m_rd.selids[(BYTE)langnum] = true;
+                        m_rd.selids[static_cast<BYTE>(langnum)] = true;
                     }
                     else if (_istalpha(lang[0U]))
                     {
-                        n = _stscanf_s(lang, _T("%s"), langid, (unsigned int)_countof(langid));
+                        n = _stscanf_s(lang, _T("%s"), langid, static_cast<unsigned int>(_countof(langid)));
                         if (n != 1)
                         {
                             break;
@@ -1197,7 +1197,7 @@ static const DWORD s_version{ 1 };
                         else
                         {
                             ASSERT(id <= BYTE_MAX);
-                            m_rd.selids[(BYTE)id] = true;
+                            m_rd.selids[static_cast<BYTE>(id)] = true;
                         }
                     }
                     else

@@ -49,7 +49,7 @@ void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], CRect src_rect
 {
     ASSERT((src_plans && dst_plans));
     ClipRect(src_plans[0U].w, src_plans[0U].h, dst_plans[0U].w, std::abs(dst_plans[0U].h), &src_rect, &dst_pos);
-    if (src_rect.Width() <= 0 || src_rect.Height() <= 0)
+    if ((src_rect.Width() <= 0) || (src_rect.Height() <= 0))
     {
         return;
     }
@@ -69,7 +69,7 @@ void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPic
         dst_pos.y = 0;
     }
     LimitPoint(dst_plans[0U].w - dst_pos.x, std::abs(dst_plans[0U].h) - dst_pos.y, src_rect.BottomRight());
-    if (src_rect.Width() <= 0 || src_rect.Height() <= 0)
+    if ((src_rect.Width() <= 0) || (src_rect.Height() <= 0))
     {
         return;
     }
@@ -108,7 +108,7 @@ void BaseAlphaBlender::AlphaBlend(const XySubPicPlan src_plans[], const XySubPic
         src_rect.top -= dst_pos.y;
         dst_pos.y = 0;
     }
-    if (src_rect.Width() <= 0 || src_rect.Height() <= 0)
+    if ((src_rect.Width() <= 0) || (src_rect.Height() <= 0))
     {
         return;
     }
@@ -178,8 +178,8 @@ void AlphaBlenderArgbC::AlphaBlendNoClip(const XySubPicPlan src_plans[], const C
     const XySubPicPlan& dst{ dst_plans[0U] }; // copy, because we might modify it
 
     int w{ src_rect.Width() }, h = src_rect.Height();
-    const BYTE* s{ (BYTE*)src.bits + src.pitch * src_rect.top + src_rect.left * 4 };
-    BYTE* d{ (BYTE*)dst.bits + dst_pos.x * 4 };
+    const BYTE* s{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * src_rect.top + src_rect.left * 4 };
+    BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst_pos.x * 4 };
     int dst_pitch{ dst.pitch };
     if (dst.h > 0)
     {
@@ -200,12 +200,12 @@ void AlphaBlenderArgbC::AlphaBlend(const BYTE* src, const int w, const int h, co
     {
         const BYTE* s2{ src };
         const BYTE* s2end{ s2 + w * 4 };
-        DWORD* d2{ (DWORD*)dst };
+        DWORD* d2{ reinterpret_cast<DWORD*>(dst) };
         for (; s2 < s2end; s2 += 4, ++d2)
         {
             if (s2[3U] < 0xff)
             {
-                *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00);
+                *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x0000ff00)) & 0x0000ff00);
             }
         }
     }

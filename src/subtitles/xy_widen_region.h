@@ -5,7 +5,7 @@ class WidenRegionCreaterImpl;
 class WidenRegionCreater
 {
 public:
-    typedef tSpanBuffer SpanBuffer;
+    using SpanBuffer = tSpanBuffer;
 
 public:
     static WidenRegionCreater* GetDefaultWidenRegionCreater();

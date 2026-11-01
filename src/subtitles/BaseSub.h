@@ -32,8 +32,8 @@ enum SUBTITLE_TYPE
 class CBaseSub
 {
 public:
-    typedef CompositionObject::ColorType ColorType;
-    typedef CompositionObject::YuvRangeType YuvRangeType;
+    using ColorType = CompositionObject::ColorType;
+    using YuvRangeType = CompositionObject::YuvRangeType;
 
     static const REFERENCE_TIME INVALID_TIME{ _I64_MIN };
 

@@ -20,8 +20,7 @@
 
 #pragma once
 
-typedef enum
-{
+using NALU_TYPE = enum {
     NALU_TYPE_SLICE = 1,
     NALU_TYPE_DPA = 2,
     NALU_TYPE_DPB = 3,
@@ -34,7 +33,7 @@ typedef enum
     NALU_TYPE_EOSEQ = 10,
     NALU_TYPE_EOSTREAM = 11,
     NALU_TYPE_FILL = 12
-} NALU_TYPE;
+};
 
 class CH264Nalu
 {

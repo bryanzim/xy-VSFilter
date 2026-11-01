@@ -22,12 +22,12 @@ void CClipperPaintMachine::Paint(SharedPtrGrayImage2* output)
         if (pos != nullptr)
         {
             *output = cache->GetAt(pos);
-            (void)cache->UpdateCache(pos);
+            static_cast<void>(cache->UpdateCache(pos));
         }
         else
         {
             (*output).reset(m_clipper->Paint());
-            (void)cache->UpdateCache(key, *output);
+            static_cast<void>(cache->UpdateCache(key, *output));
         }
     }
 }

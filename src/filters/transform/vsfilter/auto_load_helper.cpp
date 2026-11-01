@@ -104,7 +104,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubFilterAutoLoader::JoinFilterGraph(IFilterGraph* pGraph, const LPCWSTR pName)
 {
-    XY_LOG_INFO(XY_LOG_VAR_2_STR(this) << "pGraph:" << (void*)pGraph);
+    XY_LOG_INFO(XY_LOG_VAR_2_STR(this) << "pGraph:" << reinterpret_cast<void*>(pGraph));
     m_loaded = false;
     if (pGraph)
     {
@@ -150,7 +150,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
 {
     XY_LOG_INFO(_T("pGraph:") << pGraph);
 
-    if (m_load_level < 0 || m_load_level >= DirectVobSubImpl::LOADLEVEL_COUNT || m_load_level == DirectVobSubImpl::LOADLEVEL_DISABLED)
+    if ((m_load_level < 0) || (m_load_level >= DirectVobSubImpl::LOADLEVEL_COUNT) || m_load_level == DirectVobSubImpl::LOADLEVEL_DISABLED)
     {
         XY_LOG_DEBUG("Disabled by load setting: " << XY_LOG_VAR_2_STR(m_load_level));
         return false;
@@ -361,7 +361,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ) == ERROR_SUCCESS)
     {
         ULONG size{ 256 * 1024 };
-        BYTE* largebuf{ (BYTE*)std::malloc(size) };
+        BYTE* largebuf{ reinterpret_cast<BYTE*>(std::malloc(size)) };
         LONG lret;
 
         if (!largebuf)
@@ -381,7 +381,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         }
 
         // change the merit
-        DWORD* dwbuf{ (DWORD*)largebuf };
+        DWORD* dwbuf{ reinterpret_cast<DWORD*>(largebuf) };
         *merit = dwbuf[1U];
 
         std::free(largebuf);

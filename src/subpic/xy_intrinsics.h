@@ -554,7 +554,7 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c(byte* dst, const int w, const
 // 0<=w15<=15 && w15%2==0
 static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
+    ASSERT(((w15 >= 0) && (w15 <= 15) && (w15 & 1) == 0));
 
     int last_alpha{ (am[last_src_id] + am[last_src_id + src_pitch] + 1) / 2 };
     int last_sub{ (src[last_src_id] + src[last_src_id + src_pitch] + 1) / 2 };
@@ -630,7 +630,7 @@ static __forceinline void hleft_vmid_mix_uv_yv12_c2(byte* dst, const int w15, co
 // am[last_src_id] valid && w&15=0
 static __forceinline void hleft_vmid_mix_uv_yv12_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((((2 * (std::intptr_t)dst) | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
+    ASSERT((((2 * reinterpret_cast<std::intptr_t>(dst)) | w00 | reinterpret_cast<std::intptr_t>(src) | reinterpret_cast<std::intptr_t>(am) | src_pitch) & 15) == 0);
 
     __m128i last_src{ _mm_cvtsi32_si128((src[last_src_id] + src[src_pitch + last_src_id] + 1) << 7) };
     __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
@@ -704,7 +704,7 @@ static __forceinline void mix_uv_yv16_c(byte* dst, const int w, const byte* src,
 // 0<=w15<=15 && w15%2==0
 static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
+    ASSERT(((w15 >= 0) && (w15 <= 15) && (w15 & 1) == 0));
 
     int last_alpha{ am[last_src_id] };
     int last_sub{ src[last_src_id] };
@@ -780,7 +780,7 @@ static __forceinline void mix_uv_yv16_c2(byte* dst, const int w15, const byte* s
 // am[last_src_id] valid && w&15=0
 static __forceinline void mix_uv_yv16_sse2(byte* dst, const int w00, const byte* src, const byte* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((((2 * (std::intptr_t)dst) | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
+    ASSERT((((2 * reinterpret_cast<std::intptr_t>(dst)) | w00 | reinterpret_cast<std::intptr_t>(src) | reinterpret_cast<std::intptr_t>(am) | src_pitch) & 15) == 0);
 
     __m128i last_src{ _mm_cvtsi32_si128(src[last_src_id] << 8) };
     __m128i last_alpha{ _mm_cvtsi32_si128(am[last_src_id] << 8) };
@@ -849,7 +849,7 @@ static __forceinline void hleft_vmid_mix_uv_p010_c(BYTE* dst, const int w, const
 // 0<=w15<=15
 static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
+    ASSERT(((w15 >= 0) && (w15 <= 15) && (w15 & 1) == 0));
     int last_alpha{ (am[last_src_id] + am[src_pitch + last_src_id] + 1) / 2 };
     WORD* dst_word{ reinterpret_cast<WORD*>(dst) };
 
@@ -925,7 +925,7 @@ static __forceinline void hleft_vmid_mix_uv_p010_c2(BYTE* dst, const int w15, co
 // am[last_src_id] valid && w&15=0
 static __forceinline void hleft_vmid_mix_uv_p010_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
+    ASSERT(((reinterpret_cast<std::intptr_t>(dst) | w00 | reinterpret_cast<std::intptr_t>(src) | reinterpret_cast<std::intptr_t>(am) | src_pitch) & 15) == 0);
     __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
     const BYTE* end_mod16{ src + w00 };
     for (; src < end_mod16; src += 16, am += 16, dst += 32)
@@ -1008,7 +1008,7 @@ static __forceinline void hleft_vmid_mix_uv_nv12_c(BYTE* dst, const int w, const
 // 0<=w15<=15
 static __forceinline void hleft_vmid_mix_uv_nv12_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
+    ASSERT(((w15 >= 0) && (w15 <= 15) && (w15 & 1) == 0));
     int last_alpha{ (am[last_src_id] + am[src_pitch + last_src_id] + 1) / 2 };
 
     switch (w15)
@@ -1072,7 +1072,7 @@ static __forceinline void hleft_vmid_mix_uv_nv12_c2(BYTE* dst, const int w15, co
 // am[last_src_id] valid && w&15=0
 static __forceinline void hleft_vmid_mix_uv_nv12_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
+    ASSERT(((reinterpret_cast<std::intptr_t>(dst) | w00 | reinterpret_cast<std::intptr_t>(src) | reinterpret_cast<std::intptr_t>(am) | src_pitch) & 15) == 0);
     __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
     const BYTE* end_mod16{ src + w00 };
     for (; src < end_mod16; src += 16, am += 16, dst += 16)
@@ -1150,7 +1150,7 @@ static __forceinline void mix_uv_p210_c(BYTE* dst, const int w, const BYTE* src,
 // 0<=w15<=15
 static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((w15 >= 0 && w15 <= 15 && (w15 & 1) == 0));
+    ASSERT(((w15 >= 0) && (w15 <= 15) && (w15 & 1) == 0));
     int last_alpha{ am[last_src_id] };
     WORD* dst_word{ reinterpret_cast<WORD*>(dst) };
 
@@ -1227,7 +1227,7 @@ static __forceinline void mix_uv_p210_c2(BYTE* dst, const int w15, const BYTE* s
 // am[last_src_id] valid && w&15=0
 static __forceinline void mix_uv_p210_sse2(BYTE* dst, const int w00, const BYTE* src, const BYTE* am, const int src_pitch, const int last_src_id = 0)
 {
-    ASSERT((((std::intptr_t)dst | w00 | (std::intptr_t)src | (std::intptr_t)am | src_pitch) & 15) == 0);
+    ASSERT(((reinterpret_cast<std::intptr_t>(dst) | w00 | reinterpret_cast<std::intptr_t>(src) | reinterpret_cast<std::intptr_t>(am) | src_pitch) & 15) == 0);
     __m128i last_alpha{ _mm_cvtsi32_si128((am[last_src_id] + am[src_pitch + last_src_id] + 1) << 7) };
     const BYTE* end_mod16{ src + w00 };
     for (; src < end_mod16; src += 16, am += 16, dst += 32)

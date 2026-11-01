@@ -58,7 +58,7 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
     CheckPointer(pvarValue, E_POINTER);
     for (ULONG i{ 0 }; i < cProperties; ++i)
     {
-        (void)SetProperty(pPropBag[i].pstrName, &pvarValue[i]);
+        static_cast<void>(SetProperty(pPropBag[i].pstrName, &pvarValue[i]));
     }
     return S_OK;
 }
@@ -101,11 +101,11 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
     CheckPointer(value, E_POINTER);
     if (!Lookup(key).IsEmpty())
     {
-        (void)SetAt(key, value);
+        static_cast<void>(SetAt(key, value));
     }
     else
     {
-        (void)Add(key, value);
+        static_cast<void>(Add(key, value));
     }
     return S_OK;
 }
@@ -239,7 +239,7 @@ IDSMResourceBagImpl::IDSMResourceBagImpl()
     if (ppData)
     {
         *pDataLen = r.data.GetCount();
-        std::memcpy(*ppData = (BYTE*)CoTaskMemAlloc(*pDataLen), r.data.GetData(), *pDataLen);
+        std::memcpy(*ppData = reinterpret_cast<BYTE*>(CoTaskMemAlloc(*pDataLen)), r.data.GetData(), *pDataLen);
     }
     if (pTag)
     {

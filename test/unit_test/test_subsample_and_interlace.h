@@ -111,7 +111,7 @@ TEST_F(SubSampleAndInterlaceTest, Check_hleft_vmid_subsample_and_interlace_2_lin
         for (int pitch{ 16 }; pitch <= 160; pitch += 16)
         {
             int w{ pitch };
-            // for (int w=pitch-15;w<=pitch;w++)
+            // for (int w=pitch-15;w<=pitch;++w)
             {
                 // zero
                 data0 = GetZeroData(pitch * 2);

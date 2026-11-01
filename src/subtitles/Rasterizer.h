@@ -34,12 +34,12 @@
 #define PT_BSPLINETO 0xfc
 #define PT_BSPLINEPATCHTO 0xfa
 
-typedef struct
+using Bitmap = struct
 {
     int left, top;
     int w, h;              // width, height
     unsigned char* buffer; // w x h buffer
-} Bitmap;
+};
 
 struct PathData
 {
@@ -64,12 +64,12 @@ public:
     int mPathPoints;
 };
 
-typedef ::boost::shared_ptr<const PathData> SharedPtrConstPathData;
-typedef ::boost::shared_ptr<PathData> SharedPtrPathData;
+using SharedPtrConstPathData = ::boost::shared_ptr<const PathData>;
+using SharedPtrPathData = ::boost::shared_ptr<PathData>;
 
 
-typedef std::pair<unsigned __int64, unsigned __int64> tSpan;
-typedef std::vector<tSpan> tSpanBuffer;
+using tSpan = std::pair<unsigned __int64, unsigned __int64>;
+using tSpanBuffer = std::vector<tSpan>;
 
 class ScanLineData
 {
@@ -97,7 +97,7 @@ private:
 
     unsigned int* mpScanBuffer;
 
-    typedef unsigned char byte;
+    using byte = unsigned char;
 
 private:
     void _ReallocEdgeBuffer(unsigned edges);
@@ -119,8 +119,8 @@ public:
     friend class ScanLineData2;
 };
 
-typedef ::boost::shared_ptr<const ScanLineData> SharedPtrConstScanLineData;
-typedef ::boost::shared_ptr<ScanLineData> SharedPtrScanLineData;
+using SharedPtrConstScanLineData = ::boost::shared_ptr<const ScanLineData>;
+using SharedPtrScanLineData = ::boost::shared_ptr<ScanLineData>;
 
 class ScanLineData2
 {
@@ -147,10 +147,10 @@ private:
     friend class Rasterizer;
 };
 
-typedef ::boost::shared_ptr<const ScanLineData2> SharedPtrConstScanLineData2;
-typedef ::boost::shared_ptr<ScanLineData2> SharedPtrScanLineData2;
+using SharedPtrConstScanLineData2 = ::boost::shared_ptr<const ScanLineData2>;
+using SharedPtrScanLineData2 = ::boost::shared_ptr<ScanLineData2>;
 
-typedef ::boost::shared_ptr<BYTE> SharedPtrByte;
+using SharedPtrByte = ::boost::shared_ptr<BYTE>;
 
 struct Overlay
 {
@@ -168,8 +168,8 @@ public:
 
     void CleanUp()
     {
-        mBody.reset((BYTE*)nullptr);
-        mBorder.reset((BYTE*)nullptr);
+        mBody.reset(static_cast<BYTE*>(nullptr));
+        mBorder.reset(static_cast<BYTE*>(nullptr));
         mOffsetX = mOffsetY = mWidth = mHeight = 0;
         mOverlayWidth = mOverlayHeight = mOverlayPitch = 0;
         mfWideOutlineEmpty = false;
@@ -192,7 +192,7 @@ public:
     bool mfWideOutlineEmpty; // specially for blur
 };
 
-typedef ::boost::shared_ptr<Overlay> SharedPtrOverlay;
+using SharedPtrOverlay = ::boost::shared_ptr<Overlay>;
 
 struct GrayImage2
 {
@@ -203,13 +203,13 @@ public:
     SharedPtrByte data;
 };
 
-typedef ::boost::shared_ptr<GrayImage2> SharedPtrGrayImage2;
+using SharedPtrGrayImage2 = ::boost::shared_ptr<GrayImage2>;
 
 class XyBitmap;
 class Rasterizer
 {
 private:
-    typedef unsigned char byte;
+    using byte = unsigned char;
 
     struct DM
     {

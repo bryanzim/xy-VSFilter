@@ -32,7 +32,7 @@ T Explode(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
     {
         j = str.Find(sep, i);
 
-        if (j < 0 || sl.GetCount() == limit - 1)
+        if ((j < 0) || sl.GetCount() == limit - 1)
         {
             sl.AddTail(str.Mid(i).Trim());
             break;
@@ -55,7 +55,7 @@ T ExplodeNoTrim(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
     {
         j = str.Find(sep, i);
 
-        if (j < 0 || sl.GetCount() == limit - 1)
+        if ((j < 0) || sl.GetCount() == limit - 1)
         {
             sl.AddTail(str.Mid(i));
             break;

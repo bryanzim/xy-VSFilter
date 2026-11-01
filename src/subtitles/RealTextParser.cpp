@@ -88,7 +88,7 @@ CRealTextParser::~CRealTextParser()
                         m_RealText.m_mapLines[pairTimecodes] = szLine;
                     }
                 }
-                else if (vStartTimecodes.empty() && vEndTimecodes.empty() && m_RealText.m_mapLines.empty() && iStartTimecode > 0)
+                else if (vStartTimecodes.empty() && vEndTimecodes.empty() && m_RealText.m_mapLines.empty() && (iStartTimecode > 0))
                 {
                     // Handle first line
                     if (!szLine.empty())
@@ -201,7 +201,7 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::ExtractTag(std::wstring& p_rszLine, Tag& p_rTag)
 {
-    if (p_rszLine.length() < 2 || p_rszLine.at(0) != '<')
+    if ((p_rszLine.length() < 2) || (p_rszLine.at(0) != '<'))
     {
         if (m_bTryToIgnoreErrors)
         {
@@ -231,7 +231,7 @@ CRealTextParser::~CRealTextParser()
         p_rTag.m_bComment = true;
 
         std::wstring szComment;
-        (void)GetString(p_rszLine, iPos, szComment, L">");
+        static_cast<void>(GetString(p_rszLine, iPos, szComment, L">"));
         p_rTag.m_szName = szComment;
 
         ++iPos; // Skip >
@@ -362,7 +362,7 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::SkipSpaces(std::wstring& p_rszLine, unsigned int& p_riPos)
 {
-    while (p_rszLine.length() > p_riPos && iswspace(p_rszLine.at(p_riPos)))
+    while ((p_rszLine.length() > p_riPos) && iswspace(p_rszLine.at(p_riPos)))
     {
         ++p_riPos;
     }
@@ -372,7 +372,7 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::GetString(std::wstring& p_rszLine, unsigned int& p_riPos, std::wstring& p_rszString, const std::wstring& p_crszEndChars)
 {
-    while (p_rszLine.length() > p_riPos && p_crszEndChars.find(p_rszLine.at(p_riPos)) == std::wstring::npos)
+    while ((p_rszLine.length() > p_riPos) && p_crszEndChars.find(p_rszLine.at(p_riPos)) == std::wstring::npos)
     {
         p_rszString += p_rszLine.at(p_riPos);
         ++p_riPos;
@@ -388,7 +388,7 @@ CRealTextParser::~CRealTextParser()
         return false;
     }
 
-    while (p_riPos < p_rszLine.length() && p_rszLine.at(p_riPos) != '/' && p_rszLine.at(p_riPos) != '>')
+    while ((p_riPos < p_rszLine.length()) && (p_rszLine.at(p_riPos) != '/') && (p_rszLine.at(p_riPos) != '>'))
     {
         std::wstring szName;
         if (!GetString(p_rszLine, p_riPos, szName, L"\r\n\t ="))
@@ -412,7 +412,7 @@ CRealTextParser::~CRealTextParser()
                 }
                 else
                 {
-                    p_riPos = (unsigned int)pos;
+                    p_riPos = static_cast<unsigned int>(pos);
                 }
             }
             else
@@ -640,7 +640,7 @@ CRealTextParser::~CRealTextParser()
                         {
                             int iSize{ ::_wtoi(i->second.c_str()) };
 
-                            if (iSize > 0 && iSize < m_iMinFontSize)
+                            if ((iSize > 0) && (iSize < m_iMinFontSize))
                             {
                                 continue;
                             }

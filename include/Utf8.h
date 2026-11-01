@@ -27,9 +27,9 @@ namespace Utf8
     // basic classification of UTF-8 bytes
     [[nodiscard]] inline static constexpr bool isSingleByte(const unsigned char c) noexcept { return c < 0x80; }
     [[nodiscard]] inline static constexpr bool isPartOfMultibyte(const unsigned char c) noexcept { return c >= 0x80; }
-    [[nodiscard]] inline static constexpr bool isFirstOfMultibyte(const unsigned char c) noexcept { return c >= 0xC2 && c < 0xF5; } // 0xF5 to 0xFD are defined by UTF-8, but are not currently valid Unicode
+    [[nodiscard]] inline static constexpr bool isFirstOfMultibyte(const unsigned char c) noexcept { return (c >= 0xC2) && (c < 0xF5); } // 0xF5 to 0xFD are defined by UTF-8, but are not currently valid Unicode
     [[nodiscard]] inline static constexpr bool isContinuation(const unsigned char c) noexcept { return (c & 0xC0) == 0x80; }
-    [[nodiscard]] inline static constexpr bool isValid(const unsigned char c) noexcept { return c < 0xC0 || isFirstOfMultibyte(c); } // validates a byte, out of context
+    [[nodiscard]] inline static constexpr bool isValid(const unsigned char c) noexcept { return (c < 0xC0) || isFirstOfMultibyte(c); } // validates a byte, out of context
 
     // number of continuation bytes for a given valid first character (0 for single byte characters)
     [[nodiscard]] inline static constexpr int continuationBytes(const unsigned char c) noexcept
@@ -69,7 +69,7 @@ namespace Utf8
     {
         int charContinuationBytes{ 0 };
         while (charContinuationBytes < startingIndex // rewind past start of buffer?
-               && charContinuationBytes < 5          // UTF-8 support up to 5 continuation bytes (but valid sequences currently do not have more than 3)
+               && (charContinuationBytes < 5)         // UTF-8 support up to 5 continuation bytes (but valid sequences currently do not have more than 3)
                && isContinuation(buf[static_cast<std::size_t>(startingIndex - charContinuationBytes)]))
         {
             ++charContinuationBytes;

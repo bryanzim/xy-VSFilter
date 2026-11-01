@@ -8,10 +8,10 @@
 #include <cmath>
 #include <iomanip>
 
-#define M128I_U8_TO_STR(m128i) std::setw(3) << (int)(m128i.m128i_u8[0U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[1U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[2U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[3U]) << " "                   \
-                                            << std::setw(3) << (int)(m128i.m128i_u8[4U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[5U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[6U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[7U]) << " "   \
-                                            << std::setw(3) << (int)(m128i.m128i_u8[8U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[9U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[10U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[11U]) << " " \
-                                            << std::setw(3) << (int)(m128i.m128i_u8[12U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[13U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[14U]) << " " << std::setw(3) << (int)(m128i.m128i_u8[15U])
+#define M128I_U8_TO_STR(m128i) std::setw(3) << static_cast<int>((m128i.m128i_u8[0U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[1U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[2U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[3U])) << " "                   \
+                                            << std::setw(3) << static_cast<int>((m128i.m128i_u8[4U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[5U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[6U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[7U])) << " "   \
+                                            << std::setw(3) << static_cast<int>((m128i.m128i_u8[8U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[9U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[10U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[11U])) << " " \
+                                            << std::setw(3) << static_cast<int>((m128i.m128i_u8[12U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[13U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[14U])) << " " << std::setw(3) << static_cast<int>((m128i.m128i_u8[15U]))
 
 #define M128I_U8_TO_STR_2(m128i) #m128i << std::endl \
                                         << " " << M128I_U8_TO_STR(m128i)

@@ -530,12 +530,12 @@ DEFINE_GUID(MEDIASUBTYPE_WEBVTT,
             0xc886d215, 0xf485, 0x40bb, 0x8d, 0xb6, 0xfa, 0xdb, 0xc6, 0x19, 0xa4, 0x5d);
 
 #pragma pack(push, 1)
-typedef struct
+using SUBTITLEINFO = struct
 {
     DWORD dwOffset;
     CHAR IsoLang[4U];      // three letter lang code + terminating zero
     WCHAR TrackName[256U]; // 256 chars ought to be enough for everyone :)
-} SUBTITLEINFO;
+};
 #pragma pack(pop)
 
 // SUBTITLEINFO structure content starting at dwOffset (also the content of CodecPrivate)

@@ -108,7 +108,7 @@ void CHdmvSub::AllocSegment(const int nSize)
     {
         HDMV_PRESENTATION_SEGMENT* currentSegment{ m_pPresentationSegments.GetAt(pos) };
 
-        if (rt >= currentSegment->rtStart && rt < currentSegment->rtStop)
+        if ((rt >= currentSegment->rtStart) && (rt < currentSegment->rtStop))
         {
             break;
         }
@@ -331,7 +331,7 @@ void CHdmvSub::ParseObject(CGolombBuffer* pGBuffer, const unsigned short nUnitSi
 {
     short object_id{ pGBuffer->ReadShort() };
 
-    if (object_id < 0 || static_cast<std::size_t>(object_id) >= _countof(m_compositionObjects))
+    if ((object_id < 0) || (static_cast<std::size_t>(object_id) >= _countof(m_compositionObjects)))
     {
         TRACE_HDMVSUB((_T("CHdmvSub::ParseObject() : FAILED, object_id - %d"), object_id));
         return;
@@ -344,7 +344,7 @@ void CHdmvSub::ParseObject(CGolombBuffer* pGBuffer, const unsigned short nUnitSi
 
     if (m_sequence_desc & 0x80)
     {
-        DWORD object_data_length{ (DWORD)pGBuffer->BitRead(24) };
+        DWORD object_data_length{ static_cast<DWORD>(pGBuffer->BitRead(24)) };
 
         pObject.m_width = pGBuffer->ReadShort();
         pObject.m_height = pGBuffer->ReadShort();
@@ -412,7 +412,7 @@ void CHdmvSub::Render(SubPicDesc& spd, const REFERENCE_TIME rt, RECT& bbox)
         {
             CompositionObject* pObject{ pPresentationSegment->objects.GetNext(pos) };
 
-            if (pObject->GetRLEDataSize() && pObject->m_width > 0 && pObject->m_height > 0 && spd.w >= (pObject->m_horizontal_position + pObject->m_width) && spd.h >= (pObject->m_vertical_position + pObject->m_height))
+            if (pObject->GetRLEDataSize() && (pObject->m_width > 0) && (pObject->m_height > 0) && (spd.w >= (pObject->m_horizontal_position + pObject->m_width)) && (spd.h >= (pObject->m_vertical_position + pObject->m_height)))
             {
                 CompositionObject::ColorType color_type{ m_colorTypeSetting };
                 if (color_type == CompositionObject::NONE)
@@ -490,7 +490,7 @@ void CHdmvSub::Reset()
     {
         HDMV_PRESENTATION_SEGMENT* pPresentationSegment{ m_pPresentationSegments.GetNext(pos) };
 
-        if (pPresentationSegment->rtStart <= rt && pPresentationSegment->rtStop > rt)
+        if ((pPresentationSegment->rtStart <= rt) && (pPresentationSegment->rtStop > rt))
         {
             return pPresentationSegment;
         }

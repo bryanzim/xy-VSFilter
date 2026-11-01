@@ -44,7 +44,7 @@
 typedef const UINT8 CUINT8, *PCUINT8;
 
 // NOTE: signed or unsigned affects the result seriously
-#define COMBINE_AYUV(a, y, u, v) ((((((((int)(a)) << 8) | y) << 8) | u) << 8) | v)
+#define COMBINE_AYUV(a, y, u, v) (((((((static_cast<int>((a))) << 8) | y) << 8) | u) << 8) | v)
 
 #define SPLIT_AYUV(color, a, y, u, v)  \
     do                                 \
@@ -80,7 +80,7 @@ public:
     GaussianCoefficients(const GaussianCoefficients& priv)
         : g_r(priv.g_r), g_w(priv.g_w), g_w_ex(priv.g_w_ex), g_f(nullptr), sigma(priv.sigma)
     {
-        if (this->g_w_ex > 0 && this != &priv)
+        if ((this->g_w_ex > 0) && (this != &priv))
         {
             this->g_f = reinterpret_cast<float*>(xy_malloc(this->g_w_ex * sizeof(float)));
             ASSERT(this->g_f);
@@ -111,7 +111,7 @@ private:
             this->sigma = requestedSigma;
         }
 
-        this->g_w = (int)std::ceil(requestedSigma * 3) | 1;
+        this->g_w = static_cast<int>(std::ceil(requestedSigma * 3)) | 1;
         this->g_r = this->g_w / 2;
         this->g_w_ex = (this->g_w + 3) & ~3;
 
@@ -206,12 +206,12 @@ ass_synth_priv::ass_synth_priv(const double sigma)
     gt2 = nullptr;
 
     this->sigma = 0;
-    (void)generate_tables(sigma);
+    static_cast<void>(generate_tables(sigma));
 }
 
 ass_synth_priv::ass_synth_priv(const ass_synth_priv& priv) : g_r(priv.g_r), g_w(priv.g_w), sigma(priv.sigma)
 {
-    if (this->g_w > 0 && this != &priv)
+    if ((this->g_w > 0) && (this != &priv))
     {
         this->g = (unsigned*)std::realloc(this->g, this->g_w * sizeof(unsigned));
         this->gt2 = (unsigned*)std::realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));
@@ -252,7 +252,7 @@ ass_synth_priv::~ass_synth_priv()
         this->sigma = requestedSigma;
     }
 
-    this->g_w = (int)std::ceil(requestedSigma * 3) | 1;
+    this->g_w = static_cast<int>(std::ceil(requestedSigma * 3)) | 1;
     this->g_r = this->g_w / 2;
 
     if (this->g_w > 0)
@@ -326,7 +326,7 @@ ass_synth_priv::~ass_synth_priv()
             //
             // NOTE: when it comes to rounding, no matter how small the error is,
             // it may result a different rounding output
-            if (volume >= TARGET_VOLUME && volume < (TARGET_VOLUME + MAX_VOLUME_ERROR))
+            if ((volume >= TARGET_VOLUME) && (volume < (TARGET_VOLUME + MAX_VOLUME_ERROR)))
             {
                 break;
             }
@@ -836,9 +836,9 @@ extern "C" void* memsetSSE2(void* dest, int c, std::size_t count);
         int pitch{ overlay->mOverlayPitch };
         for (; it != itEnd; ++it)
         {
-            int y{ (int)(((*it).first >> 32) - 0x40000000 + ysub) };
-            int x1{ (int)(((*it).first & 0xffffffff) - 0x40000000 + xsub) };
-            int x2{ (int)(((*it).second & 0xffffffff) - 0x40000000 + xsub) };
+            int y{ static_cast<int>((((*it).first >> 32) - 0x40000000 + ysub)) };
+            int x1{ static_cast<int>((((*it).first & 0xffffffff) - 0x40000000 + xsub)) };
+            int x2{ static_cast<int>((((*it).second & 0xffffffff) - 0x40000000 + xsub)) };
             if (x2 > x1)
             {
                 int first{ x1 >> 3 };
@@ -871,7 +871,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 [[nodiscard]] bool Rasterizer::IsItReallyBlur(const float be_strength, const double gaussian_blur_strength)
 
 {
-    if (be_strength <= 0 && gaussian_blur_strength <= GAUSSIAN_BLUR_THREHOLD)
+    if ((be_strength <= 0) && (gaussian_blur_strength <= GAUSSIAN_BLUR_THREHOLD))
     {
         return false;
     }
@@ -905,11 +905,11 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 
     int gaussian_blur_radius_x{ (static_cast<int>(std::ceil(gaussian_blur_strength_x * 3)) | 1) / 2 }; // fix me: rounding err?
     int gaussian_blur_radius_y{ (static_cast<int>(std::ceil(gaussian_blur_strength_y * 3)) | 1) / 2 }; // fix me: rounding err?
-    if (gaussian_blur_radius_x < 1 && gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD)
+    if ((gaussian_blur_radius_x < 1) && (gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD))
     {
         gaussian_blur_radius_x = 1;
     } // make sure that it really do a blur
-    if (gaussian_blur_radius_y < 1 && gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD)
+    if ((gaussian_blur_radius_y < 1) && (gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD))
     {
         gaussian_blur_radius_y = 1;
     } // make sure that it really do a blur
@@ -976,7 +976,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         const byte* plan_input{ i == 0 ? input_overlay.mBody.get() : input_overlay.mBorder.get() };
 
         plan_selected += (bluradjust_x >> 3) + (bluradjust_y >> 3) * output_overlay->mOverlayPitch;
-        if (plan_selected != nullptr && plan_input != nullptr)
+        if ((plan_selected != nullptr) && (plan_input != nullptr))
         {
             for (int j{ 0 }; j < input_overlay.mOverlayHeight; ++j)
             {
@@ -1001,7 +1001,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 
         const ass_synth_priv& priv_blur_x{ fw_priv_blur_x.get() };
         const ass_synth_priv& priv_blur_y{ fw_priv_blur_y.get() };
-        if (output_overlay->mOverlayWidth >= priv_blur_x.g_w && output_overlay->mOverlayHeight >= priv_blur_y.g_w)
+        if ((output_overlay->mOverlayWidth >= priv_blur_x.g_w) && (output_overlay->mOverlayHeight >= priv_blur_y.g_w))
         {
             ass_gauss_blur(plan_selected, tmp_buf.get(), output_overlay->mOverlayWidth, output_overlay->mOverlayHeight, output_overlay->mOverlayPitch,
                            priv_blur_x.gt2, priv_blur_x.g_r, priv_blur_x.g_w,
@@ -1016,7 +1016,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 
     for (int pass{ 0 }; pass < pass_num; ++pass)
     {
-        if (output_overlay->mOverlayWidth >= 3 && output_overlay->mOverlayHeight >= 3)
+        if ((output_overlay->mOverlayWidth >= 3) && (output_overlay->mOverlayHeight >= 3))
         {
             be_blur(blur_plan, tmp_buf.get(), output_overlay->mOverlayWidth, output_overlay->mOverlayHeight, pitch);
         }
@@ -1043,7 +1043,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     {
         return false;
     }
-    if (input_overlay.mOverlayWidth <= 0 || input_overlay.mOverlayHeight <= 0)
+    if ((input_overlay.mOverlayWidth <= 0) || (input_overlay.mOverlayHeight <= 0))
     {
         return true;
     }
@@ -1054,25 +1054,21 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         {
             SharedPtrOverlay tmp(DEBUG_NEW Overlay());
 
-            bool rv{ GaussianBlur(input_overlay, gaussian_blur_strength, target_scale_x, target_scale_y, tmp) };
+            [[maybe_unused]] bool rv{ GaussianBlur(input_overlay, gaussian_blur_strength, target_scale_x, target_scale_y, tmp) };
             ASSERT(rv);
-            (void)rv;
             rv = BeBlur(*tmp, be_strength, target_scale_x, target_scale_y, output_overlay);
             ASSERT(rv);
-            (void)rv;
         }
         else
         {
-            bool rv{ GaussianBlur(input_overlay, gaussian_blur_strength, target_scale_x, target_scale_y, output_overlay) };
+            [[maybe_unused]] bool rv{ GaussianBlur(input_overlay, gaussian_blur_strength, target_scale_x, target_scale_y, output_overlay) };
             ASSERT(rv);
-            (void)rv;
         }
     }
     else if (be_strength)
     {
-        bool rv{ BeBlur(input_overlay, be_strength, target_scale_x, target_scale_y, output_overlay) };
+        [[maybe_unused]] bool rv{ BeBlur(input_overlay, be_strength, target_scale_x, target_scale_y, output_overlay) };
         ASSERT(rv);
-        (void)rv;
     }
     return true;
 }
@@ -1094,11 +1090,11 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
 
     int gaussian_blur_radius_x{ (static_cast<int>(std::ceil(gaussian_blur_strength_x * 3)) | 1) / 2 }; // fix me: rounding err?
     int gaussian_blur_radius_y{ (static_cast<int>(std::ceil(gaussian_blur_strength_y * 3)) | 1) / 2 }; // fix me: rounding err?
-    if (gaussian_blur_radius_x < 1 && gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD)
+    if ((gaussian_blur_radius_x < 1) && (gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD))
     {
         gaussian_blur_radius_x = 1;
     } // make sure that it really do a blur
-    if (gaussian_blur_radius_y < 1 && gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD)
+    if ((gaussian_blur_radius_y < 1) && (gaussian_blur_strength > GAUSSIAN_BLUR_THREHOLD))
     {
         gaussian_blur_radius_y = 1;
     } // make sure that it really do a blur
@@ -1126,7 +1122,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     // memset(blur_plan, 0, output_overlay->mOverlayPitch * output_overlay->mOverlayHeight);
 
     const BYTE* plan_input{ input_overlay.mfWideOutlineEmpty ? input_overlay.mBody.get() : input_overlay.mBorder.get() };
-    ASSERT((output_overlay->mOverlayWidth >= filter_x.g_w && output_overlay->mOverlayHeight >= filter_y.g_w));
+    ASSERT(((output_overlay->mOverlayWidth >= filter_x.g_w) && (output_overlay->mOverlayHeight >= filter_y.g_w)));
     xy_gaussian_blur(blur_plan, output_overlay->mOverlayPitch,
                      plan_input, input_overlay.mOverlayWidth, input_overlay.mOverlayHeight, input_overlay.mOverlayPitch,
                      filter_x.g_f, filter_x.g_r, filter_x.g_w_ex,
@@ -1169,7 +1165,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     output_overlay->CleanUp();
     output_overlay->mfWideOutlineEmpty = input_overlay.mfWideOutlineEmpty;
 
-    ASSERT((be_strength > 0 && target_scale_x > 0 && target_scale_y > 0));
+    ASSERT(((be_strength > 0) && (target_scale_x > 0) && (target_scale_y > 0)));
     int bluradjust_x{ static_cast<int>(target_scale_x * std::sqrt(be_strength * 0.25f) + 0.5) }; // fix me: rounding err?
     bluradjust_x *= 8;
     int bluradjust_y{ static_cast<int>(target_scale_y * std::sqrt(be_strength * 0.25f) + 0.5) }; // fix me: rounding err?
@@ -1210,7 +1206,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         const byte* plan_input{ i == 0 ? input_overlay.mBody.get() : input_overlay.mBorder.get() };
 
         plan_selected += (bluradjust_x >> 3) + (bluradjust_y >> 3) * output_overlay->mOverlayPitch;
-        if (plan_selected != nullptr && plan_input != nullptr)
+        if ((plan_selected != nullptr) && (plan_input != nullptr))
         {
             for (int j{ 0 }; j < input_overlay.mOverlayHeight; ++j)
             {
@@ -1232,7 +1228,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
     ::boost::shared_array<unsigned> tmp_buf(DEBUG_NEW unsigned[max((output_overlay->mOverlayPitch + 1) * (output_overlay->mOverlayHeight + 1), 0)]);
     for (int pass{ 0 }; pass < pass_num; ++pass)
     {
-        if (output_overlay->mOverlayWidth >= 3 && output_overlay->mOverlayHeight >= 3)
+        if ((output_overlay->mOverlayWidth >= 3) && (output_overlay->mOverlayHeight >= 3))
         {
             be_blur(blur_plan, tmp_buf.get(), output_overlay->mOverlayWidth, output_overlay->mOverlayHeight, pitch);
         }
@@ -1263,7 +1259,7 @@ static __forceinline void pixmix_sse2(DWORD* dst, DWORD color, DWORD alpha)
     r = _mm_srli_epi32(r, 8);
     r = _mm_packs_epi32(r, r);
     r = _mm_packus_epi16(r, r);
-    *dst = (DWORD)_mm_cvtsi128_si32(r);
+    *dst = static_cast<DWORD>(_mm_cvtsi128_si32(r));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1700,7 +1696,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
     // Don't worry -- even if dy<0 this will still work! // G: hehe, the evil twin :)
     unsigned __int64 offset1 = (((__int64)dy) << 32) - dx;
     unsigned __int64 offset2 = (((__int64)dy) << 32) + dx;
-    while (itA != itAE && itB != itBE)
+    while ((itA != itAE) && (itB != itBE))
     {
         if ((*itB).first + offset1 < (*itA).first)
         {
@@ -1711,7 +1707,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
             // B spans don't overlap, so begin merge loop with A first.
             for (;;)
             {
-                while (itA != itAE && (*itA).first <= x2)
+                while ((itA != itAE) && ((*itA).first <= x2))
                 {
                     x2 = _MAX(x2, (*itA).second);
                     ++itA;
@@ -1720,7 +1716,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 // If we run out of B spans or the B span doesn't overlap,
                 // then the next A span can't either (because A spans don't
                 // overlap) and we exit.
-                if (itB == itBE || (*itB).first + offset1 > x2)
+                if (itB == itBE || ((*itB).first + offset1 > x2))
                 {
                     break;
                 }
@@ -1728,12 +1724,12 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 {
                     x2 = _MAX(x2, (*itB).second + offset2);
                     ++itB;
-                } while (itB != itBE && (*itB).first + offset1 <= x2);
+                } while ((itB != itBE) && ((*itB).first + offset1 <= x2));
                 // If we run out of A spans or the A span doesn't overlap,
                 // then the next B span can't either (because B spans don't
                 // overlap) and we exit.
 
-                if (itA == itAE || (*itA).first > x2)
+                if (itA == itAE || ((*itA).first > x2))
                 {
                     break;
                 }
@@ -1750,7 +1746,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
             // A spans don't overlap, so begin merge loop with B first.
             for (;;)
             {
-                while (itB != itBE && (*itB).first + offset1 <= x2)
+                while ((itB != itBE) && ((*itB).first + offset1 <= x2))
                 {
                     x2 = _MAX(x2, (*itB).second + offset2);
                     ++itB;
@@ -1760,7 +1756,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 // then the next B span can't either (because B spans don't
                 // overlap) and we exit.
 
-                if (itA == itAE || (*itA).first > x2)
+                if (itA == itAE || ((*itA).first > x2))
                 {
                     break;
                 }
@@ -1768,11 +1764,11 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 {
                     x2 = _MAX(x2, (*itA).second);
                     ++itA;
-                } while (itA != itAE && (*itA).first <= x2);
+                } while ((itA != itAE) && ((*itA).first <= x2));
                 // If we run out of B spans or the B span doesn't overlap,
                 // then the next A span can't either (because A spans don't
                 // overlap) and we exit.
-                if (itB == itBE || (*itB).first + offset1 > x2)
+                if (itB == itBE || ((*itB).first + offset1 > x2))
                 {
                     break;
                 }
@@ -1792,7 +1788,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
         unsigned __int64 x1{ (*itB).first + offset1 };
         unsigned __int64 x2{ (*itB).second + offset2 };
         ++itB;
-        while (itB != itBE && (*itB).first + offset1 <= x2)
+        while ((itB != itBE) && ((*itB).first + offset1 <= x2))
         {
             x2 = _MAX(x2, (*itB).second + offset2);
             ++itB;
@@ -1808,7 +1804,7 @@ constexpr int kSwitchPointCount{ 6 };
 // A negative limit is outside every stored switch point. The sentinel is the end of the list.
 [[nodiscard]] bool SwitchPointBefore(const DWORD point, const int limit)
 {
-    if (limit <= 0 || point == kSwitchSentinel)
+    if ((limit <= 0) || point == kSwitchSentinel)
     {
         return false;
     }
@@ -1867,7 +1863,7 @@ constexpr int kSwitchPointCount{ 6 };
         h = r.bottom - y;
     }
     // Check if there's actually anything to render
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return (result);
     }
@@ -1906,7 +1902,7 @@ constexpr int kSwitchPointCount{ 6 };
                 break;
             }
             byte alpha{ static_cast<byte>(sw[0U] >> 24) };
-            while (sw <= swLast && SwitchPointBefore(sw[3U], spanEnd) && static_cast<byte>(sw[2U] >> 24) == alpha)
+            while ((sw <= swLast) && SwitchPointBefore(sw[3U], spanEnd) && (static_cast<byte>(sw[2U] >> 24)) == alpha)
             {
                 sw += 2;
             }
@@ -1940,9 +1936,9 @@ void DrawSingleColorPackPix(DWORD* dst,
 {
     while (h--)
     {
-        packed_pix_mix_sse2((BYTE*)dst, src, w, color);
+        packed_pix_mix_sse2(reinterpret_cast<BYTE*>(dst), src, w, color);
         src += src_pitch;
-        dst = (unsigned long*)((char*)dst + dst_pitch);
+        dst = reinterpret_cast<unsigned long*>(((char*)dst + dst_pitch));
     }
 }
 
@@ -1966,12 +1962,12 @@ void DrawMultiColorPackPix(DWORD* dst,
         for (int wt{ 0 }; wt < w; ++wt)
         {
             const int sample{ wt + xo };
-            if (sample >= 0 && (sw + 1) < swEnd)
+            if ((sample >= 0) && ((sw + 1) < swEnd))
             {
                 const DWORD sampleX{ static_cast<DWORD>(sample) };
-                if (sw[1U] != kSwitchSentinel && sampleX >= sw[1U])
+                if ((sw[1U] != kSwitchSentinel) && (sampleX >= sw[1U]))
                 {
-                    while ((sw + 1) < swEnd && sw[1U] != kSwitchSentinel && sampleX >= sw[1U])
+                    while (((sw + 1) < swEnd) && (sw[1U] != kSwitchSentinel) && (sampleX >= sw[1U]))
                     {
                         sw += 2;
                     }
@@ -1981,7 +1977,7 @@ void DrawMultiColorPackPix(DWORD* dst,
             pixmix_sse2(&dst[wt], color, src[wt]);
         }
         src += src_pitch;
-        dst = (DWORD*)((BYTE*)dst + dst_pitch);
+        dst = reinterpret_cast<DWORD*>(((BYTE*)dst + dst_pitch));
     }
 }
 
@@ -2033,12 +2029,12 @@ void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CR
         h = r.bottom - y;
     }
     // Check if there's actually anything to render
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return;
     }
     // must have enough space to draw into
-    ASSERT((x >= bitmap->x && y >= bitmap->y && x + w <= bitmap->x + bitmap->w && y + h <= bitmap->y + bitmap->h));
+    ASSERT(((x >= bitmap->x) && (y >= bitmap->y) && (x + w <= bitmap->x + bitmap->w) && (y + h <= bitmap->y + bitmap->h)));
 
     bool fSingleColor{ (switchpts[1U] == 0xffffffff) };
     bool PLANAR{ (bitmap->type == XyBitmap::PLANNA) };
@@ -2066,7 +2062,7 @@ void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CR
     {
         dst_offset = bitmap->pitch * (y - bitmap->y) + (x - bitmap->x) * 4;
     }
-    unsigned long* dst{ (unsigned long*)((BYTE*)bitmap->plans[0U] + dst_offset) };
+    unsigned long* dst{ reinterpret_cast<unsigned long*>(((BYTE*)bitmap->plans[0U] + dst_offset)) };
 
     // Every remaining line in the bitmap to be rendered...
     switch (draw_method)
@@ -2145,7 +2141,7 @@ void Rasterizer::FillSolidRect(SubPicDesc& spd, const int x, const int y, const 
     switch (draw_method)
     {
     case 0 * DM::AYUV_PLANAR: {
-        BYTE* dst{ ((BYTE*)spd.bits + spd.pitch * y) + x * 4 };
+        BYTE* dst{ (reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * y) + x * 4 };
         for (int wy{ y }; wy < y + nHeight; ++wy)
         {
             packed_pix_mix_sse2(dst, argb >> 24, nWidth, argb);
@@ -2203,24 +2199,24 @@ void DoAdditionDrawMultiColor(BYTE* dst,
     while (h--)
     {
         const DWORD* sw{ switchpts };
-        DWORD* dst1{ (DWORD*)dst };
+        DWORD* dst1{ reinterpret_cast<DWORD*>(dst) };
         const BYTE* src1{ src };
         DWORD last_x{ switchpts[1U] };
         const DWORD* const swEnd{ switchpts + kSwitchPointCount };
-        while (w >= 0 && last_x < static_cast<DWORD>(w))
+        while ((w >= 0) && (last_x < static_cast<DWORD>(w)))
         {
             if ((sw + 3) >= swEnd)
             {
                 break;
             }
-            DWORD new_x{ sw[3U] != kSwitchSentinel && sw[3U] < static_cast<DWORD>(w) ? sw[3U] : static_cast<DWORD>(w) };
+            DWORD new_x{ (sw[3U] != kSwitchSentinel) && (sw[3U] < static_cast<DWORD>(w)) ? sw[3U] : static_cast<DWORD>(w) };
             DWORD color{ sw[0U] };
             sw += 2;
             if (new_x < last_x)
             {
                 continue;
             }
-            packed_pix_add_sse2((BYTE*)dst1, src1, new_x - last_x, color);
+            packed_pix_add_sse2(reinterpret_cast<BYTE*>(dst1), src1, new_x - last_x, color);
             dst1 += new_x - last_x;
             src1 += new_x - last_x;
             last_x = new_x;
@@ -2285,12 +2281,12 @@ void Rasterizer::AdditionDraw(XyBitmap* bitmap,
         h = r.bottom - y;
     }
     // Check if there's actually anything to render
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return;
     }
     // must have enough space to draw into
-    if (!(x >= bitmap->x && y >= bitmap->y && x + w <= bitmap->x + bitmap->w && y + h <= bitmap->y + bitmap->h))
+    if (!((x >= bitmap->x) && (y >= bitmap->y) && (x + w <= bitmap->x + bitmap->w) && (y + h <= bitmap->y + bitmap->h)))
     {
         XY_LOG_FATAL("Overflow!");
         ASSERT(0);
@@ -2313,7 +2309,7 @@ void Rasterizer::AdditionDraw(XyBitmap* bitmap,
     {
         dst_offset = bitmap->pitch * (y - bitmap->y) + (x - bitmap->x) * 4;
     }
-    BYTE* dst{ (BYTE*)bitmap->plans[0U] + dst_offset };
+    BYTE* dst{ reinterpret_cast<BYTE*>(bitmap->plans[0U]) + dst_offset };
 
     if (PLANAR)
     {
@@ -2342,9 +2338,9 @@ void Rasterizer::AdditionDraw(XyBitmap* bitmap,
                 new_switchpts[2U * i + 1U] = static_cast<DWORD>(w);
                 break;
             }
-            const DWORD adjusted{ (xo >= 0 && point > static_cast<DWORD>(xo)) ? point - static_cast<DWORD>(xo) : 0U };
+            const DWORD adjusted{ ((xo >= 0) && (point > static_cast<DWORD>(xo))) ? point - static_cast<DWORD>(xo) : 0U };
             new_switchpts[2U * i + 1U] = adjusted;
-            if (w >= 0 && adjusted >= static_cast<DWORD>(w))
+            if ((w >= 0) && (adjusted >= static_cast<DWORD>(w)))
             {
                 new_switchpts[2U * i + 1U] = static_cast<DWORD>(w);
                 break;
@@ -2840,15 +2836,15 @@ void Overlay::FillAlphaMash(byte* outputAlphaMask, const bool fBody, const bool 
     {
         FillAlphaMashBorder_sse2(dst, border, body, color_alpha, w, h, mOverlayPitch);
     }
-    else if (!fBorder && fBody && pAlphaMask != nullptr)
+    else if (!fBorder && fBody && (pAlphaMask != nullptr))
     {
         FillAlphaMashBodyMasked_sse2(dst, body, color_alpha, w, h, mOverlayPitch, pAlphaMask, pitch);
     }
-    else if (fBorder && fBody && pAlphaMask != nullptr)
+    else if (fBorder && fBody && (pAlphaMask != nullptr))
     {
         FillAlphaMashBodyMasked_sse2(dst, border, color_alpha, w, h, mOverlayPitch, pAlphaMask, pitch);
     }
-    else if (fBorder && !fBody && pAlphaMask != nullptr)
+    else if (fBorder && !fBody && (pAlphaMask != nullptr))
     {
         FillAlphaMashBorderMasked_sse2(dst, border, body, color_alpha, w, h, mOverlayPitch, pAlphaMask, pitch);
     }
@@ -2907,7 +2903,7 @@ void Overlay::FillAlphaMash(byte* outputAlphaMask, const bool fBody, const bool 
     }
 
     if (overlay->mOverlayPitch == mOverlayPitch && overlay->mOverlayWidth == mOverlayWidth &&
-        overlay->mOverlayHeight >= mOverlayHeight)
+        (overlay->mOverlayHeight >= mOverlayHeight))
     {
         if (body && mBody)
         {
@@ -2987,7 +2983,7 @@ const PathData& PathData::operator=(const PathData& src)
 {
     if (this != &src)
     {
-        if (mPathPoints != src.mPathPoints && src.mPathPoints > 0)
+        if ((mPathPoints != src.mPathPoints) && (src.mPathPoints > 0))
         {
             _TrashPath();
             mPathPoints = src.mPathPoints;
@@ -3050,7 +3046,7 @@ void PathData::_TrashPath()
         {
             return true;
         }
-        mpPathTypes = (BYTE*)std::malloc(sizeof(BYTE) * mPathPoints);
+        mpPathTypes = reinterpret_cast<BYTE*>(std::malloc(sizeof(BYTE) * mPathPoints));
         mpPathPoints = (POINT*)std::malloc(sizeof(POINT) * mPathPoints);
         if (mPathPoints == GetPath(hdc, mpPathPoints, mpPathTypes, mPathPoints))
         {
@@ -3084,7 +3080,7 @@ void PathData::_TrashPath()
         {
             return true;
         }
-        pNewTypes = (BYTE*)std::realloc(mpPathTypes, (mPathPoints + nPoints) * sizeof(BYTE));
+        pNewTypes = reinterpret_cast<BYTE*>(std::realloc(mpPathTypes, (mPathPoints + nPoints) * sizeof(BYTE)));
         pNewPoints = (POINT*)std::realloc(mpPathPoints, (mPathPoints + nPoints) * sizeof(POINT));
         if (pNewTypes)
         {
@@ -3147,7 +3143,7 @@ void PathData::AlignLeftTop(CPoint* left_top, CSize* size)
             maxy = iy;
         }
     }
-    if (minx > maxx || miny > maxy)
+    if ((minx > maxx) || (miny > maxy))
     {
         _TrashPath();
         *left_top = CPoint(0, 0);
@@ -3258,8 +3254,8 @@ void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, 
     }
     if (!fFirstSet)
     {
-        firstp.x = (LONG)cx0;
-        firstp.y = (LONG)cy0;
+        firstp.x = static_cast<LONG>(cx0);
+        firstp.y = static_cast<LONG>(cy0);
         lastp = firstp;
         fFirstSet = true;
     }
@@ -3267,11 +3263,11 @@ void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, 
     {
         double x{ cx0 + t * (cx1 + t * (cx2 + t * cx3)) };
         double y{ cy0 + t * (cy1 + t * (cy2 + t * cy3)) };
-        _EvaluateLine(lastp.x, lastp.y, (int)x, (int)y);
+        _EvaluateLine(lastp.x, lastp.y, static_cast<int>(x), static_cast<int>(y));
     }
     double x{ cx0 + cx1 + cx2 + cx3 };
     double y{ cy0 + cy1 + cy2 + cy3 };
-    _EvaluateLine(lastp.x, lastp.y, (int)x, (int)y);
+    _EvaluateLine(lastp.x, lastp.y, static_cast<int>(x), static_cast<int>(y));
 }
 
 void ScanLineData::_EvaluateLine(const PathData& path_data, const int pt1idx, const int pt2idx)
@@ -3283,7 +3279,7 @@ void ScanLineData::_EvaluateLine(const PathData& path_data, const int pt1idx, co
 
 void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, const int y1)
 {
-    if (lastp.x != x0 || lastp.y != y0)
+    if ((lastp.x != x0) || (lastp.y != y0))
     {
         _EvaluateLine(lastp.x, lastp.y, x0, y0);
     }
@@ -3337,7 +3333,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
 
         while (iy <= y1)
         {
-            int ix{ (int)((xacc + 32768) >> 16) };
+            int ix{ static_cast<int>(((xacc + 32768) >> 16)) };
 
             mpEdgeBuffer[mEdgeNext].next = mpScanBuffer[iy];
             mpEdgeBuffer[mEdgeNext].posandflag = (ix << 1) | flag;
@@ -3384,7 +3380,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
         switch (t)
         {
         case PT_MOVETO:
-            if (lastmoveto >= 0 && firstp != lastp)
+            if ((lastmoveto >= 0) && (firstp != lastp))
             {
                 _EvaluateLine(lastp.x, lastp.y, firstp.x, firstp.y);
             }
@@ -3422,7 +3418,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
             break;
         }
     }
-    if (lastmoveto >= 0 && firstp != lastp)
+    if ((lastmoveto >= 0) && (firstp != lastp))
     {
         _EvaluateLine(lastp.x, lastp.y, firstp.x, firstp.y);
     }
@@ -3508,7 +3504,7 @@ void ScanLineData::DeleteOutlines()
         WidenRegionCreater* widen_region_creater{ WidenRegionCreater::GetDefaultWidenRegionCreater() };
         widen_region_creater->xy_overlap_region(&mWideOutline, out_line, rx, ry);
     }
-    else if (ry == 0 && rx > 0)
+    else if (ry == 0 && (rx > 0))
     {
         // There are artifacts if we don't make at least two overlaps of the line, even at same Y coord
         OverlapRegion(mWideOutline, out_line, rx, 0);

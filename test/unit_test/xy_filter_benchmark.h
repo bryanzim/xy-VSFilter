@@ -955,7 +955,7 @@ void xy_filter_sse_v5(float* dst, const int width, const int height, const int s
     typedef void (*Filter)(float* dst, int width, int height, int stride, const float* filter);
     const Filter filters[] = { xy_filter_sse_template_v0<4>, xy_filter_sse_template_v0<8>, xy_filter_sse_template_v0<12>, xy_filter_sse_template_v0<16>,
                                xy_filter_sse_template_v0<20>, xy_filter_sse_template_v0<24>, xy_filter_sse_template_v0<28> };
-    if (filter_width <= 28 && filter_width <= width)
+    if ((filter_width <= 28) && (filter_width <= width))
     {
         ASSERT(filter_width % 4 == 0);
         filters[(filter_width - 1) / 4](dst, width, height, stride, filter);
@@ -1149,15 +1149,15 @@ void xy_filter_sse_v6(float* dst, const int width, const int height, const int s
 {
     // Make sure maxUlps is non-negative and small enough that the
     // default NAN won't compare as equal to anything.
-    ASSERT((maxUlps > 0 && maxUlps < 4 * 1024 * 1024));
-    int aInt{ *(int*)&A };
+    ASSERT(((maxUlps > 0) && (maxUlps < 4 * 1024 * 1024)));
+    int aInt{ *reinterpret_cast<int*>(&A) };
     // Make aInt lexicographically ordered as a twos-complement int
     if (aInt < 0)
     {
         aInt = 0x80000000 - aInt;
     }
     // Make bInt lexicographically ordered as a twos-complement int
-    int bInt{ *(int*)&B };
+    int bInt{ *reinterpret_cast<int*>(&B) };
     if (bInt < 0)
     {
         bInt = 0x80000000 - bInt;
@@ -1430,10 +1430,10 @@ void xy_filter_sse_v7(float* dst, const int width, const int height, const int s
         xy_filter_sse_template_v1<21>, xy_filter_sse_template_v1<24>, xy_filter_sse_template_v1<24>, xy_filter_sse_template_v1<24>,
         xy_filter_sse_template_v1<25>, xy_filter_sse_template_v1<28>, xy_filter_sse_template_v1<28>, xy_filter_sse_template_v1<28>
     };
-    if (filter_width <= 28 && filter_width <= width)
+    if ((filter_width <= 28) && (filter_width <= width))
     {
         int tmp{ filter_width };
-        while (AlmostEqual(filter[tmp - 1], 0.0f) && filter_width - tmp < 3)
+        while (AlmostEqual(filter[tmp - 1], 0.0f) && (filter_width - tmp < 3))
         { // Skip tail zero, but limited to 3. We cannot support more current.
             tmp--;
         }
@@ -1537,11 +1537,11 @@ void xy_filter_sse_v8(float* dst, const int width, const int height, const int s
         xy_filter_sse_template_v1<21>, xy_filter_sse_template_v1<24>, xy_filter_sse_template_v1<24>, xy_filter_sse_template_v1<24>,
         xy_filter_sse_template_v1<25>, xy_filter_sse_template_v1<28>, xy_filter_sse_template_v1<28>, xy_filter_sse_template_v1<28>
     };
-    if (filter_width <= 28 && filter_width <= width)
+    if ((filter_width <= 28) && (filter_width <= width))
     {
         int tmp{ filter_width };
         // Skip tail zero, but we cannot (and don't have to) support more than 3 tail zeros currently.
-        while (AlmostEqual(filter[tmp - 1], 0.0f) && filter_width - tmp < 3)
+        while (AlmostEqual(filter[tmp - 1], 0.0f) && (filter_width - tmp < 3))
         {
             tmp--;
         }
@@ -1884,11 +1884,11 @@ void xy_filter_sse_v9(float* dst, const int width, const int height, const int s
         xy_filter_sse_template_v2<21>, xy_filter_sse_template_v2<24>, xy_filter_sse_template_v2<23>, xy_filter_sse_template_v2<24>,
         xy_filter_sse_template_v2<25>, xy_filter_sse_template_v2<28>, xy_filter_sse_template_v2<27>, xy_filter_sse_template_v2<28>
     };
-    if (filter_width <= 28 && filter_width <= width)
+    if ((filter_width <= 28) && (filter_width <= width))
     {
         int tmp{ filter_width };
         // Skip tail zero, but we cannot (and don't have to) support more than 3 tail zeros currently.
-        while (AlmostEqual(filter[tmp - 1], 0.0f) && filter_width - tmp < 3)
+        while (AlmostEqual(filter[tmp - 1], 0.0f) && (filter_width - tmp < 3))
         {
             tmp--;
         }
@@ -1927,7 +1927,7 @@ public:
 
     explicit XyFilterTest() : buff_base(nullptr), filter_f(nullptr), data(nullptr)
     {
-        buff_base = (float*)xy_malloc(MAX_BUFF_SIZE * sizeof(float));
+        buff_base = reinterpret_cast<float*>(xy_malloc(MAX_BUFF_SIZE * sizeof(float)));
         data = buff_base + MAX_FILTER_LENGTH;
         filter_f = data + MAX_DATA_BUFF_SIZE;
     }
@@ -1963,7 +1963,7 @@ public:
 
         for (int i{ 0 }; i < h; ++i)
         {
-            float* data2{ (float*)((PUINT8)data + i * pitch) };
+            float* data2{ reinterpret_cast<float*>(((PUINT8)data + i * pitch)) };
             for (int j{ 0 }; j < w + filter_width; ++j)
             {
                 data2[j] = rand() & 0xFF;
@@ -2083,10 +2083,10 @@ void xy_float_2_float_transpose_c_v0(float* dst, int dst_width, int dst_stride,
 void xy_float_2_float_transpose_sse_v0(float* dst, const int dst_width, const int dst_stride,
                                        const float* src, const int width, const int height, const int src_stride)
 {
-    typedef float DstT;
-    typedef const float SrcT;
+    using DstT = float;
+    using SrcT = const float;
 
-    ASSERT((((int)dst | dst_stride) & 15) == 0);
+    ASSERT(((static_cast<int>(dst) | dst_stride) & 15) == 0);
     ASSERT(dst_width >= height);
     PUINT8 dst_byte{ reinterpret_cast<PUINT8>(dst) };
     SrcT* src_end{ src + width };
@@ -2145,8 +2145,8 @@ void float_2_byte_transpose_v0(UINT8* dst, const int dst_width, const int dst_st
 void float_2_byte_transpose_sse_v0(UINT8* dst, const int dst_width, const int dst_stride,
                                    const float* src, const int width, const int height, const int src_stride)
 {
-    typedef UINT8 DstT;
-    typedef const float SrcT;
+    using DstT = UINT8;
+    using SrcT = const float;
 
     ASSERT(dst_width >= height);
     PUINT8 dst_byte{ reinterpret_cast<PUINT8>(dst) };
@@ -2350,13 +2350,13 @@ protected:
         ASSERT(this->pitch * this->h <= MAX_DATA_BUFF_SIZE);
 
         data_f = data_base_f;
-        if ((int)(data_f) & 15)
+        if (static_cast<int>((data_f)) & 15)
         {
-            data_f = (float*)(((int)data_f + 15) & ~15);
+            data_f = reinterpret_cast<float*>((((int)data_f + 15) & ~15));
         }
         for (int i{ 0 }; i < h; ++i)
         {
-            float* data2{ (float*)((PUINT8)data_f + i * pitch) };
+            float* data2{ reinterpret_cast<float*>(((PUINT8)data_f + i * pitch)) };
             for (int j{ 0 }; j < w; ++j)
             {
                 data2[j] = rand() * 0.1f / 0xFF;
@@ -2365,9 +2365,9 @@ protected:
         data_f2 = data_f + h * pitch;
 
         data_b = data_byte_base;
-        if ((int)(data_b) & 15)
+        if (static_cast<int>((data_b)) & 15)
         {
-            data_b = (UINT8*)(((int)data_b + 15) & ~15);
+            data_b = reinterpret_cast<UINT8*>((((int)data_b + 15) & ~15));
         }
     }
 };

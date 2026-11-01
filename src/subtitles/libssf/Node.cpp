@@ -328,7 +328,7 @@ namespace ssf
                 Split sa(':', str);
                 Split sa2('.', sa ? sa[sa - 1] : L"");
 
-                if (sa == 0 || sa2 == 0 || sa2 > 2)
+                if (sa == 0 || sa2 == 0 || (sa2 > 2))
                 {
                     throw Exception(_T("invalid number"));
                 }
@@ -496,7 +496,7 @@ namespace ssf
         {
             CStringW type = split[i];
 
-            if (pDef->m_nodes.IsEmpty() || !dynamic_cast<Reference*>(pDef->m_nodes.GetTail()))
+            if (pDef->m_nodes.IsEmpty() || (!dynamic_cast<Reference*>(pDef->m_nodes.GetTail())))
             {
                 EXECUTE_ASSERT(m_pnf->CreateRef(pDef) != nullptr);
             }

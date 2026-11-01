@@ -11,8 +11,8 @@
 class CAutoTiming
 {
 private:
-    const TCHAR* _szBlkName;
-    const int _level;
+    [[maybe_unused]] const TCHAR* _szBlkName;
+    [[maybe_unused]] const int _level;
     int _start;
     int _end;
 
@@ -21,8 +21,6 @@ public:
         : _szBlkName(szBlkName), _level(level)
     {
         _start = GetTickCount();
-        (void)_szBlkName;
-        (void)_level;
         DbgLog((LOG_TIMING, _level, TEXT("%s:start at %d ms"), _szBlkName, _start));
     }
 

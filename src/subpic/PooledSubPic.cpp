@@ -102,7 +102,7 @@ CPooledSubPicAllocator::CPooledSubPicAllocator(int alpha_blt_dst_type, SIZE maxs
         }
     }
     _capacity = 0;
-    (void)InitPool(capacity);
+    static_cast<void>(InitPool(capacity));
 }
 
 

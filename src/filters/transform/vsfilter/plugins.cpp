@@ -82,18 +82,18 @@ namespace Plugin
 
             // fix me: should not do init here
             (void)CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
-            (void)CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]);
-            (void)CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]);
-            (void)CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]);
+            static_cast<void>(CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]));
+            static_cast<void>(CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]));
+            static_cast<void>(CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]));
 
-            (void)XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
-            (void)CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]);
+            static_cast<void>(XyFwGroupedDrawItemsHashKey::GetCacher()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]));
+            static_cast<void>(CacheManager::GetBitmapMruCache()->SetMaxItemNum(m_xy_int_opt[INT_BITMAP_MRU_CACHE_ITEM_NUM]));
 
-            (void)CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]);
-            (void)CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]);
-            (void)CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]);
+            static_cast<void>(CacheManager::GetClipperAlphaMaskMruCache()->SetMaxItemNum(m_xy_int_opt[INT_CLIPPER_MRU_CACHE_ITEM_NUM]));
+            static_cast<void>(CacheManager::GetTextInfoCache()->SetMaxItemNum(m_xy_int_opt[INT_TEXT_INFO_CACHE_ITEM_NUM]));
+            static_cast<void>(CacheManager::GetAssTagListMruCache()->SetMaxItemNum(m_xy_int_opt[INT_ASS_TAG_LIST_CACHE_ITEM_NUM]));
 
-            (void)SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel(static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL]));
+            static_cast<void>(SubpixelPositionControler::GetGlobalControler().SetSubpixelLevel(static_cast<SubpixelPositionControler::SUBPIXEL_LEVEL>(m_xy_int_opt[INT_SUBPIXEL_POS_LEVEL])));
 
             m_script_selected_yuv = CSimpleTextSubtitle::YCbCrMatrix_AUTO;
             m_script_selected_range = CSimpleTextSubtitle::YCbCrRange_AUTO;
@@ -292,7 +292,7 @@ namespace Plugin
             CString fn{ GetFileName() };
             CFileStatus fs;
             fs.m_mtime = 0;
-            (void)CFileGetStatus(fn, fs);
+            static_cast<void>(CFileGetStatus(fn, fs));
 
             while (1)
             {
@@ -303,13 +303,13 @@ namespace Plugin
                     Reply(S_OK);
                     break;
                 }
-                else if (WAIT_OBJECT_0 + 1 >= i && i <= WAIT_OBJECT_0 + handles.GetCount())
+                else if ((WAIT_OBJECT_0 + 1 >= i) && (i <= WAIT_OBJECT_0 + handles.GetCount()))
                 {
                     if (FindNextChangeNotification(handles[i - WAIT_OBJECT_0]))
                     {
                         CFileStatus fs2;
                         fs2.m_mtime = 0;
-                        (void)CFileGetStatus(fn, fs2);
+                        static_cast<void>(CFileGetStatus(fn, fs2));
 
                         if (fs.m_mtime < fs2.m_mtime)
                         {
@@ -337,7 +337,7 @@ namespace Plugin
                             fn = fn2;
                             handles.SetCount(1);
                             handles.Add(h);
-                            (void)CFileGetStatus(fn, fs);
+                            static_cast<void>(CFileGetStatus(fn, fs));
                         }
                     }
                 }
@@ -365,7 +365,7 @@ namespace Plugin
         {
             if (!fn.IsEmpty())
             {
-                (void)Open(fn);
+                static_cast<void>(Open(fn));
             }
         }
 
@@ -402,7 +402,7 @@ namespace Plugin
             m_fps = fps;
             if (!fn.IsEmpty())
             {
-                (void)Open(fn, CharSet);
+                static_cast<void>(Open(fn, CharSet));
             }
         }
 
@@ -455,7 +455,7 @@ namespace Plugin
 
     static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name, const bool withCharset, const int charset)
     {
-        if (str == nullptr || maxlen <= 0)
+        if (str == nullptr || (maxlen <= 0))
         {
             return;
         }
@@ -494,9 +494,9 @@ namespace Plugin
                 dst.h = fa->src.h;
                 dst.bpp = 32;
                 dst.pitch = fa->src.pitch;
-                dst.bits = (BYTE*)fa->src.data;
+                dst.bits = reinterpret_cast<BYTE*>(fa->src.data);
 
-                (void)Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame);
+                static_cast<void>(Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame));
 
                 return 0;
             }
@@ -797,9 +797,9 @@ namespace Plugin
                 dst.h = fa->src.h;
                 dst.bpp = 32;
                 dst.pitch = fa->src.pitch;
-                dst.bits = (BYTE*)fa->src.data;
+                dst.bits = reinterpret_cast<BYTE*>(fa->src.data);
 
-                (void)Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame);
+                static_cast<void>(Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame));
 
                 return 0;
             }
@@ -1754,7 +1754,7 @@ namespace Plugin
                 }
 
                 // Common part
-                float fps = m_fps > 0 ? m_fps : (float)vi.fps_numerator / vi.fps_denominator;
+                float fps = m_fps > 0 ? m_fps : static_cast<float>(vi.fps_numerator) / vi.fps_denominator;
 
                 REFERENCE_TIME timestamp;
 
@@ -1771,7 +1771,7 @@ namespace Plugin
                 {
                     ReadAvisynthFrameColor(env, frame);
                 }
-                (void)Render(dst, timestamp, fps);
+                static_cast<void>(Render(dst, timestamp, fps));
 
                 if (semi_packed_p10 || semi_packed_p16)
                 {
@@ -1911,7 +1911,7 @@ namespace Plugin
                 args[1U].AsString(),
                 useRGBAwhenRGB32,
                 args[2U].AsInt(DEFAULT_CHARSET),
-                (float)args[3U].AsFloat(-1),
+                static_cast<float>(args[3U].AsFloat(-1)),
                 vfr));
         }
 
@@ -1963,7 +1963,7 @@ namespace Plugin
                 args[0U].AsString(),
                 useRGBAwhenRGB32,
                 args[5U].AsInt(DEFAULT_CHARSET),
-                (float)args[3U].AsFloat(-1),
+                static_cast<float>(args[3U].AsFloat(-1)),
                 vfr));
         }
 
@@ -2012,7 +2012,7 @@ UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lPar
             CString s;
             s.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
             SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)(LPCTSTR)s);
-            if (CharSetList[i] == (int)((OPENFILENAME*)lParam)->lCustData)
+            if (CharSetList[i] == static_cast<int>(((OPENFILENAME*)lParam)->lCustData))
             {
                 SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_SETCURSEL, i, 0);
             }

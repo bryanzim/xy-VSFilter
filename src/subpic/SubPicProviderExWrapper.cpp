@@ -102,9 +102,7 @@ DECLSPEC_NOTHROW STDMETHODIMP_(VOID) CSubPicProviderExWrapper::GetStartStop(POSI
     return type == MSP_RGBA;
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CSubPicProviderExWrapper::SetOutputColorType(const int type)
-
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CSubPicProviderExWrapper::SetOutputColorType([[maybe_unused]] const int type)
 {
-    (void)type;
     return MSP_RGBA;
 }

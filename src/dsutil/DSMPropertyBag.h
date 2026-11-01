@@ -162,7 +162,7 @@ template <class T>
 [[nodiscard]] int range_bsearch(const CAtlArray<T>& array, const REFERENCE_TIME rt)
 {
     int i{ 0 }, j = array.GetCount() - 1, ret = -1;
-    if (j >= 0 && rt >= array[j].rt)
+    if ((j >= 0) && (rt >= array[j].rt))
     {
         return j;
     }

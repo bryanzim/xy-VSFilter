@@ -12,15 +12,15 @@ typedef const UINT CUINT, *PCUINT;
 {
     // Make sure maxUlps is non-negative and small enough that the
     // default NAN won't compare as equal to anything.
-    ASSERT((maxUlps >= 0 && maxUlps < 4 * 1024 * 1024));
-    int aInt{ *(int*)&A };
+    ASSERT(((maxUlps >= 0) && (maxUlps < 4 * 1024 * 1024)));
+    int aInt{ *reinterpret_cast<const int*>(&A) };
     // Make aInt lexicographically ordered as a twos-complement int
     if (aInt < 0)
     {
         aInt = 0x80000000 - aInt;
     }
     // Make bInt lexicographically ordered as a twos-complement int
-    int bInt{ *(int*)&B };
+    int bInt{ *reinterpret_cast<const int*>(&B) };
     if (bInt < 0)
     {
         bInt = 0x80000000 - bInt;
@@ -584,9 +584,8 @@ void xy_filter_sse_template(float* dst, const int width, const int height, const
  **/
 void xy_3_tag_symmetric_filter_sse(float* dst, const int width, const int height, const int stride, const float* filter)
 {
-    const int filter_width{ 4 };
+    [[maybe_unused]] const int filter_width{ 4 };
     ASSERT(stride >= 4 * (width + filter_width));
-    (void)filter_width;
     ASSERT(((stride | (4 * width) | (4 * filter_width) | reinterpret_cast<std::intptr_t>(dst) | reinterpret_cast<std::intptr_t>(filter)) & 15) == 0);
 
     ASSERT((filter_width == 4 && filter[3U] == 0 && filter[2U] == filter[0U]));
@@ -653,11 +652,11 @@ void xy_filter_sse(float* dst, const int width, const int height, const int stri
         xy_filter_sse_template<21>, xy_filter_sse_template<24>, xy_filter_sse_template<24>, xy_filter_sse_template<24>,
         xy_filter_sse_template<25>, xy_filter_sse_template<28>, xy_filter_sse_template<28>, xy_filter_sse_template<28>
     };
-    if (filter_width <= 28 && filter_width <= width)
+    if ((filter_width <= 28) && (filter_width <= width))
     {
         int tmp{ filter_width };
         // Skip tail zero, but we cannot (and don't have to) support more than 3 tail zeros currently.
-        while (AlmostEqual(filter[tmp - 1], 0.0f) && filter_width - tmp < 3)
+        while (AlmostEqual(filter[tmp - 1], 0.0f) && (filter_width - tmp < 3))
         {
             --tmp;
         }
@@ -790,10 +789,10 @@ void xy_float_2_float_transpose_c(float* dst, const int dst_width, const int dst
 void xy_float_2_float_transpose_sse(float* dst, const int dst_width, const int dst_stride,
                                     const float* src, const int width, const int height, const int src_stride)
 {
-    typedef float DstT;
-    typedef const float SrcT;
+    using DstT = float;
+    using SrcT = const float;
 
-    ASSERT((((std::intptr_t)dst | dst_stride) & 15) == 0);
+    ASSERT(((reinterpret_cast<std::intptr_t>(dst) | dst_stride) & 15) == 0);
     ASSERT(dst_width >= height);
     PUINT8 dst_byte{ reinterpret_cast<PUINT8>(dst) };
     SrcT* src_end{ src + width };
@@ -857,11 +856,11 @@ void xy_float_2_byte_transpose_c(UINT8* dst, const int dst_width, const int dst_
 void xy_float_2_byte_transpose_sse(UINT8* dst, const int dst_width, const int dst_stride,
                                    const float* src, const int width, const int height, const int src_stride)
 {
-    typedef UINT8 DstT;
-    typedef const float SrcT;
+    using DstT = UINT8;
+    using SrcT = const float;
 
     ASSERT(dst_width >= height);
-    ASSERT((((std::intptr_t)dst | dst_stride) & 15) == 0);
+    ASSERT(((reinterpret_cast<std::intptr_t>(dst) | dst_stride) & 15) == 0);
     PUINT8 dst_byte{ reinterpret_cast<PUINT8>(dst) };
     SrcT* src_end{ src + width };
     PCUINT8 src2_end00{ reinterpret_cast<PCUINT8>(src) + (height & ~15) * src_stride };
@@ -925,7 +924,7 @@ void xy_gaussian_blur(PUINT8 dst, int dst_stride,
                       const float* gt_x, int r_x, int gt_ex_width_x,
                       const float* gt_y, int r_y, int gt_ex_width_y)
 {
-    ASSERT(width <= stride && width + 2 * r_x <= dst_stride);
+    ASSERT((width <= stride) && (width + 2 * r_x <= dst_stride));
     int ex_mask_width_x{ ((r_x * 2 + 1) + 3) & ~3 };
     ASSERT(ex_mask_width_x <= gt_ex_width_x);
     if (ex_mask_width_x > gt_ex_width_x)
@@ -1228,10 +1227,9 @@ template <int ROUNDING_POLICY>
 void xy_be_filter2_sse(const PUINT8 dst, const int width, const int height, const int stride, const PCUINT filter)
 {
     const int VOLUME_BITS{ 8 };
-    const int VOLUME{ (1 << VOLUME_BITS) };
+    [[maybe_unused]] const int VOLUME{ (1 << VOLUME_BITS) };
     ASSERT(filter[0U] == filter[2U]);
     ASSERT(filter[0U] + filter[1U] + filter[2U] == VOLUME);
-    (void)VOLUME;
     ASSERT(width >= 1);
     if (width <= 0)
     {
@@ -1313,7 +1311,7 @@ void xy_be_filter2_sse(const PUINT8 dst, const int width, const int height, cons
 void xy_calculate_filter(const float pass, const PUINT filter)
 {
     const int VOLUME{ (1 << 8) };
-    int n{ (int)pass };
+    int n{ static_cast<int>(pass) };
     if (n == 0)
     {
         filter[0U] = VOLUME * pass / (1 + 3 * pass);

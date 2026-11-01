@@ -6,10 +6,10 @@
   vStrip by [maven] (maven@maven.de)
 *************************************************************************/
 
-typedef std::uint64_t QWORD;
+using QWORD = std::uint64_t;
 #define fio_SECTOR_SIZE 2048
 
-typedef char dstring; // last BYTE of string indicates encoding/length
+using dstring = char; // last BYTE of string indicates encoding/length
 
 #define udf_LengthMask 0x3fffffff
 
@@ -53,11 +53,11 @@ typedef struct
     DWORD Location;                   // 04
 } t_udf_extent_ad, *tp_udf_extent_ad; // 08
 
-typedef struct
+using t_udf_lb_addr = struct
 {
     DWORD Location;       // 00, relative to volume
     WORD PartitionNumber; // 04
-} t_udf_lb_addr;          // 06
+}; // 06
 
 typedef struct
 {
@@ -75,13 +75,13 @@ typedef struct
     BYTE ImplementationUse[2U]; // 18
 } t_udf_ext_ad, *tp_udf_ext_ad; // 20
 
-typedef struct
+using t_udf_charspec = struct
 {
     BYTE CharacterSetType;      // 00
     BYTE CharacterSetInfo[63U]; // 01
-} t_udf_charspec;               // 64
+}; // 64
 
-typedef struct
+using t_udf_timestamp = struct
 {                                /* ECMA 167 1/7.3 */
     WORD TypeAndTimezone;        // 00
     WORD Year;                   // 02
@@ -93,7 +93,7 @@ typedef struct
     BYTE Centiseconds;           // 09
     BYTE HundredsofMicroseconds; // 10
     BYTE Microseconds;           // 11
-} t_udf_timestamp;               // 12
+}; // 12
 
 typedef struct
 {                             /* ISO 13346 3/7.2 */
@@ -107,12 +107,12 @@ typedef struct
     DWORD TagLocation;        // 12
 } t_udf_tag, *tp_udf_tag;     // 16
 
-typedef struct
+using t_udf_EntityID = struct
 {                              /* ISO 13346 1/7.4 */
     BYTE Flags;                // 00
     char Identifier[23U];      // 01
     char IdentifierSuffix[8U]; // 24
-} t_udf_EntityID;              // 32
+}; // 32
 
 typedef struct
 {                                                                             /* ISO 13346 3/10.2 */
@@ -140,7 +140,7 @@ typedef struct
     BYTE PartitionMaps[1U];                  // 468
 } t_udf_LogicalVolumeDescriptor, *tp_udf_LogicalVolumeDescriptor;
 
-typedef struct
+using t_udf_PartitionHeaderDescriptor = struct
 {
     t_udf_short_ad UnallocatedSpaceTable;   // 00
     t_udf_short_ad UnallocatedSpaceBitmap;  // 08
@@ -148,7 +148,7 @@ typedef struct
     t_udf_short_ad FreedSpaceTable;         // 24
     t_udf_short_ad FreedSpaceBitmap;        // 32
     BYTE Reserved[88U];                     // 40
-} t_udf_PartitionHeaderDescriptor;          // 128
+}; // 128
 
 typedef struct
 {                                                              /* ECMA 167 3/10.5  */
@@ -189,7 +189,7 @@ typedef struct
     BYTE Reserved[32U];                                 // 480
 } t_udf_FileSetDescriptor, *tp_udf_FileSetDescriptor;   // 512
 
-typedef struct
+using t_udf_icbtag = struct
 {                                             /* ECMA 167 4/14.6 */
     DWORD PriorRecordedNumberofDirectEntries; // 00
     WORD StrategyType;                        // 04
@@ -199,7 +199,7 @@ typedef struct
     BYTE FileType;                            // 11
     t_udf_lb_addr ParentICBLocation;          // 12
     WORD Flags;                               // 18
-} t_udf_icbtag;                               // 20
+}; // 20
 
 typedef struct
 {                                            /* ECMA 167 4/14.9 */

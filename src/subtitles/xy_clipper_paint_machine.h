@@ -4,10 +4,10 @@
 #include <boost/shared_ptr.hpp>
 
 class CClipper;
-typedef ::boost::shared_ptr<CClipper> SharedPtrCClipper;
+using SharedPtrCClipper = ::boost::shared_ptr<CClipper>;
 
 struct GrayImage2;
-typedef ::boost::shared_ptr<GrayImage2> SharedPtrGrayImage2;
+using SharedPtrGrayImage2 = ::boost::shared_ptr<GrayImage2>;
 
 class ClipperAlphaMaskCacheKey;
 

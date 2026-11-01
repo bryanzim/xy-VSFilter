@@ -8,13 +8,13 @@
 #include "xy_bitmap.h"
 
 class OverlayPaintMachine;
-typedef ::boost::shared_ptr<OverlayPaintMachine> SharedPtrOverlayPaintMachine;
+using SharedPtrOverlayPaintMachine = ::boost::shared_ptr<OverlayPaintMachine>;
 
 class CClipperPaintMachine;
-typedef ::boost::shared_ptr<CClipperPaintMachine> SharedPtrCClipperPaintMachine;
+using SharedPtrCClipperPaintMachine = ::boost::shared_ptr<CClipperPaintMachine>;
 
 class DrawItemHashKey;
-typedef ::boost::shared_ptr<DrawItemHashKey> SharedPtrDrawItemHashKey;
+using SharedPtrDrawItemHashKey = ::boost::shared_ptr<DrawItemHashKey>;
 
 struct DrawItem
 {
@@ -46,16 +46,16 @@ public:
                                                   const DWORD* switchpts, bool fBody, bool fBorder);
 };
 
-typedef ::boost::shared_ptr<DrawItem> SharedPtrDrawItem;
+using SharedPtrDrawItem = ::boost::shared_ptr<DrawItem>;
 
-typedef CAtlList<DrawItem> DrawItemList;
+using DrawItemList = CAtlList<DrawItem>;
 
-typedef CAtlList<DrawItemList> DrawItemListList;
+using DrawItemListList = CAtlList<DrawItemList>;
 
 
 struct CompositeDrawItem;
-typedef CAtlList<CompositeDrawItem> CompositeDrawItemList;
-typedef CAtlList<CompositeDrawItemList> CompositeDrawItemListList;
+using CompositeDrawItemList = CAtlList<CompositeDrawItem>;
+using CompositeDrawItemListList = CAtlList<CompositeDrawItemList>;
 
 struct CompositeDrawItem
 {

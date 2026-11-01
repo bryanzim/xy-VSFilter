@@ -67,11 +67,11 @@ namespace ssf
     {
         path_bkg.RemoveAll();
 
-        if (style.background.type == L"enlarge" && style.background.size > 0)
+        if (style.background.type == L"enlarge" && (style.background.size > 0))
         {
             path_bkg.Enlarge(path, GetBackgroundSize());
         }
-        else if (style.background.type == L"box" && style.background.size >= 0)
+        else if (style.background.type == L"box" && (style.background.size >= 0))
         {
             if (c != ssf::Text::LSEP)
             {
@@ -167,7 +167,7 @@ namespace ssf
 
         bool brotate = style.placement.angle.x || style.placement.angle.y || style.placement.angle.z;
         bool bspline = !spline.IsEmpty();
-        bool bscale = brotate || bspline || sx != 1 || sy != 1;
+        bool bscale = brotate || bspline || (sx != 1) || (sy != 1);
 
         float caz = static_cast<float>(std::cos(deg2rad(style.placement.angle.z)));
         float saz = static_cast<float>(std::sin(deg2rad(style.placement.angle.z)));
@@ -296,7 +296,7 @@ namespace ssf
 
         ras.ScanConvert(path, bbox);
 
-        if (style.background.type == L"outline" && style.background.size > 0)
+        if (style.background.type == L"outline" && (style.background.size > 0))
         {
             ras.CreateWidenedRegion(static_cast<int>(GetBackgroundSize() + 0.5));
         }

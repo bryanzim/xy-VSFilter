@@ -3,16 +3,16 @@
 
 #include <boost/shared_ptr.hpp>
 class CWord;
-typedef ::boost::shared_ptr<CWord> SharedPtrCWord;
+using SharedPtrCWord = ::boost::shared_ptr<CWord>;
 
 struct Overlay;
-typedef ::boost::shared_ptr<Overlay> SharedPtrOverlay;
+using SharedPtrOverlay = ::boost::shared_ptr<Overlay>;
 
 class OverlayPaintMachine;
-typedef ::boost::shared_ptr<OverlayPaintMachine> SharedPtrOverlayPaintMachine;
+using SharedPtrOverlayPaintMachine = ::boost::shared_ptr<OverlayPaintMachine>;
 
 class OverlayKey;
-typedef ::boost::shared_ptr<OverlayKey> SharedPtrOverlayKey;
+using SharedPtrOverlayKey = ::boost::shared_ptr<OverlayKey>;
 
 class CWordPaintMachine
 {
@@ -50,7 +50,7 @@ private:
     SharedPtrOverlayKey m_shadow_key, m_border_key, m_body_key;
 };
 
-typedef ::boost::shared_ptr<CWordPaintMachine> SharedCWordPaintMachine;
+using SharedCWordPaintMachine = ::boost::shared_ptr<CWordPaintMachine>;
 
 class OverlayPaintMachine
 {

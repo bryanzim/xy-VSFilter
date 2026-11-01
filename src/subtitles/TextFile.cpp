@@ -61,7 +61,7 @@ CTextFile::CTextFile(enc e)
             m_encoding = BE16;
             m_offset = 2;
         }
-        else if (w == 0xbbef && __super::GetLength() >= 3)
+        else if (w == 0xbbef && (__super::GetLength() >= 3))
         {
             BYTE b;
             if (sizeof(b) != Read(&b, sizeof(b)))
@@ -170,7 +170,7 @@ void CTextFile::SetEncoding(const enc e)
         break;
     }
 
-    lOff = max((LONGLONG)min((ULONGLONG)lOff, len), 0ll) + m_offset;
+    lOff = max(static_cast<LONGLONG>(min((ULONGLONG)lOff, len)), 0ll) + m_offset;
 
     pos = __super::Seek(lOff, begin) - m_offset;
     m_bufferCount = 0;
@@ -234,12 +234,12 @@ void CTextFile::WriteString(const LPCWSTR lpsz /*CStringW str*/)
         {
             return false;
         }
-        if (c >= 0 && c < 0x10000)
+        if ((c >= 0) && (c < 0x10000))
         {
-            m_convertedBuffer.push_back((wchar_t)c);
+            m_convertedBuffer.push_back(static_cast<wchar_t>(c));
             continue;
         }
-        if (c > 0 && c <= 0x10FFFF)
+        if ((c > 0) && (c <= 0x10FFFF))
         {
             c -= 0x10000;
             m_convertedBuffer.push_back(0xD800 | (c >> 10));
@@ -272,7 +272,7 @@ void CTextFile::WriteString(const LPCWSTR lpsz /*CStringW str*/)
                 // Switch to DEFAULT_ENCODING and read the line again
                 m_encoding = DEFAULT_ENCODING;
                 m_convertedBuffer.clear();
-                (void)Seek(startPos, begin);
+                static_cast<void>(Seek(startPos, begin));
                 continue;
             }
         }
@@ -404,7 +404,7 @@ CWebTextFile::CWebTextFile(CTextFile::enc e, LONGLONG llMaxSize)
 
         BYTE buff[1024U];
         int len, total = 0;
-        while ((len = f->Read(buff, 1024)) == 1024 && (m_llMaxSize < 0 || (total += 1024) < m_llMaxSize))
+        while ((len = f->Read(buff, 1024)) == 1024 && ((m_llMaxSize < 0) || ((total += 1024) < m_llMaxSize)))
         {
             temp.Write(buff, len);
         }

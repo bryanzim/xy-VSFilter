@@ -42,7 +42,7 @@ namespace ssf
         if (std::size_t seplen{ std::wcslen(sep) })
         {
             for (int i = 0, j = 0, len = str.GetLength();
-                 i <= len && (limit == 0U || GetCount() < limit);
+                 (i <= len) && (limit == 0U || (GetCount() < limit));
                  i = j + static_cast<int>(seplen))
             {
                 j = str.Find(sep, i);

@@ -416,7 +416,7 @@ CSubPicQueue::~CSubPicQueue()
                             break;
                         }
                     }
-                    const int queueCount{ m_Queue.GetCount() };
+                    const int queueCount{ static_cast<int>(m_Queue.GetCount()) };
                     if (queueCount > 0)
                     {
                         SetEvent(m_QueueEvents[QueueEvents_NOTEMPTY]);

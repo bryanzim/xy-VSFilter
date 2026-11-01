@@ -53,7 +53,7 @@ void SeparableFilterX(unsigned char* src, unsigned char* dst, int width, int hei
                 {
                     xofs -= width;
                 }
-                accum += (int)(in[xofs * PixelDist] * kernel[k]);
+                accum += static_cast<int>((in[xofs * PixelDist] * kernel[k]));
             }
             accum /= divisor;
             if (accum > 255)
@@ -64,7 +64,7 @@ void SeparableFilterX(unsigned char* src, unsigned char* dst, int width, int hei
             {
                 accum = 0;
             }
-            *out = (unsigned char)accum;
+            *out = static_cast<unsigned char>(accum);
             in += PixelDist;
             out += PixelDist;
         }
@@ -100,7 +100,7 @@ void SeparableFilterY(unsigned char* src, unsigned char* dst, int width, const i
                 {
                     yofs -= height;
                 }
-                accum += (int)(in[yofs * stride] * kernel[k]);
+                accum += static_cast<int>((in[yofs * stride] * kernel[k]));
             }
             accum /= divisor;
             if (accum > 255)
@@ -111,7 +111,7 @@ void SeparableFilterY(unsigned char* src, unsigned char* dst, int width, const i
             {
                 accum = 0;
             }
-            *out = (unsigned char)accum;
+            *out = static_cast<unsigned char>(accum);
             in += stride;
             out += stride;
         }
@@ -122,7 +122,7 @@ void SeparableFilterY(unsigned char* src, unsigned char* dst, int width, const i
 [[nodiscard]] static inline double NormalDist(const double sigma, const double x)
 
 {
-    if (sigma <= 0 && x == 0)
+    if ((sigma <= 0) && x == 0)
     {
         return 1;
     }
@@ -144,17 +144,17 @@ struct GaussianKernel
     int divisor;
     explicit inline GaussianKernel(const double sigma)
     {
-        width = (int)(sigma * 3 + 0.5) | 1; // binary-or with 1 to make sure the number is odd
+        width = static_cast<int>((sigma * 3 + 0.5)) | 1; // binary-or with 1 to make sure the number is odd
         if (width < 3)
         {
             width = 3;
         }
         kernel = new int[width];
-        kernel[width / 2] = (int)(NormalDist(sigma, 0) * 255);
+        kernel[width / 2] = static_cast<int>((NormalDist(sigma, 0) * 255));
         divisor = kernel[width / 2];
         for (int x{ width / 2 - 1 }; x >= 0; --x)
         {
-            int val{ (int)(NormalDist(sigma, width / 2 - x) * 255 + 0.5) };
+            int val{ static_cast<int>((NormalDist(sigma, width / 2 - x) * 255 + 0.5)) };
             divisor += val * 2;
             kernel[x] = val;
             kernel[width - x - 1] = val;

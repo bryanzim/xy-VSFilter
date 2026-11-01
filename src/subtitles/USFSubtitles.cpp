@@ -71,7 +71,7 @@
     str.Replace('\n', ' ');
     for (int i{ 0 }; (i = str.Find(L" ", i)) >= 0;)
     {
-        for (++i; i < str.GetLength() && (str[i] == '\n' || str[i] == ' ');)
+        for (++i; (i < str.GetLength()) && (str[i] == '\n' || str[i] == ' ');)
         {
             str.Delete(i);
         }
@@ -143,7 +143,7 @@
 
     if (str[0U] == '#')
     {
-        ret = (DWORD)wcstol(str.TrimLeft('#'), nullptr, 16);
+        ret = static_cast<DWORD>(wcstol(str.TrimLeft('#'), nullptr, 16));
     }
     else
     {
@@ -199,7 +199,7 @@ CUSFSubtitles::~CUSFSubtitles()
 {
     VARIANT_BOOL vb;
     CComPtr<IXMLDOMDocument> pDoc;
-    if (FAILED(pDoc.CoCreateInstance(CLSID_DOMDocument)) || FAILED(pDoc->put_async(VARIANT_FALSE)) || FAILED(pDoc->load(CComVariant(fn), &vb)) || vb != VARIANT_TRUE)
+    if (FAILED(pDoc.CoCreateInstance(CLSID_DOMDocument)) || FAILED(pDoc->put_async(VARIANT_FALSE)) || FAILED(pDoc->load(CComVariant(fn), &vb)) || (vb != VARIANT_TRUE))
     {
         return (false);
     }
@@ -393,10 +393,10 @@ CUSFSubtitles::~CUSFSubtitles()
         for (int i{ 0 }; i < 4; ++i)
         {
             DWORD color{ ColorToDWORD(s->fontstyle.color[i]) };
-            int alpha{ (BYTE)wcstol(s->fontstyle.alpha, nullptr, 10) };
+            int alpha{ static_cast<BYTE>(wcstol(s->fontstyle.alpha, nullptr, 10)) };
 
             stss->colors[i] = color & 0xffffff;
-            stss->alpha[i] = (BYTE)(color >> 24);
+            stss->alpha[i] = static_cast<BYTE>((color >> 24));
 
             stss->alpha[i] = stss->alpha[i] + (255 - stss->alpha[i]) * min(max(alpha, 0), 100) / 100;
         }

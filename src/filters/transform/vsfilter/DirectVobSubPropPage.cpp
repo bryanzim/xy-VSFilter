@@ -132,7 +132,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
     ASSERT((style && count));
     *style = nullptr;
     HRESULT hr{ filter->XyGetInt(DirectVobSubXyOptions::INT_CUR_STYLES_COUNT, count) };
-    if (hr != S_OK || *count == 0)
+    if ((hr != S_OK) || *count == 0)
     {
         return hr;
     }
@@ -403,10 +403,10 @@ CDVSBasePPage::CDVSBasePPage(TCHAR* pName, LPUNKNOWN lpunk, int DialogId, int Ti
 
     if (m_bIsInitialized)
     {
-        (void)OnDeactivate();
+        static_cast<void>(OnDeactivate());
         UpdateObjectData(true);
         m_pDirectVobSub->UpdateRegistry(); // *
-        (void)OnActivate();
+        static_cast<void>(OnActivate());
     }
 
     return NOERROR;
@@ -426,9 +426,8 @@ void CDVSBasePPage::AttachControls()
         m_controls.GetNextAssoc(pos, id, pControl);
         if (pControl)
         {
-            BOOL fRet{ pControl->Attach(GetDlgItem(m_Dlg, id)) };
+            [[maybe_unused]] BOOL fRet{ pControl->Attach(GetDlgItem(m_Dlg, id)) };
             ASSERT(fRet);
-            (void)fRet;
         }
     }
 
@@ -488,7 +487,7 @@ CDVSMainPPage::~CDVSMainPPage()
 
 void CDVSMainPPage::FreeLangs()
 {
-    if (m_nLangs > 0 && m_ppLangs)
+    if ((m_nLangs > 0) && m_ppLangs)
     {
         for (int i{ 0 }; i < m_nLangs; ++i)
         {
@@ -502,7 +501,7 @@ void CDVSMainPPage::FreeLangs()
 
 void CDVSMainPPage::AllocLangs(const int nLangs)
 {
-    m_ppLangs = (WCHAR**)CoTaskMemRealloc(m_ppLangs, sizeof(WCHAR*) * nLangs);
+    m_ppLangs = reinterpret_cast<WCHAR**>(CoTaskMemRealloc(m_ppLangs, sizeof(WCHAR*) * nLangs));
     m_nLangs = nLangs;
 }
 
@@ -954,11 +953,11 @@ void CDVSMiscPPage::UpdateControlData(const bool fSave)
         // m_prebuff.SetCheck(m_fDoPreBuffering);
 
         // CString str;str.Format(_T("m_colorSpace:%d"),m_colorSpace);
-        if (m_colorSpace != CDirectVobSub::YuvMatrix_AUTO &&
-            m_colorSpace != CDirectVobSub::BT_601 &&
-            m_colorSpace != CDirectVobSub::BT_709 &&
-            m_colorSpace != CDirectVobSub::BT_2020 &&
-            m_colorSpace != CDirectVobSub::GUESS)
+        if ((m_colorSpace != CDirectVobSub::YuvMatrix_AUTO) &&
+            (m_colorSpace != CDirectVobSub::BT_601) &&
+            (m_colorSpace != CDirectVobSub::BT_709) &&
+            (m_colorSpace != CDirectVobSub::BT_2020) &&
+            (m_colorSpace != CDirectVobSub::GUESS))
         {
             m_colorSpace = CDirectVobSub::YuvMatrix_AUTO;
         }
@@ -975,9 +974,9 @@ void CDVSMiscPPage::UpdateControlData(const bool fSave)
         m_colorSpaceDropList.SetItemData(CDirectVobSub::GUESS, CDirectVobSub::GUESS);
         m_colorSpaceDropList.SetCurSel(m_colorSpace);
 
-        if (m_yuvRange != CDirectVobSub::YuvRange_Auto &&
-            m_yuvRange != CDirectVobSub::YuvRange_PC &&
-            m_yuvRange != CDirectVobSub::YuvRange_TV)
+        if ((m_yuvRange != CDirectVobSub::YuvRange_Auto) &&
+            (m_yuvRange != CDirectVobSub::YuvRange_PC) &&
+            (m_yuvRange != CDirectVobSub::YuvRange_TV))
         {
             m_yuvRange = CDirectVobSub::YuvRange_Auto;
         }
@@ -1353,21 +1352,21 @@ void CDVSZoomPPage::UpdateControlData(const bool fSave)
 {
     if (fSave)
     {
-        m_rect.left = 1.0f * (short)m_posx.GetPos() / 100;
-        m_rect.top = 1.0f * (short)m_posy.GetPos() / 100;
-        m_rect.right = m_rect.left + 1.0f * (short)m_scalex.GetPos() / 100;
-        m_rect.bottom = m_rect.top + 1.0f * (short)m_scaley.GetPos() / 100;
+        m_rect.left = 1.0f * static_cast<short>(m_posx.GetPos()) / 100;
+        m_rect.top = 1.0f * static_cast<short>(m_posy.GetPos()) / 100;
+        m_rect.right = m_rect.left + 1.0f * static_cast<short>(m_scalex.GetPos()) / 100;
+        m_rect.bottom = m_rect.top + 1.0f * static_cast<short>(m_scaley.GetPos()) / 100;
     }
     else
     {
         m_posx.SetRange(-100, 100);
-        m_posx.SetPos((int)(m_rect.left * 100));
+        m_posx.SetPos(static_cast<int>((m_rect.left * 100)));
         m_posy.SetRange(-100, 100);
-        m_posy.SetPos((int)(m_rect.top * 100));
+        m_posy.SetPos(static_cast<int>((m_rect.top * 100)));
         m_scalex.SetRange(-300, 300);
-        m_scalex.SetPos((int)((m_rect.right - m_rect.left) * 100));
+        m_scalex.SetPos(static_cast<int>(((m_rect.right - m_rect.left) * 100)));
         m_scaley.SetRange(-300, 300);
-        m_scaley.SetPos((int)((m_rect.bottom - m_rect.top) * 100));
+        m_scaley.SetPos(static_cast<int>(((m_rect.bottom - m_rect.top) * 100)));
     }
 }
 
@@ -1431,7 +1430,7 @@ CDVSColorPPage::CDVSColorPPage(LPUNKNOWN pUnk, HRESULT* phr, TCHAR* pName /*= NA
                     m_outputFmtList.SetCheck(sel, checked);
                     m_outputFmtList.SetSelectionMark(sel);
                 }
-                if (sel >= 0 && sel < m_outputFmtList.GetItemCount())
+                if ((sel >= 0) && (sel < m_outputFmtList.GetItemCount()))
                 {
                     m_outputFmtList.SetFocus();
                 }
@@ -1439,7 +1438,7 @@ CDVSColorPPage::CDVSColorPPage(LPUNKNOWN pUnk, HRESULT* phr, TCHAR* pName /*= NA
             }
             case IDC_COLORDOWN: {
                 int sel{ m_outputFmtList.GetSelectionMark() };
-                if (sel >= 0 && sel < m_outputFmtList.GetItemCount() - 1)
+                if ((sel >= 0) && (sel < m_outputFmtList.GetItemCount() - 1))
                 {
                     CString str{ m_outputFmtList.GetItemText(sel, 0) };
                     int iPos{ static_cast<int>(m_outputFmtList.GetItemData(sel)) };
@@ -1452,7 +1451,7 @@ CDVSColorPPage::CDVSColorPPage(LPUNKNOWN pUnk, HRESULT* phr, TCHAR* pName /*= NA
                     m_outputFmtList.SetCheck(sel, checked);
                     m_outputFmtList.SetSelectionMark(sel);
                 }
-                if (sel >= 0 && sel < m_outputFmtList.GetItemCount())
+                if ((sel >= 0) && (sel < m_outputFmtList.GetItemCount()))
                 {
                     m_outputFmtList.SetFocus();
                 }
@@ -1649,7 +1648,7 @@ CDVSPathsPPage::CDVSPathsPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR* pName /*= N
                 {
                     m_pathlist.DeleteString(i);
                     i = min(i, m_pathlist.GetCount() - 1);
-                    if (i >= 0 && m_pathlist.GetCount() > 0)
+                    if ((i >= 0) && (m_pathlist.GetCount() > 0))
                     {
                         m_pathlist.SetCurSel(i);
                         m_remove.EnableWindow(i >= 3 ? TRUE : FALSE);
@@ -1663,7 +1662,7 @@ CDVSPathsPPage::CDVSPathsPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR* pName /*= N
             case IDC_ADD: {
                 CString path;
                 m_path.GetWindowText(path);
-                if (!path.IsEmpty() && m_pathlist.FindString(-1, path) < 0)
+                if (!path.IsEmpty() && (m_pathlist.FindString(-1, path) < 0))
                 {
                     m_pathlist.AddString(path);
                 }
@@ -1774,7 +1773,7 @@ CXySubFilterMainPPage::~CXySubFilterMainPPage()
 
 void CXySubFilterMainPPage::FreeLangs()
 {
-    if (m_nLangs > 0 && m_ppLangs)
+    if ((m_nLangs > 0) && m_ppLangs)
     {
         for (int i{ 0 }; i < m_nLangs; ++i)
         {
@@ -1788,7 +1787,7 @@ void CXySubFilterMainPPage::FreeLangs()
 
 void CXySubFilterMainPPage::AllocLangs(const int nLangs)
 {
-    m_ppLangs = (WCHAR**)CoTaskMemRealloc(m_ppLangs, sizeof(WCHAR*) * nLangs);
+    m_ppLangs = reinterpret_cast<WCHAR**>(CoTaskMemRealloc(m_ppLangs, sizeof(WCHAR*) * nLangs));
     m_nLangs = nLangs;
 }
 
@@ -2346,9 +2345,9 @@ void CXySubFilterMorePPage::UpdateControlData(const bool fSave)
         m_autoreload.SetCheck(!m_fReloaderDisabled);
         m_instupd.SetCheck(!!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INSTANTUPDATE), 1));
 
-        if (m_yuv_range != CDirectVobSub::YuvRange_Auto &&
-            m_yuv_range != CDirectVobSub::YuvRange_PC &&
-            m_yuv_range != CDirectVobSub::YuvRange_TV)
+        if ((m_yuv_range != CDirectVobSub::YuvRange_Auto) &&
+            (m_yuv_range != CDirectVobSub::YuvRange_PC) &&
+            (m_yuv_range != CDirectVobSub::YuvRange_TV))
         {
             m_yuv_range = CDirectVobSub::YuvRange_Auto;
         }
@@ -2361,11 +2360,11 @@ void CXySubFilterMorePPage::UpdateControlData(const bool fSave)
         m_combo_yuv_range.SetItemData(CDirectVobSub::YuvRange_PC, CDirectVobSub::YuvRange_PC);
         m_combo_yuv_range.SetCurSel(m_yuv_range);
 
-        if (m_yuv_matrix != CDirectVobSub::YuvMatrix_AUTO &&
-            m_yuv_matrix != CDirectVobSub::BT_601 &&
-            m_yuv_matrix != CDirectVobSub::BT_709 &&
-            m_yuv_matrix != CDirectVobSub::BT_2020 &&
-            m_yuv_matrix != CDirectVobSub::GUESS)
+        if ((m_yuv_matrix != CDirectVobSub::YuvMatrix_AUTO) &&
+            (m_yuv_matrix != CDirectVobSub::BT_601) &&
+            (m_yuv_matrix != CDirectVobSub::BT_709) &&
+            (m_yuv_matrix != CDirectVobSub::BT_2020) &&
+            (m_yuv_matrix != CDirectVobSub::GUESS))
         {
             m_yuv_matrix = CDirectVobSub::YuvMatrix_AUTO;
         }
@@ -2382,8 +2381,8 @@ void CXySubFilterMorePPage::UpdateControlData(const bool fSave)
         m_combo_yuv_matrix.SetItemData(CDirectVobSub::GUESS, CDirectVobSub::GUESS);
         m_combo_yuv_matrix.SetCurSel(m_yuv_matrix);
 
-        if (m_rgb_level != DirectVobSubXyOptions::RGB_OUTPUT_LEVEL_PC &&
-            m_rgb_level != DirectVobSubXyOptions::RGB_OUTPUT_LEVEL_FORCE_TV)
+        if ((m_rgb_level != DirectVobSubXyOptions::RGB_OUTPUT_LEVEL_PC) &&
+            (m_rgb_level != DirectVobSubXyOptions::RGB_OUTPUT_LEVEL_FORCE_TV))
         {
             m_rgb_level = DirectVobSubXyOptions::RGB_OUTPUT_LEVEL_AUTO;
         }
@@ -2400,7 +2399,7 @@ void CXySubFilterMorePPage::UpdateControlData(const bool fSave)
 
         CString cache_size_str;
         m_edit_cache_size.GetWindowText(cache_size_str);
-        if (m_cache_size < 0 && cache_size_str.IsEmpty())
+        if ((m_cache_size < 0) && cache_size_str.IsEmpty())
         {
             cache_size_str.Format(_T("(auto)%d"), m_auto_cache_size);
         }

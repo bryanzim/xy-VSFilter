@@ -19,10 +19,9 @@ private:
     HdmvSubtitleProvider* m_pHdmvSubtitle;
 };
 
-CHdmvInputPinHepler2::CHdmvInputPinHepler2(HdmvSubtitleProvider* pHdmvSubtitle, const CMediaType& mt)
+CHdmvInputPinHepler2::CHdmvInputPinHepler2(HdmvSubtitleProvider* pHdmvSubtitle, [[maybe_unused]] const CMediaType& mt)
     : CSubtitleInputPinHelperImpl(pHdmvSubtitle), m_pHdmvSubtitle(pHdmvSubtitle)
 {
-    (void)mt;
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CHdmvInputPinHepler2::NewSegment(const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate)

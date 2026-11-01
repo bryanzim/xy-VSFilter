@@ -258,14 +258,14 @@ void CSystrayWindow::OnDestroy()
 
 [[nodiscard]] LRESULT CSystrayWindow::OnNotifyIcon(const WPARAM wParam, const LPARAM lParam)
 {
-    if ((UINT)wParam != IDI_ICON1)
+    if (static_cast<UINT>(wParam) != IDI_ICON1)
     {
         return -1;
     }
 
     HWND hWnd{ m_hWnd };
 
-    switch ((UINT)lParam)
+    switch (static_cast<UINT>(lParam))
     {
     case WM_LBUTTONDBLCLK: {
         if (!m_properties_page_showing)
@@ -325,7 +325,7 @@ void CSystrayWindow::OnDestroy()
 
                 if (S_OK == pStreams[j]->Info(i, 0, &flags, 0, &group, &pName, 0, 0))
                 {
-                    if (prevgroup != group && i > 1)
+                    if ((prevgroup != group) && (i > 1))
                     {
                         if (fMMSwitcher)
                         {
@@ -445,13 +445,13 @@ void DeleteSystray(HANDLE* pSystrayThread, SystrayIconData* data)
             if (WaitForSingleObject(*pSystrayThread, 10000) != WAIT_OBJECT_0)
             {
                 XY_LOG_WARN(_T("CALL THE AMBULANCE!!!"));
-                TerminateThread(*pSystrayThread, (DWORD)-1);
+                TerminateThread(*pSystrayThread, static_cast<DWORD>(-1));
             }
         }
         else
         {
             XY_LOG_WARN(_T("CALL THE AMBULANCE!!!"));
-            TerminateThread(*pSystrayThread, (DWORD)-1);
+            TerminateThread(*pSystrayThread, static_cast<DWORD>(-1));
         }
     }
     data->hSystrayWnd = nullptr;

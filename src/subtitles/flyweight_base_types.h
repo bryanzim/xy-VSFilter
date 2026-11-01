@@ -18,7 +18,7 @@ struct std::equal_to<CRect>
     }
 };
 
-typedef ::boost::flyweights::flyweight<CRect, ::boost::flyweights::no_locking> FwRect;
+using FwRect = ::boost::flyweights::flyweight<CRect, ::boost::flyweights::no_locking>;
 
 template <
     typename V,
@@ -27,8 +27,8 @@ template <
 class XyFlyWeight
 {
 public:
-    typedef std::size_t IdType;
-    typedef ::boost::shared_ptr<const V> SharedConstV;
+    using IdType = std::size_t;
+    using SharedConstV = ::boost::shared_ptr<const V>;
 
     class SharedVElementTraits : public CElementTraits<SharedConstV>
     {
@@ -51,7 +51,7 @@ public:
         }
     };
 
-    typedef EnhancedXyMru<SharedConstV, IdType, SharedVElementTraits> Cacher;
+    using Cacher = EnhancedXyMru<SharedConstV, IdType, SharedVElementTraits>;
 
 public:
     static const int INVALID_ID{ 0 };
@@ -66,7 +66,7 @@ public:
         POSITION pos{ cacher->AddHeadIfNotExists(_v, INVALID_ID, &new_item_added) };
         if (!new_item_added)
         {
-            (void)cacher->UpdateCache(pos);
+            static_cast<void>(cacher->UpdateCache(pos));
             _v = cacher->GetKeyAt(pos);
             _id = cacher->GetAt(pos);
         }
@@ -111,7 +111,7 @@ inline
     return cur_id;
 }
 
-typedef XyFlyWeight<CStringW, 16 * 1024, CStringElementTraits<CStringW>> XyFwStringW;
+using XyFwStringW = XyFlyWeight<CStringW, 16 * 1024, CStringElementTraits<CStringW>>;
 
 [[nodiscard]] static inline std::size_t hash_value(const double& d)
 {

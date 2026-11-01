@@ -82,7 +82,7 @@ namespace
             return CMediaSample::Release();
         }
 
-        DECLSPEC_NOTHROW STDMETHODIMP SetSideData(GUID guidType, const BYTE* data, size_t size)
+        DECLSPEC_NOTHROW STDMETHODIMP SetSideData(GUID guidType, const BYTE* data, std::size_t size)
         {
             if ((data == nullptr) || (size == 0U))
             {
@@ -106,7 +106,7 @@ namespace
             return S_OK;
         }
 
-        DECLSPEC_NOTHROW STDMETHODIMP GetSideData(GUID guidType, const BYTE** data, size_t* size)
+        DECLSPEC_NOTHROW STDMETHODIMP GetSideData(GUID guidType, const BYTE** data, std::size_t* size)
         {
             if ((data == nullptr) || (size == nullptr))
             {

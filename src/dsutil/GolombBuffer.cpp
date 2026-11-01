@@ -46,7 +46,7 @@ CGolombBuffer::~CGolombBuffer()
             return 0;
         }
 
-        *(BYTE*)&m_bitbuff = m_pBuffer[m_nBitPos++];
+        *reinterpret_cast<BYTE*>(&m_bitbuff) = m_pBuffer[m_nBitPos++];
         m_bitlen += 8;
     }
 
@@ -79,7 +79,7 @@ CGolombBuffer::~CGolombBuffer()
     int n{ -1 };
     for (BYTE b{ 0 }; !b; ++n)
     {
-        b = (BYTE)BitRead(1);
+        b = static_cast<BYTE>(BitRead(1));
     }
     return (1ui64 << n) - 1 + BitRead(n);
 }

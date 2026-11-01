@@ -101,7 +101,7 @@ XySubRenderFrameWrapper::XySubRenderFrameWrapper(CMemSubPic* inner_obj, const CR
     if (pixels)
     {
         ASSERT(m_inner_obj->m_spd.bpp == 32);
-        *pixels = (BYTE*)(m_inner_obj->m_spd.bits) + dirty_rect.top * m_inner_obj->m_spd.pitch + dirty_rect.left * (32 / 8);
+        *pixels = reinterpret_cast<BYTE*>((m_inner_obj->m_spd.bits)) + dirty_rect.top * m_inner_obj->m_spd.pitch + dirty_rect.left * (32 / 8);
     }
     TRACE_SUB_RENDER_FRAME(index << " id: " << m_id << " " << dirty_rect << " pitch:" << m_inner_obj->m_spd.pitch << " pixels:" << (pixels ? *pixels : nullptr)
                                  << XY_LOG_VAR_2_STR(m_inner_obj->m_spd.bits));
@@ -143,7 +143,7 @@ public:
     }
 };
 
-typedef XyFlyWeight<ContextedBitmapId, 1024, ContextedBitmapIdTraits> XyFwContextedBitmapId;
+using XyFwContextedBitmapId = XyFlyWeight<ContextedBitmapId, 1024, ContextedBitmapIdTraits>;
 
 //
 // XySubRenderFrameWrapper2
@@ -154,9 +154,8 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2(IXySubRenderFrame* inner_obj,
 {
     ASSERT(inner_obj);
     int count{ 0 };
-    HRESULT hr{ inner_obj->GetBitmapCount(&count) };
-    ASSERT((SUCCEEDED(hr) && count >= 0));
-    (void)hr;
+    [[maybe_unused]] HRESULT hr{ inner_obj->GetBitmapCount(&count) };
+    ASSERT((SUCCEEDED(hr) && (count >= 0)));
     if (count > 0)
     {
         m_ids.SetCount(count);
@@ -204,7 +203,7 @@ XySubRenderFrameWrapper2::XySubRenderFrameWrapper2(IXySubRenderFrame* inner_obj,
     }
     if (id)
     {
-        ASSERT((index >= 0 && index < m_ids.GetCount()));
+        ASSERT(((index >= 0) && (index < m_ids.GetCount())));
         *id = m_ids.GetAt(index);
         TRACE_SUB_RENDER_FRAME(index << " contexted id:" << *id);
     }
@@ -284,7 +283,7 @@ HRESULT DumpSubRenderFrame(IXySubRenderFrame* sub, const char* filename)
             XY_LOG_ERROR("Failed to get bitmap count. " << XY_LOG_VAR_2_STR(hr));
             return hr;
         }
-        const DWORD* pixels2{ (const DWORD*)pixels };
+        const DWORD* pixels2{ reinterpret_cast<const DWORD*>(pixels) };
         output << "\tbitmap " << i << " id: " << id << " position: " << position << " size: " << size << " pitch: " << pitch
                << " pixels: " << pixels2 << endl;
         output << hex;
@@ -293,10 +292,10 @@ HRESULT DumpSubRenderFrame(IXySubRenderFrame* sub, const char* filename)
             output << "\timg:";
             for (int n{ 0 }; n < size.cx; ++n)
             {
-                output << " " << setfill('0') << setw(8) << (int)pixels2[n];
+                output << " " << setfill('0') << setw(8) << static_cast<int>(pixels2[n]);
             }
             output << endl;
-            pixels2 = (const DWORD*)((const BYTE*)pixels2 + pitch);
+            pixels2 = reinterpret_cast<const DWORD*>(((const BYTE*)pixels2 + pitch));
         }
         output << dec;
     }
@@ -388,7 +387,7 @@ HRESULT DumpToBitmap(IXySubRenderFrame* sub, LPCTSTR filename, bool dump_alpha_c
             XY_LOG_ERROR("Failed to get bitmap count. " << XY_LOG_VAR_2_STR(hr));
             return hr;
         }
-        const DWORD* pixels2{ (const DWORD*)pixels };
+        const DWORD* pixels2{ reinterpret_cast<const DWORD*>(pixels) };
         if (position.x < clip_rect.left)
         {
             pixels2 += clip_rect.left - position.x;
@@ -397,7 +396,7 @@ HRESULT DumpToBitmap(IXySubRenderFrame* sub, LPCTSTR filename, bool dump_alpha_c
         }
         if (position.y < clip_rect.top)
         {
-            pixels2 = (const DWORD*)((const BYTE*)pixels2 + (clip_rect.top - position.y) * pitch);
+            pixels2 = reinterpret_cast<const DWORD*>(((const BYTE*)pixels2 + (clip_rect.top - position.y) * pitch));
             size.cy -= clip_rect.top - position.y;
             position.y = clip_rect.top;
         }
@@ -412,8 +411,8 @@ HRESULT DumpToBitmap(IXySubRenderFrame* sub, LPCTSTR filename, bool dump_alpha_c
 
         for (int m{ 0 }; m < size.cy; ++m)
         {
-            BYTE* pix_8bpp{ (BYTE*)image8bbp.GetPixelAddress(position.x - output_rect.left, position.y + m - output_rect.top) };
-            BYTE* pix_32bpp{ (BYTE*)imageBmp.GetPixelAddress(position.x - output_rect.left, position.y + m - output_rect.top) };
+            BYTE* pix_8bpp{ reinterpret_cast<BYTE*>(image8bbp.GetPixelAddress(position.x - output_rect.left, position.y + m - output_rect.top)) };
+            BYTE* pix_32bpp{ reinterpret_cast<BYTE*>(imageBmp.GetPixelAddress(position.x - output_rect.left, position.y + m - output_rect.top)) };
             for (int n{ 0 }; n < size.cx; ++n)
             {
                 DWORD argb{ pixels2[n] };
@@ -427,7 +426,7 @@ HRESULT DumpToBitmap(IXySubRenderFrame* sub, LPCTSTR filename, bool dump_alpha_c
                 *pix_32bpp++ = r + (((256 - a) * br) >> 8);
                 *pix_32bpp++ = 0;
             }
-            pixels2 = (const DWORD*)((const BYTE*)pixels2 + pitch);
+            pixels2 = reinterpret_cast<const DWORD*>(((const BYTE*)pixels2 + pitch));
         }
     }
 

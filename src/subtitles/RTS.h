@@ -48,24 +48,24 @@ public:
     explicit CMyFont(const STSStyleBase& style);
 };
 
-typedef ::boost::flyweights::flyweight<::boost::flyweights::key_value<STSStyleBase, CMyFont>, ::boost::flyweights::no_locking> FwCMyFont;
+using FwCMyFont = ::boost::flyweights::flyweight<::boost::flyweights::key_value<STSStyleBase, CMyFont>, ::boost::flyweights::no_locking>;
 
 class CPolygon;
 
 class CClipper;
-typedef ::boost::shared_ptr<CClipper> SharedPtrCClipper;
+using SharedPtrCClipper = ::boost::shared_ptr<CClipper>;
 
 struct CompositeDrawItem;
-typedef CAtlList<CompositeDrawItem> CompositeDrawItemList;
-typedef CAtlList<CompositeDrawItemList> CompositeDrawItemListList;
+using CompositeDrawItemList = CAtlList<CompositeDrawItem>;
+using CompositeDrawItemListList = CAtlList<CompositeDrawItemList>;
 
 class CWord;
-typedef CWord* PCWord;
-typedef ::boost::shared_ptr<CWord> SharedPtrCWord;
-typedef ::boost::shared_ptr<CPolygon> SharedPtrCPolygon;
+using PCWord = CWord*;
+using SharedPtrCWord = ::boost::shared_ptr<CWord>;
+using SharedPtrCPolygon = ::boost::shared_ptr<CPolygon>;
 
 class CClipperPaintMachine;
-typedef ::boost::shared_ptr<CClipperPaintMachine> SharedPtrCClipperPaintMachine;
+using SharedPtrCClipperPaintMachine = ::boost::shared_ptr<CClipperPaintMachine>;
 
 class OverlayKey;
 interface IXySubRenderFrame;
@@ -128,7 +128,7 @@ public:
     {
         int m_width, m_ascent, m_descent;
     };
-    typedef ::boost::shared_ptr<TextInfo> SharedPtrTextInfo;
+    using SharedPtrTextInfo = ::boost::shared_ptr<TextInfo>;
 
 protected:
     virtual bool CreatePath(PathData* path_data);
@@ -308,15 +308,15 @@ struct CSubtitle2
     int time;
 };
 
-typedef CAtlList<CSubtitle2> CSubtitle2List;
+using CSubtitle2List = CAtlList<CSubtitle2>;
 
 class CScreenLayoutAllocator
 {
-    typedef struct
+    using SubRect = struct
     {
         CRect r;
         int segment, entry, layer;
-    } SubRect;
+    };
 
     CAtlList<SubRect> m_subrects;
 
@@ -395,8 +395,8 @@ public:
     static CAtlArray<AssCmdPosLevel> m_cmd_pos_level;
 
     struct AssTag;
-    typedef CAtlList<AssTag> AssTagList;
-    typedef ::boost::shared_ptr<const AssTagList> SharedPtrConstAssTagList;
+    using AssTagList = CAtlList<AssTag>;
+    using SharedPtrConstAssTagList = ::boost::shared_ptr<const AssTagList>;
     struct AssTag
     {
         AssCmdType cmdType;

@@ -38,7 +38,7 @@ static void SaveAxxx2File(SubPicDesc& spd, const CRect& cRect, const char* filen
     std::ofstream axxx(filename);
     int w{ cRect.Width() }, h = cRect.Height();
 
-    BYTE* top{ (BYTE*)spd.bits + spd.pitch * cRect.top + cRect.left * 4 };
+    BYTE* top{ reinterpret_cast<BYTE*>(spd.bits) + spd.pitch * cRect.top + cRect.left * 4 };
     BYTE* bottom{ top + spd.pitch * h };
 
     for (; top < bottom; top += spd.pitch)
@@ -47,7 +47,7 @@ static void SaveAxxx2File(SubPicDesc& spd, const CRect& cRect, const char* filen
         BYTE* e{ s + w * 4 };
         for (; s < e; s += 4)
         { // ARGB ARGB -> AxYU AxYV
-            axxx << (int)s[0U] << "," << (int)s[1U] << "," << (int)s[2U] << "," << (int)s[3U];
+            axxx << static_cast<int>(s[0U]) << "," << static_cast<int>(s[1U]) << "," << static_cast<int>(s[2U]) << "," << static_cast<int>(s[3U]);
             if (s + 4 >= e)
             {
                 axxx << std::endl;
@@ -73,7 +73,7 @@ static void SaveNvxx2File(SubPicDesc& spd, const CRect& cRect, const char* filen
     std::ofstream os(filename);
     int w{ cRect.Width() }, h = cRect.Height();
 
-    BYTE* top{ (BYTE*)spd.bits };
+    BYTE* top{ reinterpret_cast<BYTE*>(spd.bits) };
     BYTE* bottom{ top + spd.pitch * h };
 
     for (; top < bottom; top += spd.pitch)
@@ -86,7 +86,7 @@ static void SaveNvxx2File(SubPicDesc& spd, const CRect& cRect, const char* filen
         BYTE* sV{ sU + 1 };
         for (; s < e; ++s, ++sY, sU += 2, sV += 2)
         {
-            os << (int)s[0U] << "," << (int)sY[0U] << "," << (int)sU[0U] << "," << (int)sV[0U];
+            os << static_cast<int>(s[0U]) << "," << static_cast<int>(sY[0U]) << "," << static_cast<int>(sU[0U]) << "," << static_cast<int>(sV[0U]);
             if (s + 1 >= e)
             {
                 os << std::endl;
@@ -127,7 +127,7 @@ static void AlphaBlt_YUY2_MMX(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, in
         unsigned int ia, c;
         PCUINT8 s2{ s };
         PCUINT8 s2end{ s2 + w * 4 };
-        DWORD* d2{ (DWORD*)d };
+        DWORD* d2{ reinterpret_cast<DWORD*>(d) };
         ASSERT(w > 0);
         int last_a = w > 0 ? s2[3U] : 0;
         for (; s2 < s2end; s2 += 8, ++d2)
@@ -176,7 +176,7 @@ void AlphaBlt_YUY2_C(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitc
         DWORD ia;
         PCUINT8 s2{ s };
         PCUINT8 s2end{ s2 + w * 4 };
-        DWORD* d2{ (DWORD*)d };
+        DWORD* d2{ reinterpret_cast<DWORD*>(d) };
         ASSERT(w > 0);
         int last_a = w > 0 ? s2[3U] : 0;
         for (; s2 < s2end; s2 += 8, ++d2)
@@ -185,10 +185,10 @@ void AlphaBlt_YUY2_C(int w, int h, BYTE* d, int dstpitch, PCUINT8 s, int srcpitc
             last_a = s2[7U];
             if (ia < 0xff)
             {
-                DWORD y1{ (BYTE)(((((*d2 & 0xff)) * s2[3U]) >> 8) + s2[1U]) };         // + y1;
-                DWORD u{ (BYTE)((((((*d2 >> 8) & 0xff)) * ia) >> 8) + s2[0U]) };       // + u;
-                DWORD y2{ (BYTE)((((((*d2 >> 16) & 0xff)) * s2[7U]) >> 8) + s2[5U]) }; // + y2;
-                DWORD v{ (BYTE)((((((*d2 >> 24) & 0xff)) * ia) >> 8) + s2[4U]) };      // + v;
+                DWORD y1{ static_cast<BYTE>((((((*d2 & 0xff)) * s2[3U]) >> 8) + s2[1U])) };         // + y1;
+                DWORD u{ static_cast<BYTE>(((((((*d2 >> 8) & 0xff)) * ia) >> 8) + s2[0U])) };       // + u;
+                DWORD y2{ static_cast<BYTE>(((((((*d2 >> 16) & 0xff)) * s2[7U]) >> 8) + s2[5U])) }; // + y2;
+                DWORD v{ static_cast<BYTE>(((((((*d2 >> 24) & 0xff)) * ia) >> 8) + s2[4U])) };      // + v;
                 *d2 = (v << 24) | (y2 << 16) | (u << 8) | y1;
             }
         }
@@ -219,7 +219,7 @@ CMemSubPic::~CMemSubPic()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(void*) CMemSubPic::GetObject() const
 {
-    return (void*)&m_spd;
+    return const_cast<void*>(static_cast<const void*>(&m_spd));
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP CMemSubPic::GetDesc(SubPicDesc& spd) const
@@ -253,8 +253,8 @@ CMemSubPic::~CMemSubPic()
     {
         CRect& cRect{ m_rectListDirty.GetHead() };
         int w{ cRect.Width() }, h = cRect.Height();
-        BYTE* s{ (BYTE*)src.bits + src.pitch * cRect.top + cRect.left * 4 };
-        BYTE* d{ (BYTE*)dst.bits + dst.pitch * cRect.top + cRect.left * 4 };
+        BYTE* s{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * cRect.top + cRect.left * 4 };
+        BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * cRect.top + cRect.left * 4 };
         for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             std::memcpy(d, s, w * 4);
@@ -273,7 +273,7 @@ CMemSubPic::~CMemSubPic()
     {
         // pDirtyRect = m_rectListDirty.RemoveHead();
         CRect dirtyRect = m_rectListDirty.RemoveTail();
-        BYTE* p{ (BYTE*)m_spd.bits + m_spd.pitch * (dirtyRect.top) + dirtyRect.left * (m_spd.bpp >> 3) };
+        BYTE* p{ reinterpret_cast<BYTE*>(m_spd.bits) + m_spd.pitch * (dirtyRect.top) + dirtyRect.left * (m_spd.bpp >> 3) };
         int w{ dirtyRect.Width() };
         if (m_spd.type != MSP_AYUV_PLANAR)
         {
@@ -364,7 +364,7 @@ CMemSubPic::~CMemSubPic()
 
 [[nodiscard]] HRESULT CMemSubPic::UnlockOther(CAtlList<CRect>* dirtyRectList)
 {
-    (void)SetDirtyRectEx(dirtyRectList);
+    static_cast<void>(SetDirtyRectEx(dirtyRectList));
     if (m_rectListDirty.IsEmpty())
     {
         return S_OK;
@@ -375,18 +375,18 @@ CMemSubPic::~CMemSubPic()
     {
         const CRect& cRect{ m_rectListDirty.GetNext(pos) };
         int w{ cRect.Width() }, h = cRect.Height();
-        if (w <= 0 || h <= 0)
+        if ((w <= 0) || (h <= 0))
         {
             continue;
         }
 
-        BYTE* top{ (BYTE*)m_spd.bits + m_spd.pitch * (cRect.top) + cRect.left * 4 };
+        BYTE* top{ reinterpret_cast<BYTE*>(m_spd.bits) + m_spd.pitch * (cRect.top) + cRect.left * 4 };
         BYTE* bottom{ top + m_spd.pitch * h };
         if (m_alpha_blt_dst_type == MSP_RGB16)
         {
             for (; top < bottom; top += m_spd.pitch)
             {
-                DWORD* s{ (DWORD*)top };
+                DWORD* s{ reinterpret_cast<DWORD*>(top) };
                 DWORD* e{ s + w };
                 for (; s < e; ++s)
                 {
@@ -399,7 +399,7 @@ CMemSubPic::~CMemSubPic()
         {
             for (; top < bottom; top += m_spd.pitch)
             {
-                DWORD* s{ (DWORD*)top };
+                DWORD* s{ reinterpret_cast<DWORD*>(top) };
                 DWORD* e{ s + w };
                 for (; s < e; ++s)
                 {
@@ -452,7 +452,7 @@ CMemSubPic::~CMemSubPic()
     ONCER(SaveRect2File(dirtyRectList->GetHead(), SPD_DUMP_FILE ".rect"));
     ONCER(SaveArgb2File(m_spd, CRect(CPoint(0, 0), m_size), SPD_DUMP_FILE ".argb"));
 
-    (void)SetDirtyRectEx(dirtyRectList);
+    static_cast<void>(SetDirtyRectEx(dirtyRectList));
 
     ONCER(SaveRect2File(dirtyRectList->GetHead(), SPD_DUMP_FILE ".rect2"));
     if (m_rectListDirty.IsEmpty())
@@ -465,12 +465,12 @@ CMemSubPic::~CMemSubPic()
     {
         const CRect& cRect{ m_rectListDirty.GetNext(pos) };
         int w{ cRect.Width() }, h = cRect.Height();
-        if (w <= 0 || h <= 0)
+        if ((w <= 0) || (h <= 0))
         {
             continue;
         }
 
-        BYTE* top{ (BYTE*)m_spd.bits + m_spd.pitch * cRect.top + cRect.left * 4 };
+        BYTE* top{ reinterpret_cast<BYTE*>(m_spd.bits) + m_spd.pitch * cRect.top + cRect.left * 4 };
         BYTE* bottom{ top + m_spd.pitch * h };
 
         if (m_alpha_blt_dst_type == MSP_YUY2 ||
@@ -524,7 +524,7 @@ CMemSubPic::~CMemSubPic()
                 { // ARGB -> AYUV
                     if (s[3U] < 0xff)
                     {
-                        *((DWORD*)s) = ColorConvTable::PreMulArgb2Ayuv(s[3U], s[2U], s[1U], s[0U]);
+                        *(reinterpret_cast<DWORD*>(s)) = ColorConvTable::PreMulArgb2Ayuv(s[3U], s[2U], s[1U], s[0U]);
                     }
                     else
                     {
@@ -679,22 +679,22 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.bottom = dst.h - rd.bottom;
         rd.top = dst.h - rd.top;
     }
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
     int w{ rs.Width() }, h = rs.Height();
-    BYTE* s{ (BYTE*)src.bits + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) }; // rs.left*4
-    BYTE* d{ (BYTE*)dst.bits + dst.pitch * rd.top + ((rd.left * dst.bpp) >> 3) };
+    BYTE* s{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) }; // rs.left*4
+    BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + ((rd.left * dst.bpp) >> 3) };
     if (rd.top > rd.bottom)
     {
         if (dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15 || dst.type == MSP_YUY2 || dst.type == MSP_AYUV)
         {
-            d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + (rd.left * dst.bpp >> 3);
+            d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + (rd.left * dst.bpp >> 3);
         }
         else if (dst.type == MSP_YV12 || dst.type == MSP_IYUV || dst.type == MSP_YV16 || dst.type == MSP_YV24)
         {
-            d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + (rd.left * 8 >> 3);
+            d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + (rd.left * 8 >> 3);
         }
         else
         {
@@ -710,16 +710,16 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         {
             BYTE* s2{ s };
             BYTE* s2end{ s2 + w * 4 };
-            DWORD* d2{ (DWORD*)d };
+            DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0xff)
                 {
-                    DWORD bd{ 0x00000100 - ((DWORD)s2[3U]) };
-                    DWORD B{ ((*((DWORD*)s2) & 0x000000ff) << 8) / bd };
-                    DWORD V{ ((*((DWORD*)s2) & 0x0000ff00) / bd) << 8 };
-                    DWORD R{ (((*((DWORD*)s2) & 0x00ff0000) >> 8) / bd) << 16 };
-                    *d2 = B | V | R | ((0xff000000 - (*((DWORD*)s2) & 0xff000000)) & 0xff000000);
+                    DWORD bd{ 0x00000100 - (static_cast<DWORD>(s2[3U])) };
+                    DWORD B{ ((*(reinterpret_cast<DWORD*>(s2)) & 0x000000ff) << 8) / bd };
+                    DWORD V{ ((*(reinterpret_cast<DWORD*>(s2)) & 0x0000ff00) / bd) << 8 };
+                    DWORD R{ (((*(reinterpret_cast<DWORD*>(s2)) & 0x00ff0000) >> 8) / bd) << 16 };
+                    *d2 = B | V | R | ((0xff000000 - (*(reinterpret_cast<DWORD*>(s2)) & 0xff000000)) & 0xff000000);
                 }
             }
         }
@@ -729,12 +729,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         {
             BYTE* s2{ s };
             BYTE* s2end{ s2 + w * 4 };
-            DWORD* d2{ (DWORD*)d };
+            DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0xff)
                 {
-                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00);
+                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*(reinterpret_cast<DWORD*>(s2)) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*(reinterpret_cast<DWORD*>(s2)) & 0x0000ff00)) & 0x0000ff00);
                 }
             }
         }
@@ -744,12 +744,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         {
             BYTE* s2{ s };
             BYTE* s2end{ s2 + w * 4 };
-            DWORD* d2{ (DWORD*)d };
+            DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0xff)
                 {
-                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00) | (*d2 & 0xff000000);
+                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*(reinterpret_cast<DWORD*>(s2)) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*(reinterpret_cast<DWORD*>(s2)) & 0x0000ff00)) & 0x0000ff00) | (*d2 & 0xff000000);
                 }
             }
         }
@@ -776,12 +776,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         {
             BYTE* s2{ s };
             BYTE* s2end{ s2 + w * 4 };
-            WORD* d2{ (WORD*)d };
+            WORD* d2{ reinterpret_cast<WORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0x1f)
                 {
-                    *d2 = (WORD)((((((*d2 & 0xf81f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0xf81f)) & 0xf81f) | (((((*d2 & 0x07e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x07e0)) & 0x07e0));
+                    *d2 = static_cast<WORD>(((((((*d2 & 0xf81f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0xf81f)) & 0xf81f) | (((((*d2 & 0x07e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x07e0)) & 0x07e0)));
                     /*					*d2 = (WORD)((((((*d2&0xf800)*s2[3])>>8) + (*(DWORD*)s2&0xf800))&0xf800)
                     | (((((*d2&0x07e0)*s2[3])>>8) + (*(DWORD*)s2&0x07e0))&0x07e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -795,12 +795,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         {
             BYTE* s2{ s };
             BYTE* s2end{ s2 + w * 4 };
-            WORD* d2{ (WORD*)d };
+            WORD* d2{ reinterpret_cast<WORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0x1f)
                 {
-                    *d2 = (WORD)((((((*d2 & 0x7c1f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x7c1f)) & 0x7c1f) | (((((*d2 & 0x03e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x03e0)) & 0x03e0));
+                    *d2 = static_cast<WORD>(((((((*d2 & 0x7c1f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x7c1f)) & 0x7c1f) | (((((*d2 & 0x03e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x03e0)) & 0x03e0)));
                     /*					*d2 = (WORD)((((((*d2&0x7c00)*s2[3])>>8) + (*(DWORD*)s2&0x7c00))&0x7c00)
                     | (((((*d2&0x03e0)*s2[3])>>8) + (*(DWORD*)s2&0x03e0))&0x03e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -822,7 +822,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         if (!dst.bitsU || !dst.bitsV)
         {
-            dst.bitsU = (BYTE*)dst.bits + std::abs(dst.pitch) * dst.h;
+            dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + std::abs(dst.pitch) * dst.h;
             dst.bitsV = dst.bitsU + dst.pitchUV * dst.h / 2;
             if (dst.type == MSP_YV12)
             {
@@ -841,7 +841,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             dst.pitchUV = -dst.pitchUV;
         }
 
-        BYTE* src_origin{ (BYTE*)src.bits + src.pitch * rs.top + rs.left };
+        BYTE* src_origin{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + rs.left };
 
         BYTE* ss[2U];
         ss[0U] = src_origin + src.pitch * src.h * 2; // U
@@ -866,7 +866,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         if (!dst.bitsU || !dst.bitsV)
         {
-            dst.bitsU = (BYTE*)dst.bits + std::abs(dst.pitch) * dst.h;
+            dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + std::abs(dst.pitch) * dst.h;
             dst.bitsV = dst.bitsU + dst.pitchUV * dst.h;
         }
         BYTE* dd[2U];
@@ -879,7 +879,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             dst.pitchUV = -dst.pitchUV;
         }
 
-        BYTE* src_origin{ (BYTE*)src.bits + src.pitch * rs.top + rs.left };
+        BYTE* src_origin{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + rs.left };
 
         BYTE* ss[2U];
         ss[0U] = src_origin + src.pitch * src.h * 2; // U
@@ -904,7 +904,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         }
         if (!dst.bitsU || !dst.bitsV)
         {
-            dst.bitsU = (BYTE*)dst.bits + std::abs(dst.pitch) * dst.h;
+            dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + std::abs(dst.pitch) * dst.h;
             dst.bitsV = dst.bitsU + dst.pitchUV * dst.h;
         }
         BYTE* dd[2U];
@@ -917,7 +917,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
             dst.pitchUV = -dst.pitchUV;
         }
 
-        BYTE* src_origin{ (BYTE*)src.bits + src.pitch * rs.top + rs.left };
+        BYTE* src_origin{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + rs.left };
 
         BYTE* ss[2U];
         ss[0U] = src_origin + src.pitch * src.h * 2; // U
@@ -958,7 +958,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.top = dst.h - rd.top;
     }
 
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
@@ -971,7 +971,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
 
     if (rd.top > rd.bottom)
     {
-        d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left;
 
         dst.pitch = -dst.pitch;
     }
@@ -1051,7 +1051,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.top = dst.h - rd.top;
     }
 
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
@@ -1064,7 +1064,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
 
     if (rd.top > rd.bottom)
     {
-        d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left;
 
         dst.pitch = -dst.pitch;
     }
@@ -1148,19 +1148,19 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.top = dst.h - rd.top;
     }
 
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
 
     int w{ rs.Width() }, h = rs.Height();
 
-    BYTE* s{ (BYTE*)src.bits + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
-    BYTE* d{ (BYTE*)dst.bits + dst.pitch * rd.top + rd.left };
+    BYTE* s{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
+    BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + rd.left };
 
     if (rd.top > rd.bottom)
     {
-        d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left;
 
         dst.pitch = -dst.pitch;
     }
@@ -1188,12 +1188,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     }
 
     BYTE* ss[2U];
-    ss[0U] = (BYTE*)src.bits + src.pitch * rs.top + rs.left * 4;
+    ss[0U] = reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + rs.left * 4;
     ss[1U] = ss[0U] + 4;
 
     if (!dst.bitsU || !dst.bitsV)
     {
-        dst.bitsU = (BYTE*)dst.bits + dst.pitch * dst.h;
+        dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h;
         dst.bitsV = dst.bitsU + dst.pitchUV * dst.h / 2;
 
         if (dst.type == MSP_YV12)
@@ -1257,19 +1257,19 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.top = dst.h - rd.top;
     }
 
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
 
     int w{ rs.Width() }, h = rs.Height();
 
-    BYTE* s{ (BYTE*)src.bits + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
-    BYTE* d{ (BYTE*)dst.bits + dst.pitch * rd.top + rd.left };
+    BYTE* s{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
+    BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + rd.left };
 
     if (rd.top > rd.bottom)
     {
-        d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left;
 
         dst.pitch = -dst.pitch;
     }
@@ -1297,12 +1297,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     }
 
     BYTE* ss[2U];
-    ss[0U] = (BYTE*)src.bits + src.pitch * rs.top + rs.left * 4;
+    ss[0U] = reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + rs.left * 4;
     ss[1U] = ss[0U] + 4;
 
     if (!dst.bitsU || !dst.bitsV)
     {
-        dst.bitsU = (BYTE*)dst.bits + dst.pitch * dst.h;
+        dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h;
         dst.bitsV = dst.bitsU + dst.pitchUV * dst.h;
     }
 
@@ -1359,19 +1359,19 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.top = dst.h - rd.top;
     }
 
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
 
     int w{ rs.Width() }, h = rs.Height();
 
-    BYTE* s{ (BYTE*)src.bits + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
-    BYTE* d{ (BYTE*)dst.bits + dst.pitch * rd.top + rd.left };
+    BYTE* s{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
+    BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + rd.left };
 
     if (rd.top > rd.bottom)
     {
-        d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left;
 
         dst.pitch = -dst.pitch;
     }
@@ -1399,12 +1399,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     }
 
     BYTE* ss[2U];
-    ss[0U] = (BYTE*)src.bits + src.pitch * rs.top + rs.left * 4;
+    ss[0U] = reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + rs.left * 4;
     ss[1U] = ss[0U] + 4;
 
     if (!dst.bitsU || !dst.bitsV)
     {
-        dst.bitsU = (BYTE*)dst.bits + dst.pitch * dst.h;
+        dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h;
         dst.bitsV = dst.bitsU + dst.pitchUV * dst.h;
     }
 
@@ -1463,19 +1463,19 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.top = dst.h - rd.top;
     }
 
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
 
     int w{ rs.Width() }, h = rs.Height();
 
-    BYTE* s{ (BYTE*)src.bits + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
-    BYTE* d{ (BYTE*)dst.bits + dst.pitch * rd.top + rd.left };
+    BYTE* s{ reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + ((rs.left * src.bpp) >> 3) };
+    BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + rd.left };
 
     if (rd.top > rd.bottom)
     {
-        d = (BYTE*)dst.bits + dst.pitch * (rd.top - 1) + rd.left;
+        d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + rd.left;
 
         dst.pitch = -dst.pitch;
     }
@@ -1503,12 +1503,12 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
     }
 
     BYTE* ss[2U];
-    ss[0U] = (BYTE*)src.bits + src.pitch * rs.top + rs.left * 4;
+    ss[0U] = reinterpret_cast<BYTE*>(src.bits) + src.pitch * rs.top + rs.left * 4;
     ss[1U] = ss[0U] + 4;
 
     if (!dst.bitsU || !dst.bitsV)
     {
-        dst.bitsU = (BYTE*)dst.bits + dst.pitch * dst.h;
+        dst.bitsU = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h;
         dst.bitsV = dst.bitsU + 1;
 
         if (dst.type == MSP_NV21)
@@ -1571,7 +1571,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.bottom = dst.h - rd.bottom;
         rd.top = dst.h - rd.top;
     }
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
@@ -1640,7 +1640,7 @@ void CMemSubPic::SubsampleAndInterlace_422(const CRect& cRect, const bool u_firs
         rd.bottom = dst.h - rd.bottom;
         rd.top = dst.h - rd.top;
     }
-    if (rs.Width() != rd.Width() || rs.Height() != std::abs(rd.Height()))
+    if ((rs.Width() != rd.Width()) || (rs.Height() != std::abs(rd.Height())))
     {
         return E_INVALIDARG;
     }
@@ -1730,7 +1730,7 @@ void CMemSubPic::AlphaBltYv12Luma(byte* dst, const int dst_pitch,
 {
     if ((
             ((reinterpret_cast<std::intptr_t>(alpha) ^ reinterpret_cast<std::intptr_t>(sub)) | (reinterpret_cast<std::intptr_t>(alpha) ^ reinterpret_cast<std::intptr_t>(dst)) | static_cast<std::intptr_t>(sub_pitch) | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
-        w > 32)
+        (w > 32))
     {
         int head{ (16 - (reinterpret_cast<std::intptr_t>(alpha) & 15)) & 15 };
         int tail{ (w - head) & 15 };
@@ -1795,7 +1795,7 @@ void CMemSubPic::AlphaBltYv12Chroma(byte* dst_uv, const int dst_pitch,
 {
     if ((
             ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) | (reinterpret_cast<std::intptr_t>(src_a) ^ (2 * reinterpret_cast<std::intptr_t>(dst_uv))) | static_cast<std::intptr_t>(src_pitch) | (2 * static_cast<std::intptr_t>(dst_pitch))) & 15) == 0 &&
-        w > 16)
+        (w > 16))
     {
         int head{ (16 - (reinterpret_cast<std::intptr_t>(src_a) & 15)) & 15 };
         int tail{ (w - head) & 15 };
@@ -1829,7 +1829,7 @@ void CMemSubPic::AlphaBltYv16Chroma(byte* dst_uv, const int dst_pitch,
 {
     if ((
             ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) | (reinterpret_cast<std::intptr_t>(src_a) ^ (2 * reinterpret_cast<std::intptr_t>(dst_uv))) | static_cast<std::intptr_t>(src_pitch) | (2 * static_cast<std::intptr_t>(dst_pitch))) & 15) == 0 &&
-        w > 16)
+        (w > 16))
     {
         int head{ (16 - (reinterpret_cast<std::intptr_t>(src_a) & 15)) & 15 };
         int tail{ (w - head) & 15 };
@@ -1863,7 +1863,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     const BYTE* sa{ src_a };
     if ((
             ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_y)) | (reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_y)) | static_cast<std::intptr_t>(src_pitch) | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
-        w > 32)
+        (w > 32))
     {
         int head{ (16 - reinterpret_cast<std::intptr_t>(src_a) & 15) & 15 };
         int tail{ (w - head) & 15 };
@@ -2061,7 +2061,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     BYTE* d{ dst_uv };
     if ((
             ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) | (reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_uv)) | static_cast<std::intptr_t>(src_pitch) | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
-        w > 16)
+        (w > 16))
     {
         int head{ (16 - (reinterpret_cast<std::intptr_t>(src_a) & 15)) & 15 };
         int tail{ (w - head) & 15 };
@@ -2095,7 +2095,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     const BYTE* sa{ src_a };
     if ((
             ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_y)) | (reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_y)) | static_cast<std::intptr_t>(src_pitch) | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
-        w > 32)
+        (w > 32))
     {
         int head{ (16 - reinterpret_cast<std::intptr_t>(src_a) & 15) & 15 };
         int tail{ (w - head) & 15 };
@@ -2294,7 +2294,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     BYTE* d{ dst_uv };
     if ((
             ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) | (reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_uv)) | static_cast<std::intptr_t>(src_pitch) | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
-        w > 16)
+        (w > 16))
     {
         int head{ (16 - (reinterpret_cast<std::intptr_t>(src_a) & 15)) & 15 };
         int tail{ (w - head) & 15 };
@@ -2386,7 +2386,7 @@ void CMemSubPic::AlphaBltYv16ChromaC(byte* dst, const int dst_pitch, const int w
     int h2{ h / 2 };
     if ((
             ((reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(src_uv)) | (reinterpret_cast<std::intptr_t>(src_a) ^ reinterpret_cast<std::intptr_t>(dst_uv)) | static_cast<std::intptr_t>(src_pitch) | static_cast<std::intptr_t>(dst_pitch)) & 15) == 0 &&
-        w > 16)
+        (w > 16))
     {
         BYTE* d{ dst_uv };
 
@@ -2491,7 +2491,7 @@ void CMemSubPic::AlphaBlt_YUY2(const int w, const int h, BYTE* d, const int dstp
     XY_LOG_TRACE(dirtyRect);
     const CRect& cRect{ dirtyRect };
     int w{ cRect.Width() }, h = cRect.Height();
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return S_OK;
     }
@@ -2500,7 +2500,7 @@ void CMemSubPic::AlphaBlt_YUY2(const int w, const int h, BYTE* d, const int dstp
     {
         XY_LOG_ERROR("Unexpected color type " << m_spd.type);
     }
-    BYTE* top{ (BYTE*)m_spd.bits + m_spd.pitch * (cRect.top) + cRect.left * 4 };
+    BYTE* top{ reinterpret_cast<BYTE*>(m_spd.bits) + m_spd.pitch * (cRect.top) + cRect.left * 4 };
     XyBitmap::FlipAlphaValue(top, w, h, m_spd.pitch);
     return S_OK;
 }

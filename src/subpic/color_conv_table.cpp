@@ -198,7 +198,7 @@ ConvMatrix::ConvMatrix()
 ConvMatrix::~ConvMatrix()
 
 {
-    int** p_matrix{ (int**)m_matrix };
+    int** p_matrix{ reinterpret_cast<int**>(m_matrix) };
     for (int i{ 0 }; i < LEVEL_COUNT * COLOR_COUNT * LEVEL_COUNT * COLOR_COUNT; ++i)
     {
         if (p_matrix[i])
@@ -550,8 +550,8 @@ namespace
 [[nodiscard]] DWORD YUV_TV_TO_RGB_TV_2020(int y, int u, int v);
 [[nodiscard]] DWORD YUV_PC_TO_RGB_TV_2020(int y, int u, int v);
 
-typedef ColorConvTable::YuvMatrixType YuvMatrixType;
-typedef ColorConvTable::YuvRangeType YuvRangeType;
+using YuvMatrixType = ColorConvTable::YuvMatrixType;
+using YuvRangeType = ColorConvTable::YuvRangeType;
 
 class ConvFunc
 {
@@ -561,8 +561,8 @@ public:
 
     typedef DWORD (*R8G8B8ToYuvFunc)(int r8, int g8, int b8);
     typedef DWORD (*PreMulArgbToAyuvFunc)(int a8, int r8, int g8, int b8);
-    typedef R8G8B8ToYuvFunc R8G8B8ToY;
-    typedef R8G8B8ToYuvFunc Y8U8V8ToRGBFunc;
+    using R8G8B8ToY = R8G8B8ToYuvFunc;
+    using Y8U8V8ToRGBFunc = R8G8B8ToYuvFunc;
 
     R8G8B8ToYuvFunc r8g8b8_to_yuv_func;
     R8G8B8ToYuvFunc r8g8b8_to_uyv_func;
@@ -666,7 +666,7 @@ ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
 
 ConvFunc::ConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
 {
-    (void)_conv_matrix.Init();
+    static_cast<void>(_conv_matrix.Init());
 
     _conv_matrix.InitMatrix(
         ConvMatrix::LEVEL_TV, ConvMatrix::COLOR_YUV_601,
@@ -746,7 +746,7 @@ ConvFunc::ConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
         ConvMatrix::LEVEL_PC, ConvMatrix::COLOR_YUV_2020,
         ConvMatrix::LEVEL_PC, ConvMatrix::COLOR_YUV_709);
 
-    (void)InitConvFunc(yuv_type, range);
+    static_cast<void>(InitConvFunc(yuv_type, range));
 }
 
 //
@@ -767,9 +767,9 @@ ConvFunc::ConvFunc(YuvMatrixType yuv_type, YuvRangeType range)
 void ColorConvTable::SetDefaultConvType(const YuvMatrixType yuv_type, const YuvRangeType range)
 
 {
-    if (s_default_conv_set._yuv_type != yuv_type || s_default_conv_set._range_type != range)
+    if ((s_default_conv_set._yuv_type != yuv_type) || (s_default_conv_set._range_type != range))
     {
-        (void)s_default_conv_set.InitConvFunc(yuv_type, range);
+        static_cast<void>(s_default_conv_set.InitConvFunc(yuv_type, range));
     }
 }
 

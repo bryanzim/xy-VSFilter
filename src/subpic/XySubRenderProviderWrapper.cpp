@@ -66,7 +66,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper(ISubPicProviderEx* provid
     ASSERT(SUCCEEDED(hr));
     hr = m_consumer->XyGetBool(DirectVobSubXyOptions::BOOL_SUB_FRAME_USE_DST_ALPHA, &use_dst_alpha);
 
-    if (m_original_video_size != original_video_size || m_use_dst_alpha != use_dst_alpha)
+    if ((m_original_video_size != original_video_size) || (m_use_dst_alpha != use_dst_alpha))
     {
         if (m_use_dst_alpha == use_dst_alpha)
         {
@@ -76,7 +76,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper(ISubPicProviderEx* provid
         {
             XY_LOG_INFO("'Use dst alpha' option changed from " << m_use_dst_alpha << " to " << use_dst_alpha);
         }
-        (void)Invalidate();
+        static_cast<void>(Invalidate());
         m_original_video_size = original_video_size;
         m_use_dst_alpha = use_dst_alpha;
     }
@@ -95,7 +95,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper(ISubPicProviderEx* provid
     }
     REFERENCE_TIME start{ m_provider->GetStart(pos, fps) };
     REFERENCE_TIME stop{ m_provider->GetStop(pos, fps) }; // fixme: have to get start stop twice
-    if (!(start <= now && now < stop))
+    if (!((start <= now) && (now < stop)))
     {
         return S_FALSE;
     }
@@ -116,7 +116,7 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper(ISubPicProviderEx* provid
 
 [[nodiscard]] HRESULT XySubRenderProviderWrapper::Render(const REFERENCE_TIME now, POSITION pos, const double fps)
 {
-    if (m_pSubPic && m_pSubPic->GetStart() <= now && now < m_pSubPic->GetStop())
+    if (m_pSubPic && (m_pSubPic->GetStart() <= now) && (now < m_pSubPic->GetStop()))
     {
         return S_OK;
     }
@@ -304,7 +304,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2(ISubPicProviderEx2* pro
     ASSERT(SUCCEEDED(hr));
     hr = m_consumer->XyGetRect(DirectVobSubXyOptions::RECT_SUBTITLE_TARGET, &subtitle_target_rect);
     ASSERT(SUCCEEDED(hr));
-    ASSERT(output_rect.Width() <= subtitle_target_rect.Width() && output_rect.Height() <= subtitle_target_rect.Height());
+    ASSERT((output_rect.Width() <= subtitle_target_rect.Width()) && (output_rect.Height() <= subtitle_target_rect.Height()));
     hr = m_consumer->XyGetSize(DirectVobSubXyOptions::SIZE_LAYOUT_WITH, &original_video_size);
     ASSERT(SUCCEEDED(hr));
     hr = m_consumer->XyGetInt(DirectVobSubXyOptions::INT_MAX_BITMAP_COUNT2, &m_max_bitmap_count2);
@@ -322,7 +322,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2(ISubPicProviderEx2* pro
 
     bool should_invalidate{ false };
     bool should_invalidate_allocator{ false };
-    if (m_original_video_size != original_video_size || m_use_dst_alpha != use_dst_alpha || m_output_rect != output_rect || m_subtitle_target_rect != subtitle_target_rect)
+    if ((m_original_video_size != original_video_size) || (m_use_dst_alpha != use_dst_alpha) || (m_output_rect != output_rect) || (m_subtitle_target_rect != subtitle_target_rect))
     {
         should_invalidate = true;
         should_invalidate_allocator = (m_subtitle_target_rect != subtitle_target_rect) == TRUE;
@@ -342,7 +342,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2(ISubPicProviderEx2* pro
     if (should_invalidate)
     {
         XY_LOG_INFO("Output rects or max_bitmap_count or alpha type changed.");
-        (void)Invalidate();
+        static_cast<void>(Invalidate());
     }
     if (should_invalidate_allocator)
     {
@@ -363,7 +363,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2(ISubPicProviderEx2* pro
     }
     REFERENCE_TIME start{ m_provider->GetStart(pos, fps) };
     REFERENCE_TIME stop{ m_provider->GetStop(pos, fps) }; // fixme: have to get start stop twice
-    if (!(start <= now && now < stop))
+    if (!((start <= now) && (now < stop)))
     {
         XY_LOG_TRACE("No subtitles at " << XY_LOG_VAR_2_STR(now));
         return S_FALSE;
@@ -400,7 +400,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2(ISubPicProviderEx2* pro
 
 [[nodiscard]] HRESULT XySubRenderProviderWrapper2::Render(const REFERENCE_TIME now, POSITION pos)
 {
-    if (m_start <= now && now < m_stop && m_xy_sub_render_frame)
+    if ((m_start <= now) && (now < m_stop) && m_xy_sub_render_frame)
     {
         return S_FALSE;
     }

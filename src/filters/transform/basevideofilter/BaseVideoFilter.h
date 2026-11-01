@@ -28,7 +28,7 @@ struct OutputFormatBase
     DWORD biCompression;
 };
 
-typedef int ColorSpaceId;
+using ColorSpaceId = int;
 enum ColorSpaceDir
 {
     INPUT_COLOR_SPACE = 0,

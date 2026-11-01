@@ -62,7 +62,7 @@ public:
     explicit XySubRenderFrame();
     ~XySubRenderFrame();
 
-    typedef ::boost::shared_ptr<XyBitmap> SharedBitmap;
+    using SharedBitmap = ::boost::shared_ptr<XyBitmap>;
 
     void MoveTo(int x, int y);
 
@@ -76,7 +76,7 @@ public:
     int m_left, m_top;
 };
 
-typedef ::boost::shared_ptr<XySubRenderFrame> SharedPtrXySubRenderFrame;
+using SharedPtrXySubRenderFrame = ::boost::shared_ptr<XySubRenderFrame>;
 
 class XySubRenderFrameCreater
 {

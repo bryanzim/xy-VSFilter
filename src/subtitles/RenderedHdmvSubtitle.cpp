@@ -138,7 +138,7 @@ CRenderedHdmvSubtitle::~CRenderedHdmvSubtitle()
 
     if (ppName)
     {
-        *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR));
+        *ppName = reinterpret_cast<WCHAR*>(CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR)));
         if (!(*ppName))
         {
             return E_OUTOFMEMORY;

@@ -204,7 +204,7 @@ namespace ssf
         Segment& head = GetHead();
         Segment& tail = GetTail();
 
-        if (start >= tail.m_stop && stop > tail.m_stop)
+        if ((start >= tail.m_stop) && (stop > tail.m_stop))
         {
             if (start > tail.m_stop)
             {
@@ -212,7 +212,7 @@ namespace ssf
             }
             AddTail(Segment(start, stop, &si));
         }
-        else if (start < head.m_start && stop <= head.m_start)
+        else if ((start < head.m_start) && (stop <= head.m_start))
         {
             if (stop < head.m_start)
             {
@@ -247,7 +247,7 @@ namespace ssf
                     break;
                 }
 
-                if (s.m_start < start && start < s.m_stop)
+                if ((s.m_start < start) && (start < s.m_stop))
                 {
                     Segment s2 = s;
                     s2.m_start = start;
@@ -309,12 +309,12 @@ namespace ssf
 
         std::size_t i{ 0U }, j{ m_index.GetCount() - 1U };
 
-        if (m_index[i]->m_start <= at && at < m_index[j]->m_stop)
+        if ((m_index[i]->m_start <= at) && (at < m_index[j]->m_stop))
         {
             do
             {
                 k = (i + j) / 2;
-                if (m_index[k]->m_start <= at && at < m_index[k]->m_stop)
+                if ((m_index[k]->m_start <= at) && (at < m_index[k]->m_stop))
                 {
                     return true;
                 }
@@ -342,7 +342,7 @@ namespace ssf
 
     const SubtitleFile::Segment* SubtitleFile::SegmentList::GetSegment(std::size_t k)
     {
-        return 0 <= k && k < m_index.GetCount() ? m_index[k] : nullptr;
+        return (0 <= k) && (k < m_index.GetCount()) ? m_index[k] : nullptr;
     }
 
     // TODO: this should be overridable from outside

@@ -376,7 +376,7 @@ bool CVobDec::FindKey(BYTE* buff)
         if (*reinterpret_cast<DWORD*>(&buff[0x00U]) == 0xba010000 && (*reinterpret_cast<DWORD*>(&buff[0x0eU]) & 0xffffff) == 0x010000)
         {
             offset = 0x14 + (buff[0x12U] << 8) + buff[0x13U];
-            if (0x80 <= offset && offset <= 0x7F9)
+            if ((0x80 <= offset) && (offset <= 0x7F9))
             {
                 flag |= 0x02;
                 left = 0x800 - offset - 6;

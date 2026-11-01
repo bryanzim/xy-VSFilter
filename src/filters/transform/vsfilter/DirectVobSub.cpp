@@ -765,7 +765,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
 {
-    return XyGetInt(DirectVobSubXyOptions::INT_ASPECT_RATIO_SETTINGS, (int*)ePARCompensationType);
+    return XyGetInt(DirectVobSubXyOptions::INT_ASPECT_RATIO_SETTINGS, reinterpret_cast<int*>(ePARCompensationType));
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::put_AspectRatioSettings(CSimpleTextSubtitle::EPARCompensationType* ePARCompensationType)
@@ -927,7 +927,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters(const CAtlArray<CStringW>& filter_
     switch (field)
     {
     case BOOL_SUBTITLE_RELOADER_LOCK:
-        *(bool*)value = m_xy_bool_opt[BOOL_SUBTITLE_RELOADER_DISABLED] || m_nReloaderDisableCount > 0;
+        *reinterpret_cast<bool*>(value) = m_xy_bool_opt[BOOL_SUBTITLE_RELOADER_DISABLED] || (m_nReloaderDisableCount > 0);
         break;
     case SIZE_LAYOUT_WITH: {
         SIZE* size_value{ (SIZE*)value };
@@ -964,22 +964,22 @@ void DirectVobSubImpl::SaveKnownSourceFilters(const CAtlArray<CStringW>& filter_
     switch (field)
     {
     case BOOL_SUBTITLE_RELOADER_LOCK:
-        return LockSubtitleReloader(*(bool*)value);
+        return LockSubtitleReloader(*reinterpret_cast<const bool*>(value));
     case INT_LAYOUT_SIZE_OPT:
-        if (*(int*)value < 0 || *(int*)value >= LAYOUT_SIZE_OPT_COUNT)
+        if ((*reinterpret_cast<const int*>(value) < 0) || (*reinterpret_cast<const int*>(value) >= LAYOUT_SIZE_OPT_COUNT))
         {
             return E_INVALIDARG;
         }
         break;
     case INT_VSFILTER_COMPACT_RGB_CORRECTION:
-        if (*(int*)value < 0 || *(int*)value >= RGB_CORRECTION_COUNT)
+        if ((*reinterpret_cast<const int*>(value) < 0) || (*reinterpret_cast<const int*>(value) >= RGB_CORRECTION_COUNT))
         {
             return E_INVALIDARG;
         }
         break;
     case INT_SELECTED_LANGUAGE:
         int nCount;
-        if (FAILED(get_LanguageCount(&nCount)) || *(int*)value < 0 || *(int*)value >= nCount)
+        if (FAILED(get_LanguageCount(&nCount)) || (*reinterpret_cast<const int*>(value) < 0) || (*reinterpret_cast<const int*>(value) >= nCount))
         {
             return E_FAIL;
         }
@@ -1186,18 +1186,18 @@ CDirectVobSub::CDirectVobSub(const Option* options, CCritSec* pLock)
     m_xy_bool_opt[BOOL_PRE_BUFFERING] = !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_DOPREBUFFERING), 1);
 
     m_xy_int_opt[INT_COLOR_SPACE] = GetCompatibleProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_COLOR_SPACE), YuvMatrix_AUTO);
-    if (m_xy_int_opt[INT_COLOR_SPACE] != YuvMatrix_AUTO &&
-        m_xy_int_opt[INT_COLOR_SPACE] != BT_601 &&
-        m_xy_int_opt[INT_COLOR_SPACE] != BT_709 &&
-        m_xy_int_opt[INT_COLOR_SPACE] != BT_2020 &&
-        m_xy_int_opt[INT_COLOR_SPACE] != GUESS)
+    if ((m_xy_int_opt[INT_COLOR_SPACE] != YuvMatrix_AUTO) &&
+        (m_xy_int_opt[INT_COLOR_SPACE] != BT_601) &&
+        (m_xy_int_opt[INT_COLOR_SPACE] != BT_709) &&
+        (m_xy_int_opt[INT_COLOR_SPACE] != BT_2020) &&
+        (m_xy_int_opt[INT_COLOR_SPACE] != GUESS))
     {
         m_xy_int_opt[INT_COLOR_SPACE] = YuvMatrix_AUTO;
     }
     m_xy_int_opt[INT_YUV_RANGE] = GetCompatibleProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_YUV_RANGE), DirectVobSubImpl::YuvRange_Auto);
-    if (m_xy_int_opt[INT_YUV_RANGE] != DirectVobSubImpl::YuvRange_Auto &&
-        m_xy_int_opt[INT_YUV_RANGE] != DirectVobSubImpl::YuvRange_PC &&
-        m_xy_int_opt[INT_YUV_RANGE] != DirectVobSubImpl::YuvRange_TV)
+    if ((m_xy_int_opt[INT_YUV_RANGE] != DirectVobSubImpl::YuvRange_Auto) &&
+        (m_xy_int_opt[INT_YUV_RANGE] != DirectVobSubImpl::YuvRange_PC) &&
+        (m_xy_int_opt[INT_YUV_RANGE] != DirectVobSubImpl::YuvRange_TV))
     {
         m_xy_int_opt[INT_YUV_RANGE] = DirectVobSubImpl::YuvRange_Auto;
     }
@@ -1316,7 +1316,7 @@ CDirectVobSub::CDirectVobSub(const Option* options, CCritSec* pLock)
 
     m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_USER_SPECIFIED_LAYOUT_SIZE_X), 0);
     m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_USER_SPECIFIED_LAYOUT_SIZE_Y), 0);
-    if (m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx <= 0 || m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy <= 0)
+    if ((m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx <= 0) || (m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy <= 0))
     {
         m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx = 1280;
         m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy = 720;
@@ -1717,7 +1717,7 @@ CDVS4XySubFilter::CDVS4XySubFilter(const Option* options, CCritSec* pLock)
     const unsigned long long phys_cap{ static_cast<unsigned long long>(SIZE_MAX) >> 23 };
     const unsigned long long int_cap{ static_cast<unsigned long long>(INT_MAX) };
     const int cache_cap{ static_cast<int>(phys_cap < int_cap ? phys_cap : int_cap) };
-    if (m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] < 0 || static_cast<unsigned long long>(m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB]) > static_cast<unsigned long long>(cache_cap))
+    if ((m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] < 0) || (static_cast<unsigned long long>(m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB]) > static_cast<unsigned long long>(cache_cap)))
     {
         m_xy_int_opt[INT_AUTO_MAX_CACHE_SIZE_MB] = cache_cap;
     }
@@ -1761,7 +1761,7 @@ CDVS4XySubFilter::CDVS4XySubFilter(const Option* options, CCritSec* pLock)
 
     m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_USER_SPECIFIED_LAYOUT_SIZE_X), 0);
     m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_USER_SPECIFIED_LAYOUT_SIZE_Y), 0);
-    if (m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx <= 0 || m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy <= 0)
+    if ((m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx <= 0) || (m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy <= 0))
     {
         m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cx = 1280;
         m_xy_size_opt[SIZE_USER_SPECIFIED_LAYOUT_SIZE].cy = 720;

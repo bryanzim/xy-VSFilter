@@ -114,7 +114,7 @@ DECLSPEC_NOTHROW STDMETHODIMP_(void) CSubPicImplHelper::SetStop(const REFERENCE_
     CheckPointer(pRcSource, E_POINTER);
     CheckPointer(pRcDest, E_POINTER);
 
-    if (m_size.cx > 0 && m_size.cy > 0)
+    if ((m_size.cx > 0) && (m_size.cy > 0))
     {
         CRect rcTemp{ m_rcDirty };
 
@@ -164,7 +164,7 @@ DECLSPEC_NOTHROW STDMETHODIMP_(void) CSubPicImplHelper::SetStop(const REFERENCE_
         m_size.cy = m_maxsize.cy;
     }
 
-    if (m_size.cx != size.cx || m_size.cy != size.cy)
+    if ((m_size.cx != size.cx) || (m_size.cy != size.cy))
     {
         m_vidrect.top = MulDiv(m_vidrect.top, m_size.cx, size.cx);
         m_vidrect.bottom = MulDiv(m_vidrect.bottom, m_size.cx, size.cx);
@@ -499,10 +499,8 @@ CSubPicExAllocatorImpl::CSubPicExAllocatorImpl(SIZE cursize, bool fDynamicWriteO
     }
 }
 
-[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CSubPicExAllocatorImpl::SetSpdColorType(const int color_type)
-
+[[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(int) CSubPicExAllocatorImpl::SetSpdColorType([[maybe_unused]] const int color_type)
 {
-    (void)color_type;
     return MSP_RGBA;
 }
 

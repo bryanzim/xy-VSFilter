@@ -70,11 +70,11 @@ void CFontInstaller::UninstallFonts()
 
     DWORD nFonts{ 0 };
     HANDLE hFont{ pAddFontMemResourceEx((PVOID)pData, len, nullptr, &nFonts) };
-    if (hFont && nFonts > 0)
+    if (hFont && (nFonts > 0))
     {
         m_fonts.AddTail(hFont);
     }
-    return hFont && nFonts > 0;
+    return hFont && (nFonts > 0);
 }
 
 [[nodiscard]] bool CFontInstaller::InstallFontFile(const void* pData, const UINT len)

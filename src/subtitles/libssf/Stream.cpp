@@ -51,7 +51,7 @@ namespace ssf
 
     bool Stream::IsWhiteSpace(int c, LPCWSTR morechars)
     {
-        return (c != 0xa0 && iswspace(static_cast<wint_t>(c))) || (morechars && std::wcschr(morechars, static_cast<WCHAR>(c)));
+        return ((c != 0xa0) && iswspace(static_cast<wint_t>(c))) || (morechars && std::wcschr(morechars, static_cast<WCHAR>(c)));
     }
 
     //
@@ -105,7 +105,7 @@ namespace ssf
         switch (m_encoding)
         {
         case utf8:
-            for (i = 7; i >= 0 && (cur & (1 << i)); --i)
+            for (i = 7; (i >= 0) && (cur & (1 << i)); --i)
             {
                 ;
             }
@@ -369,16 +369,16 @@ namespace ssf
         switch (m_encoding)
         {
         case utf8:
-            if (0 <= c && c < 0x80) // 0xxxxxxx
+            if ((0 <= c) && (c < 0x80)) // 0xxxxxxx
             {
                 NextByte(c);
             }
-            else if (0x80 <= c && c < 0x800) // 110xxxxx 10xxxxxx
+            else if ((0x80 <= c) && (c < 0x800)) // 110xxxxx 10xxxxxx
             {
                 NextByte(0xc0 | ((c << 2) & 0x1f));
                 NextByte(0x80 | ((c << 0) & 0x3f));
             }
-            else if (0x800 <= c && c < 0xFFFF) // 1110xxxx 10xxxxxx 10xxxxxx
+            else if ((0x800 <= c) && (c < 0xFFFF)) // 1110xxxx 10xxxxxx 10xxxxxx
             {
                 NextByte(0xe0 | ((c << 4) & 0x0f));
                 NextByte(0x80 | ((c << 2) & 0x3f));

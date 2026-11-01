@@ -70,7 +70,7 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     if (m_use_dst_alpha != use_dst_alpha)
     {
         XY_LOG_INFO("Alpha type changed from " << m_use_dst_alpha << " to " << use_dst_alpha);
-        (void)Invalidate(-1);
+        static_cast<void>(Invalidate(-1));
         m_use_dst_alpha = use_dst_alpha;
     }
 
@@ -91,10 +91,10 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
         XY_LOG_ERROR("Failed to get sizes info");
         return hr;
     }
-    if (!m_allocator || m_cur_output_size != MaxTextureSize)
+    if (!m_allocator || (m_cur_output_size != MaxTextureSize))
     {
         m_cur_output_size = MaxTextureSize;
-        if (m_cur_output_size.cx != 0 && m_cur_output_size.cy != 0)
+        if ((m_cur_output_size.cx != 0) && (m_cur_output_size.cy != 0))
         {
             hr = ResetAllocator();
             ASSERT(SUCCEEDED(hr));
@@ -152,12 +152,12 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     REFERENCE_TIME start{ m_pSub->GetStart(pos) };
     REFERENCE_TIME stop{ m_pSub->GetStop(pos) };
 
-    if (!(start <= now && now < stop))
+    if (!((start <= now) && (now < stop)))
     {
         return S_FALSE;
     }
 
-    if (m_pSubPic && m_pSubPic->GetStart() <= now && now < m_pSubPic->GetStop())
+    if (m_pSubPic && (m_pSubPic->GetStart() <= now) && (now < m_pSubPic->GetStop()))
     {
         return S_OK;
     }
@@ -323,7 +323,7 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
 
     if (ppName)
     {
-        *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR));
+        *ppName = reinterpret_cast<WCHAR*>(CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR)));
         if (!(*ppName))
         {
             return E_OUTOFMEMORY;
@@ -384,7 +384,7 @@ HdmvSubtitleProvider::~HdmvSubtitleProvider()
 [[nodiscard]] HRESULT HdmvSubtitleProvider::SetYuvType(const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType)
 {
     CAutoLock cAutoLock(&m_csCritSec);
-    (void)Invalidate(-1);
+    static_cast<void>(Invalidate(-1));
     return m_pSub->SetYuvType(colorType, yuvRangeType);
 }
 
@@ -406,7 +406,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 
 [[nodiscard]] static UINT64 ReadByte(CFile* mfile, const std::size_t count = 1U)
 {
-    if (count <= 0 || count >= 64)
+    if ((count <= 0) || (count >= 64))
     {
         return 0;
     }
@@ -439,7 +439,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     }
 
     WORD sync{ 0 };
-    sync = (WORD)ReadByte(&f, 2);
+    sync = static_cast<WORD>(ReadByte(&f, 2));
     if (sync != TwoCc('P', 'G'))
     {
         return false;
@@ -497,7 +497,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     CAutoLock cAutoLock(&m_csCritSec);
     while (sub.GetPosition() < (sub.GetLength() - 10))
     {
-        sync = (WORD)ReadByte(&sub, 2);
+        sync = static_cast<WORD>(ReadByte(&sub, 2));
         if (sync == TwoCc('P', 'G'))
         {
             rtStart = UINT64(ReadByte(&sub, 4) * 1000 / 9);
@@ -506,7 +506,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
             size = ReadByte(&sub, 2) + 3; // Segment size
             sub.Seek(-3, CFile::current);
             sub.Read(buff, size);
-            (void)m_pSub->ParseSample(buff, size, rtStart, rtStop);
+            static_cast<void>(m_pSub->ParseSample(buff, size, rtStart, rtStop));
         }
         else
         {
@@ -572,7 +572,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 
     if (ppName)
     {
-        *ppName = (WCHAR*)CoTaskMemAlloc((m_subname.GetLength() + 1) * sizeof(WCHAR));
+        *ppName = reinterpret_cast<WCHAR*>(CoTaskMemAlloc((m_subname.GetLength() + 1) * sizeof(WCHAR)));
         if (!(*ppName))
         {
             return E_OUTOFMEMORY;
@@ -608,6 +608,6 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
 [[nodiscard]] HRESULT SupFileSubtitleProvider::SetYuvType(const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType)
 {
     CAutoLock cAutoLock(&m_csCritSec);
-    (void)Invalidate(-1);
+    static_cast<void>(Invalidate(-1));
     return m_pSub->SetYuvType(colorType, yuvRangeType);
 }

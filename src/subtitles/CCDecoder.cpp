@@ -24,7 +24,7 @@
 
 CCDecoder::CCDecoder(CString fn, CString rawfn) : m_fn(fn), m_rawfn(rawfn)
 {
-    (void)m_sts.CreateDefaultStyle(ANSI_CHARSET);
+    static_cast<void>(m_sts.CreateDefaultStyle(ANSI_CHARSET));
 
     m_time = 0;
     m_fEndOfCaption = false;
@@ -43,10 +43,10 @@ CCDecoder::~CCDecoder()
     if (!m_sts.IsEmpty() && !m_fn.IsEmpty())
     {
         m_sts.Sort();
-        (void)m_sts.SaveAs(m_fn, EXTSRT, -1, CTextFile::DEFAULT_ENCODING);
-        (void)m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf8.srt"), EXTSRT, -1, CTextFile::UTF8);
-        (void)m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16le.srt"), EXTSRT, -1, CTextFile::LE16);
-        (void)m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16be.srt"), EXTSRT, -1, CTextFile::BE16);
+        static_cast<void>(m_sts.SaveAs(m_fn, EXTSRT, -1, CTextFile::DEFAULT_ENCODING));
+        static_cast<void>(m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf8.srt"), EXTSRT, -1, CTextFile::UTF8));
+        static_cast<void>(m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16le.srt"), EXTSRT, -1, CTextFile::LE16));
+        static_cast<void>(m_sts.SaveAs(m_fn.Left(m_fn.ReverseFind('.') + 1) + _T("utf16be.srt"), EXTSRT, -1, CTextFile::BE16));
     }
 }
 
@@ -116,7 +116,7 @@ void CCDecoder::SaveDisp(const __int64 time)
         return;
     }
 
-    m_sts.Add(str, true, (int)m_time, (int)time);
+    m_sts.Add(str, true, static_cast<int>(m_time), static_cast<int>(time));
 }
 
 void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
@@ -126,10 +126,10 @@ void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
         if (FILE* f = _tfopen(m_rawfn, _T("at")))
         {
             _ftprintf(f, _T("%02d:%02d:%02d.%03d\n"),
-                      (int)(time / 1000 / 60 / 60),
-                      (int)((time / 1000 / 60) % 60),
-                      (int)((time / 1000) % 60),
-                      (int)(time % 1000));
+                      static_cast<int>((time / 1000 / 60 / 60)),
+                      static_cast<int>(((time / 1000 / 60) % 60)),
+                      static_cast<int>(((time / 1000) % 60)),
+                      static_cast<int>((time % 1000)));
 
             for (int i{ 0 }; i < len; ++i)
             {
@@ -138,7 +138,7 @@ void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
                 {
                     _ftprintf(f, _T(" "));
                 }
-                if (i > 0 && (i & 15) == 15)
+                if ((i > 0) && (i & 15) == 15)
                 {
                     _ftprintf(f, _T("\n"));
                 }
@@ -167,16 +167,16 @@ void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
 
             PutChar(charmap[c - 0x20]);
         }
-        else if (buff[i] != 0x80 && i < len - 1)
+        else if ((buff[i] != 0x80) && (i < len - 1))
         {
             // codes and special characters are supposed to be doubled
-            if (i < len - 3 && buff[i] == buff[i + 2] && buff[i + 1] == buff[i + 3])
+            if ((i < len - 3) && buff[i] == buff[i + 2] && buff[i + 1] == buff[i + 3])
             {
                 i += 2;
             }
 
             c = buff[i + 1] & 0x7f;
-            if (buff[i] == 0x91 && c >= 0x20 && c < 0x30) // formating
+            if (buff[i] == 0x91 && (c >= 0x20) && (c < 0x30)) // formating
             {
                 // TODO
             }
@@ -184,7 +184,7 @@ void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
             {
                 OffsetCursor(1, 0);
             }
-            else if (buff[i] == 0x91 && c >= 0x30 && c < 0x40) // special characters
+            else if (buff[i] == 0x91 && (c >= 0x30) && (c < 0x40)) // special characters
             {
                 static WCHAR charmap[0x10U] = {
                     0x00ae, // (r)egistered
@@ -207,7 +207,7 @@ void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
 
                 PutChar(charmap[c - 0x30]);
             }
-            else if (buff[i] == 0x92 && c >= 0x20 && c < 0x40) // extended characters
+            else if (buff[i] == 0x92 && (c >= 0x20) && (c < 0x40)) // extended characters
             {
                 static WCHAR charmap[0x20U] = {
                     0x00c0, // A'
@@ -247,7 +247,7 @@ void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
 
                 PutChar(charmap[c - 0x20]);
             }
-            else if (buff[i] == 0x13 && c >= 0x20 && c < 0x40) // more extended characters
+            else if (buff[i] == 0x13 && (c >= 0x20) && (c < 0x40)) // more extended characters
             {
                 static WCHAR charmap[0x20U] = {
                     0x00c3, // A~
@@ -360,7 +360,7 @@ void CCDecoder::DecodeCC(BYTE* buff, const int len, const __int64 time)
                 }
 
                 int col{ buff[i + 1] & 0xe };
-                if (col == 0 || (col > 0 && !(buff[i + 1] & 0x10)))
+                if (col == 0 || ((col > 0) && !(buff[i + 1] & 0x10)))
                 {
                     col = 0;
                 }
@@ -384,7 +384,7 @@ void CCDecoder::ExtractCC(BYTE* buff, const int len, const __int64 time)
 {
     for (int i{ 0 }; i < len - 9; ++i)
     {
-        if (*(DWORD*)&buff[i] == 0xb2010000 && *(DWORD*)&buff[i + 4] == 0xf8014343)
+        if (*reinterpret_cast<DWORD*>(&buff[i]) == 0xb2010000 && *reinterpret_cast<DWORD*>(&buff[i + 4]) == 0xf8014343)
         {
             i += 8;
             int nBytes{ buff[i++] & 0x3f };
@@ -399,7 +399,7 @@ void CCDecoder::ExtractCC(BYTE* buff, const int len, const __int64 time)
                 {
                     int nBytes1{ 0 }, nBytes2 = 0;
 
-                    for (int j{ 0 }; j < nBytes && i < 0x800;)
+                    for (int j{ 0 }; (j < nBytes) && (i < 0x800);)
                     {
                         if (buff[i++] == 0xff)
                         {

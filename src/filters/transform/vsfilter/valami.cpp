@@ -242,7 +242,7 @@ void JajDeGonoszVagyok()
 
     bool fFail{ false };
 
-    for (int i{ 0 }; i < 3 && !fFail; ++i)
+    for (int i{ 0 }; (i < 3) && !fFail; ++i)
     {
         BYTE* pData{ nullptr };
         DWORD size{ 0 };
@@ -274,7 +274,7 @@ void JajDeGonoszVagyok()
             if (SUCCEEDED(pPin->QueryPinInfo(&pi)) && pi.pFilter)
             {
                 CFilterInfo fi;
-                if (SUCCEEDED(pi.pFilter->QueryFilterInfo(&fi)) && !std::wcsncmp((WCHAR*)pData, fi.achName, std::wcslen((WCHAR*)pData)))
+                if (SUCCEEDED(pi.pFilter->QueryFilterInfo(&fi)) && !std::wcsncmp(reinterpret_cast<WCHAR*>(pData), fi.achName, std::wcslen(reinterpret_cast<WCHAR*>(pData))))
                 {
                     fFail = true;
                 }

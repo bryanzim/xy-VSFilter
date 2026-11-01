@@ -8,9 +8,9 @@ template <typename ElementType>
 class XYCircularArrayQueue
 {
 public:
-    typedef ElementType value_type;
-    typedef ElementType& reference;
-    typedef const ElementType& const_reference;
+    using value_type = ElementType;
+    using reference = ElementType&;
+    using const_reference = const ElementType&;
 
 public:
     /***

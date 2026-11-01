@@ -29,9 +29,9 @@
 
 #define CSRIAPI extern "C" __declspec(dllexport)
 #define CSRI_OWN_HANDLES
-typedef const char* csri_rend;
+using csri_rend = const char*;
 struct csri_vsfilter_inst;
-typedef struct csri_vsfilter_inst csri_inst;
+using csri_inst = struct csri_vsfilter_inst;
 #include "csri.h"
 extern "C" struct csri_vsfilter_inst
 {

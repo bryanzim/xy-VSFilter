@@ -30,20 +30,20 @@
 #define VOBSUBIDXVER 7
 
 // MSVC packs a two-character literal with the last character in the low byte.
-#define TwoCc(a, b) ((unsigned short)(((unsigned char)(a) << 8) | (unsigned char)(b)))
+#define TwoCc(a, b) (static_cast<unsigned short>((((unsigned char)(a) << 8) | (unsigned char)(b))))
 
 #define ReadBEb(var) \
-    f.Read(&((BYTE*)&var)[0U], 1);
+    f.Read(&(reinterpret_cast<BYTE*>(&var))[0U], 1);
 
-#define ReadBEw(var)               \
-    f.Read(&((BYTE*)&var)[1U], 1); \
-    f.Read(&((BYTE*)&var)[0U], 1);
+#define ReadBEw(var)                                 \
+    f.Read(&(reinterpret_cast<BYTE*>(&var))[1U], 1); \
+    f.Read(&(reinterpret_cast<BYTE*>(&var))[0U], 1);
 
-#define ReadBEdw(var)              \
-    f.Read(&((BYTE*)&var)[3U], 1); \
-    f.Read(&((BYTE*)&var)[2U], 1); \
-    f.Read(&((BYTE*)&var)[1U], 1); \
-    f.Read(&((BYTE*)&var)[0U], 1);
+#define ReadBEdw(var)                                \
+    f.Read(&(reinterpret_cast<BYTE*>(&var))[3U], 1); \
+    f.Read(&(reinterpret_cast<BYTE*>(&var))[2U], 1); \
+    f.Read(&(reinterpret_cast<BYTE*>(&var))[1U], 1); \
+    f.Read(&(reinterpret_cast<BYTE*>(&var))[0U], 1);
 
 [[nodiscard]] extern CString FindLangFromId(WORD id);
 

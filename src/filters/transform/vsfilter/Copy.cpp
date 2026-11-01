@@ -34,7 +34,7 @@ static void LogSubPicStartStop(const REFERENCE_TIME& rtStart, const REFERENCE_TI
 {
 #if ENABLE_XY_LOG
     static REFERENCE_TIME s_rtStart{ -1 }, s_rtStop = -1;
-    if (s_rtStart != rtStart || s_rtStop != rtStop)
+    if ((s_rtStart != rtStart) || (s_rtStop != rtStop))
     {
         XY_LOG_INFO(msg.GetString());
         s_rtStart = rtStart;
@@ -49,7 +49,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     if (subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV || subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21 || subtype == MEDIASUBTYPE_YV16 || subtype == MEDIASUBTYPE_YV24)
     {
         // TODO: Fix ME!
-        BYTE* db{ (BYTE*)d };
+        BYTE* db{ reinterpret_cast<BYTE*>(d) };
         BYTE* dbtend{ db + w };
 
         for (; db < dbtend; ++sub, ++db)
@@ -70,7 +70,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     }
     else if (subtype == MEDIASUBTYPE_YUY2)
     {
-        BYTE* ds{ (BYTE*)d };
+        BYTE* ds{ reinterpret_cast<BYTE*>(d) };
         BYTE* dstend{ ds + w * 2 };
 
         for (; ds < dstend; ++sub, ds += 2)
@@ -80,7 +80,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     }
     else if (subtype == MEDIASUBTYPE_AYUV)
     {
-        BYTE* db{ (BYTE*)d };
+        BYTE* db{ reinterpret_cast<BYTE*>(d) };
         BYTE* dbtend{ db + w * 4 };
 
         for (; db < dbtend; ++sub, db += 4)
@@ -90,7 +90,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     }
     else if (subtype == MEDIASUBTYPE_RGB555)
     {
-        WORD* ds{ (WORD*)d };
+        WORD* ds{ reinterpret_cast<WORD*>(d) };
         WORD* dstend{ ds + w };
 
         for (; ds < dstend; ++sub, ++ds)
@@ -104,7 +104,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     }
     else if (subtype == MEDIASUBTYPE_RGB565)
     {
-        WORD* ds{ (WORD*)d };
+        WORD* ds{ reinterpret_cast<WORD*>(d) };
         WORD* dstend{ ds + w };
 
         for (; ds < dstend; ++sub, ++ds)
@@ -117,7 +117,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     }
     else if (subtype == MEDIASUBTYPE_RGB24)
     {
-        BYTE* dt{ (BYTE*)d };
+        BYTE* dt{ reinterpret_cast<BYTE*>(d) };
         BYTE* dstend{ dt + w * 3 };
 
         for (; dt < dstend; ++sub, dt += 3)
@@ -129,7 +129,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     }
     else if (subtype == MEDIASUBTYPE_RGB32 || subtype == MEDIASUBTYPE_ARGB32)
     {
-        BYTE* dt{ (BYTE*)d };
+        BYTE* dt{ reinterpret_cast<BYTE*>(d) };
         BYTE* dstend{ dt + w * 4 };
 
         for (; dt < dstend; ++sub, dt += 4)
@@ -220,7 +220,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
     const GUID& subtype{ m_pOutput->CurrentMediaType().subtype };
 
     BITMAPINFOHEADER bihOut;
-    (void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
+    static_cast<void>(ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut));
 
     CString msg, tmp;
 
@@ -268,8 +268,8 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
         msg += tmp;
 
         SIZE layout_size, script_playres;
-        (void)XyGetSize(SIZE_LAYOUT_WITH, &layout_size);
-        (void)XyGetSize(SIZE_ASS_PLAY_RESOLUTION, &script_playres);
+        static_cast<void>(XyGetSize(SIZE_LAYOUT_WITH, &layout_size));
+        static_cast<void>(XyGetSize(SIZE_ASS_PLAY_RESOLUTION, &script_playres));
         tmp.Format(_T("Layout with size %dx%d, script playres %dx%d\n"),
                    layout_size.cx, layout_size.cy, script_playres.cx, script_playres.cy);
         msg += tmp;
@@ -277,8 +277,8 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
         // print cache info
         CachesInfo caches_info;
         XyFlyWeightInfo xy_fw_info;
-        (void)XyGetBin2(DirectVobSubXyOptions::BIN2_CACHES_INFO, reinterpret_cast<LPVOID>(&caches_info), sizeof(caches_info));
-        (void)XyGetBin2(DirectVobSubXyOptions::BIN2_XY_FLY_WEIGHT_INFO, reinterpret_cast<LPVOID>(&xy_fw_info), sizeof(xy_fw_info));
+        static_cast<void>(XyGetBin2(DirectVobSubXyOptions::BIN2_CACHES_INFO, reinterpret_cast<LPVOID>(&caches_info), sizeof(caches_info)));
+        static_cast<void>(XyGetBin2(DirectVobSubXyOptions::BIN2_XY_FLY_WEIGHT_INFO, reinterpret_cast<LPVOID>(&xy_fw_info), sizeof(xy_fw_info)));
         tmp.Format(
             _T("Cache :stored_num/hit_count/query_count\n")
             _T("  Parser cache 1:%ld/%ld/%ld\n")
@@ -337,7 +337,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
 
     DrawText(m_hdc, msg, _tcslen(msg), &r, DT_LEFT | DT_TOP | DT_NOPREFIX | DT_WORDBREAK);
 
-    BYTE* pIn{ (BYTE*)bm.bmBits };
+    BYTE* pIn{ reinterpret_cast<BYTE*>(bm.bmBits) };
 
     int pitchIn{ bm.bmWidthBytes };
 
@@ -352,7 +352,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
         pitchOut = bihOut.biWidth * 2;
     }
 
-    if (bihOut.biHeight > 0 && bihOut.biCompression <= 3) // flip if the dst bitmap is flipped rgb (m_hbm is a top-down bitmap, not like the subpictures)
+    if ((bihOut.biHeight > 0) && (bihOut.biCompression <= 3)) // flip if the dst bitmap is flipped rgb (m_hbm is a top-down bitmap, not like the subpictures)
     {
         pOut += pitchOut * (std::abs(bihOut.biHeight) - 1);
         pitchOut = -pitchOut;
@@ -360,7 +360,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
 
     for (int w{ min(r.right + MARGIN, m_w) }, h = min(r.bottom, std::abs(m_h)); h--; pIn += pitchIn, pOut += pitchOut)
     {
-        BltLineRGB32((DWORD*)pOut, pIn, w, subtype);
+        BltLineRGB32(reinterpret_cast<DWORD*>(pOut), pIn, w, subtype);
         std::memset(pIn + r.left, 0, r.Width());
     }
 

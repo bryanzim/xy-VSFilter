@@ -70,7 +70,7 @@ public:
     PathDataCacheKey& operator=(const PathDataCacheKey&) = default;
     [[nodiscard]] bool operator==(const PathDataCacheKey& key) const
     {
-        return m_str_id == key.m_str_id && std::fabs(m_scalex - key.m_scalex) < 0.000001 && std::fabs(m_scaley - key.m_scaley) < 0.000001 && m_text_renderer_mode == key.m_text_renderer_mode && (m_style == key.m_style || CompareSTSStyle(m_style, key.m_style));
+        return m_str_id == key.m_str_id && (std::fabs(m_scalex - key.m_scalex) < 0.000001) && (std::fabs(m_scaley - key.m_scaley) < 0.000001) && m_text_renderer_mode == key.m_text_renderer_mode && (m_style == key.m_style || CompareSTSStyle(m_style, key.m_style));
     }
     [[nodiscard]] bool operator==(const CWord& key) const
     {
@@ -234,7 +234,7 @@ public:
     ULONG m_hash_value;
 
 private:
-    typedef ::boost::shared_ptr<OverlayKey> SharedOverlayKey;
+    using SharedOverlayKey = ::boost::shared_ptr<OverlayKey>;
     SharedOverlayKey m_overlay_key;
     ClipperAlphaMaskCacheKey m_clipper_key;
     CRect m_clip_rect;
@@ -261,9 +261,9 @@ public:
     ULONG m_hash_value;
 
 private:
-    typedef ::boost::shared_ptr<DrawItemHashKey> PKey;
-    typedef CAtlArray<PKey> Keys;
-    typedef ::boost::shared_ptr<Keys> PKeys;
+    using PKey = ::boost::shared_ptr<DrawItemHashKey>;
+    using Keys = CAtlArray<PKey>;
+    using PKeys = ::boost::shared_ptr<Keys>;
 
     PKeys m_key;
     CRect m_clip_rect;
@@ -283,35 +283,33 @@ public:
     static ULONG Hash(const CClipper& key);
 };
 
-typedef EnhancedXyMru<
+using TextInfoMruCache = EnhancedXyMru<
     TextInfoCacheKey,
     CText::SharedPtrTextInfo,
-    XyCacheKeyTraits<TextInfoCacheKey>>
-    TextInfoMruCache;
+    XyCacheKeyTraits<TextInfoCacheKey>>;
 
-typedef EnhancedXyMru<
+using AssTagListMruCache = EnhancedXyMru<
     CStringW,
     CRenderedTextSubtitle::SharedPtrConstAssTagList,
-    CStringElementTraits<CStringW>>
-    AssTagListMruCache;
+    CStringElementTraits<CStringW>>;
 
-typedef EnhancedXyMru<PathDataCacheKey, SharedPtrConstPathData, XyCacheKeyTraits<PathDataCacheKey>> PathDataMruCache;
+using PathDataMruCache = EnhancedXyMru<PathDataCacheKey, SharedPtrConstPathData, XyCacheKeyTraits<PathDataCacheKey>>;
 
-typedef EnhancedXyMru<ScanLineData2CacheKey, SharedPtrConstScanLineData2, XyCacheKeyTraits<ScanLineData2CacheKey>> ScanLineData2MruCache;
+using ScanLineData2MruCache = EnhancedXyMru<ScanLineData2CacheKey, SharedPtrConstScanLineData2, XyCacheKeyTraits<ScanLineData2CacheKey>>;
 
-typedef EnhancedXyMru<OverlayNoBlurKey, SharedPtrOverlay, XyCacheKeyTraits<OverlayNoBlurKey>> OverlayNoBlurMruCache;
+using OverlayNoBlurMruCache = EnhancedXyMru<OverlayNoBlurKey, SharedPtrOverlay, XyCacheKeyTraits<OverlayNoBlurKey>>;
 
-typedef EnhancedXyMru<OverlayKey, SharedPtrOverlay, XyCacheKeyTraits<OverlayKey>> OverlayMruCache;
+using OverlayMruCache = EnhancedXyMru<OverlayKey, SharedPtrOverlay, XyCacheKeyTraits<OverlayKey>>;
 
-typedef EnhancedXyMru<ScanLineDataCacheKey, SharedPtrConstScanLineData, XyCacheKeyTraits<ScanLineDataCacheKey>> ScanLineDataMruCache;
+using ScanLineDataMruCache = EnhancedXyMru<ScanLineDataCacheKey, SharedPtrConstScanLineData, XyCacheKeyTraits<ScanLineDataCacheKey>>;
 
-typedef EnhancedXyMru<OverlayNoOffsetKey, OverlayNoBlurKey, XyCacheKeyTraits<OverlayNoOffsetKey>> OverlayNoOffsetMruCache;
+using OverlayNoOffsetMruCache = EnhancedXyMru<OverlayNoOffsetKey, OverlayNoBlurKey, XyCacheKeyTraits<OverlayNoOffsetKey>>;
 
-typedef EnhancedXyMru<ClipperAlphaMaskCacheKey, SharedPtrGrayImage2, XyCacheKeyTraits<ClipperAlphaMaskCacheKey>> ClipperAlphaMaskMruCache;
+using ClipperAlphaMaskMruCache = EnhancedXyMru<ClipperAlphaMaskCacheKey, SharedPtrGrayImage2, XyCacheKeyTraits<ClipperAlphaMaskCacheKey>>;
 
 class XyBitmap;
-typedef ::boost::shared_ptr<XyBitmap> SharedPtrXyBitmap;
-typedef EnhancedXyMru<std::size_t, SharedPtrXyBitmap> BitmapMruCache;
+using SharedPtrXyBitmap = ::boost::shared_ptr<XyBitmap>;
+using BitmapMruCache = EnhancedXyMru<std::size_t, SharedPtrXyBitmap>;
 
 class CacheManager
 {
@@ -346,6 +344,6 @@ public:
 };
 
 
-typedef XyFlyWeight<GroupedDrawItemsHashKey, CacheManager::BITMAP_MRU_CACHE_ITEM_NUM, XyCacheKeyTraits<GroupedDrawItemsHashKey>> XyFwGroupedDrawItemsHashKey;
+using XyFwGroupedDrawItemsHashKey = XyFlyWeight<GroupedDrawItemsHashKey, CacheManager::BITMAP_MRU_CACHE_ITEM_NUM, XyCacheKeyTraits<GroupedDrawItemsHashKey>>;
 
 #endif // end of __CACHE_MANAGER_H_310C134F_844C_4590_A4D2_AD30165AF10A__

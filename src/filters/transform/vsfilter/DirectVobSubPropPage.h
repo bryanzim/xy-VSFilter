@@ -201,7 +201,7 @@ class __declspec(uuid("C2D6D98F-09CA-4524-AF64-1049B5665C9C")) CDVSColorPPage : 
 
     static const int MAX_COLOR_SPACE{ 256 };
 
-    typedef DirectVobSubXyOptions::ColorSpaceOpt ColorSpaceOpt;
+    using ColorSpaceOpt = DirectVobSubXyOptions::ColorSpaceOpt;
     ColorSpaceOpt* m_outputColorSpace;
     int m_outputColorSpaceCount;
 

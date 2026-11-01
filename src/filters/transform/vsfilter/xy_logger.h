@@ -80,7 +80,7 @@ extern int g_log_once_id;
 #define XY_LOG_ERROR(msg)
 #define XY_LOG_FATAL(msg)
 
-#define CHECK_N_LOG(hr, msg) ((void)(hr))
+#define CHECK_N_LOG(hr, msg) (static_cast<void>((hr)))
 
 #define XY_AUTO_TIMING(msg)
 #define XY_LOG_ONCE(id, msg)

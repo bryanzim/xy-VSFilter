@@ -131,12 +131,12 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
             path.Replace('\\', '/');
 
             l = path.GetLength();
-            if (l > 0 && path[l - 1] != '/')
+            if ((l > 0) && (path[l - 1] != '/'))
             {
                 path += '/';
             }
 
-            if (path.Find(':') == -1 && path.Find(_T("\\\\")) != 0)
+            if (path.Find(':') == -1 && (path.Find(_T("\\\\")) != 0))
             {
                 path = orgpath + path;
             }
@@ -203,7 +203,7 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
         if (wtf.Open(orgpath + title + WEBSUBEXT))
         {
             CString webSubLine;
-            while (wtf.ReadString(webSubLine) && webSubLine.Find(_T("://")) >= 0)
+            while (wtf.ReadString(webSubLine) && (webSubLine.Find(_T("://")) >= 0))
             {
                 SubFile f;
                 f.full_file_name = webSubLine;

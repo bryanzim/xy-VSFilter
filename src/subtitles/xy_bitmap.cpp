@@ -133,11 +133,11 @@ void XyBitmap::AlphaBltPack(SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID
     {
         const BYTE* s2{ src };
         const BYTE* s2end{ s2 + w * 4 };
-        DWORD* d2{ (DWORD*)dst };
+        DWORD* d2{ reinterpret_cast<DWORD*>(dst) };
         for (; s2 < s2end; s2 += 4, ++d2)
         {
             int tmp{ s2[3U] + 1 };
-            *d2 = (((((*d2 & 0x00ff00ff) * tmp) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * tmp) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00);
+            *d2 = (((((*d2 & 0x00ff00ff) * tmp) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * tmp) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x0000ff00)) & 0x0000ff00);
         }
     }
 }
@@ -226,7 +226,7 @@ void XyBitmap::FlipAlphaValue(const LPVOID pixels, const int w, const int h, con
 {
     ASSERT(pixels);
 
-    if (w <= 0 || h <= 0)
+    if ((w <= 0) || (h <= 0))
     {
         return;
     }
@@ -350,7 +350,7 @@ XySubRenderFrame::~XySubRenderFrame()
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmap(const int index, ULONGLONG* id, POINT* position, SIZE* size, LPCVOID* pixels, int* pitch)
 {
-    if (index < 0 || index >= (int)m_bitmaps.GetCount())
+    if ((index < 0) || (index >= static_cast<int>(m_bitmaps.GetCount())))
     {
         return E_INVALIDARG;
     }
@@ -380,13 +380,13 @@ XySubRenderFrame::~XySubRenderFrame()
     TRACE_SUB_RENDER_FRAME(index << " id: " << m_bitmap_ids.GetAt(index)
                                  << " dirty_rect: x " << bitmap.x + m_output_rect.left << ", y " << bitmap.y + m_output_rect.top
                                  << ", w " << bitmap.w << ", h " << bitmap.h
-                                 << " pitch:" << bitmap.pitch << " pixels:" << (void*)bitmap.plans[0U]);
+                                 << " pitch:" << bitmap.pitch << " pixels:" << reinterpret_cast<void*>(bitmap.plans[0U]));
     return S_OK;
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XySubRenderFrame::GetBitmapExtra(const int index, const LPVOID extra_info)
 {
-    if (index < 0 || index >= (int)m_bitmaps.GetCount())
+    if ((index < 0) || (index >= static_cast<int>(m_bitmaps.GetCount())))
     {
         return E_INVALIDARG;
     }
@@ -400,10 +400,10 @@ XySubRenderFrame::~XySubRenderFrame()
         output->plans[2U] = bitmap.plans[2U];
         output->plans[3U] = bitmap.plans[3U];
 
-        TRACE_SUB_RENDER_FRAME(index << " " << (void*)bitmap.plans[0U] << " "
-                                     << (void*)bitmap.plans[1U] << " "
-                                     << (void*)bitmap.plans[2U] << " "
-                                     << (void*)bitmap.plans[3U]);
+        TRACE_SUB_RENDER_FRAME(index << " " << reinterpret_cast<void*>(bitmap.plans[0U]) << " "
+                                     << reinterpret_cast<void*>(bitmap.plans[1U]) << " "
+                                     << reinterpret_cast<void*>(bitmap.plans[2U]) << " "
+                                     << reinterpret_cast<void*>(bitmap.plans[3U]));
     }
     return S_OK;
 }

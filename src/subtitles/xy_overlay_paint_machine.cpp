@@ -86,7 +86,7 @@ void CWordPaintMachine::PaintBody(const SharedPtrCWord& word, const CPointCoor2&
             if (pos != nullptr)
             {
                 *overlay = overlay_cache->GetAt(pos);
-                (void)overlay_cache->UpdateCache(pos);
+                static_cast<void>(overlay_cache->UpdateCache(pos));
             }
         }
         if (!overlay->get())
@@ -107,7 +107,7 @@ void CWordPaintMachine::PaintBody(const SharedPtrCWord& word, const CPointCoor2&
             else
             {
                 *overlay = overlay_cache->GetAt(pos);
-                (void)overlay_cache->UpdateCache(pos);
+                static_cast<void>(overlay_cache->UpdateCache(pos));
             }
             CWord::PaintFromOverlay(p, trans_org2, sub_key, *overlay);
         }

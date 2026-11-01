@@ -91,7 +91,7 @@ namespace xy_logger
     {
         FILE* out_file{ nullptr };
         int rv{ fopen_s(&out_file, filename, "ab") };
-        if (rv != 0 || !out_file)
+        if ((rv != 0) || !out_file)
         {
             XY_LOG_ERROR("Failed to open file: " << filename);
             return;
@@ -116,7 +116,7 @@ namespace xy_logger
             const BYTE* s2end{ s2 + w * 4 };
             for (; s2 < s2end; s2 += 4)
             {
-                axxx << (int)s2[0U] << "," << (int)s2[1U] << "," << (int)s2[2U] << "," << (int)s2[3U] << ",";
+                axxx << static_cast<int>(s2[0U]) << "," << static_cast<int>(s2[1U]) << "," << static_cast<int>(s2[2U]) << "," << static_cast<int>(s2[3U]) << ",";
             }
             axxx << std::endl;
         }
@@ -171,7 +171,7 @@ namespace xy_logger
             else
             {
                 XY_LOG_TRACE(pbmi->biWidth << _T("x") << pbmi->biHeight << _T("x")
-                                           << pbmi->biBitCount << _T(" bit biCompression:") << (char*)&pbmi->biCompression);
+                                           << pbmi->biBitCount << _T(" bit biCompression:") << reinterpret_cast<char*>(&pbmi->biCompression));
             }
 
             XY_LOG_TRACE(_T("Image size       ") << pbmi->biSizeImage);
@@ -225,7 +225,7 @@ namespace xy_logger
 
         IEnumFilters* pFilters;
 
-        XY_LOG_TRACE(_T("Graph: ") << (void*)pGraph);
+        XY_LOG_TRACE(_T("Graph: ") << reinterpret_cast<void*>(pGraph));
 
         if (FAILED(pGraph->EnumFilters(&pFilters)))
         {
@@ -240,7 +240,7 @@ namespace xy_logger
 
             if (FAILED(pFilter->QueryFilterInfo(&info)))
             {
-                XY_LOG_TRACE(_T("    Filter [%") << (void*)pFilter << _T("]  -- failed QueryFilterInfo"));
+                XY_LOG_TRACE(_T("    Filter [%") << reinterpret_cast<void*>(pFilter) << _T("]  -- failed QueryFilterInfo"));
             }
             else
             {
@@ -248,7 +248,7 @@ namespace xy_logger
 
                 // !!! should QueryVendorInfo here!
 
-                XY_LOG_TRACE(_T("    Filter [") << (void*)pFilter << _T("]  '") << info.achName << _T("'"));
+                XY_LOG_TRACE(_T("    Filter [") << reinterpret_cast<void*>(pFilter) << _T("]  '") << info.achName << _T("'"));
 
                 IEnumPins* pins;
 
@@ -265,7 +265,7 @@ namespace xy_logger
 
                         if (FAILED(pPin->QueryPinInfo(&info)))
                         {
-                            XY_LOG_TRACE(_T("          Pin [") << (void*)pPin << _T("]  -- failed QueryPinInfo"));
+                            XY_LOG_TRACE(_T("          Pin [") << reinterpret_cast<void*>(pPin) << _T("]  -- failed QueryPinInfo"));
                         }
                         else
                         {
@@ -279,7 +279,7 @@ namespace xy_logger
                             {
                                 XY_LOG_TRACE(_T("          Pin [") << pPin << _T("] ") << info.achName << _T(" ")
                                                                    << (info.dir == PINDIR_INPUT ? _T("[Input]") : _T("[Output]"))
-                                                                   << _T("  Connected to pin [") << (void*)pPinConnected << _T("]"));
+                                                                   << _T("  Connected to pin [") << reinterpret_cast<void*>(pPinConnected) << _T("]"));
 
                                 pPinConnected->Release();
 

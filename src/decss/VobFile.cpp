@@ -510,9 +510,9 @@ bool CVobFile::Open(CAtlList<CString>& vobs, int offset)
         m_size += f.size;
     }
 
-    if (m_files.GetCount() > 0 && CDVDSession::Open(m_files[0U].fn))
+    if ((m_files.GetCount() > 0) && CDVDSession::Open(m_files[0U].fn))
     {
-        for (int i{ 0 }; !m_fHasTitleKey && i < m_files.GetCount(); ++i)
+        for (int i{ 0 }; !m_fHasTitleKey && (i < m_files.GetCount()); ++i)
         {
             if (BeginSession())
             {
@@ -551,7 +551,7 @@ bool CVobFile::Open(CAtlList<CString>& vobs, int offset)
             }
 
             BYTE key[5U];
-            if (HasTitleKey(key) && i == 0 && offset >= 0)
+            if (HasTitleKey(key) && i == 0 && (offset >= 0))
             {
                 ++i;
 
@@ -639,9 +639,9 @@ int CVobFile::Seek(int pos)
     do
     {
         size += m_files[++i].size;
-    } while (i < m_files.GetCount() && pos >= size);
+    } while ((i < m_files.GetCount()) && (pos >= size));
 
-    if (i != m_iFile && i < m_files.GetCount())
+    if ((i != m_iFile) && (i < m_files.GetCount()))
     {
         if (!m_file.Open(m_files[i].fn))
         {

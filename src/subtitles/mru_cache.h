@@ -16,10 +16,10 @@ template <typename K, typename V, class KTraits = CElementTraits<K>, class VTrai
 class XyAtlMap
 {
 public:
-    typedef typename KTraits::INARGTYPE KINARGTYPE;
-    typedef typename KTraits::OUTARGTYPE KOUTARGTYPE;
-    typedef typename VTraits::INARGTYPE VINARGTYPE;
-    typedef typename VTraits::OUTARGTYPE VOUTARGTYPE;
+    using KINARGTYPE = typename KTraits::INARGTYPE;
+    using KOUTARGTYPE = typename KTraits::OUTARGTYPE;
+    using VINARGTYPE = typename VTraits::INARGTYPE;
+    using VOUTARGTYPE = typename VTraits::OUTARGTYPE;
 
     class CPair : public __POSITION
     {
@@ -304,7 +304,7 @@ UINT XyAtlMap<K, V, KTraits, VTraits>::PickSize(_In_ std::size_t nElements) cons
         5284493, 6658049, 8388617, 10568993, 13316089, UINT_MAX
     };
 
-    std::size_t nBins{ (std::size_t)(nElements / m_fOptimalLoad) };
+    std::size_t nBins{ static_cast<std::size_t>((nElements / m_fOptimalLoad)) };
     UINT nBinsEstimate = UINT(UINT_MAX < nBins ? UINT_MAX : nBins);
 
     // Find the smallest prime greater than our estimate
@@ -566,7 +566,7 @@ void XyAtlMap<K, V, KTraits, VTraits>::RemoveAll()
 
     if (!IsLocked())
     {
-        (void)InitHashTable(PickSize(m_nElements), false);
+        static_cast<void>(InitHashTable(PickSize(m_nElements), false));
     }
 
     FreePlexes();
@@ -1174,7 +1174,7 @@ public:
     [[nodiscard]] inline std::size_t GetCurItemNum() const { return _list.GetCount(); }
 
 protected:
-    typedef std::pair<POSITION, V> ListItem;
+    using ListItem = std::pair<POSITION, V>;
     CAtlList<ListItem> _list;
     XyAtlMap<K, POSITION, KTraits> _hash;
 

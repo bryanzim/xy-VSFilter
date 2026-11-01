@@ -30,8 +30,8 @@
 class DirectVobSubImpl : public IDirectVobSub2, public XyOptionsImpl, public IFilterVersion
 {
 public:
-    typedef XyOptionsImpl::Option Option;
-    typedef DirectVobSubXyOptions::SubStyle SubStyle;
+    using Option = XyOptionsImpl::Option;
+    using SubStyle = DirectVobSubXyOptions::SubStyle;
 
     enum ColorSpaceOption
     {
@@ -58,9 +58,9 @@ public:
     static const int REQUIRED_CONFIG_VERSION{ 706 };
     static const int CUR_SUPPORTED_FILTER_VERSION{ 39 };
 
-    typedef DirectVobSubXyOptions::CachesInfo CachesInfo;
-    typedef DirectVobSubXyOptions::XyFlyWeightInfo XyFlyWeightInfo;
-    typedef DirectVobSubXyOptions::ColorSpaceOpt ColorSpaceOpt;
+    using CachesInfo = DirectVobSubXyOptions::CachesInfo;
+    using XyFlyWeightInfo = DirectVobSubXyOptions::XyFlyWeightInfo;
+    using ColorSpaceOpt = DirectVobSubXyOptions::ColorSpaceOpt;
 
     struct FilterInfo
     {

@@ -95,7 +95,7 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
                 end = mid;
             }
         }
-        for (; start < count && tempSegments[start].bottom <= rect.bottom; ++start)
+        for (; (start < count) && (tempSegments[start].bottom <= rect.bottom); ++start)
         {
             if (tempSegments[start].seg_end < rect.left)
             {
@@ -122,7 +122,7 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
             while (upperPos)
             {
                 CRect& upper_rect{ upper_line.GetPrev(upperPos) };
-                while (upper_rect.right < cur_rect.right || upper_rect.left < cur_rect.left)
+                while ((upper_rect.right < cur_rect.right) || (upper_rect.left < cur_rect.left))
                 {
                     output->AddHead(cur_rect);
                     // if(!cur_line.IsEmpty())

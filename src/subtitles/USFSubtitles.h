@@ -25,54 +25,54 @@
 #include "STS.h"
 
 // metadata
-typedef struct
+using author_t = struct
 {
     CStringW name, email, url;
-} author_t;
-typedef struct
+};
+using language_t = struct
 {
     CStringW code, text;
-} language_t;
-typedef struct
+};
+using metadata_t = struct
 {
     CStringW title, date, comment;
     author_t author;
     language_t language, languageext;
-} metadata_t;
+};
 // style
-typedef struct
+using posattriblist_t = struct
 {
     CStringW alignment, relativeto, horizontal_margin, vertical_margin, rotate[3U];
-} posattriblist_t;
-typedef struct
+};
+using fontstyle_t = struct
 {
     CStringW face, size, color[4U], weight, italic, underline, alpha, outline, shadow, wrap;
-} fontstyle_t;
-typedef struct
+};
+using style_t = struct
 {
     CStringW name;
     fontstyle_t fontstyle;
     posattriblist_t pal;
-} style_t;
+};
 // effect
-typedef struct
+using keyframe_t = struct
 {
     CStringW position;
     fontstyle_t fontstyle;
     posattriblist_t pal;
-} keyframe_t;
-typedef struct
+};
+using effect_t = struct
 {
     CStringW name;
     CAutoPtrList<keyframe_t> keyframes;
-} effect_t;
+};
 // subtitle/text
-typedef struct
+using text_t = struct
 {
     int start, stop;
     CStringW effect, style, str;
     posattriblist_t pal;
-} text_t;
+};
 
 class CUSFSubtitles
 {

@@ -218,11 +218,11 @@ SimpleSubpic::~SimpleSubpic()
             {
                 if (s2[3U] < 0xff)
                 {
-                    DWORD bd{ 0x00000100 - ((DWORD)s2[3U]) };
-                    DWORD B{ ((*((DWORD*)s2) & 0x000000ff) << 8) / bd };
-                    DWORD V{ ((*((DWORD*)s2) & 0x0000ff00) / bd) << 8 };
-                    DWORD R{ (((*((DWORD*)s2) & 0x00ff0000) >> 8) / bd) << 16 };
-                    *d2 = B | V | R | ((0xff000000 - (*((DWORD*)s2) & 0xff000000)) & 0xff000000);
+                    DWORD bd{ 0x00000100 - (static_cast<DWORD>(s2[3U])) };
+                    DWORD B{ ((*(reinterpret_cast<const DWORD*>(s2)) & 0x000000ff) << 8) / bd };
+                    DWORD V{ ((*(reinterpret_cast<const DWORD*>(s2)) & 0x0000ff00) / bd) << 8 };
+                    DWORD R{ (((*(reinterpret_cast<const DWORD*>(s2)) & 0x00ff0000) >> 8) / bd) << 16 };
+                    *d2 = B | V | R | ((0xff000000 - (*(reinterpret_cast<const DWORD*>(s2)) & 0xff000000)) & 0xff000000);
                 }
             }
         }
@@ -232,12 +232,12 @@ SimpleSubpic::~SimpleSubpic()
         {
             const BYTE* s2{ s };
             const BYTE* s2end{ s2 + w * 4 };
-            DWORD* d2{ (DWORD*)d };
+            DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0xff)
                 {
-                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00);
+                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x0000ff00)) & 0x0000ff00);
                 }
             }
         }
@@ -247,12 +247,12 @@ SimpleSubpic::~SimpleSubpic()
         {
             const BYTE* s2{ s };
             const BYTE* s2end{ s2 + w * 4 };
-            DWORD* d2{ (DWORD*)d };
+            DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0xff)
                 {
-                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*((DWORD*)s2) & 0x0000ff00)) & 0x0000ff00) | (*d2 & 0xff000000);
+                    *d2 = (((((*d2 & 0x00ff00ff) * s2[3U]) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x00ff00ff)) & 0x00ff00ff) | (((((*d2 & 0x0000ff00) * s2[3U]) >> 8) + (*(reinterpret_cast<const DWORD*>(s2)) & 0x0000ff00)) & 0x0000ff00) | (*d2 & 0xff000000);
                 }
             }
         }
@@ -284,7 +284,7 @@ SimpleSubpic::~SimpleSubpic()
             {
                 if (s2[3U] < 0x1f)
                 {
-                    *d2 = (WORD)((((((*d2 & 0xf81f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0xf81f)) & 0xf81f) | (((((*d2 & 0x07e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x07e0)) & 0x07e0));
+                    *d2 = static_cast<WORD>(((((((*d2 & 0xf81f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0xf81f)) & 0xf81f) | (((((*d2 & 0x07e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x07e0)) & 0x07e0)));
                     /*					*d2 = (WORD)((((((*d2&0xf800)*s2[3])>>8) + (*(DWORD*)s2&0xf800))&0xf800)
                     | (((((*d2&0x07e0)*s2[3])>>8) + (*(DWORD*)s2&0x07e0))&0x07e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -303,7 +303,7 @@ SimpleSubpic::~SimpleSubpic()
             {
                 if (s2[3U] < 0x1f)
                 {
-                    *d2 = (WORD)((((((*d2 & 0x7c1f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x7c1f)) & 0x7c1f) | (((((*d2 & 0x03e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x03e0)) & 0x03e0));
+                    *d2 = static_cast<WORD>(((((((*d2 & 0x7c1f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x7c1f)) & 0x7c1f) | (((((*d2 & 0x03e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x03e0)) & 0x03e0)));
                     /*					*d2 = (WORD)((((((*d2&0x7c00)*s2[3])>>8) + (*(DWORD*)s2&0x7c00))&0x7c00)
                     | (((((*d2&0x03e0)*s2[3])>>8) + (*(DWORD*)s2&0x03e0))&0x03e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -494,7 +494,7 @@ SimpleSubpic::~SimpleSubpic()
         }
 
         int w{ bitmap.size.cx }, h = bitmap.size.cy;
-        if (w <= 0 || h <= 0)
+        if ((w <= 0) || (h <= 0))
         {
             continue;
         }
@@ -610,7 +610,7 @@ void SimpleSubpic::SubsampleAndInterlace(const int index, Bitmap* bitmap, const 
 
     // Todo: fix me.
     // Walkarround for alignment
-    if (((bitmap->pitch | (std::intptr_t)u_start | (std::intptr_t)v_start) & 15) == 0)
+    if (((bitmap->pitch | reinterpret_cast<std::intptr_t>(u_start) | reinterpret_cast<std::intptr_t>(v_start)) & 15) == 0)
     {
         for (int i{ 0 }; i < h; i += 2)
         {
@@ -656,7 +656,7 @@ void SimpleSubpic::SubsampleAndInterlace422(const int index, Bitmap* bitmap, con
 
     // Todo: fix me.
     // Walkarround for alignment
-    if (((bitmap->pitch | (std::intptr_t)u_start | (std::intptr_t)v_start) & 15) == 0)
+    if (((bitmap->pitch | reinterpret_cast<std::intptr_t>(u_start) | reinterpret_cast<std::intptr_t>(v_start)) & 15) == 0)
     {
         for (int i{ 0 }; i < h; i += 1)
         {

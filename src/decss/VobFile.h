@@ -63,11 +63,11 @@ public:
 class CVobFile : public CDVDSession
 {
     // all files
-    typedef struct
+    using file_t = struct
     {
         CString fn;
         int size;
-    } file_t;
+    };
     CAtlArray<file_t> m_files;
     int m_iFile;
     int m_pos, m_size, m_offset;

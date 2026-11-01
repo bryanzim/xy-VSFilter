@@ -67,7 +67,7 @@ namespace ssf
 
     void File::ParseDefs(InputStream& s, Reference* pParentRef)
     {
-        while (s.SkipWhiteSpace(L";") != '}' && s.PeekChar() != Stream::EOS)
+        while (s.SkipWhiteSpace(L";") != '}' && (s.PeekChar() != Stream::EOS))
         {
             NodePriority priority = PNormal;
             CAtlList<CStringW> types;
@@ -204,7 +204,7 @@ namespace ssf
         CStringW v;
 
         int quote = s.SkipWhiteSpace();
-        if (quote != '"' && quote != '\'')
+        if ((quote != '"') && (quote != '\''))
         {
             s.ThrowError(_T("expected qouted string"));
         }
@@ -242,9 +242,9 @@ namespace ssf
 
         for (int c = s.SkipWhiteSpace(); iswxdigit(static_cast<wint_t>(c)) || std::wcschr(L"+-.x:", c); c = s.PeekChar())
         {
-            if (((c == '+' || c == '-') && !v.IsEmpty()) || (c == '.' && (v.IsEmpty() || v.Find('.') >= 0 || v.Find('x') >= 0)) || (c == 'x' && v != '0') || (((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) && v.Find(L"0x") != 0) || (c == ':' && v.IsEmpty()))
+            if (((c == '+' || c == '-') && !v.IsEmpty()) || (c == '.' && (v.IsEmpty() || (v.Find('.') >= 0) || (v.Find('x') >= 0))) || (c == 'x' && (v != '0')) || ((((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F'))) && (v.Find(L"0x") != 0)) || (c == ':' && v.IsEmpty()))
             {
-                s.ThrowError(_T("unexpected character '%c' in number"), (TCHAR)c);
+                s.ThrowError(_T("unexpected character '%c' in number"), static_cast<TCHAR>(c));
             }
 
             v += static_cast<WCHAR>(s.GetChar());
@@ -343,12 +343,12 @@ namespace ssf
 
                 pParentDef->AddTail(pDef);
             }
-            else if (!std::wcschr(term, static_cast<wchar_t>(c)) && c != Stream::EOS)
+            else if (!std::wcschr(term, static_cast<wchar_t>(c)) && (c != Stream::EOS))
             {
-                s.ThrowError(_T("unexpected character '%c'"), (TCHAR)c);
+                s.ThrowError(_T("unexpected character '%c'"), static_cast<TCHAR>(c));
             }
 
             c = s.SkipWhiteSpace();
-        } while (!std::wcschr(term, static_cast<wchar_t>(c)) && c != Stream::EOS);
+        } while (!std::wcschr(term, static_cast<wchar_t>(c)) && (c != Stream::EOS));
     }
 }

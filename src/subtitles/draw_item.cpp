@@ -158,11 +158,11 @@ struct CompositeDrawItemEx
 };
 
 
-typedef CAtlList<CompositeDrawItemEx*> PCompositeDrawItemExList;
-typedef CAtlArray<CompositeDrawItemEx> CompositeDrawItemExVec;
-typedef CAtlArray<CompositeDrawItemExVec> CompositeDrawItemExTree;
+using PCompositeDrawItemExList = CAtlList<CompositeDrawItemEx*>;
+using CompositeDrawItemExVec = CAtlArray<CompositeDrawItemEx>;
+using CompositeDrawItemExTree = CAtlArray<CompositeDrawItemExVec>;
 
-typedef ::boost::shared_ptr<PCompositeDrawItemExList> SharedPCompositeDrawItemExList;
+using SharedPCompositeDrawItemExList = ::boost::shared_ptr<PCompositeDrawItemExList>;
 
 class XyRectEx : public CRect
 {
@@ -183,7 +183,7 @@ public:
     }
 };
 
-typedef CAtlList<XyRectEx> XyRectExList;
+using XyRectExList = CAtlList<XyRectEx>;
 
 void MergeRects(const XyRectExList& input, XyRectExList* output);
 void CreateDrawItemExTree(CompositeDrawItemListList& input,
@@ -293,7 +293,7 @@ void CreateDrawItemExTree(CompositeDrawItemListList& input,
                           CompositeDrawItemExTree* out_draw_item_ex_tree,
                           XyRectExList* out_rect_ex_list)
 {
-    ASSERT((out_draw_item_ex_tree != nullptr && out_rect_ex_list != nullptr));
+    ASSERT(((out_draw_item_ex_tree != nullptr) && (out_rect_ex_list != nullptr)));
 
     int list_count = input.GetCount();
     out_draw_item_ex_tree->SetCount(list_count);
@@ -328,7 +328,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
         return;
     }
 
-    typedef CAtlList<XyRectEx> Segment;
+    using Segment = CAtlList<XyRectEx>;
 
     struct BreakPoint
     {
@@ -433,7 +433,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
             while (upperPos)
             {
                 XyRectEx& upper_rect{ upper_line.GetPrev(upperPos) };
-                while (upper_rect.right < cur_rect->right || upper_rect.left < cur_rect->left)
+                while ((upper_rect.right < cur_rect->right) || (upper_rect.left < cur_rect->left))
                 {
                     output->AddHead(*cur_rect);
                     // if(!cur_line.IsEmpty())
@@ -503,10 +503,10 @@ void DecideDrawMethod(CompositeDrawItemListList& compDrawItemListList, XyRectExL
                 ++not_lowest2;
                 if (!*not_lowest2)
                 {
-                    if (!(rect_ex.left >= rect_ex2.right ||
-                          rect_ex.right <= rect_ex2.left ||
-                          rect_ex.top >= rect_ex2.bottom ||
-                          rect_ex.bottom <= rect_ex2.top))
+                    if (!((rect_ex.left >= rect_ex2.right) ||
+                          (rect_ex.right <= rect_ex2.left) ||
+                          (rect_ex.top >= rect_ex2.bottom) ||
+                          (rect_ex.bottom <= rect_ex2.top)))
                     {
                         *not_lowest2 = true;
                     }
@@ -559,12 +559,11 @@ void GroupedDrawItems::Draw(SharedPtrXyBitmap* bitmap, int* bitmap_identity_num)
         while (itemPos)
         {
             DrawItem& item{ *draw_item_list.GetNext(itemPos) };
-            (void)DrawItem::Draw(tmp, item, clip_rect);
+            static_cast<void>(DrawItem::Draw(tmp, item, clip_rect));
         }
         XyColorSpace color_space;
-        HRESULT hr{ XySubRenderFrameCreater::GetDefaultCreater()->GetColorSpace(&color_space) };
+        [[maybe_unused]] HRESULT hr{ XySubRenderFrameCreater::GetDefaultCreater()->GetColorSpace(&color_space) };
         ASSERT(SUCCEEDED(hr));
-        (void)hr;
         if (color_space == XY_CS_ARGB_F)
         {
             XyBitmap::FlipAlphaValue(tmp->bits, tmp->w, tmp->h, tmp->pitch);
@@ -572,18 +571,18 @@ void GroupedDrawItems::Draw(SharedPtrXyBitmap* bitmap, int* bitmap_identity_num)
 #ifdef XY_DBG_SHOW_BITMAP_BOX_IN_COLOR
         if (color_space == XY_CS_ARGB_F || color_space == XY_CS_ARGB) // not support plannar format yet
         {
-            if (tmp->w > 0 && tmp->h > 0)
+            if ((tmp->w > 0) && (tmp->h > 0))
             {
                 DWORD color{ color_space == XY_CS_ARGB_F ? (0xff000000 | XY_DBG_SHOW_BITMAP_BOX_IN_COLOR)
                                                          : (0x00ffffff & XY_DBG_SHOW_BITMAP_BOX_IN_COLOR) };
-                BYTE* pixel{ (BYTE*)tmp->bits };
+                BYTE* pixel{ reinterpret_cast<BYTE*>(tmp->bits) };
                 memsetd(pixel, color, tmp->w * 4);
                 int i{ 1 };
                 for (; i < tmp->h - 1; ++i)
                 {
                     pixel += tmp->pitch;
-                    *(DWORD*)pixel = color;
-                    *((DWORD*)pixel + tmp->w - 1) = color;
+                    *reinterpret_cast<DWORD*>(pixel) = color;
+                    *(reinterpret_cast<DWORD*>(pixel) + tmp->w - 1) = color;
                 }
                 if (i < tmp->h)
                 {
@@ -598,7 +597,7 @@ void GroupedDrawItems::Draw(SharedPtrXyBitmap* bitmap, int* bitmap_identity_num)
     else
     {
         *bitmap = bitmap_cache->GetAt(pos);
-        (void)bitmap_cache->UpdateCache(pos);
+        static_cast<void>(bitmap_cache->UpdateCache(pos));
     }
     *bitmap_identity_num = key_id;
 }

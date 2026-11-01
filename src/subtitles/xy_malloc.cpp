@@ -20,16 +20,16 @@ std::size_t g_xy_malloc_used_size{ 0U };
     std::uint8_t* buf;
     std::uint8_t* align_buf;
     align_shift &= MASK;
-    buf = (std::uint8_t*)std::malloc(i_size + MASK + sizeof(void**) +
-                                     sizeof(i_size));
+    buf = reinterpret_cast<std::uint8_t*>(std::malloc(i_size + MASK + sizeof(void**) +
+                                                      sizeof(i_size)));
     if (!buf)
     {
         return nullptr;
     }
     align_buf = buf + MASK + sizeof(void**) + sizeof(i_size);
-    align_buf -= (ALIGNMENT + ((std::intptr_t)align_buf & MASK) - align_shift) & MASK;
-    *((void**)(align_buf - sizeof(void**))) = buf;
-    *((std::size_t*)(align_buf - sizeof(void**) - sizeof(i_size))) = i_size;
+    align_buf -= (ALIGNMENT + (reinterpret_cast<std::intptr_t>(align_buf) & MASK) - align_shift) & MASK;
+    *reinterpret_cast<void**>(align_buf - sizeof(void**)) = buf;
+    *reinterpret_cast<std::size_t*>(align_buf - sizeof(void**) - sizeof(i_size)) = i_size;
     g_xy_malloc_used_size += i_size;
     return align_buf;
 }
@@ -42,9 +42,8 @@ void xy_free(void* p)
 {
     if (p)
     {
-        g_xy_malloc_used_size -= *((std::size_t*)((std::uint8_t*)p - sizeof(void**) -
-                                                  sizeof(std::size_t)));
-        std::free(*(((void**)p) - 1));
+        g_xy_malloc_used_size -= *reinterpret_cast<std::size_t*>(reinterpret_cast<std::uint8_t*>(p) - sizeof(void**) - sizeof(std::size_t));
+        std::free(*(reinterpret_cast<void**>(p) - 1));
     }
 }
 
@@ -55,11 +54,10 @@ void xy_free(void* p)
 {
     std::size_t i_old_size{ 0U };
     std::uint8_t* p_new{ nullptr };
-    p_new = (std::uint8_t*)xy_malloc(i_size, align_shift);
+    p_new = reinterpret_cast<std::uint8_t*>(xy_malloc(i_size, align_shift));
     if (p_new && p)
     {
-        i_old_size = *((std::size_t*)((std::uint8_t*)p - sizeof(void**) -
-                                      sizeof(i_size)));
+        i_old_size = *reinterpret_cast<std::size_t*>(reinterpret_cast<std::uint8_t*>(p) - sizeof(void**) - sizeof(i_size));
         std::memcpy(p_new, p, (i_old_size < i_size) ? i_old_size : i_size);
         xy_free(p);
     }

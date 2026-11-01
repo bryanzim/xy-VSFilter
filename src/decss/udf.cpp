@@ -28,17 +28,17 @@ static bool aspi_ReadSectors(const HANDLE hDrive, int lba, int nSectors, DWORD s
 
 [[nodiscard]] static bool udf_RangeContains(const BYTE* base, const DWORD bytes, const BYTE* ptr, const DWORD need)
 {
-    if (base == nullptr || ptr < base)
+    if (base == nullptr || (ptr < base))
     {
         return false;
     }
     const DWORD offset{ static_cast<DWORD>(ptr - base) };
-    return offset <= bytes && need <= bytes - offset;
+    return (offset <= bytes) && (need <= bytes - offset);
 }
 
 [[nodiscard]] static bool udf_GetLBA(const tp_udf_FileEntry fe, const DWORD sec_size, const DWORD sectorBytes, DWORD* start, DWORD* end)
 {
-    if (fe == nullptr || sec_size == 0U || sectorBytes < sizeof(t_udf_FileEntry) || fe->LengthofAllocationDescriptors == 0U)
+    if (fe == nullptr || sec_size == 0U || (sectorBytes < sizeof(t_udf_FileEntry)) || fe->LengthofAllocationDescriptors == 0U)
     {
         return false;
     }
@@ -64,7 +64,7 @@ static bool aspi_ReadSectors(const HANDLE hDrive, int lba, int nSectors, DWORD s
     }
 
     const DWORD header{ static_cast<DWORD>(offsetof(t_udf_FileEntry, ExtendedAttributes)) };
-    if (fe->LengthofExtendedAttributes > sectorBytes - header || adSize > sectorBytes - header - fe->LengthofExtendedAttributes)
+    if ((fe->LengthofExtendedAttributes > sectorBytes - header) || (adSize > sectorBytes - header - fe->LengthofExtendedAttributes))
     {
         return false;
     }
@@ -127,17 +127,17 @@ tp_udf_file udf_get_root(const HANDLE hDrive, const WORD partition_number)
         return nullptr;
     }
 
-    if (sec_size != fio_SECTOR_SIZE || max_sec < 256)
+    if ((sec_size != fio_SECTOR_SIZE) || (max_sec < 256))
     {
         return nullptr;
     }
 
     // read AnchorVolumeDescriptorPointer at 256 (or MaxSec) (Tag == 2)
     res = aspi_ReadSectors(hDrive, 256, 1, sec_size, sector);
-    if (!res || tag->TagIdentifier != udf_TAG_AnchorVolumeDescriptor)
+    if (!res || (tag->TagIdentifier != udf_TAG_AnchorVolumeDescriptor))
     {
         res = aspi_ReadSectors(hDrive, max_sec, 1, sec_size, sector);
-        if (!res || tag->TagIdentifier != udf_TAG_AnchorVolumeDescriptor)
+        if (!res || (tag->TagIdentifier != udf_TAG_AnchorVolumeDescriptor))
         {
             return nullptr;
         }
@@ -191,7 +191,7 @@ tp_udf_file udf_get_root(const HANDLE hDrive, const WORD partition_number)
             {
                 tag->TagIdentifier = 0;
             }
-        } while (j <= MVDS_lba_end && tag->TagIdentifier != udf_TAG_TerminatingDescriptor && ((!part_valid) || (!vol_valid)));
+        } while ((j <= MVDS_lba_end) && (tag->TagIdentifier != udf_TAG_TerminatingDescriptor) && ((!part_valid) || (!vol_valid)));
 
         if ((!part_valid) || (!vol_valid))
         { // try backup
@@ -258,7 +258,7 @@ static void udf_GetName(const BYTE* data, const DWORD len, char* target)
     { // ignore MSB of unicode16
         ++p;
 
-        while (p < len && i < cap)
+        while ((p < len) && (i < cap))
         {
             p += 2U;
             if (p >= len)
@@ -270,7 +270,7 @@ static void udf_GetName(const BYTE* data, const DWORD len, char* target)
     }
     else
     {
-        while (p < len && i < cap)
+        while ((p < len) && (i < cap))
         {
             target[i++] = data[p++];
         }
@@ -328,7 +328,7 @@ tp_udf_file udf_get_next(const HANDLE hDrive, tp_udf_file f)
 
     if (f->fid)
     { // advance to next FileIdentifierDescriptor
-        const DWORD dirBytes{ f->sec_size == 0U || f->dir_end_lba < f->dir_lba || (f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size)
+        const DWORD dirBytes{ f->sec_size == 0U || (f->dir_end_lba < f->dir_lba) || ((f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size))
                                   ? 0U
                                   : f->sec_size * (f->dir_end_lba - f->dir_lba + 1U) };
         const BYTE* fidBytes{ reinterpret_cast<const BYTE*>(f->fid) };
@@ -356,7 +356,7 @@ tp_udf_file udf_get_next(const HANDLE hDrive, tp_udf_file f)
 
     if (f->fid == nullptr)
     {
-        if (f->sec_size == 0U || f->dir_end_lba < f->dir_lba || (f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size))
+        if (f->sec_size == 0U || (f->dir_end_lba < f->dir_lba) || ((f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size)))
         {
             f->fid = nullptr;
             return nullptr;
@@ -468,7 +468,7 @@ tp_udf_file udf_find_file(const HANDLE hDrive, const WORD partition, const char*
         char tokenline[udf_MAX_PATHLEN];
         char* token;
 
-        if (name == nullptr || std::strlen(name) >= udf_MAX_PATHLEN)
+        if (name == nullptr || (std::strlen(name) >= udf_MAX_PATHLEN))
         {
             udf_free(f);
             return nullptr;

@@ -359,16 +359,16 @@ CBaseVideoFilter::~CBaseVideoFilter()
     int h_org{ m_h };
 
     bool fForceReconnection{ false };
-    if (w != m_w || h != m_h)
+    if ((w != m_w) || (h != m_h))
     {
         fForceReconnection = true;
         m_w = w;
         m_h = h;
     }
 
-    HRESULT hr{ S_OK };
+    [[maybe_unused]] HRESULT hr{ S_OK };
 
-    if (fForceReconnection || static_cast<DWORD>(m_w) != m_wout || static_cast<DWORD>(m_h) != m_hout || static_cast<DWORD>(m_arx) != m_arxout || static_cast<DWORD>(m_ary) != m_aryout)
+    if (fForceReconnection || (static_cast<DWORD>(m_w) != m_wout) || (static_cast<DWORD>(m_h) != m_hout) || (static_cast<DWORD>(m_arx) != m_arxout) || (static_cast<DWORD>(m_ary) != m_aryout))
     {
         if (GetCLSID(m_pOutput->GetConnected()) == CLSID_VideoRenderer)
         {
@@ -403,7 +403,6 @@ CBaseVideoFilter::~CBaseVideoFilter()
 
         hr = m_pOutput->GetConnected()->QueryAccept(&mt);
         ASSERT(SUCCEEDED(hr)); // should better not fail, after all "mt" is the current media type, just with a different resolution
-        (void)hr;
         HRESULT hr1{ 0 }, hr2 = 0;
         CComPtr<IMediaSample> pOut;
         if (SUCCEEDED(hr1 = m_pOutput->GetConnected()->ReceiveConnection(m_pOutput, &mt)) && SUCCEEDED(hr2 = m_pOutput->GetDeliveryBuffer(&pOut, nullptr, nullptr, 0)))
@@ -452,7 +451,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 [[nodiscard]] HRESULT CBaseVideoFilter::CopyBuffer(BYTE* pOut, BYTE** ppIn, const int w, int h, int pitchIn, const GUID& subtype, const bool fInterlaced)
 {
     BITMAPINFOHEADER bihOut;
-    (void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
+    static_cast<void>(ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut));
 
     int pitchOut{ 0 };
 
@@ -534,16 +533,16 @@ CBaseVideoFilter::~CBaseVideoFilter()
         {
             if (!fInterlaced)
             {
-                (void)BitBltFromI420ToYUY2(w, h, pOut, bihOut.biWidth * 2, pIn, pInU, pInV, pitchIn);
+                static_cast<void>(BitBltFromI420ToYUY2(w, h, pOut, bihOut.biWidth * 2, pIn, pInU, pInV, pitchIn));
             }
             else
             {
-                (void)BitBltFromI420ToYUY2Interlaced(w, h, pOut, bihOut.biWidth * 2, pIn, pInU, pInV, pitchIn);
+                static_cast<void>(BitBltFromI420ToYUY2Interlaced(w, h, pOut, bihOut.biWidth * 2, pIn, pInU, pInV, pitchIn));
             }
         }
         else if (bihOut.biCompression == '024I' || bihOut.biCompression == 'VUYI' || bihOut.biCompression == '21VY')
         {
-            (void)BitBltFromI420ToI420(w, h, pOut, pOutU, pOutV, bihOut.biWidth, pIn, pInU, pInV, pitchIn);
+            static_cast<void>(BitBltFromI420ToI420(w, h, pOut, pOutU, pOutV, bihOut.biWidth, pIn, pInU, pInV, pitchIn));
         }
         else if (bihOut.biCompression == BI_RGB || bihOut.biCompression == BI_BITFIELDS)
         {
@@ -562,7 +561,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
         {
             return VFW_E_TYPE_NOT_ACCEPTED;
         }
-        (void)BitBltFromP010ToP010(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn);
+        static_cast<void>(BitBltFromP010ToP010(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn));
     }
     else if (subtype == MEDIASUBTYPE_P210 || subtype == MEDIASUBTYPE_P216)
     {
@@ -570,7 +569,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
         {
             return VFW_E_TYPE_NOT_ACCEPTED;
         }
-        (void)BitBltFromP210ToP210(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn);
+        static_cast<void>(BitBltFromP210ToP210(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn));
     }
     else if (subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21)
     {
@@ -578,13 +577,13 @@ CBaseVideoFilter::~CBaseVideoFilter()
         {
             return VFW_E_TYPE_NOT_ACCEPTED;
         }
-        (void)BitBltFromNV12ToNV12(w, h, pOut, bihOut.biWidth, ppIn[0U], pitchIn);
+        static_cast<void>(BitBltFromNV12ToNV12(w, h, pOut, bihOut.biWidth, ppIn[0U], pitchIn));
     }
     else if (subtype == MEDIASUBTYPE_YUY2)
     {
         if (bihOut.biCompression == '2YUY')
         {
-            (void)BitBltFromYUY2ToYUY2(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn);
+            static_cast<void>(BitBltFromYUY2ToYUY2(w, h, pOut, bihOut.biWidth * 2, ppIn[0U], pitchIn));
         }
         else if (bihOut.biCompression == BI_RGB || bihOut.biCompression == BI_BITFIELDS)
         {
@@ -631,37 +630,37 @@ CBaseVideoFilter::~CBaseVideoFilter()
 [[nodiscard]] HRESULT CBaseVideoFilter::CheckInputType(const CMediaType* mtIn)
 {
     BITMAPINFOHEADER bih;
-    (void)ExtractBIH(mtIn, &bih);
+    static_cast<void>(ExtractBIH(mtIn, &bih));
 
-    return mtIn->majortype == MEDIATYPE_Video && GetInputSubtypePosition(mtIn->subtype) != -1 && (mtIn->formattype == FORMAT_VideoInfo || mtIn->formattype == FORMAT_VideoInfo2) && bih.biWidth > 0 && bih.biHeight != 0
+    return mtIn->majortype == MEDIATYPE_Video && (GetInputSubtypePosition(mtIn->subtype) != -1) && (mtIn->formattype == FORMAT_VideoInfo || mtIn->formattype == FORMAT_VideoInfo2) && (bih.biWidth > 0) && (bih.biHeight != 0)
                ? S_OK
                : VFW_E_TYPE_NOT_ACCEPTED;
 }
 
 [[nodiscard]] HRESULT CBaseVideoFilter::CheckTransform(const CMediaType* mtIn, const CMediaType* mtOut)
 {
-    if (GetInputSubtypePosition(mtIn->subtype) < 0 || GetOutputSubtypePosition(mtOut->subtype) < 0)
+    if ((GetInputSubtypePosition(mtIn->subtype) < 0) || (GetOutputSubtypePosition(mtOut->subtype) < 0))
     {
         return VFW_E_TYPE_NOT_ACCEPTED;
     }
     bool can_transform{ true };
     if (mtIn->subtype == MEDIASUBTYPE_YV12 || mtIn->subtype == MEDIASUBTYPE_I420 || mtIn->subtype == MEDIASUBTYPE_IYUV)
     {
-        if (mtOut->subtype != MEDIASUBTYPE_YV12 && mtOut->subtype != MEDIASUBTYPE_I420 && mtOut->subtype != MEDIASUBTYPE_IYUV && mtOut->subtype != MEDIASUBTYPE_YUY2 && mtOut->subtype != MEDIASUBTYPE_ARGB32 && mtOut->subtype != MEDIASUBTYPE_RGB32 && mtOut->subtype != MEDIASUBTYPE_RGB24 && mtOut->subtype != MEDIASUBTYPE_RGB565)
+        if ((mtOut->subtype != MEDIASUBTYPE_YV12) && (mtOut->subtype != MEDIASUBTYPE_I420) && (mtOut->subtype != MEDIASUBTYPE_IYUV) && (mtOut->subtype != MEDIASUBTYPE_YUY2) && (mtOut->subtype != MEDIASUBTYPE_ARGB32) && (mtOut->subtype != MEDIASUBTYPE_RGB32) && (mtOut->subtype != MEDIASUBTYPE_RGB24) && (mtOut->subtype != MEDIASUBTYPE_RGB565))
         {
             can_transform = false;
         }
     }
     else if (mtIn->subtype == MEDIASUBTYPE_YUY2)
     {
-        if (mtOut->subtype != MEDIASUBTYPE_YUY2 && mtOut->subtype != MEDIASUBTYPE_ARGB32 && mtOut->subtype != MEDIASUBTYPE_RGB32 && mtOut->subtype != MEDIASUBTYPE_RGB24 && mtOut->subtype != MEDIASUBTYPE_RGB565)
+        if ((mtOut->subtype != MEDIASUBTYPE_YUY2) && (mtOut->subtype != MEDIASUBTYPE_ARGB32) && (mtOut->subtype != MEDIASUBTYPE_RGB32) && (mtOut->subtype != MEDIASUBTYPE_RGB24) && (mtOut->subtype != MEDIASUBTYPE_RGB565))
         {
             can_transform = false;
         }
     }
     else if (mtIn->subtype == MEDIASUBTYPE_ARGB32 || mtIn->subtype == MEDIASUBTYPE_RGB32 || mtIn->subtype == MEDIASUBTYPE_RGB24 || mtIn->subtype == MEDIASUBTYPE_RGB565)
     {
-        if (mtOut->subtype != MEDIASUBTYPE_ARGB32 && mtOut->subtype != MEDIASUBTYPE_RGB32 && mtOut->subtype != MEDIASUBTYPE_RGB24 && mtOut->subtype != MEDIASUBTYPE_RGB565)
+        if ((mtOut->subtype != MEDIASUBTYPE_ARGB32) && (mtOut->subtype != MEDIASUBTYPE_RGB32) && (mtOut->subtype != MEDIASUBTYPE_RGB24) && (mtOut->subtype != MEDIASUBTYPE_RGB565))
         {
             can_transform = false;
         }
@@ -726,7 +725,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
 {
     int wout{ 0 }, hout = 0, arxout = 0, aryout = 0;
     CMediaType& mt{ m_pOutput->CurrentMediaType() };
-    return ExtractDim(&mtOut, wout, hout, arxout, aryout) && m_h == std::abs((int)hout) && mtOut.subtype != MEDIASUBTYPE_ARGB32 && mtOut.subtype == mt.subtype && GetOutputSubtypePosition(mtOut.subtype) != -1
+    return ExtractDim(&mtOut, wout, hout, arxout, aryout) && m_h == std::abs(static_cast<int>(hout)) && (mtOut.subtype != MEDIASUBTYPE_ARGB32) && mtOut.subtype == mt.subtype && (GetOutputSubtypePosition(mtOut.subtype) != -1)
                ? S_OK
                : VFW_E_TYPE_NOT_ACCEPTED;
 }
@@ -739,7 +738,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
     }
 
     BITMAPINFOHEADER bih;
-    (void)ExtractBIH(&m_pOutput->CurrentMediaType(), &bih);
+    static_cast<void>(ExtractBIH(&m_pOutput->CurrentMediaType(), &bih));
 
     pProperties->cBuffers = m_cBuffers;
     pProperties->cbBuffer = bih.biSizeImage;
@@ -753,7 +752,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
         return hr;
     }
 
-    return pProperties->cBuffers > Actual.cBuffers || pProperties->cbBuffer > Actual.cbBuffer
+    return (pProperties->cBuffers > Actual.cBuffers) || (pProperties->cbBuffer > Actual.cbBuffer)
                ? E_FAIL
                : NOERROR;
 }
@@ -892,7 +891,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
     if (dir == PINDIR_INPUT)
     {
         m_w = m_h = m_arx = m_ary = 0;
-        (void)ExtractDim(pmt, m_w, m_h, m_arx, m_ary);
+        static_cast<void>(ExtractDim(pmt, m_w, m_h, m_arx, m_ary));
         m_win = m_w;
         m_hin = m_h;
         m_arxin = m_arx;
@@ -914,7 +913,7 @@ CBaseVideoFilter::~CBaseVideoFilter()
     else if (dir == PINDIR_OUTPUT)
     {
         int wout{ 0 }, hout = 0, arxout = 0, aryout = 0;
-        (void)ExtractDim(pmt, wout, hout, arxout, aryout);
+        static_cast<void>(ExtractDim(pmt, wout, hout, arxout, aryout));
         if (m_w == wout && m_h == hout && m_arx == arxout && m_ary == aryout)
         {
             m_wout = wout;
@@ -1026,7 +1025,7 @@ void CBaseVideoFilter::GetOutputColorspaces(ColorSpaceId* preferredOrder, UINT* 
         ASSERT(pMediaType);
 
         ColorSpaceId pos{ Subtype2OutputColorSpaceId(pMediaType->subtype, 0) };
-        while (pos >= 0 && static_cast<UINT>(pos) < count)
+        while ((pos >= 0) && (static_cast<UINT>(pos) < count))
         {
             priorities[pos] = priority;
             --priority;
@@ -1176,7 +1175,7 @@ void CBaseVideoInputAllocator::SetMediaType(const CMediaType& mt)
 
     HRESULT hr{ __super::GetBuffer(ppBuffer, pStartTime, pEndTime, dwFlags) };
 
-    if (SUCCEEDED(hr) && m_mt.majortype != GUID_NULL)
+    if (SUCCEEDED(hr) && (m_mt.majortype != GUID_NULL))
     {
         (*ppBuffer)->SetMediaType(&m_mt);
         m_mt.majortype = GUID_NULL;
@@ -1243,7 +1242,7 @@ CBaseVideoInputPin::~CBaseVideoInputPin()
             props.cbBuffer = bih.biSizeImage;
         }
 
-        if (FAILED(pMemAllocator->SetProperties(&props, &actual)) || FAILED(pMemAllocator->Commit()) || props.cbBuffer != actual.cbBuffer)
+        if (FAILED(pMemAllocator->SetProperties(&props, &actual)) || FAILED(pMemAllocator->Commit()) || (props.cbBuffer != actual.cbBuffer))
         {
             return E_FAIL;
         }

@@ -60,7 +60,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
                     }
                 }
             }
-            (void)Invalidate();
+            static_cast<void>(Invalidate());
 
             return S_OK;
         }
@@ -107,7 +107,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 {
     CAutoLock cQueueLock(&m_csLock);
 
-    if (m_pSubPic && m_subpic_stop >= rtInvalidate)
+    if (m_pSubPic && (m_subpic_stop >= rtInvalidate))
     {
         m_pSubPic = nullptr;
     }
@@ -152,7 +152,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 {
     CAutoLock cAutoLock(&m_csLock);
 
-    if (!m_pSubPic || nSubPic != 0)
+    if (!m_pSubPic || (nSubPic != 0))
     {
         return E_INVALIDARG;
     }
@@ -172,7 +172,7 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 
     *sub_render_frame = nullptr;
 
-    if (m_subpic_start <= rtNow && rtNow < m_subpic_stop && m_pSubPic)
+    if ((m_subpic_start <= rtNow) && (rtNow < m_subpic_stop) && m_pSubPic)
     {
         (*sub_render_frame = m_pSubPic)->AddRef();
     }
@@ -188,9 +188,9 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
                 REFERENCE_TIME rtStart{ pSubPicProvider->GetStart(pos, fps) };
                 REFERENCE_TIME rtStop{ pSubPicProvider->GetStop(pos, fps) };
 
-                if (rtStart <= rtNow && rtNow < rtStop)
+                if ((rtStart <= rtNow) && (rtNow < rtStop))
                 {
-                    (void)RenderTo(sub_render_frame, rtNow, rtNow + 1, fps, true);
+                    static_cast<void>(RenderTo(sub_render_frame, rtNow, rtNow + 1, fps, true));
                 }
             }
 
@@ -348,8 +348,8 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
             if (!m_ex_provider)
             {
                 m_ex_provider = DEBUG_NEW SimpleSubPicProvider(m_alpha_blt_dst_type, m_cur_size, m_video_rect, m_consumer, &hr);
-                (void)m_ex_provider->SetFPS(m_fps);
-                (void)m_ex_provider->SetTime(m_now);
+                static_cast<void>(m_ex_provider->SetFPS(m_fps));
+                static_cast<void>(m_ex_provider->SetTime(m_now));
             }
             if (m_ex_provider == nullptr)
             {
@@ -371,8 +371,8 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
                 pSubPicAllocator->SetCurSize(m_cur_size);
                 pSubPicAllocator->SetCurVidRect(m_video_rect);
                 m_old_provider = DEBUG_NEW CSubPicQueueNoThread(pSubPicAllocator, &hr);
-                (void)m_old_provider->SetFPS(m_fps);
-                (void)m_old_provider->SetTime(m_now);
+                static_cast<void>(m_old_provider->SetFPS(m_fps));
+                static_cast<void>(m_old_provider->SetTime(m_now));
                 if (FAILED(hr) || m_old_provider == nullptr)
                 {
                     ASSERT(SUCCEEDED(hr));

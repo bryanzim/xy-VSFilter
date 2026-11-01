@@ -59,7 +59,7 @@ public:
         for (std::size_t i{ 0U }; i < sections.size(); ++i)
         {
             FrameRateSection& sect{ sections[i] };
-            if (n >= sect.start_frame && n <= sect.end_frame)
+            if ((n >= sect.start_frame) && (n <= sect.end_frame))
             {
                 return sect.start_time + (n - sect.start_frame) * sect.spf;
             }
@@ -93,7 +93,7 @@ public:
                 continue;
             }
 
-            if (_strnicmp(buf, "Assume ", 7) == 0 && default_spf < 0)
+            if (_strnicmp(buf, "Assume ", 7) == 0 && (default_spf < 0))
             {
                 char* num{ buf + 7 };
                 default_spf = std::atof(num);
@@ -154,7 +154,7 @@ private:
 public:
     virtual double TimeStampFromFrameNumber(int n)
     {
-        if (n < (int)timestamps.size() && n >= 0)
+        if ((n < static_cast<int>(timestamps.size())) && (n >= 0))
         {
             return timestamps[n];
         }
@@ -182,7 +182,7 @@ public:
             timestamps.push_back(std::atof(buf) / 1000);
         }
 
-        last_known_frame = (int)timestamps.size() - 1;
+        last_known_frame = static_cast<int>(timestamps.size()) - 1;
         last_known_timestamp = timestamps[last_known_frame];
         assumed_spf = last_known_timestamp - timestamps[last_known_frame - 1];
     }
@@ -194,9 +194,8 @@ public:
     char buf[32U];
     buf[19U] = 0; // In "# timecode format v1" the version number is character index 19
     FILE* f{ nullptr };
-    int rv{ fopen_s(&f, vfrfile, "r") };
+    [[maybe_unused]] int rv{ fopen_s(&f, vfrfile, "r") };
     ASSERT((rv == 0 && f));
-    (void)rv;
     VFRTranslator* res{ 0 };
     if (std::fgets(buf, 32, f) && buf[0U] == '#')
     {

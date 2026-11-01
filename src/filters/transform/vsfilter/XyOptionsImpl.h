@@ -7,7 +7,7 @@ class XyOptionsImpl : public IXyOptions
 public:
     static const int MAX_OPTION_ID{ 127 };
 
-    typedef int OptionType;
+    using OptionType = int;
     static const int OPTION_TYPE_END_FLAG{ 0 };
     static const int OPTION_TYPE_BOOL{ 0x1 };
     static const int OPTION_TYPE_INT{ 0x2 };
@@ -19,7 +19,7 @@ public:
     static const int OPTION_TYPE_BIN{ 0x80 };
     static const int OPTION_TYPE_BIN2{ 0x800 };
 
-    typedef int OptionMode;
+    using OptionMode = int;
     static const int OPTION_MODE_READ{ 0x100 };
     static const int OPTION_MODE_WRITE{ 0x200 };
     static const int OPTION_MODE_RW{ 0x300 };
@@ -77,13 +77,13 @@ public:
     [[nodiscard]] inline bool TestOption(const unsigned field)
 
     {
-        return (field < MAX_OPTION_ID && m_option_type[field] != OPTION_TYPE_END_FLAG);
+        return ((field < MAX_OPTION_ID) && (m_option_type[field] != OPTION_TYPE_END_FLAG));
     }
     [[nodiscard]] inline bool TestOption(const unsigned field, OptionType type, const OptionMode rw_mode = OPTION_MODE_RW)
 
     {
         type |= rw_mode;
-        return (field < MAX_OPTION_ID && (m_option_type[field] & type) == type);
+        return ((field < MAX_OPTION_ID) && (m_option_type[field] & type) == type);
     }
 
 protected:

@@ -23,14 +23,14 @@
 
 #include <atlsync.h>
 
-typedef struct
+using SystrayIconData = struct
 {
     HWND hSystrayWnd;
     IFilterGraph* graph;
     IDirectVobSub2* dvs;
     bool fRunOnce, fShowIcon;
     ATL::CEvent WndCreatedEvent;
-} SystrayIconData;
+};
 
 [[nodiscard]] extern DWORD CALLBACK SystrayThreadProc(void* pParam);
 [[nodiscard]] extern HANDLE CreateSystray(SystrayIconData* data);

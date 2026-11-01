@@ -38,7 +38,7 @@ CSubPicAllocatorPresenterImpl::CSubPicAllocatorPresenterImpl(HWND hWnd, HRESULT&
         return;
     }
     GetWindowRect(m_hWnd, &m_WindowRect);
-    (void)SetVideoAngle(Vector(), false);
+    static_cast<void>(SetVideoAngle(Vector(), false));
     hr = S_OK;
 }
 
@@ -92,7 +92,7 @@ void CSubPicAllocatorPresenterImpl::AlphaBltSubPic(CSize size, SubPicDesc* pTarg
 {
     CSize VideoSize(GetVisibleVideoSize());
 
-    if (fCorrectAR && m_AspectRatio.cx > 0 && m_AspectRatio.cy > 0)
+    if (fCorrectAR && (m_AspectRatio.cx > 0) && (m_AspectRatio.cy > 0))
     {
         VideoSize.cx = (LONGLONG(VideoSize.cy) * LONGLONG(m_AspectRatio.cx)) / LONGLONG(m_AspectRatio.cy);
     }
@@ -127,7 +127,7 @@ DECLSPEC_NOTHROW STDMETHODIMP_(void) CSubPicAllocatorPresenterImpl::SetPosition(
 
     if (fWindowPosChanged || fVideoRectChanged)
     {
-        (void)Paint((fWindowSizeChanged || fVideoRectChanged));
+        static_cast<void>(Paint((fWindowSizeChanged || fVideoRectChanged)));
     }
 }
 
@@ -191,7 +191,7 @@ void CSubPicAllocatorPresenterImpl::Transform(CRect r, Vector v[4U])
     v[3U] = Vector(r.right, r.bottom, 0);
 
     Vector center(r.CenterPoint().x, r.CenterPoint().y, 0);
-    int l{ (int)(Vector(r.Size().cx, r.Size().cy, 0).Length() * 1.5f) + 1 };
+    int l{ static_cast<int>((Vector(r.Size().cx, r.Size().cy, 0).Length() * 1.5f)) + 1 };
 
     for (int i{ 0 }; i < 4; ++i)
     {
@@ -208,7 +208,7 @@ void CSubPicAllocatorPresenterImpl::Transform(CRect r, Vector v[4U])
     m_xform = XForm(Ray(Vector(0, 0, 0), v), Vector(1, 1, 1), false);
     if (fRepaint)
     {
-        (void)Paint(true);
+        static_cast<void>(Paint(true));
     }
     return S_OK;
 }

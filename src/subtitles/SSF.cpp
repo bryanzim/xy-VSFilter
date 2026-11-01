@@ -106,7 +106,7 @@ namespace ssf
         try
         {
             ssf::WCharInputStream stream(str);
-            m_file->Append(stream, (float)rtStart / 10000000, (float)rtStop / 10000000);
+            m_file->Append(stream, static_cast<float>(rtStart) / 10000000, static_cast<float>(rtStop) / 10000000);
         }
         catch (Exception& e)
         {
@@ -129,29 +129,29 @@ namespace ssf
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetStartPosition(const REFERENCE_TIME rt, const double fps)
     {
         std::size_t k;
-        return m_file && m_file->m_segments.Lookup((float)rt / 10000000, k) ? (POSITION)(++k) : nullptr;
+        return m_file && m_file->m_segments.Lookup(static_cast<float>(rt) / 10000000, k) ? reinterpret_cast<POSITION>(++k) : nullptr;
     }
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(POSITION) CRenderer::GetNext(POSITION pos)
     {
-        std::size_t k{ (std::size_t)pos };
-        return m_file && m_file->m_segments.GetSegment(k) ? (POSITION)(++k) : nullptr;
+        std::size_t k{ reinterpret_cast<std::size_t>(pos) };
+        return m_file && m_file->m_segments.GetSegment(k) ? reinterpret_cast<POSITION>(++k) : nullptr;
     }
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStart(POSITION pos, const double fps)
     {
-        std::size_t k{ (std::size_t)pos - 1 };
+        std::size_t k{ reinterpret_cast<std::size_t>(pos) - 1 };
         const SubtitleFile::Segment* s{ m_file ? m_file->m_segments.GetSegment(k) : nullptr };
-        return s ? (REFERENCE_TIME)(s->m_start * 10000000) : 0;
+        return s ? static_cast<REFERENCE_TIME>(s->m_start * 10000000) : 0;
     }
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(REFERENCE_TIME) CRenderer::GetStop(POSITION pos, const double fps)
     {
         CheckPointer(m_file, 0);
 
-        std::size_t k{ (std::size_t)pos - 1 };
+        std::size_t k{ reinterpret_cast<std::size_t>(pos) - 1 };
         const SubtitleFile::Segment* s{ m_file ? m_file->m_segments.GetSegment(k) : nullptr };
-        return s ? (REFERENCE_TIME)(s->m_stop * 10000000) : 0;
+        return s ? static_cast<REFERENCE_TIME>(s->m_stop * 10000000) : 0;
     }
 
     [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CRenderer::IsAnimated(POSITION pos)
@@ -175,7 +175,7 @@ namespace ssf
         bbox2.SetRectEmpty();
 
         CAutoPtrList<Subtitle> subs;
-        m_file->Lookup((float)rt / 10000000, subs);
+        m_file->Lookup(static_cast<float>(rt) / 10000000, subs);
 
         m_renderer->NextSegment(subs);
 
@@ -218,7 +218,7 @@ namespace ssf
 
         if (ppName)
         {
-            *ppName = (WCHAR*)CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR));
+            *ppName = reinterpret_cast<WCHAR*>(CoTaskMemAlloc((m_name.GetLength() + 1) * sizeof(WCHAR)));
             if (!(*ppName))
             {
                 return E_OUTOFMEMORY;

@@ -44,13 +44,13 @@ enum exttype
 };
 
 extern const TCHAR* G_EXTTYPESTR[];
-typedef struct
+using SubFile = struct
 {
     CString full_file_name;
     CString extra_name;
     int ext_order;
     int path_order;
     /*exttype ext;*/
-} SubFile;
+};
 
 extern void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_list, CAtlArray<SubFile>& ret);

@@ -26,24 +26,23 @@
 #include "TextFile.h"
 #include "GFN.h"
 
-typedef enum
-{
+using tmode = enum {
     TIME,
     FRAME
-} tmode; // the meaning of STSEntry::start/end
+}; // the meaning of STSEntry::start/end
 
 // Coordinate System 2: target scale applied
 
-typedef int IntCoor2;
-typedef float FloatCoor2;
-typedef double DoubleCoor2;
-typedef POINT POINTCoor2;
-typedef CPoint CPointCoor2;
-typedef SIZE SIZECoor2;
-typedef CSize CSizeCoor2;
-typedef RECT RECTCoor2;
-typedef CRect CRectCoor2;
-typedef FwRect FwRectCoor2;
+using IntCoor2 = int;
+using FloatCoor2 = float;
+using DoubleCoor2 = double;
+using POINTCoor2 = POINT;
+using CPointCoor2 = CPoint;
+using SIZECoor2 = SIZE;
+using CSizeCoor2 = CSize;
+using RECTCoor2 = RECT;
+using CRectCoor2 = CRect;
+using FwRectCoor2 = FwRect;
 
 struct STSStyleBase
 {
@@ -99,7 +98,7 @@ public:
     friend STSStyle& operator<<=(STSStyle& s, const CString& style);
 };
 
-typedef ::boost::flyweights::flyweight<STSStyle, ::boost::flyweights::no_locking> FwSTSStyle;
+using FwSTSStyle = ::boost::flyweights::flyweight<STSStyle, ::boost::flyweights::no_locking>;
 
 // for FwSTSStyle
 [[nodiscard]] static inline std::size_t hash_value(const STSStyleBase& s)
@@ -139,7 +138,7 @@ public:
     void Free();
 };
 
-typedef struct
+using STSEntry = struct
 {
     CStringW str;
     bool fUnicode;
@@ -148,7 +147,7 @@ typedef struct
     int layer;
     REFERENCE_TIME start, end;
     int readorder;
-} STSEntry;
+};
 
 class STSSegment
 {
@@ -292,7 +291,7 @@ public:
     //@return: the ptr to the STSSegment found, return NULL if such STSSegment not exist
     [[nodiscard]] STSSegment* SearchSubs2(REFERENCE_TIME t, double fps, /*[out]*/ int* iSegment = nullptr, int* nSegments = nullptr);
 
-    [[nodiscard]] const STSSegment* GetSegment(const int iSegment) { return iSegment >= 0 && iSegment < (int)m_segments.GetCount() ? &m_segments[iSegment] : nullptr; }
+    [[nodiscard]] const STSSegment* GetSegment(const int iSegment) { return (iSegment >= 0) && (iSegment < static_cast<int>(m_segments.GetCount())) ? &m_segments[iSegment] : nullptr; }
 
     [[nodiscard]] STSStyle* GetStyle(int i);
     [[nodiscard]] bool GetStyle(int i, STSStyle* const stss);

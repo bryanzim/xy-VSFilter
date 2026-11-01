@@ -55,7 +55,7 @@ namespace ssf
 
         if (!((DWORD_PTR)p & 7))
         {
-            for (; i < n && ((DWORD_PTR)&p[i] & 15); ++i)
+            for (; (i < n) && ((DWORD_PTR)&p[i] & 15); ++i)
             {
                 p[i].x += o.x;
                 p[i].y += o.y;
@@ -94,7 +94,7 @@ namespace ssf
 
         for (std::size_t i{ 0U }, j{ src.types.GetCount() }; i <= j; ++i)
         {
-            if (i > 0U && (i == j || (src.types[i] & ~PT_CLOSEFIGURE) == PT_MOVETO))
+            if ((i > 0U) && (i == j || (src.types[i] & ~PT_CLOSEFIGURE) == PT_MOVETO))
             {
                 end = i - 1U;
 

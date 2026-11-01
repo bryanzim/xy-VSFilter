@@ -31,9 +31,9 @@ public:
     INT64 SExpGolombRead();
     void BitByteAlign();
 
-    [[nodiscard]] inline BYTE ReadByte() { return (BYTE)BitRead(8); }
-    [[nodiscard]] inline short ReadShort() { return (short)BitRead(16); }
-    [[nodiscard]] inline DWORD ReadDword() { return (DWORD)BitRead(32); }
+    [[nodiscard]] inline BYTE ReadByte() { return static_cast<BYTE>(BitRead(8)); }
+    [[nodiscard]] inline short ReadShort() { return static_cast<short>(BitRead(16)); }
+    [[nodiscard]] inline DWORD ReadDword() { return static_cast<DWORD>(BitRead(32)); }
     void ReadBuffer(BYTE* pDest, int nSize);
 
     void Reset();

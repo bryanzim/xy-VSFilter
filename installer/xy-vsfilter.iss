@@ -1,23 +1,41 @@
 ; xy-VSFilter 4.0.0.0 setup.
-; Compile with Inno Setup 7:
-;   ISCC.exe installer\xy-vsfilter.iss
+; Compile with Inno Setup 7. Pass /DCompiler=clang or /DCompiler=msvc
+; after that compiler's Win32 and x64 Release builds:
+;   ISCC.exe /DCompiler=clang installer\xy-vsfilter.iss
+;   ISCC.exe /DCompiler=msvc installer\xy-vsfilter.iss
 
 #if Ver < EncodeVer(7, 0, 0)
   #error This script requires Inno Setup 7 or later.
+#endif
+
+#ifndef Compiler
+#define Compiler "clang"
+#endif
+
+#if Compiler == "msvc"
+#define BuildWin32 "..\build\msvc-win32\bin\Release"
+#define BuildX64 "..\build\msvc-x64\bin\Release"
+#define CompilerLabel "MSVC"
+#define OutputSuffix "msvc"
+#elif Compiler == "clang"
+#define BuildWin32 "..\build\clang-win32\bin\Release"
+#define BuildX64 "..\build\clang-x64\bin\Release"
+#define CompilerLabel "ClangCL"
+#define OutputSuffix "clang"
+#else
+#error Compiler must be clang or msvc.
 #endif
 
 #define MyAppName "xy-VSFilter"
 #define MyAppVersion "4.0.0.0"
 #define MyAppPublisher "xy-VSFilter"
 #define MyAppURL "https://github.com/pinterf/xy-VSFilter/"
-#define BuildWin32 "..\build\clang-win32\bin\Release"
-#define BuildX64 "..\build\clang-x64\bin\Release"
 
 [Setup]
 AppId={{7E4B1C2A-5D83-4F19-A6C0-8B2E91D44F70}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion} ({#CompilerLabel})
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -27,7 +45,7 @@ DisableProgramGroupPage=yes
 LicenseFile=..\License.txt
 InfoAfterFile=AfterInstall.txt
 OutputDir=..\dist
-OutputBaseFilename=xy-VSFilter-{#MyAppVersion}-setup
+OutputBaseFilename=xy-VSFilter-{#MyAppVersion}-{#OutputSuffix}-setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -40,7 +58,7 @@ CloseApplications=yes
 RestartApplications=no
 VersionInfoVersion={#MyAppVersion}
 VersionInfoProductVersion={#MyAppVersion}
-VersionInfoDescription={#MyAppName} DirectShow subtitle filters
+VersionInfoDescription={#MyAppName} DirectShow subtitle filters ({#CompilerLabel})
 VersionInfoProductName={#MyAppName}
 
 [Languages]

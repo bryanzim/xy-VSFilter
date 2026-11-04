@@ -332,7 +332,7 @@ void ConvMatrix::InitVSFilterCompactCorretionMatrix()
 
 [[nodiscard]] DWORD ConvMatrix::VSFilterCompactCorretion(const int r8, const int g8, const int b8, const int output_rgb_level)
 {
-    ASSERT((output_rgb_level == LEVEL_PC || output_rgb_level == LEVEL_TV));
+    ASSERT(((output_rgb_level == LEVEL_PC) || (output_rgb_level == LEVEL_TV)));
     return DoConvert(r8, g8, b8, &m_matrix_vsfilter_compact_corretion[output_rgb_level][0U][0U]);
 }
 
@@ -381,99 +381,99 @@ namespace
 
 #define FLOAT_TO_FIXED(f, SCALE) int((f) * (SCALE) + 0.5)
 
-#define DEFINE_RGB2YUV_FUNC(func, RGB_LEVEL, YUV_LEVEL, Kr, Kg, Kb, YUV_POS)                 \
-    DWORD func(int r8, int g8, int b8)                                                       \
-    {                                                                                        \
-        r8 -= RGB_LEVEL.low;                                                                 \
-        g8 -= RGB_LEVEL.low;                                                                 \
-        b8 -= RGB_LEVEL.low;                                                                 \
-        const int INT_Kr = int(Kr * FRACTION_SCALE + 0.5);                                   \
-        const int INT_Kg = int(Kg * FRACTION_SCALE + 0.5);                                   \
-        const int INT_Kb = int(Kb * FRACTION_SCALE + 0.5);                                   \
-        const int Y_CU = int(0.5 / (1 - Kb) * 4096 + 0.5);                                   \
-        const int Y_CV = int(0.5 / (1 - Kr) * 4096 + 0.5);                                   \
-        const int Y_SCALE = int(1.0 * YUV_LEVEL.y_size / RGB_LEVEL.size * 4096 + 0.5);       \
-        const int U_SCALE = int(1.0 * YUV_LEVEL.u_size / RGB_LEVEL.size * 4096 + 0.5);       \
-                                                                                             \
-        int y = INT_Kr * r8 + INT_Kg * g8 + INT_Kb * b8;                                     \
-        int u = RoundFixed12(((static_cast<std::int64_t>(b8) << FRACTION_BITS) - y) * Y_CU); \
-        int v = RoundFixed12(((static_cast<std::int64_t>(r8) << FRACTION_BITS) - y) * Y_CV); \
-        y = Y_SCALE == 4096 ? y : RoundFixed12(static_cast<std::int64_t>(y) * Y_SCALE);      \
-        u = U_SCALE == 4096 ? u : RoundFixed12(static_cast<std::int64_t>(u) * U_SCALE);      \
-        v = U_SCALE == 4096 ? v : RoundFixed12(static_cast<std::int64_t>(v) * U_SCALE);      \
-        y = (y + (YUV_LEVEL.y_low * FRACTION_SCALE + FRACTION_SCALE / 2)) >> FRACTION_BITS;  \
-        u = (u + (YUV_LEVEL.u_mid * FRACTION_SCALE + FRACTION_SCALE / 2)) >> FRACTION_BITS;  \
-        v = (v + (YUV_LEVEL.u_mid * FRACTION_SCALE + FRACTION_SCALE / 2)) >> FRACTION_BITS;  \
-        y = clip(y, 255);                                                                    \
-        u = clip(u, 255);                                                                    \
-        v = clip(v, 255);                                                                    \
-        return (y << YUV_POS.y) | (u << YUV_POS.u) | (v << YUV_POS.v);                       \
+#define DEFINE_RGB2YUV_FUNC(func, RGB_LEVEL, YUV_LEVEL, Kr, Kg, Kb, YUV_POS)                  \
+    DWORD func(int r8, int g8, int b8)                                                        \
+    {                                                                                         \
+        r8 -= RGB_LEVEL.low;                                                                  \
+        g8 -= RGB_LEVEL.low;                                                                  \
+        b8 -= RGB_LEVEL.low;                                                                  \
+        const int INT_Kr{ int(Kr * FRACTION_SCALE + 0.5) };                                   \
+        const int INT_Kg{ int(Kg * FRACTION_SCALE + 0.5) };                                   \
+        const int INT_Kb{ int(Kb * FRACTION_SCALE + 0.5) };                                   \
+        const int Y_CU{ int(0.5 / (1 - Kb) * 4096 + 0.5) };                                   \
+        const int Y_CV{ int(0.5 / (1 - Kr) * 4096 + 0.5) };                                   \
+        const int Y_SCALE{ int(1.0 * YUV_LEVEL.y_size / RGB_LEVEL.size * 4096 + 0.5) };       \
+        const int U_SCALE{ int(1.0 * YUV_LEVEL.u_size / RGB_LEVEL.size * 4096 + 0.5) };       \
+                                                                                              \
+        int y{ INT_Kr * r8 + INT_Kg * g8 + INT_Kb * b8 };                                     \
+        int u{ RoundFixed12(((static_cast<std::int64_t>(b8) << FRACTION_BITS) - y) * Y_CU) }; \
+        int v{ RoundFixed12(((static_cast<std::int64_t>(r8) << FRACTION_BITS) - y) * Y_CV) }; \
+        y = Y_SCALE == 4096 ? y : RoundFixed12(static_cast<std::int64_t>(y) * Y_SCALE);       \
+        u = U_SCALE == 4096 ? u : RoundFixed12(static_cast<std::int64_t>(u) * U_SCALE);       \
+        v = U_SCALE == 4096 ? v : RoundFixed12(static_cast<std::int64_t>(v) * U_SCALE);       \
+        y = (y + (YUV_LEVEL.y_low * FRACTION_SCALE + FRACTION_SCALE / 2)) >> FRACTION_BITS;   \
+        u = (u + (YUV_LEVEL.u_mid * FRACTION_SCALE + FRACTION_SCALE / 2)) >> FRACTION_BITS;   \
+        v = (v + (YUV_LEVEL.u_mid * FRACTION_SCALE + FRACTION_SCALE / 2)) >> FRACTION_BITS;   \
+        y = clip(y, 255);                                                                     \
+        u = clip(u, 255);                                                                     \
+        v = clip(v, 255);                                                                     \
+        return (y << YUV_POS.y) | (u << YUV_POS.u) | (v << YUV_POS.v);                        \
     }
 
-#define DEFINE_YUV2RGB_FUNC(func, RGB_LEVEL, YUV_LEVEL, Kr, Kg, Kb)                                       \
-    DWORD func(int y8, int u8, int v8)                                                                    \
-    {                                                                                                     \
-        const int Y_SCALE = int(1.0 * RGB_LEVEL.size / YUV_LEVEL.y_size * FRACTION_SCALE + 0.5);          \
-        const int U_SCALE = int(1.0 * RGB_LEVEL.size / YUV_LEVEL.u_size * (FRACTION_SCALE / 4096) + 0.5); \
-        y8 = (y8 - YUV_LEVEL.y_low) * Y_SCALE;                                                            \
-        u8 = (u8 - YUV_LEVEL.u_mid) * U_SCALE;                                                            \
-        v8 = (v8 - YUV_LEVEL.u_mid) * U_SCALE;                                                            \
-        const int INT_RV = int(2 * (1 - Kr) * 4096 + 0.5);                                                \
-        const int INT_GU = int(-2 * (1 - Kb) * Kb / Kg * 4096 + 0.5);                                     \
-        const int INT_GV = int(-2 * (1 - Kr) * Kr / Kg * 4096 + 0.5);                                     \
-        const int INT_BU = int(2 * (1 - Kb) * 4096 + 0.5);                                                \
-                                                                                                          \
-        int r = (y8 + 0 + INT_RV * v8 + FRACTION_SCALE / 2) >> FRACTION_BITS;                             \
-        int g = (y8 + INT_GU * u8 + INT_GV * v8 + FRACTION_SCALE / 2) >> FRACTION_BITS;                   \
-        int b = (y8 + INT_BU * u8 + 0 + FRACTION_SCALE / 2) >> FRACTION_BITS;                             \
-        r = clip(r, RGB_LEVEL.size);                                                                      \
-        g = clip(g, RGB_LEVEL.size);                                                                      \
-        b = clip(b, RGB_LEVEL.size);                                                                      \
-        r += RGB_LEVEL.low;                                                                               \
-        g += RGB_LEVEL.low;                                                                               \
-        b += RGB_LEVEL.low;                                                                               \
-        return (r << 16) | (g << 8) | b;                                                                  \
+#define DEFINE_YUV2RGB_FUNC(func, RGB_LEVEL, YUV_LEVEL, Kr, Kg, Kb)                                        \
+    DWORD func(int y8, int u8, int v8)                                                                     \
+    {                                                                                                      \
+        const int Y_SCALE{ int(1.0 * RGB_LEVEL.size / YUV_LEVEL.y_size * FRACTION_SCALE + 0.5) };          \
+        const int U_SCALE{ int(1.0 * RGB_LEVEL.size / YUV_LEVEL.u_size * (FRACTION_SCALE / 4096) + 0.5) }; \
+        y8 = (y8 - YUV_LEVEL.y_low) * Y_SCALE;                                                             \
+        u8 = (u8 - YUV_LEVEL.u_mid) * U_SCALE;                                                             \
+        v8 = (v8 - YUV_LEVEL.u_mid) * U_SCALE;                                                             \
+        const int INT_RV{ int(2 * (1 - Kr) * 4096 + 0.5) };                                                \
+        const int INT_GU{ int(-2 * (1 - Kb) * Kb / Kg * 4096 + 0.5) };                                     \
+        const int INT_GV{ int(-2 * (1 - Kr) * Kr / Kg * 4096 + 0.5) };                                     \
+        const int INT_BU{ int(2 * (1 - Kb) * 4096 + 0.5) };                                                \
+                                                                                                           \
+        int r{ (y8 + 0 + INT_RV * v8 + FRACTION_SCALE / 2) >> FRACTION_BITS };                             \
+        int g{ (y8 + INT_GU * u8 + INT_GV * v8 + FRACTION_SCALE / 2) >> FRACTION_BITS };                   \
+        int b{ (y8 + INT_BU * u8 + 0 + FRACTION_SCALE / 2) >> FRACTION_BITS };                             \
+        r = clip(r, RGB_LEVEL.size);                                                                       \
+        g = clip(g, RGB_LEVEL.size);                                                                       \
+        b = clip(b, RGB_LEVEL.size);                                                                       \
+        r += RGB_LEVEL.low;                                                                                \
+        g += RGB_LEVEL.low;                                                                                \
+        b += RGB_LEVEL.low;                                                                                \
+        return (r << 16) | (g << 8) | b;                                                                   \
     }
 
-#define DEFINE_PREMUL_ARGB2AYUV_FUNC(func, RGB_LEVEL, YUV_LEVEL, Kr, Kg, Kb, YUV_POS)        \
-    DWORD func(int a8, int r8, int g8, int b8)                                               \
-    {                                                                                        \
-        r8 -= RGB_LEVEL.low;                                                                 \
-        g8 -= RGB_LEVEL.low;                                                                 \
-        b8 -= RGB_LEVEL.low;                                                                 \
-        const int INT_Kr = int(Kr * FRACTION_SCALE + 0.5);                                   \
-        const int INT_Kg = int(Kg * FRACTION_SCALE + 0.5);                                   \
-        const int INT_Kb = int(Kb * FRACTION_SCALE + 0.5);                                   \
-        const int Y_CU = int(0.5 / (1 - Kb) * 4096 + 0.5);                                   \
-        const int Y_CV = int(0.5 / (1 - Kr) * 4096 + 0.5);                                   \
-        const int Y_SCALE = int(1.0 * YUV_LEVEL.y_size / RGB_LEVEL.size * 4096 + 0.5);       \
-        const int U_SCALE = int(1.0 * YUV_LEVEL.u_size / RGB_LEVEL.size * 4096 + 0.5);       \
-                                                                                             \
-        int a = (256 - a8) << (FRACTION_BITS - 8);                                           \
-        int y = INT_Kr * r8 + INT_Kg * g8 + INT_Kb * b8;                                     \
-        int u = RoundFixed12(((static_cast<std::int64_t>(b8) << FRACTION_BITS) - y) * Y_CU); \
-        int v = RoundFixed12(((static_cast<std::int64_t>(r8) << FRACTION_BITS) - y) * Y_CV); \
-        y = Y_SCALE == 4096 ? y : RoundFixed12(static_cast<std::int64_t>(y) * Y_SCALE);      \
-        u = U_SCALE == 4096 ? u : RoundFixed12(static_cast<std::int64_t>(u) * U_SCALE);      \
-        v = U_SCALE == 4096 ? v : RoundFixed12(static_cast<std::int64_t>(v) * U_SCALE);      \
-        y = (y + YUV_LEVEL.y_low * a + FRACTION_SCALE / 2) >> FRACTION_BITS;                 \
-        u = (u + YUV_LEVEL.u_mid * a + FRACTION_SCALE / 2) >> FRACTION_BITS;                 \
-        v = (v + YUV_LEVEL.u_mid * a + FRACTION_SCALE / 2) >> FRACTION_BITS;                 \
-        y = clip(y, 255);                                                                    \
-        u = clip(u, 255);                                                                    \
-        v = clip(v, 255);                                                                    \
-        return (y << YUV_POS.y) | (u << YUV_POS.u) | (v << YUV_POS.v);                       \
+#define DEFINE_PREMUL_ARGB2AYUV_FUNC(func, RGB_LEVEL, YUV_LEVEL, Kr, Kg, Kb, YUV_POS)         \
+    DWORD func(int a8, int r8, int g8, int b8)                                                \
+    {                                                                                         \
+        r8 -= RGB_LEVEL.low;                                                                  \
+        g8 -= RGB_LEVEL.low;                                                                  \
+        b8 -= RGB_LEVEL.low;                                                                  \
+        const int INT_Kr{ int(Kr * FRACTION_SCALE + 0.5) };                                   \
+        const int INT_Kg{ int(Kg * FRACTION_SCALE + 0.5) };                                   \
+        const int INT_Kb{ int(Kb * FRACTION_SCALE + 0.5) };                                   \
+        const int Y_CU{ int(0.5 / (1 - Kb) * 4096 + 0.5) };                                   \
+        const int Y_CV{ int(0.5 / (1 - Kr) * 4096 + 0.5) };                                   \
+        const int Y_SCALE{ int(1.0 * YUV_LEVEL.y_size / RGB_LEVEL.size * 4096 + 0.5) };       \
+        const int U_SCALE{ int(1.0 * YUV_LEVEL.u_size / RGB_LEVEL.size * 4096 + 0.5) };       \
+                                                                                              \
+        int a{ (256 - a8) << (FRACTION_BITS - 8) };                                           \
+        int y{ INT_Kr * r8 + INT_Kg * g8 + INT_Kb * b8 };                                     \
+        int u{ RoundFixed12(((static_cast<std::int64_t>(b8) << FRACTION_BITS) - y) * Y_CU) }; \
+        int v{ RoundFixed12(((static_cast<std::int64_t>(r8) << FRACTION_BITS) - y) * Y_CV) }; \
+        y = Y_SCALE == 4096 ? y : RoundFixed12(static_cast<std::int64_t>(y) * Y_SCALE);       \
+        u = U_SCALE == 4096 ? u : RoundFixed12(static_cast<std::int64_t>(u) * U_SCALE);       \
+        v = U_SCALE == 4096 ? v : RoundFixed12(static_cast<std::int64_t>(v) * U_SCALE);       \
+        y = (y + YUV_LEVEL.y_low * a + FRACTION_SCALE / 2) >> FRACTION_BITS;                  \
+        u = (u + YUV_LEVEL.u_mid * a + FRACTION_SCALE / 2) >> FRACTION_BITS;                  \
+        v = (v + YUV_LEVEL.u_mid * a + FRACTION_SCALE / 2) >> FRACTION_BITS;                  \
+        y = clip(y, 255);                                                                     \
+        u = clip(u, 255);                                                                     \
+        v = clip(v, 255);                                                                     \
+        return (y << YUV_POS.y) | (u << YUV_POS.u) | (v << YUV_POS.v);                        \
     }
 
 #define DEFINE_RGB2Y_FUNC(func, RGB_LEVEL, YUV_LEVEL, Kr, Kg, Kb)                           \
     DWORD func(int r8, int g8, int b8)                                                      \
     {                                                                                       \
-        const int INT_Kr = int(Kr * FRACTION_SCALE + 0.5);                                  \
-        const int INT_Kg = int(Kg * FRACTION_SCALE + 0.5);                                  \
-        const int INT_Kb = int(Kb * FRACTION_SCALE + 0.5);                                  \
-        const int Y_SCALE = int(1.0 * YUV_LEVEL.y_size / RGB_LEVEL.size * 4096 + 0.5);      \
+        const int INT_Kr{ int(Kr * FRACTION_SCALE + 0.5) };                                 \
+        const int INT_Kg{ int(Kg * FRACTION_SCALE + 0.5) };                                 \
+        const int INT_Kb{ int(Kb * FRACTION_SCALE + 0.5) };                                 \
+        const int Y_SCALE{ int(1.0 * YUV_LEVEL.y_size / RGB_LEVEL.size * 4096 + 0.5) };     \
                                                                                             \
-        int y = INT_Kr * r8 + INT_Kg * g8 + INT_Kb * b8 - RGB_LEVEL.low;                    \
+        int y{ INT_Kr * r8 + INT_Kg * g8 + INT_Kb * b8 - RGB_LEVEL.low };                   \
         y = Y_SCALE == 4096 ? y : RoundFixed12(static_cast<std::int64_t>(y) * Y_SCALE);     \
         y = (y + (YUV_LEVEL.y_low * FRACTION_SCALE + FRACTION_SCALE / 2)) >> FRACTION_BITS; \
         y = clip(y, 255);                                                                   \
@@ -559,8 +559,8 @@ public:
     ConvFunc(YuvMatrixType yuv_type, YuvRangeType range);
     [[nodiscard]] bool InitConvFunc(YuvMatrixType yuv_type, YuvRangeType range);
 
-    typedef DWORD (*R8G8B8ToYuvFunc)(int r8, int g8, int b8);
-    typedef DWORD (*PreMulArgbToAyuvFunc)(int a8, int r8, int g8, int b8);
+    using R8G8B8ToYuvFunc = DWORD (*)(int r8, int g8, int b8);
+    using PreMulArgbToAyuvFunc = DWORD (*)(int a8, int r8, int g8, int b8);
     using R8G8B8ToY = R8G8B8ToYuvFunc;
     using Y8U8V8ToRGBFunc = R8G8B8ToYuvFunc;
 
@@ -583,7 +583,7 @@ ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
 {
     bool result{ true };
 
-    if (yuv_type == ColorConvTable::BT601 && range == ColorConvTable::RANGE_TV)
+    if ((yuv_type == ColorConvTable::BT601) && (range == ColorConvTable::RANGE_TV))
     {
         r8g8b8_to_yuv_func = RGB_PC_TO_YUV_TV_601;
         r8g8b8_to_uyv_func = RGB_PC_TO_UYV_TV_601;
@@ -594,7 +594,7 @@ ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
         _yuv_type = yuv_type;
         _range_type = range;
     }
-    else if (yuv_type == ColorConvTable::BT709 && range == ColorConvTable::RANGE_TV)
+    else if ((yuv_type == ColorConvTable::BT709) && (range == ColorConvTable::RANGE_TV))
     {
         r8g8b8_to_yuv_func = RGB_PC_TO_YUV_TV_709;
         r8g8b8_to_uyv_func = RGB_PC_TO_UYV_TV_709;
@@ -605,7 +605,7 @@ ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
         _yuv_type = yuv_type;
         _range_type = range;
     }
-    else if (yuv_type == ColorConvTable::BT2020 && range == ColorConvTable::RANGE_TV)
+    else if ((yuv_type == ColorConvTable::BT2020) && (range == ColorConvTable::RANGE_TV))
     {
         r8g8b8_to_yuv_func = RGB_PC_TO_YUV_TV_2020;
         r8g8b8_to_uyv_func = RGB_PC_TO_UYV_TV_2020;
@@ -616,7 +616,7 @@ ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
         _yuv_type = yuv_type;
         _range_type = range;
     }
-    else if (yuv_type == ColorConvTable::BT601 && range == ColorConvTable::RANGE_PC)
+    else if ((yuv_type == ColorConvTable::BT601) && (range == ColorConvTable::RANGE_PC))
     {
         r8g8b8_to_yuv_func = RGB_PC_TO_YUV_PC_601;
         r8g8b8_to_uyv_func = RGB_PC_TO_UYV_PC_601;
@@ -627,7 +627,7 @@ ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
         _yuv_type = yuv_type;
         _range_type = range;
     }
-    else if (yuv_type == ColorConvTable::BT709 && range == ColorConvTable::RANGE_PC)
+    else if ((yuv_type == ColorConvTable::BT709) && (range == ColorConvTable::RANGE_PC))
     {
         r8g8b8_to_yuv_func = RGB_PC_TO_YUV_PC_709;
         r8g8b8_to_uyv_func = RGB_PC_TO_UYV_PC_709;
@@ -638,7 +638,7 @@ ConvFunc s_default_conv_set(ColorConvTable::BT601, ColorConvTable::RANGE_TV);
         _yuv_type = yuv_type;
         _range_type = range;
     }
-    else if (yuv_type == ColorConvTable::BT2020 && range == ColorConvTable::RANGE_PC)
+    else if ((yuv_type == ColorConvTable::BT2020) && (range == ColorConvTable::RANGE_PC))
     {
         r8g8b8_to_yuv_func = RGB_PC_TO_YUV_PC_2020;
         r8g8b8_to_uyv_func = RGB_PC_TO_UYV_PC_2020;
@@ -800,8 +800,8 @@ void ColorConvTable::SetDefaultConvType(const YuvMatrixType yuv_type, const YuvR
 [[nodiscard]] DWORD ColorConvTable::Ayuv2Auyv(const DWORD ayuv)
 
 {
-    int y = (ayuv & 0x00ff0000) >> 8;
-    int u = (ayuv & 0x0000ff00) << 8;
+    int y{ static_cast<int>((ayuv & 0x00ff0000) >> 8) };
+    int u{ static_cast<int>((ayuv & 0x0000ff00) << 8) };
     return (ayuv & 0xff0000ff) | u | y;
 }
 
@@ -931,11 +931,11 @@ DWORD ColorConvTable::A8Y8U8V8_TO_AYUV(int a8, int y8, int u8, int v8,
     // type_map[ColorConvTable::BT2020]      = ConvMatrix::COLOR_YUV_2020;
     if (in_type == out_type)
     {
-        if (in_range == RANGE_PC && out_range == RANGE_TV)
+        if ((in_range == RANGE_PC) && (out_range == RANGE_TV))
         {
             return A8Y8U8V8_PC_To_TV(a8, y8, u8, v8);
         }
-        else if (in_range == RANGE_TV && out_range == RANGE_PC)
+        else if ((in_range == RANGE_TV) && (out_range == RANGE_PC))
         {
             return A8Y8U8V8_TV_To_PC(a8, y8, u8, v8);
         }

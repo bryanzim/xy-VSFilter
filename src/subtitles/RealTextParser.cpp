@@ -107,7 +107,7 @@ CRealTextParser::~CRealTextParser()
                     vEndTimecodes.push_back(iEndTimecode);
                 }
             }
-            else if (oTag.m_szName == L"b" || oTag.m_szName == L"i" || oTag.m_szName == L"font")
+            else if ((oTag.m_szName == L"b") || (oTag.m_szName == L"i") || (oTag.m_szName == L"font"))
             {
                 if (oTag.m_bOpen)
                 {
@@ -223,7 +223,7 @@ CRealTextParser::~CRealTextParser()
         }
     }
 
-    unsigned int iPos{ 1 };
+    unsigned int iPos{ 1U };
 
     // skip comments
     if (p_rszLine.at(iPos) == '!')
@@ -331,7 +331,7 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::ExtractString(std::wstring& p_rszLine, std::wstring& p_rszString)
 {
-    if (p_rszLine.empty() || p_rszLine.at(0) == '<')
+    if (p_rszLine.empty() || (p_rszLine.at(0) == '<'))
     {
         if (m_bTryToIgnoreErrors)
         {
@@ -344,7 +344,7 @@ CRealTextParser::~CRealTextParser()
         }
     }
 
-    unsigned int iPos{ 0 };
+    unsigned int iPos{ 0U };
 
     if (!SkipSpaces(p_rszLine, iPos))
     {
@@ -372,7 +372,7 @@ CRealTextParser::~CRealTextParser()
 
 [[nodiscard]] bool CRealTextParser::GetString(std::wstring& p_rszLine, unsigned int& p_riPos, std::wstring& p_rszString, const std::wstring& p_crszEndChars)
 {
-    while ((p_rszLine.length() > p_riPos) && p_crszEndChars.find(p_rszLine.at(p_riPos)) == std::wstring::npos)
+    while ((p_rszLine.length() > p_riPos) && (p_crszEndChars.find(p_rszLine.at(p_riPos)) == std::wstring::npos))
     {
         p_rszString += p_rszLine.at(p_riPos);
         ++p_riPos;
@@ -429,7 +429,7 @@ CRealTextParser::~CRealTextParser()
         }
 
         bool bUsesQuotes{ false };
-        if (p_rszLine.at(p_riPos) == '\'' || p_rszLine.at(p_riPos) == '\"')
+        if ((p_rszLine.at(p_riPos) == '\'') || (p_rszLine.at(p_riPos) == '\"'))
         {
             ++p_riPos;
             bUsesQuotes = true;
@@ -463,7 +463,7 @@ CRealTextParser::~CRealTextParser()
             return false;
         }
 
-        if (p_rszLine.at(p_riPos) == '\'' || p_rszLine.at(p_riPos) == '\"')
+        if ((p_rszLine.at(p_riPos) == '\'') || (p_rszLine.at(p_riPos) == '\"'))
         {
             ++p_riPos;
         }
@@ -483,16 +483,16 @@ CRealTextParser::~CRealTextParser()
     int iMultiplier{ 1 };
 
     // Exception: if the timecode doesn't contain any separators, assume the time code is in seconds (and change multiplier to reflect that)
-    if (p_crszTimecode.find_first_of('.') == std::wstring::npos && p_crszTimecode.find_first_of(':') == std::wstring::npos)
+    if ((p_crszTimecode.find_first_of('.') == std::wstring::npos) && (p_crszTimecode.find_first_of(':') == std::wstring::npos))
     {
         iMultiplier = 1000;
     }
 
     std::wstring szCurrentPart;
 
-    for (std::ptrdiff_t i = p_crszTimecode.length() - 1; i >= 0; --i)
+    for (std::ptrdiff_t i{ static_cast<ptrdiff_t>(p_crszTimecode.length() - 1) }; i >= 0; --i)
     {
-        if (p_crszTimecode.at(i) == '.' || p_crszTimecode.at(i) == ':')
+        if ((p_crszTimecode.at(i) == '.') || (p_crszTimecode.at(i) == ':'))
         {
             if (iMultiplier == 1)
             {
@@ -564,7 +564,7 @@ CRealTextParser::~CRealTextParser()
 [[nodiscard]] std::wstring CRealTextParser::StringToLower(const std::wstring& p_crszString)
 {
     std::wstring szLowercaseString;
-    for (unsigned int i{ 0 }; i < p_crszString.length(); ++i)
+    for (unsigned int i{ 0U }; i < p_crszString.length(); ++i)
     {
         szLowercaseString += towlower(p_crszString.at(i));
     }
@@ -621,22 +621,22 @@ CRealTextParser::~CRealTextParser()
                     szString += L"<font";
                     for (std::map<std::wstring, std::wstring>::iterator i{ oTag.m_mapAttributes.begin() }; i != oTag.m_mapAttributes.end(); ++i)
                     {
-                        if (m_bIgnoreFontSize && i->first == L"size")
+                        if (m_bIgnoreFontSize && (i->first == L"size"))
                         {
                             continue;
                         }
 
-                        if (m_bIgnoreFontColor && i->first == L"color")
+                        if (m_bIgnoreFontColor && (i->first == L"color"))
                         {
                             continue;
                         }
 
-                        if (m_bIgnoreFontFace && i->first == L"face")
+                        if (m_bIgnoreFontFace && (i->first == L"face"))
                         {
                             continue;
                         }
 
-                        if (i->first == L"size" && !i->second.empty() && ::iswdigit(i->second.at(0)))
+                        if ((i->first == L"size") && !i->second.empty() && ::iswdigit(i->second.at(0)))
                         {
                             int iSize{ ::_wtoi(i->second.c_str()) };
 

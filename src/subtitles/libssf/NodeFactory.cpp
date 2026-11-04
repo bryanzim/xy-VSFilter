@@ -89,7 +89,7 @@ namespace ssf
 
     Reference* NodeFactory::CreateRef(Definition* pParentDef)
     {
-        CStringW name = GenName();
+        CStringW name{ GenName() };
 
         Reference* pRef = new Reference(this, name);
 

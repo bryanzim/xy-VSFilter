@@ -6,7 +6,7 @@
 #include "xy_logger.h"
 #include <log4cplus/initializer.h>
 #include <fstream>
-#include <moreuuids.h>
+#include "moreuuids.h"
 
 #ifdef UNICODE
 
@@ -113,7 +113,7 @@ namespace xy_logger
         for (int i{ 0 }; i < h; ++i, src += pitch)
         {
             const BYTE* s2{ src };
-            const BYTE* s2end{ s2 + w * 4 };
+            const BYTE* s2end{ s2 + w * 4U };
             for (; s2 < s2end; s2 += 4)
             {
                 axxx << static_cast<int>(s2[0U]) << "," << static_cast<int>(s2[1U]) << "," << static_cast<int>(s2[2U]) << "," << static_cast<int>(s2[3U]) << ",";
@@ -156,7 +156,7 @@ namespace xy_logger
         {
             /* Dump the contents of the BITMAPINFOHEADER structure */
             BITMAPINFOHEADER* pbmi{ HEADER(pmtIn->pbFormat) };
-            VIDEOINFOHEADER* pVideoInfo{ (VIDEOINFOHEADER*)pmtIn->pbFormat };
+            VIDEOINFOHEADER* pVideoInfo{ reinterpret_cast<VIDEOINFOHEADER*>(pmtIn->pbFormat) };
 
             XY_LOG_TRACE(_T("Source rectangle :") << pVideoInfo->rcSource);
 
@@ -189,7 +189,7 @@ namespace xy_logger
             {
                 /* Dump the contents of the WAVEFORMATEX type-specific format structure */
 
-                WAVEFORMATEX* pwfx{ (WAVEFORMATEX*)pmtIn->pbFormat };
+                WAVEFORMATEX* pwfx{ reinterpret_cast<WAVEFORMATEX*>(pmtIn->pbFormat) };
                 XY_LOG_TRACE(_T("wFormatTag     :") << pwfx->wFormatTag);
                 XY_LOG_TRACE(_T("nChannels      :") << pwfx->nChannels);
                 XY_LOG_TRACE(_T("nSamplesPerSec :") << pwfx->nSamplesPerSec);

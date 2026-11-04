@@ -81,7 +81,7 @@ void Vector::Set(float ax, float ay, float az)
 
 {
     float l{ Length() };
-    if (!l || l == 1)
+    if (!l || (l == 1))
     {
         return (*this);
     }
@@ -192,7 +192,7 @@ void Vector::Angle(float& u, float& v) const
         return ((*this).Reflect(N));
     }
 
-    float N_dot_T = std::sqrt(1.0 - len_sin_T);
+    float N_dot_T{ static_cast<float>(std::sqrt(1.0 - len_sin_T)) };
     if (N_dot_D < 0)
     {
         N_dot_T = -N_dot_T;
@@ -228,7 +228,7 @@ void Vector::Angle(float& u, float& v) const
         return ((*this).Reflect(N));
     }
 
-    float N_dot_T = std::sqrt(1.0 - len_sin_T);
+    float N_dot_T{ static_cast<float>(std::sqrt(1.0 - len_sin_T)) };
     if (N_dot_D < 0)
     {
         N_dot_T = -N_dot_T;

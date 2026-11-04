@@ -93,7 +93,7 @@ public:
                 continue;
             }
 
-            if (_strnicmp(buf, "Assume ", 7) == 0 && (default_spf < 0))
+            if ((_strnicmp(buf, "Assume ", 7) == 0) && (default_spf < 0))
             {
                 char* num{ buf + 7 };
                 default_spf = std::atof(num);
@@ -195,9 +195,9 @@ public:
     buf[19U] = 0; // In "# timecode format v1" the version number is character index 19
     FILE* f{ nullptr };
     [[maybe_unused]] int rv{ fopen_s(&f, vfrfile, "r") };
-    ASSERT((rv == 0 && f));
+    ASSERT(((rv == 0) && f));
     VFRTranslator* res{ 0 };
-    if (std::fgets(buf, 32, f) && buf[0U] == '#')
+    if (std::fgets(buf, 32, f) && (buf[0U] == '#'))
     {
         // So do some really shoddy parsing here, assume the file is good
         if (buf[19U] == '1')

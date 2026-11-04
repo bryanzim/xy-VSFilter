@@ -51,8 +51,8 @@ struct A_Y_UV_TestData
                !std::memcmp(dst_y, rhs.dst_y, w * sizeof(*dst_y)) &&
                !std::memcmp(dst_uv, rhs.dst_uv, w * sizeof(*dst_uv)) &&
                !std::memcmp(alpha, rhs.alpha, w * sizeof(*alpha)) &&
-               src_y == rhs.src_y &&
-               src_uv == rhs.src_uv;
+               (src_y == rhs.src_y) &&
+               (src_uv == rhs.src_uv);
     }
     const A_Y_UV_TestData& operator=(const A_Y_UV_TestData& rhs)
     {

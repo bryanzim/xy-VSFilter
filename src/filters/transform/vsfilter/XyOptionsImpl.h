@@ -83,7 +83,7 @@ public:
 
     {
         type |= rw_mode;
-        return ((field < MAX_OPTION_ID) && (m_option_type[field] & type) == type);
+        return ((field < MAX_OPTION_ID) && ((m_option_type[field] & type) == type));
     }
 
 protected:

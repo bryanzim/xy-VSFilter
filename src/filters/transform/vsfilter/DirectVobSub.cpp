@@ -209,7 +209,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
         XY_LOG_ERROR("Failed to set option BOOL_VOBSUBSETTINGS_POLYGONIZE" << XY_LOG_VAR_2_STR(fPolygonize));
         return hr3;
     }
-    return (hr1 == S_FALSE && hr2 == S_FALSE && hr3 == S_FALSE) ? S_FALSE : S_OK;
+    return ((hr1 == S_FALSE) && (hr2 == S_FALSE) && (hr3 == S_FALSE)) ? S_FALSE : S_OK;
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_TextSettings(void* lf, const int lflen, COLORREF* color, bool* fShadow, bool* fOutline, bool* fAdvancedRenderer)
@@ -223,23 +223,23 @@ DirectVobSubImpl::~DirectVobSubImpl()
     {
         if (lflen == sizeof(LOGFONTA))
         {
-            strncpy_s(((LOGFONTA*)lf)->lfFaceName, LF_FACESIZE, CStringA(m_defStyle.fontName), _TRUNCATE);
+            strncpy_s((reinterpret_cast<LOGFONTA*>(lf))->lfFaceName, LF_FACESIZE, CStringA(m_defStyle.fontName), _TRUNCATE);
         }
         else if (lflen == sizeof(LOGFONTW))
         {
-            wcsncpy_s(((LOGFONTW*)lf)->lfFaceName, LF_FACESIZE, CStringW(m_defStyle.fontName), _TRUNCATE);
+            wcsncpy_s((reinterpret_cast<LOGFONTW*>(lf))->lfFaceName, LF_FACESIZE, CStringW(m_defStyle.fontName), _TRUNCATE);
         }
         else
         {
             return E_INVALIDARG;
         }
 
-        ((LOGFONT*)lf)->lfCharSet = m_defStyle.charSet;
-        ((LOGFONT*)lf)->lfItalic = m_defStyle.fItalic;
-        ((LOGFONT*)lf)->lfHeight = m_defStyle.fontSize;
-        ((LOGFONT*)lf)->lfWeight = m_defStyle.fontWeight;
-        ((LOGFONT*)lf)->lfStrikeOut = m_defStyle.fStrikeOut;
-        ((LOGFONT*)lf)->lfUnderline = m_defStyle.fUnderline;
+        (reinterpret_cast<LOGFONT*>(lf))->lfCharSet = m_defStyle.charSet;
+        (reinterpret_cast<LOGFONT*>(lf))->lfItalic = m_defStyle.fItalic;
+        (reinterpret_cast<LOGFONT*>(lf))->lfHeight = m_defStyle.fontSize;
+        (reinterpret_cast<LOGFONT*>(lf))->lfWeight = m_defStyle.fontWeight;
+        (reinterpret_cast<LOGFONT*>(lf))->lfStrikeOut = m_defStyle.fStrikeOut;
+        (reinterpret_cast<LOGFONT*>(lf))->lfUnderline = m_defStyle.fUnderline;
     }
 
     if (color)
@@ -274,23 +274,23 @@ DirectVobSubImpl::~DirectVobSubImpl()
     {
         if (lflen == sizeof(LOGFONTA))
         {
-            tmp.fontName = ((LOGFONTA*)lf)->lfFaceName;
+            tmp.fontName = (reinterpret_cast<LOGFONTA*>(lf))->lfFaceName;
         }
         else if (lflen == sizeof(LOGFONTW))
         {
-            tmp.fontName = ((LOGFONTW*)lf)->lfFaceName;
+            tmp.fontName = (reinterpret_cast<LOGFONTW*>(lf))->lfFaceName;
         }
         else
         {
             return E_INVALIDARG;
         }
 
-        tmp.charSet = ((LOGFONT*)lf)->lfCharSet;
-        tmp.fItalic = !!((LOGFONT*)lf)->lfItalic;
-        tmp.fontSize = ((LOGFONT*)lf)->lfHeight;
-        tmp.fontWeight = ((LOGFONT*)lf)->lfWeight;
-        tmp.fStrikeOut = !!((LOGFONT*)lf)->lfStrikeOut;
-        tmp.fUnderline = !!((LOGFONT*)lf)->lfUnderline;
+        tmp.charSet = (reinterpret_cast<LOGFONT*>(lf))->lfCharSet;
+        tmp.fItalic = !!(reinterpret_cast<LOGFONT*>(lf))->lfItalic;
+        tmp.fontSize = (reinterpret_cast<LOGFONT*>(lf))->lfHeight;
+        tmp.fontWeight = (reinterpret_cast<LOGFONT*>(lf))->lfWeight;
+        tmp.fStrikeOut = !!(reinterpret_cast<LOGFONT*>(lf))->lfStrikeOut;
+        tmp.fUnderline = !!(reinterpret_cast<LOGFONT*>(lf))->lfUnderline;
 
         if (tmp.fontSize < 0)
         {
@@ -408,7 +408,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
     }
     CAutoLock cAutoLock{ m_propsLock };
 
-    if (m_SubtitleDelay == delay && m_SubtitleSpeedMul == speedmul && m_SubtitleSpeedDiv == speeddiv)
+    if ((m_SubtitleDelay == delay) && (m_SubtitleSpeedMul == speedmul) && (m_SubtitleSpeedDiv == speeddiv))
     {
         return S_FALSE;
     }
@@ -627,7 +627,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
         return hr4;
     }
 
-    return (hr1 == hr2 && hr2 == hr3 && hr3 == hr4 && hr4 == S_FALSE) ? S_FALSE : S_OK;
+    return ((hr1 == hr2) && (hr2 == hr3) && (hr3 == hr4) && (hr4 == S_FALSE)) ? S_FALSE : S_OK;
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP DirectVobSubImpl::get_LoadSettings(int* level, bool* fExternalLoad, bool* fWebLoad, bool* fEmbeddedLoad)
@@ -692,7 +692,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
         XY_LOG_ERROR("Failed to set option BOOL_LOAD_SETTINGS_EMBEDDED." << XY_LOG_VAR_2_STR(fEmbeddedLoad));
         return hr4;
     }
-    return (hr1 == hr2 && hr2 == hr3 && hr3 == hr4 && hr4 == S_FALSE) ? S_FALSE : S_OK;
+    return ((hr1 == hr2) && (hr2 == hr3) && (hr3 == hr4) && (hr4 == S_FALSE)) ? S_FALSE : S_OK;
 }
 
 // IDirectVobSub2
@@ -799,7 +799,7 @@ DirectVobSubImpl::~DirectVobSubImpl()
 
 [[nodiscard]] UINT DirectVobSubImpl::GetCompatibleProfileInt(const LPCTSTR lpszSection, const LPCTSTR lpszEntry, const int nDefault)
 {
-    UINT result = nDefault;
+    UINT result{ static_cast<UINT>(nDefault) };
     if (is_compatible())
     {
         result = theApp.GetProfileInt(lpszSection, lpszEntry, nDefault);
@@ -907,7 +907,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters(const CAtlArray<CStringW>& filter_
                                               const CAtlArray<CStringW>& filter_name)
 {
     // fixme: CString VS CStringW
-    int number = filter_guid.GetCount();
+    int number{ static_cast<int>(filter_guid.GetCount()) };
     CString tmp;
     theApp.WriteProfileInt(ResStr(IDS_R_KNOWN_SOURCE_FILTER), ResStr(IDS_RK_TOTAL_NUMBER), number);
     for (int i{ 0 }; i < number; ++i)
@@ -930,7 +930,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters(const CAtlArray<CStringW>& filter_
         *reinterpret_cast<bool*>(value) = m_xy_bool_opt[BOOL_SUBTITLE_RELOADER_DISABLED] || (m_nReloaderDisableCount > 0);
         break;
     case SIZE_LAYOUT_WITH: {
-        SIZE* size_value{ (SIZE*)value };
+        SIZE* size_value{ reinterpret_cast<SIZE*>(value) };
         switch (m_xy_int_opt[INT_LAYOUT_SIZE_OPT])
         {
         case LAYOUT_SIZE_OPT_ORIGINAL_VIDEO_SIZE:
@@ -986,7 +986,7 @@ void DirectVobSubImpl::SaveKnownSourceFilters(const CAtlArray<CStringW>& filter_
         break;
     case STRING_FILE_NAME: {
         CAutoLock cAutoLock{ m_propsLock };
-        CStringW tmp{ *(CStringW*)value };
+        CStringW tmp{ *reinterpret_cast<const CStringW*>(value) };
         tmp = tmp.Left(tmp.ReverseFind(L'.') + 1);
         CStringW file_name{ m_xy_str_opt[STRING_FILE_NAME].Left(m_xy_str_opt[STRING_FILE_NAME].ReverseFind(L'.') + 1) };
         if (!file_name.CompareNoCase(tmp))
@@ -1175,7 +1175,7 @@ CDirectVobSub::CDirectVobSub(const Option* options, CCritSec* pLock)
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
     BYTE* pData{ nullptr };
-    UINT nSize{ 0 };
+    UINT nSize{ 0U };
 
     m_supported_filter_verion = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_SUPPORTED_VERSION), 0);
     m_config_info_version = theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_VERSION), 0);
@@ -1332,7 +1332,7 @@ CDirectVobSub::CDirectVobSub(const Option* options, CCritSec* pLock)
         delete[] pData;
         pData = nullptr;
     }
-    if (theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_OUTPUT_COLORFORMATS), &pData, &nSize) && pData && nSize == 2 * GetOutputColorSpaceNumber())
+    if (theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_OUTPUT_COLORFORMATS), &pData, &nSize) && pData && (nSize == 2 * GetOutputColorSpaceNumber()))
     {
         for (unsigned i{ 0U }; i < nSize / 2; ++i)
         {
@@ -1355,7 +1355,7 @@ CDirectVobSub::CDirectVobSub(const Option* options, CCritSec* pLock)
         delete[] pData;
         pData = nullptr;
     }
-    if (theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INPUT_COLORFORMATS), &pData, &nSize) && pData && nSize == 2 * GetInputColorSpaceNumber())
+    if (theApp.GetProfileBinary(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INPUT_COLORFORMATS), &pData, &nSize) && pData && (nSize == 2 * GetInputColorSpaceNumber()))
     {
         for (unsigned i{ 0U }; i < nSize / 2; ++i)
         {
@@ -1537,7 +1537,7 @@ CDirectVobSub::CDirectVobSub(const Option* options, CCritSec* pLock)
 
     // save output color config
     {
-        int count = GetOutputColorSpaceNumber();
+        int count{ static_cast<int>(GetOutputColorSpaceNumber()) };
         BYTE* pData{ DEBUG_NEW BYTE[2U * count] };
         for (int i{ 0 }; i < count; ++i)
         {
@@ -1551,7 +1551,7 @@ CDirectVobSub::CDirectVobSub(const Option* options, CCritSec* pLock)
 
     // save input color config
     {
-        int count = GetInputColorSpaceNumber();
+        int count{ static_cast<int>(GetInputColorSpaceNumber()) };
         BYTE* pData{ DEBUG_NEW BYTE[2U * count] };
         for (int i{ 0 }; i < count; ++i)
         {

@@ -154,11 +154,11 @@ CDVBSub::~CDVBSub()
             m_pBuffer = DEBUG_NEW BYTE[m_nBufferSize];
             if (pPrev != nullptr)
             {
-                memcpy_s(m_pBuffer, m_nBufferSize, pPrev, m_nBufferWritePos);
+                ::memcpy_s(m_pBuffer, m_nBufferSize, pPrev, m_nBufferWritePos);
                 SAFE_DELETE(pPrev);
             }
         }
-        memcpy_s(m_pBuffer + m_nBufferWritePos, m_nBufferSize, pData, nSize);
+        ::memcpy_s(m_pBuffer + m_nBufferWritePos, m_nBufferSize, pData, nSize);
         m_nBufferWritePos += nSize;
         return S_OK;
     }
@@ -181,7 +181,7 @@ CDVBSub::~CDVBSub()
     DVB_SEGMENT_TYPE nCurSegment;
 
     hr = pSample->GetPointer(&pData);
-    if (FAILED(hr) || pData == nullptr)
+    if (FAILED(hr) || (pData == nullptr))
     {
         return hr;
     }
@@ -201,24 +201,24 @@ CDVBSub::~CDVBSub()
         }
 
         static_cast<void>(gb.BitRead(2));              // scrambling
-        (void)gb.BitRead(1);                           // priority
-        (void)gb.BitRead(1);                           // alignment
-        (void)gb.BitRead(1);                           // copyright
-        (void)gb.BitRead(1);                           // original
+        static_cast<void>(gb.BitRead(1));              // priority
+        static_cast<void>(gb.BitRead(1));              // alignment
+        static_cast<void>(gb.BitRead(1));              // copyright
+        static_cast<void>(gb.BitRead(1));              // original
         BYTE fpts{ static_cast<BYTE>(gb.BitRead(1)) }; // fpts
         BYTE fdts{ static_cast<BYTE>(gb.BitRead(1)) }; // fdts
-        (void)gb.BitRead(1);                           // escr
-        (void)gb.BitRead(1);                           // esrate
-        (void)gb.BitRead(1);                           // dsmtrickmode
-        (void)gb.BitRead(1);                           // morecopyright
-        (void)gb.BitRead(1);                           // crc
-        (void)gb.BitRead(1);                           // extension
-        (void)gb.BitRead(8);                           // hdrlen
+        static_cast<void>(gb.BitRead(1));              // escr
+        static_cast<void>(gb.BitRead(1));              // esrate
+        static_cast<void>(gb.BitRead(1));              // dsmtrickmode
+        static_cast<void>(gb.BitRead(1));              // morecopyright
+        static_cast<void>(gb.BitRead(1));              // crc
+        static_cast<void>(gb.BitRead(1));              // extension
+        static_cast<void>(gb.BitRead(8));              // hdrlen
 
         if (fpts)
         {
             BYTE b{ static_cast<BYTE>(gb.BitRead(4)) };
-            if (!((fdts && b == 3) || (!fdts && b == 2)))
+            if (!((fdts && (b == 3)) || (!fdts && (b == 2))))
             {
                 ASSERT(0);
                 return E_FAIL;
@@ -265,7 +265,7 @@ CDVBSub::~CDVBSub()
 
                 WORD wSegLength;
 
-                nCurSegment = (DVB_SEGMENT_TYPE)gb.ReadByte();
+                nCurSegment = static_cast<DVB_SEGMENT_TYPE>(gb.ReadByte());
                 static_cast<void>(gb.ReadShort());
                 wSegLength = gb.ReadShort();
 
@@ -288,7 +288,7 @@ CDVBSub::~CDVBSub()
                     CAutoPtr<DVB_PAGE> pPage;
                     static_cast<void>(ParsePage(gb, wSegLength, pPage));
 
-                    if (pPage->pageState == DPS_ACQUISITION || pPage->pageState == DPS_MODE_CHANGE)
+                    if ((pPage->pageState == DPS_ACQUISITION) || (pPage->pageState == DPS_MODE_CHANGE))
                     {
                         m_pCurrentPage = pPage;
                         m_pCurrentPage->rtStart = m_rtStart;
@@ -605,7 +605,7 @@ void CDVBSub::Reset()
             pObject->object_horizontal_position = static_cast<short>(gb.BitRead(12));
             static_cast<void>(gb.BitRead(4)); // Reserved
             pObject->object_vertical_position = static_cast<short>(gb.BitRead(12));
-            if (pObject->object_type == 0x01 || pObject->object_type == 0x02)
+            if ((pObject->object_type == 0x01) || (pObject->object_type == 0x02))
             {
                 pObject->foreground_pixel_code = gb.ReadByte();
                 pObject->background_pixel_code = gb.ReadByte();
@@ -714,8 +714,8 @@ void CDVBSub::Reset()
         pObject->m_version_number = static_cast<BYTE>(gb.BitRead(4));
 
         BYTE object_coding_method{ static_cast<BYTE>(gb.BitRead(2)) }; // object_coding_method
-        (void)gb.BitRead(1);                                           // non_modifying_colour_flag
-        (void)gb.BitRead(1);                                           // reserved
+        static_cast<void>(gb.BitRead(1));                              // non_modifying_colour_flag
+        static_cast<void>(gb.BitRead(1));                              // reserved
 
         if (object_coding_method == 0x00)
         {

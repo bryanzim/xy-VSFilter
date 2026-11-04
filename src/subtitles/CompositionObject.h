@@ -93,7 +93,7 @@ public:
         CompositionObject* pCompositionObject{ DEBUG_NEW CompositionObject() };
 
         pCompositionObject->m_Palette.SetCount(m_Palette.GetCount());
-        for (int i{ 0 }, n = m_Palette.GetCount(); i < n; ++i)
+        for (int i{ 0 }, n{ static_cast<int>(m_Palette.GetCount()) }; i < n; ++i)
         {
             pCompositionObject->m_Palette[i] = m_Palette[i];
         }

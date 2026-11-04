@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "../dsutil/vd.h"
 
-typedef const UINT8 CUINT8, *PCUINT8;
-typedef const UINT CUINT, *PCUINT;
+using CUINT8 = const UINT8;
+using PCUINT8 = const UINT8*;
+using CUINT = const UINT;
+using PCUINT = const UINT*;
 
 //
 // ref: "Comparing floating point numbers" by Bruce Dawson
@@ -41,12 +43,12 @@ typedef const UINT CUINT, *PCUINT;
 __forceinline void xy_filter_one_line_c(float* dst, const int width, const float* filter, const int filter_width)
 {
     const float* filter_start{ filter };
-    int xx_fix = width > filter_width ? 0 : filter_width - width;
+    int xx_fix{ width > filter_width ? 0 : filter_width - width };
     float* dst2{ dst - filter_width };
     float* dst_endr{ dst + width };
     float* dst_end0{ dst_endr - filter_width };
     float* dst_endl{ dst - xx_fix };
-    ASSERT((xx_fix == 0 || dst_end0 == dst_endl));
+    ASSERT(((xx_fix == 0) || (dst_end0 == dst_endl)));
 
     ASSERT(filter_start == filter);
     filter_start += filter_width;
@@ -157,13 +159,13 @@ void xy_filter_c(float* dst, const int width, const int height, const int stride
 
 __forceinline void xy_filter_one_line_sse_v6(float* dst, const int width, const float* filter, const int filter_width)
 {
-    int xx_fix = width > filter_width ? 0 : filter_width - width;
+    int xx_fix{ width > filter_width ? 0 : filter_width - width };
     const float* filter_start{ filter };
     float* dst2{ dst - filter_width };
     float* dst_endr{ dst + width };
     float* dst_end0{ dst_endr - filter_width - 4 };
     float* dst_endl{ dst - xx_fix };
-    ASSERT((xx_fix == 0 || dst_end0 == dst_endl - 4));
+    ASSERT(((xx_fix == 0) || (dst_end0 == dst_endl - 4)));
 
     ASSERT(filter_start == filter);
     filter_start += filter_width;
@@ -588,7 +590,7 @@ void xy_3_tag_symmetric_filter_sse(float* dst, const int width, const int height
     ASSERT(stride >= 4 * (width + filter_width));
     ASSERT(((stride | (4 * width) | (4 * filter_width) | reinterpret_cast<std::intptr_t>(dst) | reinterpret_cast<std::intptr_t>(filter)) & 15) == 0);
 
-    ASSERT((filter_width == 4 && filter[3U] == 0 && filter[2U] == filter[0U]));
+    ASSERT(((filter_width == 4) && (filter[3U] == 0) && (filter[2U] == filter[0U])));
 
     __m128 f3_1{ _mm_set1_ps(filter[0U]) };
     __m128 f3_2{ _mm_set1_ps(filter[1U]) };
@@ -641,7 +643,7 @@ void xy_3_tag_symmetric_filter_sse(float* dst, const int width, const int height
  **/
 void xy_filter_sse(float* dst, const int width, const int height, const int stride, const float* filter, const int filter_width)
 {
-    typedef void (*Filter)(float* dst, int width, int height, int stride, const float* filter);
+    using Filter = void (*)(float* dst, int width, int height, int stride, const float* filter);
     const Filter filters[] = {
         nullptr,
         xy_filter_sse_template<1>, xy_filter_sse_template<4>, xy_filter_sse_template<4>, xy_filter_sse_template<4>,
@@ -660,7 +662,7 @@ void xy_filter_sse(float* dst, const int width, const int height, const int stri
         {
             --tmp;
         }
-        if (tmp == 3 && filter[0U] == filter[2U])
+        if ((tmp == 3) && (filter[0U] == filter[2U]))
         {
             xy_3_tag_symmetric_filter_sse(dst, width, height, stride, filter);
         }
@@ -806,10 +808,10 @@ void xy_float_2_float_transpose_sse(float* dst, const int dst_width, const int d
         for (; src2 < src2_end1; src2 += 4 * src_stride, dst2 += 4)
         {
             __m128 m1{ _mm_set_ps(
-                *(SrcT*)(src2 + 3 * src_stride),
-                *(SrcT*)(src2 + 2 * src_stride),
-                *(SrcT*)(src2 + src_stride),
-                *(SrcT*)(src2)) };
+                *reinterpret_cast<SrcT*>((src2 + 3 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 2 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + src_stride)),
+                *reinterpret_cast<SrcT*>((src2))) };
             _mm_store_ps(dst2, m1);
         }
         for (; src2 < src2_end2; src2 += src_stride, ++dst2)
@@ -873,25 +875,25 @@ void xy_float_2_byte_transpose_sse(UINT8* dst, const int dst_width, const int ds
         for (; src2 < src2_end00; src2 += 16 * src_stride, dst2 += 16)
         {
             __m128 m1{ _mm_set_ps(
-                *(SrcT*)(src2 + 3 * src_stride),
-                *(SrcT*)(src2 + 2 * src_stride),
-                *(SrcT*)(src2 + src_stride),
-                *(SrcT*)(src2)) };
+                *reinterpret_cast<SrcT*>((src2 + 3 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 2 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + src_stride)),
+                *reinterpret_cast<SrcT*>((src2))) };
             __m128 m2{ _mm_set_ps(
-                *(SrcT*)(src2 + 7 * src_stride),
-                *(SrcT*)(src2 + 6 * src_stride),
-                *(SrcT*)(src2 + 5 * src_stride),
-                *(SrcT*)(src2 + 4 * src_stride)) };
+                *reinterpret_cast<SrcT*>((src2 + 7 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 6 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 5 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 4 * src_stride))) };
             __m128 m3{ _mm_set_ps(
-                *(SrcT*)(src2 + 11 * src_stride),
-                *(SrcT*)(src2 + 10 * src_stride),
-                *(SrcT*)(src2 + 9 * src_stride),
-                *(SrcT*)(src2 + 8 * src_stride)) };
+                *reinterpret_cast<SrcT*>((src2 + 11 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 10 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 9 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 8 * src_stride))) };
             __m128 m4{ _mm_set_ps(
-                *(SrcT*)(src2 + 15 * src_stride),
-                *(SrcT*)(src2 + 14 * src_stride),
-                *(SrcT*)(src2 + 13 * src_stride),
-                *(SrcT*)(src2 + 12 * src_stride)) };
+                *reinterpret_cast<SrcT*>((src2 + 15 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 14 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 13 * src_stride)),
+                *reinterpret_cast<SrcT*>((src2 + 12 * src_stride))) };
 
             __m128i i1{ _mm_cvtps_epi32(m1) };
             __m128i i2{ _mm_cvtps_epi32(m2) };
@@ -902,7 +904,7 @@ void xy_float_2_byte_transpose_sse(UINT8* dst, const int dst_width, const int ds
             i3 = _mm_packs_epi32(i3, i4);
             i1 = _mm_packus_epi16(i1, i3);
 
-            _mm_store_si128((__m128i*)dst2, i1);
+            _mm_store_si128(reinterpret_cast<__m128i*>(dst2), i1);
         }
         for (; src2 < src2_end; src2 += src_stride, ++dst2)
         {
@@ -945,9 +947,9 @@ void xy_gaussian_blur(PUINT8 dst, int dst_stride,
 
 
     int fwidth{ (width + 3) & ~3 };
-    int fstride = (fwidth + ex_mask_width_x) * sizeof(float);
+    int fstride{ static_cast<int>((fwidth + ex_mask_width_x) * sizeof(float)) };
     int fheight{ (height + 3) & ~3 };
-    int fstride_ver = (fheight + ex_mask_width_y) * sizeof(float);
+    int fstride_ver{ static_cast<int>((fheight + ex_mask_width_y) * sizeof(float)) };
 
     PUINT8 buff_base{ reinterpret_cast<PUINT8>(xy_malloc(height * fstride + (fwidth + ex_mask_width_x) * fstride_ver)) };
 
@@ -1391,8 +1393,8 @@ void xy_be_blur(PUINT8 src, int width, int height, int stride, float pass_x, flo
 {
     // ASSERT(pass_x>0 && pass_y>0);
 
-    typedef void (*XyBeFilter)(PUINT8 src, int width, int height, int stride);
-    typedef void (*XyFilter2)(PUINT8 src, int width, int height, int stride, PCUINT filter);
+    using XyBeFilter = void (*)(PUINT8 src, int width, int height, int stride);
+    using XyFilter2 = void (*)(PUINT8 src, int width, int height, int stride, PCUINT filter);
 
     XyBeFilter filter{ xy_be_filter_sse<ROUND_HALF_TO_EVEN> };
     XyFilter2 filter2{ xy_be_filter2_sse<ROUND_HALF_TO_EVEN> };

@@ -127,12 +127,12 @@ void CHdmvSub::AllocSegment(const int nSize)
 {
     CheckPointer(pSample, E_POINTER);
     HRESULT hr;
-    REFERENCE_TIME rtStart{ INVALID_TIME }, rtStop = INVALID_TIME;
+    REFERENCE_TIME rtStart{ INVALID_TIME }, rtStop{ INVALID_TIME };
     BYTE* pData{ nullptr };
     int lSampleLen;
 
     hr = pSample->GetPointer(&pData);
-    if (FAILED(hr) || pData == nullptr)
+    if (FAILED(hr) || (pData == nullptr))
     {
         return hr;
     }
@@ -155,8 +155,8 @@ void CHdmvSub::AllocSegment(const int nSize)
         {
             if (m_nCurSegment == NO_SEGMENT)
             {
-                HDMV_SEGMENT_TYPE nSegType{ (HDMV_SEGMENT_TYPE)SampleBuffer.ReadByte() };
-                unsigned short nUnitSize = SampleBuffer.ReadShort();
+                HDMV_SEGMENT_TYPE nSegType{ static_cast<HDMV_SEGMENT_TYPE>(SampleBuffer.ReadByte()) };
+                unsigned short nUnitSize{ static_cast<unsigned short>(SampleBuffer.ReadShort()) };
                 lSampleLen -= 3;
 
                 switch (nSegType)
@@ -210,7 +210,7 @@ void CHdmvSub::AllocSegment(const int nSize)
                         // Enqueue the current presentation segment if any
                         EnqueuePresentationSegment(rtStart);
                         // Parse the new presentation segment
-                        (void)ParsePresentationSegment(rtStart, &SegmentBuffer);
+                        static_cast<void>(ParsePresentationSegment(rtStart, &SegmentBuffer));
 
                         break;
                     case WINDOW_DEF:

@@ -132,7 +132,7 @@ void DeleteSubStyles(DirectVobSubXyOptions::SubStyle* style, const int count)
     ASSERT((style && count));
     *style = nullptr;
     HRESULT hr{ filter->XyGetInt(DirectVobSubXyOptions::INT_CUR_STYLES_COUNT, count) };
-    if ((hr != S_OK) || *count == 0)
+    if ((hr != S_OK) || (*count == 0))
     {
         return hr;
     }
@@ -224,7 +224,7 @@ void EditStyle(const HWND hWnd, IXyOptions* filter, /* in-out */ STSStyle* defau
     wcscpy_s(wszTitle, STR_MAX_LENGTH, str);
     wszTitle[STR_MAX_LENGTH - 1] = 0;
 #else
-    mbstowcs(wszTitle, str, str.GetLength() + 1);
+    std::mbstowcs(wszTitle, str, str.GetLength() + 1);
 #endif
 
     CheckPointer(pPageInfo, E_POINTER);
@@ -269,7 +269,7 @@ void EditStyle(const HWND hWnd, IXyOptions* filter, /* in-out */ STSStyle* defau
         return E_UNEXPECTED;
     }
 
-    m_hwnd = CreateDialogParam(AfxGetResourceHandle(), MAKEINTRESOURCE(m_DialogId), hwndParent, DialogProc, (LPARAM)this);
+    m_hwnd = CreateDialogParam(AfxGetResourceHandle(), MAKEINTRESOURCE(m_DialogId), hwndParent, DialogProc, reinterpret_cast<LPARAM>(this));
     if (m_hwnd == nullptr)
     {
         return E_OUTOFMEMORY;
@@ -307,7 +307,7 @@ CDVSBasePPage::CDVSBasePPage(TCHAR* pName, LPUNKNOWN lpunk, int DialogId, int Ti
             case EN_CHANGE: {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-                if (!m_fDisableInstantUpdate && !(HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == IDC_INSTANTUPDATE) && !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INSTANTUPDATE), 1))
+                if (!m_fDisableInstantUpdate && !((HIWORD(wParam) == BN_CLICKED) && (LOWORD(wParam) == IDC_INSTANTUPDATE)) && !!theApp.GetProfileInt(ResStr(IDS_R_GENERAL), ResStr(IDS_RG_INSTANTUPDATE), 1))
                 {
                     OnApplyChanges();
                 }
@@ -619,7 +619,7 @@ void CDVSMainPPage::UpdateControlData(const bool fSave)
         wcscpy_s(m_fn, MAX_PATH, fn);
         m_fn[MAX_PATH - 1] = 0;
 #else
-        mbstowcs(m_fn, fn, fn.GetLength() + 1);
+        std::mbstowcs(m_fn, fn, fn.GetLength() + 1);
 #endif
         m_iSelectedLanguage = m_langs.GetCurSel();
         m_fOverridePlacement = !!m_oplacement.GetCheck();
@@ -1044,9 +1044,9 @@ void CDVSTimingPPage::UpdateControlData(const bool fSave)
         m_subspeedmul.SetPos32(m_SubtitleSpeedMul);
         m_subspeeddiv.SetPos32(m_SubtitleSpeedDiv);
 #else
-        SendMessage(GetDlgItem(m_Dlg, IDC_SPIN5), UDM_SETPOS32, 0, (LPARAM)m_SubtitleDelay);
-        SendMessage(GetDlgItem(m_Dlg, IDC_SPIN6), UDM_SETPOS32, 0, (LPARAM)m_SubtitleSpeedMul);
-        SendMessage(GetDlgItem(m_Dlg, IDC_SPIN9), UDM_SETPOS32, 0, (LPARAM)m_SubtitleSpeedDiv);
+        SendMessage(GetDlgItem(m_Dlg, IDC_SPIN5), UDM_SETPOS32, 0, static_cast<LPARAM>(m_SubtitleDelay));
+        SendMessage(GetDlgItem(m_Dlg, IDC_SPIN6), UDM_SETPOS32, 0, static_cast<LPARAM>(m_SubtitleSpeedMul));
+        SendMessage(GetDlgItem(m_Dlg, IDC_SPIN9), UDM_SETPOS32, 0, static_cast<LPARAM>(m_SubtitleSpeedDiv));
 #endif
     }
 }
@@ -1330,7 +1330,7 @@ CDVSZoomPPage::CDVSZoomPPage(LPUNKNOWN pUnk, HRESULT* phr) : CDVSBasePPage(NAME(
         switch (HIWORD(wParam))
         {
         case EN_CHANGE: {
-            if (LOWORD(wParam) == IDC_EDIT1 || LOWORD(wParam) == IDC_EDIT2 || LOWORD(wParam) == IDC_EDIT7 || LOWORD(wParam) == IDC_EDIT8)
+            if ((LOWORD(wParam) == IDC_EDIT1) || (LOWORD(wParam) == IDC_EDIT2) || (LOWORD(wParam) == IDC_EDIT7) || (LOWORD(wParam) == IDC_EDIT8))
             {
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
                 UpdateControlData(true);
@@ -1593,7 +1593,7 @@ CDVSPathsPPage::CDVSPathsPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR* pName /*= N
         switch (HIWORD(wParam))
         {
         case LBN_SELCHANGE:
-            if ((HWND)lParam == m_pathlist.m_hWnd)
+            if (reinterpret_cast<HWND>(lParam) == m_pathlist.m_hWnd)
             {
                 int i{ m_pathlist.GetCurSel() };
                 m_remove.EnableWindow(i >= 3 ? TRUE : FALSE);
@@ -1608,7 +1608,7 @@ CDVSPathsPPage::CDVSPathsPPage(LPUNKNOWN lpunk, HRESULT* phr, TCHAR* pName /*= N
             break;
 
         case LBN_SELCANCEL:
-            if ((HWND)lParam == m_pathlist.m_hWnd)
+            if (reinterpret_cast<HWND>(lParam) == m_pathlist.m_hWnd)
             {
                 m_remove.EnableWindow(FALSE);
                 return (true);
@@ -1924,7 +1924,7 @@ void CXySubFilterMainPPage::UpdateControlData(const bool fSave)
         wcscpy_s(m_fn, MAX_PATH, fn);
         m_fn[MAX_PATH - 1] = 0;
 #else
-        mbstowcs(m_fn, fn, fn.GetLength() + 1);
+        std::mbstowcs(m_fn, fn, fn.GetLength() + 1);
 #endif
         m_iSelectedLanguage = m_langs.GetCurSel();
         m_fOverridePlacement = !!m_oplacement.GetCheck();

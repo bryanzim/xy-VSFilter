@@ -68,8 +68,8 @@ void CFontInstaller::UninstallFonts()
         return false;
     }
 
-    DWORD nFonts{ 0 };
-    HANDLE hFont{ pAddFontMemResourceEx((PVOID)pData, len, nullptr, &nFonts) };
+    DWORD nFonts{ 0U };
+    HANDLE hFont{ pAddFontMemResourceEx(const_cast<PVOID>(pData), len, nullptr, &nFonts) };
     if (hFont && (nFonts > 0))
     {
         m_fonts.AddTail(hFont);

@@ -295,13 +295,13 @@ void CreateDrawItemExTree(CompositeDrawItemListList& input,
 {
     ASSERT(((out_draw_item_ex_tree != nullptr) && (out_rect_ex_list != nullptr)));
 
-    int list_count = input.GetCount();
+    int list_count{ static_cast<int>(input.GetCount()) };
     out_draw_item_ex_tree->SetCount(list_count);
     POSITION list_pos{ input.GetHeadPosition() };
     for (int list_id{ 0 }; list_id < list_count; ++list_id)
     {
         CompositeDrawItemList& compDrawItemList{ input.GetNext(list_pos) };
-        int count = compDrawItemList.GetCount();
+        int count{ static_cast<int>(compDrawItemList.GetCount()) };
         CompositeDrawItemExVec& out_draw_item_exs{ out_draw_item_ex_tree->GetAt(list_id) };
         out_draw_item_exs.SetCount(count);
         POSITION item_pos{ compDrawItemList.GetHeadPosition() };
@@ -322,8 +322,8 @@ void CreateDrawItemExTree(CompositeDrawItemListList& input,
 
 void MergeRects(const XyRectExList& input, XyRectExList* output)
 {
-    int input_count = input.GetCount();
-    if (output == nullptr || input_count == 0)
+    int input_count{ static_cast<int>(input.GetCount()) };
+    if ((output == nullptr) || (input_count == 0))
     {
         return;
     }
@@ -360,7 +360,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
 
     CAtlArray<Segment> tempSegments;
     tempSegments.SetCount(vertical_breakpoints.size() - 1);
-    int prev{ vertical_breakpoints[0U] }, count = 0;
+    int prev{ vertical_breakpoints[0U] }, count{ 0 };
     for (unsigned ptr{ 1U }; ptr < vertical_breakpoints.size(); ++ptr)
     {
         if (vertical_breakpoints[ptr] != prev)
@@ -379,7 +379,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
     {
         const XyRectEx& rect{ *horizon_breakpoints[i].rect };
 
-        int start{ 0 }, mid, end = count;
+        int start{ 0 }, mid, end{ count };
 
         while (start < end)
         {
@@ -444,7 +444,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
                     break;
                 }
 
-                if (upper_rect.right == cur_rect->right && upper_rect.left == cur_rect->left)
+                if ((upper_rect.right == cur_rect->right) && (upper_rect.left == cur_rect->left))
                 {
                     upper_rect.bottom = cur_rect->bottom;
                     upper_rect.item_ex_list->AddTailList(cur_rect->item_ex_list.get());
@@ -475,7 +475,7 @@ void MergeRects(const XyRectExList& input, XyRectExList* output)
 
 void DecideDrawMethod(CompositeDrawItemListList& compDrawItemListList, XyRectExList& rect_ex_list)
 {
-    int count = rect_ex_list.GetCount();
+    int count{ static_cast<int>(rect_ex_list.GetCount()) };
     if (count > 128) // this implementation is too slow for input of large scale
     {
         return;
@@ -519,7 +519,7 @@ void DecideDrawMethod(CompositeDrawItemListList& compDrawItemListList, XyRectExL
                     comp_draw_item.shadow->use_addition_draw = true;
                 }
                 int n{ !!comp_draw_item.body + !!comp_draw_item.outline + !!comp_draw_item.shadow };
-                if (n == 1 ||
+                if ((n == 1) ||
                     (!comp_draw_item.shadow && comp_draw_item.outline && !comp_draw_item.outline->fBody))
                 {
                     if (comp_draw_item.body)
@@ -569,7 +569,7 @@ void GroupedDrawItems::Draw(SharedPtrXyBitmap* bitmap, int* bitmap_identity_num)
             XyBitmap::FlipAlphaValue(tmp->bits, tmp->w, tmp->h, tmp->pitch);
         }
 #ifdef XY_DBG_SHOW_BITMAP_BOX_IN_COLOR
-        if (color_space == XY_CS_ARGB_F || color_space == XY_CS_ARGB) // not support plannar format yet
+        if ((color_space == XY_CS_ARGB_F) || (color_space == XY_CS_ARGB)) // not support plannar format yet
         {
             if ((tmp->w > 0) && (tmp->h > 0))
             {

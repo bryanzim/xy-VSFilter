@@ -25,7 +25,8 @@
 
 // CMemSubPic
 
-typedef const UINT8 CUINT8, *PCUINT8;
+using CUINT8 = const UINT8;
+using PCUINT8 = const UINT8*;
 
 struct XySubPicPlan
 {

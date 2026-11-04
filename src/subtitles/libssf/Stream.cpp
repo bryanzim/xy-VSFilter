@@ -38,7 +38,7 @@ namespace ssf
     {
         va_list args;
         va_start(args, fmt);
-        int len = _vsctprintf(fmt, args) + 1;
+        int len{ _vsctprintf(fmt, args) + 1 };
         CString str;
         if (len > 0)
         {
@@ -73,7 +73,7 @@ namespace ssf
             switch (NextByte())
             {
             case 0xef:
-                if (NextByte() == 0xbb && NextByte() == 0xbf)
+                if ((NextByte() == 0xbb) && (NextByte() == 0xbf))
                 {
                     m_encoding = utf8;
                 }
@@ -100,7 +100,7 @@ namespace ssf
 
         int i, c;
 
-        int cur = NextByte();
+        int cur{ NextByte() };
 
         switch (m_encoding)
         {
@@ -151,7 +151,7 @@ namespace ssf
 
     int InputStream::PushChar()
     {
-        int c = NextChar();
+        int c{ NextChar() };
         m_queue.AddTail(c);
         return c;
     }
@@ -163,7 +163,7 @@ namespace ssf
             ThrowError(_T("fatal stream error"));
         }
 
-        int c = m_queue.RemoveHead();
+        int c{ m_queue.RemoveHead() };
 
         if (c != EOS)
         {
@@ -187,7 +187,7 @@ namespace ssf
 
         ASSERT(m_queue.GetCount() == 2U);
 
-        if (m_queue.GetHead() == '/' && m_queue.GetTail() == '/')
+        if ((m_queue.GetHead() == '/') && (m_queue.GetTail() == '/'))
         {
             while (!m_queue.IsEmpty())
             {
@@ -198,10 +198,10 @@ namespace ssf
             {
                 PushChar();
                 c = PopChar();
-            } while (!(c == '\n' || c == EOS));
+            } while (!((c == '\n') || (c == EOS)));
             return PeekChar();
         }
-        else if (m_queue.GetHead() == '/' && m_queue.GetTail() == '*')
+        else if ((m_queue.GetHead() == '/') && (m_queue.GetTail() == '*'))
         {
             while (!m_queue.IsEmpty())
             {
@@ -213,7 +213,7 @@ namespace ssf
             {
                 c2 = PushChar();
                 c1 = PopChar();
-            } while (!((c1 == '*' && c2 == '/') || c1 == EOS));
+            } while (!(((c1 == '*') && (c2 == '/')) || (c1 == EOS)));
             PopChar();
             return PeekChar();
         }
@@ -232,7 +232,7 @@ namespace ssf
 
     int InputStream::SkipWhiteSpace(LPCWSTR morechars)
     {
-        int c = PeekChar();
+        int c{ PeekChar() };
         for (; IsWhiteSpace(c, morechars); c = PeekChar())
         {
             GetChar();
@@ -412,7 +412,7 @@ namespace ssf
 
         va_list args;
         va_start(args, fmt);
-        int len = _vscwprintf(fmt, args) + 1;
+        int len{ _vscwprintf(fmt, args) + 1 };
         if (len > 0)
         {
             vswprintf_s(str.GetBufferSetLength(len), len, fmt, args);

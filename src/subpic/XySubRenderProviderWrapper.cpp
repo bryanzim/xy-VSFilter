@@ -137,13 +137,13 @@ XySubRenderProviderWrapper::XySubRenderProviderWrapper(ISubPicProviderEx* provid
         return hr;
     }
 
-    CMemSubPic* mem_subpic{ dynamic_cast<CMemSubPic*>((ISubPicEx*)m_pSubPic) };
+    CMemSubPic* mem_subpic{ dynamic_cast<CMemSubPic*>(static_cast<ISubPicEx*>(m_pSubPic)) };
     ASSERT(mem_subpic);
     SubPicDesc spd;
     if (SUCCEEDED(m_pSubPic->Lock(spd)))
     {
         CAtlList<CRect> rectList;
-        DWORD color{ 0xFF000000 };
+        DWORD color{ 0xFF000000U };
         if (SUCCEEDED(m_pSubPic->ClearDirtyRect(color)))
         {
             hr = m_provider->RenderEx(spd, now, fps, rectList);
@@ -480,7 +480,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2(ISubPicProviderEx2* pro
             XY_LOG_ERROR("Failed to lock spd. " << XY_LOG_VAR_2_STR(hr));
             return hr;
         }
-        DWORD color{ 0x00000000 };
+        DWORD color{ 0x00000000U };
         hr = m_subpic->ClearDirtyRect(color);
         if (FAILED(hr))
         {
@@ -513,7 +513,7 @@ XySubRenderProviderWrapper2::XySubRenderProviderWrapper2(ISubPicProviderEx2* pro
         }
         hr = m_subpic->GetDirtyRect(&dirty_rect);
         ASSERT(SUCCEEDED(hr));
-        CMemSubPic* mem_subpic{ dynamic_cast<CMemSubPic*>((ISubPicEx*)m_subpic) };
+        CMemSubPic* mem_subpic{ dynamic_cast<CMemSubPic*>(static_cast<ISubPicEx*>(m_subpic)) };
         ASSERT(mem_subpic);
 
         m_xy_sub_render_frame = DEBUG_NEW XySubRenderFrameWrapper(mem_subpic, m_output_rect, m_subtitle_target_rect, s_combined_bitmap_id++, &hr);

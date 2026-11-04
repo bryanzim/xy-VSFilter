@@ -94,7 +94,7 @@ void CH264Nalu::SetBuffer(BYTE* pBuffer, int nSize, int nNALSize)
     else
     {
         // Remove trailing bits
-        while (m_pBuffer[m_nCurPos] == 0x00 && ((*(reinterpret_cast<DWORD*>((m_pBuffer + m_nCurPos))) & 0x00FFFFFF) != 0x00010000))
+        while ((m_pBuffer[m_nCurPos] == 0x00) && ((*(reinterpret_cast<DWORD*>((m_pBuffer + m_nCurPos))) & 0x00FFFFFF) != 0x00010000))
         {
             ++m_nCurPos;
         }
@@ -108,7 +108,7 @@ void CH264Nalu::SetBuffer(BYTE* pBuffer, int nSize, int nNALSize)
 
     forbidden_bit = (m_pBuffer[m_nNALDataPos] >> 7) & 1;
     nal_reference_idc = (m_pBuffer[m_nNALDataPos] >> 5) & 3;
-    nal_unit_type = (NALU_TYPE)(m_pBuffer[m_nNALDataPos] & 0x1f);
+    nal_unit_type = static_cast<NALU_TYPE>((m_pBuffer[m_nNALDataPos] & 0x1f));
 
     return true;
 }

@@ -21,9 +21,13 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
 
 #define XY_GET_TEMPLATE(OPTION_TYPE_x, m_xy_opt_x)           \
     if (!TestOption(field, OPTION_TYPE_x, OPTION_MODE_READ)) \
+    {                                                        \
         return E_INVALIDARG;                                 \
+    }                                                        \
     if (!value)                                              \
+    {                                                        \
         return S_FALSE;                                      \
+    }                                                        \
     return DoGetField(field, value);
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XyGetBool(const unsigned field, bool* value)
@@ -112,7 +116,9 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
 
 #define XY_SET_TEMPLATE(OPTION_TYPE_x, m_xy_opt_x)            \
     if (!TestOption(field, OPTION_TYPE_x, OPTION_MODE_WRITE)) \
+    {                                                         \
         return E_INVALIDARG;                                  \
+    }                                                         \
     return DoSetField(field, &value);
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP XyOptionsImpl::XySetBool(const unsigned field, const bool value)
@@ -263,10 +269,10 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
         *reinterpret_cast<int*>(value) = m_xy_int_opt[field];
         break;
     case OPTION_TYPE_SIZE:
-        *(SIZE*)value = m_xy_size_opt[field];
+        *reinterpret_cast<SIZE*>(value) = m_xy_size_opt[field];
         break;
     case OPTION_TYPE_RECT:
-        *(RECT*)value = m_xy_rect_opt[field];
+        *reinterpret_cast<RECT*>(value) = m_xy_rect_opt[field];
         break;
     case OPTION_TYPE_ULONGLONG:
         *reinterpret_cast<ULONGLONG*>(value) = m_xy_ulonglong_opt[field];
@@ -275,7 +281,7 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
         *reinterpret_cast<double*>(value) = m_xy_double_opt[field];
         break;
     case OPTION_TYPE_STRING:
-        *(CStringW*)value = m_xy_str_opt[field];
+        *reinterpret_cast<CStringW*>(value) = m_xy_str_opt[field];
         break;
     case OPTION_TYPE_BIN:
     case OPTION_TYPE_BIN2:
@@ -304,16 +310,16 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
         }
         break;
     case OPTION_TYPE_SIZE:
-        if (m_xy_size_opt[field] != *(SIZE*)value)
+        if (m_xy_size_opt[field] != *reinterpret_cast<const SIZE*>(value))
         {
-            m_xy_size_opt[field] = *(SIZE*)value;
+            m_xy_size_opt[field] = *reinterpret_cast<const SIZE*>(value);
             hr = OnOptionChanged(field);
         }
         break;
     case OPTION_TYPE_RECT:
-        if (m_xy_rect_opt[field] != *(RECT*)value)
+        if (m_xy_rect_opt[field] != *reinterpret_cast<const RECT*>(value))
         {
-            m_xy_rect_opt[field] = *(RECT*)value;
+            m_xy_rect_opt[field] = *reinterpret_cast<const RECT*>(value);
             hr = OnOptionChanged(field);
         }
         break;
@@ -332,9 +338,9 @@ XyOptionsImpl::XyOptionsImpl(const Option* option_list)
         }
         break;
     case OPTION_TYPE_STRING:
-        if (m_xy_str_opt[field] != *(CStringW*)value)
+        if (m_xy_str_opt[field] != *reinterpret_cast<const CStringW*>(value))
         {
-            m_xy_str_opt[field] = *(CStringW*)value;
+            m_xy_str_opt[field] = *reinterpret_cast<const CStringW*>(value);
             hr = OnOptionChanged(field);
         }
         break;

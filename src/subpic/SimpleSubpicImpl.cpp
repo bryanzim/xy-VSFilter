@@ -33,7 +33,7 @@ SimpleSubpic::~SimpleSubpic()
 {
     ASSERT(target != nullptr);
     HRESULT hr{ S_FALSE };
-    int count = m_bitmap.GetCount();
+    int count{ static_cast<int>(m_bitmap.GetCount()) };
     for (int i{ 0 }; i < count; ++i)
     {
         switch (target->type)
@@ -77,8 +77,8 @@ SimpleSubpic::~SimpleSubpic()
         rd.top = dst.h - rd.top;
     }
 
-    int w{ src.size.cx }, h = src.size.cy;
-    bool bottom_down = rd.top > rd.bottom;
+    int w{ src.size.cx }, h{ src.size.cy };
+    bool bottom_down{ rd.top > rd.bottom };
 
     BYTE* d{ nullptr };
     BYTE* dUV{ nullptr };
@@ -108,7 +108,7 @@ SimpleSubpic::~SimpleSubpic()
         }
         dst.pitch = -dst.pitch;
     }
-    ASSERT((dst.pitchUV == 0 || dst.pitchUV == std::abs(dst.pitch)));
+    ASSERT(((dst.pitchUV == 0) || (dst.pitchUV == std::abs(dst.pitch))));
 
     enum PLANS
     {
@@ -143,8 +143,8 @@ SimpleSubpic::~SimpleSubpic()
         rd.top = dst.h - rd.top;
     }
 
-    int w{ src.size.cx }, h = src.size.cy;
-    bool bottom_down = rd.top > rd.bottom;
+    int w{ src.size.cx }, h{ src.size.cy };
+    bool bottom_down{ rd.top > rd.bottom };
 
     BYTE* d{ nullptr };
     BYTE* dUV{ nullptr };
@@ -159,7 +159,7 @@ SimpleSubpic::~SimpleSubpic()
         dUV = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * dst.h + dst.pitch * (rd.top / 2 - 1) + rd.left;
         dst.pitch = -dst.pitch;
     }
-    ASSERT((dst.pitchUV == 0 || dst.pitchUV == std::abs(dst.pitch)));
+    ASSERT(((dst.pitchUV == 0) || (dst.pitchUV == std::abs(dst.pitch))));
 
     enum PLANS
     {
@@ -185,17 +185,17 @@ SimpleSubpic::~SimpleSubpic()
         rd.top = dst.h - rd.top;
     }
 
-    int w{ src.size.cx }, h = src.size.cy;
+    int w{ src.size.cx }, h{ src.size.cy };
     const BYTE* s{ reinterpret_cast<const BYTE*>(src.pixels) };
     BYTE* d{ reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * rd.top + ((rd.left * dst.bpp) >> 3) };
 
     if (rd.top > rd.bottom)
     {
-        if (dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15 || dst.type == MSP_YUY2 || dst.type == MSP_AYUV)
+        if ((dst.type == MSP_RGB32) || (dst.type == MSP_RGB24) || (dst.type == MSP_RGB16) || (dst.type == MSP_RGB15) || (dst.type == MSP_YUY2) || (dst.type == MSP_AYUV))
         {
             d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + (rd.left * dst.bpp >> 3);
         }
-        else if (dst.type == MSP_YV12 || dst.type == MSP_IYUV || dst.type == MSP_YV16 || dst.type == MSP_YV24)
+        else if ((dst.type == MSP_YV12) || (dst.type == MSP_IYUV) || (dst.type == MSP_YV16) || (dst.type == MSP_YV24))
         {
             d = reinterpret_cast<BYTE*>(dst.bits) + dst.pitch * (rd.top - 1) + (rd.left * 8 >> 3);
         }
@@ -212,7 +212,7 @@ SimpleSubpic::~SimpleSubpic()
         for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{ s };
-            const BYTE* s2end{ s2 + w * 4 };
+            const BYTE* s2end{ s2 + w * 4U };
             DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
@@ -231,7 +231,7 @@ SimpleSubpic::~SimpleSubpic()
         for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{ s };
-            const BYTE* s2end{ s2 + w * 4 };
+            const BYTE* s2end{ s2 + w * 4U };
             DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
@@ -246,7 +246,7 @@ SimpleSubpic::~SimpleSubpic()
         for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{ s };
-            const BYTE* s2end{ s2 + w * 4 };
+            const BYTE* s2end{ s2 + w * 4U };
             DWORD* d2{ reinterpret_cast<DWORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
@@ -261,7 +261,7 @@ SimpleSubpic::~SimpleSubpic()
         for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{ s };
-            const BYTE* s2end{ s2 + w * 4 };
+            const BYTE* s2end{ s2 + w * 4U };
             BYTE* d2{ d };
             for (; s2 < s2end; s2 += 4, d2 += 3)
             {
@@ -278,13 +278,13 @@ SimpleSubpic::~SimpleSubpic()
         for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{ s };
-            const BYTE* s2end{ s2 + w * 4 };
+            const BYTE* s2end{ s2 + w * 4U };
             WORD* d2{ reinterpret_cast<WORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0x1f)
                 {
-                    *d2 = static_cast<WORD>(((((((*d2 & 0xf81f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0xf81f)) & 0xf81f) | (((((*d2 & 0x07e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x07e0)) & 0x07e0)));
+                    *d2 = static_cast<WORD>(((((((*d2 & 0xf81f) * s2[3U]) >> 5) + (*reinterpret_cast<const DWORD*>(s2) & 0xf81f)) & 0xf81f) | (((((*d2 & 0x07e0) * s2[3U]) >> 5) + (*reinterpret_cast<const DWORD*>(s2) & 0x07e0)) & 0x07e0)));
                     /*					*d2 = (WORD)((((((*d2&0xf800)*s2[3])>>8) + (*(DWORD*)s2&0xf800))&0xf800)
                     | (((((*d2&0x07e0)*s2[3])>>8) + (*(DWORD*)s2&0x07e0))&0x07e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -297,13 +297,13 @@ SimpleSubpic::~SimpleSubpic()
         for (int j{ 0 }; j < h; ++j, s += src.pitch, d += dst.pitch)
         {
             const BYTE* s2{ s };
-            const BYTE* s2end{ s2 + w * 4 };
+            const BYTE* s2end{ s2 + w * 4U };
             WORD* d2{ reinterpret_cast<WORD*>(d) };
             for (; s2 < s2end; s2 += 4, ++d2)
             {
                 if (s2[3U] < 0x1f)
                 {
-                    *d2 = static_cast<WORD>(((((((*d2 & 0x7c1f) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x7c1f)) & 0x7c1f) | (((((*d2 & 0x03e0) * s2[3U]) >> 5) + (*(DWORD*)s2 & 0x03e0)) & 0x03e0)));
+                    *d2 = static_cast<WORD>(((((((*d2 & 0x7c1f) * s2[3U]) >> 5) + (*reinterpret_cast<const DWORD*>(s2) & 0x7c1f)) & 0x7c1f) | (((((*d2 & 0x03e0) * s2[3U]) >> 5) + (*reinterpret_cast<const DWORD*>(s2) & 0x03e0)) & 0x03e0)));
                     /*					*d2 = (WORD)((((((*d2&0x7c00)*s2[3])>>8) + (*(DWORD*)s2&0x7c00))&0x7c00)
                     | (((((*d2&0x03e0)*s2[3])>>8) + (*(DWORD*)s2&0x03e0))&0x03e0)
                     | (((((*d2&0x001f)*s2[3])>>8) + (*(DWORD*)s2&0x001f))&0x001f));
@@ -462,7 +462,7 @@ SimpleSubpic::~SimpleSubpic()
 {
     int count{ 0 };
     HRESULT hr{ m_sub_render_frame->GetBitmapCount(&count) };
-    if (FAILED(hr) || count == 0)
+    if (FAILED(hr) || (count == 0))
     {
         return hr;
     }
@@ -550,7 +550,7 @@ SimpleSubpic::~SimpleSubpic()
             for (BYTE* tempTop{ dst }; tempTop < dst + bitmap.pitch * h; tempTop += bitmap.pitch)
             {
                 BYTE* s{ tempTop };
-                BYTE* e{ s + w * 4 };
+                BYTE* e{ s + w * 4U };
                 BYTE last_v{ s[0U] }, last_u = s[2U];
                 for (; s < e; s += 8) // AUYV AUYV -> AxYU AxYV
                 {
@@ -563,18 +563,18 @@ SimpleSubpic::~SimpleSubpic()
                 }
             }
         }
-        else if (m_alpha_blt_dst_type == MSP_YV12 || m_alpha_blt_dst_type == MSP_IYUV ||
-                 m_alpha_blt_dst_type == MSP_YV16 || m_alpha_blt_dst_type == MSP_YV24)
+        else if ((m_alpha_blt_dst_type == MSP_YV12) || (m_alpha_blt_dst_type == MSP_IYUV) ||
+                 (m_alpha_blt_dst_type == MSP_YV16) || (m_alpha_blt_dst_type == MSP_YV24))
         {
             ASSERT(xy_color_space == XY_CS_AYUV_PLANAR);
             // nothing to do
         }
-        else if (m_alpha_blt_dst_type == MSP_P010 || m_alpha_blt_dst_type == MSP_P016 || m_alpha_blt_dst_type == MSP_NV12)
+        else if ((m_alpha_blt_dst_type == MSP_P010) || (m_alpha_blt_dst_type == MSP_P016) || (m_alpha_blt_dst_type == MSP_NV12))
         {
             ASSERT(xy_color_space == XY_CS_AYUV_PLANAR);
             SubsampleAndInterlace(i, &bitmap, true);
         }
-        else if (m_alpha_blt_dst_type == MSP_P210 || m_alpha_blt_dst_type == MSP_P216)
+        else if ((m_alpha_blt_dst_type == MSP_P210) || (m_alpha_blt_dst_type == MSP_P216))
         {
             ASSERT(xy_color_space == XY_CS_AYUV_PLANAR);
             SubsampleAndInterlace422(i, &bitmap, true);

@@ -80,15 +80,15 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
     SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
 
     static_cast<void>(ReadDword()); // length
-    (void)ReadByte();               // reserved_for_word_align
+    static_cast<void>(ReadByte());  // reserved_for_word_align
     number_of_program_sequences = static_cast<BYTE>(ReadByte());
     int iStream{ 0 };
     for (std::size_t i{ 0U }; i < number_of_program_sequences; ++i)
     {
         static_cast<void>(ReadDword());                          // SPN_program_sequence_start
-        (void)ReadShort();                                       // program_map_PID
+        static_cast<void>(ReadShort());                          // program_map_PID
         number_of_streams_in_ps = static_cast<BYTE>(ReadByte()); // number_of_streams_in_ps
-        (void)ReadByte();                                        // reserved_for_future_use
+        static_cast<void>(ReadByte());                           // reserved_for_future_use
 
         for (std::size_t stream_index{ 0U }; stream_index < number_of_streams_in_ps; ++stream_index)
         {
@@ -99,7 +99,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             Pos.QuadPart = 0;
             SetFilePointerEx(m_hFile, Pos, &Pos, FILE_CURRENT);
             Pos.QuadPart += ReadByte() + 1; // length
-            m_Streams[iStream].m_Type = (PES_STREAM_TYPE)ReadByte();
+            m_Streams[iStream].m_Type = static_cast<PES_STREAM_TYPE>(ReadByte());
 
             switch (m_Streams[iStream].m_Type)
             {
@@ -108,10 +108,10 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             case VIDEO_STREAM_H264:
             case VIDEO_STREAM_VC1: {
                 UINT8 Temp{ ReadByte() };
-                BDVM_VideoFormat VideoFormat{ (BDVM_VideoFormat)(Temp >> 4) };
-                BDVM_FrameRate FrameRate{ (BDVM_FrameRate)(Temp & 0xf) };
+                BDVM_VideoFormat VideoFormat{ static_cast<BDVM_VideoFormat>((Temp >> 4)) };
+                BDVM_FrameRate FrameRate{ static_cast<BDVM_FrameRate>((Temp & 0xf)) };
                 Temp = ReadByte();
-                BDVM_AspectRatio AspectRatio{ (BDVM_AspectRatio)(Temp >> 4) };
+                BDVM_AspectRatio AspectRatio{ static_cast<BDVM_AspectRatio>((Temp >> 4)) };
 
                 m_Streams[iStream].m_VideoFormat = VideoFormat;
                 m_Streams[iStream].m_FrameRate = FrameRate;
@@ -130,8 +130,8 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             case SECONDARY_AUDIO_AC3_PLUS:
             case SECONDARY_AUDIO_DTS_HD: {
                 UINT8 Temp{ ReadByte() };
-                BDVM_ChannelLayout ChannelLayout{ (BDVM_ChannelLayout)(Temp >> 4) };
-                BDVM_SampleRate SampleRate{ (BDVM_SampleRate)(Temp & 0xF) };
+                BDVM_ChannelLayout ChannelLayout{ static_cast<BDVM_ChannelLayout>((Temp >> 4)) };
+                BDVM_SampleRate SampleRate{ static_cast<BDVM_SampleRate>((Temp & 0xF)) };
 
                 ReadBuffer(reinterpret_cast<BYTE*>(m_Streams[iStream].m_LanguageCode), 3);
                 m_Streams[iStream].m_LanguageCode[3U] = '\0';
@@ -290,15 +290,15 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
         DWORD dwTemp;
         unsigned short nPlaylistItems;
 
-        Pos.QuadPart = ReadDword(); // PlayList_start_address
-        (void)ReadDword();          // PlayListMark_start_address
+        Pos.QuadPart = ReadDword();     // PlayList_start_address
+        static_cast<void>(ReadDword()); // PlayListMark_start_address
 
         // PlayList()
         SetFilePointerEx(m_hFile, Pos, nullptr, FILE_BEGIN);
         static_cast<void>(ReadDword()); // length
-        (void)ReadShort();              // reserved_for_future_use
+        static_cast<void>(ReadShort()); // reserved_for_future_use
         nPlaylistItems = ReadShort();   // number_of_PlayItems
-        (void)ReadShort();              // number_of_SubPaths
+        static_cast<void>(ReadShort()); // number_of_SubPaths
 
         Pos.QuadPart += 10;
         for (std::size_t i{ 0U }; i < nPlaylistItems; ++i)
@@ -398,7 +398,7 @@ void CHdmvClipInfo::ReadBuffer(BYTE* pBuff, const DWORD nLen)
             PlaylistChapter Chapter;
 
             static_cast<void>(ReadByte());                                                         // reserved_for_future_use
-            Chapter.m_nMarkType = (PlaylistMarkType)ReadByte();                                    // mark_type
+            Chapter.m_nMarkType = static_cast<PlaylistMarkType>(ReadByte());                       // mark_type
             Chapter.m_nPlayItemId = ReadShort();                                                   // ref_to_PlayItem_id
             Chapter.m_rtTimestamp = 20000i64 * ReadDword() / 90 + rtOffset[Chapter.m_nPlayItemId]; // mark_time_stamp
             Chapter.m_nEntryPID = ReadShort();                                                     // entry_ES_PID
@@ -462,7 +462,7 @@ HRESULT CHdmvClipInfo::FindMainMovie(LPCTSTR strFolder, CString& strPlaylistFile
                     }
                     hr = S_OK;
                 }
-                if (rtCurrent >= (REFERENCE_TIME)MIN_LIMIT * 600000000)
+                if (rtCurrent >= static_cast<REFERENCE_TIME>(MIN_LIMIT) * 600000000)
                 {
                     PlaylistItem Item;
                     Item.m_strFileName = strCurrentPlaylist;

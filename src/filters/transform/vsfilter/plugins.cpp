@@ -81,7 +81,7 @@ namespace Plugin
             m_xy_str_opt[STRING_NAME] = L"CFilter";
 
             // fix me: should not do init here
-            (void)CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]);
+            static_cast<void>(CacheManager::GetPathDataMruCache()->SetMaxItemNum(m_xy_int_opt[INT_PATH_DATA_CACHE_MAX_ITEM_NUM]));
             static_cast<void>(CacheManager::GetScanLineData2MruCache()->SetMaxItemNum(m_xy_int_opt[INT_SCAN_LINE_DATA_CACHE_MAX_ITEM_NUM]));
             static_cast<void>(CacheManager::GetOverlayNoBlurMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_NO_BLUR_CACHE_MAX_ITEM_NUM]));
             static_cast<void>(CacheManager::GetOverlayMruCache()->SetMaxItemNum(m_xy_int_opt[INT_OVERLAY_CACHE_MAX_ITEM_NUM]));
@@ -250,7 +250,7 @@ namespace Plugin
                 m_xy_size_opt[SIZE_ORIGINAL_VIDEO] = size; // PF20180411 readonly property, set here
             }
 
-            if (m_SubPicProviderId != (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider)
+            if (m_SubPicProviderId != reinterpret_cast<DWORD_PTR>(static_cast<ISubPicProvider*>(m_pSubPicProvider)))
             {
                 CSize playres{ 0, 0 };
                 CLSID clsid;
@@ -258,13 +258,13 @@ namespace Plugin
                 tmp->GetClassID(&clsid);
                 if (clsid == __uuidof(CRenderedTextSubtitle))
                 {
-                    CRenderedTextSubtitle* pRTS{ dynamic_cast<CRenderedTextSubtitle*>((ISubPicProvider*)m_pSubPicProvider) };
+                    CRenderedTextSubtitle* pRTS{ dynamic_cast<CRenderedTextSubtitle*>(static_cast<ISubPicProvider*>(m_pSubPicProvider)) };
                     playres = pRTS->m_dstScreenSize;
                 }
                 m_xy_size_opt[SIZE_ASS_PLAY_RESOLUTION] = playres;
 
                 m_simple_provider->SetSubPicProvider(m_pSubPicProvider);
-                m_SubPicProviderId = (DWORD_PTR)(ISubPicProvider*)m_pSubPicProvider;
+                m_SubPicProviderId = reinterpret_cast<DWORD_PTR>(static_cast<ISubPicProvider*>(m_pSubPicProvider));
             }
 
             CComPtr<ISimpleSubPic> pSubPic;
@@ -273,7 +273,7 @@ namespace Plugin
                 return (false);
             }
 
-            if (dst.type == MSP_RGB32 || dst.type == MSP_RGB24 || dst.type == MSP_RGB16 || dst.type == MSP_RGB15)
+            if ((dst.type == MSP_RGB32) || (dst.type == MSP_RGB24) || (dst.type == MSP_RGB16) || (dst.type == MSP_RGB15))
             {
                 dst.h = -dst.h;
             }
@@ -376,7 +376,7 @@ namespace Plugin
 
             if (CVobSubFile* vsf = new CVobSubFile(&m_csSubLock))
             {
-                m_pSubPicProvider = (ISubPicProvider*)vsf;
+                m_pSubPicProvider = static_cast<ISubPicProvider*>(vsf);
                 if (vsf->Open(CString(fn)))
                 {
                     SetFileName(fn);
@@ -417,7 +417,7 @@ namespace Plugin
             {
                 if (ssf::CRenderer* ssf = new ssf::CRenderer(&m_csSubLock))
                 {
-                    m_pSubPicProvider = (ISubPicProvider*)ssf;
+                    m_pSubPicProvider = static_cast<ISubPicProvider*>(ssf);
                     if (ssf->Open(CString(fn)))
                     {
                         SetFileName(fn);
@@ -434,7 +434,7 @@ namespace Plugin
                 if (CRenderedTextSubtitle* rts = new CRenderedTextSubtitle(&m_csSubLock))
                 {
                     rts->SetTextRendererMode(NormalizeTextRendererMode(m_xy_int_opt[INT_TEXT_RENDERER_MODE]));
-                    m_pSubPicProvider = (ISubPicProvider*)rts;
+                    m_pSubPicProvider = static_cast<ISubPicProvider*>(rts);
                     if (rts->Open(CString(fn), CharSet))
                     {
                         SetFileName(fn);
@@ -455,7 +455,7 @@ namespace Plugin
 
     static void FormatFilterLabel(char* str, const int maxlen, const CStringA& name, const bool withCharset, const int charset)
     {
-        if (str == nullptr || (maxlen <= 0))
+        if ((str == nullptr) || (maxlen <= 0))
         {
             return;
         }
@@ -496,7 +496,7 @@ namespace Plugin
                 dst.pitch = fa->src.pitch;
                 dst.bits = reinterpret_cast<BYTE*>(fa->src.data);
 
-                static_cast<void>(Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame));
+                static_cast<void>(Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, static_cast<float>(1000) / fa->pfsi->lMicrosecsPerFrame));
 
                 return 0;
             }
@@ -571,8 +571,8 @@ namespace Plugin
 
                 fd.m_pOFN->hInstance = AfxGetResourceHandle();
                 fd.m_pOFN->lpTemplateName = MAKEINTRESOURCE(IDD_TEXTSUBOPENTEMPLATE);
-                fd.m_pOFN->lpfnHook = (LPOFNHOOKPROC)OpenHookProc;
-                fd.m_pOFN->lCustData = (LPARAM)DEFAULT_CHARSET;
+                fd.m_pOFN->lpfnHook = static_cast<LPOFNHOOKPROC>(OpenHookProc);
+                fd.m_pOFN->lCustData = static_cast<LPARAM>(DEFAULT_CHARSET);
 
                 if (fd.DoModal() != IDOK)
                 {
@@ -598,45 +598,45 @@ namespace Plugin
 
         [[nodiscard]] int vobsubInitProc(FilterActivation* fa, const FilterFunctions* ff)
         {
-            *(CVirtualDubFilter**)fa->filter_data = DEBUG_NEW CVobSubVirtualDubFilter{};
-            return !(*(CVirtualDubFilter**)fa->filter_data);
+            *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = DEBUG_NEW CVobSubVirtualDubFilter{};
+            return !(*reinterpret_cast<CVirtualDubFilter**>(fa->filter_data));
         }
 
         [[nodiscard]] int textsubInitProc(FilterActivation* fa, const FilterFunctions* ff)
         {
-            *(CVirtualDubFilter**)fa->filter_data = DEBUG_NEW CTextSubVirtualDubFilter{};
-            return !(*(CVirtualDubFilter**)fa->filter_data);
+            *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = DEBUG_NEW CTextSubVirtualDubFilter{};
+            return !(*reinterpret_cast<CVirtualDubFilter**>(fa->filter_data));
         }
 
         void baseDeinitProc(FilterActivation* fa, const FilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             SAFE_DELETE(f);
         }
 
         [[nodiscard]] int baseRunProc(const FilterActivation* fa, const FilterFunctions* ff)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->RunProc(fa, ff) : 1;
         }
 
         [[nodiscard]] long baseParamProc(FilterActivation* fa, const FilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->ParamProc(fa, ff) : 1;
         }
 
         [[nodiscard]] int baseConfigProc(FilterActivation* fa, const FilterFunctions* ff, const HWND hwnd)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->ConfigProc(fa, ff, hwnd) : 1;
         }
 
         void baseStringProc(const FilterActivation* fa, const FilterFunctions* ff, char* str)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 f->StringProc(fa, ff, str);
@@ -645,7 +645,7 @@ namespace Plugin
 
         void baseStringProc2(const FilterActivation* fa, const FilterFunctions* ff, char* str, const int maxlen)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 f->FormatLabel(str, maxlen);
@@ -654,39 +654,39 @@ namespace Plugin
 
         [[nodiscard]] bool baseFssProc(FilterActivation* fa, const FilterFunctions* ff, char* buf, const int buflen)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->FssProc(fa, ff, buf, buflen) : false;
         }
 
         CScriptValue vobsubScriptConfig(IScriptInterpreter* isi, void* lpVoid, CScriptValue* argv, const int argc)
         {
-            FilterActivation* fa{ (FilterActivation*)lpVoid };
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            FilterActivation* fa{ reinterpret_cast<FilterActivation*>(lpVoid) };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 delete f;
             }
             f = DEBUG_NEW CVobSubVirtualDubFilter(CString(*argv[0U].asString()));
-            *(CVirtualDubFilter**)fa->filter_data = f;
+            *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = f;
             return {};
         }
 
         CScriptValue textsubScriptConfig(IScriptInterpreter* isi, void* lpVoid, CScriptValue* argv, const int argc)
         {
-            FilterActivation* fa{ (FilterActivation*)lpVoid };
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            FilterActivation* fa{ reinterpret_cast<FilterActivation*>(lpVoid) };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 delete f;
             }
             f = DEBUG_NEW CTextSubVirtualDubFilter(CString(*argv[0U].asString()), argv[1U].asInt());
-            *(CVirtualDubFilter**)fa->filter_data = f;
+            *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = f;
             return {};
         }
 
         ScriptFunctionDef vobsub_func_defs[] = {
-            { (ScriptFunctionPtr)vobsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0s") },
-            {                               nullptr,                     nullptr,                 nullptr },
+            { static_cast<ScriptFunctionPtr>(vobsubScriptConfig), const_cast<char*>("Config"), const_cast<char*>("0s") },
+            {                                            nullptr,                     nullptr,                 nullptr },
         };
 
         CScriptObject vobsub_obj = {
@@ -717,8 +717,8 @@ namespace Plugin
         };
 
         ScriptFunctionDef textsub_func_defs[] = {
-            { (ScriptFunctionPtr)textsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0si") },
-            {                                nullptr,                     nullptr,                  nullptr },
+            { static_cast<ScriptFunctionPtr>(textsubScriptConfig), const_cast<char*>("Config"), const_cast<char*>("0si") },
+            {                                             nullptr,                     nullptr,                  nullptr },
         };
 
         CScriptObject textsub_obj = {
@@ -799,7 +799,7 @@ namespace Plugin
                 dst.pitch = fa->src.pitch;
                 dst.bits = reinterpret_cast<BYTE*>(fa->src.data);
 
-                static_cast<void>(Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, (float)1000 / fa->pfsi->lMicrosecsPerFrame));
+                static_cast<void>(Render(dst, 10000i64 * fa->pfsi->lSourceFrameMS, static_cast<float>(1000) / fa->pfsi->lMicrosecsPerFrame));
 
                 return 0;
             }
@@ -834,7 +834,7 @@ namespace Plugin
                 AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY,
-                               _T("VobSub files (*.idx;*.sub)|*.idx;*.sub||"), CWnd::FromHandle((HWND)hwnd), 0);
+                               _T("VobSub files (*.idx;*.sub)|*.idx;*.sub||"), CWnd::FromHandle(reinterpret_cast<HWND>(hwnd)), 0);
 
                 if (fd.DoModal() != IDOK)
                 {
@@ -872,16 +872,16 @@ namespace Plugin
 #ifndef _DEBUG
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_EXPLORER | OFN_ENABLESIZING | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK,
-                               formats, CWnd::FromHandle((HWND)hwnd), sizeof(OPENFILENAME));
+                               formats, CWnd::FromHandle(reinterpret_cast<HWND>(hwnd)), sizeof(OPENFILENAME));
 
                 fd.m_pOFN->hInstance = AfxGetResourceHandle();
                 fd.m_pOFN->lpTemplateName = MAKEINTRESOURCE(IDD_TEXTSUBOPENTEMPLATE);
-                fd.m_pOFN->lpfnHook = (LPOFNHOOKPROC)OpenHookProc;
-                fd.m_pOFN->lCustData = (LPARAM)DEFAULT_CHARSET;
+                fd.m_pOFN->lpfnHook = static_cast<LPOFNHOOKPROC>(OpenHookProc);
+                fd.m_pOFN->lCustData = static_cast<LPARAM>(DEFAULT_CHARSET);
 #else
                 const TCHAR formats[] = _T("TextSub files (*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt)|*.sub;*.srt;*.smi;*.ssa;*.ass;*.xss;*.psb;*.txt||");
                 CFileDialog fd(TRUE, nullptr, GetFileName(), OFN_ENABLESIZING | OFN_HIDEREADONLY,
-                               formats, CWnd::FromHandle((HWND)hwnd), sizeof(OPENFILENAME));
+                               formats, CWnd::FromHandle(reinterpret_cast<HWND>(hwnd)), sizeof(OPENFILENAME));
 #endif
                 if (fd.DoModal() != IDOK)
                 {
@@ -907,43 +907,43 @@ namespace Plugin
 
         [[nodiscard]] int vobsubInitProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
         {
-            return ((*(CVirtualDubFilter**)fa->filter_data = DEBUG_NEW CVobSubVirtualDubFilter()) == nullptr);
+            return ((*reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = DEBUG_NEW CVobSubVirtualDubFilter()) == nullptr);
         }
 
         [[nodiscard]] int textsubInitProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
         {
-            return ((*(CVirtualDubFilter**)fa->filter_data = DEBUG_NEW CTextSubVirtualDubFilter()) == nullptr);
+            return ((*reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = DEBUG_NEW CTextSubVirtualDubFilter()) == nullptr);
         }
 
         void baseDeinitProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             SAFE_DELETE(f);
         }
 
         [[nodiscard]] int baseRunProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->RunProc(fa, ff) : 1;
         }
 
         [[nodiscard]] long baseParamProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff)
 
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->ParamProc(fa, ff) : 1;
         }
 
         [[nodiscard]] int baseConfigProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, const VDXHWND hwnd)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->ConfigProc(fa, ff, hwnd) : 1;
         }
 
         void baseStringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 f->StringProc(fa, ff, str);
@@ -952,7 +952,7 @@ namespace Plugin
 
         void baseStringProc2(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str, const int maxlen)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 f->FormatLabel(str, maxlen);
@@ -961,39 +961,39 @@ namespace Plugin
 
         [[nodiscard]] bool baseFssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, const int buflen)
         {
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             return f ? f->FssProc(fa, ff, buf, buflen) : false;
         }
 
         VDXScriptValue vobsubScriptConfig(IVDXScriptInterpreter* isi, void* lpVoid, VDXScriptValue* argv, const int argc)
         {
-            VDXFilterActivation* fa{ (VDXFilterActivation*)lpVoid };
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            VDXFilterActivation* fa{ reinterpret_cast<VDXFilterActivation*>(lpVoid) };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 delete f;
             }
             f = DEBUG_NEW CVobSubVirtualDubFilter(CString(*argv[0U].asString()));
-            *(CVirtualDubFilter**)fa->filter_data = f;
+            *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = f;
             return {};
         }
 
         VDXScriptValue textsubScriptConfig(IVDXScriptInterpreter* isi, void* lpVoid, VDXScriptValue* argv, const int argc)
         {
-            VDXFilterActivation* fa{ (VDXFilterActivation*)lpVoid };
-            CVirtualDubFilter* f{ *(CVirtualDubFilter**)fa->filter_data };
+            VDXFilterActivation* fa{ reinterpret_cast<VDXFilterActivation*>(lpVoid) };
+            CVirtualDubFilter* f{ *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) };
             if (f)
             {
                 delete f;
             }
             f = DEBUG_NEW CTextSubVirtualDubFilter(CString(*argv[0U].asString()), argv[1U].asInt());
-            *(CVirtualDubFilter**)fa->filter_data = f;
+            *reinterpret_cast<CVirtualDubFilter**>(fa->filter_data) = f;
             return {};
         }
 
         VDXScriptFunctionDef vobsub_func_defs[] = {
-            { (VDXScriptFunctionPtr)vobsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0s") },
-            {                                  nullptr,                     nullptr,                 nullptr },
+            { reinterpret_cast<VDXScriptFunctionPtr>(vobsubScriptConfig), const_cast<char*>("Config"), const_cast<char*>("0s") },
+            {                                                    nullptr,                     nullptr,                 nullptr },
         };
 
         VDXScriptObject vobsub_obj = {
@@ -1034,8 +1034,8 @@ namespace Plugin
         };
 
         VDXScriptFunctionDef textsub_func_defs[] = {
-            { (VDXScriptFunctionPtr)textsubScriptConfig, const_cast<char*>("Config"), const_cast<char*>("0si") },
-            {                                   nullptr,                     nullptr,                  nullptr },
+            { reinterpret_cast<VDXScriptFunctionPtr>(textsubScriptConfig), const_cast<char*>("Config"), const_cast<char*>("0si") },
+            {                                                     nullptr,                     nullptr,                  nullptr },
         };
 
         VDXScriptObject textsub_obj = {
@@ -1447,8 +1447,8 @@ namespace Plugin
                         uu = _mm_packus_epi16(uu, uu);                                                    // xxxxxxxxxxxxUUUU
                         vv = _mm_packus_epi16(vv, vv);                                                    // xxxxxxxxxxxxVVVV
                         _mm_storel_epi64(reinterpret_cast<__m128i*>(py + x * 2), yy);
-                        *(::std::uint32_t*)(pu + x) = _mm_cvtsi128_si32(uu);
-                        *(::std::uint32_t*)(pv + x) = _mm_cvtsi128_si32(vv);
+                        *reinterpret_cast<::std::uint32_t*>((pu + x)) = _mm_cvtsi128_si32(uu);
+                        *reinterpret_cast<::std::uint32_t*>((pv + x)) = _mm_cvtsi128_si32(vv);
                     }
                     src += pitch1;
                     py += pitch2Y;
@@ -1487,7 +1487,7 @@ namespace Plugin
                     for (int x{ 0 }; x < width; x += 4)
                     {
                         __m128i yy{ _mm_loadl_epi64(reinterpret_cast<const __m128i*>(py + x * 2)) };         // YYYYYYYY
-                        __m128i uu{ _mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pu + x))) }; // 000000000000UUUU
+                        __m128i uu{ _mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pu + x))) }; // 000000000000UUU
                         __m128i vv{ _mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(pv + x))) }; // 000000000000VVVV
                         __m128i uvuv{ _mm_unpacklo_epi8(uu, vv) };                                           // 00000000VUVUVUVU
                         __m128i yuyv{ _mm_unpacklo_epi8(yy, uvuv) };                                         // VYUYVYUYVYUYVYUY
@@ -1754,17 +1754,17 @@ namespace Plugin
                 }
 
                 // Common part
-                float fps = m_fps > 0 ? m_fps : static_cast<float>(vi.fps_numerator) / vi.fps_denominator;
+                float fps{ m_fps > 0 ? m_fps : static_cast<float>(vi.fps_numerator) / vi.fps_denominator };
 
                 REFERENCE_TIME timestamp;
 
                 if (!vfr)
                 {
-                    timestamp = (REFERENCE_TIME)(10000000i64 * n / fps);
+                    timestamp = static_cast<REFERENCE_TIME>((10000000i64 * n / fps));
                 }
                 else
                 {
-                    timestamp = (REFERENCE_TIME)(10000000 * vfr->TimeStampFromFrameNumber(n));
+                    timestamp = static_cast<REFERENCE_TIME>((10000000 * vfr->TimeStampFromFrameNumber(n)));
                 }
 
                 if (has_at_least_v8)
@@ -1994,11 +1994,11 @@ UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lPar
     switch (uiMsg)
     {
     case WM_NOTIFY: {
-        OPENFILENAME* ofn{ ((OFNOTIFY*)lParam)->lpOFN };
+        OPENFILENAME* ofn{ (reinterpret_cast<OFNOTIFY*>(lParam))->lpOFN };
 
-        if (((NMHDR*)lParam)->code == CDN_FILEOK)
+        if ((reinterpret_cast<NMHDR*>(lParam))->code == CDN_FILEOK)
         {
-            ofn->lCustData = (LPARAM)CharSetList[SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_GETCURSEL, 0, 0)];
+            ofn->lCustData = static_cast<LPARAM>(CharSetList[SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_GETCURSEL, 0, 0)]);
         }
 
         break;
@@ -2011,8 +2011,8 @@ UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lPar
         {
             CString s;
             s.Format(_T("%s (%d)"), CharSetNames[i], CharSetList[i]);
-            SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_ADDSTRING, 0, (LPARAM)(LPCTSTR)s);
-            if (CharSetList[i] == static_cast<int>(((OPENFILENAME*)lParam)->lCustData))
+            SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(static_cast<LPCTSTR>(s)));
+            if (CharSetList[i] == static_cast<int>((reinterpret_cast<OPENFILENAME*>(lParam))->lCustData))
             {
                 SendMessage(GetDlgItem(hDlg, IDC_COMBO1), CB_SETCURSEL, i, 0);
             }

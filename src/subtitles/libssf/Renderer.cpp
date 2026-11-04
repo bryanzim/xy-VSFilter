@@ -119,7 +119,7 @@ namespace ssf
 
         if (m_rsc.Lookup(s->m_name, rs))
         {
-            if (!s->m_animated && rs->m_spdrc == spdrc)
+            if (!s->m_animated && (rs->m_spdrc == spdrc))
             {
                 return rs;
             }
@@ -184,7 +184,7 @@ namespace ssf
         scale.cx *= 64;
         scale.cy *= 64;
 
-        bool vertical = s->m_direction.primary == _T("down") || s->m_direction.primary == _T("up");
+        bool vertical = (s->m_direction.primary == _T("down")) || (s->m_direction.primary == _T("up"));
 
         // create glyph paths
 
@@ -306,7 +306,7 @@ namespace ssf
             }
             WCHAR c = g->c;
             row->AddTail(g);
-            if (c == Text::LSEP || !pos)
+            if ((c == Text::LSEP) || !pos)
             {
                 rows.AddTail(row);
             }
@@ -346,10 +346,10 @@ namespace ssf
 
         // wrap rows
 
-        if (s->m_wrap == _T("normal") || s->m_wrap == _T("even"))
+        if ((s->m_wrap == _T("normal")) || (s->m_wrap == _T("even")))
         {
-            int maxwidth = std::abs(static_cast<int>(vertical ? frame.Height() : frame.Width()));
-            int minwidth = 0;
+            int maxwidth{ std::abs(static_cast<int>(vertical ? frame.Height() : frame.Width())) };
+            int minwidth{ 0 };
 
             for (POSITION rpos = rows.GetHeadPosition(); rpos; rows.GetNext(rpos))
             {
@@ -359,7 +359,7 @@ namespace ssf
 
                 if (s->m_wrap == _T("even"))
                 {
-                    int fullwidth = 0;
+                    int fullwidth{ 0 };
 
                     for (POSITION gpos = r->GetHeadPosition(); gpos; r->GetNext(gpos))
                     {
@@ -377,7 +377,7 @@ namespace ssf
                     }
                 }
 
-                int width = 0;
+                int width{ 0 };
 
                 for (POSITION gpos = r->GetHeadPosition(); gpos; r->GetNext(gpos))
                 {
@@ -405,7 +405,7 @@ namespace ssf
 
                     if (std::abs(width) >= minwidth)
                     {
-                        if (g->style.linebreak == _T("char") || (g->style.linebreak == _T("word") && g->c == Text::SP))
+                        if ((g->style.linebreak == _T("char")) || ((g->style.linebreak == _T("word")) && (g->c == Text::SP)))
                         {
                             brpos = gpos;
                         }
@@ -420,12 +420,12 @@ namespace ssf
         {
             Row* r = rows.GetAt(rowPos);
 
-            while (!r->IsEmpty() && r->GetHead()->c == Text::SP)
+            while (!r->IsEmpty() && (r->GetHead()->c == Text::SP))
             {
                 r->RemoveHead();
             }
 
-            while (!r->IsEmpty() && r->GetTail()->c == Text::SP)
+            while (!r->IsEmpty() && (r->GetTail()->c == Text::SP))
             {
                 r->RemoveTail();
             }
@@ -434,8 +434,8 @@ namespace ssf
         // calc fill width for each glyph
 
         CAtlList<Glyph*> glypsh2fill;
-        int fill_id = 0;
-        int fill_width = 0;
+        int fill_id{ 0 };
+        int fill_width{ 0 };
 
         for (POSITION rowPos = rows.GetHeadPosition(); rowPos; rows.GetNext(rowPos))
         {
@@ -448,7 +448,7 @@ namespace ssf
 
                 if (!glypsh2fill.IsEmpty() && fill_id && ((g->style.fill.id != fill_id) || (!rowPos && !gpos)))
                 {
-                    int w = static_cast<int>(g->style.fill.width * fill_width + 0.5);
+                    int w{ static_cast<int>(g->style.fill.width * fill_width + 0.5) };
 
                     while (!glypsh2fill.IsEmpty())
                     {
@@ -478,7 +478,7 @@ namespace ssf
 
         CSize size(0, 0);
 
-        if (s->m_direction.secondary == _T("left") || s->m_direction.secondary == _T("up"))
+        if ((s->m_direction.secondary == _T("left")) || (s->m_direction.secondary == _T("up")))
         {
             ReverseList(rows);
         }
@@ -487,12 +487,12 @@ namespace ssf
         {
             Row* r = rows.GetAt(rowPos);
 
-            if (s->m_direction.primary == _T("left") || s->m_direction.primary == _T("up"))
+            if ((s->m_direction.primary == _T("left")) || (s->m_direction.primary == _T("up")))
             {
                 ReverseList(*r);
             }
 
-            int w = 0, h = 0;
+            int w{ 0 }, h{ 0 };
 
             r->width = 0;
 
@@ -540,15 +540,15 @@ namespace ssf
 
         rs = new RenderedSubtitle(spdrc, clip);
 
-        CPoint p = GetAlignPoint(style.placement, scale, frame, size);
-        CPoint org = GetAlignPoint(style.placement, scale, frame);
+        CPoint p{ GetAlignPoint(style.placement, scale, frame, size) };
+        CPoint org{ GetAlignPoint(style.placement, scale, frame) };
 
         // collision detection
 
         if (!s->m_animated)
         {
-            int tlb = !rows.IsEmpty() ? rows.GetHead()->border : 0;
-            int brb = !rows.IsEmpty() ? rows.GetTail()->border : 0;
+            int tlb{ !rows.IsEmpty() ? rows.GetHead()->border : 0 };
+            int brb{ !rows.IsEmpty() ? rows.GetTail()->border : 0 };
 
             CRect r(p, size);
             m_sra.GetRect(r, s, style.placement.align, tlb, brb);
@@ -621,10 +621,10 @@ namespace ssf
 
             Glyph* g = rs->m_glyphs.GetNext(pos);
 
-            CRect r = g->bbox + g->tl;
+            CRect r{ g->bbox + g->tl };
 
-            int backgroundSize = static_cast<int>(g->GetBackgroundSize() + 0.5);
-            int depth = static_cast<int>(g->GetShadowDepth() + 0.5);
+            int backgroundSize{ static_cast<int>(g->GetBackgroundSize() + 0.5) };
+            int depth{ static_cast<int>(g->GetShadowDepth() + 0.5) };
 
             r.InflateRect(backgroundSize, backgroundSize);
             r.InflateRect(depth, depth);
@@ -640,7 +640,7 @@ namespace ssf
             }
             else if (g0 && g0->style.IsSimilar(g->style)) // append
             {
-                CPoint o = g->tl - g0->tl;
+                CPoint o{ g->tl - g0->tl };
 
                 g->path.MovePoints(o);
 
@@ -701,7 +701,7 @@ namespace ssf
             DWORD c{ g->style.shadow.color };
             DWORD sw[6U]{ c, 0xFFFFFFFFu };
 
-            bool outline = g->style.background.type == L"outline" && (g->style.background.size > 0);
+            bool outline = (g->style.background.type == L"outline") && (g->style.background.size > 0);
 
             bbox |= g->ras_shadow.Draw(spd, m_clip, g->tls.x, g->tls.y, sw, outline ? 1 : 0);
         }
@@ -716,11 +716,11 @@ namespace ssf
             DWORD c{ g->style.background.color };
             DWORD sw[6U]{ c, 0xFFFFFFFFu };
 
-            if (g->style.background.type == L"outline" && (g->style.background.size > 0))
+            if ((g->style.background.type == L"outline") && (g->style.background.size > 0))
             {
                 bbox |= g->ras.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, g->style.font.color.a < 255 ? 2 : 1);
             }
-            else if ((g->style.background.type == L"enlarge" && (g->style.background.size > 0)) || (g->style.background.type == L"box" && (g->style.background.size >= 0)))
+            else if (((g->style.background.type == L"enlarge") && (g->style.background.size > 0)) || ((g->style.background.type == L"box") && (g->style.background.size >= 0)))
             {
                 bbox |= g->ras_bkg.Draw(spd, m_clip, g->tl.x, g->tl.y, sw, 0);
             }
@@ -769,9 +769,9 @@ namespace ssf
 
         if (!pPair)
         {
-            bool vertical = s->m_direction.primary == _T("down") || s->m_direction.primary == _T("up");
+            bool vertical = (s->m_direction.primary == _T("down")) || (s->m_direction.primary == _T("up"));
 
-            bool fOK = false;
+            bool fOK{ false };
 
             while (!fOK)
             {
@@ -782,7 +782,7 @@ namespace ssf
                 {
                     const SubRect& sr2 = GetNextValue(pos);
 
-                    if (sr.layer == sr2.layer && !(sr.rect & sr2.rect).IsRectEmpty())
+                    if ((sr.layer == sr2.layer) && !(sr.rect & sr2.rect).IsRectEmpty())
                     {
                         if (vertical)
                         {
@@ -859,7 +859,7 @@ namespace ssf
 
     GlyphPath* GlyphPathCache::Create(HDC hDC, const FontWrapper* f, WCHAR c)
     {
-        CStringW key = CStringW(static_cast<LPCWSTR>(*f)) + c;
+        CStringW key{ CStringW(static_cast<LPCWSTR>(*f)) + c };
 
         GlyphPath* path = nullptr;
 
@@ -880,7 +880,7 @@ namespace ssf
 
         path = new GlyphPath();
 
-        int count = GetPath(hDC, nullptr, nullptr, 0);
+        int count{ GetPath(hDC, nullptr, nullptr, 0) };
 
         if (count > 0)
         {

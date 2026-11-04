@@ -27,7 +27,7 @@
 // hWnd == INVALID_HANDLE_VALUE - get name, hWnd != INVALID_HANDLE_VALUE - show ppage
 static TCHAR* CallPPage(IFilterGraph* pGraph, int idx, HWND hWnd);
 
-static HHOOK g_hHook{ (HHOOK)INVALID_HANDLE_VALUE };
+static HHOOK g_hHook{ static_cast<HHOOK>(INVALID_HANDLE_VALUE) };
 
 static UINT WM_DVSPREVSUB{ RegisterWindowMessage(TEXT("WM_DVSPREVSUB")) };
 static UINT WM_DVSNEXTSUB{ RegisterWindowMessage(TEXT("WM_DVSNEXTSUB")) };
@@ -39,7 +39,7 @@ static UINT WM_NOTIFYICON{ RegisterWindowMessage(TEXT("MYWM_NOTIFYICON")) };
 
 [[nodiscard]] LRESULT CALLBACK HookProc(const UINT code, const WPARAM wParam, const LPARAM lParam)
 {
-    MSG* msg{ (MSG*)lParam };
+    MSG* msg{ reinterpret_cast<MSG*>(lParam) };
 
     if (msg->message == WM_KEYDOWN)
     {
@@ -71,7 +71,7 @@ static UINT WM_NOTIFYICON{ RegisterWindowMessage(TEXT("MYWM_NOTIFYICON")) };
 
 [[nodiscard]] static BOOL CALLBACK enumWindowCallback(const HWND hwnd, const LPARAM lparam)
 {
-    HWND owner{ (HWND)lparam };
+    HWND owner{ reinterpret_cast<HWND>(lparam) };
     if (owner == GetWindow(hwnd, GW_OWNER))
     {
         SetForegroundWindow(hwnd);
@@ -188,7 +188,7 @@ void CSystrayWindow::OnDestroy()
     if (g_hHook != INVALID_HANDLE_VALUE)
     {
         UnhookWindowsHookEx(g_hHook);
-        g_hHook = (HHOOK)INVALID_HANDLE_VALUE;
+        g_hHook = static_cast<HHOOK>(INVALID_HANDLE_VALUE);
     }
 
     PostQuitMessage(0);
@@ -231,7 +231,7 @@ void CSystrayWindow::OnDestroy()
         tnid.cbSize = sizeof(NOTIFYICONDATA);
         tnid.hWnd = m_hWnd;
         tnid.uID = IDI_ICON1;
-        tnid.hIcon = (HICON)LoadIcon(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ICON1));
+        tnid.hIcon = static_cast<HICON>(LoadIcon(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ICON1)));
         //		tnid.hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 0, 0, LR_LOADTRANSPARENT);
         tnid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
         tnid.uCallbackMessage = WM_NOTIFYICON;
@@ -279,7 +279,7 @@ void CSystrayWindow::OnDestroy()
         }
         else
         {
-            EnumThreadWindows(GetCurrentThreadId(), enumWindowCallback, (LPARAM)hWnd);
+            EnumThreadWindows(GetCurrentThreadId(), enumWindowCallback, reinterpret_cast<LPARAM>(hWnd));
         }
     }
     break;
@@ -314,12 +314,12 @@ void CSystrayWindow::OnDestroy()
         {
             bool fMMSwitcher{ !names[j].Compare(_T("Morgan Stream Switcher")) };
 
-            DWORD cStreams{ 0 };
+            DWORD cStreams{ 0U };
             pStreams[j]->Count(&cStreams);
 
             DWORD flags, group, prevgroup{ static_cast<DWORD>(-1) };
 
-            for (UINT i{ 0 }; i < cStreams; ++i)
+            for (UINT i{ 0U }; i < cStreams; ++i)
             {
                 WCHAR* pName{ nullptr };
 
@@ -353,7 +353,7 @@ void CSystrayWindow::OnDestroy()
         int i;
 
         TCHAR* str;
-        for (i = 0; (str = CallPPage(m_tbid->graph, i, (HWND)INVALID_HANDLE_VALUE)); ++i)
+        for (i = 0; (str = CallPPage(m_tbid->graph, i, reinterpret_cast<HWND>(INVALID_HANDLE_VALUE))); ++i)
         {
             if (_tcsncmp(str, _T("DivX MPEG"), 9) || m_tbid->fRunOnce)
             { // divx3's ppage will crash if the graph hasn't been run at least once yet
@@ -364,7 +364,7 @@ void CSystrayWindow::OnDestroy()
         }
 
         SetForegroundWindow();
-        UINT id = popup.TrackPopupMenu(TPM_LEFTBUTTON | TPM_RETURNCMD, p.x, p.y, CWnd::FromHandle(hWnd), 0);
+        UINT id{ static_cast<UINT>(popup.TrackPopupMenu(TPM_LEFTBUTTON | TPM_RETURNCMD, p.x, p.y, CWnd::FromHandle(hWnd), 0)) };
         PostMessage(WM_NULL);
 
         if (id & (1 << 15))
@@ -376,7 +376,7 @@ void CSystrayWindow::OnDestroy()
             if (CComQIPtr<IVideoWindow> pVW{ m_tbid->graph })
             {
                 HWND hwnd;
-                if (SUCCEEDED(pVW->get_Owner((OAHWND*)&hwnd)) || SUCCEEDED(pVW->get_MessageDrain((OAHWND*)&hwnd)))
+                if (SUCCEEDED(pVW->get_Owner(reinterpret_cast<OAHWND*>(&hwnd))) || SUCCEEDED(pVW->get_MessageDrain(reinterpret_cast<OAHWND*>(&hwnd))))
                 {
                     hWnd = hwnd;
                 }
@@ -401,7 +401,7 @@ void CSystrayWindow::OnDestroy()
     XY_LOG_DEBUG(pParam);
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-    SystrayIconData* tbid{ (SystrayIconData*)pParam };
+    SystrayIconData* tbid{ reinterpret_cast<SystrayIconData*>(pParam) };
     ASSERT(tbid);
     CSystrayWindow wnd{ tbid };
     if (!wnd.CreateEx(0, AfxRegisterWndClass(0), _T("DVSWND"), WS_OVERLAPPED, CRect(0, 0, 0, 0), nullptr, 0, nullptr))

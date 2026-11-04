@@ -285,7 +285,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
             //
 
-            DWORD tOffset{ 0 }, tTotal = 0;
+            DWORD tOffset{ 0U }, tTotal{ 0U };
 
             int iAngle{ 0 };
 
@@ -332,7 +332,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                     break;
                 }
 
-                int t = pgc.angles[0U][j].tTime;
+                int t{ static_cast<int>(pgc.angles[0U][j].tTime) };
                 int hh{ ((t >> 28) & 0xf) * 10 + ((t >> 24) & 0xf) };
                 int mm{ ((t >> 20) & 0xf) * 10 + ((t >> 16) & 0xf) };
                 int ss{ ((t >> 12) & 0xf) * 10 + ((t >> 8) & 0xf) };
@@ -356,7 +356,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
             {
                 tOffset = tTotal = 0;
 
-                for (std::size_t j{ 0U }, k = 0; j < nCells; ++j)
+                for (std::size_t j{ 0U }, k{ 0U }; j < nCells; ++j)
                 {
                     if ((pgc.angles[0U][j].iAngle != 0) && (pgc.angles[0U][j].iAngle != iAngle))
                     {
@@ -488,7 +488,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 [[nodiscard]] static int SubPosSortProc(const void* e1, const void* e2)
 
 {
-    return (static_cast<int>((((CVobSubFile::SubPos*)e1)->start - ((CVobSubFile::SubPos*)e2)->start)));
+    return (static_cast<int>(((reinterpret_cast<const CVobSubFile::SubPos*>(e1))->start - (reinterpret_cast<const CVobSubFile::SubPos*>(e2))->start)));
 }
 
 [[nodiscard]] bool CVobSubFileRipper::Create()
@@ -538,11 +538,11 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
     CVobDec vd;
 
-    __int64 PTS{ 0 }, tOffset = 0, tPrevOffset = 0, tTotal = 0, tStart = 0;
-    int vob{ 0 }, cell = 0;
-    bool bDiscontinuity{ false }, bDiscontinuityFixApplied = false, bNavpackFound = false;
+    __int64 PTS{ 0 }, tOffset{ 0 }, tPrevOffset{ 0 }, tTotal{ 0 }, tStart{ 0 };
+    int vob{ 0 }, cell{ 0 };
+    bool bDiscontinuity{ false }, bDiscontinuityFixApplied{ false }, bNavpackFound{ false };
 
-    int PTSframeoffset{ 0 }, minPTSframeoffset = 0;
+    int PTSframeoffset{ 0 }, minPTSframeoffset{ 0 };
 
     if (m_rd.bResetTime)
     {
@@ -570,7 +570,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
         for (std::size_t i{ 0U }; i < angle.GetCount(); ++i)
         {
-            DWORD vc = (angle[i].vob << 16) | angle[i].cell;
+            DWORD vc{ static_cast<DWORD>((angle[i].vob << 16) | angle[i].cell) };
             if (!selvcmap.Lookup(vc))
             {
                 continue;
@@ -609,7 +609,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
         chunks.Add(c);
     }
 
-    __int64 sizedone{ 0 }, sizetotal = 0;
+    __int64 sizedone{ 0 }, sizetotal{ 0 };
     for (std::size_t i{ 0U }; i < chunks.GetCount(); ++i)
     {
         sizetotal += chunks[i].end - chunks[i].start;
@@ -617,7 +617,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
     for (std::size_t i{ 0U }; !m_bBreakThread && (i < chunks.GetCount()); ++i)
     {
-        __int64 curpos{ chunks[i].start }, endpos = chunks[i].end;
+        __int64 curpos{ chunks[i].start }, endpos{ chunks[i].end };
 
         vcchunk curchunk = { curpos, curpos, chunks[i].vc };
 
@@ -702,13 +702,13 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
             bool hasPTS{ false };
 
-            if ((*reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xe0010000 || *reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xbd010000) && buff[0x15U] & 0x80)
+            if (((*reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xe0010000) || (*reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xbd010000)) && buff[0x15U] & 0x80)
             {
-                PTS = (__int64)(buff[0x17U] & 0x0e) << 29     // 32-30 (+marker)
-                      | ((__int64)(buff[0x18U]) << 22)        // 29-22
-                      | ((__int64)(buff[0x19U] & 0xfe) << 14) // 21-15 (+marker)
-                      | ((__int64)(buff[0x1aU]) << 7)         // 14-07
-                      | ((__int64)(buff[0x1bU]) >> 1);        // 06-00 (+marker)
+                PTS = static_cast<__int64>((buff[0x17U] & 0x0e)) << 29     // 32-30 (+marker)
+                      | (static_cast<__int64>((buff[0x18U])) << 22)        // 29-22
+                      | (static_cast<__int64>((buff[0x19U] & 0xfe)) << 14) // 21-15 (+marker)
+                      | (static_cast<__int64>((buff[0x1aU])) << 7)         // 14-07
+                      | (static_cast<__int64>((buff[0x1bU])) >> 1);        // 06-00 (+marker)
 
                 hasPTS = true;
             }
@@ -717,7 +717,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
             {
                 bNavpackFound = true;
 
-                if (vob == buff[0x420U] && cell == buff[0x422U])
+                if ((vob == buff[0x420U]) && (cell == buff[0x422U]))
                 {
                     continue;
                 }
@@ -729,11 +729,11 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
                 for (std::size_t j{ 0U }; j < angle.GetCount(); ++j)
                 {
-                    if (angle[j].vob == vob && angle[j].cell == cell)
+                    if ((angle[j].vob == vob) && (angle[j].cell == cell))
                     {
                         tPrevOffset = tOffset;
-                        tOffset = (__int64)angle[j].tOffset;
-                        tTotal = (__int64)angle[j].tTotal;
+                        tOffset = static_cast<__int64>(angle[j].tOffset);
+                        tTotal = static_cast<__int64>(angle[j].tTotal);
                         bDiscontinuity = angle[j].bDiscontinuity;
                         bDiscontinuityFixApplied = false;
                         break;
@@ -752,7 +752,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
 
                 CString str, str2;
                 str.Format(_T("v%02d c%02d lba%08d"), vob, cell, static_cast<int>((curpos / 2048)));
-                UINT vcid = (vob << 16) | cell;
+                UINT vcid{ static_cast<UINT>((vob << 16) | cell) };
                 if (!selvcmap.Lookup(vcid, minPTSframeoffset))
                 {
                     str2 = _T(", skipping");
@@ -765,7 +765,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
                 Log(LOG_INFO, str + str2);
             }
 
-            DWORD vcid = (vob << 16) | cell;
+            DWORD vcid{ static_cast<DWORD>((vob << 16) | cell) };
             if (!selvcmap.Lookup(vcid, minPTSframeoffset))
             {
                 continue;
@@ -804,9 +804,9 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
             }
             else if (*reinterpret_cast<DWORD*>(&buff[0x0eU]) == 0xbd010000)
             {
-                BYTE id{ buff[0x17U + buff[0x16U]] }, iLang = id & 0x1f;
+                BYTE id{ buff[0x17U + buff[0x16U]] }, iLang{ id & 0x1fU };
 
-                if ((id & 0xe0) == 0x20 && m_rd.selids.Lookup(iLang))
+                if (((id & 0xe0) == 0x20) && m_rd.selids.Lookup(iLang))
                 {
                     if (hasPTS)
                     {
@@ -874,12 +874,12 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
             Log(LOG_INFO, _T("Searching for forced subs..."));
             Progress(0);
 
-            for (std::size_t j{ 0U }, len = sp.GetCount(); j < len; ++j)
+            for (std::size_t j{ 0U }, len{ sp.GetCount() }; j < len; ++j)
             {
                 Progress(1.0 * j / len);
 
                 sp[j].fValid = false;
-                std::size_t packetSize{ 0U }, dataSize = 0;
+                std::size_t packetSize{ 0U }, dataSize{ 0U };
                 if (BYTE* buff = GetPacket(j, packetSize, dataSize, i))
                 {
                     m_img.GetPacketInfo(buff, packetSize, dataSize);
@@ -918,7 +918,7 @@ void CVobSubFileRipper::Finished(const bool bSucceeded)
     return true;
 }
 
-static const DWORD s_version{ 1 };
+static const DWORD s_version{ 1U };
 
 [[nodiscard]] bool CVobSubFileRipper::LoadChunks(CAtlArray<vcchunk>& chunks)
 {
@@ -928,7 +928,7 @@ static const DWORD s_version{ 1 };
     TrimExtension(fn);
     fn += _T(".chunks");
 
-    DWORD chksum{ 0 }, chunklen, version;
+    DWORD chksum{ 0U }, chunklen, version;
     __int64 voblen{ 0 };
 
     if (!f.Open(fn, CFile::modeRead | CFile::typeBinary | CFile::shareDenyNone))
@@ -956,7 +956,7 @@ static const DWORD s_version{ 1 };
     {
         return false;
     }
-    DWORD dw, chksum2 = 0;
+    DWORD dw, chksum2{ 0U };
     while (f.Read(&dw, sizeof(dw)) == sizeof(dw))
     {
         chksum2 += dw;
@@ -980,7 +980,7 @@ static const DWORD s_version{ 1 };
     TrimExtension(fn);
     fn += _T(".chunks");
 
-    DWORD chksum{ 0 }, chunklen = static_cast<DWORD>(chunks.GetCount());
+    DWORD chksum{ 0U }, chunklen{ static_cast<DWORD>(chunks.GetCount()) };
     __int64 voblen{ m_vob.GetLength() };
 
     if (!f.Open(m_infn, CFile::modeRead | CFile::typeBinary | CFile::shareDenyNone))
@@ -1045,7 +1045,7 @@ static const DWORD s_version{ 1 };
     CString line;
     while (f.ReadString(line))
     {
-        if (line.Trim().IsEmpty() || line[0U] == '#')
+        if (line.Trim().IsEmpty() || (line[0U] == '#'))
         {
             continue;
         }
@@ -1089,18 +1089,18 @@ static const DWORD s_version{ 1 };
 
             if (line.Find('v') >= 0)
             {
-                int vob{ 0 }, cell = 0;
+                int vob{ 0 }, cell{ 0 };
 
                 line += ' ';
 
-                TCHAR* s{ (LPTSTR)(LPCTSTR)line };
+                TCHAR* s{ const_cast<LPTSTR>(static_cast<LPCTSTR>(line)) };
                 TCHAR* e{ s + line.GetLength() };
                 while (s < e)
                 {
-                    if (*s == 'v' || s == e - 1)
+                    if ((*s == 'v') || (s == e - 1))
                     {
                         ++s;
-                        if ((vob != 0) && cell == 0)
+                        if ((vob != 0) && (cell == 0))
                         {
                             for (std::size_t i{ 0U }; i < angle.GetCount(); ++i)
                             {
@@ -1114,14 +1114,14 @@ static const DWORD s_version{ 1 };
                         vob = _tcstol(s, &s, 10);
                         cell = 0;
                     }
-                    else if (*s == 'c' && (vob > 0))
+                    else if ((*s == 'c') && (vob > 0))
                     {
                         ++s;
                         cell = _tcstol(s, &s, 10);
 
                         for (std::size_t i{ 0U }; i < angle.GetCount(); ++i)
                         {
-                            if (angle[i].vob == vob && angle[i].cell == cell)
+                            if ((angle[i].vob == vob) && (angle[i].cell == cell))
                             {
                                 m_rd.selvcs.Add((vob << 16) | cell);
                                 break;
@@ -1148,7 +1148,7 @@ static const DWORD s_version{ 1 };
         {
             if (!line.CompareNoCase(_T("ALL")))
             {
-                for (BYTE i{ 0 }; i < 32; ++i)
+                for (BYTE i{ 0U }; i < 32; ++i)
                 {
                     m_rd.selids[i] = true;
                 }
@@ -1212,23 +1212,23 @@ static const DWORD s_version{ 1 };
                 }
             }
         }
-        else if (phase == 5 && !line.CompareNoCase(_T("CLOSE")))
+        else if ((phase == 5) && !line.CompareNoCase(_T("CLOSE")))
         {
             m_rd.bClose = true;
         }
-        else if (phase == 5 && !line.CompareNoCase(_T("BEEP")))
+        else if ((phase == 5) && !line.CompareNoCase(_T("BEEP")))
         {
             m_rd.bBeep = true;
         }
-        else if (phase == 5 && !line.CompareNoCase(_T("RESETTIME")))
+        else if ((phase == 5) && !line.CompareNoCase(_T("RESETTIME")))
         {
             m_rd.bResetTime = true;
         }
-        else if (phase == 5 && !line.CompareNoCase(_T("FORCEDONLY")))
+        else if ((phase == 5) && !line.CompareNoCase(_T("FORCEDONLY")))
         {
             m_rd.fForcedOnly = true;
         }
-        else if (phase == 5 && !line.CompareNoCase(_T("CLOSEIGNOREERRORS")))
+        else if ((phase == 5) && !line.CompareNoCase(_T("CLOSEIGNOREERRORS")))
         {
             m_rd.bCloseIgnoreError = true;
         }

@@ -72,7 +72,7 @@ namespace ssf
         {
             while (m_objs.GetCount() > m_limit)
             {
-                CStringW key = m_objs.RemoveHead();
+                CStringW key{ m_objs.RemoveHead() };
                 ASSERT(m_key2obj.Lookup(key));
                 delete m_key2obj[key];
                 m_key2obj.RemoveKey(key);

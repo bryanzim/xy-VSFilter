@@ -120,7 +120,7 @@ unsigned char CSStab5[256U] = {
 void CSSdescramble(unsigned char* sec, unsigned char* tkey)
 {
     unsigned int t1, t2, t3, t4, t5, t6;
-    unsigned char* end = sec + 0x800;
+    unsigned char* end{ sec + 0x800U };
 
     t1 = tkey[0U] ^ sec[0x54U] | 0x100;
     t2 = tkey[1U] ^ sec[0x55U];
@@ -242,4 +242,4 @@ unsigned char g_PlayerKeys[][6U] = {
     // TODO: find more player keys
 };
 
-int g_nPlayerKeys = countof(g_PlayerKeys);
+int g_nPlayerKeys{ countof(g_PlayerKeys) };

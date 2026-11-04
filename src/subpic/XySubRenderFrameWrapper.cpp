@@ -127,7 +127,7 @@ public:
     ContextedBitmapId(ULONGLONG context_id, ULONGLONG bitmap_id) : m_context_id(context_id), m_bitmap_id(bitmap_id) {}
     [[nodiscard]] bool operator==(const ContextedBitmapId& key) const
     {
-        return key.m_context_id == m_context_id && key.m_bitmap_id == m_bitmap_id;
+        return (key.m_context_id == m_context_id) && (key.m_bitmap_id == m_bitmap_id);
     }
 
 public:
@@ -295,7 +295,7 @@ HRESULT DumpSubRenderFrame(IXySubRenderFrame* sub, const char* filename)
                 output << " " << setfill('0') << setw(8) << static_cast<int>(pixels2[n]);
             }
             output << endl;
-            pixels2 = reinterpret_cast<const DWORD*>(((const BYTE*)pixels2 + pitch));
+            pixels2 = reinterpret_cast<const DWORD*>((reinterpret_cast<const BYTE*>(pixels2) + pitch));
         }
         output << dec;
     }
@@ -396,7 +396,7 @@ HRESULT DumpToBitmap(IXySubRenderFrame* sub, LPCTSTR filename, bool dump_alpha_c
         }
         if (position.y < clip_rect.top)
         {
-            pixels2 = reinterpret_cast<const DWORD*>(((const BYTE*)pixels2 + (clip_rect.top - position.y) * pitch));
+            pixels2 = reinterpret_cast<const DWORD*>((reinterpret_cast<const BYTE*>(pixels2) + (clip_rect.top - position.y) * pitch));
             size.cy -= clip_rect.top - position.y;
             position.y = clip_rect.top;
         }
@@ -426,7 +426,7 @@ HRESULT DumpToBitmap(IXySubRenderFrame* sub, LPCTSTR filename, bool dump_alpha_c
                 *pix_32bpp++ = r + (((256 - a) * br) >> 8);
                 *pix_32bpp++ = 0;
             }
-            pixels2 = reinterpret_cast<const DWORD*>(((const BYTE*)pixels2 + pitch));
+            pixels2 = reinterpret_cast<const DWORD*>((reinterpret_cast<const BYTE*>(pixels2) + pitch));
         }
     }
 

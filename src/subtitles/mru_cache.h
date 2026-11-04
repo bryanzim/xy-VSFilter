@@ -247,7 +247,7 @@ inline const K& XyAtlMap<K, V, KTraits, VTraits>::GetKeyAt(_In_ POSITION pos) co
 {
     ATLENSURE(pos != nullptr);
 
-    CNode* pNode{ (CNode*)pos };
+    CNode* pNode{ reinterpret_cast<CNode*>(pos) };
 
     return (pNode->m_key);
 }
@@ -257,7 +257,7 @@ inline const V& XyAtlMap<K, V, KTraits, VTraits>::GetValueAt(_In_ POSITION pos) 
 {
     ATLENSURE(pos != nullptr);
 
-    CNode* pNode{ (CNode*)pos };
+    CNode* pNode{ reinterpret_cast<CNode*>(pos) };
 
     return (pNode->m_value);
 }
@@ -267,7 +267,7 @@ inline V& XyAtlMap<K, V, KTraits, VTraits>::GetValueAt(_In_ POSITION pos)
 {
     ATLENSURE(pos != nullptr);
 
-    CNode* pNode{ (CNode*)pos };
+    CNode* pNode{ reinterpret_cast<CNode*>(pos) };
 
     return (pNode->m_value);
 }
@@ -305,7 +305,7 @@ UINT XyAtlMap<K, V, KTraits, VTraits>::PickSize(_In_ std::size_t nElements) cons
     };
 
     std::size_t nBins{ static_cast<std::size_t>((nElements / m_fOptimalLoad)) };
-    UINT nBinsEstimate = UINT(UINT_MAX < nBins ? UINT_MAX : nBins);
+    UINT nBinsEstimate{ UINT(UINT_MAX < nBins ? UINT_MAX : nBins) };
 
     // Find the smallest prime greater than our estimate
     int iPrime{ 0 };
@@ -356,7 +356,7 @@ POSITION XyAtlMap<K, V, KTraits, VTraits>::GetStartPosition() const throw()
         return (nullptr);
     }
 
-    for (UINT iBin{ 0 }; iBin < m_nBins; ++iBin)
+    for (UINT iBin{ 0U }; iBin < m_nBins; ++iBin)
     {
         if (m_ppBins[iBin] != nullptr)
         {
@@ -544,7 +544,7 @@ void XyAtlMap<K, V, KTraits, VTraits>::RemoveAll()
     DisableAutoRehash();
     if (m_ppBins != nullptr)
     {
-        for (UINT iBin{ 0 }; iBin < m_nBins; ++iBin)
+        for (UINT iBin{ 0U }; iBin < m_nBins; ++iBin)
         {
             CNode* pNext;
 
@@ -607,9 +607,9 @@ typename XyAtlMap<K, V, KTraits, VTraits>::CNode* XyAtlMap<K, V, KTraits, VTrait
         {
             AtlThrow(E_OUTOFMEMORY);
         }
-        pNode = (CNode*)pPlex->data();
+        pNode = reinterpret_cast<CNode*>(pPlex->data());
         pNode += m_nBlockSize - 1;
-        for (int iBlock = m_nBlockSize - 1; iBlock >= 0; --iBlock)
+        for (int iBlock{ static_cast<int>(m_nBlockSize - 1) }; iBlock >= 0; --iBlock)
         {
             pNode->m_pNext = m_pFree;
             m_pFree = pNode;
@@ -849,7 +849,7 @@ void XyAtlMap<K, V, KTraits, VTraits>::Rehash(_In_ UINT nBins)
     if (m_ppBins == nullptr)
     {
         // Just set the new number of bins
-        (void)InitHashTable(nBins, false);
+        static_cast<void>(InitHashTable(nBins, false));
         return;
     }
 
@@ -864,7 +864,7 @@ void XyAtlMap<K, V, KTraits, VTraits>::Rehash(_In_ UINT nBins)
 
     // Nothing gets copied.  We just rewire the old nodes
     // into the new bins.
-    for (UINT iSrcBin{ 0 }; iSrcBin < m_nBins; ++iSrcBin)
+    for (UINT iSrcBin{ 0U }; iSrcBin < m_nBins; ++iSrcBin)
     {
         CNode* pNode;
 
@@ -902,7 +902,7 @@ void XyAtlMap<K, V, KTraits, VTraits>::GetNextAssoc(
     ATLASSUME(m_ppBins != nullptr);
     ATLENSURE(pos != nullptr);
 
-    pNode = (CNode*)pos;
+    pNode = reinterpret_cast<CNode*>(pos);
     pNext = FindNextNode(pNode);
 
     pos = POSITION(pNext);
@@ -920,7 +920,7 @@ const typename XyAtlMap<K, V, KTraits, VTraits>::CPair* XyAtlMap<K, V, KTraits, 
     ATLASSUME(m_ppBins != nullptr);
     ATLASSERT(pos != nullptr);
 
-    pNode = (CNode*)pos;
+    pNode = reinterpret_cast<CNode*>(pos);
     pNext = FindNextNode(pNode);
 
     pos = POSITION(pNext);
@@ -953,7 +953,7 @@ const K& XyAtlMap<K, V, KTraits, VTraits>::GetNextKey(
     ATLASSUME(m_ppBins != nullptr);
     ATLENSURE(pos != nullptr);
 
-    pNode = (CNode*)pos;
+    pNode = reinterpret_cast<CNode*>(pos);
     pNext = FindNextNode(pNode);
 
     pos = POSITION(pNext);
@@ -971,7 +971,7 @@ const V& XyAtlMap<K, V, KTraits, VTraits>::GetNextValue(
     ATLASSUME(m_ppBins != nullptr);
     ATLENSURE(pos != nullptr);
 
-    pNode = (CNode*)pos;
+    pNode = reinterpret_cast<CNode*>(pos);
     pNext = FindNextNode(pNode);
 
     pos = POSITION(pNext);
@@ -989,7 +989,7 @@ V& XyAtlMap<K, V, KTraits, VTraits>::GetNextValue(
     ATLASSUME(m_ppBins != nullptr);
     ATLENSURE(pos != nullptr);
 
-    pNode = (CNode*)pos;
+    pNode = reinterpret_cast<CNode*>(pos);
     pNext = FindNextNode(pNode);
 
     pos = POSITION(pNext);
@@ -1073,7 +1073,7 @@ public:
         POSITION pos;
         POSITION pos_hash_value{ nullptr };
         bool new_item_added{ false };
-        pos = _hash.SetAtIfNotExists(key, (POSITION) nullptr, &new_item_added);
+        pos = _hash.SetAtIfNotExists(key, static_cast<POSITION>(nullptr), &new_item_added);
         if (new_item_added)
         {
             pos_hash_value = _list.AddHead(ListItem(pos, value));
@@ -1097,7 +1097,7 @@ public:
         POSITION pos;
         POSITION pos_hash_value{ nullptr };
         bool new_hash_item_added{ false };
-        pos = _hash.SetAtIfNotExists(key, (POSITION) nullptr, &new_hash_item_added);
+        pos = _hash.SetAtIfNotExists(key, static_cast<POSITION>(nullptr), &new_hash_item_added);
         if (new_hash_item_added)
         {
             pos_hash_value = _list.AddHead(ListItem(pos, value));

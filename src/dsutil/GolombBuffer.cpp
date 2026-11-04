@@ -77,7 +77,7 @@ CGolombBuffer::~CGolombBuffer()
 
 {
     int n{ -1 };
-    for (BYTE b{ 0 }; !b; ++n)
+    for (BYTE b{ 0U }; !b; ++n)
     {
         b = static_cast<BYTE>(BitRead(1));
     }

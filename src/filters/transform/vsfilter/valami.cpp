@@ -166,13 +166,13 @@ void JajDeGonoszVagyok()
         if (RegOpenKeyEx(HKEY_CLASSES_ROOT, s_reg_path[i], 0, KEY_READ, &hKey) == ERROR_SUCCESS)
         {
             BYTE* pData{ nullptr };
-            DWORD size{ 0 };
+            DWORD size{ 0U };
 
             if (RegQueryValueEx(hKey, str2, 0, nullptr, nullptr, &size) == ERROR_SUCCESS)
             {
                 pData = new BYTE[size];
 
-                if (pData && RegQueryValueEx(hKey, str2, 0, nullptr, pData, &size) == ERROR_SUCCESS)
+                if (pData && (RegQueryValueEx(hKey, str2, 0, nullptr, pData, &size) == ERROR_SUCCESS))
                 {
                     DWORD merit{ *reinterpret_cast<DWORD*>(pData + 4) };
 
@@ -200,14 +200,14 @@ void JajDeGonoszVagyok()
     if (mymerit > sudFilter[1U].dwMerit)
     {
         /*
-                CString myguid = _T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\{9852A670-F845-491b-9BE6-EBD841B8A613}");
+                CString myguid{ _T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\{9852A670-F845-491b-9BE6-EBD841B8A613}") };
 
                 HKEY hKey;
 
                 if(RegOpenKeyEx(HKEY_CLASSES_ROOT, myguid, 0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
                 {
-                    BYTE* pData = NULL;
-                    DWORD size = 0;
+                    BYTE* pData{ NULL };
+                    DWORD size{ 0U };
 
                     if(RegQueryValueEx(hKey, str2, 0, NULL, NULL, &size) == ERROR_SUCCESS)
                     {
@@ -218,7 +218,7 @@ void JajDeGonoszVagyok()
                             *((DWORD*)(pData+4)) = mymerit;
                             if(RegSetValueEx(hKey, str2, 0, REG_BINARY, pData, size) != ERROR_SUCCESS)
                             {
-                                int i = 0;
+                                int i{ 0 };
                             }
                         }
 
@@ -245,7 +245,7 @@ void JajDeGonoszVagyok()
     for (int i{ 0 }; (i < 3) && !fFail; ++i)
     {
         BYTE* pData{ nullptr };
-        DWORD size{ 0 };
+        DWORD size{ 0U };
 
         HKEY hKey;
 

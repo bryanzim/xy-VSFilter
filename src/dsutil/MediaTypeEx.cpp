@@ -81,9 +81,9 @@ CMediaTypeEx::CMediaTypeEx()
             }
         }
 
-        if (formattype == FORMAT_VideoInfo || formattype == FORMAT_MPEGVideo)
+        if ((formattype == FORMAT_VideoInfo) || (formattype == FORMAT_MPEGVideo))
         {
-            VIDEOINFOHEADER* vih{ (VIDEOINFOHEADER*)pbFormat };
+            VIDEOINFOHEADER* vih{ reinterpret_cast<VIDEOINFOHEADER*>(pbFormat) };
             if (vih->AvgTimePerFrame)
             {
                 rate.Format(_T("%0.2ffps "), 10000000.0f / vih->AvgTimePerFrame);
@@ -93,9 +93,9 @@ CMediaTypeEx::CMediaTypeEx()
                 rate.Format(_T("%s%dKbps"), CString(rate).GetString(), vih->dwBitRate / 1000);
             }
         }
-        else if (formattype == FORMAT_VideoInfo2 || formattype == FORMAT_MPEG2_VIDEO || formattype == FORMAT_DiracVideoInfo)
+        else if ((formattype == FORMAT_VideoInfo2) || (formattype == FORMAT_MPEG2_VIDEO) || (formattype == FORMAT_DiracVideoInfo))
         {
-            VIDEOINFOHEADER2* vih{ (VIDEOINFOHEADER2*)pbFormat };
+            VIDEOINFOHEADER2* vih{ reinterpret_cast<VIDEOINFOHEADER2*>(pbFormat) };
             if (vih->AvgTimePerFrame)
             {
                 rate.Format(_T("%0.2ffps "), 10000000.0f / vih->AvgTimePerFrame);
@@ -120,7 +120,7 @@ CMediaTypeEx::CMediaTypeEx()
 
         if (formattype == FORMAT_WaveFormatEx)
         {
-            WAVEFORMATEX* wfe{ (WAVEFORMATEX*)Format() };
+            WAVEFORMATEX* wfe{ reinterpret_cast<WAVEFORMATEX*>(Format()) };
 
             if ((wfe->wFormatTag /* > WAVE_FORMAT_PCM && wfe->wFormatTag < WAVE_FORMAT_EXTENSIBLE
               && wfe->wFormatTag != WAVE_FORMAT_IEEE_FLOAT*/
@@ -149,7 +149,7 @@ CMediaTypeEx::CMediaTypeEx()
         }
         else if (formattype == FORMAT_VorbisFormat)
         {
-            VORBISFORMAT* vf{ (VORBISFORMAT*)Format() };
+            VORBISFORMAT* vf{ reinterpret_cast<VORBISFORMAT*>(Format()) };
 
             codec = GetAudioCodecName(subtype, 0);
             dim.Format(_T("%dHz"), vf->nSamplesPerSec);
@@ -172,7 +172,7 @@ CMediaTypeEx::CMediaTypeEx()
         }
         else if (formattype == FORMAT_VorbisFormat2)
         {
-            VORBISFORMAT2* vf{ (VORBISFORMAT2*)Format() };
+            VORBISFORMAT2* vf{ reinterpret_cast<VORBISFORMAT2*>(Format()) };
 
             codec = GetAudioCodecName(subtype, 0);
             dim.Format(_T("%dHz"), vf->SamplesPerSec);
@@ -210,11 +210,11 @@ CMediaTypeEx::CMediaTypeEx()
         if (SUCCEEDED(pMS->GetDuration(&rtDur)) && rtDur)
         {
             rtDur /= 10000000;
-            int s = rtDur % 60;
+            int s{ static_cast<int>(rtDur % 60) };
             rtDur /= 60;
-            int m = rtDur % 60;
+            int m{ static_cast<int>(rtDur % 60) };
             rtDur /= 60;
-            int h = rtDur;
+            int h{ static_cast<int>(rtDur) };
             if (h)
             {
                 dur.Format(_T("%d:%02d:%02d"), h, m, s);
@@ -501,7 +501,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
     sl.AddTail(_T(""));
 
-    if (formattype == FORMAT_VideoInfo || formattype == FORMAT_VideoInfo2 || formattype == FORMAT_MPEGVideo || formattype == FORMAT_MPEG2_VIDEO)
+    if ((formattype == FORMAT_VideoInfo) || (formattype == FORMAT_VideoInfo2) || (formattype == FORMAT_MPEGVideo) || (formattype == FORMAT_MPEG2_VIDEO))
     {
         fmtsize =
             formattype == FORMAT_VideoInfo ? sizeof(VIDEOINFOHEADER) : formattype == FORMAT_VideoInfo2 ? sizeof(VIDEOINFOHEADER2)
@@ -509,7 +509,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
                                                                    : formattype == FORMAT_MPEG2_VIDEO  ? sizeof(MPEG2VIDEOINFO) - 4
                                                                                                        : 0;
 
-        VIDEOINFOHEADER& vih{ *(VIDEOINFOHEADER*)pbFormat };
+        VIDEOINFOHEADER& vih{ *reinterpret_cast<VIDEOINFOHEADER*>(pbFormat) };
         BITMAPINFOHEADER* bih{ &vih.bmiHeader };
 
         sl.AddTail(_T("VIDEOINFOHEADER:"));
@@ -526,9 +526,9 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
         sl.AddTail(_T(""));
 
-        if (formattype == FORMAT_VideoInfo2 || formattype == FORMAT_MPEG2_VIDEO)
+        if ((formattype == FORMAT_VideoInfo2) || (formattype == FORMAT_MPEG2_VIDEO))
         {
-            VIDEOINFOHEADER2& vih2{ *(VIDEOINFOHEADER2*)pbFormat };
+            VIDEOINFOHEADER2& vih2{ *reinterpret_cast<VIDEOINFOHEADER2*>(pbFormat) };
             bih = &vih2.bmiHeader;
 
             sl.AddTail(_T("VIDEOINFOHEADER2:"));
@@ -550,7 +550,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
         if (formattype == FORMAT_MPEGVideo)
         {
-            MPEG1VIDEOINFO& mvih{ *(MPEG1VIDEOINFO*)pbFormat };
+            MPEG1VIDEOINFO& mvih{ *reinterpret_cast<MPEG1VIDEOINFO*>(pbFormat) };
 
             sl.AddTail(_T("MPEG1VIDEOINFO:"));
             str.Format(_T("dwStartTimeCode: %d"), mvih.dwStartTimeCode);
@@ -562,7 +562,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
         }
         else if (formattype == FORMAT_MPEG2_VIDEO)
         {
-            MPEG2VIDEOINFO& mvih{ *(MPEG2VIDEOINFO*)pbFormat };
+            MPEG2VIDEOINFO& mvih{ *reinterpret_cast<MPEG2VIDEOINFO*>(pbFormat) };
 
             sl.AddTail(_T("MPEG2VIDEOINFO:"));
             str.Format(_T("dwStartTimeCode: %d"), mvih.dwStartTimeCode);
@@ -616,7 +616,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
     {
         fmtsize = sizeof(WAVEFORMATEX);
 
-        WAVEFORMATEX& wfe{ *(WAVEFORMATEX*)pbFormat };
+        WAVEFORMATEX& wfe{ *reinterpret_cast<WAVEFORMATEX*>(pbFormat) };
 
         sl.AddTail(_T("WAVEFORMATEX:"));
         str.Format(_T("wFormatTag: 0x%04x"), wfe.wFormatTag);
@@ -638,11 +638,11 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
         if ((wfe.wFormatTag != WAVE_FORMAT_PCM) && (wfe.cbSize > 0))
         {
-            if (wfe.wFormatTag == WAVE_FORMAT_EXTENSIBLE && wfe.cbSize == sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
+            if ((wfe.wFormatTag == WAVE_FORMAT_EXTENSIBLE) && (wfe.cbSize == sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX)))
             {
                 fmtsize = sizeof(WAVEFORMATEXTENSIBLE);
 
-                WAVEFORMATEXTENSIBLE& wfext{ *(WAVEFORMATEXTENSIBLE*)pbFormat };
+                WAVEFORMATEXTENSIBLE& wfext{ *reinterpret_cast<WAVEFORMATEXTENSIBLE*>(pbFormat) };
 
                 sl.AddTail(_T("WAVEFORMATEXTENSIBLE:"));
                 if (wfext.Format.wBitsPerSample != 0)
@@ -661,11 +661,11 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
 
                 sl.AddTail(_T(""));
             }
-            else if (wfe.wFormatTag == WAVE_FORMAT_DOLBY_AC3 && wfe.cbSize == sizeof(DOLBYAC3WAVEFORMAT) - sizeof(WAVEFORMATEX))
+            else if ((wfe.wFormatTag == WAVE_FORMAT_DOLBY_AC3) && (wfe.cbSize == sizeof(DOLBYAC3WAVEFORMAT) - sizeof(WAVEFORMATEX)))
             {
                 fmtsize = sizeof(DOLBYAC3WAVEFORMAT);
 
-                DOLBYAC3WAVEFORMAT& wfAc3{ *(DOLBYAC3WAVEFORMAT*)pbFormat };
+                DOLBYAC3WAVEFORMAT& wfAc3{ *reinterpret_cast<DOLBYAC3WAVEFORMAT*>(pbFormat) };
 
                 sl.AddTail(_T("DOLBYAC3WAVEFORMAT:"));
                 str.Format(_T("bBigEndian: %d"), wfAc3.bBigEndian);
@@ -687,7 +687,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
     {
         fmtsize = sizeof(VORBISFORMAT);
 
-        VORBISFORMAT& vf{ *(VORBISFORMAT*)pbFormat };
+        VORBISFORMAT& vf{ *reinterpret_cast<VORBISFORMAT*>(pbFormat) };
 
         sl.AddTail(_T("VORBISFORMAT:"));
         str.Format(_T("nChannels: %d"), vf.nChannels);
@@ -709,7 +709,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
     {
         fmtsize = sizeof(VORBISFORMAT2);
 
-        VORBISFORMAT2& vf{ *(VORBISFORMAT2*)pbFormat };
+        VORBISFORMAT2& vf{ *reinterpret_cast<VORBISFORMAT2*>(pbFormat) };
 
         sl.AddTail(_T("VORBISFORMAT:"));
         str.Format(_T("Channels: %d"), vf.Channels);
@@ -727,7 +727,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
     {
         fmtsize = sizeof(SUBTITLEINFO);
 
-        SUBTITLEINFO& si{ *(SUBTITLEINFO*)pbFormat };
+        SUBTITLEINFO& si{ *reinterpret_cast<SUBTITLEINFO*>(pbFormat) };
 
         sl.AddTail(_T("SUBTITLEINFO:"));
         str.Format(_T("dwOffset: %d"), si.dwOffset);
@@ -751,7 +751,7 @@ void CMediaTypeEx::Dump(CAtlList<CString>& sl)
             for (ULONG k{ i }, l{ min(i + 16U, cbFormat) }; k < l; ++k)
             {
                 CString byte;
-                byte.Format(_T("%c%02x"), ((fmtsize > 0) && (static_cast<ULONG>(fmtsize)) == k ? '|' : ' '), pbFormat[k]);
+                byte.Format(_T("%c%02x"), ((fmtsize > 0) && ((static_cast<ULONG>(fmtsize)) == k) ? '|' : ' '), pbFormat[k]);
                 str += byte;
             }
 

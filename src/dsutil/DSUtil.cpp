@@ -40,7 +40,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
         return;
     }
 
-    int cnt{ 0 }, size = 0;
+    int cnt{ 0 }, size{ 0 };
     if (FAILED(pAMVSCCap->GetNumberOfCapabilities(&cnt, &size)))
     {
         return;
@@ -103,7 +103,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
             BITMAPINFOHEADER* pbh;
             if (pmt->formattype == FORMAT_VideoInfo)
             {
-                VIDEOINFOHEADER* vih{ (VIDEOINFOHEADER*)pmt->pbFormat };
+                VIDEOINFOHEADER* vih{ reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat) };
                 pbh = &vih->bmiHeader;
 
                 s.Empty();
@@ -119,7 +119,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
             }
             else if (pmt->formattype == FORMAT_VideoInfo2)
             {
-                VIDEOINFOHEADER2* vih{ (VIDEOINFOHEADER2*)pmt->pbFormat };
+                VIDEOINFOHEADER2* vih{ reinterpret_cast<VIDEOINFOHEADER2*>(pmt->pbFormat) };
                 pbh = &vih->bmiHeader;
 
                 s.Empty();
@@ -232,7 +232,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
     static_cast<void>(CountPins(pBF, nIn, nOut, nInC, nOutC));
     AM_MEDIA_TYPE mt;
     CComPtr<IPin> pIn = GetFirstPin(pBF);
-    return ((nOut > 1) || ((nOut > 0) && nIn == 1 && pIn && SUCCEEDED(pIn->ConnectionMediaType(&mt)) && mt.majortype == MEDIATYPE_Stream));
+    return ((nOut > 1) || ((nOut > 0) && (nIn == 1) && pIn && SUCCEEDED(pIn->ConnectionMediaType(&mt)) && (mt.majortype == MEDIATYPE_Stream)));
 }
 
 [[nodiscard]] bool IsStreamEnd(IBaseFilter* pBF)
@@ -247,7 +247,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
     int nIn, nOut, nInC, nOutC;
     static_cast<void>(CountPins(pBF, nIn, nOut, nInC, nOutC));
 
-    if ((nInC > 0) && nOut == 0)
+    if ((nInC > 0) && (nOut == 0))
     {
         BeginEnumPins(pBF, pEP, pPin)
         {
@@ -269,7 +269,7 @@ void DumpStreamConfig(TCHAR* fn, IAMStreamConfig* pAMVSCCap)
     std::memcpy(&clsid, &GUID_NULL, sizeof(clsid));
     pBF->GetClassID(&clsid);
 
-    return (clsid == CLSID_VideoRenderer || clsid == CLSID_VideoRendererDefault);
+    return ((clsid == CLSID_VideoRenderer) || (clsid == CLSID_VideoRendererDefault));
 }
 
 #include <initguid.h>
@@ -279,7 +279,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
     int nIn, nOut, nInC, nOutC;
     static_cast<void>(CountPins(pBF, nIn, nOut, nInC, nOutC));
 
-    if ((nInC > 0) && nOut == 0 && (CComQIPtr<IBasicAudio>(pBF)))
+    if ((nInC > 0) && (nOut == 0) && (CComQIPtr<IBasicAudio>(pBF)))
     {
         BeginEnumPins(pBF, pEP, pPin)
         {
@@ -301,7 +301,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
     std::memcpy(&clsid, &GUID_NULL, sizeof(clsid));
     pBF->GetClassID(&clsid);
 
-    return (clsid == CLSID_DSoundRender || clsid == CLSID_AudioRender || clsid == CLSID_ReClock || clsid == __uuidof(CNullAudioRenderer) || clsid == __uuidof(CNullUAudioRenderer));
+    return ((clsid == CLSID_DSoundRender) || (clsid == CLSID_AudioRender) || (clsid == CLSID_ReClock) || (clsid == __uuidof(CNullAudioRenderer)) || (clsid == __uuidof(CNullUAudioRenderer)));
 }
 
 [[nodiscard]] IBaseFilter* GetUpStreamFilter(IBaseFilter* pBF, IPin* pInputPin)
@@ -320,7 +320,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
 
         PIN_DIRECTION dir;
         CComPtr<IPin> pPinConnectedTo;
-        if (SUCCEEDED(pPin->QueryDirection(&dir)) && dir == PINDIR_INPUT && SUCCEEDED(pPin->ConnectedTo(&pPinConnectedTo)))
+        if (SUCCEEDED(pPin->QueryDirection(&dir)) && (dir == PINDIR_INPUT) && SUCCEEDED(pPin->ConnectedTo(&pPinConnectedTo)))
         {
             IPin* pRet{ pPinConnectedTo.Detach() };
             pRet->Release();
@@ -367,7 +367,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
         PIN_DIRECTION dir2;
         pPin->QueryDirection(&dir2);
         CComPtr<IPin> pPinTo;
-        if (dir == dir2 && (S_OK != pPin->ConnectedTo(&pPinTo)))
+        if ((dir == dir2) && (S_OK != pPin->ConnectedTo(&pPinTo)))
         {
             IPin* pRet{ pPin.Detach() };
             pRet->Release();
@@ -391,7 +391,7 @@ bool IsAudioWaveRenderer(IBaseFilter* pBF)
     BeginEnumFilters(pFG, pEF, pBF)
     {
         CLSID clsid2;
-        if (SUCCEEDED(pBF->GetClassID(&clsid2)) && clsid == clsid2)
+        if (SUCCEEDED(pBF->GetClassID(&clsid2)) && (clsid == clsid2))
         {
             return (pBF);
         }
@@ -669,7 +669,7 @@ void ExtractMediaTypes(IPin* pPin, CAtlArray<GUID>& types)
 
         for (int i{ 0 }; !fFound && (i < static_cast<int>(types.GetCount())); i += 2)
         {
-            if (types[i] == pmt->majortype && types[i + 1] == pmt->subtype)
+            if ((types[i] == pmt->majortype) && (types[i + 1] == pmt->subtype))
             {
                 fFound = true;
             }
@@ -696,7 +696,7 @@ void ExtractMediaTypes(IPin* pPin, CAtlList<CMediaType>& mts)
         while (!fFound && pos)
         {
             CMediaType& mt{ mts.GetNext(pos) };
-            if (mt.majortype == pmt->majortype && mt.subtype == pmt->subtype)
+            if ((mt.majortype == pmt->majortype) && (mt.subtype == pmt->subtype))
             {
                 fFound = true;
             }
@@ -784,7 +784,7 @@ void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
         pSPP.QueryInterface(&lpUnk);
         MyOleCreatePropertyFrame(
             hParentWnd, 0, 0, CStringW(str),
-            1, (IUnknown**)&lpUnk,
+            1, reinterpret_cast<IUnknown**>(&lpUnk),
             caGUID.cElems, caGUID.pElems,
             0, 0, nullptr);
         lpUnk->Release();
@@ -816,7 +816,7 @@ void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
     CString rootkey1{ _T("CLSID\\") };
     CString rootkey2{ _T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\") };
 
-    return ERROR_SUCCESS == CRegKey().Open(HKEY_CLASSES_ROOT, rootkey1 + clsid, KEY_READ) || ERROR_SUCCESS == CRegKey().Open(HKEY_CLASSES_ROOT, rootkey2 + clsid, KEY_READ);
+    return (ERROR_SUCCESS == CRegKey().Open(HKEY_CLASSES_ROOT, rootkey1 + clsid, KEY_READ)) || (ERROR_SUCCESS == CRegKey().Open(HKEY_CLASSES_ROOT, rootkey2 + clsid, KEY_READ));
 }
 
 [[nodiscard]] bool IsCLSIDRegistered(const CLSID& clsid)
@@ -824,7 +824,7 @@ void ShowPPage(IUnknown* pUnk, const HWND hParentWnd)
     bool fRet{ false };
 
     LPOLESTR pStr{ nullptr };
-    if (S_OK == StringFromCLSID(clsid, &pStr) && pStr)
+    if ((S_OK == StringFromCLSID(clsid, &pStr)) && pStr)
     {
         fRet = IsCLSIDRegistered(CString(pStr));
         CoTaskMemFree(pStr);
@@ -839,10 +839,10 @@ void CStringToBin(CString str, CAtlArray<BYTE>& data)
     ASSERT((str.GetLength() & 1) == 0);
     data.SetCount(str.GetLength() / 2);
 
-    BYTE b{ 0 };
+    BYTE b{ 0U };
 
     str.MakeUpper();
-    for (int i{ 0 }, j = str.GetLength(); i < j; ++i)
+    for (int i{ 0 }, j{ str.GetLength() }; i < j; ++i)
     {
         TCHAR c{ str[i] };
         if ((c >= '0') && (c <= '9'))
@@ -952,7 +952,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
         // CDROM_Audio
         {
             HANDLE hDrive{ CreateFile(CString(_T("\\\\.\\")) + path, GENERIC_READ, FILE_SHARE_READ, nullptr,
-                                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, (HANDLE) nullptr) };
+                                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, static_cast<HANDLE>(nullptr)) };
             if (hDrive != INVALID_HANDLE_VALUE)
             {
                 DWORD BytesReturned;
@@ -963,7 +963,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
                     {
                         // MMC-3 Draft Revision 10g: Table 222 ?Q Sub-channel control field
                         TOC.TrackData[i - 1].Control &= 5;
-                        if (TOC.TrackData[i - 1].Control == 0 || TOC.TrackData[i - 1].Control == 1)
+                        if ((TOC.TrackData[i - 1].Control == 0) || (TOC.TrackData[i - 1].Control == 1))
                         {
                             CString fn;
                             fn.Format(_T("%s\\track%02d.cda"), path.GetString(), i);
@@ -1030,7 +1030,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
                 if (afi.dwCaps & AVIFILECAPS_ALLKEYFRAMES)
                 {
                     kfs.SetSize(si.dwLength);
-                    for (DWORD kf{ 0 }; kf < si.dwLength; ++kf)
+                    for (DWORD kf{ 0U }; kf < si.dwLength; ++kf)
                     {
                         kfs[kf] = kf;
                     }
@@ -1084,7 +1084,7 @@ static void FindFiles(CString fn, CAtlList<CString>& files)
         hmsf.bFrames = 0;
         fps = 1;
     }
-    return (REFERENCE_TIME)((((REFERENCE_TIME)hmsf.bHours * 60 + hmsf.bMinutes) * 60 + hmsf.bSeconds) * 1000 + 1.0 * hmsf.bFrames * 1000 / fps) * 10000;
+    return static_cast<REFERENCE_TIME>((((static_cast<REFERENCE_TIME>(hmsf.bHours) * 60 + hmsf.bMinutes) * 60 + hmsf.bSeconds) * 1000 + 1.0 * hmsf.bFrames * 1000 / fps)) * 10000;
 }
 
 void memsetd(void* dst, const unsigned int c, const std::size_t nbytes)
@@ -1103,7 +1103,7 @@ void memsetd(void* dst, const unsigned int c, const std::size_t nbytes)
         return;
     }
 #endif
-    std::size_t n{ nbytes / 4 };
+    std::size_t n{ nbytes / 4U };
     std::size_t o{ n - (n % 4) };
 
     __m128i val{ _mm_set1_epi32(static_cast<int>(c)) };
@@ -1111,14 +1111,14 @@ void memsetd(void* dst, const unsigned int c, const std::size_t nbytes)
     { // 16-byte aligned
         for (std::size_t i{ 0U }; i < o; i += 4)
         {
-            _mm_store_si128((__m128i*)&((reinterpret_cast<DWORD*>(dst))[i]), val);
+            _mm_store_si128(reinterpret_cast<__m128i*>(&((reinterpret_cast<DWORD*>(dst))[i])), val);
         }
     }
     else
     {
         for (std::size_t i{ 0U }; i < o; i += 4)
         {
-            _mm_storeu_si128((__m128i*)&((reinterpret_cast<DWORD*>(dst))[i]), val);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(&((reinterpret_cast<DWORD*>(dst))[i])), val);
         }
     }
 
@@ -1143,7 +1143,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 {
     memsetd(dst, c << 16 | c, nbytes);
 
-    std::size_t n{ nbytes / 2 };
+    std::size_t n{ nbytes / 2U };
     std::size_t o{ (n / 2) * 2 };
     if ((n - o) == 1)
     {
@@ -1159,31 +1159,31 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 
         if (pmt->formattype == FORMAT_VideoInfo)
         {
-            VIDEOINFOHEADER* vih{ (VIDEOINFOHEADER*)pmt->pbFormat };
+            VIDEOINFOHEADER* vih{ reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat) };
             std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
             return true;
         }
         else if (pmt->formattype == FORMAT_VideoInfo2)
         {
-            VIDEOINFOHEADER2* vih{ (VIDEOINFOHEADER2*)pmt->pbFormat };
+            VIDEOINFOHEADER2* vih{ reinterpret_cast<VIDEOINFOHEADER2*>(pmt->pbFormat) };
             std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
             return true;
         }
         else if (pmt->formattype == FORMAT_MPEGVideo)
         {
-            VIDEOINFOHEADER* vih{ &((MPEG1VIDEOINFO*)pmt->pbFormat)->hdr };
+            VIDEOINFOHEADER* vih{ &(reinterpret_cast<MPEG1VIDEOINFO*>(pmt->pbFormat))->hdr };
             std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
             return true;
         }
         else if (pmt->formattype == FORMAT_MPEG2_VIDEO)
         {
-            VIDEOINFOHEADER2* vih{ &((MPEG2VIDEOINFO*)pmt->pbFormat)->hdr };
+            VIDEOINFOHEADER2* vih{ &(reinterpret_cast<MPEG2VIDEOINFO*>(pmt->pbFormat))->hdr };
             std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
             return true;
         }
         else if (pmt->formattype == FORMAT_DiracVideoInfo)
         {
-            VIDEOINFOHEADER2* vih{ &((DIRACINFOHEADER*)pmt->pbFormat)->hdr };
+            VIDEOINFOHEADER2* vih{ &(reinterpret_cast<DIRACINFOHEADER*>(pmt->pbFormat))->hdr };
             std::memcpy(bih, &vih->bmiHeader, sizeof(BITMAPINFOHEADER));
             return true;
         }
@@ -1211,17 +1211,17 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 {
     w = h = arx = ary = 0;
 
-    if (pmt->formattype == FORMAT_VideoInfo || pmt->formattype == FORMAT_MPEGVideo)
+    if ((pmt->formattype == FORMAT_VideoInfo) || (pmt->formattype == FORMAT_MPEGVideo))
     {
-        VIDEOINFOHEADER* vih{ (VIDEOINFOHEADER*)pmt->pbFormat };
+        VIDEOINFOHEADER* vih{ reinterpret_cast<VIDEOINFOHEADER*>(pmt->pbFormat) };
         w = vih->bmiHeader.biWidth;
         h = std::abs(vih->bmiHeader.biHeight);
         arx = w * vih->bmiHeader.biYPelsPerMeter;
         ary = h * vih->bmiHeader.biXPelsPerMeter;
     }
-    else if (pmt->formattype == FORMAT_VideoInfo2 || pmt->formattype == FORMAT_MPEG2_VIDEO || pmt->formattype == FORMAT_DiracVideoInfo)
+    else if ((pmt->formattype == FORMAT_VideoInfo2) || (pmt->formattype == FORMAT_MPEG2_VIDEO) || (pmt->formattype == FORMAT_DiracVideoInfo))
     {
-        VIDEOINFOHEADER2* vih{ (VIDEOINFOHEADER2*)pmt->pbFormat };
+        VIDEOINFOHEADER2* vih{ reinterpret_cast<VIDEOINFOHEADER2*>(pmt->pbFormat) };
         w = vih->bmiHeader.biWidth;
         h = std::abs(vih->bmiHeader.biHeight);
         arx = vih->dwPictAspectRatioX;
@@ -1239,14 +1239,14 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
     }
 
     BYTE* ptr{ nullptr };
-    DWORD len{ 0 };
+    DWORD len{ 0U };
 
     if (pmt->formattype == FORMAT_MPEGVideo)
     {
-        ptr = ((MPEG1VIDEOINFO*)pmt->pbFormat)->bSequenceHeader;
-        len = ((MPEG1VIDEOINFO*)pmt->pbFormat)->cbSequenceHeader;
+        ptr = (reinterpret_cast<MPEG1VIDEOINFO*>(pmt->pbFormat))->bSequenceHeader;
+        len = (reinterpret_cast<MPEG1VIDEOINFO*>(pmt->pbFormat))->cbSequenceHeader;
 
-        if (ptr && (len >= 8) && *reinterpret_cast<DWORD*>(ptr) == 0xb3010000)
+        if (ptr && (len >= 8) && (*reinterpret_cast<DWORD*>(ptr) == 0xb3010000))
         {
             w = (ptr[4U] << 4) | (ptr[5U] >> 4);
             h = ((ptr[5U] & 0xf) << 8) | ptr[6U];
@@ -1268,16 +1268,16 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
                 1.2015f,
                 1.0000f,
             };
-            arx = static_cast<int>(((float)w / ar[ptr[7U] >> 4] + 0.5));
+            arx = static_cast<int>((static_cast<float>(w) / ar[ptr[7U] >> 4] + 0.5));
             ary = h;
         }
     }
     else if (pmt->formattype == FORMAT_MPEG2_VIDEO)
     {
-        ptr = reinterpret_cast<BYTE*>(((MPEG2VIDEOINFO*)pmt->pbFormat)->dwSequenceHeader);
-        len = ((MPEG2VIDEOINFO*)pmt->pbFormat)->cbSequenceHeader;
+        ptr = reinterpret_cast<BYTE*>((reinterpret_cast<MPEG2VIDEOINFO*>(pmt->pbFormat))->dwSequenceHeader);
+        len = (reinterpret_cast<MPEG2VIDEOINFO*>(pmt->pbFormat))->cbSequenceHeader;
 
-        if (ptr && (len >= 8) && *reinterpret_cast<DWORD*>(ptr) == 0xb3010000)
+        if (ptr && (len >= 8) && (*reinterpret_cast<DWORD*>(ptr) == 0xb3010000))
         {
             w = (ptr[4U] << 4) | (ptr[5U] >> 4);
             h = ((ptr[5U] & 0xf) << 8) | ptr[6U];
@@ -1301,10 +1301,10 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
     {
     }
 
-    DWORD a = arx, b = ary;
+    DWORD a{ static_cast<DWORD>(arx) }, b{ static_cast<DWORD>(ary) };
     while (a)
     {
-        int tmp = a;
+        int tmp{ static_cast<int>(a) };
         a = b % tmp;
         b = tmp;
     }
@@ -1325,7 +1325,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 
     BYTE* seqhdr_ext{ nullptr };
 
-    BYTE* seqhdr_end{ seqhdr + 11 };
+    BYTE* seqhdr_end{ seqhdr + 11U };
     if (static_cast<DWORD>(seqhdr_end - seqhdr) > len)
     {
         return false;
@@ -1351,7 +1351,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
     {
         return false;
     }
-    if ((len - (seqhdr_end - seqhdr) > 4) && *reinterpret_cast<DWORD*>(seqhdr_end) == 0xb5010000)
+    if ((len - (seqhdr_end - seqhdr) > 4) && (*reinterpret_cast<DWORD*>(seqhdr_end) == 0xb5010000))
     {
         seqhdr_ext = seqhdr_end;
         seqhdr_end += 10;
@@ -1369,7 +1369,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
     mt.subtype = MEDIASUBTYPE_MPEG2_VIDEO;
     mt.formattype = FORMAT_MPEG2Video;
 
-    MPEG2VIDEOINFO* vih{ (MPEG2VIDEOINFO*)mt.AllocFormatBuffer(FIELD_OFFSET(MPEG2VIDEOINFO, dwSequenceHeader) + len) };
+    MPEG2VIDEOINFO* vih{ reinterpret_cast<MPEG2VIDEOINFO*>(mt.AllocFormatBuffer(FIELD_OFFSET(MPEG2VIDEOINFO, dwSequenceHeader) + len)) };
     std::memset(mt.Format(), 0, mt.FormatLength());
     vih->hdr.bmiHeader.biSize = sizeof(vih->hdr.bmiHeader);
     vih->hdr.bmiHeader.biWidth = w;
@@ -1391,7 +1391,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
         0, 0, 0, 0
     };
 
-    if (seqhdr_ext && (seqhdr_ext[4U] & 0xf0) == 0x10)
+    if (seqhdr_ext && ((seqhdr_ext[4U] & 0xf0) == 0x10))
     {
         vih->dwProfile = profile[seqhdr_ext[4U] & 0x07];
         vih->dwLevel = level[seqhdr_ext[5U] >> 4];
@@ -1402,10 +1402,10 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
 
 [[nodiscard]] unsigned __int64 GetFileVersion(const LPCTSTR fn)
 {
-    unsigned __int64 ret{ 0 };
+    unsigned __int64 ret{ 0U };
 
     DWORD buff[4U];
-    VS_FIXEDFILEINFO* pvsf{ (VS_FIXEDFILEINFO*)buff };
+    VS_FIXEDFILEINFO* pvsf{ reinterpret_cast<VS_FIXEDFILEINFO*>(buff) };
     DWORD d; // a variable that GetFileVersionInfoSize sets to zero (but why is it needed ?????????????????????????????? :)
     DWORD len{ GetFileVersionInfoSize(const_cast<TCHAR*>(fn), &d) };
 
@@ -1417,7 +1417,7 @@ void memsetw(void* dst, const unsigned short c, const std::size_t nbytes)
             UINT uLen;
             if (GetFileVersionInfo(const_cast<TCHAR*>(fn), 0, len, b1) && VerQueryValue(b1, _T("\\"), reinterpret_cast<void**>(&pvsf), &uLen))
             {
-                ret = ((unsigned __int64)pvsf->dwFileVersionMS << 32) | pvsf->dwFileVersionLS;
+                ret = (static_cast<unsigned __int64>(pvsf->dwFileVersionMS) << 32) | pvsf->dwFileVersionLS;
             }
 
             delete[] b1;
@@ -1583,8 +1583,8 @@ static CAtlList<ExternalObject> s_extobjs;
 
     if (hInst || (hInst = CoLoadLibrary(CComBSTR(fullpath), TRUE)))
     {
-        typedef HRESULT(__stdcall * PDllGetClassObject)(REFCLSID rclsid, REFIID riid, LPVOID * ppv);
-        PDllGetClassObject p{ (PDllGetClassObject)GetProcAddress(hInst, "DllGetClassObject") };
+        using PDllGetClassObject = HRESULT(__stdcall*)(REFCLSID rclsid, REFIID riid, LPVOID * ppv);
+        PDllGetClassObject p{ reinterpret_cast<PDllGetClassObject>(GetProcAddress(hInst, "DllGetClassObject")) };
 
         if (p && FAILED(hr = p(clsid, iid, ppv)))
         {
@@ -1660,21 +1660,21 @@ void UnloadExternalObjects()
     fn.ReleaseBuffer(GetModuleFileName(AfxGetInstanceHandle(), fn.GetBuffer(MAX_PATH), MAX_PATH));
     CPath p{ fn };
 
-    if ((full.GetLength() >= 2) && full[0U] == '\\' && (full[1U] != '\\'))
+    if ((full.GetLength() >= 2) && (full[0U] == '\\') && (full[1U] != '\\'))
     {
         p.StripToRoot();
-        full = CString((LPCTSTR)p) + full.Mid(1);
+        full = CString(static_cast<LPCTSTR>(p)) + full.Mid(1);
     }
     else if (full.Find(_T(":\\")) < 0)
     {
         p.RemoveFileSpec();
         p.AddBackslash();
-        full = CString((LPCTSTR)p) + full;
+        full = CString(static_cast<LPCTSTR>(p)) + full;
     }
 
     CPath c{ full };
     c.Canonicalize();
-    return CString((LPCTSTR)c);
+    return CString(static_cast<LPCTSTR>(c));
 }
 
 //
@@ -2287,7 +2287,7 @@ static struct
     { "Haitian", "hat", "ht", 0 },
     { "Kalmyk", "xal", "", 0 },
     { "", "", "", 0 },
-    { "No subtitles", "---", "", (LCID)LCID_NOSUBTITLES },
+    { "No subtitles", "---", "", static_cast<LCID>(LCID_NOSUBTITLES) },
 };
 
 [[nodiscard]] CString ISO6391ToLanguage(const LPCSTR code)
@@ -2296,7 +2296,7 @@ static struct
     std::strncpy(tmp, code, 2);
     tmp[2U] = 0;
     _strlwr(tmp);
-    for (int i{ 0 }, j = countof(s_isolangs); i < j; ++i)
+    for (int i{ 0 }, j{ countof(s_isolangs) }; i < j; ++i)
     {
         if (!std::strcmp(s_isolangs[i].iso6391, tmp))
         {
@@ -2318,7 +2318,7 @@ static struct
     std::strncpy(tmp, code, 3);
     tmp[3U] = 0;
     _strlwr(tmp);
-    for (int i{ 0 }, j = countof(s_isolangs); i < j; ++i)
+    for (int i{ 0 }, j{ countof(s_isolangs) }; i < j; ++i)
     {
         if (!std::strcmp(s_isolangs[i].iso6392, tmp))
         {
@@ -2340,7 +2340,7 @@ static struct
     strncpy_s(tmp, code, 3);
     tmp[3U] = 0;
     _strlwr_s(tmp);
-    for (std::ptrdiff_t i{ 0 }, j = countof(s_isolangs); i < j; ++i)
+    for (std::ptrdiff_t i{ 0 }, j{ countof(s_isolangs) }; i < j; ++i)
     {
         if (!std::strcmp(s_isolangs[i].iso6391, code))
         {
@@ -2356,7 +2356,7 @@ static struct
     strncpy_s(tmp, code, 3);
     tmp[3U] = 0;
     _strlwr_s(tmp);
-    for (std::ptrdiff_t i{ 0 }, j = countof(s_isolangs); i < j; ++i)
+    for (std::ptrdiff_t i{ 0 }, j{ countof(s_isolangs) }; i < j; ++i)
     {
         if (!std::strcmp(s_isolangs[i].iso6392, tmp))
         {
@@ -2372,7 +2372,7 @@ static struct
     std::strncpy(tmp, code, 2);
     tmp[2U] = 0;
     _strlwr(tmp);
-    for (int i{ 0 }, j = countof(s_isolangs); i < j; ++i)
+    for (int i{ 0 }, j{ countof(s_isolangs) }; i < j; ++i)
     {
         if (!std::strcmp(s_isolangs[i].iso6391, tmp))
         {
@@ -2388,7 +2388,7 @@ static struct
     std::strncpy(tmp, code, 3);
     tmp[3U] = 0;
     _strlwr(tmp);
-    for (int i{ 0 }, j = countof(s_isolangs); i < j; ++i)
+    for (int i{ 0 }, j{ countof(s_isolangs) }; i < j; ++i)
     {
         if (!std::strcmp(s_isolangs[i].iso6392, tmp))
         {
@@ -2402,7 +2402,7 @@ static struct
 {
     CString str{ lang };
     str.MakeLower();
-    for (int i{ 0 }, j = countof(s_isolangs); i < j; ++i)
+    for (int i{ 0 }, j{ countof(s_isolangs) }; i < j; ++i)
     {
         CAtlList<CString> sl;
         Explode(CString(s_isolangs[i].name), sl, ';');
@@ -2670,10 +2670,10 @@ void UnRegisterSourceFilter(const GUID& subtype)
 {
     CString strTemp;
     LONGLONG llTotalMs{ ConvertToMilliseconds(rtVal) };
-    int lHour = static_cast<int>((llTotalMs / (1000 * 60 * 60)));
-    int lMinute = (llTotalMs / (1000 * 60)) % 60;
-    int lSecond = (llTotalMs / 1000) % 60;
-    int lMillisec = llTotalMs % 1000;
+    int lHour{ static_cast<int>((llTotalMs / (1000 * 60 * 60))) };
+    int lMinute{ (llTotalMs / (1000 * 60)) % 60 };
+    int lSecond{ (llTotalMs / 1000) % 60 };
+    int lMillisec{ llTotalMs % 1000 };
     strTemp.Format(_T("%02d:%02d:%02d,%03d"), lHour, lMinute, lSecond, lMillisec);
     return strTemp;
 }

@@ -102,7 +102,7 @@ void XyBitmap::AlphaBltPack(SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID
     int y{ pos.y };
     int w{ size.cx };
     int h{ size.cy };
-    int x_src{ 0 }, y_src = 0;
+    int x_src{ 0 }, y_src{ 0 };
 
     if (x < r.left)
     {
@@ -132,7 +132,7 @@ void XyBitmap::AlphaBltPack(SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID
     for (int i{ 0 }; i < h; ++i, src += pitch, dst += spd.pitch)
     {
         const BYTE* s2{ src };
-        const BYTE* s2end{ s2 + w * 4 };
+        const BYTE* s2end{ s2 + w * 4U };
         DWORD* d2{ reinterpret_cast<DWORD*>(dst) };
         for (; s2 < s2end; s2 += 4, ++d2)
         {
@@ -152,7 +152,7 @@ void XyBitmap::AlphaBltPlannar(SubPicDesc& spd, POINT pos, SIZE size, const XyPl
     int y{ pos.y };
     int w{ size.cx };
     int h{ size.cy };
-    int x_src{ 0 }, y_src = 0;
+    int x_src{ 0 }, y_src{ 0 };
 
     if (x < r.left)
     {
@@ -251,7 +251,7 @@ void XyBitmap::BltPack(SubPicDesc& spd, POINT pos, SIZE size, const LPCVOID pixe
     int y{ pos.y };
     int w{ size.cx };
     int h{ size.cy };
-    int x_src{ 0 }, y_src = 0;
+    int x_src{ 0 }, y_src{ 0 };
 
     if (x < r.left)
     {
@@ -390,7 +390,7 @@ XySubRenderFrame::~XySubRenderFrame()
     {
         return E_INVALIDARG;
     }
-    if (extra_info && m_xy_color_space == XY_CS_AYUV_PLANAR)
+    if (extra_info && (m_xy_color_space == XY_CS_AYUV_PLANAR))
     {
         const XyBitmap& bitmap{ *(m_bitmaps.GetAt(index)) };
         XyPlannerFormatExtra* output{ reinterpret_cast<XyPlannerFormatExtra*>(extra_info) };

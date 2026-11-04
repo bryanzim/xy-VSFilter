@@ -61,7 +61,7 @@ CTextFile::CTextFile(enc e)
             m_encoding = BE16;
             m_offset = 2;
         }
-        else if (w == 0xbbef && (__super::GetLength() >= 3))
+        else if ((w == 0xbbef) && (__super::GetLength() >= 3))
         {
             BYTE b;
             if (sizeof(b) != Read(&b, sizeof(b)))
@@ -79,7 +79,7 @@ CTextFile::CTextFile(enc e)
 
     if (m_offset == 0)
     { // No BOM detected, ensure the file is read from the beginning
-        (void)Seek(0, begin);
+        static_cast<void>(Seek(0, begin));
     }
 
     return true;
@@ -170,7 +170,7 @@ void CTextFile::SetEncoding(const enc e)
         break;
     }
 
-    lOff = max(static_cast<LONGLONG>(min((ULONGLONG)lOff, len)), 0ll) + m_offset;
+    lOff = max(static_cast<LONGLONG>(min(static_cast<ULONGLONG>(lOff), len)), 0ll) + m_offset;
 
     pos = __super::Seek(lOff, begin) - m_offset;
     m_bufferCount = 0;
@@ -195,16 +195,16 @@ void CTextFile::WriteString(const LPCWSTR lpsz /*CStringW str*/)
     else if (m_encoding == LE16)
     {
         str.Replace(L"\n", L"\r\n");
-        Write((LPCWSTR)str, str.GetLength() * 2);
+        Write(static_cast<LPCWSTR>(str), str.GetLength() * 2);
     }
     else if (m_encoding == BE16)
     {
         str.Replace(L"\n", L"\r\n");
-        for (unsigned int i{ 0 }, l = str.GetLength(); i < l; ++i)
+        for (unsigned int i{ 0U }, l{ static_cast<unsigned int>(str.GetLength()) }; i < l; ++i)
         {
             str.SetAt(i, ((str[i] >> 8) & 0x00ff) | ((str[i] << 8) & 0xff00));
         }
-        Write((LPCWSTR)str, str.GetLength() * 2);
+        Write(static_cast<LPCWSTR>(str), str.GetLength() * 2);
     }
 }
 
@@ -303,7 +303,7 @@ void CTextFile::WriteString(const LPCWSTR lpsz /*CStringW str*/)
             return CHARERR_NEED_MORE;
         }
 
-        unsigned char* rdbuf{ m_readbuffer + m_bufferPos - 1 };
+        unsigned char* rdbuf{ m_readbuffer + m_bufferPos - 1U };
         m_bufferPos += nContinuationBytes;
 
         switch (nContinuationBytes)
@@ -403,8 +403,8 @@ CWebTextFile::CWebTextFile(CTextFile::enc e, LONGLONG llMaxSize)
         }
 
         BYTE buff[1024U];
-        int len, total = 0;
-        while ((len = f->Read(buff, 1024)) == 1024 && ((m_llMaxSize < 0) || ((total += 1024) < m_llMaxSize)))
+        int len, total{ 0 };
+        while (((len = f->Read(buff, 1024)) == 1024) && ((m_llMaxSize < 0) || ((total += 1024) < m_llMaxSize)))
         {
             temp.Write(buff, len);
         }

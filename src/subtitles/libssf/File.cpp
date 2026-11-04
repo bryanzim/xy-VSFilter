@@ -67,13 +67,13 @@ namespace ssf
 
     void File::ParseDefs(InputStream& s, Reference* pParentRef)
     {
-        while (s.SkipWhiteSpace(L";") != '}' && (s.PeekChar() != Stream::EOS))
+        while ((s.SkipWhiteSpace(L";") != '}') && (s.PeekChar() != Stream::EOS))
         {
             NodePriority priority = PNormal;
             CAtlList<CStringW> types;
             CStringW name;
 
-            int c = s.SkipWhiteSpace();
+            int c{ s.SkipWhiteSpace() };
 
             if (c == '*')
             {
@@ -119,11 +119,11 @@ namespace ssf
 
             c = s.SkipWhiteSpace(L":=");
 
-            if (c == '"' || c == '\'')
+            if ((c == '"') || (c == '\''))
             {
                 ParseQuotedString(s, pDef);
             }
-            else if (iswdigit(static_cast<wint_t>(c)) || c == '+' || c == '-')
+            else if (iswdigit(static_cast<wint_t>(c)) || (c == '+') || (c == '-'))
             {
                 ParseNumber(s, pDef);
             }
@@ -146,7 +146,7 @@ namespace ssf
 
         CStringW str;
 
-        for (int c = s.SkipWhiteSpace(); iswcsym(static_cast<wint_t>(c)) || c == '.' || c == '@'; c = s.PeekChar())
+        for (int c{ s.SkipWhiteSpace() }; iswcsym(static_cast<wint_t>(c)) || (c == '.') || (c == '@'); c = s.PeekChar())
         {
             c = s.GetChar();
 
@@ -170,7 +170,7 @@ namespace ssf
                 {
                     s.ThrowError(_T("'type' cannot start with a number"));
                 }
-                if ((!str.IsEmpty() || !types.IsEmpty()) && c == '@')
+                if ((!str.IsEmpty() || !types.IsEmpty()) && (c == '@'))
                 {
                     s.ThrowError(_T("unexpected @ in 'type'"));
                 }
@@ -189,7 +189,7 @@ namespace ssf
     {
         name.Empty();
 
-        for (int c = s.SkipWhiteSpace(); iswcsym(static_cast<wint_t>(c)); c = s.PeekChar())
+        for (int c{ s.SkipWhiteSpace() }; iswcsym(static_cast<wint_t>(c)); c = s.PeekChar())
         {
             if (name.IsEmpty() && iswdigit(static_cast<wint_t>(c)))
             {
@@ -203,14 +203,14 @@ namespace ssf
     {
         CStringW v;
 
-        int quote = s.SkipWhiteSpace();
+        int quote{ s.SkipWhiteSpace() };
         if ((quote != '"') && (quote != '\''))
         {
             s.ThrowError(_T("expected qouted string"));
         }
         s.GetChar();
 
-        for (int c = s.PeekChar(); c != Stream::EOS; c = s.PeekChar())
+        for (int c{ s.PeekChar() }; c != Stream::EOS; c = s.PeekChar())
         {
             c = s.GetChar();
             if (c == quote)
@@ -240,9 +240,9 @@ namespace ssf
     {
         CStringW v, u;
 
-        for (int c = s.SkipWhiteSpace(); iswxdigit(static_cast<wint_t>(c)) || std::wcschr(L"+-.x:", c); c = s.PeekChar())
+        for (int c{ s.SkipWhiteSpace() }; iswxdigit(static_cast<wint_t>(c)) || std::wcschr(L"+-.x:", c); c = s.PeekChar())
         {
-            if (((c == '+' || c == '-') && !v.IsEmpty()) || (c == '.' && (v.IsEmpty() || (v.Find('.') >= 0) || (v.Find('x') >= 0))) || (c == 'x' && (v != '0')) || ((((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F'))) && (v.Find(L"0x") != 0)) || (c == ':' && v.IsEmpty()))
+            if ((((c == '+') || (c == '-')) && !v.IsEmpty()) || ((c == '.') && (v.IsEmpty() || (v.Find('.') >= 0) || (v.Find('x') >= 0))) || ((c == 'x') && (v != '0')) || ((((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F'))) && (v.Find(L"0x") != 0)) || ((c == ':') && v.IsEmpty()))
             {
                 s.ThrowError(_T("unexpected character '%c' in number"), static_cast<TCHAR>(c));
             }
@@ -255,7 +255,7 @@ namespace ssf
             s.ThrowError(_T("invalid number"));
         }
 
-        for (int c = s.SkipWhiteSpace(); iswcsym(static_cast<wint_t>(c)); c = s.PeekChar())
+        for (int c{ s.SkipWhiteSpace() }; iswcsym(static_cast<wint_t>(c)); c = s.PeekChar())
         {
             u += static_cast<WCHAR>(s.GetChar());
         }
@@ -274,12 +274,12 @@ namespace ssf
         }
         s.GetChar();
 
-        int depth = 0;
+        int depth{ 0 };
 
-        for (int blockChar = s.PeekChar(); blockChar != Stream::EOS; blockChar = s.PeekChar())
+        for (int blockChar{ s.PeekChar() }; blockChar != Stream::EOS; blockChar = s.PeekChar())
         {
             blockChar = s.GetChar();
-            if (blockChar == '}' && depth == 0)
+            if ((blockChar == '}') && (depth == 0))
             {
                 pDef->SetAsValue(Definition::block, v);
                 return;
@@ -309,7 +309,7 @@ namespace ssf
 
     void File::ParseRefs(InputStream& s, Definition* pParentDef, LPCWSTR term)
     {
-        int c = s.SkipWhiteSpace();
+        int c{ s.SkipWhiteSpace() };
 
         do
         {

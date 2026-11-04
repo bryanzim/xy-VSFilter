@@ -110,12 +110,12 @@ namespace ssf
 
             // TODO: trimming should be done by the renderer later, after breaking the words into lines
 
-            while (!m_text.IsEmpty() && (m_text.GetHead().str == Text::SP || m_text.GetHead().str == Text::LSEP))
+            while (!m_text.IsEmpty() && ((m_text.GetHead().str == Text::SP) || (m_text.GetHead().str == Text::LSEP)))
             {
                 m_text.RemoveHead();
             }
 
-            while (!m_text.IsEmpty() && (m_text.GetTail().str == Text::SP || m_text.GetTail().str == Text::LSEP))
+            while (!m_text.IsEmpty() && ((m_text.GetTail().str == Text::SP) || (m_text.GetTail().str == Text::LSEP)))
             {
                 m_text.RemoveTail();
             }
@@ -127,7 +127,7 @@ namespace ssf
                     POSITION prev = pos;
                     m_text.GetPrev(prev);
 
-                    while (prev && m_text.GetAt(prev).str == Text::SP)
+                    while (prev && (m_text.GetAt(prev).str == Text::SP))
                     {
                         POSITION tmp = prev;
                         m_text.GetPrev(prev);
@@ -137,7 +137,7 @@ namespace ssf
                     POSITION next = pos;
                     m_text.GetNext(next);
 
-                    while (next && m_text.GetAt(next).str == Text::SP)
+                    while (next && (m_text.GetAt(next).str == Text::SP))
                     {
                         POSITION tmp = next;
                         m_text.GetNext(next);
@@ -312,7 +312,7 @@ namespace ssf
 
     float Subtitle::GetMixWeight(Definition* pDef, float at, StringMapW<float>& offset, int default_id)
     {
-        float t = 1;
+        float t{ 1 };
 
         try
         {
@@ -326,7 +326,7 @@ namespace ssf
             {
                 t = (at - time.start.value) / (time.stop.value - time.start.value);
 
-                float u = t;
+                float u{ t };
 
                 if (t < 0)
                 {
@@ -342,8 +342,8 @@ namespace ssf
                     t *= static_cast<float>((*pDef)[L"loop"]);
                 }
 
-                CStringW direction = (*pDef)[L"direction"].IsValue() ? (*pDef)[L"direction"] : L"fw";
-                if (direction == L"fwbw" || direction == L"bwfw")
+                CStringW direction{ (*pDef)[L"direction"].IsValue() ? (*pDef)[L"direction"] : L"fw" };
+                if ((direction == L"fw") || (direction == L"fwbw"))
                 {
                     t *= 2;
                 }
@@ -351,12 +351,12 @@ namespace ssf
                 float n;
                 t = modf(t, &n);
 
-                if (direction == L"bw" || (direction == L"fwbw" && (static_cast<int>(n) & 1)) || (direction == L"bwfw" && !(static_cast<int>(n) & 1)))
+                if ((direction == L"bw") || ((direction == L"fwbw") && (static_cast<int>(n) & 1)) || ((direction == L"bwfw") && !(static_cast<int>(n) & 1)))
                 {
                     t = 1 - t;
                 }
 
-                float accel = 1;
+                float accel{ 1 };
 
                 if ((*pDef)[L"transition"].IsValue())
                 {
@@ -589,7 +589,7 @@ namespace ssf
         Text text;
         text.style = style;
 
-        for (int c = s.PeekChar(); c != Stream::EOS; c = s.PeekChar())
+        for (int c{ s.PeekChar() }; c != Stream::EOS; c = s.PeekChar())
         {
             s.GetChar();
 
@@ -601,7 +601,7 @@ namespace ssf
 
                 StringMapW<float> inneroffset = offset;
 
-                int default_id = 0;
+                int default_id{ 0 };
 
                 do
                 {
@@ -616,7 +616,7 @@ namespace ssf
                         m_animated = true;
                     }
 
-                    float t = GetMixWeight(pDef, at, offset, ++default_id);
+                    float t{ GetMixWeight(pDef, at, offset, ++default_id) };
                     MixStyle(pDef, style, t);
 
                     if ((*pDef)[L"@"].IsValue())
@@ -627,14 +627,14 @@ namespace ssf
 
                     s.SkipWhiteSpace();
                     c = s.GetChar();
-                } while (c == ',' || c == ';');
+                } while ((c == ',') || (c == ';'));
 
                 if (c != ']')
                 {
                     s.ThrowError(_T("unterminated override"));
                 }
 
-                bool fWhiteSpaceNext = s.IsWhiteSpace(s.PeekChar());
+                bool fWhiteSpaceNext{ s.IsWhiteSpace(s.PeekChar()) };
                 c = s.SkipWhiteSpace();
 
                 if (c == '{')
@@ -695,8 +695,8 @@ namespace ssf
 
     void Subtitle::AddChar(Text& t, WCHAR c)
     {
-        bool f1 = !t.str.IsEmpty() && Stream::IsWhiteSpace(t.str[t.str.GetLength() - 1]);
-        bool f2 = Stream::IsWhiteSpace(c);
+        bool f1{ !t.str.IsEmpty() && Stream::IsWhiteSpace(t.str[t.str.GetLength() - 1]) };
+        bool f2{ Stream::IsWhiteSpace(c) };
         if (f2)
         {
             c = Text::SP;
@@ -718,7 +718,7 @@ namespace ssf
 
         for (std::size_t i{ 0U }, n{ sa }; i < n; ++i)
         {
-            CStringW str = sa[i];
+            CStringW str{ sa[i] };
 
             if (!str.IsEmpty())
             {
@@ -785,6 +785,6 @@ namespace ssf
 
     bool Style::IsSimilar(const Style& s)
     {
-        return font.color.r == s.font.color.r && font.color.g == s.font.color.g && font.color.b == s.font.color.b && font.color.a == s.font.color.a && background.color.r == s.background.color.r && background.color.g == s.background.color.g && background.color.b == s.background.color.b && background.color.a == s.background.color.a && background.size == s.background.size && background.type == s.background.type && background.blur == s.background.blur && shadow.color.r == s.shadow.color.r && shadow.color.g == s.shadow.color.g && shadow.color.b == s.shadow.color.b && shadow.color.a == s.shadow.color.a && shadow.depth == s.shadow.depth && shadow.angle == s.shadow.angle && shadow.blur == s.shadow.blur && fill.id == s.fill.id;
+        return (font.color.r == s.font.color.r) && (font.color.g == s.font.color.g) && (font.color.b == s.font.color.b) && (font.color.a == s.font.color.a) && (background.color.r == s.background.color.r) && (background.color.g == s.background.color.g) && (background.color.b == s.background.color.b) && (background.color.a == s.background.color.a) && (background.size == s.background.size) && (background.type == s.background.type) && (background.blur == s.background.blur) && (shadow.color.r == s.shadow.color.r) && (shadow.color.g == s.shadow.color.g) && (shadow.color.b == s.shadow.color.b) && (shadow.color.a == s.shadow.color.a) && (shadow.depth == s.shadow.depth) && (shadow.angle == s.shadow.angle) && (shadow.blur == s.shadow.blur) && (fill.id == s.fill.id);
     }
 }

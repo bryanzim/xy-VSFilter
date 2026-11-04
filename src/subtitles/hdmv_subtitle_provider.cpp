@@ -77,8 +77,8 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
     hr = m_pSub->GetTextureSize(pos, MaxTextureSize, VideoSize, VideoTopLeft);
     if (SUCCEEDED(hr))
     {
-        ASSERT((MaxTextureSize == VideoSize && VideoTopLeft == CPoint(0, 0)));
-        if (!(MaxTextureSize == VideoSize && VideoTopLeft == CPoint(0, 0)))
+        ASSERT(((MaxTextureSize == VideoSize) && (VideoTopLeft == CPoint(0, 0))));
+        if (!((MaxTextureSize == VideoSize) && (VideoTopLeft == CPoint(0, 0))))
         {
             XY_LOG_ERROR("We don't know how to deal with this sizes."
                          << XY_LOG_VAR_2_STR(MaxTextureSize) << XY_LOG_VAR_2_STR(VideoSize)
@@ -175,13 +175,13 @@ HdmvSubtitleProviderImpl::~HdmvSubtitleProviderImpl()
 
     HRESULT hr{ E_FAIL };
 
-    CMemSubPic* mem_subpic{ dynamic_cast<CMemSubPic*>((ISubPicEx*)m_pSubPic) };
+    CMemSubPic* mem_subpic{ dynamic_cast<CMemSubPic*>(static_cast<ISubPicEx*>(m_pSubPic)) };
     ASSERT(mem_subpic);
     SubPicDesc spd;
     if (SUCCEEDED(m_pSubPic->Lock(spd)))
     {
         CRect dirty_rect;
-        DWORD color{ 0xFF000000 };
+        DWORD color{ 0xFF000000U };
         if (SUCCEEDED(m_pSubPic->ClearDirtyRect(color)))
         {
             m_pSub->Render(spd, now, dirty_rect);
@@ -438,7 +438,7 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
         return false;
     }
 
-    WORD sync{ 0 };
+    WORD sync{ 0U };
     sync = static_cast<WORD>(ReadByte(&f, 2));
     if (sync != TwoCc('P', 'G'))
     {
@@ -489,8 +489,8 @@ SupFileSubtitleProvider::~SupFileSubtitleProvider()
     f.Close();
     sub.SeekToBegin();
 
-    WORD sync{ 0 };
-    USHORT size{ 0 };
+    WORD sync{ 0U };
+    USHORT size{ 0U };
     REFERENCE_TIME rtStart{ 0 };
     REFERENCE_TIME rtStop{ 0 };
 

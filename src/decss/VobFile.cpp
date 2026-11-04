@@ -23,8 +23,8 @@ bool CDVDSession::Open(LPCTSTR path)
 {
     Close();
 
-    CString fn = path;
-    CString drive = _T("\\\\.\\") + fn.Left(fn.Find(':') + 1);
+    CString fn{ path };
+    CString drive{ _T("\\\\.\\") + fn.Left(fn.Find(':') + 1) };
 
     m_hDrive = CreateFile(drive, GENERIC_READ, FILE_SHARE_READ, nullptr,
                           OPEN_EXISTING, FILE_ATTRIBUTE_READONLY | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
@@ -61,7 +61,7 @@ bool CDVDSession::BeginSession()
         if (!DeviceIoControl(m_hDrive, IOCTL_DVD_END_SESSION, &m_session, sizeof(m_session), nullptr, 0, &BytesReturned, nullptr) || !DeviceIoControl(m_hDrive, IOCTL_DVD_START_SESSION, nullptr, 0, &m_session, sizeof(m_session), &BytesReturned, nullptr))
         {
             CloseHandle(m_hDrive);
-            DWORD err = GetLastError();
+            DWORD err{ GetLastError() };
             return (false);
         }
     }
@@ -103,7 +103,7 @@ bool CDVDSession::Authenticate()
         return (false);
     }
 
-    int varient = -1;
+    int varient{ -1 };
 
     for (int i{ 31 }; i >= 0; --i)
     {
@@ -526,7 +526,7 @@ bool CVobFile::Open(CAtlList<CString>& vobs, int offset)
                 CString fn = m_files[0U].fn;
                 fn.MakeLower();
 
-                if (fn.Find(_T(":\\video_ts")) == 1 && GetDriveType(fn.Left(3)) == DRIVE_CDROM)
+                if ((fn.Find(_T(":\\video_ts")) == 1) && (GetDriveType(fn.Left(3)) == DRIVE_CDROM))
                 {
                     m_fDVD = true;
                 }
@@ -551,7 +551,7 @@ bool CVobFile::Open(CAtlList<CString>& vobs, int offset)
             }
 
             BYTE key[5U];
-            if (HasTitleKey(key) && i == 0 && (offset >= 0))
+            if (HasTitleKey(key) && (i == 0) && (offset >= 0))
             {
                 ++i;
 
@@ -666,7 +666,7 @@ bool CVobFile::Read(BYTE* buff)
         return (false);
     }
 
-    if (m_file.IsOpen() && m_file.GetPosition() == m_file.GetLength())
+    if (m_file.IsOpen() && (m_file.GetPosition() == m_file.GetLength()))
     {
         m_file.Close();
     }

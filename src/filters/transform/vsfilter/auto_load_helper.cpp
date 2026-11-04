@@ -111,7 +111,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         XY_DUMP_GRAPH(pGraph, 0);
         BeginEnumFilters(pGraph, pEF, pBF)
         {
-            if (pBF != (IBaseFilter*)this)
+            if (pBF != reinterpret_cast<IBaseFilter*>(this))
             {
                 CLSID clsid;
                 pBF->GetClassID(&clsid);
@@ -150,7 +150,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
 {
     XY_LOG_INFO(_T("pGraph:") << pGraph);
 
-    if ((m_load_level < 0) || (m_load_level >= DirectVobSubImpl::LOADLEVEL_COUNT) || m_load_level == DirectVobSubImpl::LOADLEVEL_DISABLED)
+    if ((m_load_level < 0) || (m_load_level >= DirectVobSubImpl::LOADLEVEL_COUNT) || (m_load_level == DirectVobSubImpl::LOADLEVEL_DISABLED))
     {
         XY_LOG_DEBUG("Disabled by load setting: " << XY_LOG_VAR_2_STR(m_load_level));
         return false;
@@ -167,7 +167,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     CComPtr<IBaseFilter> pBF;
     if (m_load_embedded)
     {
-        for (int i{ 0 }, n = m_known_source_filters_guid.GetCount(); i < n; ++i)
+        for (int i{ 0 }, n{ static_cast<int>(m_known_source_filters_guid.GetCount()) }; i < n; ++i)
         {
             if ((pBF = FindFilter(m_known_source_filters_guid[i], pGraph)))
             {
@@ -178,7 +178,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         {
             BeginEnumMediaTypes(pPin, pEM, pmt)
             {
-                if (pmt->majortype == MEDIATYPE_Text || pmt->majortype == MEDIATYPE_Subtitle)
+                if ((pmt->majortype == MEDIATYPE_Text) || (pmt->majortype == MEDIATYPE_Subtitle))
                 {
                     XY_LOG_TRACE("Found subtitle pin on filter " << CStringFromGUID(GetCLSID(pBF)).GetString());
                     have_subtitle_pin = true;
@@ -247,7 +247,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
         {
             XY_LOG_TRACE("Connecting Audio Pin");
         }
-        else if (mt->majortype == MEDIATYPE_Subtitle || mt->majortype == MEDIATYPE_Text)
+        else if ((mt->majortype == MEDIATYPE_Subtitle) || (mt->majortype == MEDIATYPE_Text))
         {
             XY_LOG_TRACE("Connecting Subtitle Pin");
         }
@@ -256,13 +256,13 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
             XY_LOG_TRACE("Connecting Other Pin");
         }
 #endif
-        if (m_load_level == CDirectVobSub::LOADLEVEL_ALWAYS || mt->majortype == MEDIATYPE_Audio || mt->majortype == MEDIATYPE_Subtitle || mt->majortype == MEDIATYPE_Text) // maybe it is better to check if video renderer exists
+        if ((m_load_level == CDirectVobSub::LOADLEVEL_ALWAYS) || (mt->majortype == MEDIATYPE_Audio) || (mt->majortype == MEDIATYPE_Subtitle) || (mt->majortype == MEDIATYPE_Text)) // maybe it is better to check if video renderer exists
         {
             bool found_consumer{ false };
             bool found_vsfilter{ false };
             BeginEnumFilters(m_pGraph, pEF, pBF)
             {
-                if (pBF != (IBaseFilter*)this)
+                if (pBF != reinterpret_cast<IBaseFilter*>(this))
                 {
                     CLSID clsid;
                     pBF->GetClassID(&clsid);
@@ -270,7 +270,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
                     {
                         return E_FAIL;
                     }
-                    if (clsid == __uuidof(CDirectVobSubFilter) || clsid == __uuidof(CDirectVobSubFilter2))
+                    if ((clsid == __uuidof(CDirectVobSubFilter)) || (clsid == __uuidof(CDirectVobSubFilter2)))
                     {
                         XY_LOG_INFO("I see VSFilter");
                         found_vsfilter = true;
@@ -317,7 +317,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
                     XY_LOG_ERROR("Failed to AddFilter. " << XY_LOG_VAR_2_STR(xy_sub_filter) << XY_LOG_VAR_2_STR(hr));
                     return E_FAIL;
                 }
-                if (mt->majortype == MEDIATYPE_Subtitle || mt->majortype == MEDIATYPE_Text)
+                if ((mt->majortype == MEDIATYPE_Subtitle) || (mt->majortype == MEDIATYPE_Text))
                 {
                     hr = CComQIPtr<IGraphConfig>(m_pGraph)->AddFilterToCache(filter);
                     if (FAILED(hr))
@@ -360,7 +360,7 @@ XySubFilterAutoLoader::~XySubFilterAutoLoader()
     CRegKey key;
     if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ) == ERROR_SUCCESS)
     {
-        ULONG size{ 256 * 1024 };
+        ULONG size{ 256U * 1024U };
         BYTE* largebuf{ reinterpret_cast<BYTE*>(std::malloc(size)) };
         LONG lret;
 

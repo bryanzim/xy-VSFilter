@@ -199,7 +199,7 @@ public:
 private:
     void ReleaseLevel2Data(T*** p, std::uint32_t preserve)
     {
-        int i = preserve / (IND0_SIZE * IND1_SIZE) + 1;
+        int i{ static_cast<int>(preserve / (IND0_SIZE * IND1_SIZE) + 1) };
         for (; i < IND2_SIZE; ++i)
         {
             ReleaseLevel1Data(p[i], 0);
@@ -223,7 +223,7 @@ private:
         {
             return;
         }
-        int i = preserve / IND0_SIZE + 1;
+        int i{ static_cast<int>(preserve / IND0_SIZE + 1) };
         for (; i < IND1_SIZE; ++i)
         {
             delete[] p[i];
@@ -252,7 +252,7 @@ private:
         }
         else
         {
-            for (int i = preserve; i < IND0_SIZE; ++i)
+            for (int i{ static_cast<int>(preserve) }; i < IND0_SIZE; ++i)
             {
                 p[i] = 0;
             }

@@ -23,12 +23,12 @@ static bool aspi_GetSectorInfo(const HANDLE hDrive, DWORD* sec_size, DWORD* max_
 static bool aspi_ReadSectors(const HANDLE hDrive, int lba, int nSectors, DWORD sec_size, BYTE* sector)
 {
     DWORD nbr = 0;
-    return lba * sec_size == SetFilePointer(hDrive, lba * sec_size, nullptr, FILE_BEGIN) && ReadFile(hDrive, sector, nSectors * sec_size, &nbr, nullptr);
+    return (lba * sec_size == SetFilePointer(hDrive, lba * sec_size, nullptr, FILE_BEGIN)) && ReadFile(hDrive, sector, nSectors * sec_size, &nbr, nullptr);
 }
 
 [[nodiscard]] static bool udf_RangeContains(const BYTE* base, const DWORD bytes, const BYTE* ptr, const DWORD need)
 {
-    if (base == nullptr || (ptr < base))
+    if ((base == nullptr) || (ptr < base))
     {
         return false;
     }
@@ -38,7 +38,7 @@ static bool aspi_ReadSectors(const HANDLE hDrive, int lba, int nSectors, DWORD s
 
 [[nodiscard]] static bool udf_GetLBA(const tp_udf_FileEntry fe, const DWORD sec_size, const DWORD sectorBytes, DWORD* start, DWORD* end)
 {
-    if (fe == nullptr || sec_size == 0U || (sectorBytes < sizeof(t_udf_FileEntry)) || fe->LengthofAllocationDescriptors == 0U)
+    if ((fe == nullptr) || (sec_size == 0U) || (sectorBytes < sizeof(t_udf_FileEntry)) || (fe->LengthofAllocationDescriptors == 0U))
     {
         return false;
     }
@@ -164,7 +164,7 @@ tp_udf_file udf_get_root(const HANDLE hDrive, const WORD partition_number)
             res = aspi_ReadSectors(hDrive, j++, 1, sec_size, sector);
             if (res)
             {
-                if (tag->TagIdentifier == udf_TAG_PartitionDescriptor && !part_valid)
+                if ((tag->TagIdentifier == udf_TAG_PartitionDescriptor) && !part_valid)
                 { // get stuff out of partition
                     tp_udf_PartitionDescriptor par = reinterpret_cast<tp_udf_PartitionDescriptor>(sector);
 
@@ -174,7 +174,7 @@ tp_udf_file udf_get_root(const HANDLE hDrive, const WORD partition_number)
                         partition_lba = par->PartitionStartingLocation;
                     }
                 }
-                else if (tag->TagIdentifier == udf_TAG_LogicalVolumeDescriptor && !vol_valid)
+                else if ((tag->TagIdentifier == udf_TAG_LogicalVolumeDescriptor) && !vol_valid)
                 { // get stuff out of volume
                     tp_udf_LogicalVolumeDescriptor vol = reinterpret_cast<tp_udf_LogicalVolumeDescriptor>(sector);
 
@@ -203,7 +203,7 @@ tp_udf_file udf_get_root(const HANDLE hDrive, const WORD partition_number)
     if (part_valid && vol_valid)
     { // read FileSetDescriptor, get RootDir Location & Length, RootDir Length != 0
         res = aspi_ReadSectors(hDrive, FileDescriptorSequence_lba + partition_lba, 1, sec_size, sector);
-        if (res && tag->TagIdentifier == udf_TAG_FileSetDescriptor)
+        if (res && (tag->TagIdentifier == udf_TAG_FileSetDescriptor))
         {
             tp_udf_FileSetDescriptor fsd = reinterpret_cast<tp_udf_FileSetDescriptor>(sector);
 
@@ -211,7 +211,7 @@ tp_udf_file udf_get_root(const HANDLE hDrive, const WORD partition_number)
             {
                 parent_icb = fsd->RootDirectoryICB.Location.Location;
                 res = aspi_ReadSectors(hDrive, partition_lba + parent_icb, 1, sec_size, sector);
-                if (res && tag->TagIdentifier == udf_TAG_FileEntry)
+                if (res && (tag->TagIdentifier == udf_TAG_FileEntry))
                 {
                     tp_udf_FileEntry fe = reinterpret_cast<tp_udf_FileEntry>(sector);
 
@@ -248,7 +248,7 @@ static void udf_GetName(const BYTE* data, const DWORD len, char* target)
     DWORD i{ 0U };
     const DWORD cap{ udf_MAX_NAMELEN - 1U };
 
-    if (data == nullptr || len == 0U || !(data[0U] & 0x18))
+    if ((data == nullptr) || (len == 0U) || !(data[0U] & 0x18))
     {
         target[0U] = '\0';
         return;
@@ -288,7 +288,7 @@ tp_udf_file udf_get_sub(const HANDLE hDrive, tp_udf_file f)
         bool res;
 
         res = aspi_ReadSectors(hDrive, f->partition_lba + f->fid->ICB.Location.Location, 1, f->sec_size, sector);
-        if (res && tag->TagIdentifier == udf_TAG_FileEntry)
+        if (res && (tag->TagIdentifier == udf_TAG_FileEntry))
         {
             tp_udf_FileEntry fe = reinterpret_cast<tp_udf_FileEntry>(sector);
 
@@ -328,7 +328,7 @@ tp_udf_file udf_get_next(const HANDLE hDrive, tp_udf_file f)
 
     if (f->fid)
     { // advance to next FileIdentifierDescriptor
-        const DWORD dirBytes{ f->sec_size == 0U || (f->dir_end_lba < f->dir_lba) || ((f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size))
+        const DWORD dirBytes{ (f->sec_size == 0U) || (f->dir_end_lba < f->dir_lba) || ((f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size))
                                   ? 0U
                                   : f->sec_size * (f->dir_end_lba - f->dir_lba + 1U) };
         const BYTE* fidBytes{ reinterpret_cast<const BYTE*>(f->fid) };
@@ -356,7 +356,7 @@ tp_udf_file udf_get_next(const HANDLE hDrive, tp_udf_file f)
 
     if (f->fid == nullptr)
     {
-        if (f->sec_size == 0U || (f->dir_end_lba < f->dir_lba) || ((f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size)))
+        if ((f->sec_size == 0U) || (f->dir_end_lba < f->dir_lba) || ((f->dir_end_lba - f->dir_lba + 1U) > (MAXDWORD / f->sec_size)))
         {
             f->fid = nullptr;
             return nullptr;
@@ -383,7 +383,7 @@ tp_udf_file udf_get_next(const HANDLE hDrive, tp_udf_file f)
         }
     }
 
-    if (f->fid && f->fid->DescriptorTag.TagIdentifier == udf_TAG_FileIdentifierDescriptor)
+    if (f->fid && (f->fid->DescriptorTag.TagIdentifier == udf_TAG_FileIdentifierDescriptor))
     {
         const DWORD dirBytes{ f->sec_size * (f->dir_end_lba - f->dir_lba + 1U) };
         const BYTE* fidBytes{ reinterpret_cast<const BYTE*>(f->fid) };
@@ -468,7 +468,7 @@ tp_udf_file udf_find_file(const HANDLE hDrive, const WORD partition, const char*
         char tokenline[udf_MAX_PATHLEN];
         char* token;
 
-        if (name == nullptr || (std::strlen(name) >= udf_MAX_PATHLEN))
+        if ((name == nullptr) || (std::strlen(name) >= udf_MAX_PATHLEN))
         {
             udf_free(f);
             return nullptr;
@@ -493,7 +493,7 @@ bool udf_get_lba(const HANDLE hDrive, const tp_udf_file f, DWORD* start_lba, DWO
         bool res;
 
         res = aspi_ReadSectors(hDrive, f->partition_lba + f->fid->ICB.Location.Location, 1, f->sec_size, sector);
-        if (res && fe->DescriptorTag.TagIdentifier == udf_TAG_FileEntry)
+        if (res && (fe->DescriptorTag.TagIdentifier == udf_TAG_FileEntry))
         {
             return udf_GetLBA(fe, f->sec_size, sizeof(sector), start_lba, end_lba);
         }

@@ -54,7 +54,7 @@ namespace ssf
 
     bool Node::IsTypeUnknown()
     {
-        return m_type.IsEmpty() || m_type == '?';
+        return m_type.IsEmpty() || (m_type == '?');
     }
 
     bool Node::IsType(CStringW type)
@@ -109,7 +109,7 @@ namespace ssf
         {
             if (Definition* pDef = dynamic_cast<Definition*>(m_nodes.GetNext(pos)))
             {
-                if (!type || pDef->m_type == type) // TODO: faster lookup
+                if (!type || (pDef->m_type == type)) // TODO: faster lookup
                 {
                     rdl[pDef->m_priority].AddTail(pDef);
                 }
@@ -280,7 +280,7 @@ namespace ssf
     template <class T>
     void Definition::GetAsNumber(Number<T>& n, StringMapW<T>* n2n)
     {
-        CStringW str = m_value;
+        CStringW str{ m_value };
         str.Replace(L" ", L"");
 
         n.value = 0;
@@ -321,19 +321,19 @@ namespace ssf
         }
         else
         {
-            CStringW num_string = m_value + m_unit;
+            CStringW num_string{ m_value + m_unit };
 
             if (m_num_string != num_string)
             {
                 Split sa(':', str);
                 Split sa2('.', sa ? sa[sa - 1] : L"");
 
-                if (sa == 0 || sa2 == 0 || (sa2 > 2))
+                if ((sa == 0) || (sa2 == 0) || (sa2 > 2))
                 {
                     throw Exception(_T("invalid number"));
                 }
 
-                float f = 0;
+                float f{ 0 };
                 for (std::size_t i{ 0U }; i < sa; ++i)
                 {
                     f *= 60;
@@ -429,7 +429,7 @@ namespace ssf
             id.Format(L"%d", default_id);
         }
 
-        float scale = time[L"scale"].IsValue() ? time[L"scale"] : 1.0f;
+        float scale{ time[L"scale"].IsValue() ? time[L"scale"] : 1.0f };
 
         if (time[L"start"].IsValue() && time[L"stop"].IsValue())
         {
@@ -445,7 +445,7 @@ namespace ssf
                 t.stop.value *= scale;
             }
 
-            float o = 0;
+            float o{ 0 };
             offset.Lookup(id, o);
 
             if (t.start.sign != 0)
@@ -494,7 +494,7 @@ namespace ssf
 
         for (std::size_t i{ 0U }, j{ split - 1U }; i <= j; ++i)
         {
-            CStringW type = split[i];
+            CStringW type{ split[i] };
 
             if (pDef->m_nodes.IsEmpty() || (!dynamic_cast<Reference*>(pDef->m_nodes.GetTail())))
             {
@@ -555,7 +555,7 @@ namespace ssf
 
         CStringW tabs(' ', level * 4);
 
-        CStringW str = tabs;
+        CStringW str{ tabs };
         if (m_predefined)
         {
             str += '?';
@@ -599,20 +599,20 @@ namespace ssf
 
             s.PutString(L";\n");
 
-            if (!fLast && (!m_nodes.IsEmpty() || level == 0))
+            if (!fLast && (!m_nodes.IsEmpty() || (level == 0)))
             {
                 s.PutString(L"\n");
             }
         }
         else if (m_status == string)
         {
-            CStringW escapedValue = m_value;
+            CStringW escapedValue{ m_value };
             escapedValue.Replace(L"\"", L"\\\"");
             s.PutString(L" \"%s\";\n", escapedValue.GetString());
         }
         else if (m_status == number)
         {
-            CStringW numberText = m_value;
+            CStringW numberText{ m_value };
             if (!m_unit.IsEmpty())
             {
                 numberText += m_unit;

@@ -11,9 +11,9 @@ CString Explode(CString str, CAtlList<CString>& sl, TCHAR sep, int limit)
     if(!str.IsEmpty() && str[str.GetLength()-1] != sep)
         str += sep;
 
-    for(int i = 0, j = 0; (j = str.Find(sep, i)) >= 0; i = j+1)
+    for(int i{ 0 }, j{ 0 }; (j = str.Find(sep, i)) >= 0; i = j+1)
     {
-        CString tmp = str.Mid(i, j-i);
+        CString tmp{ str.Mid(i, j-i) };
         tmp.TrimLeft(sep); tmp.TrimRight(sep);
         tmp.TrimLeft(); tmp.TrimRight();
         sl.AddTail(tmp);
@@ -21,7 +21,7 @@ CString Explode(CString str, CAtlList<CString>& sl, TCHAR sep, int limit)
         {
             if(j+1 < str.GetLength())
             {
-                CString tmp = str.Mid(j+1);
+                CString tmp{ str.Mid(j+1) };
                 tmp.TrimLeft(sep); tmp.TrimRight(sep);
                 tmp.TrimLeft(); tmp.TrimRight();
                 sl.AddTail(tmp);
@@ -117,7 +117,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
     for (int i{ 0 }; i < str.GetLength(); ++i)
     {
         CHAR c{ str[i] };
-        if (fRaw && c == '+')
+        if (fRaw && (c == '+'))
         {
             urlstr += "%2B";
         }
@@ -153,7 +153,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
         CHAR s11 = (s1 < e - 1) ? (__isascii(s1[1U]) && std::isupper(s1[1U]) ? std::tolower(s1[1U]) : s1[1U]) : 0;
         CHAR s12 = (s1 < e - 2) ? (__isascii(s1[2U]) && std::isupper(s1[2U]) ? std::tolower(s1[2U]) : s1[2U]) : 0;
 
-        if (*s1 == '%' && (s1 < e - 2) && (((s1[1U] >= '0') && (s1[1U] <= '9')) || ((s11 >= 'a') && (s11 <= 'f'))) && (((s1[2U] >= '0') && (s1[2U] <= '9')) || ((s12 >= 'a') && (s12 <= 'f'))))
+        if ((*s1 == '%') && (s1 < e - 2) && (((s1[1U] >= '0') && (s1[1U] <= '9')) || ((s11 >= 'a') && (s11 <= 'f'))) && (((s1[2U] >= '0') && (s1[2U] <= '9')) || ((s12 >= 'a') && (s12 <= 'f'))))
         {
             s1[1U] = s11;
             s1[2U] = s12;
@@ -179,7 +179,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
         }
         else
         {
-            *s2 = *s1 == '+' && !fRaw ? ' ' : *s1;
+            *s2 = (*s1 == '+') && !fRaw ? ' ' : *s1;
         }
 
         ++s1;
@@ -216,7 +216,7 @@ DWORD CharSetToCodePage(DWORD dwCharSet)
             ;
         }
         tag = i < tag.GetLength() ? tag.Mid(i) : _T("");
-        if (!tag.IsEmpty() && tag[0U] == '\"')
+        if (!tag.IsEmpty() && (tag[0U] == '\"'))
         {
             tag = tag.Mid(1);
             i = tag.Find('\"');

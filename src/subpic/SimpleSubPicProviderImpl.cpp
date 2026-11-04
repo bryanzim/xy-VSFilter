@@ -283,19 +283,19 @@ SimpleSubPicProvider::~SimpleSubPicProvider()
 
 {
     if ((type == MSP_RGBA) ||
-        (type == MSP_XY_AUYV && m_alpha_blt_dst_type == MSP_YUY2) ||
-        (type == MSP_AYUV && m_alpha_blt_dst_type == MSP_AYUV) // ToDo: fix me MSP_AYUV
+        ((type == MSP_XY_AUYV) && (m_alpha_blt_dst_type == MSP_YUY2)) ||
+        ((type == MSP_AYUV) && (m_alpha_blt_dst_type == MSP_AYUV)) // ToDo: fix me MSP_AYUV
         ||
-        (type == MSP_AYUV_PLANAR && (m_alpha_blt_dst_type == MSP_IYUV ||
-                                     m_alpha_blt_dst_type == MSP_YV12 ||
-                                     m_alpha_blt_dst_type == MSP_P010 ||
-                                     m_alpha_blt_dst_type == MSP_P016 ||
-                                     m_alpha_blt_dst_type == MSP_YV16 ||
-                                     m_alpha_blt_dst_type == MSP_YV24 ||
-                                     m_alpha_blt_dst_type == MSP_P210 ||
-                                     m_alpha_blt_dst_type == MSP_P216 ||
-                                     m_alpha_blt_dst_type == MSP_NV12 ||
-                                     m_alpha_blt_dst_type == MSP_NV21)))
+        ((type == MSP_AYUV_PLANAR) && ((m_alpha_blt_dst_type == MSP_IYUV) ||
+                                       (m_alpha_blt_dst_type == MSP_YV12) ||
+                                       (m_alpha_blt_dst_type == MSP_P010) ||
+                                       (m_alpha_blt_dst_type == MSP_P016) ||
+                                       (m_alpha_blt_dst_type == MSP_YV16) ||
+                                       (m_alpha_blt_dst_type == MSP_YV24) ||
+                                       (m_alpha_blt_dst_type == MSP_P210) ||
+                                       (m_alpha_blt_dst_type == MSP_P216) ||
+                                       (m_alpha_blt_dst_type == MSP_NV12) ||
+                                       (m_alpha_blt_dst_type == MSP_NV21))))
     {
         return true;
     }
@@ -373,7 +373,7 @@ SimpleSubPicProvider2::~SimpleSubPicProvider2()
                 m_old_provider = DEBUG_NEW CSubPicQueueNoThread(pSubPicAllocator, &hr);
                 static_cast<void>(m_old_provider->SetFPS(m_fps));
                 static_cast<void>(m_old_provider->SetTime(m_now));
-                if (FAILED(hr) || m_old_provider == nullptr)
+                if (FAILED(hr) || (m_old_provider == nullptr))
                 {
                     ASSERT(SUCCEEDED(hr));
                     return hr;

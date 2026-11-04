@@ -198,7 +198,7 @@ public:
     }
     [[nodiscard]] bool operator==(const Effect& rhs) const
     {
-        return type == rhs.type && !std::memcmp(param, rhs.param, sizeof(param)) && !std::memcmp(t, rhs.t, sizeof(t));
+        return (type == rhs.type) && !std::memcmp(param, rhs.param, sizeof(param)) && !std::memcmp(t, rhs.t, sizeof(t));
     }
 
 public:

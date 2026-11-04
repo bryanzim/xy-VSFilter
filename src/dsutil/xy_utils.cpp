@@ -5,7 +5,7 @@
 
 void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
 {
-    if (output == nullptr || input.GetCount() == 0)
+    if ((output == nullptr) || (input.GetCount() == 0))
     {
         return;
     }
@@ -39,7 +39,7 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
         }
     };
 
-    int input_count = input.GetCount();
+    int input_count{ static_cast<int>(input.GetCount()) };
     std::vector<int> vertical_breakpoints(2 * input_count);
     std::vector<BreakPoint> horizon_breakpoints(input_count + 1);
 
@@ -61,8 +61,8 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
     std::sort(horizon_breakpoints.begin(), horizon_breakpoints.end());
 
     std::vector<Segment> tempSegments(vertical_breakpoints.size() - 1);
-    int ptr = 1, prev = vertical_breakpoints[0U], count = 0;
-    for (int i = static_cast<int>(vertical_breakpoints.size()) - 1; i > 0; --i, ++ptr)
+    int ptr{ 1 }, prev{ vertical_breakpoints[0U] }, count{ 0 };
+    for (int i{ static_cast<int>(vertical_breakpoints.size()) - 1 }; i > 0; --i, ++ptr)
     {
         if (vertical_breakpoints[ptr] != prev)
         {
@@ -81,7 +81,7 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
     {
         const CRect& rect{ *horizon_breakpoints[i].rect };
 
-        int start{ 0 }, mid, end = count;
+        int start{ 0 }, mid, end{ count };
 
         while (start < end)
         {
@@ -133,7 +133,7 @@ void MergeRects(const CAtlList<CRect>& input, CAtlList<CRect>* output)
                     break;
                 }
 
-                if (upper_rect.right == cur_rect.right && upper_rect.left == cur_rect.left)
+                if ((upper_rect.right == cur_rect.right) && (upper_rect.left == cur_rect.left))
                 {
                     upper_rect.bottom = cur_rect.bottom;
                     // if(!cur_line.IsEmpty())

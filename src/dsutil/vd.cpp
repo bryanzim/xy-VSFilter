@@ -195,7 +195,7 @@ CCpuID::CCpuID()
     }
 
 #ifndef _WIN64
-    if ((g_cpuid.m_flags & CCpuID::sse2) && !((DWORD_PTR)srcy & 15) && !((DWORD_PTR)srcu & 15) && !((DWORD_PTR)srcv & 15) && !(srcpitch & 31) && !((DWORD_PTR)dst & 15) && !(dstpitch & 15))
+    if ((g_cpuid.m_flags & CCpuID::sse2) && !(reinterpret_cast<DWORD_PTR>(srcy) & 15) && !(reinterpret_cast<DWORD_PTR>(srcu) & 15) && !(reinterpret_cast<DWORD_PTR>(srcv) & 15) && !(srcpitch & 31) && !(reinterpret_cast<DWORD_PTR>(dst) & 15) && !(dstpitch & 15))
     {
         if ((w <= 0) || (h <= 0) || (w & 1) || (h & 1))
         {
@@ -400,7 +400,7 @@ static void yuvtoyuy2row_avg_c(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DW
     void (*yuvtoyuy2row_avg)(BYTE* dst, BYTE* srcy, BYTE* srcu, BYTE* srcv, DWORD width, DWORD pitchuv) = nullptr;
 
 #ifndef _WIN64
-    if ((g_cpuid.m_flags & CCpuID::sse2) && !((DWORD_PTR)srcy & 15) && !((DWORD_PTR)srcu & 15) && !((DWORD_PTR)srcv & 15) && !(srcpitch & 31) && !((DWORD_PTR)dst & 15) && !(dstpitch & 15))
+    if ((g_cpuid.m_flags & CCpuID::sse2) && !(reinterpret_cast<DWORD_PTR>(srcy) & 15) && !(reinterpret_cast<DWORD_PTR>(srcu) & 15) && !(reinterpret_cast<DWORD_PTR>(srcv) & 15) && !(srcpitch & 31) && !(reinterpret_cast<DWORD_PTR>(dst) & 15) && !(dstpitch & 15))
     {
         yv12_yuy2_sse2_interlaced(srcy, srcu, srcv, srcpitch / 2, w / 2, h, dst, dstpitch);
         return true;

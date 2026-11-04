@@ -117,13 +117,13 @@ CDX9SubPic::~CDX9SubPic()
         return E_FAIL;
     }
 
-    IDirect3DTexture9* pSrcTex{ (IDirect3DTexture9*)GetObject() };
+    IDirect3DTexture9* pSrcTex{ reinterpret_cast<IDirect3DTexture9*>(GetObject()) };
     CComPtr<IDirect3DSurface9> pSrcSurf;
     pSrcTex->GetSurfaceLevel(0, &pSrcSurf);
     D3DSURFACE_DESC srcDesc;
     pSrcSurf->GetDesc(&srcDesc);
 
-    IDirect3DTexture9* pDstTex{ (IDirect3DTexture9*)pSubPic->GetObject() };
+    IDirect3DTexture9* pDstTex{ reinterpret_cast<IDirect3DTexture9*>(pSubPic->GetObject()) };
     CComPtr<IDirect3DSurface9> pDstSurf;
     pDstTex->GetSurfaceLevel(0, &pDstSurf);
     D3DSURFACE_DESC dstDesc;
@@ -175,8 +175,8 @@ CDX9SubPic::~CDX9SubPic()
             }
         }
         /*
-                DWORD* ptr = (DWORD*)bm.bits;
-                DWORD* end = ptr + bm.h*bm.wBytes/4;
+                DWORD* ptr{ (DWORD*)bm.bits };
+                DWORD* end{ ptr + bm.h*bm.wBytes/4U };
                 while(ptr < end) *ptr++ = color;
         */
         static_cast<void>(Unlock(nullptr));
@@ -225,7 +225,7 @@ CDX9SubPic::~CDX9SubPic()
     if (pDirtyRect)
     {
         m_rcDirty = *pDirtyRect;
-        if (!((CRect*)pDirtyRect)->IsRectEmpty())
+        if (!(reinterpret_cast<CRect*>(pDirtyRect))->IsRectEmpty())
         {
             m_rcDirty.InflateRect(1, 1);
             m_rcDirty.left &= ~127;
@@ -240,8 +240,8 @@ CDX9SubPic::~CDX9SubPic()
         m_rcDirty = CRect(CPoint(0, 0), m_size);
     }
 
-    CComPtr<IDirect3DTexture9> pTexture = (IDirect3DTexture9*)GetObject();
-    if (pTexture && !((CRect*)pDirtyRect)->IsRectEmpty())
+    CComPtr<IDirect3DTexture9> pTexture = reinterpret_cast<IDirect3DTexture9*>(GetObject());
+    if (pTexture && !(reinterpret_cast<CRect*>(pDirtyRect))->IsRectEmpty())
     {
         pTexture->AddDirtyRect(&m_rcDirty);
     }
@@ -260,7 +260,7 @@ CDX9SubPic::~CDX9SubPic()
     CRect src(*pSrc), dst(*pDst);
 
     CComPtr<IDirect3DDevice9> pD3DDev;
-    CComPtr<IDirect3DTexture9> pTexture = (IDirect3DTexture9*)GetObject();
+    CComPtr<IDirect3DTexture9> pTexture = reinterpret_cast<IDirect3DTexture9*>(GetObject());
     if (!pTexture || FAILED(pTexture->GetDevice(&pD3DDev)) || !pD3DDev)
     {
         return E_NOINTERFACE;
@@ -514,7 +514,7 @@ void CDX9SubPicAllocator::ClearCache()
     if (!fStatic)
     {
         CAutoLock cSurfaceLock(&ms_SurfaceQueueLock);
-        m_AllocatedSurfaces.AddHead((CDX9SubPic*)*ppSubPic);
+        m_AllocatedSurfaces.AddHead(reinterpret_cast<CDX9SubPic*>(*ppSubPic));
     }
 
     return true;

@@ -209,7 +209,9 @@ public:
 #define EndEnumMediaTypes(pMediaType) \
     }                                 \
     if (pMediaType)                   \
+    {                                 \
         DeleteMediaType(pMediaType);  \
+    }                                 \
     }                                 \
     }
 
@@ -278,7 +280,7 @@ static CUnknown* WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT* phr)
 [[nodiscard]] inline int LNKO(int a, int b)
 
 {
-    if (a == 0 || b == 0)
+    if ((a == 0) || (b == 0))
     {
         return (1);
     }

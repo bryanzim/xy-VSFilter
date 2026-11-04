@@ -37,8 +37,8 @@ const TCHAR* G_EXTTYPESTR[] = {
 
 static int SubFileCompare(const void* elem1, const void* elem2)
 {
-    const SubFile* file1{ ((const SubFile*)elem1) };
-    const SubFile* file2{ ((const SubFile*)elem2) };
+    const SubFile* file1{ (reinterpret_cast<const SubFile*>(elem1)) };
+    const SubFile* file2{ (reinterpret_cast<const SubFile*>(elem2)) };
 
     int rv{ file1->path_order - file2->path_order };
     rv = rv ? rv : file1->ext_order - file2->ext_order;
@@ -57,7 +57,7 @@ public:
         {
             ext_map[CString(G_EXTTYPESTR[i])] = -1;
         }
-        for (int i{ 0 }, start = 0; true; ++i)
+        for (int i{ 0 }, start{ 0 }; true; ++i)
         {
             CString ext{ load_ext_list.Tokenize(_T(";"), start) };
             if (ext != "")
@@ -136,7 +136,7 @@ void GetSubFileNames(CString fn, CAtlArray<CString>& paths, CString load_ext_lis
                 path += '/';
             }
 
-            if (path.Find(':') == -1 && (path.Find(_T("\\\\")) != 0))
+            if ((path.Find(':') == -1) && (path.Find(_T("\\\\")) != 0))
             {
                 path = orgpath + path;
             }

@@ -12,7 +12,7 @@ int SubRenderOptionsImpl::GetIFiled(LPCSTR field, OptionType type)
     {
         ++map;
     }
-    return (map->str_name && map->type == type) ? map->int_name : -1;
+    return (map->str_name && (map->type == type)) ? map->int_name : -1;
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP SubRenderOptionsImpl::GetBool(const LPCSTR field, bool* value)

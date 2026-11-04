@@ -45,7 +45,7 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
     CheckPointer(pPropBag, E_POINTER);
     CheckPointer(pvarValue, E_POINTER);
     CheckPointer(phrError, E_POINTER);
-    for (ULONG i{ 0 }; i < cProperties; phrError[i] = S_OK, ++i)
+    for (ULONG i{ 0U }; i < cProperties; phrError[i] = S_OK, ++i)
     {
         CComVariant(Lookup(pPropBag[i].pstrName)).Detach(pvarValue);
     }
@@ -56,7 +56,7 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
 {
     CheckPointer(pPropBag, E_POINTER);
     CheckPointer(pvarValue, E_POINTER);
-    for (ULONG i{ 0 }; i < cProperties; ++i)
+    for (ULONG i{ 0U }; i < cProperties; ++i)
     {
         static_cast<void>(SetProperty(pPropBag[i].pstrName, &pvarValue[i]));
     }
@@ -74,10 +74,10 @@ IDSMPropertyBagImpl::~IDSMPropertyBagImpl()
 {
     CheckPointer(pPropBag, E_POINTER);
     CheckPointer(pcProperties, E_POINTER);
-    for (ULONG i{ 0 }; i < cProperties; ++i, ++iProperty, (*pcProperties)++)
+    for (ULONG i{ 0U }; i < cProperties; ++i, ++iProperty, ++(*pcProperties))
     {
         CStringW key{ GetKeyAt(iProperty) };
-        pPropBag[i].pstrName = (BSTR)CoTaskMemAlloc((key.GetLength() + 1) * sizeof(WCHAR));
+        pPropBag[i].pstrName = static_cast<BSTR>(CoTaskMemAlloc((key.GetLength() + 1) * sizeof(WCHAR)));
         if (!pPropBag[i].pstrName)
         {
             return E_FAIL;
@@ -156,7 +156,7 @@ CDSMResource::CDSMResource()
     : tag(0), mime(_T("application/octet-stream"))
 {
     CAutoLock cAutoLock(&m_csResources);
-    m_resources.SetAt((DWORD_PTR)this, this);
+    m_resources.SetAt(reinterpret_cast<DWORD_PTR>(this), this);
 }
 
 CDSMResource::CDSMResource(const CDSMResource& r)
@@ -164,7 +164,7 @@ CDSMResource::CDSMResource(const CDSMResource& r)
     *this = r;
 
     CAutoLock cAutoLock(&m_csResources);
-    m_resources.SetAt((DWORD_PTR)this, this);
+    m_resources.SetAt(reinterpret_cast<DWORD_PTR>(this), this);
 }
 
 CDSMResource::CDSMResource(LPCWSTR name, LPCWSTR desc, LPCWSTR mime, BYTE* pData, int len, DWORD_PTR tag)
@@ -177,13 +177,13 @@ CDSMResource::CDSMResource(LPCWSTR name, LPCWSTR desc, LPCWSTR mime, BYTE* pData
     this->tag = tag;
 
     CAutoLock cAutoLock(&m_csResources);
-    m_resources.SetAt((DWORD_PTR)this, this);
+    m_resources.SetAt(reinterpret_cast<DWORD_PTR>(this), this);
 }
 
 CDSMResource::~CDSMResource()
 {
     CAutoLock cAutoLock(&m_csResources);
-    m_resources.RemoveKey((DWORD_PTR)this);
+    m_resources.RemoveKey(reinterpret_cast<DWORD_PTR>(this));
 }
 
 void CDSMResource::operator=(const CDSMResource& r)
@@ -270,7 +270,7 @@ IDSMResourceBagImpl::IDSMResourceBagImpl()
     {
         r.mime = pMime;
     }
-    if (pData || len == 0)
+    if (pData || (len == 0))
     {
         r.data.SetCount(len);
         if (pData)
@@ -304,7 +304,7 @@ IDSMResourceBagImpl::IDSMResourceBagImpl()
 {
     if (tag)
     {
-        for (int i = m_resources.GetCount() - 1; i >= 0; --i)
+        for (int i{ static_cast<int>(m_resources.GetCount() - 1) }; i >= 0; --i)
         {
             if (m_resources[i].tag == tag)
             {
@@ -349,8 +349,8 @@ int CDSMChapter::counter = 0;
 [[nodiscard]] int CDSMChapter::Compare(const void* a, const void* b)
 
 {
-    const CDSMChapter* ca{ (const CDSMChapter*)a };
-    const CDSMChapter* cb{ (const CDSMChapter*)b };
+    const CDSMChapter* ca{ reinterpret_cast<const CDSMChapter*>(a) };
+    const CDSMChapter* cb{ reinterpret_cast<const CDSMChapter*>(b) };
 
     if (ca->rt > cb->rt)
     {

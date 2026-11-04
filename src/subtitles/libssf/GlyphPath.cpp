@@ -53,9 +53,9 @@ namespace ssf
 
         unsigned int i{ 0U };
 
-        if (!((DWORD_PTR)p & 7))
+        if (!(reinterpret_cast<DWORD_PTR>(p) & 7))
         {
-            for (; (i < n) && ((DWORD_PTR)&p[i] & 15); ++i)
+            for (; (i < n) && (reinterpret_cast<DWORD_PTR>(&p[i]) & 15); ++i)
             {
                 p[i].x += o.x;
                 p[i].y += o.y;
@@ -65,14 +65,14 @@ namespace ssf
 
             for (unsigned int j{ i + ((n - i) & ~7) }; i < j; i += 8)
             {
-                __m128i r0 = _mm_load_si128((__m128i*)&p[i + 0U]);
-                __m128i r1 = _mm_load_si128((__m128i*)&p[i + 2U]);
-                __m128i r2 = _mm_load_si128((__m128i*)&p[i + 4U]);
-                __m128i r3 = _mm_load_si128((__m128i*)&p[i + 6U]);
-                _mm_store_si128((__m128i*)&p[i + 0U], _mm_add_epi32(r0, oo));
-                _mm_store_si128((__m128i*)&p[i + 2U], _mm_add_epi32(r1, oo));
-                _mm_store_si128((__m128i*)&p[i + 4U], _mm_add_epi32(r2, oo));
-                _mm_store_si128((__m128i*)&p[i + 6U], _mm_add_epi32(r3, oo));
+                __m128i r0 = _mm_load_si128(reinterpret_cast<__m128i*>(&p[i + 0U]));
+                __m128i r1 = _mm_load_si128(reinterpret_cast<__m128i*>(&p[i + 2U]));
+                __m128i r2 = _mm_load_si128(reinterpret_cast<__m128i*>(&p[i + 4U]));
+                __m128i r3 = _mm_load_si128(reinterpret_cast<__m128i*>(&p[i + 6U]));
+                _mm_store_si128(reinterpret_cast<__m128i*>(&p[i + 0U]), _mm_add_epi32(r0, oo));
+                _mm_store_si128(reinterpret_cast<__m128i*>(&p[i + 2U]), _mm_add_epi32(r1, oo));
+                _mm_store_si128(reinterpret_cast<__m128i*>(&p[i + 4U]), _mm_add_epi32(r2, oo));
+                _mm_store_si128(reinterpret_cast<__m128i*>(&p[i + 6U]), _mm_add_epi32(r3, oo));
             }
         }
 
@@ -94,21 +94,21 @@ namespace ssf
 
         for (std::size_t i{ 0U }, j{ src.types.GetCount() }; i <= j; ++i)
         {
-            if ((i > 0U) && (i == j || (src.types[i] & ~PT_CLOSEFIGURE) == PT_MOVETO))
+            if ((i > 0U) && ((i == j) || ((src.types[i] & ~PT_CLOSEFIGURE) == PT_MOVETO)))
             {
                 end = i - 1U;
 
-                bool cw = true; // TODO: determine orientation (ttf is always cw and we are sill before Transform)
-                float rotate = static_cast<float>(cw ? -M_PI_2 : M_PI_2);
+                bool cw{ true }; // TODO: determine orientation (ttf is always cw and we are sill before Transform)
+                float rotate{ static_cast<float>(cw ? -M_PI_2 : M_PI_2) };
 
-                CPoint prev = src.points[end];
-                CPoint cur = src.points[start];
+                CPoint prev{ src.points[end] };
+                CPoint cur{ src.points[start] };
 
                 for (std::size_t k{ start }; k <= end; ++k)
                 {
-                    CPoint next = k < end ? src.points[k + 1U] : src.points[start];
+                    CPoint next{ k < end ? src.points[k + 1U] : src.points[start] };
 
-                    for (int l = static_cast<int>(k - 1U); prev == cur; --l)
+                    for (int l{ static_cast<int>(k - 1U) }; prev == cur; --l)
                     {
                         if (l < static_cast<int>(start))
                         {
@@ -117,7 +117,7 @@ namespace ssf
                         prev = src.points[l];
                     }
 
-                    for (int l = static_cast<int>(k + 1U); next == cur; ++l)
+                    for (int l{ static_cast<int>(k + 1U) }; next == cur; ++l)
                     {
                         if (l > static_cast<int>(end))
                         {
@@ -126,12 +126,12 @@ namespace ssf
                         next = src.points[l];
                     }
 
-                    CPoint in = cur - prev;
-                    CPoint out = next - cur;
+                    CPoint in{ cur - prev };
+                    CPoint out{ next - cur };
 
-                    float angle_in = static_cast<float>(std::atan2(static_cast<float>(in.y), static_cast<float>(in.x)));
-                    float angle_out = static_cast<float>(std::atan2(static_cast<float>(out.y), static_cast<float>(out.x)));
-                    float angle_diff = angle_out - angle_in;
+                    float angle_in{ static_cast<float>(std::atan2(static_cast<float>(in.y), static_cast<float>(in.x))) };
+                    float angle_out{ static_cast<float>(std::atan2(static_cast<float>(out.y), static_cast<float>(out.x))) };
+                    float angle_diff{ angle_out - angle_in };
                     if (angle_diff < 0)
                     {
                         angle_diff += static_cast<float>(M_PI) * 2;
@@ -140,7 +140,7 @@ namespace ssf
                     {
                         angle_diff -= static_cast<float>(M_PI) * 2;
                     }
-                    float scale = static_cast<float>(std::cos(angle_diff / 2));
+                    float scale{ static_cast<float>(std::cos(angle_diff / 2)) };
 
                     CPoint p;
 
@@ -184,8 +184,8 @@ namespace ssf
                         scale = 0.1f;
                     }
 
-                    float angle = angle_in + angle_diff / 2 - rotate;
-                    float radius = -size / scale; // FIXME
+                    float angle{ angle_in + angle_diff / 2 - rotate };
+                    float radius{ -size / scale }; // FIXME
 
                     p.x = static_cast<int>(radius * std::cos(angle) + 0.5);
                     p.y = static_cast<int>(radius * std::sin(angle) + 0.5);

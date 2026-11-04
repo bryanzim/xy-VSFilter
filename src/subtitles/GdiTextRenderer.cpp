@@ -98,6 +98,6 @@ GdiTextRenderer::~GdiTextRenderer()
         return false;
     }
 
-    constexpr std::uint16_t missing_glyph{ 0xFFFF };
+    constexpr std::uint16_t missing_glyph{ 0xFFFFU };
     return std::find(glyphs.begin(), glyphs.end(), missing_glyph) != glyphs.end();
 }

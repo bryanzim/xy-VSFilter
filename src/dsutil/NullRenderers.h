@@ -83,5 +83,5 @@ class __declspec(uuid("655D7613-C26C-4A25-BBBD-3C9C516122CC")) CNullTextRenderer
 public:
     CNullTextRenderer(LPUNKNOWN pUnk, HRESULT* phr);
     [[nodiscard]] int GetPinCount() { return static_cast<int>(!!m_pInput); }
-    [[nodiscard]] CBasePin* GetPin(int n) { return n == 0 ? (CBasePin*)m_pInput : nullptr; }
+    [[nodiscard]] CBasePin* GetPin(int n) { return n == 0 ? static_cast<CBasePin*>(m_pInput) : nullptr; }
 };

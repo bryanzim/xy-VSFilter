@@ -197,10 +197,10 @@ void CRenderedHdmvSubtitle::EndOfStream()
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(bool) CRenderedHdmvSubtitle::IsColorTypeSupported(const int type)
 
 {
-    return type == MSP_AYUV_PLANAR ||
-           type == MSP_AYUV ||
-           type == MSP_XY_AUYV ||
-           type == MSP_RGBA;
+    return (type == MSP_AYUV_PLANAR) ||
+           (type == MSP_AYUV) ||
+           (type == MSP_XY_AUYV) ||
+           (type == MSP_RGBA);
 }
 
 [[nodiscard]] HRESULT CRenderedHdmvSubtitle::SetYuvType(const CBaseSub::ColorType colorType, const CBaseSub::YuvRangeType yuvRangeType)

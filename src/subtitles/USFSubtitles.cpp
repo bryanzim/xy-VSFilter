@@ -33,7 +33,7 @@
 #define BeginEnumAttribs(pNode, pChild, name, value)                                                 \
     {                                                                                                \
         CComPtr<IXMLDOMNamedNodeMap> pAttribs;                                                       \
-        if (SUCCEEDED(pNode->get_attributes(&pAttribs)) && pAttribs != nullptr)                      \
+        if (SUCCEEDED(pNode->get_attributes(&pAttribs)) && (pAttribs != nullptr))                    \
         {                                                                                            \
             CComPtr<IXMLDOMNode> pChild;                                                             \
             for (pAttribs->nextNode(&pChild); pChild; pChild = nullptr, pAttribs->nextNode(&pChild)) \
@@ -71,7 +71,7 @@
     str.Replace('\n', ' ');
     for (int i{ 0 }; (i = str.Find(L" ", i)) >= 0;)
     {
-        for (++i; (i < str.GetLength()) && (str[i] == '\n' || str[i] == ' ');)
+        for (++i; (i < str.GetLength()) && ((str[i] == '\n') || (str[i] == ' '));)
         {
             str.Delete(i);
         }
@@ -87,7 +87,7 @@
     {
         DeclareNameAndValue(pChild, name, val);
 
-        if (CStringW(name) == attrib && val.vt == VT_BSTR) // TODO: prepare for other types
+        if ((CStringW(name) == attrib) && (val.vt == VT_BSTR)) // TODO: prepare for other types
         {
             ret = val.bstrVal;
             break;
@@ -120,7 +120,7 @@
     {
         const WCHAR* s{ sl.GetNext(pos) };
         WCHAR* tmp{ nullptr };
-        int t{ wcstol(s, &tmp, 10) };
+        int t{ std::wcstol(s, &tmp, 10) };
         if (s >= tmp)
         {
             return (-1);
@@ -139,11 +139,11 @@
         return (0);
     }
 
-    DWORD ret{ 0 };
+    DWORD ret{ 0U };
 
     if (str[0U] == '#')
     {
-        ret = static_cast<DWORD>(wcstol(str.TrimLeft('#'), nullptr, 16));
+        ret = static_cast<DWORD>(std::wcstol(str.TrimLeft('#'), nullptr, 16));
     }
     else
     {
@@ -174,7 +174,7 @@
 
     if (!margin.IsEmpty())
     {
-        ret = wcstol(margin, nullptr, 10);
+        ret = std::wcstol(margin, nullptr, 10);
         if (margin.Find('%') >= 0)
         {
             ret = wndsize * ret / 100;
@@ -383,17 +383,17 @@ CUSFSubtitles::~CUSFSubtitles()
         stss->borderStyle = 0;
         if (!s->fontstyle.outline.IsEmpty())
         {
-            stss->outlineWidthX = stss->outlineWidthY = wcstol(s->fontstyle.outline, nullptr, 10);
+            stss->outlineWidthX = stss->outlineWidthY = std::wcstol(s->fontstyle.outline, nullptr, 10);
         }
         if (!s->fontstyle.shadow.IsEmpty())
         {
-            stss->shadowDepthX = stss->shadowDepthY = wcstol(s->fontstyle.shadow, nullptr, 10);
+            stss->shadowDepthX = stss->shadowDepthY = std::wcstol(s->fontstyle.shadow, nullptr, 10);
         }
 
         for (int i{ 0 }; i < 4; ++i)
         {
             DWORD color{ ColorToDWORD(s->fontstyle.color[i]) };
-            int alpha{ static_cast<BYTE>(wcstol(s->fontstyle.alpha, nullptr, 10)) };
+            int alpha{ static_cast<BYTE>(std::wcstol(s->fontstyle.alpha, nullptr, 10)) };
 
             stss->colors[i] = color & 0xffffff;
             stss->alpha[i] = static_cast<BYTE>((color >> 24));
@@ -407,7 +407,7 @@ CUSFSubtitles::~CUSFSubtitles()
         }
         if (!s->fontstyle.size.IsEmpty())
         {
-            stss->fontSize = wcstol(s->fontstyle.size, nullptr, 10);
+            stss->fontSize = std::wcstol(s->fontstyle.size, nullptr, 10);
         }
         if (!s->fontstyle.weight.IsEmpty())
         {
@@ -415,7 +415,7 @@ CUSFSubtitles::~CUSFSubtitles()
                 !s->fontstyle.weight.CompareNoCase(L"normal") ? FW_NORMAL : !s->fontstyle.weight.CompareNoCase(L"bold")  ? FW_BOLD
                                                                         : !s->fontstyle.weight.CompareNoCase(L"lighter") ? FW_LIGHT
                                                                         : !s->fontstyle.weight.CompareNoCase(L"bolder")  ? FW_SEMIBOLD
-                                                                                                                         : wcstol(s->fontstyle.weight, nullptr, 10);
+                                                                                                                         : std::wcstol(s->fontstyle.weight, nullptr, 10);
         }
         if (stss->fontWeight == 0)
         {
@@ -431,15 +431,15 @@ CUSFSubtitles::~CUSFSubtitles()
         }
         if (!s->pal.rotate[0U].IsEmpty())
         {
-            stss->fontAngleZ = wcstol(s->pal.rotate[0U], nullptr, 10);
+            stss->fontAngleZ = std::wcstol(s->pal.rotate[0U], nullptr, 10);
         }
         if (!s->pal.rotate[1U].IsEmpty())
         {
-            stss->fontAngleX = wcstol(s->pal.rotate[1U], nullptr, 10);
+            stss->fontAngleX = std::wcstol(s->pal.rotate[1U], nullptr, 10);
         }
         if (!s->pal.rotate[2U].IsEmpty())
         {
-            stss->fontAngleY = wcstol(s->pal.rotate[2U], nullptr, 10);
+            stss->fontAngleY = std::wcstol(s->pal.rotate[2U], nullptr, 10);
         }
 
         stss->charSet = charSet;
@@ -474,7 +474,7 @@ CUSFSubtitles::~CUSFSubtitles()
         WCHAR rtags[3U][8U] = { L"{\\rz%d}", L"{\\rx%d}", L"{\\ry%d}" };
         for (int i{ 0 }; i < 3; ++i)
         {
-            if (int angle = wcstol(t->pal.rotate[i], nullptr, 10))
+            if (int angle = std::wcstol(t->pal.rotate[i], nullptr, 10))
             {
                 CStringW str;
                 str.Format(rtags[i], angle);
@@ -488,7 +488,7 @@ CUSFSubtitles::~CUSFSubtitles()
             while (pos)
             {
                 style_t* s{ styles.GetNext(pos) };
-                if (s->name == t->style && !s->fontstyle.wrap.IsEmpty())
+                if ((s->name == t->style) && !s->fontstyle.wrap.IsEmpty())
                 {
                     int WrapStyle{ !s->fontstyle.wrap.CompareNoCase(L"no") ? 2 : !s->fontstyle.wrap.CompareNoCase(L"auto") ? 1
                                                                                                                            : 1 };
@@ -805,7 +805,7 @@ void CUSFSubtitles::ParseSubtitle(const CComPtr<IXMLDOMNode> pNode, int start, i
 {
     DeclareNameAndValue(pNode, name, val);
 
-    if (name == L"text" || name == L"karaoke")
+    if ((name == L"text") || (name == L"karaoke"))
     {
         CAutoPtr<text_t> t(new text_t);
         if (t)
@@ -891,7 +891,7 @@ void CUSFSubtitles::ParseText(const CComPtr<IXMLDOMNode> pNode, CStringW& str)
     }
     else if (name == L"k")
     {
-        int t{ wcstol(GetAttrib(L"t", pNode), nullptr, 10) };
+        int t{ std::wcstol(GetAttrib(L"t", pNode), nullptr, 10) };
         CStringW s;
         s.Format(L"{\\kf%d}", t / 10);
         str += s;

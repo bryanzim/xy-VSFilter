@@ -79,7 +79,7 @@ namespace ssf
         {
             Definition* pDef = defs.GetNext(pos);
 
-            if (pDef->m_parent == pRootRef && pDef->m_type == L"subtitle" && (*pDef)[L"@"].IsValue())
+            if ((pDef->m_parent == pRootRef) && (pDef->m_type == L"subtitle") && (*pDef)[L"@"].IsValue())
             {
                 m_segments.Insert(start, stop, pDef);
 
@@ -90,7 +90,7 @@ namespace ssf
                         Definition::Time time;
                         StringMapW<float> offset;
                         pDef->GetAsTime(time, offset);
-                        if (time.start.value == start && time.stop.value == stop)
+                        if ((time.start.value == start) && (time.stop.value == stop))
                         {
                             continue;
                         }

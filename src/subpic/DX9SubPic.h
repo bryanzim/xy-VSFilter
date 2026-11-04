@@ -33,7 +33,7 @@ public:
     virtual void Lock() = 0;
     virtual void Unlock() = 0;
 };
-typedef void(FLock)(void* _pLock);
+using FLock = void(void* _pLock);
 class CScopeLock
 {
     void* m_pLock;

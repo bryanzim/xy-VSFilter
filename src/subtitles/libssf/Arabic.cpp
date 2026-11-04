@@ -331,8 +331,8 @@ namespace ssf
             return false;
         }
 
-        bool p = IsArabic(prev);
-        bool n = IsArabic(next);
+        bool p{ IsArabic(prev) };
+        bool n{ IsArabic(next) };
 
         return Replace(c, p ? (n ? medi : fina) : (n ? init : isol));
     }

@@ -33,7 +33,7 @@ using namespace DirectVobSubXyOptions;
 static void LogSubPicStartStop(const REFERENCE_TIME& rtStart, const REFERENCE_TIME& rtStop, const CString& msg)
 {
 #if ENABLE_XY_LOG
-    static REFERENCE_TIME s_rtStart{ -1 }, s_rtStop = -1;
+    static REFERENCE_TIME s_rtStart{ -1 }, s_rtStop{ -1 };
     if ((s_rtStart != rtStart) || (s_rtStop != rtStop))
     {
         XY_LOG_INFO(msg.GetString());
@@ -46,7 +46,7 @@ static void LogSubPicStartStop(const REFERENCE_TIME& rtStart, const REFERENCE_TI
 void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
 
 {
-    if (subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV || subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21 || subtype == MEDIASUBTYPE_YV16 || subtype == MEDIASUBTYPE_YV24)
+    if ((subtype == MEDIASUBTYPE_YV12) || (subtype == MEDIASUBTYPE_I420) || (subtype == MEDIASUBTYPE_IYUV) || (subtype == MEDIASUBTYPE_NV12) || (subtype == MEDIASUBTYPE_NV21) || (subtype == MEDIASUBTYPE_YV16) || (subtype == MEDIASUBTYPE_YV24))
     {
         // TODO: Fix ME!
         BYTE* db{ reinterpret_cast<BYTE*>(d) };
@@ -57,7 +57,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
             *db = (*db + *sub) >> 1;
         }
     }
-    else if (subtype == MEDIASUBTYPE_P010 || subtype == MEDIASUBTYPE_P016 || subtype == MEDIASUBTYPE_P210 || subtype == MEDIASUBTYPE_P216)
+    else if ((subtype == MEDIASUBTYPE_P010) || (subtype == MEDIASUBTYPE_P016) || (subtype == MEDIASUBTYPE_P210) || (subtype == MEDIASUBTYPE_P216))
     {
         // TODO: Fix ME!
         WORD* db{ reinterpret_cast<WORD*>(d) };
@@ -71,7 +71,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     else if (subtype == MEDIASUBTYPE_YUY2)
     {
         BYTE* ds{ reinterpret_cast<BYTE*>(d) };
-        BYTE* dstend{ ds + w * 2 };
+        BYTE* dstend{ ds + w * 2U };
 
         for (; ds < dstend; ++sub, ds += 2)
         {
@@ -81,7 +81,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     else if (subtype == MEDIASUBTYPE_AYUV)
     {
         BYTE* db{ reinterpret_cast<BYTE*>(d) };
-        BYTE* dbtend{ db + w * 4 };
+        BYTE* dbtend{ db + w * 4U };
 
         for (; db < dbtend; ++sub, db += 4)
         {
@@ -118,7 +118,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     else if (subtype == MEDIASUBTYPE_RGB24)
     {
         BYTE* dt{ reinterpret_cast<BYTE*>(d) };
-        BYTE* dstend{ dt + w * 3 };
+        BYTE* dstend{ dt + w * 3U };
 
         for (; dt < dstend; ++sub, dt += 3)
         {
@@ -127,10 +127,10 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
             dt[2U] = (dt[2U] + *sub) >> 1;
         }
     }
-    else if (subtype == MEDIASUBTYPE_RGB32 || subtype == MEDIASUBTYPE_ARGB32)
+    else if ((subtype == MEDIASUBTYPE_RGB32) || (subtype == MEDIASUBTYPE_ARGB32))
     {
         BYTE* dt{ reinterpret_cast<BYTE*>(d) };
-        BYTE* dstend{ dt + w * 4 };
+        BYTE* dstend{ dt + w * 4U };
 
         for (; dt < dstend; ++sub, dt += 4)
         {
@@ -143,8 +143,8 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
 
 [[nodiscard]] HRESULT Copy(BYTE* pSub, BYTE* pIn, CSize sub, CSize in, const int bpp, const GUID& subtype, const DWORD black)
 {
-    int wIn{ in.cx }, hIn = in.cy, pitchIn = wIn * bpp >> 3;
-    int wSub{ sub.cx }, hSub = sub.cy, pitchSub = wSub * bpp >> 3;
+    int wIn{ in.cx }, hIn{ in.cy }, pitchIn{ wIn * bpp >> 3 };
+    int wSub{ sub.cx }, hSub{ sub.cy }, pitchSub{ wSub * bpp >> 3 };
     bool fScale2x{ wIn * 2 <= wSub };
 
     if (fScale2x)
@@ -163,7 +163,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, const int w, const GUID& subtype)
     ASSERT(wSub >= wIn);
 
     {
-        int i{ 0 }, j = 0;
+        int i{ 0 }, j{ 0 };
 
         j += (hSub - hIn) >> 1;
 
@@ -245,7 +245,7 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
         if (m_simple_provider)
         {
             int nSubPics{ -1 };
-            REFERENCE_TIME rtNow{ -1 }, rtStart = -1, rtStop = -1;
+            REFERENCE_TIME rtNow{ -1 }, rtStart{ -1 }, rtStop{ -1 };
             m_simple_provider->GetStats(nSubPics, rtNow, rtStart, rtStop);
             tmp.Format(_T("queue stats: %I64d - %I64d [ms]\n"), RT2MS(rtStart), RT2MS(rtStop));
             msg += tmp;
@@ -343,11 +343,11 @@ void CDirectVobSubFilter::PrintMessages(BYTE* pOut)
 
     int pitchOut{ bihOut.biWidth * bihOut.biBitCount >> 3 };
 
-    if (subtype == MEDIASUBTYPE_YV12 || subtype == MEDIASUBTYPE_I420 || subtype == MEDIASUBTYPE_IYUV || subtype == MEDIASUBTYPE_NV12 || subtype == MEDIASUBTYPE_NV21)
+    if ((subtype == MEDIASUBTYPE_YV12) || (subtype == MEDIASUBTYPE_I420) || (subtype == MEDIASUBTYPE_IYUV) || (subtype == MEDIASUBTYPE_NV12) || (subtype == MEDIASUBTYPE_NV21))
     {
         pitchOut = bihOut.biWidth;
     }
-    else if (subtype == MEDIASUBTYPE_P010 || subtype == MEDIASUBTYPE_P016)
+    else if ((subtype == MEDIASUBTYPE_P010) || (subtype == MEDIASUBTYPE_P016))
     {
         pitchOut = bihOut.biWidth * 2;
     }

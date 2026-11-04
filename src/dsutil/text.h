@@ -28,11 +28,11 @@ T Explode(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     sl.RemoveAll();
 
-    for (int i{ 0 }, j = 0;; i = j + 1)
+    for (int i{ 0 }, j{ 0 };; i = j + 1)
     {
         j = str.Find(sep, i);
 
-        if ((j < 0) || sl.GetCount() == limit - 1)
+        if ((j < 0) || (sl.GetCount() == limit - 1))
         {
             sl.AddTail(str.Mid(i).Trim());
             break;
@@ -51,11 +51,11 @@ T ExplodeNoTrim(const T& str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U)
 {
     sl.RemoveAll();
 
-    for (int i{ 0 }, j = 0;; i = j + 1)
+    for (int i{ 0 }, j{ 0 };; i = j + 1)
     {
         j = str.Find(sep, i);
 
-        if ((j < 0) || sl.GetCount() == limit - 1)
+        if ((j < 0) || (sl.GetCount() == limit - 1))
         {
             sl.AddTail(str.Mid(i));
             break;
@@ -96,7 +96,7 @@ T ExplodeEsc(T str, CAtlList<T>& sl, SEP sep, std::size_t limit = 0U, SEP esc = 
     sl.RemoveAll();
 
     int split{ 0 };
-    for (int i{ 0 }, j = 0;; i = j + 1)
+    for (int i{ 0 }, j{ 0 };; i = j + 1)
     {
         j = str.Find(sep, i);
         if (j < 0)

@@ -58,14 +58,14 @@ DECLSPEC_NOTHROW STDMETHODIMP CDeCSSInputPin::NonDelegatingQueryInterface(REFIID
 
 DECLSPEC_NOTHROW STDMETHODIMP CDeCSSInputPin::Receive(IMediaSample* pSample)
 {
-    long len = pSample->GetActualDataLength();
+    long len{ pSample->GetActualDataLength() };
 
-    BYTE* p = nullptr;
+    BYTE* p{ nullptr };
     if (SUCCEEDED(pSample->GetPointer(&p)) && (len > 0))
     {
-        BYTE* base = p;
+        BYTE* base{ p };
 
-        if (m_mt.majortype == MEDIATYPE_DVD_ENCRYPTED_PACK && len == 2048 && (p[0x14U] & 0x30))
+        if ((m_mt.majortype == MEDIATYPE_DVD_ENCRYPTED_PACK) && (len == 2048) && (p[0x14U] & 0x30))
         {
             CSSdescramble(p, m_TitleKey);
             p[0x14U] &= ~0x30;
@@ -83,7 +83,7 @@ DECLSPEC_NOTHROW STDMETHODIMP CDeCSSInputPin::Receive(IMediaSample* pSample)
         }
     }
 
-    HRESULT hr = Transform(pSample);
+    HRESULT hr{ Transform(pSample) };
 
     return hr == S_OK ? __super::Receive(pSample) : hr == S_FALSE ? S_OK
                                                                   : hr;
@@ -93,9 +93,9 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
 {
     GUID majortype = m_mt.majortype;
 
-    if (majortype == MEDIATYPE_MPEG2_PACK || majortype == MEDIATYPE_DVD_ENCRYPTED_PACK)
+    if ((majortype == MEDIATYPE_MPEG2_PACK) || (majortype == MEDIATYPE_DVD_ENCRYPTED_PACK))
     {
-        if ((len > 0) && (*reinterpret_cast<DWORD*>(p)) == 0xba010000) // MEDIATYPE_*_PACK
+        if ((len > 0) && ((*reinterpret_cast<DWORD*>(p)) == 0xba010000)) // MEDIATYPE_*_PACK
         {
             len -= 14;
             p += 14;
@@ -110,11 +110,11 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
 
     if (majortype == MEDIATYPE_MPEG2_PES)
     {
-        if ((len > 0) && (*reinterpret_cast<DWORD*>(p)) == 0xbb010000)
+        if ((len > 0) && ((*reinterpret_cast<DWORD*>(p)) == 0xbb010000))
         {
             len -= 4;
             p += 4;
-            int hdrlen = ((p[0U] << 8) | p[1U]) + 2;
+            int hdrlen{ ((p[0U] << 8) | p[1U]) + 2 };
             len -= hdrlen;
             p += hdrlen;
         }
@@ -122,18 +122,18 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
 
     if (majortype == MEDIATYPE_MPEG2_PES)
     {
-        if ((len > 0) && ((*reinterpret_cast<DWORD*>(p) & 0xf0ffffff) == 0xe0010000 || (*reinterpret_cast<DWORD*>(p) & 0xe0ffffff) == 0xc0010000 || (*reinterpret_cast<DWORD*>(p) & 0xbdffffff) == 0xbd010000)) // PES
+        if ((len > 0) && (((*reinterpret_cast<DWORD*>(p) & 0xf0ffffff) == 0xe0010000) || ((*reinterpret_cast<DWORD*>(p) & 0xe0ffffff) == 0xc0010000) || ((*reinterpret_cast<DWORD*>(p) & 0xbdffffff) == 0xbd010000))) // PES
         {
             bool ps1 = (*reinterpret_cast<DWORD*>(p) & 0xbdffffff) == 0xbd010000;
 
             len -= 4;
             p += 4;
-            int expected = ((p[0U] << 8) | p[1U]);
+            int expected{ ((p[0U] << 8) | p[1U]) };
             len -= 2;
             p += 2;
-            BYTE* p0 = p;
+            BYTE* p0{ p };
 
-            for (int i{ 0 }; (i < 16) && *p == 0xff; ++i, --len, ++p)
+            for (int i{ 0 }; (i < 16) && (*p == 0xff); ++i, --len, ++p)
             {
                 ;
             }
@@ -153,9 +153,9 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
                     p += 2;
                 }
 
-                if ((*p & 0x30) == 0x30 || (*p & 0x30) == 0x20)
+                if (((*p & 0x30) == 0x30) || ((*p & 0x30) == 0x20))
                 {
-                    bool pts = !!(*p & 0x20), dts = !!(*p & 0x10);
+                    bool pts{ !!(*p & 0x20) }, dts{ !!(*p & 0x10) };
                     if (pts)
                     {
                         len -= 5;
@@ -170,21 +170,21 @@ void CDeCSSInputPin::StripPacket(BYTE*& p, long& len)
                 }
                 else
                 {
-                    len--;
+                    --len;
                     ++p;
                 }
             }
 
             if (ps1)
             {
-                len--;
+                --len;
                 ++p;
                 if (m_mt.subtype == MEDIASUBTYPE_DVD_LPCM_AUDIO)
                 {
                     len -= 6;
                     p += 6;
                 }
-                else if (m_mt.subtype == MEDIASUBTYPE_DOLBY_AC3 || m_mt.subtype == MEDIASUBTYPE_WAVE_DOLBY_AC3 || m_mt.subtype == MEDIASUBTYPE_DTS || m_mt.subtype == MEDIASUBTYPE_WAVE_DTS)
+                else if ((m_mt.subtype == MEDIASUBTYPE_DOLBY_AC3) || (m_mt.subtype == MEDIASUBTYPE_WAVE_DOLBY_AC3) || (m_mt.subtype == MEDIASUBTYPE_DTS) || (m_mt.subtype == MEDIASUBTYPE_WAVE_DTS))
                 {
                     len -= 3;
                     p += 3;
@@ -236,7 +236,7 @@ DECLSPEC_NOTHROW STDMETHODIMP CDeCSSInputPin::Set(REFGUID PropSet, ULONG Id, LPV
     {
         AM_DVDCOPY_DISCKEY* pDiscKey = reinterpret_cast<AM_DVDCOPY_DISCKEY*>(pPropertyData); // pDiscKey->DiscKey holds the disckey encrypted with itself and the 408 disckeys encrypted with the playerkeys
 
-        bool fSuccess = false;
+        bool fSuccess{ false };
 
         for (int j{ 0 }; j < g_nPlayerKeys; ++j)
         {

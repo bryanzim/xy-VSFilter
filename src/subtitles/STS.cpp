@@ -328,7 +328,7 @@ static struct htmlcolor
 
 CHtmlColorMap::CHtmlColorMap()
 {
-    for (std::size_t i{ 0 }; i < countof(htmlcolors); ++i)
+    for (std::size_t i{ 0U }; i < countof(htmlcolors); ++i)
     {
         SetAt(htmlcolors[i].name, htmlcolors[i].color);
     }
@@ -343,7 +343,7 @@ CHtmlColorMap g_colors;
     {
         color = static_cast<DWORD>(val);
     }
-    else if ((color = wcstol(arg, nullptr, 16)) == 0)
+    else if ((color = std::wcstol(arg, nullptr, 16)) == 0)
     {
         color = 0x00ffffff; // default is white
     }
@@ -413,13 +413,13 @@ int CharSetLen{ countof(CharSetList) };
 static void LogSegments(const CAtlArray<STSSegment>& segments)
 {
 #if ENABLE_XY_LOG_TEXT_SUBTITLE
-    for (int i{ 0 }, n = segments.GetCount(); i < n; ++i)
+    for (int i{ 0 }, n{ static_cast<int>(segments.GetCount()) }; i < n; ++i)
     {
         const STSSegment& s{ segments[i] };
         TRACE_SUB(_T("\tsegments ") << i << _T(":") << s.start << _T(" ")
                                     << s.end << _T(" ") << s.subs.GetCount());
         TRACE_SUB(_T("\tsubs: "));
-        for (int j{ 0 }, m = s.subs.GetCount(); j < m; ++j)
+        for (int j{ 0 }, m{ static_cast<int>(s.subs.GetCount()) }; j < m; ++j)
         {
             TRACE_SUB(_T("\t\t ") << s.subs[j]);
         }
@@ -443,7 +443,7 @@ static void LogStyles(const CSTSStyleMap& styles)
 [[nodiscard]] static DWORD SubtitleCharSetToCodePage(const DWORD dwCharSet)
 {
     CHARSETINFO cs{};
-    DWORD_PTR dwcp = std::intptr_t(dwCharSet);
+    DWORD_PTR dwcp{ static_cast<DWORD_PTR>(std::intptr_t(dwCharSet)) };
     ::TranslateCharsetInfo(reinterpret_cast<DWORD*>(dwcp), &cs, TCI_SRCCHARSET);
     return cs.ciACP;
 }
@@ -460,7 +460,7 @@ static void LogStyles(const CSTSStyleMap& styles)
     DWORD cp{ SubtitleCharSetToCodePage(CharSet) };
     int OrgCharSet{ CharSet };
 
-    for (int i{ 0 }, j = str.GetLength(), k; i < j; ++i)
+    for (int i{ 0 }, j{ str.GetLength() }, k; i < j; ++i)
     {
         WCHAR c2{ str[i] };
 
@@ -486,7 +486,7 @@ static void LogStyles(const CSTSStyleMap& styles)
             {
                 --fStyleMod;
             }
-            else if (c2 == 'e' && (i >= 3) && (i < j - 1) && str.Mid(i - 2, 3) == L"\\fe")
+            else if ((c2 == 'e') && (i >= 3) && (i < j - 1) && (str.Mid(i - 2, 3) == L"\\fe"))
             {
                 CharSet = 0;
                 for (k = i + 1; _istdigit(str[k]); ++k)
@@ -512,7 +512,7 @@ static void LogStyles(const CSTSStyleMap& styles)
 
     DWORD cp{ SubtitleCharSetToCodePage(CharSet) };
 
-    for (int i{ 0 }, j = str.GetLength(); i < j; ++i)
+    for (int i{ 0 }, j{ str.GetLength() }; i < j; ++i)
     {
         WCHAR wc{ str.GetAt(i) };
         char c[8U];
@@ -538,7 +538,7 @@ static void LogStyles(const CSTSStyleMap& styles)
 {
     CStringW ret;
 
-    int OrgCharSet = CharSet;
+    int OrgCharSet{ static_cast<int>(CharSet) };
 
     for (int j{ 0 }; j < str.GetLength();)
     {
@@ -594,7 +594,7 @@ static void LogStyles(const CSTSStyleMap& styles)
 
     DWORD cp{ SubtitleCharSetToCodePage(CharSet) };
 
-    for (int i{ 0 }, j = str.GetLength(); i < j; ++i)
+    for (int i{ 0 }, j{ str.GetLength() }; i < j; ++i)
     {
         WCHAR wc{ str.GetAt(i) };
         char c{ wc & 0xff };
@@ -723,7 +723,7 @@ static void WebVTTCueStrip(CStringW& str)
     int p{ str.Find(L'\n') };
     if (p > 0)
     {
-        if (str.Left(6) == _T("align:") || str.Left(9) == _T("position:") || str.Left(9) == _T("vertical:") || str.Left(5) == _T("line:") || str.Left(5) == _T("size:"))
+        if ((str.Left(6) == _T("align:")) || (str.Left(9) == _T("position:")) || (str.Left(9) == _T("vertical:")) || (str.Left(5) == _T("line:")) || (str.Left(5) == _T("size:")))
         {
             str.Delete(0, p);
             str.TrimLeft();
@@ -840,7 +840,7 @@ static void WebVTT2SSA(CStringW& str, CStringW& cueTags, WebVTTcolorMap clrMap)
         { // could find multiple classes
             RegexUtil::wregexResults results;
             std::wregex clsPattern(LR"((\.?[^\.]+))");
-            static_cast<void>(RegexUtil::wstringMatch(clsPattern, (const wchar_t*)inner, results));
+            static_cast<void>(RegexUtil::wstringMatch(clsPattern, static_cast<const wchar_t*>(inner), results));
             if (results.size() > 1)
             {
                 std::wstring type = results[0U][0U];
@@ -915,11 +915,11 @@ static void WebVTT2SSA(CStringW& str, CStringW& cueTags, WebVTTcolorMap clrMap)
 
         if (std::regex_search(stdTmp, match, alignRegex))
         {
-            if (match[1U] == L"start" || match[1U] == L"left")
+            if ((match[1U] == L"start") || (match[1U] == L"left"))
             {
                 str = L"{\\an1}" + str;
             }
-            else if (match[1U] == L"center" || match[1U] == L"middle")
+            else if ((match[1U] == L"center") || (match[1U] == L"middle"))
             {
                 str = L"{\\an2}" + str;
             }
@@ -960,7 +960,7 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
             mm = hh;
             hh = 0;
         }
-        return (c == 5 || c == 7);
+        return ((c == 5) || (c == 7));
     };
 
 
@@ -990,7 +990,7 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
         {
             if (buff.Find(L"-->") != -1)
             { // not allowed in style block, so we drop out to cue parsing below
-                (void)FastTrimRight(buff);
+                static_cast<void>(FastTrimRight(buff));
                 break;
             }
             if (buff.IsEmpty())
@@ -1053,7 +1053,7 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
             }
 
             std::wregex cuePattern(LR"(::cue\(([^)]+)\)\s*\{([^}]*)\})");
-            static_cast<void>(RegexUtil::wstringMatch(cuePattern, (const wchar_t*)styleStr, results));
+            static_cast<void>(RegexUtil::wstringMatch(cuePattern, static_cast<const wchar_t*>(styleStr), results));
             for (const auto& iter : results)
             {
                 std::wstring clr, bgClr;
@@ -1074,7 +1074,7 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
         static_cast<void>(FastTrimRight(buff));
         if (!foundFirstCue && !buff.IsEmpty())
         { // STYLE blocks cannot show up after cues begin
-            if (buff == L"STYLE" || buff == L"Style:" /*have seen webvtt with incorrect format using 'Style:' instead of 'STYLE'*/)
+            if ((buff == L"STYLE") || (buff == L"Style:") /*have seen webvtt with incorrect format using 'Style:' instead of 'STYLE'*/)
             {
                 parseStyle(buff); // note that buff will contain next line when done, so we can still use it below
             }
@@ -1093,7 +1093,7 @@ static bool OpenVTT(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
 
         int hh1, mm1, ss1, ms1, hh2, mm2, ss2, ms2;
 
-        if ((c == 2 || c == 3) // either start/end or start/end/cuetags
+        if (((c == 2) || (c == 3)) // either start/end or start/end/cuetags
             && readTimeCode(start, hh1, mm1, ss1, ms1) && readTimeCode(end, hh2, mm2, ss2, ms2))
         {
             foundFirstCue = true;
@@ -1185,7 +1185,7 @@ static bool OpenSubRipper(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
 
                 int num2;
                 WCHAR wc;
-                if (swscanf_s(tmp, L"%d%c", &num2, &wc, 1) == 1 && fFoundEmpty)
+                if ((swscanf_s(tmp, L"%d%c", &num2, &wc, 1) == 1) && fFoundEmpty)
                 {
                     break;
                 }
@@ -1224,7 +1224,7 @@ static bool OpenOldSubRipper(CTextFile* file, CSimpleTextSubtitle& ret, int Char
             continue;
         }
 
-        for (int i = 0; i < buff.GetLength(); ++i)
+        for (int i{ 0 }; i < buff.GetLength(); ++i)
         {
             if ((i = FindChar(buff, '|', i, file->IsUnicode(), CharSet)) < 0)
             {
@@ -1270,7 +1270,7 @@ static bool OpenSubViewer(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
 
         if (buff[0U] == '[')
         {
-            for (int i = 0; (i < buff.GetLength()) && buff[i] == '[';)
+            for (int i{ 0 }; (i < buff.GetLength()) && (buff[i] == '[');)
             {
                 int j = buff.Find(']', ++i);
                 if (j < i)
@@ -1301,11 +1301,11 @@ static bool OpenSubViewer(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
                 }
                 else if (tag == L"colf")
                 {
-                    color = def.colors[0U] != static_cast<COLORREF>(wcstol(((LPCWSTR)param) + 2, nullptr, 16)) ? param : L"";
+                    color = def.colors[0U] != static_cast<COLORREF>(std::wcstol((static_cast<LPCWSTR>(param)) + 2, nullptr, 16)) ? param : L"";
                 }
                 else if (tag == L"size")
                 {
-                    size = def.fontSize != wcstol(param, 0, 10) ? param : L"";
+                    size = def.fontSize != std::wcstol(param, 0, 10) ? param : L"";
                 }
                 else if (tag == L"style")
                 {
@@ -1394,7 +1394,7 @@ static STSStyle* GetMicroDVDStyle(CString str, int CharSet)
         return (nullptr);
     }
 
-    for (int i = 0, len = str.GetLength(); i < len; ++i)
+    for (int i{ 0 }, len{ str.GetLength() }; i < len; ++i)
     {
         int j = str.Find('{', i);
         if (j < 0)
@@ -1491,7 +1491,7 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
     int fRestoreLen = 8;
     std::memset(fRestore, 0, sizeof(bool) * fRestoreLen);
 
-    for (int pos = 0, eol; pos < str.GetLength(); ++pos)
+    for (int pos{ 0 }, eol; pos < str.GetLength(); ++pos)
     {
         if ((eol = FindChar(str, '|', pos, fUnicode, CharSet)) < 0)
         {
@@ -1502,7 +1502,7 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
 
         pos = eol;
 
-        for (int i = 0, j, k, len = line.GetLength(); i < len; ++i)
+        for (int i{ 0 }, j, k, len{ line.GetLength() }; i < len; ++i)
         {
             if ((j = FindChar(line, '{', i, fUnicode, CharSet)) < 0)
             {
@@ -1614,7 +1614,7 @@ static CStringW MicroDVD2SSA(CStringW str, bool fUnicode, int CharSet)
             break;
         }
 
-        for (int i = 0; i < fRestoreLen; ++i)
+        for (int i{ 0 }; i < fRestoreLen; ++i)
         {
             if (fRestore[i])
             {
@@ -1687,7 +1687,7 @@ bool OpenMicroDVD(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
         if (c != 2)
         {
             int i;
-            if ((buff.Find('{') == 0 && (i = buff.Find('}')) > 1) && (i < buff.GetLength()))
+            if (((buff.Find('{') == 0) && ((i = buff.Find('}')) > 1)) && (i < buff.GetLength()))
             {
                 if (STSStyle* s = GetMicroDVDStyle(buff.Mid(i + 1), CharSet))
                 {
@@ -1776,7 +1776,7 @@ static CStringW SMI2SSA(CStringW str, int CharSet)
 
     // maven@maven.de
     // now parse line
-    for (int i = 0, j = str.GetLength(); i < j;)
+    for (int i{ 0 }, j{ str.GetLength() }; i < j;)
     {
         int k;
         if ((k = lstr.Find('<', i)) < 0)
@@ -1829,7 +1829,7 @@ static CStringW SMI2SSA(CStringW str, int CharSet)
                     {
                         color = static_cast<DWORD>(val);
                     }
-                    else if ((color = wcstol(arg, nullptr, 16)) == 0)
+                    else if ((color = std::wcstol(arg, nullptr, 16)) == 0)
                     {
                         color = 0x00ffffff;
                     } // default is white
@@ -2006,7 +2006,7 @@ static bool OpenVPlayer(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
             continue;
         }
 
-        for (int i = 0; i < buff.GetLength(); ++i)
+        for (int i{ 0 }; i < buff.GetLength(); ++i)
         {
             if ((i = FindChar(buff, '|', i, file->IsUnicode(), CharSet)) < 0)
             {
@@ -2065,7 +2065,7 @@ static inline int GetInt(CStringW& buff, WCHAR sep = L',') // throw(...)
     str = GetStr(buff, sep);
     str.MakeLower();
 
-    CStringW fmtstr = (str.GetLength() > 2) && (str.Left(2) == L"&h" || str.Left(2) == L"0x")
+    CStringW fmtstr = (str.GetLength() > 2) && ((str.Left(2) == L"&h") || (str.Left(2) == L"0x"))
         ? str = str.Mid(2),
              L"%x"
         : L"%d";
@@ -2099,7 +2099,7 @@ static inline CStringW::PCXSTR TryNextStr(CStringW::PXSTR* buff, WCHAR sep = L',
 {
     CStringW::PXSTR start = nullptr;
     CStringW::PXSTR ret = nullptr;
-    for (start = *buff; (*start != 0) && *start == WCHAR(' '); ++start)
+    for (start = *buff; (*start != 0) && (*start == WCHAR(' ')); ++start)
     {
         ;
     }
@@ -2128,14 +2128,14 @@ static inline int NextInt(CStringW::PXSTR* buff, WCHAR sep = L',') // throw(...)
     CStringW::PXSTR strEnd;
 
     int ret;
-    if ((str[0U] == '&' && (str[1U] == 'h' || str[1U] == 'H')) || (str[0U] == '0' && (str[1U] == 'x' || str[1U] == 'X')))
+    if (((str[0U] == '&') && ((str[1U] == 'h') || (str[1U] == 'H'))) || ((str[0U] == '0') && ((str[1U] == 'x') || (str[1U] == 'X'))))
     {
         str += 2;
-        ret = static_cast<int>(wcstoul(str, &strEnd, 16));
+        ret = static_cast<int>(std::wcstoul(str, &strEnd, 16));
     }
     else
     {
-        ret = wcstol(str, &strEnd, 10);
+        ret = std::wcstol(str, &strEnd, 10);
     }
 
     if (str == strEnd)
@@ -2152,19 +2152,19 @@ static bool LoadFont(CString& font)
     int len = font.GetLength();
 
     CAutoVectorPtr<BYTE> pData;
-    if (len == 0 || (len & 3) == 1 || !pData.Allocate(len))
+    if ((len == 0) || ((len & 3) == 1) || !pData.Allocate(len))
     {
         return (false);
     }
 
     const TCHAR* s = font;
     const TCHAR* e = s + len;
-    for (BYTE* p = pData; s < e; ++s, ++p)
+    for (BYTE* p{ pData }; s < e; ++s, ++p)
     {
         *p = BYTE(*s - 33);
     }
 
-    for (int i = 0, j = 0, k = len & ~3; i < k; i += 4, j += 3)
+    for (int i{ 0 }, j{ 0 }, k{ len & ~3 }; i < k; i += 4, j += 3)
     {
         pData[j + 0] = ((pData[i + 0] & 63) << 2) | ((pData[i + 1] >> 4) & 3);
         pData[j + 1] = ((pData[i + 1] & 15) << 4) | ((pData[i + 2] >> 2) & 15);
@@ -2187,8 +2187,8 @@ static bool LoadFont(CString& font)
 
     if (HMODULE hModule = LoadLibrary(_T("GDI32.DLL")))
     {
-        typedef HANDLE(WINAPI * PAddFontMemResourceEx)(IN PVOID, IN DWORD, IN PVOID, IN DWORD*);
-        if (PAddFontMemResourceEx f = (PAddFontMemResourceEx)GetProcAddress(hModule, "AddFontMemResourceEx"))
+        using PAddFontMemResourceEx = HANDLE(WINAPI*)(IN PVOID, IN DWORD, IN PVOID, IN DWORD*);
+        if (PAddFontMemResourceEx f = reinterpret_cast<PAddFontMemResourceEx>(GetProcAddress(hModule, "AddFontMemResourceEx")))
         {
             DWORD cFonts;
             hFont = f(pData, datalen, nullptr, &cFonts);
@@ -2203,7 +2203,7 @@ static bool LoadFont(CString& font)
         GetTempPath(MAX_PATH, path);
 
         DWORD chksum = 0;
-        for (int i = 0, j = datalen >> 2; i < j; ++i)
+        for (int i{ 0 }, j{ datalen >> 2 }; i < j; ++i)
         {
             chksum += reinterpret_cast<DWORD*>(static_cast<BYTE*>(pData))[i];
         }
@@ -2302,7 +2302,7 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
         }
 
         static_cast<void>(FastTrim(buff));
-        if (buff.IsEmpty() || buff.GetAt(0) == ';')
+        if (buff.IsEmpty() || (buff.GetAt(0) == ';'))
         {
             continue;
         }
@@ -2396,9 +2396,9 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
                 StyleName = GetStr(buff);
                 style->fontName = GetStr(buff);
                 style->fontSize = GetFloat(buff);
-                for (std::size_t i = 0; i < 4; ++i)
+                for (std::size_t i{ 0U }; i < 4; ++i)
                 {
-                    style->colors[i] = (COLORREF)GetInt(buff);
+                    style->colors[i] = static_cast<COLORREF>(GetInt(buff));
                 }
                 style->fontWeight = !!GetInt(buff) ? FW_BOLD : FW_NORMAL;
                 style->fItalic = !!GetInt(buff);
@@ -2463,7 +2463,7 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
                 }
                 if (sver <= 4)
                 {
-                    for (std::size_t i = 0; i < 3; ++i)
+                    for (std::size_t i{ 0U }; i < 3; ++i)
                     {
                         style->alpha[i] = alpha;
                     }
@@ -2471,7 +2471,7 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
                 }
                 if (sver >= 5)
                 {
-                    for (std::size_t i = 0; i < 4; ++i)
+                    for (std::size_t i{ 0U }; i < 4; ++i)
                     {
                         style->alpha[i] = static_cast<BYTE>((style->colors[i] >> 24));
                         style->colors[i] &= 0xffffff;
@@ -2696,7 +2696,7 @@ static bool OpenXombieSub(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
     while (file->ReadString(buff))
     {
         static_cast<void>(FastTrim(buff));
-        if (buff.IsEmpty() || buff.GetAt(0) == ';')
+        if (buff.IsEmpty() || (buff.GetAt(0) == ';'))
         {
             continue;
         }
@@ -2765,11 +2765,11 @@ static bool OpenXombieSub(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet
                 StyleName = GetStr(buff) + _T("_") + GetStr(buff);
                 style->fontName = GetStr(buff);
                 style->fontSize = GetFloat(buff);
-                for (std::size_t i = 0; i < 4; ++i)
+                for (std::size_t i{ 0U }; i < 4; ++i)
                 {
-                    style->colors[i] = (COLORREF)GetInt(buff);
+                    style->colors[i] = static_cast<COLORREF>(GetInt(buff));
                 }
-                for (std::size_t i = 0; i < 4; ++i)
+                for (std::size_t i{ 0U }; i < 4; ++i)
                 {
                     style->alpha[i] = GetInt(buff);
                 }
@@ -2978,7 +2978,7 @@ static bool OpenRealText(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet)
     return !ret.IsEmpty();
 }
 
-typedef bool (*STSOpenFunct)(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet);
+using STSOpenFunct = bool (*)(CTextFile* file, CSimpleTextSubtitle& ret, int CharSet);
 
 struct OpenFunctStruct
 {
@@ -3173,7 +3173,7 @@ void CSimpleTextSubtitle::Add(CStringW str, bool fUnicode, REFERENCE_TIME start,
         STSSegment* segmentsEnd = segmentsStart + segmentsCount;
         STSSegment* segment = std::lower_bound(segmentsStart, segmentsEnd, start, SegmentCompStart);
 
-        if (m_subtitleType == EXTVTT && start == segment->start && end == segment->end)
+        if ((m_subtitleType == EXTVTT) && (start == segment->start) && (end == segment->end))
         {
             // ToDo: compare new sub with existing one to verify if it is really a duplicate
             // TRACE(_T("Dropping duplicate WebVTT sub (n=%d)\n"), n);
@@ -3240,7 +3240,7 @@ void CSimpleTextSubtitle::Add(CStringW str, bool fUnicode, REFERENCE_TIME start,
                 }
                 else
                 {
-                    for (std::size_t j = 0; j < entriesCount; ++j)
+                    for (std::size_t j{ 0U }; j < entriesCount; ++j)
                     {
                         if (sub.readorder < m_entries.GetAt(sAdd.subs[j]).readorder)
                         {
@@ -3309,7 +3309,7 @@ void CSimpleTextSubtitle::ChangeUnknownStylesToDefault()
     bool fReport = true;
     CString last_style = _T("!@dkdfjlakfkjjklezdv^5132ae");
     bool last_style_changed_to_unknow = false;
-    for (std::size_t i = 0; i < m_entries.GetCount(); ++i)
+    for (std::size_t i{ 0U }; i < m_entries.GetCount(); ++i)
     {
         STSEntry& stse = m_entries.GetAt(i);
 
@@ -3380,7 +3380,7 @@ void CSimpleTextSubtitle::AddStyle(CString name, STSStyle* style)
 
         CString name2 = name_str;
 
-        if ((i < len) && _stscanf_s(name_str.Right(len - i), _T("%d"), &idx) == 1)
+        if ((i < len) && (_stscanf_s(name_str.Right(len - i), _T("%d"), &idx) == 1))
         {
             name2 = name_str.Left(i);
         }
@@ -3399,7 +3399,7 @@ void CSimpleTextSubtitle::AddStyle(CString name, STSStyle* style)
         m_styles.RemoveKey(name);
         m_styles[name3] = val;
 
-        for (std::size_t j = 0, count = m_entries.GetCount(); j < count; ++j)
+        for (std::size_t j{ 0U }, count{ m_entries.GetCount() }; j < count; ++j)
         {
             STSEntry& stse = m_entries.GetAt(j);
             if (stse.style == name)
@@ -3438,7 +3438,7 @@ void CSimpleTextSubtitle::ConvertToTimeBased(double fps)
         return;
     }
 
-    for (int i = 0, j = m_entries.GetCount(); i < j; ++i)
+    for (int i{ 0 }, j{ static_cast<int>(m_entries.GetCount()) }; i < j; ++i)
     {
         STSEntry& stse = m_entries[i];
         stse.start = std::llround(stse.start * UNITS_FLOAT / fps);
@@ -3457,7 +3457,7 @@ void CSimpleTextSubtitle::ConvertToFrameBased(double fps)
         return;
     }
 
-    for (int i = 0, j = m_entries.GetCount(); i < j; ++i)
+    for (int i{ 0 }, j{ static_cast<int>(m_entries.GetCount()) }; i < j; ++i)
     {
         STSEntry& stse = m_entries[i];
         stse.start = std::llround(stse.start * fps / UNITS);
@@ -3486,7 +3486,7 @@ int CSimpleTextSubtitle::SearchSub(REFERENCE_TIME t, double fps)
 
         if (t == midt)
         {
-            while ((mid > 0) && t == TranslateStart(mid - 1, fps))
+            while ((mid > 0) && (t == TranslateStart(mid - 1, fps)))
             {
                 --mid;
             }
@@ -3810,21 +3810,21 @@ int SGN(T val)
 
 static int comp1(const void* a, const void* b)
 {
-    int ret = SGN(((STSEntry*)a)->start - ((STSEntry*)b)->start);
+    int ret = SGN((reinterpret_cast<const STSEntry*>(a))->start - (reinterpret_cast<const STSEntry*>(b))->start);
     if (ret == 0)
     {
-        ret = ((STSEntry*)a)->layer - ((STSEntry*)b)->layer;
+        ret = (reinterpret_cast<const STSEntry*>(a))->layer - (reinterpret_cast<const STSEntry*>(b))->layer;
     }
     if (ret == 0)
     {
-        ret = ((STSEntry*)a)->readorder - ((STSEntry*)b)->readorder;
+        ret = (reinterpret_cast<const STSEntry*>(a))->readorder - (reinterpret_cast<const STSEntry*>(b))->readorder;
     }
     return (ret);
 }
 
 static int comp2(const void* a, const void* b)
 {
-    return (((STSEntry*)a)->readorder - ((STSEntry*)b)->readorder);
+    return ((reinterpret_cast<const STSEntry*>(a))->readorder - (reinterpret_cast<const STSEntry*>(b))->readorder);
 }
 
 void CSimpleTextSubtitle::Sort(bool fRestoreReadorder)
@@ -3844,7 +3844,7 @@ void CSimpleTextSubtitle::CreateSegments()
         CAtlArray<STSSegment> tempSegments; // if add to m_segments directly, then remove empty entities can be a
                                             // complex operation when having large segmentCount and lots of empty entities
         std::vector<REFERENCE_TIME> breakpoints(2 * m_entries.GetCount());
-        for (std::size_t i = 0; i < m_entries.GetCount(); ++i)
+        for (std::size_t i{ 0U }; i < m_entries.GetCount(); ++i)
         {
             STSEntry& stse = m_entries.GetAt(i);
             breakpoints[2 * i] = stse.start;
@@ -3855,7 +3855,7 @@ void CSimpleTextSubtitle::CreateSegments()
 
         int ptr = 1;
         REFERENCE_TIME prev = breakpoints[0U];
-        for (std::size_t i = breakpoints.size() - 1; i > 0; --i, ++ptr)
+        for (std::size_t i{ breakpoints.size() - 1U }; i > 0; --i, ++ptr)
         {
             if (breakpoints[ptr] != prev)
             {
@@ -3866,7 +3866,7 @@ void CSimpleTextSubtitle::CreateSegments()
 
         std::size_t segmentCount = tempSegments.GetCount();
 
-        for (std::size_t i = 0; i < m_entries.GetCount(); ++i)
+        for (std::size_t i{ 0U }; i < m_entries.GetCount(); ++i)
         {
             STSEntry& stse = m_entries.GetAt(i);
             start = 0;
@@ -3888,7 +3888,7 @@ void CSimpleTextSubtitle::CreateSegments()
                 tempSegments[start].subs.Add(i);
             }
         }
-        for (std::size_t i = 0; i < segmentCount; ++i)
+        for (std::size_t i{ 0U }; i < segmentCount; ++i)
         {
             if (tempSegments[i].subs.GetCount() > 0)
             {
@@ -3955,7 +3955,7 @@ bool CSimpleTextSubtitle::Open(CTextFile* f, int CharSet, CString name)
     };
 #endif
 
-    for (int i = 0; i < nOpenFuncts; ++i)
+    for (int i{ 0 }; i < nOpenFuncts; ++i)
     {
         XY_LOG_INFO("Open '" << f->GetFilePath().GetString() << "' with " << func_name[i] << " begin");
         if (!OpenFuncts[i].open(f, *this, CharSet) /*|| !GetCount()*/)
@@ -4080,7 +4080,7 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
 
         f.WriteString(str);
     }
-    else if (et == EXTSSA || et == EXTASS)
+    else if ((et == EXTSSA) || (et == EXTASS))
     {
         CString str;
 
@@ -4103,7 +4103,7 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
         str += _T("; \n");
         str += (et == EXTSSA) ? _T("ScriptType: v4.00\n") : _T("ScriptType: v4.00+\n");
         str += (m_collisions == 0) ? _T("Collisions: Normal\n") : _T("Collisions: Reverse\n");
-        if (et == EXTASS && m_fScaledBAS)
+        if ((et == EXTASS) && m_fScaledBAS)
         {
             str += _T("ScaledBorderAndShadow: Yes\n");
         }
@@ -4194,7 +4194,7 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
                                                                                                  : L"";
     //  Sort(true);
 
-    for (int i = 0, j = m_entries.GetCount(), k = 0; i < j; ++i)
+    for (int i{ 0 }, j{ static_cast<int>(m_entries.GetCount()) }, k{ 0 }; i < j; ++i)
     {
         STSEntry& stse = m_entries.GetAt(i);
 
@@ -4219,8 +4219,8 @@ bool CSimpleTextSubtitle::SaveAs(CString fn, exttype et, double fps, CTextFile::
         int ms2 = (t2) % 1000;
 
         CStringW str = f.IsUnicode()
-                           ? GetStrW(i, (et == EXTSSA || et == EXTASS))
-                           : GetStrWA(i, (et == EXTSSA || et == EXTASS));
+                           ? GetStrW(i, ((et == EXTSSA) || (et == EXTASS)))
+                           : GetStrWA(i, ((et == EXTSSA) || (et == EXTASS)));
 
         CStringW str2;
 
@@ -4331,7 +4331,7 @@ void CSimpleTextSubtitle::RemoveAllEntries()
 
 bool STSStyleBase::operator==(const STSStyleBase& s) const
 {
-    return charSet == s.charSet && fontName == s.fontName && fontSize == s.fontSize && fontWeight == s.fontWeight && fItalic == s.fItalic && fUnderline == s.fUnderline && fStrikeOut == s.fStrikeOut;
+    return (charSet == s.charSet) && (fontName == s.fontName) && (fontSize == s.fontSize) && (fontWeight == s.fontWeight) && (fItalic == s.fItalic) && (fUnderline == s.fUnderline) && (fStrikeOut == s.fStrikeOut);
 }
 
 STSStyle::STSStyle()
@@ -4375,13 +4375,13 @@ void STSStyle::SetDefault()
 
 bool STSStyle::operator==(const STSStyle& s) const
 {
-    return (marginRect == s.marginRect && scrAlignment == s.scrAlignment && borderStyle == s.borderStyle && outlineWidthX == s.outlineWidthX && outlineWidthY == s.outlineWidthY && shadowDepthX == s.shadowDepthX && shadowDepthY == s.shadowDepthY && *(reinterpret_cast<const int*>(&colors[0U])) == *(reinterpret_cast<const int*>(&s.colors[0U])) && *(reinterpret_cast<const int*>(&colors[1U])) == *(reinterpret_cast<const int*>(&s.colors[1U])) && *(reinterpret_cast<const int*>(&colors[2U])) == *(reinterpret_cast<const int*>(&s.colors[2U])) && *(reinterpret_cast<const int*>(&colors[3U])) == *(reinterpret_cast<const int*>(&s.colors[3U])) && alpha[0U] == s.alpha[0U] && alpha[1U] == s.alpha[1U] && alpha[2U] == s.alpha[2U] && alpha[3U] == s.alpha[3U] && fBlur == s.fBlur && fGaussianBlur == s.fGaussianBlur && relativeTo == s.relativeTo && IsFontStyleEqual(s));
+    return ((marginRect == s.marginRect) && (scrAlignment == s.scrAlignment) && (borderStyle == s.borderStyle) && (outlineWidthX == s.outlineWidthX) && (outlineWidthY == s.outlineWidthY) && (shadowDepthX == s.shadowDepthX) && (shadowDepthY == s.shadowDepthY) && (*(reinterpret_cast<const int*>(&colors[0U])) == *(reinterpret_cast<const int*>(&s.colors[0U]))) && (*(reinterpret_cast<const int*>(&colors[1U])) == *(reinterpret_cast<const int*>(&s.colors[1U]))) && (*(reinterpret_cast<const int*>(&colors[2U])) == *(reinterpret_cast<const int*>(&s.colors[2U]))) && (*(reinterpret_cast<const int*>(&colors[3U])) == *(reinterpret_cast<const int*>(&s.colors[3U]))) && (alpha[0U] == s.alpha[0U]) && (alpha[1U] == s.alpha[1U]) && (alpha[2U] == s.alpha[2U]) && (alpha[3U] == s.alpha[3U]) && (fBlur == s.fBlur) && (fGaussianBlur == s.fGaussianBlur) && (relativeTo == s.relativeTo) && IsFontStyleEqual(s));
 }
 
 bool STSStyle::IsFontStyleEqual(const STSStyle& s) const
 {
     return (
-        charSet == s.charSet && fontName == s.fontName && fontSize == s.fontSize && fontScaleX == s.fontScaleX && fontScaleY == s.fontScaleY && fontSpacing == s.fontSpacing && fontWeight == s.fontWeight && fItalic == s.fItalic && fUnderline == s.fUnderline && fStrikeOut == s.fStrikeOut && fontAngleZ == s.fontAngleZ && fontAngleX == s.fontAngleX && fontAngleY == s.fontAngleY && fontShiftX == s.fontShiftX && fontShiftY == s.fontShiftY);
+        (charSet == s.charSet) && (fontName == s.fontName) && (fontSize == s.fontSize) && (fontScaleX == s.fontScaleX) && (fontScaleY == s.fontScaleY) && (fontSpacing == s.fontSpacing) && (fontWeight == s.fontWeight) && (fItalic == s.fItalic) && (fUnderline == s.fUnderline) && (fStrikeOut == s.fStrikeOut) && (fontAngleZ == s.fontAngleZ) && (fontAngleX == s.fontAngleX) && (fontAngleY == s.fontAngleY) && (fontShiftX == s.fontShiftX) && (fontShiftY == s.fontShiftY));
 }
 
 void STSStyle::operator=(const LOGFONT& lf)
@@ -4471,11 +4471,11 @@ STSStyle& operator<<=(STSStyle& s, const CString& style)
             s.outlineWidthY = GetFloat(str, L';');
             s.shadowDepthX = GetFloat(str, L';');
             s.shadowDepthY = GetFloat(str, L';');
-            for (std::size_t i = 0; i < 4; ++i)
+            for (std::size_t i{ 0U }; i < 4; ++i)
             {
-                s.colors[i] = (COLORREF)GetInt(str, L';');
+                s.colors[i] = static_cast<COLORREF>(GetInt(str, L';'));
             }
-            for (std::size_t i = 0; i < 4; ++i)
+            for (std::size_t i{ 0U }; i < 4; ++i)
             {
                 s.alpha[i] = GetInt(str, L';');
             }

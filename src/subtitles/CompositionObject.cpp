@@ -59,7 +59,7 @@ void CompositionObject::InitColor(const SubPicDesc& spd)
     // fix me: move all color conv function into color_conv_table or dsutil
 #define FULL_TYPE(x, y) (((x) << 8) | y)
 
-    int paletteNumber = m_Palette.GetCount();
+    int paletteNumber{ static_cast<int>(m_Palette.GetCount()) };
     if (m_colorType != spd.type)
     {
         m_colorType = -1;
@@ -171,7 +171,7 @@ void CompositionObject::RenderHdmv(SubPicDesc& spd)
     CGolombBuffer GBuffer{ m_pRLEData, m_nRLEDataSize };
     BYTE bTemp;
     BYTE bSwitch;
-    BYTE nPaletteIndex{ 0 };
+    BYTE nPaletteIndex{ 0U };
     short nCount;
     short nX{ m_horizontal_position };
     short nY{ m_vertical_position };
@@ -301,7 +301,7 @@ void CompositionObject::DvbRenderField(SubPicDesc& spd, CGolombBuffer& gb, const
 void CompositionObject::Dvb2PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT* dirtyRect /*= NULL*/)
 {
     BYTE bTemp;
-    BYTE nPaletteIndex{ 0 };
+    BYTE nPaletteIndex{ 0U };
     short nCount;
     bool bQuit{ false };
 
@@ -375,7 +375,7 @@ void CompositionObject::Dvb2PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb,
 void CompositionObject::Dvb4PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT* dirtyRect /*= NULL*/)
 {
     BYTE bTemp;
-    BYTE nPaletteIndex{ 0 };
+    BYTE nPaletteIndex{ 0U };
     short nCount;
     bool bQuit{ false };
 
@@ -458,7 +458,7 @@ void CompositionObject::Dvb4PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb,
 void CompositionObject::Dvb8PixelsCodeString(SubPicDesc& spd, CGolombBuffer& gb, short& nX, short& nY, RECT* dirtyRect /*= NULL*/)
 {
     BYTE bTemp;
-    BYTE nPaletteIndex{ 0 };
+    BYTE nPaletteIndex{ 0U };
     short nCount;
     bool bQuit{ false };
 

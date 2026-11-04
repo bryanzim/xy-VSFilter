@@ -164,7 +164,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler(CRenderedTextSubtitle* 
 
     BYTE* pData{ nullptr };
     HRESULT hr{ pSample->GetPointer(&pData) };
-    if (FAILED(hr) || pData == nullptr)
+    if (FAILED(hr) || (pData == nullptr))
     {
         return hr;
     }
@@ -191,7 +191,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler(CRenderedTextSubtitle* 
                 }
                 else if (tag == __GAB1_ENTRY__)
                 {
-                    m_pRTS->Add((LPWSTR)CA2WEX<>(ptr), false, MS2RT(*reinterpret_cast<int*>(ptr)), MS2RT(*reinterpret_cast<int*>((ptr + 4))));
+                    m_pRTS->Add(static_cast<LPWSTR>(CA2WEX<>(ptr)), false, MS2RT(*reinterpret_cast<int*>(ptr)), MS2RT(*reinterpret_cast<int*>((ptr + 4))));
                 }
                 else if (tag == __GAB1_LANGUAGE_UNICODE__)
                 {
@@ -223,7 +223,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler(CRenderedTextSubtitle* 
                 }
                 else if (tag == __GAB1_RAWTEXTSUBTITLE__)
                 {
-                    static_cast<void>(m_pRTS->Open((BYTE*)ptr, size, DEFAULT_CHARSET, m_pRTS->m_name));
+                    static_cast<void>(m_pRTS->Open(reinterpret_cast<BYTE*>(ptr), size, DEFAULT_CHARSET, m_pRTS->m_name));
                 }
 
                 ptr += size;
@@ -238,7 +238,7 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler(CRenderedTextSubtitle* 
 
             if (!str.IsEmpty())
             {
-                m_pRTS->Add((LPWSTR)CA2WEX<>(str), false, tStart, tStop);
+                m_pRTS->Add(static_cast<LPWSTR>(CA2WEX<>(str)), false, tStart, tStop);
             }
         }
         else
@@ -248,9 +248,9 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler(CRenderedTextSubtitle* 
     }
     else if (m_mt.majortype == MEDIATYPE_Subtitle)
     {
-        if (m_mt.subtype == MEDIASUBTYPE_UTF8 || m_mt.subtype == MEDIASUBTYPE_WEBVTT)
+        if ((m_mt.subtype == MEDIASUBTYPE_UTF8) || (m_mt.subtype == MEDIASUBTYPE_WEBVTT))
         {
-            CStringW str{ UTF8To16(CStringA((LPCSTR)pData, len)).Trim() };
+            CStringW str{ UTF8To16(CStringA(reinterpret_cast<LPCSTR>(pData), len)).Trim() };
             if (!str.IsEmpty())
             {
                 m_pRTS->Add(str, true, tStart, tStop);
@@ -260,9 +260,9 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler(CRenderedTextSubtitle* 
                 XY_LOG_WARN("Empty data");
             }
         }
-        else if (m_mt.subtype == MEDIASUBTYPE_SSA || m_mt.subtype == MEDIASUBTYPE_ASS || m_mt.subtype == MEDIASUBTYPE_ASS2)
+        else if ((m_mt.subtype == MEDIASUBTYPE_SSA) || (m_mt.subtype == MEDIASUBTYPE_ASS) || (m_mt.subtype == MEDIASUBTYPE_ASS2))
         {
-            CStringW str{ UTF8To16(CStringA((LPCSTR)pData, len)).Trim() };
+            CStringW str{ UTF8To16(CStringA(reinterpret_cast<LPCSTR>(pData), len)).Trim() };
             if (!str.IsEmpty())
             {
                 STSEntry stse;
@@ -273,16 +273,16 @@ CTextSubtitleInputPinHepler::CTextSubtitleInputPinHepler(CRenderedTextSubtitle* 
                 ExplodeNoTrim(str, sl, ',', fields);
                 if (sl.GetCount() == static_cast<std::size_t>(fields))
                 {
-                    stse.readorder = wcstol(sl.RemoveHead(), nullptr, 10);
-                    stse.layer = wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.readorder = std::wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.layer = std::wcstol(sl.RemoveHead(), nullptr, 10);
                     stse.style = sl.RemoveHead(); // no trim, its value is a lookup key
                     stse.actor = sl.RemoveHead().Trim();
-                    stse.marginRect.left = wcstol(sl.RemoveHead(), nullptr, 10);
-                    stse.marginRect.right = wcstol(sl.RemoveHead(), nullptr, 10);
-                    stse.marginRect.top = stse.marginRect.bottom = wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.marginRect.left = std::wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.marginRect.right = std::wcstol(sl.RemoveHead(), nullptr, 10);
+                    stse.marginRect.top = stse.marginRect.bottom = std::wcstol(sl.RemoveHead(), nullptr, 10);
                     if (fields == 10)
                     {
-                        stse.marginRect.bottom = wcstol(sl.RemoveHead(), nullptr, 10);
+                        stse.marginRect.bottom = std::wcstol(sl.RemoveHead(), nullptr, 10);
                     }
                     stse.effect = sl.RemoveHead().Trim();
                     stse.str = sl.RemoveHead().Trim();
@@ -323,7 +323,7 @@ CSSFInputPinHepler::CSSFInputPinHepler(ssf::CRenderer* pSSF, const CMediaType& m
 [[nodiscard]] HRESULT CSSFInputPinHepler::NewSegment(const REFERENCE_TIME tStart, const REFERENCE_TIME tStop, const double dRate)
 {
     // LAME, implement RemoveSubtitles
-    DWORD dwOffset{ ((SUBTITLEINFO*)m_mt.pbFormat)->dwOffset };
+    DWORD dwOffset{ (reinterpret_cast<SUBTITLEINFO*>(m_mt.pbFormat))->dwOffset };
     ssf::MemoryInputStream stream(m_mt.pbFormat + dwOffset, m_mt.cbFormat - dwOffset, false, false);
     static_cast<void>(m_pSSF->Open(stream, _T("")));
     // pSSF->RemoveSubtitles();
@@ -339,7 +339,7 @@ CSSFInputPinHepler::CSSFInputPinHepler(ssf::CRenderer* pSSF, const CMediaType& m
 
     BYTE* pData{ nullptr };
     HRESULT hr{ pSample->GetPointer(&pData) };
-    if (FAILED(hr) || pData == nullptr)
+    if (FAILED(hr) || (pData == nullptr))
     {
         return hr;
     }
@@ -350,7 +350,7 @@ CSSFInputPinHepler::CSSFInputPinHepler(ssf::CRenderer* pSSF, const CMediaType& m
     {
         if (m_mt.subtype == MEDIASUBTYPE_SSF)
         {
-            CStringW str{ UTF8To16(CStringA((LPCSTR)pData, len)).Trim() };
+            CStringW str{ UTF8To16(CStringA(reinterpret_cast<LPCSTR>(pData), len)).Trim() };
             if (!str.IsEmpty())
             {
                 m_pSSF->Append(tStart, tStop, str);
@@ -388,7 +388,7 @@ CVobsubInputPinHepler::CVobsubInputPinHepler(CVobSubStream* pVSS, const CMediaTy
 
     BYTE* pData{ nullptr };
     HRESULT hr{ pSample->GetPointer(&pData) };
-    if (FAILED(hr) || pData == nullptr)
+    if (FAILED(hr) || (pData == nullptr))
     {
         return hr;
     }
@@ -439,7 +439,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
 [[nodiscard]] HRESULT CSubtitleInputPin::CheckMediaType(const CMediaType* pmt)
 {
     XY_LOG_DEBUG(XY_LOG_VAR_2_STR(pmt));
-    return (pmt->majortype == MEDIATYPE_Text && (pmt->subtype == MEDIASUBTYPE_NULL || pmt->subtype == FOURCCMap(static_cast<DWORD>(0)))) || (pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_UTF8) || (pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_SSA || pmt->subtype == MEDIASUBTYPE_ASS || pmt->subtype == MEDIASUBTYPE_ASS2)) || (pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_SSF) || (pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_VOBSUB)) || (pmt->majortype == MEDIATYPE_Subtitle && pmt->subtype == MEDIASUBTYPE_WEBVTT) || IsHdmvSub(pmt)
+    return ((pmt->majortype == MEDIATYPE_Text) && ((pmt->subtype == MEDIASUBTYPE_NULL) || (pmt->subtype == FOURCCMap(static_cast<DWORD>(0))))) || ((pmt->majortype == MEDIATYPE_Subtitle) && (pmt->subtype == MEDIASUBTYPE_UTF8)) || ((pmt->majortype == MEDIATYPE_Subtitle) && ((pmt->subtype == MEDIASUBTYPE_SSA) || (pmt->subtype == MEDIASUBTYPE_ASS) || (pmt->subtype == MEDIASUBTYPE_ASS2))) || ((pmt->majortype == MEDIATYPE_Subtitle) && (pmt->subtype == MEDIASUBTYPE_SSF)) || ((pmt->majortype == MEDIATYPE_Subtitle) && (pmt->subtype == MEDIASUBTYPE_VOBSUB)) || ((pmt->majortype == MEDIATYPE_Subtitle) && (pmt->subtype == MEDIASUBTYPE_WEBVTT)) || IsHdmvSub(pmt)
                ? S_OK
                : E_FAIL;
 }
@@ -475,8 +475,8 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
     }
     else if (mt.majortype == MEDIATYPE_Subtitle)
     {
-        SUBTITLEINFO* psi{ (SUBTITLEINFO*)mt.pbFormat };
-        DWORD dwOffset{ 0 };
+        SUBTITLEINFO* psi{ reinterpret_cast<SUBTITLEINFO*>(mt.pbFormat) };
+        DWORD dwOffset{ 0U };
         CString name;
         LCID lcid{ 0 };
 
@@ -493,7 +493,7 @@ CSubtitleInputPin::CSubtitleInputPin(CBaseFilter* pFilter, CCritSec* pLock, CCri
             {
                 if (!name.IsEmpty())
                 {
-                    if (trackName[0U] != _T('(') && (trackName[0U] != _T('[')))
+                    if ((trackName[0U] != _T('(')) && (trackName[0U] != _T('[')))
                     {
                         name += _T(",");
                     }
@@ -666,9 +666,9 @@ IMpeg2DemultiplexerTesting : public IUnknown
 [[nodiscard]] bool CSubtitleInputPin::IsHdmvSub(const CMediaType* pmt)
 
 {
-    return pmt->majortype == MEDIATYPE_Subtitle && (pmt->subtype == MEDIASUBTYPE_HDMVSUB ||                                          // Blu ray presentation graphics
-                                                    pmt->subtype == MEDIASUBTYPE_DVB_SUBTITLES ||                                    // DVB subtitles
-                                                    ((pmt->subtype == MEDIASUBTYPE_NULL && pmt->formattype == FORMAT_SubtitleInfo))) // Workaround : support for Haali PGS
+    return (pmt->majortype == MEDIATYPE_Subtitle) && ((pmt->subtype == MEDIASUBTYPE_HDMVSUB) ||                                            // Blu ray presentation graphics
+                                                      (pmt->subtype == MEDIASUBTYPE_DVB_SUBTITLES) ||                                      // DVB subtitles
+                                                      (((pmt->subtype == MEDIASUBTYPE_NULL) && (pmt->formattype == FORMAT_SubtitleInfo)))) // Workaround : support for Haali PGS
                ? true
                : false;
 }

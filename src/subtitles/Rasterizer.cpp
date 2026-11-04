@@ -41,7 +41,8 @@
 #define _IMPL_MIN _MIN
 #endif
 
-typedef const UINT8 CUINT8, *PCUINT8;
+using CUINT8 = const UINT8;
+using PCUINT8 = const UINT8*;
 
 // NOTE: signed or unsigned affects the result seriously
 #define COMBINE_AYUV(a, y, u, v) (((((((static_cast<int>((a))) << 8) | y) << 8) | u) << 8) | v)
@@ -213,8 +214,8 @@ ass_synth_priv::ass_synth_priv(const ass_synth_priv& priv) : g_r(priv.g_r), g_w(
 {
     if ((this->g_w > 0) && (this != &priv))
     {
-        this->g = (unsigned*)std::realloc(this->g, this->g_w * sizeof(unsigned));
-        this->gt2 = (unsigned*)std::realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));
+        this->g = reinterpret_cast<unsigned*>(std::realloc(this->g, this->g_w * sizeof(unsigned)));
+        this->gt2 = reinterpret_cast<unsigned*>(std::realloc(this->gt2, 256 * this->g_w * sizeof(unsigned)));
         // if (this->g == null || this->gt2 == null) {
         //     return -1;
         // }
@@ -240,7 +241,7 @@ ass_synth_priv::~ass_synth_priv()
     double exp_a{ std::exp(a) };
 
     double volume_factor{ 0 };
-    double volume_start{ 0 }, volume_end = 0;
+    double volume_start{ 0 }, volume_end{ 0 };
     unsigned volume;
 
     if (this->sigma == requestedSigma)
@@ -257,9 +258,9 @@ ass_synth_priv::~ass_synth_priv()
 
     if (this->g_w > 0)
     {
-        this->g = (unsigned*)std::realloc(this->g, this->g_w * sizeof(unsigned));
-        this->gt2 = (unsigned*)std::realloc(this->gt2, 256 * this->g_w * sizeof(unsigned));
-        if (this->g == nullptr || this->gt2 == nullptr)
+        this->g = reinterpret_cast<unsigned*>(std::realloc(this->g, this->g_w * sizeof(unsigned)));
+        this->gt2 = reinterpret_cast<unsigned*>(std::realloc(this->gt2, 256 * this->g_w * sizeof(unsigned)));
+        if ((this->g == nullptr) || (this->gt2 == nullptr))
         {
             return -1;
         }
@@ -301,8 +302,8 @@ ass_synth_priv::~ass_synth_priv()
             volume = static_cast<int>(exp_0 + .5);
             this->g[this->g_r] = volume;
 
-            unsigned* p_left{ this->g + this->g_r - 1 };
-            unsigned* p_right{ this->g + this->g_r + 1 };
+            unsigned* p_left{ this->g + this->g_r - 1U };
+            unsigned* p_right{ this->g + this->g_r + 1U };
             for (int i{ 0 }; i < this->g_r; ++i, --p_left, ++p_right)
             {
                 exp_0 *= exp_1;
@@ -350,8 +351,8 @@ ass_synth_priv::~ass_synth_priv()
             volume = static_cast<int>(exp_0 + .5);
             this->g[this->g_r] = volume;
 
-            unsigned* p_left{ this->g + this->g_r - 1 };
-            unsigned* p_right{ this->g + this->g_r + 1 };
+            unsigned* p_left{ this->g + this->g_r - 1U };
+            unsigned* p_right{ this->g + this->g_r + 1U };
             for (int i{ 0 }; i < this->g_r; ++i, --p_left, ++p_right)
             {
                 exp_0 *= exp_1;
@@ -399,7 +400,7 @@ static void ass_gauss_blur(unsigned char* buffer, unsigned* tmp2,
     int x, y;
 
     unsigned char* s{ buffer };
-    unsigned* t{ tmp2 + 1 };
+    unsigned* t{ tmp2 + 1U };
     for (y = 0; y < height; ++y)
     {
         std::memset(t - 1, 0, (width + 1) * sizeof(*t));
@@ -495,7 +496,7 @@ static void ass_gauss_blur(unsigned char* buffer, unsigned* tmp2,
         if (y < g_r_y) // in case that r<0
         {
             unsigned* srcp{ t + y * (width + 1) + 1 };
-            int src = *srcp;
+            int src{ static_cast<int>(*srcp) };
             if (src)
             {
                 unsigned* dstp{ srcp - 1 + (g_width_y - g_r_y + y) * (width + 1) };
@@ -515,10 +516,10 @@ static void ass_gauss_blur(unsigned char* buffer, unsigned* tmp2,
         for (y = 1; y < g_r_y; ++y)
         {
             unsigned* srcp{ t + y * (width + 1) + 1 };
-            int src = *srcp;
+            int src{ static_cast<int>(*srcp) };
             if (src)
             {
-                unsigned* dstp{ srcp - 1 + width + 1 };
+                unsigned* dstp{ srcp - 1U + width + 1U };
                 const int src2{ (src + (1 << (ass_synth_priv::VOLUME_BITS - 1))) >> ass_synth_priv::VOLUME_BITS };
                 const unsigned* m3{ g_t_y + src2 * g_width_y };
 
@@ -534,7 +535,7 @@ static void ass_gauss_blur(unsigned char* buffer, unsigned* tmp2,
         for (; y < height - g_r_y; ++y)
         {
             unsigned* srcp{ t + y * (width + 1) + 1 };
-            int src = *srcp;
+            int src{ static_cast<int>(*srcp) };
             if (src)
             {
                 unsigned* dstp{ srcp - 1 - g_r_y * (width + 1) };
@@ -553,7 +554,7 @@ static void ass_gauss_blur(unsigned char* buffer, unsigned* tmp2,
         for (; y < height - 1; ++y)
         {
             unsigned* srcp{ t + y * (width + 1) + 1 };
-            int src = *srcp;
+            int src{ static_cast<int>(*srcp) };
             if (src)
             {
                 const int y2{ g_r_y + height - y };
@@ -573,7 +574,7 @@ static void ass_gauss_blur(unsigned char* buffer, unsigned* tmp2,
         if (y == height - 1) // important: y == height - 1 failed if r==0
         {
             unsigned* srcp{ t + y * (width + 1) + 1 };
-            int src = *srcp;
+            int src{ static_cast<int>(*srcp) };
             if (src)
             {
                 const int y2{ g_r_y + height - y };
@@ -628,8 +629,8 @@ static void be_blur(unsigned char* buf, unsigned* tmp_base, const int w, const i
     }
     std::memset(col_pix_buf_base, 0, w * sizeof(WORD));
     std::memset(col_sum_buf_base, 0, w * sizeof(WORD));
-    WORD* col_pix_buf{ col_pix_buf_base - 2 }; // for aligment;
-    WORD* col_sum_buf{ col_sum_buf_base - 2 }; // for aligment;
+    WORD* col_pix_buf{ col_pix_buf_base - 2U }; // for aligment;
+    WORD* col_sum_buf{ col_sum_buf_base - 2U }; // for aligment;
     {
         int y{ 0 };
         unsigned char* src{ buf + y * stride };
@@ -914,7 +915,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         gaussian_blur_radius_y = 1;
     } // make sure that it really do a blur
 
-    int bluradjust_x{ 0 }, bluradjust_y = 0;
+    int bluradjust_x{ 0 }, bluradjust_y{ 0 };
     if (IsItReallyBlur(be_strength, gaussian_blur_strength))
     {
         if (gaussian_blur_strength > 0)
@@ -1009,7 +1010,7 @@ const float Rasterizer::GAUSSIAN_BLUR_THREHOLD = 0.333333f;
         }
     }
 
-    float scaled_be_strength = be_strength * 0.5f * (target_scale_x + target_scale_y);
+    float scaled_be_strength{ static_cast<float>(be_strength * 0.5f * (target_scale_x + target_scale_y)) };
     int pass_num{ static_cast<int>(scaled_be_strength) };
     int pitch{ output_overlay->mOverlayPitch };
     byte* blur_plan{ output_overlay->mfWideOutlineEmpty ? body : border };
@@ -1376,7 +1377,7 @@ static __forceinline void packed_pix_mix_sse2(BYTE* dst, const BYTE alpha, const
     __m128i a{ _mm_set1_epi32(((alpha + 1) << 16) | (0x100 - alpha)) };
 
     const BYTE* dst_end0{ dst + ((4 * w) & ~63) };
-    const BYTE* dst_end{ dst + 4 * w };
+    const BYTE* dst_end{ dst + 4U * w };
     for (; dst < dst_end0; dst += 16 * 4)
     {
         __m128i d1{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(dst)) };
@@ -1493,7 +1494,7 @@ static __forceinline void packed_pix_add_sse2(BYTE* dst, const BYTE* alpha, cons
 
 ///////////////////////////////////////////////////////////////////////////
 
-typedef void (*AlphaBlt8bppFunc)(byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride);
+using AlphaBlt8bppFunc = void (*)(byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride);
 void AlphaBlt8bppC(byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride);
 void AlphaBlt8bppSse2(byte* pY, const byte* am, const byte Y, int h, int w, int src_stride, int dst_stride);
 
@@ -1549,10 +1550,10 @@ void AlphaBlt8bppSse2(byte* pY,
             }
             for (; dy < dy_end_mod16; sa += 8, dy += 16)
             {
-                __m128i a{ _mm_loadl_epi64((__m128i*)sa) };
+                __m128i a{ _mm_loadl_epi64(reinterpret_cast<const __m128i*>(sa)) };
 
                 // Y
-                __m128i d{ _mm_load_si128((__m128i*)dy) };
+                __m128i d{ _mm_load_si128(reinterpret_cast<__m128i*>(dy)) };
 
                 a = _mm_unpacklo_epi8(a, zero);       // a= a0 0  a1 0  a2 0  a3 0  a4 0  a5 0  a6 0  a7 0
                 __m128i ia{ _mm_sub_epi16(ones, a) }; // ia   = 256-a0 ... 256-a7
@@ -1567,7 +1568,7 @@ void AlphaBlt8bppSse2(byte* pY,
                 dl = _mm_srli_epi16(dl, 8); // d   = d>>8
 
                 sa += 8;
-                a = _mm_loadl_epi64((__m128i*)sa);
+                a = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(sa));
 
                 a = _mm_unpacklo_epi8(a, zero);
                 ia = _mm_sub_epi16(ones, a);
@@ -1582,7 +1583,7 @@ void AlphaBlt8bppSse2(byte* pY,
 
                 dl = _mm_packus_epi16(dl, d);
 
-                _mm_store_si128((__m128i*)dy, dl);
+                _mm_store_si128(reinterpret_cast<__m128i*>(dy), dl);
             }
             for (; dy < dy_end; ++sa, ++dy)
             {
@@ -1596,7 +1597,7 @@ void AlphaBlt8bppSse2(byte* pY,
     }
 }
 
-typedef void (*AlphaBlt8bppSingleAlphaFunc)(byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride);
+using AlphaBlt8bppSingleAlphaFunc = void (*)(byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride);
 void AlphaBlt8bppSingleAlphaC(byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride);
 void AlphaBlt8bppSingleAlphaSse2(byte* pY, const byte alpha, const byte Y, int h, int w, int dst_stride);
 
@@ -1694,8 +1695,8 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
     tSpanBuffer::const_iterator itB{ src.begin() };
     tSpanBuffer::const_iterator itBE{ src.end() };
     // Don't worry -- even if dy<0 this will still work! // G: hehe, the evil twin :)
-    unsigned __int64 offset1 = (((__int64)dy) << 32) - dx;
-    unsigned __int64 offset2 = (((__int64)dy) << 32) + dx;
+    unsigned __int64 offset1{ static_cast<unsigned __int64>(((static_cast<__int64>(dy)) << 32) - dx) };
+    unsigned __int64 offset2{ static_cast<unsigned __int64>(((static_cast<__int64>(dy)) << 32) + dx) };
     while ((itA != itAE) && (itB != itBE))
     {
         if ((*itB).first + offset1 < (*itA).first)
@@ -1716,7 +1717,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 // If we run out of B spans or the B span doesn't overlap,
                 // then the next A span can't either (because A spans don't
                 // overlap) and we exit.
-                if (itB == itBE || ((*itB).first + offset1 > x2))
+                if ((itB == itBE) || ((*itB).first + offset1 > x2))
                 {
                     break;
                 }
@@ -1729,7 +1730,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 // then the next B span can't either (because B spans don't
                 // overlap) and we exit.
 
-                if (itA == itAE || ((*itA).first > x2))
+                if ((itA == itAE) || ((*itA).first > x2))
                 {
                     break;
                 }
@@ -1756,7 +1757,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 // then the next B span can't either (because B spans don't
                 // overlap) and we exit.
 
-                if (itA == itAE || ((*itA).first > x2))
+                if ((itA == itAE) || ((*itA).first > x2))
                 {
                     break;
                 }
@@ -1768,7 +1769,7 @@ void OverlapRegion(tSpanBuffer& dst, const tSpanBuffer& src, int dx, int dy)
                 // If we run out of B spans or the B span doesn't overlap,
                 // then the next A span can't either (because A spans don't
                 // overlap) and we exit.
-                if (itB == itBE || ((*itB).first + offset1 > x2))
+                if ((itB == itBE) || ((*itB).first + offset1 > x2))
                 {
                     break;
                 }
@@ -1804,7 +1805,7 @@ constexpr int kSwitchPointCount{ 6 };
 // A negative limit is outside every stored switch point. The sentinel is the end of the list.
 [[nodiscard]] bool SwitchPointBefore(const DWORD point, const int limit)
 {
-    if ((limit <= 0) || point == kSwitchSentinel)
+    if ((limit <= 0) || (point == kSwitchSentinel))
     {
         return false;
     }
@@ -1840,7 +1841,7 @@ constexpr int kSwitchPointCount{ 6 };
     int y{ (ysub + overlay->mOffsetY + 4) >> 3 };
     int w{ overlay->mOverlayWidth };
     int h{ overlay->mOverlayHeight };
-    int xo{ 0 }, yo = 0;
+    int xo{ 0 }, yo{ 0 };
     // Again, limiting?
     if (x < r.left)
     {
@@ -1902,7 +1903,7 @@ constexpr int kSwitchPointCount{ 6 };
                 break;
             }
             byte alpha{ static_cast<byte>(sw[0U] >> 24) };
-            while ((sw <= swLast) && SwitchPointBefore(sw[3U], spanEnd) && (static_cast<byte>(sw[2U] >> 24)) == alpha)
+            while ((sw <= swLast) && SwitchPointBefore(sw[3U], spanEnd) && ((static_cast<byte>(sw[2U] >> 24)) == alpha))
             {
                 sw += 2;
             }
@@ -1938,7 +1939,7 @@ void DrawSingleColorPackPix(DWORD* dst,
     {
         packed_pix_mix_sse2(reinterpret_cast<BYTE*>(dst), src, w, color);
         src += src_pitch;
-        dst = reinterpret_cast<unsigned long*>(((char*)dst + dst_pitch));
+        dst = reinterpret_cast<unsigned long*>((reinterpret_cast<char*>(dst) + dst_pitch));
     }
 }
 
@@ -1977,7 +1978,7 @@ void DrawMultiColorPackPix(DWORD* dst,
             pixmix_sse2(&dst[wt], color, src[wt]);
         }
         src += src_pitch;
-        dst = reinterpret_cast<DWORD*>(((BYTE*)dst + dst_pitch));
+        dst = reinterpret_cast<DWORD*>((reinterpret_cast<BYTE*>(dst) + dst_pitch));
     }
 }
 
@@ -2006,7 +2007,7 @@ void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CR
     int y{ (ysub + overlay->mOffsetY + 4) >> 3 };
     int w{ overlay->mOverlayWidth };
     int h{ overlay->mOverlayHeight };
-    int xo{ 0 }, yo = 0;
+    int xo{ 0 }, yo{ 0 };
 
     if (x < r.left)
     {
@@ -2062,7 +2063,7 @@ void Rasterizer::Draw(XyBitmap* bitmap, const SharedPtrOverlay overlay, const CR
     {
         dst_offset = bitmap->pitch * (y - bitmap->y) + (x - bitmap->x) * 4;
     }
-    unsigned long* dst{ reinterpret_cast<unsigned long*>(((BYTE*)bitmap->plans[0U] + dst_offset)) };
+    unsigned long* dst{ reinterpret_cast<unsigned long*>((reinterpret_cast<BYTE*>(bitmap->plans[0U]) + dst_offset)) };
 
     // Every remaining line in the bitmap to be rendered...
     switch (draw_method)
@@ -2166,16 +2167,16 @@ void Rasterizer::FillSolidRect(SubPicDesc& spd, const int x, const int y, const 
 
 ///////////////////////////////////////////////////////////////
 
-typedef void (*MixLineFunc)(BYTE* dst, const BYTE* alpha, int w, DWORD color);
+using MixLineFunc = void (*)(BYTE* dst, const BYTE* alpha, int w, DWORD color);
 
-typedef void (*DoAdditionDrawFunc)(BYTE* dst, const BYTE* src, DWORD color, int w, int h, int src_pitch, int dst_pitch);
-typedef void (*DoAdditionDrawMultiColorFunc)(BYTE* dst,
-                                             const BYTE* src,
-                                             const DWORD* switchpts,
-                                             int w,
-                                             int h,
-                                             int src_pitch,
-                                             int dst_pitch);
+using DoAdditionDrawFunc = void (*)(BYTE* dst, const BYTE* src, DWORD color, int w, int h, int src_pitch, int dst_pitch);
+using DoAdditionDrawMultiColorFunc = void (*)(BYTE* dst,
+                                              const BYTE* src,
+                                              const DWORD* switchpts,
+                                              int w,
+                                              int h,
+                                              int src_pitch,
+                                              int dst_pitch);
 
 void DoAdditionDraw(BYTE* dst, const BYTE* src, const DWORD color, const int w, int h, const int src_pitch, const int dst_pitch)
 {
@@ -2258,7 +2259,7 @@ void Rasterizer::AdditionDraw(XyBitmap* bitmap,
     int y{ (overlay->mOffsetY + ysub + 4) >> 3 };
     int w{ overlay->mOverlayWidth };
     int h{ overlay->mOverlayHeight };
-    int xo{ 0 }, yo = 0;
+    int xo{ 0 }, yo{ 0 };
 
     if (x < r.left)
     {
@@ -2395,8 +2396,8 @@ void FillAlphaMashBody_sse2(BYTE* dst, const BYTE* src, const int color_alpha, c
 #ifndef _WIN64
     const int ROUDN_ERR{ 1 << (6 - 1) };
 
-    const int x0 = ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w;      // IMPORTANT! Should not exceed w.
-    const int x00 = ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w; // IMPORTANT! Should not exceed w.
+    const int x0{ ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w };      // IMPORTANT! Should not exceed w.
+    const int x00{ ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w }; // IMPORTANT! Should not exceed w.
     const int x_end00{ ((reinterpret_cast<int>(dst) + w) & ~15) - reinterpret_cast<int>(dst) };
     const int x_end0{ ((reinterpret_cast<int>(dst) + w) & ~3) - reinterpret_cast<int>(dst) };
     const int x_end{ w };
@@ -2485,8 +2486,8 @@ void FillAlphaMashBorder_sse2(BYTE* dst, const BYTE* border, const BYTE* body, c
 #ifndef _WIN64
     const int ROUDN_ERR{ 1 << (6 - 1) };
 
-    const int x0 = ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w;      // IMPORTANT! Should not exceed w.
-    const int x00 = ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w; // IMPORTANT! Should not exceed w.
+    const int x0{ ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w };      // IMPORTANT! Should not exceed w.
+    const int x00{ ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w }; // IMPORTANT! Should not exceed w.
     const int x_end00{ ((reinterpret_cast<int>(dst) + w) & ~15) - reinterpret_cast<int>(dst) };
     const int x_end0{ ((reinterpret_cast<int>(dst) + w) & ~3) - reinterpret_cast<int>(dst) };
     const int x_end{ w };
@@ -2599,8 +2600,8 @@ void FillAlphaMashBodyMasked_sse2(BYTE* dst,
 #ifndef _WIN64
     const int ROUND_ERR{ 1 << (12 - 1) };
 
-    const int x0 = ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w;      // IMPORTANT! Should not exceed w.
-    const int x00 = ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w; // IMPORTANT! Should not exceed w.
+    const int x0{ ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w };      // IMPORTANT! Should not exceed w.
+    const int x00{ ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w }; // IMPORTANT! Should not exceed w.
     const int x_end00{ ((reinterpret_cast<int>(dst) + w) & ~15) - reinterpret_cast<int>(dst) };
     const int x_end0{ ((reinterpret_cast<int>(dst) + w) & ~3) - reinterpret_cast<int>(dst) };
     const int x_end{ w };
@@ -2722,8 +2723,8 @@ void FillAlphaMashBorderMasked_sse2(BYTE* dst,
 #ifndef _WIN64
     const int ROUND_ERR{ 1 << (12 - 1) };
 
-    const int x0 = ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w;      // IMPORTANT! Should not exceed w.
-    const int x00 = ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w; // IMPORTANT! Should not exceed w.
+    const int x0{ ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 3) & ~3) - reinterpret_cast<int>(dst) : w };      // IMPORTANT! Should not exceed w.
+    const int x00{ ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) < w ? ((reinterpret_cast<int>(dst) + 15) & ~15) - reinterpret_cast<int>(dst) : w }; // IMPORTANT! Should not exceed w.
     const int x_end00{ ((reinterpret_cast<int>(dst) + w) & ~15) - reinterpret_cast<int>(dst) };
     const int x_end0{ ((reinterpret_cast<int>(dst) + w) & ~3) - reinterpret_cast<int>(dst) };
     const int x_end{ w };
@@ -2824,15 +2825,15 @@ void Overlay::FillAlphaMash(byte* outputAlphaMask, const bool fBody, const bool 
     border = border != nullptr ? border + y * mOverlayPitch + x : nullptr;
     byte* dst{ outputAlphaMask + y * mOverlayPitch + x };
 
-    if (!fBorder && fBody && pAlphaMask == nullptr)
+    if (!fBorder && fBody && (pAlphaMask == nullptr))
     {
         FillAlphaMashBody_sse2(dst, body, color_alpha, w, h, mOverlayPitch);
     }
-    else if (fBorder && fBody && pAlphaMask == nullptr)
+    else if (fBorder && fBody && (pAlphaMask == nullptr))
     {
         FillAlphaMashBody_sse2(dst, border, color_alpha, w, h, mOverlayPitch);
     }
-    else if (fBorder && !fBody && pAlphaMask == nullptr)
+    else if (fBorder && !fBody && (pAlphaMask == nullptr))
     {
         FillAlphaMashBorder_sse2(dst, border, body, color_alpha, w, h, mOverlayPitch);
     }
@@ -2902,7 +2903,7 @@ void Overlay::FillAlphaMash(byte* outputAlphaMask, const bool fBody, const bool 
         std::memset(border, 0, overlay->mOverlayPitch * overlay->mOverlayHeight);
     }
 
-    if (overlay->mOverlayPitch == mOverlayPitch && overlay->mOverlayWidth == mOverlayWidth &&
+    if ((overlay->mOverlayPitch == mOverlayPitch) && (overlay->mOverlayWidth == mOverlayWidth) &&
         (overlay->mOverlayHeight >= mOverlayHeight))
     {
         if (body && mBody)
@@ -3007,7 +3008,7 @@ PathData::~PathData()
 
 [[nodiscard]] bool PathData::operator==(const PathData& rhs) const
 {
-    return (this == &rhs) || (mPathPoints == rhs.mPathPoints && !std::memcmp(mpPathTypes, rhs.mpPathTypes, mPathPoints * sizeof(BYTE)) && !std::memcmp(mpPathPoints, rhs.mpPathPoints, mPathPoints * sizeof(POINT)));
+    return (this == &rhs) || ((mPathPoints == rhs.mPathPoints) && !std::memcmp(mpPathTypes, rhs.mpPathTypes, mPathPoints * sizeof(BYTE)) && !std::memcmp(mpPathPoints, rhs.mpPathPoints, mPathPoints * sizeof(POINT)));
 }
 
 void PathData::_TrashPath()
@@ -3047,7 +3048,7 @@ void PathData::_TrashPath()
             return true;
         }
         mpPathTypes = reinterpret_cast<BYTE*>(std::malloc(sizeof(BYTE) * mPathPoints));
-        mpPathPoints = (POINT*)std::malloc(sizeof(POINT) * mPathPoints);
+        mpPathPoints = reinterpret_cast<POINT*>(std::malloc(sizeof(POINT) * mPathPoints));
         if (mPathPoints == GetPath(hdc, mpPathPoints, mpPathTypes, mPathPoints))
         {
             return true;
@@ -3081,7 +3082,7 @@ void PathData::_TrashPath()
             return true;
         }
         pNewTypes = reinterpret_cast<BYTE*>(std::realloc(mpPathTypes, (mPathPoints + nPoints) * sizeof(BYTE)));
-        pNewPoints = (POINT*)std::realloc(mpPathPoints, (mPathPoints + nPoints) * sizeof(POINT));
+        pNewPoints = reinterpret_cast<POINT*>(std::realloc(mpPathPoints, (mPathPoints + nPoints) * sizeof(POINT)));
         if (pNewTypes)
         {
             mpPathTypes = pNewTypes;
@@ -3092,7 +3093,7 @@ void PathData::_TrashPath()
         }
         BYTE* pTypes{ DEBUG_NEW BYTE[nPoints] };
         POINT* pPoints{ DEBUG_NEW POINT[nPoints] };
-        if (pNewTypes && pNewPoints && nPoints == GetPath(hdc, pPoints, pTypes, nPoints))
+        if (pNewTypes && pNewPoints && (nPoints == GetPath(hdc, pPoints, pTypes, nPoints)))
         {
             for (int i{ 0 }; i < nPoints; ++i)
             {
@@ -3180,7 +3181,7 @@ ScanLineData::~ScanLineData()
 void ScanLineData::_ReallocEdgeBuffer(const unsigned edges)
 {
     mEdgeHeapSize = edges;
-    mpEdgeBuffer = (Edge*)std::realloc(mpEdgeBuffer, sizeof(Edge) * edges);
+    mpEdgeBuffer = reinterpret_cast<Edge*>(std::realloc(mpEdgeBuffer, sizeof(Edge) * edges));
 }
 
 void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, const bool fBSpline)
@@ -3189,14 +3190,14 @@ void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, 
     const POINT* pt1{ path_data.mpPathPoints + ptbase + 1 };
     const POINT* pt2{ path_data.mpPathPoints + ptbase + 2 };
     const POINT* pt3{ path_data.mpPathPoints + ptbase + 3 };
-    double x0 = pt0->x;
-    double x1 = pt1->x;
-    double x2 = pt2->x;
-    double x3 = pt3->x;
-    double y0 = pt0->y;
-    double y1 = pt1->y;
-    double y2 = pt2->y;
-    double y3 = pt3->y;
+    double x0{ static_cast<double>(pt0->x) };
+    double x1{ static_cast<double>(pt1->x) };
+    double x2{ static_cast<double>(pt2->x) };
+    double x3{ static_cast<double>(pt3->x) };
+    double y0{ static_cast<double>(pt0->y) };
+    double y1{ static_cast<double>(pt1->y) };
+    double y2{ static_cast<double>(pt2->y) };
+    double y3{ static_cast<double>(pt3->y) };
     double cx3, cx2, cx1, cx0, cy3, cy2, cy1, cy0;
     if (fBSpline)
     {
@@ -3246,7 +3247,7 @@ void ScanLineData::_EvaluateBezier(const PathData& path_data, const int ptbase, 
     // use a step size of 1.
     double maxaccel1{ std::fabs(2 * cy2) + std::fabs(6 * cy3) };
     double maxaccel2{ std::fabs(2 * cx2) + std::fabs(6 * cx3) };
-    double maxaccel = maxaccel1 > maxaccel2 ? maxaccel1 : maxaccel2;
+    double maxaccel{ maxaccel1 > maxaccel2 ? maxaccel1 : maxaccel2 };
     double h{ 1.0 };
     if (maxaccel > 8.0)
     {
@@ -3305,7 +3306,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, const
 template <int flag>
 void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y1)
 {
-    __int64 xacc{ (__int64)x0 << 13 };
+    __int64 xacc{ static_cast<__int64>(x0) << 13 };
 
     // prestep
 
@@ -3321,7 +3322,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
 
         if (mEdgeNext + y1 + 1 - iy > mEdgeHeapSize)
         {
-            unsigned int new_edge_heap_size{ mEdgeHeapSize * 2 };
+            unsigned int new_edge_heap_size{ mEdgeHeapSize * 2U };
             while (mEdgeNext + y1 + 1 - iy > new_edge_heap_size)
             {
                 new_edge_heap_size *= 2;
@@ -3363,7 +3364,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
     // Initialize edge buffer.  We use edge 0 as a sentinel.
     mEdgeNext = 1;
     mEdgeHeapSize = 2048;
-    mpEdgeBuffer = (Edge*)std::malloc(sizeof(Edge) * mEdgeHeapSize);
+    mpEdgeBuffer = reinterpret_cast<Edge*>(std::malloc(sizeof(Edge) * mEdgeHeapSize));
     // Initialize scanline list.
     mpScanBuffer = DEBUG_NEW unsigned int[mHeight];
     std::memset(mpScanBuffer, 0, mHeight * sizeof(unsigned int));
@@ -3376,7 +3377,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
     lastp.x = lastp.y = 0;
     for (i = 0; i < path_data.mPathPoints; ++i)
     {
-        BYTE t = path_data.mpPathTypes[i] & ~PT_CLOSEFIGURE;
+        BYTE t{ static_cast<BYTE>(path_data.mpPathTypes[i] & ~PT_CLOSEFIGURE) };
         switch (t)
         {
         case PT_MOVETO:
@@ -3434,7 +3435,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
     {
         int count{ 0 };
         // Detangle scanline into edge heap.
-        for (unsigned ptr{ (unsigned)(mpScanBuffer[y] & 0xffffffff) }; ptr; ptr = mpEdgeBuffer[ptr].next)
+        for (unsigned ptr{ static_cast<unsigned>((mpScanBuffer[y] & 0xffffffff)) }; ptr; ptr = mpEdgeBuffer[ptr].next)
         {
             heap.push_back(mpEdgeBuffer[ptr].posandflag);
         }
@@ -3474,7 +3475,7 @@ void ScanLineData::_EvaluateLine(const int x0, const int y0, const int x1, int y
         heap.clear();
     }
     // Dump the edge and scan buffers, since we no longer need them.
-    free(mpEdgeBuffer);
+    std::free(mpEdgeBuffer);
     delete[] mpScanBuffer;
     // All done!
     return true;
@@ -3504,7 +3505,7 @@ void ScanLineData::DeleteOutlines()
         WidenRegionCreater* widen_region_creater{ WidenRegionCreater::GetDefaultWidenRegionCreater() };
         widen_region_creater->xy_overlap_region(&mWideOutline, out_line, rx, ry);
     }
-    else if (ry == 0 && (rx > 0))
+    else if ((ry == 0) && (rx > 0))
     {
         // There are artifacts if we don't make at least two overlaps of the line, even at same Y coord
         OverlapRegion(mWideOutline, out_line, rx, 0);

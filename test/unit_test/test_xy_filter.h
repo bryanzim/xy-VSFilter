@@ -134,7 +134,7 @@ public:
 
         for (int i{ 0 }; i < h; ++i)
         {
-            float* data2{ reinterpret_cast<float*>(((PUINT8)data + i * pitch)) };
+            float* data2{ reinterpret_cast<float*>((static_cast<PUINT8>(data) + i * pitch)) };
             for (int j{ 0 }; j < w + filter_width; ++j)
             {
                 data2[j] = rand() & 0xFF;

@@ -70,7 +70,7 @@ public:
     PathDataCacheKey& operator=(const PathDataCacheKey&) = default;
     [[nodiscard]] bool operator==(const PathDataCacheKey& key) const
     {
-        return m_str_id == key.m_str_id && (std::fabs(m_scalex - key.m_scalex) < 0.000001) && (std::fabs(m_scaley - key.m_scaley) < 0.000001) && m_text_renderer_mode == key.m_text_renderer_mode && (m_style == key.m_style || CompareSTSStyle(m_style, key.m_style));
+        return (m_str_id == key.m_str_id) && (std::fabs(m_scalex - key.m_scalex) < 0.000001) && (std::fabs(m_scaley - key.m_scaley) < 0.000001) && (m_text_renderer_mode == key.m_text_renderer_mode) && ((m_style == key.m_style) || CompareSTSStyle(m_style, key.m_style));
     }
     [[nodiscard]] bool operator==(const CWord& key) const
     {

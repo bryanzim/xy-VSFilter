@@ -47,10 +47,10 @@ namespace ssf
 
     CRect Glyph::GetClipRect() const
     {
-        CRect r = bbox + tl;
+        CRect r{ bbox + tl };
 
-        int size = static_cast<int>(GetBackgroundSize() + 0.5);
-        int depth = static_cast<int>(GetShadowDepth() + 0.5);
+        int size{ static_cast<int>(GetBackgroundSize() + 0.5) };
+        int depth{ static_cast<int>(GetShadowDepth() + 0.5) };
 
         r.InflateRect(size, size);
         r.InflateRect(depth, depth);
@@ -67,19 +67,19 @@ namespace ssf
     {
         path_bkg.RemoveAll();
 
-        if (style.background.type == L"enlarge" && (style.background.size > 0))
+        if ((style.background.type == L"enlarge") && (style.background.size > 0))
         {
             path_bkg.Enlarge(path, GetBackgroundSize());
         }
-        else if (style.background.type == L"box" && (style.background.size >= 0))
+        else if ((style.background.type == L"box") && (style.background.size >= 0))
         {
             if (c != ssf::Text::LSEP)
             {
-                int s = static_cast<int>(GetBackgroundSize() + 0.5);
-                int x0 = (!vertical ? -spacing / 2 : ascent - row_ascent);
-                int y0 = (!vertical ? ascent - row_ascent : -spacing / 2);
-                int x1 = x0 + (!vertical ? width + spacing : row_ascent + row_descent);
-                int y1 = y0 + (!vertical ? row_ascent + row_descent : width + spacing);
+                int s{ static_cast<int>(GetBackgroundSize() + 0.5) };
+                int x0{ (!vertical ? -spacing / 2 : ascent - row_ascent) };
+                int y0{ (!vertical ? ascent - row_ascent : -spacing / 2) };
+                int x1{ x0 + (!vertical ? width + spacing : row_ascent + row_descent) };
+                int y1{ y0 + (!vertical ? row_ascent + row_descent : width + spacing) };
                 path_bkg.types.SetCount(4U);
                 path_bkg.types[0U] = PT_MOVETO;
                 path_bkg.types[1U] = PT_LINETO;
@@ -119,7 +119,7 @@ namespace ssf
 
         if (pts.GetCount() >= 4U)
         {
-            if (pts[1U].x == pts[j].x && pts[1U].y == pts[j].y)
+            if ((pts[1U].x == pts[j].x) && (pts[1U].y == pts[j].y))
             {
                 pts.SetAt(0, pts[j - 1U]);
                 pts.SetAt(j + 1U, pts[2U]);
@@ -139,7 +139,7 @@ namespace ssf
 
             for (std::size_t splineIndex{ 0U }, lastSpline{ pts.GetCount() - 4U }; splineIndex <= lastSpline; ++splineIndex)
             {
-                static const float _1div6 = 1.0f / 6;
+                static const float _1div6{ 1.0f / 6 };
 
                 SplineCoeffs sc;
 
@@ -162,23 +162,23 @@ namespace ssf
     {
         // TODO: add sse code path
 
-        float sx = style.font.scale.cx;
-        float sy = style.font.scale.cy;
+        float sx{ style.font.scale.cx };
+        float sy{ style.font.scale.cy };
 
-        bool brotate = style.placement.angle.x || style.placement.angle.y || style.placement.angle.z;
-        bool bspline = !spline.IsEmpty();
+        bool brotate{ style.placement.angle.x || style.placement.angle.y || style.placement.angle.z };
+        bool bspline{ !spline.IsEmpty() };
         bool bscale = brotate || bspline || (sx != 1) || (sy != 1);
 
-        float caz = static_cast<float>(std::cos(deg2rad(style.placement.angle.z)));
-        float saz = static_cast<float>(std::sin(deg2rad(style.placement.angle.z)));
-        float cax = static_cast<float>(std::cos(deg2rad(style.placement.angle.x)));
-        float sax = static_cast<float>(std::sin(deg2rad(style.placement.angle.x)));
-        float cay = static_cast<float>(std::cos(deg2rad(style.placement.angle.y)));
-        float say = static_cast<float>(std::sin(deg2rad(style.placement.angle.y)));
+        float caz{ static_cast<float>(std::cos(deg2rad(style.placement.angle.z))) };
+        float saz{ static_cast<float>(std::sin(deg2rad(style.placement.angle.z))) };
+        float cax{ static_cast<float>(std::cos(deg2rad(style.placement.angle.x))) };
+        float sax{ static_cast<float>(std::sin(deg2rad(style.placement.angle.x))) };
+        float cay{ static_cast<float>(std::cos(deg2rad(style.placement.angle.y))) };
+        float say{ static_cast<float>(std::sin(deg2rad(style.placement.angle.y))) };
 
         for (std::size_t i{ 0U }, j{ glyphPath.types.GetCount() }; i < j; ++i)
         {
-            CPoint p = glyphPath.points[i];
+            CPoint p{ glyphPath.points[i] };
 
             if (bscale)
             {
@@ -190,9 +190,9 @@ namespace ssf
 
                 if (bspline)
                 {
-                    float pos = vertical ? y + org.y + tl.y - subrect.top : x + org.x + tl.x - subrect.left;
-                    float size = static_cast<float>(vertical ? subrect.Size().cy : subrect.Size().cx);
-                    float dist = vertical ? x : y;
+                    float pos{ vertical ? y + org.y + tl.y - subrect.top : x + org.x + tl.x - subrect.left };
+                    float size{ static_cast<float>(vertical ? subrect.Size().cy : subrect.Size().cx) };
+                    float dist{ vertical ? x : y };
 
                     const SplineCoeffs* sc;
                     float t;
@@ -204,14 +204,14 @@ namespace ssf
                     }
                     else
                     {
-                        float u = size / spline.GetCount();
+                        float u{ size / spline.GetCount() };
                         sc = &spline[max(static_cast<int>(pos / u), 0)];
                         t = static_cast<float>(std::fmod(pos, u) / u);
                     }
 
-                    float nx = sc->cx[1U] + 2 * t * sc->cx[2U] + 3 * t * t * sc->cx[3U];
-                    float ny = sc->cy[1U] + 2 * t * sc->cy[2U] + 3 * t * t * sc->cy[3U];
-                    float nl = static_cast<float>(1.0f / std::sqrt(nx * nx + ny * ny));
+                    float nx{ sc->cx[1U] + 2 * t * sc->cx[2U] + 3 * t * t * sc->cx[3U] };
+                    float ny{ sc->cy[1U] + 2 * t * sc->cy[2U] + 3 * t * t * sc->cy[3U] };
+                    float nl{ static_cast<float>(1.0f / std::sqrt(nx * nx + ny * ny)) };
 
                     nx *= nl;
                     ny *= nl;
@@ -296,7 +296,7 @@ namespace ssf
 
         ras.ScanConvert(path, bbox);
 
-        if (style.background.type == L"outline" && (style.background.size > 0))
+        if ((style.background.type == L"outline") && (style.background.size > 0))
         {
             ras.CreateWidenedRegion(static_cast<int>(GetBackgroundSize() + 0.5));
         }
@@ -304,7 +304,7 @@ namespace ssf
         //
 
         Rasterizer* r = path_bkg.IsEmpty() ? &ras : &ras_bkg;
-        int plane = path_bkg.IsEmpty() ? (style.font.color.a < 255 ? 2 : 1) : 0;
+        int plane{ path_bkg.IsEmpty() ? (style.font.color.a < 255 ? 2 : 1) : 0 };
 
         ras.Rasterize(tl.x, tl.y);
         r->Blur(style.background.blur, plane);
@@ -313,7 +313,7 @@ namespace ssf
         {
             ras_shadow.Reuse(*r);
 
-            float depth = GetShadowDepth();
+            float depth{ GetShadowDepth() };
 
             tls.x = tl.x + static_cast<int>(depth * std::cos(deg2rad(style.shadow.angle)) + 0.5);
             tls.y = tl.y + static_cast<int>(depth * -std::sin(deg2rad(style.shadow.angle)) + 0.5);

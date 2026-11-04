@@ -118,19 +118,19 @@ namespace ssf
 
         if (p1.y > p0.y) // down
         {
-            int xacc = p0.x << (8 - FONT_SCALE);
+            int xacc{ p0.x << (8 - FONT_SCALE) };
 
             // prestep p0.y down
 
-            int dy = p1.y - p0.y;
-            int y = ((p0.y + ((1 << FONT_SCALE) / 2 - 1)) & ~((1 << FONT_SCALE) - 1)) + (1 << FONT_SCALE) / 2;
-            int iy = y >> FONT_SCALE;
+            int dy{ p1.y - p0.y };
+            int y{ ((p0.y + ((1 << FONT_SCALE) / 2 - 1)) & ~((1 << FONT_SCALE) - 1)) + (1 << FONT_SCALE) / 2 };
+            int iy{ y >> FONT_SCALE };
 
             p1.y = (p1.y - ((1 << FONT_SCALE) / 2 + 1)) >> FONT_SCALE;
 
             if (iy <= p1.y)
             {
-                int invslope = ((p1.x - p0.x) << 8) / dy;
+                int invslope{ ((p1.x - p0.x) << 8) / dy };
 
                 while (mEdgeNext + p1.y + 1 - iy > mEdgeHeapSize)
                 {
@@ -141,7 +141,7 @@ namespace ssf
 
                 while (iy <= p1.y)
                 {
-                    int ix = (xacc + 128) >> 8;
+                    int ix{ (xacc + 128) >> 8 };
 
                     mpEdgeBuffer[mEdgeNext].next = mpScanBuffer[iy];
                     mpEdgeBuffer[mEdgeNext].posandflag = ix * 2 + 1;
@@ -155,19 +155,19 @@ namespace ssf
         }
         else if (p1.y < p0.y) // up
         {
-            int xacc = p1.x << (8 - FONT_SCALE);
+            int xacc{ p1.x << (8 - FONT_SCALE) };
 
             // prestep p1.y down
 
-            int dy = p0.y - p1.y;
-            int y = ((p1.y + ((1 << FONT_SCALE) / 2 - 1)) & ~((1 << FONT_SCALE) - 1)) + (1 << FONT_SCALE) / 2;
-            int iy = y >> FONT_SCALE;
+            int dy{ p0.y - p1.y };
+            int y{ ((p1.y + ((1 << FONT_SCALE) / 2 - 1)) & ~((1 << FONT_SCALE) - 1)) + (1 << FONT_SCALE) / 2 };
+            int iy{ y >> FONT_SCALE };
 
             p0.y = (p0.y - ((1 << FONT_SCALE) / 2 + 1)) >> FONT_SCALE;
 
             if (iy <= p0.y)
             {
-                int invslope = ((p0.x - p1.x) << 8) / dy;
+                int invslope{ ((p0.x - p1.x) << 8) / dy };
 
                 while (mEdgeNext + p0.y + 1 - iy > mEdgeHeapSize)
                 {
@@ -178,7 +178,7 @@ namespace ssf
 
                 while (iy <= p0.y)
                 {
-                    int ix = (xacc + 128) >> 8;
+                    int ix{ (xacc + 128) >> 8 };
 
                     mpEdgeBuffer[mEdgeNext].next = mpScanBuffer[iy];
                     mpEdgeBuffer[mEdgeNext].posandflag = ix * 2;
@@ -206,10 +206,10 @@ namespace ssf
             return 0;
         }
 
-        int minx = (bbox.left >> FONT_SCALE) & ~((1 << FONT_SCALE) - 1);
-        int miny = (bbox.top >> FONT_SCALE) & ~((1 << FONT_SCALE) - 1);
-        int maxx = (bbox.right + ((1 << FONT_SCALE) - 1)) >> FONT_SCALE;
-        int maxy = (bbox.bottom + ((1 << FONT_SCALE) - 1)) >> FONT_SCALE;
+        int minx{ (bbox.left >> FONT_SCALE) & ~((1 << FONT_SCALE) - 1) };
+        int miny{ (bbox.top >> FONT_SCALE) & ~((1 << FONT_SCALE) - 1) };
+        int maxx{ (bbox.right + ((1 << FONT_SCALE) - 1)) >> FONT_SCALE };
+        int maxy{ (bbox.bottom + ((1 << FONT_SCALE) - 1)) >> FONT_SCALE };
 
         path.MovePoints(CPoint(-minx * (1 << FONT_SCALE), -miny * (1 << FONT_SCALE)));
 
@@ -247,9 +247,9 @@ namespace ssf
         firstp.x = firstp.y = 0;
         lastp.x = lastp.y = 0;
 
-        int lastmoveto = -1;
+        int lastmoveto{ -1 };
 
-        BYTE* type = path.types.GetData();
+        BYTE* type{ path.types.GetData() };
         POINT* pt = path.points.GetData();
 
         for (std::size_t i{ 0U }, j{ path.types.GetCount() }; i < j; ++i)
@@ -296,9 +296,9 @@ namespace ssf
 
         mOutline.SetCount(0U, mEdgeNext / 2);
 
-        for (int y = 0; y < mHeight; ++y)
+        for (int y{ 0 }; y < mHeight; ++y)
         {
-            int count = 0;
+            int count{ 0 };
 
             // Detangle scanline into edge heap.
 
@@ -323,7 +323,7 @@ namespace ssf
 
             for (; itX1 != itX2; ++itX1)
             {
-                int x = *itX1;
+                int x{ *itX1 };
 
                 if (!count)
                 {
@@ -358,7 +358,7 @@ namespace ssf
 
         // Dump the edge and scan buffers, since we no longer need them.
 
-        free(mpEdgeBuffer);
+        std::free(mpEdgeBuffer);
         delete[] mpScanBuffer;
 
         // All done!
@@ -400,7 +400,7 @@ namespace ssf
                     // then the next B span can't either (because B spans don't
                     // overlap) and we exit.
 
-                    if (a == ae || (a->first > x.second))
+                    if ((a == ae) || (a->first > x.second))
                     {
                         break;
                     }
@@ -414,7 +414,7 @@ namespace ssf
                     // then the next A span can't either (because A spans don't
                     // overlap) and we exit.
 
-                    if (b == be || (b->first + o.first > x.second))
+                    if ((b == be) || (b->first + o.first > x.second))
                     {
                         break;
                     }
@@ -441,7 +441,7 @@ namespace ssf
                     // then the next A span can't either (because A spans don't
                     // overlap) and we exit.
 
-                    if (b == be || (b->first + o.first > x.second))
+                    if ((b == be) || (b->first + o.first > x.second))
                     {
                         break;
                     }
@@ -455,7 +455,7 @@ namespace ssf
                     // then the next B span can't either (because B spans don't
                     // overlap) and we exit.
 
-                    if (a == ae || (a->first > x.second))
+                    if ((a == ae) || (a->first > x.second))
                     {
                         break;
                     }
@@ -491,9 +491,9 @@ namespace ssf
 
         r >>= FONT_SCALE;
 
-        for (int y = -r; y <= r; ++y)
+        for (int y{ -r }; y <= r; ++y)
         {
-            int x = static_cast<int>(0.5f + std::sqrt(float(r * r - y * y)));
+            int x{ static_cast<int>(0.5f + std::sqrt(float(r * r - y * y))) };
 
             _OverlapRegion(mWideOutline, mOutline, x, y);
         }
@@ -519,13 +519,13 @@ namespace ssf
         xsub &= (1 << FONT_AA) - 1;
         ysub &= (1 << FONT_AA) - 1;
 
-        int width = mWidth + xsub;
-        int height = mHeight + ysub;
+        int width{ mWidth + xsub };
+        int height{ mHeight + ysub };
 
         mOffsetX = mPathOffsetX - xsub;
         mOffsetY = mPathOffsetY - ysub;
 
-        int border = ((mWideBorder + ((1 << FONT_AA) - 1)) & ~((1 << FONT_AA) - 1)) + (1 << FONT_AA) * 4;
+        int border{ ((mWideBorder + ((1 << FONT_AA) - 1)) & ~((1 << FONT_AA) - 1)) + (1 << FONT_AA) * 4 };
 
         if (!mWideOutline.IsEmpty())
         {
@@ -553,16 +553,16 @@ namespace ssf
 
             for (std::size_t j{ 0U }, k{ pOutline[i]->GetCount() }; j < k; ++j)
             {
-                int y = s[j].y1 - 0x40000000 + ysub;
-                int x1 = s[j].x1 - 0x40000000 + xsub;
-                int x2 = s[j].x2 - 0x40000000 + xsub;
+                int y{ s[j].y1 - 0x40000000 + ysub };
+                int x1{ s[j].x1 - 0x40000000 + xsub };
+                int x2{ s[j].x2 - 0x40000000 + xsub };
 
                 if (x2 > x1)
                 {
-                    int first = x1 >> FONT_AA;
-                    int last = (x2 - 1) >> FONT_AA;
+                    int first{ x1 >> FONT_AA };
+                    int last{ (x2 - 1) >> FONT_AA };
 
-                    BYTE* dst = mpOverlayBuffer + 4 * (mOverlayWidth * (y >> FONT_AA) + first) + i;
+                    BYTE* dst{ mpOverlayBuffer + 4U * (mOverlayWidth * (y >> FONT_AA) + first) + i };
 
                     if (first == last)
                     {
@@ -587,11 +587,11 @@ namespace ssf
 
         if (!mWideOutline.IsEmpty())
         {
-            BYTE* p = mpOverlayBuffer;
+            BYTE* p{ mpOverlayBuffer };
 
-            for (int j = 0; j < mOverlayHeight; ++j, p += mOverlayWidth * 4)
+            for (int j{ 0 }; j < mOverlayHeight; ++j, p += mOverlayWidth * 4)
             {
-                for (int i = 0; i < mOverlayWidth; ++i)
+                for (int i{ 0 }; i < mOverlayWidth; ++i)
                 {
                     p[i * 4 + 2] = min(p[i * 4 + 1], (1 << 6) - p[i * 4]); // TODO: sse2
                 }
@@ -608,20 +608,20 @@ namespace ssf
             return;
         }
 
-        int w = mOverlayWidth;
-        int h = mOverlayHeight;
-        int pitch = w * 4;
-        BYTE* q0 = new BYTE[w * h];
+        int w{ mOverlayWidth };
+        int h{ mOverlayHeight };
+        int pitch{ w * 4 };
+        BYTE* q0{ new BYTE[w * h] };
 
-        for (int pass = 0; pass < n; ++pass)
+        for (int pass{ 0 }; pass < n; ++pass)
         {
-            BYTE* p = mpOverlayBuffer + plane;
-            BYTE* q = q0;
+            BYTE* p{ mpOverlayBuffer + plane };
+            BYTE* q{ q0 };
 
-            for (int y = 0; y < h; ++y, p += pitch, q += w)
+            for (int y{ 0 }; y < h; ++y, p += pitch, q += w)
             {
                 q[0U] = (2 * p[0U] + p[4U]) >> 2;
-                int x = 0;
+                int x{ 0 };
                 for (x = 1; x < w - 1; ++x)
                 {
                     q[x] = (p[(x - 1) * 4] + 2 * p[x * 4] + p[(x + 1) * 4]) >> 2;
@@ -632,10 +632,10 @@ namespace ssf
             p = mpOverlayBuffer + plane;
             q = q0;
 
-            for (int x = 0; x < w; ++x, p += 4, ++q)
+            for (int x{ 0 }; x < w; ++x, p += 4, ++q)
             {
                 p[0U] = (2 * q[0U] + q[w]) >> 2;
-                int y = 0, yp, yq;
+                int y{ 0 }, yp, yq;
                 for (y = 1, yp = y * pitch, yq = y * w; y < h - 1; ++y, yp += pitch, yq += w)
                 {
                     p[yp] = (q[yq - w] + 2 * q[yq] + q[yq + w]) >> 2;
@@ -697,11 +697,11 @@ namespace ssf
         xsub >>= FONT_SCALE;
         ysub >>= FONT_SCALE;
 
-        int x = (xsub + mOffsetX + (1 << FONT_AA) / 2) >> FONT_AA;
-        int y = (ysub + mOffsetY + (1 << FONT_AA) / 2) >> FONT_AA;
-        int w = mOverlayWidth;
-        int h = mOverlayHeight;
-        int xo = 0, yo = 0;
+        int x{ (xsub + mOffsetX + (1 << FONT_AA) / 2) >> FONT_AA };
+        int y{ (ysub + mOffsetY + (1 << FONT_AA) / 2) >> FONT_AA };
+        int w{ mOverlayWidth };
+        int h{ mOverlayHeight };
+        int xo{ 0 }, yo{ 0 };
 
         if (x < r.left)
         {
@@ -734,7 +734,7 @@ namespace ssf
 
         // draw
 
-        const BYTE* src = mpOverlayBuffer + 4 * (mOverlayWidth * yo + xo) + plane;
+        const BYTE* src{ mpOverlayBuffer + 4U * (mOverlayWidth * yo + xo) + plane };
         DWORD* dst{ reinterpret_cast<DWORD*>(static_cast<BYTE*>(spd.bits) + spd.pitch * y) + x };
 
         DWORD color{ switchpts[0U] };

@@ -236,7 +236,7 @@ CSubPicQueueImpl::~CSubPicQueueImpl()
     SubPicDesc spd;
     if (SUCCEEDED(pSubPic->Lock(spd)))
     {
-        DWORD color{ 0xFF000000 };
+        DWORD color{ 0xFF000000U };
         //		if(spd.type == MSP_YUY2 || spd.type == MSP_YV12 || spd.type == MSP_IYUV)
         //		{
         //			color = 0xFF801080;
@@ -396,7 +396,7 @@ CSubPicQueue::~CSubPicQueue()
         //	if(pSubPicProvider->GetStartPosition(rtNow, fps))
         {
             CAutoLock cQueueLock(&m_csQueueLock);
-            int count = m_Queue.GetCount();
+            int count{ static_cast<int>(m_Queue.GetCount()) };
             if (count > 0)
             {
                 if (WaitForSingleObject(m_QueueEvents[QueueEvents_NOTEMPTY], CSUBPICQUEUE_LOOKUP_WAIT_TIMEOUT) == WAIT_OBJECT_0)
@@ -495,7 +495,7 @@ CSubPicQueue::~CSubPicQueue()
     {
         CAutoLock cQueueLock(&m_csQueueLock);
         rtNow = m_rtNow;
-        int count = m_Queue.GetCount();
+        int count{ static_cast<int>(m_Queue.GetCount()) };
         if (rtNow < m_rtQueueStart)
         {
             m_Queue.RemoveAll();

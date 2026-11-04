@@ -506,11 +506,11 @@ void CorrectMediaType(AM_MEDIA_TYPE* pmt)
 
     if (mt.formattype == FORMAT_VideoInfo)
     {
-        VIDEOINFOHEADER* vih{ (VIDEOINFOHEADER*)mt.pbFormat };
+        VIDEOINFOHEADER* vih{ reinterpret_cast<VIDEOINFOHEADER*>(mt.pbFormat) };
 
         for (int i{ 0 }; i < VIHSIZE; ++i)
         {
-            if (mt.subtype == *vihs[i].subtype && vih->bmiHeader.biCompression == vihs[i].vih.bmiHeader.biCompression)
+            if ((mt.subtype == *vihs[i].subtype) && (vih->bmiHeader.biCompression == vihs[i].vih.bmiHeader.biCompression))
             {
                 mt.AllocFormatBuffer(vihs[i].size);
                 std::memcpy(mt.pbFormat, &vihs[i], vihs[i].size);
@@ -521,11 +521,11 @@ void CorrectMediaType(AM_MEDIA_TYPE* pmt)
     }
     else if (mt.formattype == FORMAT_VideoInfo2)
     {
-        VIDEOINFOHEADER2* vih2{ (VIDEOINFOHEADER2*)mt.pbFormat };
+        VIDEOINFOHEADER2* vih2{ reinterpret_cast<VIDEOINFOHEADER2*>(mt.pbFormat) };
 
         for (int i{ 0 }; i < VIHSIZE; ++i)
         {
-            if (mt.subtype == *vih2s[i].subtype && vih2->bmiHeader.biCompression == vih2s[i].vih.bmiHeader.biCompression)
+            if ((mt.subtype == *vih2s[i].subtype) && (vih2->bmiHeader.biCompression == vih2s[i].vih.bmiHeader.biCompression))
             {
                 mt.AllocFormatBuffer(vih2s[i].size);
                 std::memcpy(mt.pbFormat, &vih2s[i], vih2s[i].size);

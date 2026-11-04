@@ -37,7 +37,7 @@ BaseAlphaBlender* BaseAlphaBlender::s_default_alpha_blender = nullptr;
 [[nodiscard]] BaseAlphaBlender* BaseAlphaBlender::CreateAlphaBlender(const int src_type, const int dst_type, const int cpu_flags)
 
 {
-    if (src_type == MSP_RGBA && dst_type == MSP_RGB32)
+    if ((src_type == MSP_RGBA) && (dst_type == MSP_RGB32))
     {
         return DEBUG_NEW AlphaBlenderArgbC{};
     }
@@ -199,7 +199,7 @@ void AlphaBlenderArgbC::AlphaBlend(const BYTE* src, const int w, const int h, co
     for (int i{ 0 }; i < h; ++i, src += pitch, dst += dst_pitch)
     {
         const BYTE* s2{ src };
-        const BYTE* s2end{ s2 + w * 4 };
+        const BYTE* s2end{ s2 + w * 4U };
         DWORD* d2{ reinterpret_cast<DWORD*>(dst) };
         for (; s2 < s2end; s2 += 4, ++d2)
         {

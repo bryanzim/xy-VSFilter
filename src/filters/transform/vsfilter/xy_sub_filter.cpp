@@ -160,7 +160,7 @@ XySubFilter::~XySubFilter()
                                        QI(ISubRenderProvider)
                                            QI(ISubRenderFrame)
                                                QI(IXySubFilterGraphMutex)(riid == __uuidof(ISubRenderOptions))
-               ? GetInterface((ISubRenderProvider*)this, ppv)
+               ? GetInterface(reinterpret_cast<ISubRenderProvider*>(this), ppv)
                : __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
@@ -204,7 +204,7 @@ XySubFilter::~XySubFilter()
         bool found_vsfilter{ false };
         BeginEnumFilters(pGraph, pEF, pBF)
         {
-            if (pBF != (IBaseFilter*)this)
+            if (pBF != reinterpret_cast<IBaseFilter*>(this))
             {
                 if (CComQIPtr<IXySubFilterGraphMutex>(pBF))
                 {
@@ -212,7 +212,7 @@ XySubFilter::~XySubFilter()
                 }
                 CLSID clsid;
                 pBF->GetClassID(&clsid);
-                if (clsid == __uuidof(CDirectVobSubFilter) || clsid == __uuidof(CDirectVobSubFilter2))
+                if ((clsid == __uuidof(CDirectVobSubFilter)) || (clsid == __uuidof(CDirectVobSubFilter2)))
                 {
                     XY_LOG_INFO("I see VSFilter");
                     if (!m_xy_bool_opt[BOOL_GET_RID_OF_VSFILTER])
@@ -230,12 +230,12 @@ XySubFilter::~XySubFilter()
         if (under_mpc_hc)
         {
             bool found_sub_pin{ false };
-            bool accept_embedded{ m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] == LOADLEVEL_ALWAYS ||
+            bool accept_embedded{ (m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] == LOADLEVEL_ALWAYS) ||
                                   ((m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] != LOADLEVEL_DISABLED) && m_xy_bool_opt[BOOL_LOAD_SETTINGS_EMBEDDED]) };
             CComPtr<IBaseFilter> pBF;
             if (accept_embedded)
             {
-                for (int i{ 0 }, n = m_known_source_filters_guid.GetCount(); i < n; ++i)
+                for (int i{ 0 }, n{ static_cast<int>(m_known_source_filters_guid.GetCount()) }; i < n; ++i)
                 {
                     if ((pBF = FindFilter(m_known_source_filters_guid[i], pGraph)))
                     {
@@ -246,7 +246,7 @@ XySubFilter::~XySubFilter()
                 {
                     BeginEnumMediaTypes(pPin, pEM, pmt)
                     {
-                        if (pmt->majortype == MEDIATYPE_Text || pmt->majortype == MEDIATYPE_Subtitle)
+                        if ((pmt->majortype == MEDIATYPE_Text) || (pmt->majortype == MEDIATYPE_Subtitle))
                         {
                             found_sub_pin = true;
                             break;
@@ -326,7 +326,7 @@ XySubFilter::~XySubFilter()
     if (!m_not_first_pause)
     {
         m_not_first_pause = true;
-        if ((m_pSubStreams.GetCount() > 0) || m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] == LOADLEVEL_ALWAYS)
+        if ((m_pSubStreams.GetCount() > 0) || (m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] == LOADLEVEL_ALWAYS))
         {
             hr = FindAndConnectConsumer(m_pGraph);
             if (FAILED(hr) || !m_consumer)
@@ -623,7 +623,7 @@ XySubFilter::~XySubFilter()
             wcscpy_s(sub_style[i].name, pair->m_key.GetString());
             if (sub_style[i].style)
             {
-                *(STSStyle*)(sub_style[i].style) = *pair->m_value;
+                *reinterpret_cast<STSStyle*>((sub_style[i].style)) = *pair->m_value;
             }
             ++i;
         }
@@ -812,7 +812,7 @@ XySubFilter::~XySubFilter()
     CheckPointer(pPages, E_POINTER);
 
     pPages->cElems = 5;
-    pPages->pElems = (GUID*)CoTaskMemAlloc(sizeof(GUID) * pPages->cElems);
+    pPages->pElems = reinterpret_cast<GUID*>(CoTaskMemAlloc(sizeof(GUID) * pPages->cElems));
 
     if (pPages->pElems == nullptr)
     {
@@ -920,7 +920,7 @@ XySubFilter::~XySubFilter()
             return E_FAIL;
         }
     }
-    else if (i == nLangs + 1 || i == nLangs + 2)
+    else if ((i == nLangs + 1) || (i == nLangs + 2))
     {
         if (!m_fLoading)
         {
@@ -972,7 +972,7 @@ XySubFilter::~XySubFilter()
     {
         *pdwFlags = 0;
 
-        if ((i == -1 && !m_xy_bool_opt[BOOL_HIDE_SUBTITLES]) || ((i >= 0) && (i < nLangs) && i == m_xy_int_opt[INT_SELECTED_LANGUAGE]) || (i == nLangs && m_xy_bool_opt[BOOL_HIDE_SUBTITLES]) || (i == nLangs + 1 && !m_xy_bool_opt[BOOL_FLIP_PICTURE]) || (i == nLangs + 2 && m_xy_bool_opt[BOOL_FLIP_PICTURE]))
+        if (((i == -1) && !m_xy_bool_opt[BOOL_HIDE_SUBTITLES]) || ((i >= 0) && (i < nLangs) && (i == m_xy_int_opt[INT_SELECTED_LANGUAGE])) || ((i == nLangs) && m_xy_bool_opt[BOOL_HIDE_SUBTITLES]) || ((i == nLangs + 1) && !m_xy_bool_opt[BOOL_FLIP_PICTURE]) || ((i == nLangs + 2) && m_xy_bool_opt[BOOL_FLIP_PICTURE]))
         {
             *pdwFlags |= AMSTREAMSELECTINFO_ENABLED;
         }
@@ -1168,7 +1168,7 @@ void XySubFilter::SetupFRD(CStringArray& paths, CAtlArray<HANDLE>& handles)
             int j{ 0 };
 
             POSITION pos{ m_frd.files.GetHeadPosition() };
-            for (int i{ 0 }; pos && j == 0; ++i)
+            for (int i{ 0 }; pos && (j == 0); ++i)
             {
                 CString fn{ m_frd.files.GetNext(pos) };
 
@@ -1453,10 +1453,10 @@ void XySubFilter::SetYuvMatrix()
         ColorConvTable::SetDefaultConvType(yuv_matrix, yuv_range);
         XySubRenderFrameCreater* sub_frame_creater{ XySubRenderFrameCreater::GetDefaultCreater() };
 
-        if (m_xy_int_opt[INT_VSFILTER_COMPACT_RGB_CORRECTION] == RGB_CORRECTION_ALWAYS ||
-            (m_xy_int_opt[INT_VSFILTER_COMPACT_RGB_CORRECTION] == RGB_CORRECTION_AUTO &&
-             m_xy_str_opt[STRING_CONSUMER_YUV_MATRIX].CompareNoCase(L"TV.709") == 0 &&
-             yuv_matrix == ColorConvTable::BT601 && yuv_range == ColorConvTable::RANGE_TV))
+        if ((m_xy_int_opt[INT_VSFILTER_COMPACT_RGB_CORRECTION] == RGB_CORRECTION_ALWAYS) ||
+            ((m_xy_int_opt[INT_VSFILTER_COMPACT_RGB_CORRECTION] == RGB_CORRECTION_AUTO) &&
+             (m_xy_str_opt[STRING_CONSUMER_YUV_MATRIX].CompareNoCase(L"TV.709") == 0) &&
+             (yuv_matrix == ColorConvTable::BT601) && (yuv_range == ColorConvTable::RANGE_TV)))
         {
             static_cast<void>(sub_frame_creater->SetVsfilterCompactRgbCorrection(true));
             m_xy_str_opt[STRING_YUV_MATRIX] = L"None";
@@ -1605,8 +1605,8 @@ void XySubFilter::SetRgbOutputLevel()
     {
         if (m_xy_int_opt[INT_RGB_OUTPUT_TV_LEVEL] == RGB_OUTPUT_LEVEL_AUTO)
         {
-            if (m_xy_int_opt[INT_CONSUMER_SUPPORTED_LEVELS] == PREFERED_TV ||
-                m_xy_int_opt[INT_CONSUMER_SUPPORTED_LEVELS] == NO_PREFERENCE)
+            if ((m_xy_int_opt[INT_CONSUMER_SUPPORTED_LEVELS] == PREFERED_TV) ||
+                (m_xy_int_opt[INT_CONSUMER_SUPPORTED_LEVELS] == NO_PREFERENCE))
             {
                 CompositionObject::m_output_tv_range_rgb = true;
             }
@@ -1863,7 +1863,7 @@ void XySubFilter::SetSubtitle(ISubStream* pSubStream, const bool fApplyDefStyle 
             m_xy_bool_opt[BOOL_IS_BITMAP] = false;
             m_xy_bool_opt[BOOL_IS_MOVABLE] = ((pRTS->IsMovable()) && ((pRTS->IsSimple()) || (m_xy_bool_opt[BOOL_ALLOW_MOVING])));
         }
-        else if (clsid == __uuidof(HdmvSubtitleProvider) || clsid == __uuidof(SupFileSubtitleProvider))
+        else if ((clsid == __uuidof(HdmvSubtitleProvider)) || (clsid == __uuidof(SupFileSubtitleProvider)))
         {
             CompositionObject::ColorType color_type{ CompositionObject::NONE };
             CompositionObject::YuvRangeType range_type{ CompositionObject::RANGE_NONE };
@@ -2050,7 +2050,7 @@ void XySubFilter::InvalidateSubtitle(const REFERENCE_TIME rtInvalidate /*= -1*/,
     }
     SIZE originalVideoSize;
     GET_PARAM_FROM_CONSUMER(m_consumer->GetSize, "originalVideoSize", &originalVideoSize);
-    if (originalVideoSize.cx == 0 || originalVideoSize.cy == 0)
+    if ((originalVideoSize.cx == 0) || (originalVideoSize.cy == 0))
     {
         return E_UNEXPECTED;
     }
@@ -2226,7 +2226,7 @@ void XySubFilter::UpdatePreferedLanguages(CString l)
 
     CString langs[MAXPREFLANGS + 1];
 
-    int i{ 0 }, j = 0, k = -1;
+    int i{ 0 }, j{ 0 }, k{ -1 };
     for (; i < MAXPREFLANGS; ++i)
     {
         CString tmp;
@@ -2302,7 +2302,7 @@ void XySubFilter::AddSubStream(ISubStream* pSubStream)
         m_fIsSubStreamEmbeded.AddTail(true); // todo: fix me
     }
 
-    int len = m_pSubtitleInputPin.GetCount();
+    int len{ static_cast<int>(m_pSubtitleInputPin.GetCount()) };
     for (unsigned i{ 0U }; i < m_pSubtitleInputPin.GetCount(); ++i)
     {
         if (m_pSubtitleInputPin[i]->IsConnected())
@@ -2346,7 +2346,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 [[nodiscard]] HRESULT XySubFilter::CheckInputType(const CMediaType* pmt)
 {
     CAutoLock cAutolock(&m_csFilter);
-    bool accept_embedded{ m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] == LOADLEVEL_ALWAYS ||
+    bool accept_embedded{ (m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] == LOADLEVEL_ALWAYS) ||
                           ((m_xy_int_opt[INT_LOAD_SETTINGS_LEVEL] != LOADLEVEL_DISABLED) && m_xy_bool_opt[BOOL_LOAD_SETTINGS_EMBEDDED]) };
     return accept_embedded ? S_OK : E_NOT_SET;
 }
@@ -2398,7 +2398,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
         return false;
     }
 
-    if ((level < 0) || (level >= LOADLEVEL_COUNT) || level == LOADLEVEL_DISABLED)
+    if ((level < 0) || (level >= LOADLEVEL_COUNT) || (level == LOADLEVEL_DISABLED))
     {
         XY_LOG_DEBUG("Disabled by load setting: " << XY_LOG_VAR_2_STR(level));
         return false;
@@ -2432,7 +2432,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
     if ((load_external || load_web) && (load_web || !(std::wcsstr(fn, L"http://") || std::wcsstr(fn, L"mms://"))))
     {
         bool fTemp{ m_xy_bool_opt[BOOL_HIDE_SUBTITLES] };
-        fRet = (!fn.IsEmpty() && SUCCEEDED(put_FileName((LPWSTR)(LPCWSTR)fn))) || SUCCEEDED(put_FileName(const_cast<WCHAR*>(L"c:\\tmp.srt")));
+        fRet = (!fn.IsEmpty() && SUCCEEDED(put_FileName(const_cast<LPWSTR>(static_cast<LPCWSTR>(fn))))) || SUCCEEDED(put_FileName(const_cast<WCHAR*>(L"c:\\tmp.srt")));
         if (fTemp)
         {
             m_xy_bool_opt[BOOL_HIDE_SUBTITLES] = true;
@@ -2550,7 +2550,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
     XY_LOG_INFO(pGraph);
     HRESULT hr{ NOERROR };
     CComPtr<ISubRenderConsumer> consumer;
-    ULONG meric{ 0 };
+    ULONG meric{ 0U };
 
 
     CAutoLock cAutolock(&m_csFilter);
@@ -2558,20 +2558,20 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
     {
         BeginEnumFilters(pGraph, pEF, pBF)
         {
-            if (pBF != (IBaseFilter*)this)
+            if (pBF != reinterpret_cast<IBaseFilter*>(this))
             {
                 CComQIPtr<ISubRenderConsumer> new_consumer(pBF);
                 CLSID filterID;
                 hr = pBF->GetClassID(&filterID);
 
-                if (!new_consumer && filterID == CLSID_EnhancedVideoRenderer)
+                if (!new_consumer && (filterID == CLSID_EnhancedVideoRenderer))
                 {
                     // EVR wouldn't implement ISubRenderConsumer itself, but a custom presenter might.
                     CComQIPtr<IMFGetService> evrservices(pBF);
                     if (evrservices)
                     {
                         ISubRenderConsumer* tmpCI{ nullptr };
-                        evrservices->GetService(MR_VIDEO_RENDER_SERVICE, __uuidof(ISubRenderConsumer), (LPVOID*)&tmpCI);
+                        evrservices->GetService(MR_VIDEO_RENDER_SERVICE, __uuidof(ISubRenderConsumer), reinterpret_cast<LPVOID*>(&tmpCI));
                         if (tmpCI)
                         {
                             CComQIPtr<ISubRenderConsumer> tmpconsumer(tmpCI);
@@ -2583,7 +2583,7 @@ void XySubFilter::RemoveSubStream(ISubStream* pSubStream)
 
                 if (new_consumer)
                 {
-                    ULONG new_meric{ 0 };
+                    ULONG new_meric{ 0U };
                     HRESULT hr2{ new_consumer->GetMerit(&new_meric) };
                     if (SUCCEEDED(hr2))
                     {

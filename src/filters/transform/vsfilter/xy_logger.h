@@ -24,20 +24,25 @@
 
 extern int g_log_once_id;
 
-#define CHECK_N_LOG(hr, msg) \
-    if (FAILED(hr))          \
-    XY_LOG_ERROR(msg)
+#define CHECK_N_LOG(hr, msg)   \
+    do                         \
+    {                          \
+        if (FAILED(hr))        \
+        {                      \
+            XY_LOG_ERROR(msg); \
+        }                      \
+    } while (0)
 
 #define XY_RAND_VAR2(v, line) v##line
 #define XY_RAND_VAR(v, line) XY_RAND_VAR2(v, line)
-#define XY_AUTO_TIMING(msg) TimingLogger XY_RAND_VAR(t, __LINE__)(xy_logger::g_logger,                                                          \
-                                                                  ((log4cplus::tostringstream*)&(log4cplus::tostringstream() << msg)) -> str(), \
+#define XY_AUTO_TIMING(msg) TimingLogger XY_RAND_VAR(t, __LINE__)(xy_logger::g_logger,                                                                            \
+                                                                  (reinterpret_cast<log4cplus::tostringstream*>(&(log4cplus::tostringstream() << msg))) -> str(), \
                                                                   __FILE__, __LINE__)
 
 #define XY_LOG_ONCE(id, msg) OnceLogger(id, xy_logger::g_logger, msg, __FILE__, __LINE__)
 #define XY_LOG_ONCE2(msg)                             \
     {                                                 \
-        static bool entered = false;                  \
+        static bool entered{ false };                 \
         if (!entered)                                 \
         {                                             \
             entered = true;                           \
@@ -45,29 +50,29 @@ extern int g_log_once_id;
         }                                             \
     }
 
-#define XY_DO_ONCE(expr)             \
-    do                               \
-    {                                \
-        static bool entered = false; \
-        if (!entered)                \
-        {                            \
-            entered = true;          \
-            {                        \
-                expr;                \
-            }                        \
-        }                            \
+#define XY_DO_ONCE(expr)              \
+    do                                \
+    {                                 \
+        static bool entered{ false }; \
+        if (!entered)                 \
+        {                             \
+            entered = true;           \
+            {                         \
+                expr;                 \
+            }                         \
+        }                             \
     } while (0)
 
 
-#define DO_FOR(num, expr)              \
-    do                                 \
-    {                                  \
-        static int repeat_num = (num); \
-        if (repeat_num > 0)            \
-        {                              \
-            repeat_num--;              \
-            expr;                      \
-        }                              \
+#define DO_FOR(num, expr)               \
+    do                                  \
+    {                                   \
+        static int repeat_num{ (num) }; \
+        if (repeat_num > 0)             \
+        {                               \
+            --repeat_num;               \
+            expr;                       \
+        }                               \
     } while (0)
 
 #else // ENABLE_XY_LOG

@@ -68,8 +68,8 @@ namespace Utf8
     [[nodiscard]] inline static constexpr int characterStart(const unsigned char* buf, const int startingIndex) noexcept
     {
         int charContinuationBytes{ 0 };
-        while (charContinuationBytes < startingIndex // rewind past start of buffer?
-               && (charContinuationBytes < 5)         // UTF-8 support up to 5 continuation bytes (but valid sequences currently do not have more than 3)
+        while ((charContinuationBytes < startingIndex) // rewind past start of buffer?
+               && (charContinuationBytes < 5)          // UTF-8 support up to 5 continuation bytes (but valid sequences currently do not have more than 3)
                && isContinuation(buf[static_cast<std::size_t>(startingIndex - charContinuationBytes)]))
         {
             ++charContinuationBytes;

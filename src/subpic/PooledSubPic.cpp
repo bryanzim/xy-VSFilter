@@ -14,13 +14,13 @@ void CPooledSubPicAllocator::OnItemDestruct(void* Item)
 {
     TRACE_ALLOCATOR(Item);
     CAutoLock lock(&_poolLock);
-    POSITION pos{ _using.Find((CPooledSubPic*)Item) };
+    POSITION pos{ _using.Find(reinterpret_cast<CPooledSubPic*>(Item)) };
     if (pos != nullptr)
     {
         _using.RemoveAt(pos);
         --_capacity;
     }
-    ASSERT(_free.Find((CPooledSubPic*)Item) == nullptr);
+    ASSERT(_free.Find(reinterpret_cast<CPooledSubPic*>(Item)) == nullptr);
 }
 
 [[nodiscard]] bool STDMETHODCALLTYPE CPooledSubPicAllocator::InitPool(int capacity)
@@ -198,18 +198,18 @@ CPooledSubPicAllocator::~CPooledSubPicAllocator()
 
 {
     if ((type == MSP_RGBA) ||
-        (type == MSP_XY_AUYV && _alpha_blt_dst_type == MSP_YUY2) ||
-        (type == MSP_AYUV && _alpha_blt_dst_type == MSP_AYUV) ||
-        (type == MSP_AYUV_PLANAR && (_alpha_blt_dst_type == MSP_IYUV ||
-                                     _alpha_blt_dst_type == MSP_YV12 ||
-                                     _alpha_blt_dst_type == MSP_P010 ||
-                                     _alpha_blt_dst_type == MSP_P016 ||
-                                     _alpha_blt_dst_type == MSP_NV12 ||
-                                     _alpha_blt_dst_type == MSP_NV21 ||
-                                     _alpha_blt_dst_type == MSP_YV16 ||
-                                     _alpha_blt_dst_type == MSP_YV24 ||
-                                     _alpha_blt_dst_type == MSP_P210 ||
-                                     _alpha_blt_dst_type == MSP_P216)))
+        ((type == MSP_XY_AUYV) && (_alpha_blt_dst_type == MSP_YUY2)) ||
+        ((type == MSP_AYUV) && (_alpha_blt_dst_type == MSP_AYUV)) ||
+        ((type == MSP_AYUV_PLANAR) && ((_alpha_blt_dst_type == MSP_IYUV) ||
+                                       (_alpha_blt_dst_type == MSP_YV12) ||
+                                       (_alpha_blt_dst_type == MSP_P010) ||
+                                       (_alpha_blt_dst_type == MSP_P016) ||
+                                       (_alpha_blt_dst_type == MSP_NV12) ||
+                                       (_alpha_blt_dst_type == MSP_NV21) ||
+                                       (_alpha_blt_dst_type == MSP_YV16) ||
+                                       (_alpha_blt_dst_type == MSP_YV24) ||
+                                       (_alpha_blt_dst_type == MSP_P210) ||
+                                       (_alpha_blt_dst_type == MSP_P216))))
     {
         return true;
     }

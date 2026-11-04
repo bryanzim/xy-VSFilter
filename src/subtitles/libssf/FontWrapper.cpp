@@ -52,7 +52,7 @@ namespace ssf
 
     int FontWrapper::GetKernAmount(WCHAR c1, WCHAR c2)
     {
-        int size = 0;
+        int size{ 0 };
         return m_kerning.Lookup((c1 << 16) | c2, size) ? size : 0;
     }
 }

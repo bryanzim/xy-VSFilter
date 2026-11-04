@@ -60,7 +60,7 @@ void SubtitleInputPin2::RemoveSubStream(ISubStream* pSubStream)
 
 void SubtitleInputPin2::InvalidateSubtitle(const REFERENCE_TIME rtStart, ISubStream* pSubStream)
 {
-    xy_sub_filter->InvalidateSubtitle(rtStart, (DWORD_PTR)(ISubStream*)pSubStream);
+    xy_sub_filter->InvalidateSubtitle(rtStart, reinterpret_cast<DWORD_PTR>(pSubStream));
 }
 
 [[nodiscard]] DECLSPEC_NOTHROW STDMETHODIMP_(CSubtitleInputPinHelper*) SubtitleInputPin2::CreateHelper(const CMediaType& mt, IPin* pReceivePin)
@@ -68,7 +68,7 @@ void SubtitleInputPin2::InvalidateSubtitle(const REFERENCE_TIME rtStart, ISubStr
     if (IsHdmvSub(&mt))
     {
         XY_LOG_INFO("Create CHdmvInputPinHepler2");
-        SUBTITLEINFO* psi{ (SUBTITLEINFO*)mt.pbFormat };
+        SUBTITLEINFO* psi{ reinterpret_cast<SUBTITLEINFO*>(mt.pbFormat) };
         CString name;
         LCID lcid{ 0 };
 

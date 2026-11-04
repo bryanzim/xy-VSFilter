@@ -122,7 +122,7 @@ void SeparableFilterY(unsigned char* src, unsigned char* dst, int width, const i
 [[nodiscard]] static inline double NormalDist(const double sigma, const double x)
 
 {
-    if ((sigma <= 0) && x == 0)
+    if ((sigma <= 0) && (x == 0))
     {
         return 1;
     }

@@ -258,7 +258,7 @@ void CStyleEditorPPage::OnBnClickedButton1()
         }
         m_font.SetWindowText(str);
 
-        for (int i{ 0 }, j = m_charset.GetCount(); i < j; ++i)
+        for (int i{ 0 }, j{ static_cast<int>(m_charset.GetCount()) }; i < j; ++i)
         {
             if (m_charset.GetItemData(i) == lf.lfCharSet)
             {
@@ -311,7 +311,7 @@ void CStyleEditorPPage::OnHScroll(const UINT nSBCode, const UINT nPos, CScrollBa
 {
     if (m_linkalphasliders && pScrollBar)
     {
-        int pos{ ((CSliderCtrl*)pScrollBar)->GetPos() };
+        int pos{ (reinterpret_cast<CSliderCtrl*>(pScrollBar))->GetPos() };
         for (int i{ 0 }; i < 4; ++i)
         {
             m_alphasliders[i].SetPos(pos);

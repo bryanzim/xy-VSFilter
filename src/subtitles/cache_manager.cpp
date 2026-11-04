@@ -39,7 +39,7 @@ inline void AddFuncCalls([[maybe_unused]] int func)
 
 ULONG PathDataTraits::Hash(const PathData& key)
 {
-    ULONG hash{ 515 };
+    ULONG hash{ 515U };
     hash += (hash << 5);
     hash += key.mPathPoints;
     for (int i{ 0 }; i < key.mPathPoints; ++i)
@@ -59,7 +59,7 @@ ULONG PathDataTraits::Hash(const PathData& key)
 
 [[nodiscard]] ULONG ClipperTraits::Hash(const CClipper& key)
 {
-    ULONG hash = key.m_polygon->m_str.GetId();
+    ULONG hash{ static_cast<ULONG>(key.m_polygon->m_str.GetId()) };
     hash += (hash << 5);
     hash += key.m_inverse;
     hash += (hash << 5);
@@ -73,12 +73,12 @@ ULONG PathDataTraits::Hash(const PathData& key)
     hash += (hash << 5);
     hash += hash_value(key.m_polygon->m_scaley);
 
-    for (std::size_t i{ 0 }; i < sizeof(key.m_effect.param) / sizeof(key.m_effect.param[0U]); ++i)
+    for (std::size_t i{ 0U }; i < sizeof(key.m_effect.param) / sizeof(key.m_effect.param[0U]); ++i)
     {
         hash += (hash << 5);
         hash += key.m_effect.param[i];
     }
-    for (std::size_t i{ 0 }; i < sizeof(key.m_effect.t) / sizeof(key.m_effect.t[0U]); ++i)
+    for (std::size_t i{ 0U }; i < sizeof(key.m_effect.t) / sizeof(key.m_effect.t[0U]); ++i)
     {
         hash += (hash << 5);
         hash += key.m_effect.t[i];
@@ -93,7 +93,7 @@ ULONG PathDataTraits::Hash(const PathData& key)
 [[nodiscard]] bool TextInfoCacheKey::operator==(const TextInfoCacheKey& key) const
 {
     AddFuncCalls(TextInfoCacheKey_EQUAL);
-    return m_str_id == key.m_str_id && m_text_renderer_mode == key.m_text_renderer_mode && (m_style == key.m_style || (static_cast<const STSStyleBase&>(m_style).operator==(key.m_style) && m_style.get().fontScaleX == key.m_style.get().fontScaleX && m_style.get().fontScaleY == key.m_style.get().fontScaleY && m_style.get().fontSpacing == key.m_style.get().fontSpacing));
+    return (m_str_id == key.m_str_id) && (m_text_renderer_mode == key.m_text_renderer_mode) && ((m_style == key.m_style) || ((static_cast<const STSStyleBase&>(m_style).operator==(key.m_style)) && (m_style.get().fontScaleX == key.m_style.get().fontScaleX) && (m_style.get().fontScaleY == key.m_style.get().fontScaleY) && (m_style.get().fontSpacing == key.m_style.get().fontSpacing)));
 }
 
 [[nodiscard]] ULONG TextInfoCacheKey::UpdateHashValue()
@@ -119,14 +119,14 @@ ULONG PathDataTraits::Hash(const PathData& key)
 [[nodiscard]] bool PathDataCacheKey::CompareSTSStyle(const STSStyle& lhs, const STSStyle& rhs)
 
 {
-    return lhs.charSet == rhs.charSet &&
-           lhs.fontName == rhs.fontName &&
-           lhs.fontSize == rhs.fontSize &&
-           lhs.fontSpacing == rhs.fontSpacing &&
-           lhs.fontWeight == rhs.fontWeight &&
-           lhs.fItalic == rhs.fItalic &&
-           lhs.fUnderline == rhs.fUnderline &&
-           lhs.fStrikeOut == rhs.fStrikeOut;
+    return (lhs.charSet == rhs.charSet) &&
+           (lhs.fontName == rhs.fontName) &&
+           (lhs.fontSize == rhs.fontSize) &&
+           (lhs.fontSpacing == rhs.fontSpacing) &&
+           (lhs.fontWeight == rhs.fontWeight) &&
+           (lhs.fItalic == rhs.fItalic) &&
+           (lhs.fUnderline == rhs.fUnderline) &&
+           (lhs.fStrikeOut == rhs.fStrikeOut);
 }
 
 [[nodiscard]] ULONG PathDataCacheKey::UpdateHashValue()
@@ -166,7 +166,7 @@ ULONG PathDataTraits::Hash(const PathData& key)
 [[nodiscard]] bool ScanLineData2CacheKey::operator==(const ScanLineData2CacheKey& key) const
 {
     AddFuncCalls(ScanLineData2CacheKey_EQUAL);
-    return this->m_style.get().borderStyle == key.m_style.get().borderStyle && (std::fabs(this->m_style.get().outlineWidthX - key.m_style.get().outlineWidthX) < 0.000001) && (std::fabs(this->m_style.get().outlineWidthY - key.m_style.get().outlineWidthY) < 0.000001) && (std::fabs(this->m_style.get().fontScaleX - key.m_style.get().fontScaleX) < 0.000001) && (std::fabs(this->m_style.get().fontScaleY - key.m_style.get().fontScaleY) < 0.000001) && (std::fabs(this->m_style.get().fontAngleX - key.m_style.get().fontAngleX) < 0.000001) && (std::fabs(this->m_style.get().fontAngleY - key.m_style.get().fontAngleY) < 0.000001) && (std::fabs(this->m_style.get().fontAngleZ - key.m_style.get().fontAngleZ) < 0.000001) && (std::fabs(this->m_style.get().fontShiftX - key.m_style.get().fontShiftX) < 0.000001) && (std::fabs(this->m_style.get().fontShiftY - key.m_style.get().fontShiftY) < 0.000001) && (m_org.x == key.m_org.x) && (m_org.y == key.m_org.y) && PathDataCacheKey::operator==(key); // NOTE: static_cast will call copy constructer to construct a tmp obj
+    return (this->m_style.get().borderStyle == key.m_style.get().borderStyle) && (std::fabs(this->m_style.get().outlineWidthX - key.m_style.get().outlineWidthX) < 0.000001) && (std::fabs(this->m_style.get().outlineWidthY - key.m_style.get().outlineWidthY) < 0.000001) && (std::fabs(this->m_style.get().fontScaleX - key.m_style.get().fontScaleX) < 0.000001) && (std::fabs(this->m_style.get().fontScaleY - key.m_style.get().fontScaleY) < 0.000001) && (std::fabs(this->m_style.get().fontAngleX - key.m_style.get().fontAngleX) < 0.000001) && (std::fabs(this->m_style.get().fontAngleY - key.m_style.get().fontAngleY) < 0.000001) && (std::fabs(this->m_style.get().fontAngleZ - key.m_style.get().fontAngleZ) < 0.000001) && (std::fabs(this->m_style.get().fontShiftX - key.m_style.get().fontShiftX) < 0.000001) && (std::fabs(this->m_style.get().fontShiftY - key.m_style.get().fontShiftY) < 0.000001) && (m_org.x == key.m_org.x) && (m_org.y == key.m_org.y) && (PathDataCacheKey::operator==(key)); // NOTE: static_cast will call copy constructer to construct a tmp obj
 }
 
 [[nodiscard]] ULONG ScanLineData2CacheKey::UpdateHashValue()
@@ -201,7 +201,7 @@ ULONG PathDataTraits::Hash(const PathData& key)
     // static_cast will call copy constructer to construct a tmp obj
     // return (static_cast<ScanLineDataCacheKey>(*this)==static_cast<ScanLineDataCacheKey>(key))
     //     && (m_p.x==key.m_p.x) && (m_p.y==key.m_p.y);
-    return (m_p.x == key.m_p.x) && (m_p.y == key.m_p.y) && ScanLineData2CacheKey::operator==(key);
+    return (m_p.x == key.m_p.x) && (m_p.y == key.m_p.y) && (ScanLineData2CacheKey::operator==(key));
 }
 
 [[nodiscard]] ULONG OverlayNoBlurKey::UpdateHashValue()
@@ -222,7 +222,7 @@ ULONG PathDataTraits::Hash(const PathData& key)
 [[nodiscard]] bool OverlayKey::operator==(const OverlayKey& key) const
 {
     AddFuncCalls(OverlayKey_EQUAL);
-    return (std::fabs(this->m_style.get().fGaussianBlur - key.m_style.get().fGaussianBlur) < 0.000001) && (std::fabs(this->m_style.get().fBlur - key.m_style.get().fBlur) < 0.000001) && OverlayNoBlurKey::operator==(key);
+    return (std::fabs(this->m_style.get().fGaussianBlur - key.m_style.get().fGaussianBlur) < 0.000001) && (std::fabs(this->m_style.get().fBlur - key.m_style.get().fBlur) < 0.000001) && (OverlayNoBlurKey::operator==(key));
     // static_cast will call copy constructer to construct a tmp obj
     // return ((CWordCacheKey)(*this)==(CWordCacheKey)key) && (m_p.x==key.m_p.x) && (m_p.y==key.m_p.y)
     //         && (m_org.x==key.m_org.x) && (m_org.y==key.m_org.y);
@@ -262,8 +262,8 @@ ULONG PathDataTraits::Hash(const PathData& key)
 [[nodiscard]] bool OverlayNoOffsetKey::operator==(const OverlayNoOffsetKey& key) const
 {
     AddFuncCalls(OverlayNoOffsetKey_EQUAL);
-    return (this == &key) || (this->m_border == key.m_border && this->m_rasterize_sub == key.m_rasterize_sub &&
-                              ScanLineDataCacheKey::operator==(key));
+    return (this == &key) || ((this->m_border == key.m_border) && (this->m_rasterize_sub == key.m_rasterize_sub) &&
+                              (ScanLineDataCacheKey::operator==(key)));
 }
 
 [[nodiscard]] ULONG OverlayNoOffsetKey::UpdateHashValue()
@@ -293,7 +293,7 @@ ULONG PathDataTraits::Hash(const PathData& key)
     {
         const CClipper& lhs{ *m_clipper };
         const CClipper& rhs{ *key.m_clipper };
-        result = (lhs.m_polygon->m_str.GetId() == rhs.m_polygon->m_str.GetId() && (std::fabs(lhs.m_polygon->m_scalex - rhs.m_polygon->m_scalex) < 0.000001) && (std::fabs(lhs.m_polygon->m_scaley - rhs.m_polygon->m_scaley) < 0.000001) && lhs.m_size == rhs.m_size && lhs.m_inverse == rhs.m_inverse && lhs.m_effectType == rhs.m_effectType && lhs.m_effect == rhs.m_effect); // fix me: unsafe code
+        result = ((lhs.m_polygon->m_str.GetId() == rhs.m_polygon->m_str.GetId()) && (std::fabs(lhs.m_polygon->m_scalex - rhs.m_polygon->m_scalex) < 0.000001) && (std::fabs(lhs.m_polygon->m_scaley - rhs.m_polygon->m_scaley) < 0.000001) && (lhs.m_size == rhs.m_size) && (lhs.m_inverse == rhs.m_inverse) && (lhs.m_effectType == rhs.m_effectType) && (lhs.m_effect == rhs.m_effect)); // fix me: unsafe code
     }
     return result;
 }
@@ -345,14 +345,14 @@ DrawItemHashKey::DrawItemHashKey(const DrawItem& draw_item)
 [[nodiscard]] bool DrawItemHashKey::operator==(const DrawItemHashKey& key) const
 {
     AddFuncCalls(DrawItemHashKey_EQUAL);
-    return (this == &key) || ((m_clip_rect == key.m_clip_rect) == TRUE &&
-                              m_xsub == key.m_xsub &&
-                              m_ysub == key.m_ysub &&
-                              m_fBody == key.m_fBody &&
-                              m_fBorder == key.m_fBorder &&
+    return (this == &key) || (((m_clip_rect == key.m_clip_rect) == TRUE) &&
+                              (m_xsub == key.m_xsub) &&
+                              (m_ysub == key.m_ysub) &&
+                              (m_fBody == key.m_fBody) &&
+                              (m_fBorder == key.m_fBorder) &&
                               !std::memcmp(m_switchpts, key.m_switchpts, sizeof(m_switchpts)) &&
-                              *m_overlay_key == *key.m_overlay_key &&
-                              m_clipper_key == key.m_clipper_key);
+                              (*m_overlay_key == *key.m_overlay_key) &&
+                              (m_clipper_key == key.m_clipper_key));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
